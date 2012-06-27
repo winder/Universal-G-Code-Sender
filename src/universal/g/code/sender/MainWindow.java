@@ -80,6 +80,7 @@ public class MainWindow extends javax.swing.JFrame {
         lineBreakRN.setSelected(true);
         lineBreakRN.setText("\\r\\n");
 
+        commandTextField.setEnabled(false);
         commandTextField.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 commandTextFieldActionPerformed(evt);
@@ -171,6 +172,7 @@ public class MainWindow extends javax.swing.JFrame {
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("File transfer"));
 
         browseButton.setText("Browse");
+        browseButton.setEnabled(false);
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -304,26 +306,22 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        // TODO add your handling code here:
+                        String str = this.commandTextField.getText().replaceAll("(\\r|\\n)", "");
+                        this.consoleTextArea.append(">>> "+str+"\n");
+                        this.commPort.sendCommandToComm(str + getNewline());
+                        this.commandTextField.setText("");
+                        
+                        if (this.commPort.isCommPortOpen() == false) {
+                            this.closeButtonAction();
+                            JOptionPane.showMessageDialog(new JFrame(), "The serial port closed unexpectedly.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
         System.out.println("Trying to open port: '"+commPortComboBox.getSelectedItem().toString()+"'");
-        commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600, consoleTextArea);
-        /*
-        serialPort1.PortName = comboBox1.SelectedItem.ToString();
-        serialPort1.BaudRate = 9600;
-
-        serialPort1.Open();
-        if (serialPort1.IsOpen) {
-            comboBox1.Enabled = false;
-            ReloadBtn.Enabled = false;
-            StartBtn.Enabled = false;
-            StopBtn.Enabled = true;
-            textBox3.ReadOnly = false;
-            enableControlsForPrinting();
-        }
-        */
+        boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600, consoleTextArea);
+        
+        this.updateControlsForComm(ret);
     }//GEN-LAST:event_openButtonActionPerformed
 
     private void commPortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commPortComboBoxActionPerformed
@@ -344,21 +342,14 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_browseButtonActionPerformed
     
-    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+    private void closeButtonAction() {
+        this.commPort.closeCommPort();
+        this.updateControlsForComm(false);
+        this.consoleTextArea.append("**** Connection closed ****");
 
-        /*
-        if (serialPort1.IsOpen) {
-            serialPort1.Close();
-            comboBox1.Enabled = true;
-            ReloadBtn.Enabled = true;
-            StartBtn.Enabled = true;
-            StopBtn.Enabled = false;
-            textBox3.ReadOnly = true;
-            transfer = false;
-            disableControlsForPrinting();
-            BrowseBtn.Enabled = true;
-            stopPrintBtn.Enabled = false;
-        }*/
+    }
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        closeButtonAction();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     /**
@@ -403,18 +394,46 @@ public class MainWindow extends javax.swing.JFrame {
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new GcodeFileTypeFilter());
         commPort = new CommPortHelper();
-        
-        // Hook into command text field so that enter sends the command.
-        commandTextField.addActionListener(
-                new ActionListener(){
-                    public void actionPerformed(ActionEvent e){
-                        String str = commandTextField.getText().replaceAll("(\\r|\\n)", "");
-                        consoleTextArea.append(">>> "+str+"\n");
-                        commPort.sendCommandToComm(str + getNewline());
-                        commandTextField.setText("");
-                    }});
     }
     // Utility functions.
+    
+    private void updateControlsForComm(boolean isOpen) {
+        if (isOpen) {
+            this.commPortComboBox.setEnabled(false);
+            this.refreshButton.setEnabled(false);
+            this.openButton.setEnabled(false);
+            this.closeButton.setEnabled(true);
+            this.commandTextField.setEnabled(true);
+        } else {
+            this.commPortComboBox.setEnabled(true);
+            this.refreshButton.setEnabled(true);
+            this.openButton.setEnabled(true);
+            this.closeButton.setEnabled(false);
+            this.commandTextField.setEnabled(false);
+
+            //transfer = false;
+        }
+        
+        this.updateFileControlsForComm(isOpen);
+    }
+    
+    private void updateFileControlsForComm(boolean isOpen) {
+        if (isOpen) {
+            this.stopButton.setEnabled(true);
+            this.printButton.setEnabled(true);
+            this.browseButton.setEnabled(true);
+            this.overrideSpeedCheckBox.setEnabled(true);
+            this.overrideSpeedValueSpinner.setEnabled(true);
+            this.fileTextField.setEnabled(true);
+        } else {
+            this.stopButton.setEnabled(false);
+            this.printButton.setEnabled(false);
+            this.browseButton.setEnabled(false);
+            this.overrideSpeedCheckBox.setEnabled(false);
+            this.overrideSpeedValueSpinner.setEnabled(false);
+            this.fileTextField.setEnabled(false);
+        }
+    }
     
     // Scans for comm ports and puts them in the comm port combo box.
     private void loadPortSelector() {
