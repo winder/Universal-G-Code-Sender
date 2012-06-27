@@ -5,29 +5,36 @@
 package universal.g.code.sender;
 
 import gnu.io.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.TooManyListenersException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JTextArea;
 
 /**
  *
  * @author wwinder
  */
-public class CommPortHelper {
-    
+public class CommPortHelper implements SerialPortEventListener{
+        public static final int GRBL_RX_BUFFER_SIZE= 128;
+        
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
+    StringBuffer commandStream;
     private JTextArea outputConsole;
+    private SerialWriter serialWriter;
+    private Thread serialWriterThread;
+    private boolean fileMode = false;
     
     // On OSX must run create /var/lock for some reason:
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
     boolean openCommPort(String name, int baud, JTextArea serialInputArea) {
         this.outputConsole = serialInputArea;
-        boolean returnCode = false;
+        this.commandStream = new StringBuffer();
+        boolean returnCode;
         try {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
             
@@ -38,16 +45,22 @@ public class CommPortHelper {
                     
                     SerialPort serialPort = (SerialPort) this.commPort;
                     serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-
+                                        
+                    // Launch the writer thread.
+                    this.serialWriter= new SerialWriter(this.commandStream);
+                    this.serialWriterThread= new Thread(this.serialWriter);
+                    this.serialWriterThread.start();
+                    
                     this.in = serialPort.getInputStream();
-                    this.out = serialPort.getOutputStream();
-
-                    serialPort.addEventListener(new SerialReader(in, serialInputArea));
+                    
+                    serialPort.addEventListener(this);
                     serialPort.notifyOnDataAvailable(true);  
                     serialPort.notifyOnBreakInterrupt(true);
             }
             
             returnCode = true;
+            
+        // Is this nonsense really how Java developers deal with excpetions???
         } catch (NoSuchPortException ex) {
             returnCode = false;
             System.out.println("No such port exception.");
@@ -74,7 +87,7 @@ public class CommPortHelper {
 
         return returnCode;
     }
-    
+        
     void closeCommPort() {
 
         SerialPort serialPort = (SerialPort) this.commPort;
@@ -83,17 +96,14 @@ public class CommPortHelper {
 
     }
     
+    // Puts a command in the command buffer, the SerialWriter class should pick
+    // it up and send it to the serial device.
     void sendCommandToComm(String command) {
         
         String str = command;
-        
-        
+        this.commandStream.append(command);
         System.out.println("Command sent to comm: '"+str.replaceAll("\\r\\n|\\r|\\n", "")+"'");
-
-        // Write command to output stream.
-        PrintStream printStream = new PrintStream(out);
-        printStream.print(command);
-        printStream.close();
+    
     }
     
     // TODO: Figure out how this thing can detect it is disconnected...
@@ -132,32 +142,18 @@ public class CommPortHelper {
         return returnList;
     }
 
+    @Override
+    // Reads data as it is returned by the serial port.
+    public void serialEvent(SerialPortEvent arg0) {
+        int data;
+        byte[] buffer = new byte[1024];
 
-    /**
-     * Handles the input coming from the serial port. All output is written
-     * directly to the JTextArea. It would be nice if JTextArea had nothing to
-     * do with this class... but that would require learning java.
-     */
-    class SerialReader implements SerialPortEventListener 
-    {
-        private InputStream in;
-        private byte[] buffer = new byte[1024];
-        private JTextArea outputConsole;
-        
-        public SerialReader ( InputStream in , JTextArea output)
-        {
-            this.in = in;
-            this.outputConsole = output;
-        }
-        
-        public void serialEvent(SerialPortEvent arg0) {
-            int data;
-
-            if (arg0.getEventType() == SerialPortEvent.BI) {
-                String str = "**** Connection closed, serial reader exiting ****";
-                this.outputConsole.append(str + '\n');
-                System.exit(-1);
-            } else if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+        //if (arg0.getEventType() == SerialPortEvent.BI) {
+        //    String str = "**** Connection closed, serial reader exiting ****";
+        //    this.outputConsole.append(str + '\n');
+        //    System.exit(-1);
+        //} else if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+        if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try
             {
                 int len = 0;
@@ -169,7 +165,96 @@ public class CommPortHelper {
                     buffer[len++] = (byte) data;
                 }
 
-                this.outputConsole.append(new String(buffer,0,len) + '\n');
+                if (fileMode) {
+                    // Call fileMode data handler.
+                } else {
+                    // Print it right to the GUI.
+                    String output = new String(buffer,0,len) + '\n';
+                    this.outputConsole.append(output);
+                }
+            }
+            catch ( IOException e )
+            {
+                e.printStackTrace();
+                System.exit(-1);
+            }
+        }
+    }
+
+    
+    public class SerialWriter implements Runnable {
+        private StringBuffer lineBuffer;
+        public boolean exit = false;
+
+        public SerialWriter(StringBuffer lineBuffer) {
+            this.lineBuffer = lineBuffer;
+        }
+
+        public void run() {
+            String s;
+            while (!exit) {
+                if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
+                    s = lineBuffer.toString();
+                    lineBuffer.setLength(0);
+                } else {
+                    s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
+                    lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
+                }
+
+                
+                PrintStream printStream = new PrintStream(out);
+                printStream.print(s);
+                printStream.close();
+                //s= lineBuffer.getNextToSend().line;
+                //if(!resetting)
+                //send((s + "\n").getBytes());
+            }
+        }
+    }
+    /**
+     * Handles the input coming from the serial port. All output is written
+     * directly to the JTextArea. It would be nice if JTextArea had nothing to
+     * do with this class... but that would require learning java.
+     */
+    @Deprecated
+    class SerialReader implements SerialPortEventListener 
+    {
+        private InputStream in;
+        private byte[] buffer = new byte[1024];
+        private StringBuffer outputStream;
+        private JTextArea outputConsole;
+        
+        public SerialReader ( InputStream in , StringBuffer stringOutput, JTextArea consoleOutput)
+        {
+            this.in = in;
+            this.outputConsole = consoleOutput;
+            this.outputStream = stringOutput;
+        }
+        
+        @Override
+        public void serialEvent(SerialPortEvent arg0) {
+            int data;
+
+            //if (arg0.getEventType() == SerialPortEvent.BI) {
+            //    String str = "**** Connection closed, serial reader exiting ****";
+            //    this.outputConsole.append(str + '\n');
+            //    System.exit(-1);
+            //} else if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+            if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+            try
+            {
+                int len = 0;
+                while ( ( data = in.read()) > -1 )
+                {
+                    if ( data == '\n' ) {
+                        break;
+                    }
+                    buffer[len++] = (byte) data;
+                }
+
+                    String output = new String(buffer,0,len) + '\n';
+                    this.outputConsole.append(output);
+                    this.outputStream.append(output);
             }
             catch ( IOException e )
             {

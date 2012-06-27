@@ -11,9 +11,8 @@
 package universal.g.code.sender;
 
 import gnu.io.CommPortIdentifier;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -136,7 +135,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .add(openButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(closeButton)
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(0, 110, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -233,7 +232,7 @@ public class MainWindow extends javax.swing.JFrame {
                                 .add(rowsLabel)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(rowsValueLabel)))
-                        .add(0, 231, Short.MAX_VALUE)))
+                        .add(0, 121, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -269,10 +268,13 @@ public class MainWindow extends javax.swing.JFrame {
                     .add(jScrollPane2)
                     .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(scrollWindowCheckBox)
-                            .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .add(layout.createSequentialGroup()
+                                .add(scrollWindowCheckBox)
+                                .add(0, 0, Short.MAX_VALUE))
+                            .add(layout.createSequentialGroup()
+                                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -292,7 +294,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
+    /** End of generated code.
+     */
+    
+    /** Generated callback functions, hand coded.
+     */
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
         if (scrollWindowCheckBox.isSelected()) {
@@ -310,6 +316,7 @@ public class MainWindow extends javax.swing.JFrame {
                         this.consoleTextArea.append(">>> "+str+"\n");
                         this.commPort.sendCommandToComm(str + getNewline());
                         this.commandTextField.setText("");
+                        this.commandList.add(str);
                         
                         if (this.commPort.isCommPortOpen() == false) {
                             this.closeButtonAction();
@@ -390,10 +397,11 @@ public class MainWindow extends javax.swing.JFrame {
     }
     
     private void initProgram() {
-        loadPortSelector();
-        fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new GcodeFileTypeFilter());
-        commPort = new CommPortHelper();
+        this.loadPortSelector();
+        this.fileChooser = new JFileChooser();
+        this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
+        this.commPort = new CommPortHelper();
+        this.commandList = new ArrayList<String>();
     }
     // Utility functions.
     
@@ -437,7 +445,6 @@ public class MainWindow extends javax.swing.JFrame {
     
     // Scans for comm ports and puts them in the comm port combo box.
     private void loadPortSelector() {
-        System.out.println("loadPortSelector...");
         commPortComboBox.removeAllItems();
         
         List<CommPortIdentifier> portList =
@@ -503,10 +510,13 @@ public class MainWindow extends javax.swing.JFrame {
             return "wtfbbq";
     }
     
+    // My Variables
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
     private CommPortHelper commPort;
+    private List<String> commandList;
     
+    // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
     private javax.swing.JButton closeButton;
