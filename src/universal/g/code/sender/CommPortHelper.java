@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.TooManyListenersException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTextArea;
 
 /**
@@ -45,17 +47,18 @@ public class CommPortHelper implements SerialPortEventListener{
                     
                     SerialPort serialPort = (SerialPort) this.commPort;
                     serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-                                        
-                    // Launch the writer thread.
-                    this.serialWriter= new SerialWriter(this.commandStream);
-                    this.serialWriterThread= new Thread(this.serialWriter);
-                    this.serialWriterThread.start();
-                    
+                                                            
                     this.in = serialPort.getInputStream();
-                    
+                    this.out = serialPort.getOutputStream();
                     serialPort.addEventListener(this);
                     serialPort.notifyOnDataAvailable(true);  
                     serialPort.notifyOnBreakInterrupt(true);
+                    
+                    // Launch the writer thread.
+                    this.serialWriter= new SerialWriter(out, this.commandStream);
+                    this.serialWriterThread= new Thread(this.serialWriter);
+                    this.serialWriterThread.start();
+
             }
             
             returnCode = true;
@@ -184,30 +187,40 @@ public class CommPortHelper implements SerialPortEventListener{
     
     public class SerialWriter implements Runnable {
         private StringBuffer lineBuffer;
+        private OutputStream out;
         public boolean exit = false;
 
-        public SerialWriter(StringBuffer lineBuffer) {
+        public SerialWriter(OutputStream os, StringBuffer lineBuffer) {
+            this.out = os;
             this.lineBuffer = lineBuffer;
         }
 
-        public void run() {
-            String s;
-            while (!exit) {
-                if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
-                    s = lineBuffer.toString();
-                    lineBuffer.setLength(0);
-                } else {
-                    s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
-                    lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
-                }
+        synchronized public void run() {
+            try {
+                String s;
+                while (!exit) {
+                    if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
+                        s = lineBuffer.toString();
+                        lineBuffer.setLength(0);
+                    } else {
+                        s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
+                        lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
+                    }
 
-                
-                PrintStream printStream = new PrintStream(out);
-                printStream.print(s);
-                printStream.close();
-                //s= lineBuffer.getNextToSend().line;
-                //if(!resetting)
-                //send((s + "\n").getBytes());
+                    if (s.length() > 0) {
+                        PrintStream printStream = new PrintStream(this.out);
+                        printStream.print(s);
+                        printStream.close();
+                        //s= lineBuffer.getNextToSend().line;
+                        //if(!resetting)
+                        //send((s + "\n").getBytes());
+                    }
+                    this.wait(1000);
+                }
+            } catch (InterruptedException ex) {
+                System.out.println("SerialWriter thread died.");
+                ex.printStackTrace();
+                System.exit(-1);
             }
         }
     }
