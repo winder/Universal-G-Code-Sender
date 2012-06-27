@@ -11,11 +11,14 @@
 package universal.g.code.sender;
 
 import gnu.io.CommPortIdentifier;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.text.DefaultCaret;
 
 /**
  *
@@ -49,7 +52,7 @@ public class MainWindow extends javax.swing.JFrame {
         openButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        consoleTextArea = new javax.swing.JTextArea();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         browseButton = new javax.swing.JButton();
@@ -104,6 +107,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         closeButton.setText("Close");
         closeButton.setEnabled(false);
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -149,9 +157,9 @@ public class MainWindow extends javax.swing.JFrame {
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        consoleTextArea.setColumns(20);
+        consoleTextArea.setRows(5);
+        jScrollPane2.setViewportView(consoleTextArea);
 
         scrollWindowCheckBox.setText("Scroll output window");
         scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -223,7 +231,7 @@ public class MainWindow extends javax.swing.JFrame {
                                 .add(rowsLabel)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(rowsValueLabel)))
-                        .add(0, 110, Short.MAX_VALUE)))
+                        .add(0, 231, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -276,7 +284,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .add(scrollWindowCheckBox))
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -284,7 +292,15 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
-        // TODO add your handling code here:
+        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
+        if (scrollWindowCheckBox.isSelected()) {
+            System.out.println("SCROLL ON...");
+          caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+          consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
+        } else {
+            System.out.println("SCROLL OFF...");
+            caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        }
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
@@ -292,7 +308,22 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
+        System.out.println("Trying to open port: '"+commPortComboBox.getSelectedItem().toString()+"'");
+        commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600, consoleTextArea);
+        /*
+        serialPort1.PortName = comboBox1.SelectedItem.ToString();
+        serialPort1.BaudRate = 9600;
 
+        serialPort1.Open();
+        if (serialPort1.IsOpen) {
+            comboBox1.Enabled = false;
+            ReloadBtn.Enabled = false;
+            StartBtn.Enabled = false;
+            StopBtn.Enabled = true;
+            textBox3.ReadOnly = false;
+            enableControlsForPrinting();
+        }
+        */
     }//GEN-LAST:event_openButtonActionPerformed
 
     private void commPortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commPortComboBoxActionPerformed
@@ -312,6 +343,23 @@ public class MainWindow extends javax.swing.JFrame {
             System.out.println("Open command cancelled by user.");
         }
     }//GEN-LAST:event_browseButtonActionPerformed
+    
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+
+        /*
+        if (serialPort1.IsOpen) {
+            serialPort1.Close();
+            comboBox1.Enabled = true;
+            ReloadBtn.Enabled = true;
+            StartBtn.Enabled = true;
+            StopBtn.Enabled = false;
+            textBox3.ReadOnly = true;
+            transfer = false;
+            disableControlsForPrinting();
+            BrowseBtn.Enabled = true;
+            stopPrintBtn.Enabled = false;
+        }*/
+    }//GEN-LAST:event_closeButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -354,6 +402,17 @@ public class MainWindow extends javax.swing.JFrame {
         loadPortSelector();
         fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new GcodeFileTypeFilter());
+        commPort = new CommPortHelper();
+        
+        // Hook into command text field so that enter sends the command.
+        commandTextField.addActionListener(
+                new ActionListener(){
+                    public void actionPerformed(ActionEvent e){
+                        String str = commandTextField.getText().replaceAll("(\\r|\\n)", "");
+                        consoleTextArea.append(">>> "+str+"\n");
+                        commPort.sendCommandToComm(str + getNewline());
+                        commandTextField.setText("");
+                    }});
     }
     // Utility functions.
     
@@ -416,8 +475,18 @@ public class MainWindow extends javax.swing.JFrame {
         rowsValueLabel.setText(numRows.toString());
     }
     
+    private String getNewline() {
+        if (lineBreakNR.isSelected())
+            return "\n\r";
+        else if (lineBreakRN.isSelected())
+            return "\r\n";
+        else
+            return "wtfbbq";
+    }
+    
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
+    private CommPortHelper commPort;
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
@@ -425,12 +494,12 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
     private javax.swing.JTextField commandTextField;
+    private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JRadioButton lineBreakNR;
     private javax.swing.JRadioButton lineBreakRN;
