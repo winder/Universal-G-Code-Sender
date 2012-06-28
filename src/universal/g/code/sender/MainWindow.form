@@ -87,8 +87,10 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
+                          <Component id="lineBreakN" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="lineBreakNR" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="lineBreakRN" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -113,6 +115,7 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="lineBreakNR" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="lineBreakRN" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="lineBreakN" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="commandLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   </Group>
@@ -191,6 +194,17 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="closeButtonActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="lineBreakN">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="lineBreakGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="\u005cn" containsInvalidXMLChars="true"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineBreakNActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
@@ -310,6 +324,9 @@
             <Property name="text" type="java.lang.String" value="Print"/>
             <Property name="enabled" type="boolean" value="false"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="printButtonActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="stopButton">
           <Properties>

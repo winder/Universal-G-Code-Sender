@@ -50,6 +50,7 @@ public class MainWindow extends javax.swing.JFrame {
         refreshButton = new javax.swing.JButton();
         openButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
+        lineBreakN = new javax.swing.JRadioButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
@@ -113,6 +114,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        lineBreakGroup.add(lineBreakN);
+        lineBreakN.setText("\\n");
+        lineBreakN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineBreakNActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -124,8 +133,10 @@ public class MainWindow extends javax.swing.JFrame {
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(lineBreakN)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lineBreakNR)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lineBreakRN))
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -144,7 +155,8 @@ public class MainWindow extends javax.swing.JFrame {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(lineBreakNR)
-                        .add(lineBreakRN))
+                        .add(lineBreakRN)
+                        .add(lineBreakN))
                     .add(commandLabel))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -180,6 +192,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         printButton.setText("Print");
         printButton.setEnabled(false);
+        printButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                printButtonActionPerformed(evt);
+            }
+        });
 
         stopButton.setText("Stop");
         stopButton.setEnabled(false);
@@ -312,9 +329,9 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-                        String str = this.commandTextField.getText().replaceAll("(\\r|\\n)", "");
+                        String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
                         this.consoleTextArea.append(">>> "+str+"\n");
-                        this.commPort.sendCommandToComm(str + getNewline());
+                        this.commPort.sendCommandToComm(str + "\n");
                         this.commandTextField.setText("");
                         this.commandList.add(str);
                         
@@ -326,7 +343,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
         System.out.println("Trying to open port: '"+commPortComboBox.getSelectedItem().toString()+"'");
-        boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600, consoleTextArea);
+        boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
         
         this.updateControlsForComm(ret);
     }//GEN-LAST:event_openButtonActionPerformed
@@ -358,6 +375,14 @@ public class MainWindow extends javax.swing.JFrame {
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         closeButtonAction();
     }//GEN-LAST:event_closeButtonActionPerformed
+
+    private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
+        this.commPort.setLineTerminator(this.getNewline());
+    }//GEN-LAST:event_lineBreakNActionPerformed
+
+    private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
+        this.commPort.streamFileToComm(gcodeFile);
+    }//GEN-LAST:event_printButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -398,10 +423,15 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void initProgram() {
         this.loadPortSelector();
+        this.commandList = new ArrayList<String>();
+        
         this.fileChooser = new JFileChooser();
         this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
         this.commPort = new CommPortHelper();
-        this.commandList = new ArrayList<String>();
+        
+        // TODO: These swing objects should be set in this class with a callback.
+        this.commPort.setTextArea(this.consoleTextArea);
+        this.commPort.setRowsLabel(this.sentRowsValueLabel);
     }
     // Utility functions.
     
@@ -506,6 +536,8 @@ public class MainWindow extends javax.swing.JFrame {
             return "\n\r";
         else if (lineBreakRN.isSelected())
             return "\r\n";
+        else if (lineBreakN.isSelected())
+            return "\n";
         else
             return "wtfbbq";
     }
@@ -530,6 +562,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.ButtonGroup lineBreakGroup;
+    private javax.swing.JRadioButton lineBreakN;
     private javax.swing.JRadioButton lineBreakNR;
     private javax.swing.JRadioButton lineBreakRN;
     private javax.swing.JButton openButton;
