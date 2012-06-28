@@ -419,7 +419,7 @@ public class MainWindow extends javax.swing.JFrame {
         
         this.fileChooser = new JFileChooser();
         this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
-        this.commPort = new CommPortHelper();
+        this.commPort = new SerialCommunicator();
         
         // TODO: These swing objects should be set in this class with a callback.
         this.commPort.setTextArea(this.consoleTextArea);
@@ -469,11 +469,10 @@ public class MainWindow extends javax.swing.JFrame {
     private void loadPortSelector() {
         commPortComboBox.removeAllItems();
         
-        List<CommPortIdentifier> portList =
-                CommPortHelper.getSerialPortList();
+        List<CommPortIdentifier> portList = CommPortUtils.getSerialPortList();
         
         if (portList.size() < 1) {
-            JOptionPane.showMessageDialog(new JFrame(), "No serial ports found.", "Error", JOptionPane.ERROR_MESSAGE);
+            this.displayErrorDialog("No serial ports found.");
         } else {
             // Sort?
             //java.util.Collections.sort(portList);
@@ -533,7 +532,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void closeCommConnection() {
         this.commPort.closeCommPort();
         this.updateControlsForComm(false);
-        this.consoleTextArea.append("**** Connection closed ****");
+        this.consoleTextArea.append("\n**** Connection closed ****");
 
     }
     
@@ -544,7 +543,7 @@ public class MainWindow extends javax.swing.JFrame {
     // My Variables
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
-    private CommPortHelper commPort;
+    private SerialCommunicator commPort;
     private List<String> commandList;
     
     // Generated variables.

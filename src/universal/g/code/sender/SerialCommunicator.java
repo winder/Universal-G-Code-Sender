@@ -17,9 +17,9 @@ import javax.swing.JTextArea;
  *
  * @author wwinder
  */
-public class CommPortHelper implements SerialPortEventListener{
-        public static final int GRBL_RX_BUFFER_SIZE= 128;
-        
+public class SerialCommunicator implements SerialPortEventListener{
+    
+    // General variables
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
@@ -29,11 +29,22 @@ public class CommPortHelper implements SerialPortEventListener{
     private boolean fileMode = false;
     private String lineTerminator;
     
+    // File transfer variables.
+    private File gcodeFile;
+    private FileInputStream fstream;
+    private DataInputStream dis;
+    private BufferedReader fileStream;
+    private Integer numRows;
+    private Integer numResponses;
+    private Integer numTotal;
+    private String nextCommand;
+    private List<String> sentBuffer;
+    
     // These should be set with some sort of callback instead of in here.
     private JTextArea outputConsole;
     private JLabel numRowsLabel;
     
-    CommPortHelper() {
+    SerialCommunicator() {
         this.lineTerminator = "\r\n";
     }
     
@@ -89,11 +100,9 @@ public class CommPortHelper implements SerialPortEventListener{
     }
         
     void closeCommPort() {
-
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
         this.commPort.close();
-
     }
     
     // Puts a command in the command buffer, the SerialWriter class should pick
@@ -101,23 +110,12 @@ public class CommPortHelper implements SerialPortEventListener{
     void sendCommandToComm(String command) {
         String str = command;
         this.commandStream.append(command);
-        this.serialWriterThread.notifyAll();
+        synchronized (serialWriterThread) {
+            this.serialWriterThread.notifyAll();
+        }
     }
-    
-    private File gcodeFile;
-    private FileInputStream fstream;
-    private DataInputStream dis;
-    private BufferedReader fileStream;
-    private Integer numRows;
-    private Integer numResponses;
-    private Integer numTotal;
-    private String nextCommand;
-    private List<String> sentBuffer;
-    
-    // Setup for streaming to serial port.
-    // 1. Initialize objects.
-    // 2. Open file.
-    // 3. Call first send.
+      
+    // Setup for streaming to serial port then launch the first command.
     void streamFileToComm(File file, int totalLines) throws Exception {
         fileMode = true;
         
@@ -132,8 +130,36 @@ public class CommPortHelper implements SerialPortEventListener{
         this.dis = new DataInputStream(fstream);
         this.fileStream = new BufferedReader(new InputStreamReader(dis));
 
-        sendNextFileCommand();
-            //Close the input stream       
+        this.streamFileCommands();     
+    }
+    
+    // 
+    void streamFileCommands() {
+        try {
+            // Keep sending commands until there are no more, or the character
+            // buffer is full.
+            while ((numberOfCharacters(this.sentBuffer) < CommPortUtils.GRBL_RX_BUFFER_SIZE) &&
+                    ((this.nextCommand = fileStream.readLine()) != null)) {
+                this.numRows++;
+                this.numRowsLabel.setText(this.numRows.toString());
+                this.sentBuffer.add(this.nextCommand);
+                this.sendCommandToComm(this.nextCommand + '\n');
+                this.outputConsole.append(
+                        "\nSND: "+this.numRows+
+                        " : " + this.nextCommand + 
+                        " BUF: " + numberOfCharacters(this.sentBuffer) + 
+                        " REC: ");
+            }
+
+            // If we've received as many responses as we expect... wrap up.
+            if (this.numTotal == this.numResponses) {
+                finishStreamFileToComm();
+            }
+            
+        } catch (IOException ex) {
+            System.err.println("Error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
     
     void finishStreamFileToComm() {
@@ -157,49 +183,32 @@ public class CommPortHelper implements SerialPortEventListener{
         }
         return characters;
     }
-    
-    void sendNextFileCommand() {
-        try {
-            // Get the next command.
-            while ((numberOfCharacters(this.sentBuffer) < CommPortHelper.GRBL_RX_BUFFER_SIZE) &&
-                    ((this.nextCommand = fileStream.readLine()) != null)) {
-                this.numRows++;
-                this.numRowsLabel.setText(this.numRows.toString());
-                this.sentBuffer.add(this.nextCommand);
-                sendCommandToComm(this.nextCommand + '\n');
-                this.outputConsole.append(
-                        "\nSND: "+this.numRows+
-                        " : " + this.nextCommand + 
-                        " BUF: " + numberOfCharacters(this.sentBuffer) + 
-                        " REC: ");
-            }
 
-            // If we've received as many responses as we expect... wrap up.
-            if (this.numTotal == this.numResponses) {
-                finishStreamFileToComm();
+    // Processes a serial response
+    void fileResponseMessage( String response ) {
+        if (fileMode) {
+            // Command complete, can be 'ok' or 'error'.
+            String okError = "";
+            if (response.toLowerCase().equals("ok")) {
+                okError = "ok";
+            } else if (response.toLowerCase().startsWith("error")) {
+                okError = "error";
             }
             
-        } catch (IOException ex) {
-            System.err.println("Error: " + ex.getMessage());
-            ex.printStackTrace();
+            // If the response was a command terminator, send more commands.
+            if (!okError.isEmpty()) {
+                this.numResponses++;
+                this.outputConsole.append(" " + okError +this.numResponses);
+                
+                // Remove completed command from buffer tracker.
+                this.sentBuffer.remove(0);
+
+                this.streamFileCommands();
+            }
         }
     }
     
-    void validateCommandResponse( String response ) {
-        //this.outputConsole.append("\nSENT: "+this.nextCommand+" RCV:"+response + responseNum +);
-        System.out.println("Response = '"+response+"'");
-        if (response.equalsIgnoreCase("ok")) {
-            System.out.println("Good response!");
-            this.sentBuffer.remove(0);
-            this.numResponses++;
-            this.outputConsole.append(" ok"+this.numResponses);
-        } else if (response.equalsIgnoreCase( "error")) {
-            System.out.println(" RECEIVED AN ERROR WHAT NOW?");
-        }
-        sendNextFileCommand();
-    }
-    
-    // TODO: Figure out how this thing can detect it is disconnected...
+    // TODO: Figure out why this isn't working ...
     boolean isCommPortOpen() throws NoSuchPortException {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
             String owner = portIdentifier.getCurrentOwner();
@@ -208,25 +217,6 @@ public class CommPortHelper implements SerialPortEventListener{
             return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
     }
     
-                
-    static java.util.List<CommPortIdentifier> getSerialPortList() {
-        int type = CommPortIdentifier.PORT_SERIAL;
-        
-        java.util.Enumeration<CommPortIdentifier> portEnum = 
-                CommPortIdentifier.getPortIdentifiers();
-        java.util.List<CommPortIdentifier> returnList =
-                new java.util.ArrayList<CommPortIdentifier>();
-        
-        while ( portEnum.hasMoreElements() ) 
-        {
-            CommPortIdentifier portIdentifier = portEnum.nextElement();
-            if (portIdentifier.getPortType() == type) {
-                returnList.add(portIdentifier);
-            }
-        }
-        return returnList;
-    }
-
     @Override
     // Reads data as it is returned by the serial port.
     public void serialEvent(SerialPortEvent arg0) {
@@ -262,7 +252,7 @@ public class CommPortHelper implements SerialPortEventListener{
                 output = output.replace("\n", "").replace("\r","");
                 // File mode has a stricter handling on data to GUI.
                 if (fileMode) {
-                    this.validateCommandResponse(output);
+                    this.fileResponseMessage(output);
                 // Else command mode.
                 } else {
                     // Print it right to the GUI.
@@ -272,49 +262,6 @@ public class CommPortHelper implements SerialPortEventListener{
             catch ( IOException e )
             {
                 e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-    }
-
-    
-    // This thread continuously polls a string buffer for data then writes it
-    // to an output stream.
-    public class SerialWriter implements Runnable {
-        private StringBuffer lineBuffer;
-        private OutputStream out;
-        public boolean exit = false;
-
-        public SerialWriter(OutputStream os, StringBuffer lineBuffer) {
-            this.out = os;
-            this.lineBuffer = lineBuffer;
-        }
-
-        synchronized public void run() {
-            try {
-                String s;
-                while (!exit) {
-                    // Need to do 2 operations with lineBuffer in a row in here.
-                    // linBuffer should be some sort of custom class which has
-                    // a synchronized fetch & clear method.
-                    if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
-                        s = lineBuffer.toString();
-                        lineBuffer.setLength(0);
-                    } else {
-                            s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
-                            lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
-                    }
-
-                    if (s.length() > 0) {
-                        PrintStream printStream = new PrintStream(this.out);
-                        printStream.print(s);
-                        printStream.close();    
-                    }
-                    this.wait(1000);
-                }
-            } catch (InterruptedException ex) {
-                System.out.println("SerialWriter thread died.");
-                ex.printStackTrace();
                 System.exit(-1);
             }
         }
