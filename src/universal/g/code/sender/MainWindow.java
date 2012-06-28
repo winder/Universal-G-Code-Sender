@@ -66,7 +66,6 @@ public class MainWindow extends javax.swing.JFrame {
         sentRowsValueLabel = new javax.swing.JLabel();
         rowsLabel = new javax.swing.JLabel();
         rowsValueLabel = new javax.swing.JLabel();
-        highPerformanceCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -88,12 +87,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        commPortComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commPortComboBoxActionPerformed(evt);
-            }
-        });
-
+        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/refresh.gif"))); // NOI18N
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 refreshButtonActionPerformed(evt);
@@ -275,13 +269,6 @@ public class MainWindow extends javax.swing.JFrame {
                 .add(20, 20, 20))
         );
 
-        highPerformanceCheckBox.setText("High performance mode");
-        highPerformanceCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                highPerformanceCheckBoxActionPerformed(evt);
-            }
-        });
-
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -294,8 +281,7 @@ public class MainWindow extends javax.swing.JFrame {
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(layout.createSequentialGroup()
                                 .add(scrollWindowCheckBox)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(highPerformanceCheckBox))
+                                .add(0, 0, Short.MAX_VALUE))
                             .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
@@ -309,9 +295,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .add(layout.createSequentialGroup()
                         .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(scrollWindowCheckBox)
-                            .add(highPerformanceCheckBox)))
+                        .add(scrollWindowCheckBox))
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
@@ -328,11 +312,9 @@ public class MainWindow extends javax.swing.JFrame {
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
         if (scrollWindowCheckBox.isSelected()) {
-            System.out.println("SCROLL ON...");
           caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
           consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
         } else {
-            System.out.println("SCROLL OFF...");
             caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         }
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
@@ -343,23 +325,25 @@ public class MainWindow extends javax.swing.JFrame {
                         this.commPort.sendCommandToComm(str + "\n");
                         this.commandTextField.setText("");
                         this.commandList.add(str);
-                        
-                        if (this.commPort.isCommPortOpen() == false) {
-                            this.closeButtonAction();
-                            JOptionPane.showMessageDialog(new JFrame(), "The serial port closed unexpectedly.", "Error", JOptionPane.ERROR_MESSAGE);
+
+                        try {
+                            if (this.commPort.isCommPortOpen() == false) {
+                                this.closeCommConnection();
+                                this.displayErrorDialog("The serial port has closed unexpectedly.");
+                            }
+                        } catch (Exception e) {
+                            this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
                         }
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        System.out.println("Trying to open port: '"+commPortComboBox.getSelectedItem().toString()+"'");
-        boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
-        
-        this.updateControlsForComm(ret);
+        try {
+            boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
+            this.updateControlsForComm(ret);
+        } catch (Exception e) {
+            this.displayErrorDialog("Error opening connection: "+e.getMessage());
+        }
     }//GEN-LAST:event_openButtonActionPerformed
-
-    private void commPortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commPortComboBoxActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_commPortComboBoxActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
         loadPortSelector();
@@ -374,15 +358,9 @@ public class MainWindow extends javax.swing.JFrame {
             System.out.println("Open command cancelled by user.");
         }
     }//GEN-LAST:event_browseButtonActionPerformed
-    
-    private void closeButtonAction() {
-        this.commPort.closeCommPort();
-        this.updateControlsForComm(false);
-        this.consoleTextArea.append("**** Connection closed ****");
 
-    }
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        closeButtonAction();
+        closeCommConnection();
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
@@ -390,13 +368,13 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_lineBreakNActionPerformed
 
     private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
-        int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
-        this.commPort.streamFileToComm(this.gcodeFile, totalLines);
+        try {
+            int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
+            this.commPort.streamFileToComm(this.gcodeFile, totalLines);
+        } catch (Exception e) {
+            this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
+        }
     }//GEN-LAST:event_printButtonActionPerformed
-
-    private void highPerformanceCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_highPerformanceCheckBoxActionPerformed
-        this.commPort.setHighPerformanceMode(this.highPerformanceCheckBox.isSelected());
-    }//GEN-LAST:event_highPerformanceCheckBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -532,14 +510,10 @@ public class MainWindow extends javax.swing.JFrame {
             }
             
             is.close();
-        }catch (FileNotFoundException ex) {
-            JOptionPane.showMessageDialog(new JFrame(), "Could not find file '"+file.getName()+"'", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+        } catch (FileNotFoundException ex) {
+            this.displayErrorDialog("Problem opening file: " + ex.getMessage());
         } catch (IOException e) {
-            System.out.println( "Caught an exception in processFile IOException." );
-            //e.printStackTrace();
-            JOptionPane.showMessageDialog(new JFrame(), "Unknown IOException: "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+            this.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
         }
 
         rowsValueLabel.setText(numRows.toString());
@@ -554,6 +528,17 @@ public class MainWindow extends javax.swing.JFrame {
             return "\n";
         else
             return "wtfbbq";
+    }
+
+    private void closeCommConnection() {
+        this.commPort.closeCommPort();
+        this.updateControlsForComm(false);
+        this.consoleTextArea.append("**** Connection closed ****");
+
+    }
+    
+    private void displayErrorDialog(String errorMessage) {
+        JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
     
     // My Variables
@@ -572,7 +557,6 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
-    private javax.swing.JCheckBox highPerformanceCheckBox;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
