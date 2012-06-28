@@ -10,11 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TooManyListenersException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 /**
@@ -23,7 +19,6 @@ import javax.swing.JTextArea;
  */
 public class CommPortHelper implements SerialPortEventListener{
         public static final int GRBL_RX_BUFFER_SIZE= 128;
-        private boolean highPerformanceMode = false;
         
     private CommPort commPort;
     private InputStream in;
@@ -58,66 +53,37 @@ public class CommPortHelper implements SerialPortEventListener{
         this.numRowsLabel = jl;
     }
     
-    void setHighPerformanceMode(boolean highPerfMode) {
-        this.highPerformanceMode = highPerfMode;
-    }
-    
     // On OSX must run create /var/lock for some reason:
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
-    synchronized boolean openCommPort(String name, int baud) {
+    synchronized boolean openCommPort(String name, int baud) throws Exception {
         this.commandStream = new StringBuffer();
         boolean returnCode = false;
-        try {
-            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
-            
-            if (portIdentifier.isCurrentlyOwned()) {
-                returnCode = false;
-            } else {
-                    this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
-                    
-                    SerialPort serialPort = (SerialPort) this.commPort;
-                    serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-                                                            
-                    this.in = serialPort.getInputStream();
-                    this.out = serialPort.getOutputStream();
-                    
-                    serialPort.addEventListener(this);
-                    serialPort.notifyOnDataAvailable(true);  
-                    serialPort.notifyOnBreakInterrupt(true);
-                    
-                    // Launch the writer thread.
-                    this.serialWriter= new SerialWriter(out, this.commandStream, this.highPerformanceMode);
-                    this.serialWriterThread= new Thread(this.serialWriter);
-                    this.serialWriterThread.start();
-            }
-            
-            returnCode = true;
-            
-        // Is this nonsense really how Java developers deal with excpetions???
-        } catch (NoSuchPortException ex) {
+
+        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
+           
+        if (portIdentifier.isCurrentlyOwned()) {
             returnCode = false;
-            System.out.println("No such port exception.");
-            ex.printStackTrace();
-            //Logger.getLogger(CommPortHelper.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (PortInUseException ex) {
-            returnCode = false;
-            System.out.println("Port in use exception.");
-            ex.printStackTrace();
-            //Logger.getLogger(CommPortHelper.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedCommOperationException ex) {
-            returnCode = false;
-            System.out.println("Unsupported Comm Operation Exception exception.");
-            ex.printStackTrace();
-        } catch (IOException ex) {
-            returnCode = false;
-            System.out.println("Unsupported Comm Operation Exception exception.");
-            ex.printStackTrace();
-        } catch (TooManyListenersException ex) {
-            returnCode = false;
-            System.out.println("Too Many Listeners exception.");
-            ex.printStackTrace();
-        } 
+        } else {
+                this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
+
+                SerialPort serialPort = (SerialPort) this.commPort;
+                serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+
+                this.in = serialPort.getInputStream();
+                this.out = serialPort.getOutputStream();
+
+                serialPort.addEventListener(this);
+                serialPort.notifyOnDataAvailable(true);  
+                serialPort.notifyOnBreakInterrupt(true);
+
+                // Launch the writer thread.
+                this.serialWriter= new SerialWriter(out, this.commandStream);
+                this.serialWriterThread= new Thread(this.serialWriter);
+                this.serialWriterThread.start();
+                
+                returnCode = true;
+        }
 
         return returnCode;
     }
@@ -133,10 +99,9 @@ public class CommPortHelper implements SerialPortEventListener{
     // Puts a command in the command buffer, the SerialWriter class should pick
     // it up and send it to the serial device.
     void sendCommandToComm(String command) {
-        
         String str = command;
         this.commandStream.append(command);
-    
+        this.serialWriterThread.notifyAll();
     }
     
     private File gcodeFile;
@@ -153,7 +118,7 @@ public class CommPortHelper implements SerialPortEventListener{
     // 1. Initialize objects.
     // 2. Open file.
     // 3. Call first send.
-    void streamFileToComm(File file, int totalLines) {
+    void streamFileToComm(File file, int totalLines) throws Exception {
         fileMode = true;
         
         this.gcodeFile = file;
@@ -161,21 +126,14 @@ public class CommPortHelper implements SerialPortEventListener{
         this.numResponses = 0;
         this.numTotal = totalLines;
         this.sentBuffer = new ArrayList<String>();
-        
-        try{
-  
-            // Setup the file stream.
-            this.fstream = new FileInputStream(this.gcodeFile);
-            this.dis = new DataInputStream(fstream);
-            this.fileStream = new BufferedReader(new InputStreamReader(dis));
 
-            sendNextFileCommand();
-            //Close the input stream
-        }catch (Exception e){//Catch exception if any
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-        }
-        
+        // Setup the file stream.
+        this.fstream = new FileInputStream(this.gcodeFile);
+        this.dis = new DataInputStream(fstream);
+        this.fileStream = new BufferedReader(new InputStreamReader(dis));
+
+        sendNextFileCommand();
+            //Close the input stream       
     }
     
     void finishStreamFileToComm() {
@@ -199,6 +157,7 @@ public class CommPortHelper implements SerialPortEventListener{
         }
         return characters;
     }
+    
     void sendNextFileCommand() {
         try {
             // Get the next command.
@@ -241,20 +200,12 @@ public class CommPortHelper implements SerialPortEventListener{
     }
     
     // TODO: Figure out how this thing can detect it is disconnected...
-    boolean isCommPortOpen() {
-        try {
+    boolean isCommPortOpen() throws NoSuchPortException {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
             String owner = portIdentifier.getCurrentOwner();
             String thisClass = this.getClass().getName();
-
-            //SerialPort serialPort = (SerialPort) this.commPort;
-            //serialPort.isRTS();
             
             return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
-        } catch (NoSuchPortException ex) {
-        }
-        
-        return false;
     }
     
                 
@@ -333,12 +284,10 @@ public class CommPortHelper implements SerialPortEventListener{
         private StringBuffer lineBuffer;
         private OutputStream out;
         public boolean exit = false;
-        private boolean highPerformanceMode;
 
-        public SerialWriter(OutputStream os, StringBuffer lineBuffer, boolean highPerformance) {
+        public SerialWriter(OutputStream os, StringBuffer lineBuffer) {
             this.out = os;
             this.lineBuffer = lineBuffer;
-            this.highPerformanceMode = highPerformance;
         }
 
         synchronized public void run() {
@@ -346,14 +295,14 @@ public class CommPortHelper implements SerialPortEventListener{
                 String s;
                 while (!exit) {
                     // Need to do 2 operations with lineBuffer in a row in here.
-                    synchronized(lineBuffer) {
-                        if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
-                            s = lineBuffer.toString();
-                            lineBuffer.setLength(0);
-                        } else {
-                                s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
-                                lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
-                        }
+                    // linBuffer should be some sort of custom class which has
+                    // a synchronized fetch & clear method.
+                    if (lineBuffer.length() < GRBL_RX_BUFFER_SIZE) {
+                        s = lineBuffer.toString();
+                        lineBuffer.setLength(0);
+                    } else {
+                            s = lineBuffer.substring(0, GRBL_RX_BUFFER_SIZE-1);
+                            lineBuffer.delete(0, GRBL_RX_BUFFER_SIZE-1);
                     }
 
                     if (s.length() > 0) {
@@ -361,9 +310,7 @@ public class CommPortHelper implements SerialPortEventListener{
                         printStream.print(s);
                         printStream.close();    
                     }
-                    if (!this.highPerformanceMode) {
-                        this.wait(1000);
-                    }
+                    this.wait(1000);
                 }
             } catch (InterruptedException ex) {
                 System.out.println("SerialWriter thread died.");

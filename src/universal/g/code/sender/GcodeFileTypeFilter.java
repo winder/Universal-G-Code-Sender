@@ -15,7 +15,7 @@ public class GcodeFileTypeFilter extends FileFilter {
     @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
-            return false;
+            return true;
         }
  
         String extension = getExtension(f);
