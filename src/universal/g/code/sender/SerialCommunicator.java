@@ -27,7 +27,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     private SerialWriter serialWriter;
     private Thread serialWriterThread;
     private boolean fileMode = false;
-    private String lineTerminator;
+    private String lineTerminator = "\r\n";
     
     // File transfer variables.
     private File gcodeFile;
@@ -40,14 +40,13 @@ public class SerialCommunicator implements SerialPortEventListener{
     private String nextCommand;
     private List<String> sentBuffer;
     
-    // These should be set with some sort of callback instead of in here.
-    private JTextArea outputConsole;
-    private JLabel numRowsLabel;
-    
-    SerialCommunicator() {
-        this.lineTerminator = "\r\n";
-    }
-    
+    // Callback interfaces
+    SerialCommunicatorListener fileStreamCompleteListener;
+    SerialCommunicatorListener commandCompleteListener;
+    SerialCommunicatorListener commandPreprocessorListener;
+    SerialCommunicatorListener commConsoleListener;
+
+    /** Getters & Setters. */
     void setLineTerminator(String terminator) {
         if (terminator.length() < 1) {
             this.lineTerminator = "\r\n";
@@ -55,14 +54,24 @@ public class SerialCommunicator implements SerialPortEventListener{
             this.lineTerminator = terminator;
         }
     }
-    
-    void setTextArea(JTextArea jta) {
-        this.outputConsole = jta;
+
+    // Register for callbacks
+    void setFileStreamCompleteListener(SerialCommunicatorListener fscl) {
+        this.fileStreamCompleteListener = fscl;
     }
     
-    void setRowsLabel(JLabel jl) {
-        this.numRowsLabel = jl;
+    void setCommandCompleteListener(SerialCommunicatorListener fscl) {
+        this.commandCompleteListener = fscl;
     }
+    
+    void setCommandPreprocessorListener(SerialCommunicatorListener fscl) {
+        this.commandPreprocessorListener = fscl;
+    }
+    
+    void setCommConsoleListener(SerialCommunicatorListener fscl) {
+        this.commConsoleListener = fscl;
+    }
+
     
     // On OSX must run create /var/lock for some reason:
     // $ sudo mkdir /var/lock
@@ -109,12 +118,26 @@ public class SerialCommunicator implements SerialPortEventListener{
     // it up and send it to the serial device.
     void sendCommandToComm(String command) {
         String str = command;
+        
+        this.sentBuffer.add(this.nextCommand);
         this.commandStream.append(command);
-        synchronized (serialWriterThread) {
+        synchronized (this.serialWriterThread) {
             this.serialWriterThread.notifyAll();
         }
     }
+       
+    // TODO: Figure out why this isn't working ...
+    boolean isCommPortOpen() throws NoSuchPortException {
+            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
+            String owner = portIdentifier.getCurrentOwner();
+            String thisClass = this.getClass().getName();
+            
+            return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
+    }
       
+    
+    /** File Stream Methods. **/
+    
     // Setup for streaming to serial port then launch the first command.
     void streamFileToComm(File file, int totalLines) throws Exception {
         fileMode = true;
@@ -140,11 +163,15 @@ public class SerialCommunicator implements SerialPortEventListener{
             // buffer is full.
             while ((numberOfCharacters(this.sentBuffer) < CommPortUtils.GRBL_RX_BUFFER_SIZE) &&
                     ((this.nextCommand = fileStream.readLine()) != null)) {
+                        
+                // Allow a command preprocessor listener to preprocess the command.
+                if (this.commandPreprocessorListener != null) {
+                    this.nextCommand = this.commandPreprocessorListener.preprocessCommand(this.nextCommand);
+                }
+
                 this.numRows++;
-                this.numRowsLabel.setText(this.numRows.toString());
-                this.sentBuffer.add(this.nextCommand);
                 this.sendCommandToComm(this.nextCommand + '\n');
-                this.outputConsole.append(
+                this.sendMessageToConsoleListener(
                         "\nSND: "+this.numRows+
                         " : " + this.nextCommand + 
                         " BUF: " + numberOfCharacters(this.sentBuffer) + 
@@ -153,7 +180,9 @@ public class SerialCommunicator implements SerialPortEventListener{
 
             // If we've received as many responses as we expect... wrap up.
             if (this.numTotal == this.numResponses) {
-                finishStreamFileToComm();
+                this.finishStreamFileToComm();
+                //System.out.println("FINISH UP DAMMIT");
+                //th.is.isnt.called.why.finishStreamFileToComm();
             }
             
         } catch (IOException ex) {
@@ -167,21 +196,23 @@ public class SerialCommunicator implements SerialPortEventListener{
             this.fileStream.close();
             this.dis.close();
             this.fstream.close();
-
             fileMode = false;
+            
+            this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
+            // Trigger callback
+            if (this.fileStreamCompleteListener != null) {
+                boolean success = (this.numTotal == this.numResponses);
+                this.fileStreamCompleteListener.fileStreamComplete(this.gcodeFile.getName(), success);
+            }
         } catch (IOException ex) {
             System.out.println("Error while closing streams: "+ex.getMessage());
         }
     }
     
-    int numberOfCharacters(List<String> arr) {
-        Iterator<String> iter = arr.iterator();
-        int characters = 0;
-        while (iter.hasNext()) {
-            String next = iter.next();
-            characters += next.length();
+    void cancelSend() {
+        if (fileMode) {
+            finishStreamFileToComm();
         }
-        return characters;
     }
 
     // Processes a serial response
@@ -192,29 +223,22 @@ public class SerialCommunicator implements SerialPortEventListener{
             if (response.toLowerCase().equals("ok")) {
                 okError = "ok";
             } else if (response.toLowerCase().startsWith("error")) {
-                okError = "error";
+                okError = "error["+response.substring("error: ".length()) +"]";
             }
             
             // If the response was a command terminator, send more commands.
             if (!okError.isEmpty()) {
                 this.numResponses++;
-                this.outputConsole.append(" " + okError +this.numResponses);
-                
+                this.sendMessageToConsoleListener(" " + okError +this.numResponses);
+                if (this.commandCompleteListener != null) {
+                    this.commandCompleteListener.commandComplete(this.sentBuffer.get(0), response);
+                }
                 // Remove completed command from buffer tracker.
                 this.sentBuffer.remove(0);
 
                 this.streamFileCommands();
             }
         }
-    }
-    
-    // TODO: Figure out why this isn't working ...
-    boolean isCommPortOpen() throws NoSuchPortException {
-            CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
-            String owner = portIdentifier.getCurrentOwner();
-            String thisClass = this.getClass().getName();
-            
-            return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
     }
     
     @Override
@@ -256,7 +280,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                 // Else command mode.
                 } else {
                     // Print it right to the GUI.
-                    this.outputConsole.append(output + "\n");
+                    this.sendMessageToConsoleListener(output + "\n");
                 }
             }
             catch ( IOException e )
@@ -265,5 +289,23 @@ public class SerialCommunicator implements SerialPortEventListener{
                 System.exit(-1);
             }
         }
+    }
+
+    // Helper for the console listener.              
+    void sendMessageToConsoleListener(String msg) {
+        if (this.commConsoleListener != null) {
+            this.commConsoleListener.messageForConsole(msg);
+        }
+    }
+    
+    // Helper for buffer counting.
+    private static int numberOfCharacters(List<String> arr) {
+        Iterator<String> iter = arr.iterator();
+        int characters = 0;
+        while (iter.hasNext()) {
+            String next = iter.next();
+            characters += next.length();
+        }
+        return characters;
     }
 }
