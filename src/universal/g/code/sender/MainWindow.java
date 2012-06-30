@@ -23,7 +23,7 @@ import javax.swing.text.DefaultCaret;
  *
  * @author wwinder
  */
-public class MainWindow extends javax.swing.JFrame {
+public class MainWindow extends javax.swing.JFrame implements SerialCommunicatorListener {
 
     /** Creates new form MainWindow */
     public MainWindow() {
@@ -185,7 +185,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        printButton.setText("Print");
+        printButton.setText("Send");
         printButton.setEnabled(false);
         printButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -195,6 +195,11 @@ public class MainWindow extends javax.swing.JFrame {
 
         stopButton.setText("Stop");
         stopButton.setEnabled(false);
+        stopButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                stopButtonActionPerformed(evt);
+            }
+        });
 
         fileTextField.setEnabled(false);
 
@@ -203,7 +208,7 @@ public class MainWindow extends javax.swing.JFrame {
         overrideSpeedCheckBox.setText("Override speed");
         overrideSpeedCheckBox.setEnabled(false);
 
-        overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(0), null, Integer.valueOf(1)));
+        overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));
         overrideSpeedValueSpinner.setEnabled(false);
 
         sentRowsLabel.setText("Sent rows:");
@@ -266,7 +271,7 @@ public class MainWindow extends javax.swing.JFrame {
                     .add(sentRowsValueLabel)
                     .add(rowsLabel)
                     .add(rowsValueLabel))
-                .add(20, 20, 20))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -291,14 +296,14 @@ public class MainWindow extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(scrollWindowCheckBox))
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 255, Short.MAX_VALUE)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -369,12 +374,19 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
         try {
+            this.sentRowsValueLabel.setText("0");
+            this.updateControlsForSend(true);
             int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
             this.commPort.streamFileToComm(this.gcodeFile, totalLines);
         } catch (Exception e) {
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
     }//GEN-LAST:event_printButtonActionPerformed
+
+    private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
+        this.commPort.cancelSend();
+        this.updateControlsForSend(true);
+    }//GEN-LAST:event_stopButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -412,20 +424,24 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
     }
-    
+        
     private void initProgram() {
         this.loadPortSelector();
-        this.commandList = new ArrayList<String>();
         
-        this.fileChooser = new JFileChooser();
-        this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
+        // Hook the view up to the model
+        this.commandList = new ArrayList<String>();
         this.commPort = new SerialCommunicator();
         
-        // TODO: These swing objects should be set in this class with a callback.
-        this.commPort.setTextArea(this.consoleTextArea);
-        this.commPort.setRowsLabel(this.sentRowsValueLabel);
+        // Setup file browser.
+        this.fileChooser = new JFileChooser();
+        this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
+
+        // Register listeners
+        this.commPort.setFileStreamCompleteListener(this);
+        this.commPort.setCommandCompleteListener(this);
+        this.commPort.setCommandPreprocessorListener(this);
+        this.commPort.setCommConsoleListener(this);
     }
-    // Utility functions.
     
     private void updateControlsForComm(boolean isOpen) {
         if (isOpen) {
@@ -440,8 +456,6 @@ public class MainWindow extends javax.swing.JFrame {
             this.openButton.setEnabled(true);
             this.closeButton.setEnabled(false);
             this.commandTextField.setEnabled(false);
-
-            //transfer = false;
         }
         
         this.updateFileControlsForComm(isOpen);
@@ -449,19 +463,34 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void updateFileControlsForComm(boolean isOpen) {
         if (isOpen) {
-            this.stopButton.setEnabled(true);
             this.printButton.setEnabled(true);
             this.browseButton.setEnabled(true);
             this.overrideSpeedCheckBox.setEnabled(true);
             this.overrideSpeedValueSpinner.setEnabled(true);
             this.fileTextField.setEnabled(true);
         } else {
-            this.stopButton.setEnabled(false);
             this.printButton.setEnabled(false);
             this.browseButton.setEnabled(false);
             this.overrideSpeedCheckBox.setEnabled(false);
             this.overrideSpeedValueSpinner.setEnabled(false);
             this.fileTextField.setEnabled(false);
+            
+            // This might be on... turn it off.
+            this.stopButton.setEnabled(false);
+        }
+    }
+    
+    private void updateControlsForSend(boolean isSending) {
+        if (isSending) {
+            this.stopButton.setEnabled(true);
+            this.commandTextField.setEnabled(false);
+            this.overrideSpeedCheckBox.setEnabled(false);
+            this.overrideSpeedValueSpinner.setEnabled(false);
+        } else {
+            this.stopButton.setEnabled(false);
+            this.commandTextField.setEnabled(true);
+            this.overrideSpeedCheckBox.setEnabled(true);
+            this.overrideSpeedValueSpinner.setEnabled(true);
         }
     }
     
@@ -518,6 +547,14 @@ public class MainWindow extends javax.swing.JFrame {
         rowsValueLabel.setText(numRows.toString());
     }
     
+    private int getSpeedOverrideValue() {
+        int ret = -1;
+        if (this.overrideSpeedCheckBox.isSelected()) {
+            ret = Integer.parseInt( this.overrideSpeedValueSpinner.getValue().toString() );
+        }
+        return ret;
+    }
+    
     private String getNewline() {
         if (lineBreakNR.isSelected())
             return "\n\r";
@@ -538,6 +575,54 @@ public class MainWindow extends javax.swing.JFrame {
     
     private void displayErrorDialog(String errorMessage) {
         JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    
+    /** SerialCommunicatorListener implementation.
+     */
+    
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+        this.updateControlsForSend(false);
+        if (success) {
+            JOptionPane.showMessageDialog(new JFrame(), "Job complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            displayErrorDialog("Job completed with error.");
+        }
+    }
+     
+    @Override
+    public void commandComplete(String command, String response) {
+        Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
+        this.sentRowsValueLabel.setText(i.toString());
+    }
+    
+    @Override
+    public String preprocessCommand(String command) {
+        Integer overrideSpeed = this.getSpeedOverrideValue();
+        String newCommand = command;
+        
+        if (overrideSpeed > 0) {
+            // Check if command sets feed speed.
+            int index = command.toLowerCase().indexOf('f');
+            if (index > 0) {
+                int indexSpaceAfterF = command.indexOf(" ", index+1);
+                // Build that new command.
+                newCommand = (new StringBuilder()
+                        .append(command.substring(0, index+1))
+                        .append(overrideSpeed.toString())
+                        .append(".0")
+                        .append(command.substring(indexSpaceAfterF))
+                        ).toString();
+                
+                System.out.println("New command: "+newCommand);
+            }
+        }
+        return newCommand;
+    }
+
+    @Override
+    public void messageForConsole(String msg) {
+        this.consoleTextArea.append(msg);
     }
     
     // My Variables
