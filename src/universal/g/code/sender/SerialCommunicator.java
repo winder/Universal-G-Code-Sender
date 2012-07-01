@@ -78,6 +78,8 @@ public class SerialCommunicator implements SerialPortEventListener{
     // $ sudo chmod 777 /var/lock
     synchronized boolean openCommPort(String name, int baud) throws Exception {
         this.commandStream = new StringBuffer();
+        this.sentBuffer = new ArrayList<String>();
+
         boolean returnCode = false;
 
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);

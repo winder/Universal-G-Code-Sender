@@ -11,6 +11,8 @@
 package universal.g.code.sender;
 
 import gnu.io.CommPortIdentifier;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +25,8 @@ import javax.swing.text.DefaultCaret;
  *
  * @author wwinder
  */
-public class MainWindow extends javax.swing.JFrame implements SerialCommunicatorListener {
+public class MainWindow extends javax.swing.JFrame 
+implements SerialCommunicatorListener, KeyListener {
 
     /** Creates new form MainWindow */
     public MainWindow() {
@@ -330,6 +333,7 @@ public class MainWindow extends javax.swing.JFrame implements SerialCommunicator
                         this.commPort.sendCommandToComm(str + "\n");
                         this.commandTextField.setText("");
                         this.commandList.add(str);
+                        this.commandNum = -1;
 
                         try {
                             if (this.commPort.isCommPortOpen() == false) {
@@ -341,6 +345,47 @@ public class MainWindow extends javax.swing.JFrame implements SerialCommunicator
                         }
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
+    // TODO: Find out how to make these key* functions actions like the above.
+    @Override
+    public void keyPressed(KeyEvent ke) {
+        boolean pressed = false;
+        
+        if (ke.getKeyCode() == KeyEvent.VK_UP) {
+            pressed = true;
+            if (this.commandNum == 0 || this.commandList.isEmpty()) {
+                java.awt.Toolkit.getDefaultToolkit().beep();
+            } else if (this.commandNum == -1) {
+                this.commandNum = this.commandList.size() -1;
+            } else {
+                this.commandNum--;
+            }
+        }
+        else if (ke.getKeyCode() == KeyEvent.VK_DOWN) {
+            pressed = true;
+            if ((this.commandNum == -1) || this.commandNum == (this.commandList.size() -1)) {
+                java.awt.Toolkit.getDefaultToolkit().beep();
+                return;
+            } else {
+                this.commandNum++;
+            }
+        }
+        
+        if (pressed && this.commandNum != -1) {
+            String text = this.commandList.get(this.commandNum);
+            this.commandTextField.setText(text);
+        }
+    }
+    
+    @Override
+    public void keyTyped(KeyEvent ke) {
+        // Don't care about this one...
+    }
+    
+    @Override
+    public void keyReleased(KeyEvent ke) {
+        // Or this one...
+    }
+    
     private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
         try {
             boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
@@ -428,6 +473,8 @@ public class MainWindow extends javax.swing.JFrame implements SerialCommunicator
     private void initProgram() {
         this.loadPortSelector();
         
+        this.setTitle("Universal GcodeSender (Version 1.0)");
+        
         // Hook the view up to the model
         this.commandList = new ArrayList<String>();
         this.commPort = new SerialCommunicator();
@@ -441,8 +488,13 @@ public class MainWindow extends javax.swing.JFrame implements SerialCommunicator
         this.commPort.setCommandCompleteListener(this);
         this.commPort.setCommandPreprocessorListener(this);
         this.commPort.setCommConsoleListener(this);
-    }
-    
+  
+        
+        // Command History
+
+        this.commandTextField.addKeyListener(this);
+}
+
     private void updateControlsForComm(boolean isOpen) {
         if (isOpen) {
             this.commPortComboBox.setEnabled(false);
@@ -629,6 +681,7 @@ public class MainWindow extends javax.swing.JFrame implements SerialCommunicator
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
     private SerialCommunicator commPort;
+    private int commandNum = -1;
     private List<String> commandList;
     
     // Generated variables.
