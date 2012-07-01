@@ -226,6 +226,7 @@
     </Container>
     <Component class="javax.swing.JCheckBox" name="scrollWindowCheckBox">
       <Properties>
+        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Scroll output window"/>
       </Properties>
       <Events>
@@ -303,7 +304,7 @@
                       <Component id="rowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="rowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="8" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
