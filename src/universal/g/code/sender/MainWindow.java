@@ -32,6 +32,8 @@ implements SerialCommunicatorListener, KeyListener {
     public MainWindow() {
         initComponents();
         initProgram();
+        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
     }
 
     /** This method is called from within the constructor to
@@ -171,6 +173,7 @@ implements SerialCommunicatorListener, KeyListener {
         consoleTextArea.setRows(5);
         jScrollPane2.setViewportView(consoleTextArea);
 
+        scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
         scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -274,7 +277,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(sentRowsValueLabel)
                     .add(rowsLabel)
                     .add(rowsValueLabel))
-                .addContainerGap(8, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -393,6 +396,7 @@ implements SerialCommunicatorListener, KeyListener {
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
         }
+        commandTextField.grabFocus();
     }//GEN-LAST:event_openButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
