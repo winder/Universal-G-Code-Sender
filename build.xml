@@ -10,6 +10,11 @@
 <project name="Universal_G-Code_Sender" default="default" basedir=".">
     <description>Builds, tests, and runs the project Universal G-Code Sender.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="-post-jar"> 
+        <copy file="release/start.sh" flatten="true" todir="${dist.dir}"/> 
+        <copy file="release/librxtxSerial.so" flatten="true" todir="${dist.dir}"/> 
+        <copy file="release/librxtxSerial64.so" flatten="true" todir="${dist.dir}"/> 
+    </target> 
     <!--
 
     There exist several targets which are by default empty and which can be 
