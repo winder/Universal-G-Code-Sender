@@ -171,6 +171,7 @@ implements SerialCommunicatorListener, KeyListener {
         consoleTextArea.setRows(5);
         jScrollPane2.setViewportView(consoleTextArea);
 
+        scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
         scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -318,19 +319,13 @@ implements SerialCommunicatorListener, KeyListener {
     /** Generated callback functions, hand coded.
      */
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
-        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
-        if (scrollWindowCheckBox.isSelected()) {
-          caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-          consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
-        } else {
-            caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-        }
+        checkScrollWindow();
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
                         String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
                         this.consoleTextArea.append(">>> "+str+"\n");
-                        this.commPort.sendCommandToComm(str + "\n");
+                        this.commPort.sendStringToComm(str + "\n");
                         this.commandTextField.setText("");
                         this.commandList.add(str);
                         this.commandNum = -1;
@@ -393,6 +388,9 @@ implements SerialCommunicatorListener, KeyListener {
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
         }
+        
+        // Let the command field grab focus.
+        commandTextField.grabFocus();
     }//GEN-LAST:event_openButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
@@ -422,7 +420,7 @@ implements SerialCommunicatorListener, KeyListener {
             this.sentRowsValueLabel.setText("0");
             this.updateControlsForSend(true);
             int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
-            this.commPort.streamFileToComm(this.gcodeFile, totalLines);
+            this.commPort.streamFileToComm(this.gcodeFile);
         } catch (Exception e) {
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
@@ -472,8 +470,8 @@ implements SerialCommunicatorListener, KeyListener {
         
     private void initProgram() {
         this.loadPortSelector();
-        
-        this.setTitle("Universal GcodeSender (Version 1.0)");
+        this.checkScrollWindow();
+        this.setTitle("Universal GcodeSender (Version 1.0.1)");
         
         // Hook the view up to the model
         this.commandList = new ArrayList<String>();
@@ -570,6 +568,16 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }
     
+    private void checkScrollWindow() {
+        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
+        if (scrollWindowCheckBox.isSelected()) {
+          caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+          consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
+        } else {
+            caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        }
+    }
+    
     // Processes input file.
     // This could theoretically scan it for errors, but GcodeSender just counts
     // how many lines are in it.
@@ -643,7 +651,12 @@ implements SerialCommunicatorListener, KeyListener {
     }
      
     @Override
-    public void commandComplete(String command, String response) {
+    public void commandSent(GcodeCommand command) {
+        
+    }
+    
+    @Override
+    public void commandComplete(GcodeCommand command) {
         Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
         this.sentRowsValueLabel.setText(i.toString());
     }

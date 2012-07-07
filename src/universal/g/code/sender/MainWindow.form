@@ -226,6 +226,7 @@
     </Container>
     <Component class="javax.swing.JCheckBox" name="scrollWindowCheckBox">
       <Properties>
+        <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" value="Scroll output window"/>
       </Properties>
       <Events>

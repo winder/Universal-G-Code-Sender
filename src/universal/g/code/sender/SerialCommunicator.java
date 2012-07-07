@@ -28,20 +28,18 @@ public class SerialCommunicator implements SerialPortEventListener{
     private Thread serialWriterThread;
     private boolean fileMode = false;
     private String lineTerminator = "\r\n";
+    private List<GcodeCommand> commandList;
+    
     
     // File transfer variables.
     private File gcodeFile;
-    private FileInputStream fstream;
-    private DataInputStream dis;
-    private BufferedReader fileStream;
     private Integer numRows;
     private Integer numResponses;
-    private Integer numTotal;
-    private String nextCommand;
     private List<String> sentBuffer;
     
     // Callback interfaces
     SerialCommunicatorListener fileStreamCompleteListener;
+    SerialCommunicatorListener commandSentListener;
     SerialCommunicatorListener commandCompleteListener;
     SerialCommunicatorListener commandPreprocessorListener;
     SerialCommunicatorListener commConsoleListener;
@@ -58,6 +56,10 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Register for callbacks
     void setFileStreamCompleteListener(SerialCommunicatorListener fscl) {
         this.fileStreamCompleteListener = fscl;
+    }
+    
+    void setCommandSentListener(SerialCommunicatorListener fscl) {
+        this.commandSentListener = fscl;
     }
     
     void setCommandCompleteListener(SerialCommunicatorListener fscl) {
@@ -118,10 +120,9 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     // Puts a command in the command buffer, the SerialWriter class should pick
     // it up and send it to the serial device.
-    void sendCommandToComm(String command) {
+    void sendStringToComm(String command) {
         String str = command;
         
-        this.sentBuffer.add(this.nextCommand);
         this.commandStream.append(command);
         synchronized (this.serialWriterThread) {
             this.serialWriterThread.notifyAll();
@@ -141,73 +142,96 @@ public class SerialCommunicator implements SerialPortEventListener{
     /** File Stream Methods. **/
     
     // Setup for streaming to serial port then launch the first command.
-    void streamFileToComm(File file, int totalLines) throws Exception {
+    void streamFileToComm(File file) throws Exception {
         fileMode = true;
+        this.commandList = new ArrayList<GcodeCommand>();
         
         this.gcodeFile = file;
         this.numRows = 0;
         this.numResponses = 0;
-        this.numTotal = totalLines;
         this.sentBuffer = new ArrayList<String>();
 
-        // Setup the file stream.
-        this.fstream = new FileInputStream(this.gcodeFile);
-        this.dis = new DataInputStream(fstream);
-        this.fileStream = new BufferedReader(new InputStreamReader(dis));
-
+        // Get command list.
+        try {
+            this.parseFileIntoCommandList(file);
+        } catch (Exception e) {
+            // Wrap up then re-throw exception for GUI to display.
+            finishStreamFileToComm();
+            throw e;
+        }
         this.streamFileCommands();     
     }
     
-    // 
-    void streamFileCommands() {
-        try {
-            // Keep sending commands until there are no more, or the character
-            // buffer is full.
-            while ((numberOfCharacters(this.sentBuffer) < CommPortUtils.GRBL_RX_BUFFER_SIZE) &&
-                    ((this.nextCommand = fileStream.readLine()) != null)) {
-                        
-                // Allow a command preprocessor listener to preprocess the command.
-                if (this.commandPreprocessorListener != null) {
-                    this.nextCommand = this.commandPreprocessorListener.preprocessCommand(this.nextCommand);
-                }
+    Boolean parseFileIntoCommandList(File file) throws FileNotFoundException, IOException {
 
-                this.numRows++;
-                this.sendCommandToComm(this.nextCommand + '\n');
-                this.sendMessageToConsoleListener(
-                        "\nSND: "+this.numRows+
-                        " : " + this.nextCommand + 
-                        " BUF: " + numberOfCharacters(this.sentBuffer) + 
-                        " REC: ");
+        FileInputStream fstream = new FileInputStream(this.gcodeFile);
+        DataInputStream dis = new DataInputStream(fstream);
+        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
+
+        String line;
+        GcodeCommand command;
+        int commandNum = 1;
+        while ((line = fileStream.readLine()) != null) {
+            command = new GcodeCommand(line, commandNum++);
+            this.commandList.add(command);
+        }
+        
+        return true;
+    }
+    
+    private Boolean checkRoomInBuffer(String nextCommand) {
+        int charInBuffer = numberOfCharacters(this.sentBuffer);
+        charInBuffer += nextCommand.length();
+        return charInBuffer < CommPortUtils.GRBL_RX_BUFFER_SIZE;
+    }
+    
+    void streamFileCommands() {
+
+        // Keep sending commands until there are no more, or the character
+        // buffer is full.
+//((numberOfCharacters(this.sentBuffer) + this.commandList.get(numRows).getCommand().length()) < CommPortUtils.GRBL_RX_BUFFER_SIZE)
+
+        while (this.numRows < this.commandList.size() &&
+                checkRoomInBuffer(this.commandList.get(this.numRows).getCommand())) {
+
+            // TODO: Use an iterator.
+            GcodeCommand command = this.commandList.get(numRows);
+
+            // Allow a command preprocessor listener to preprocess the command.
+            if (this.commandPreprocessorListener != null) {
+                String processed = this.commandPreprocessorListener.preprocessCommand(command.getCommand());
+                command.setCommand(processed);
             }
 
-            // If we've received as many responses as we expect... wrap up.
-            if (this.numTotal == this.numResponses) {
-                this.finishStreamFileToComm();
-                //System.out.println("FINISH UP DAMMIT");
-                //th.is.isnt.called.why.finishStreamFileToComm();
+            this.numRows++;
+            this.sentBuffer.add(command.getCommand());
+            this.sendStringToComm(command.getCommand() + '\n');
+            
+            if (this.commandSentListener != null) {
+                this.commandCompleteListener.commandSent(command);
             }
             
-        } catch (IOException ex) {
-            System.err.println("Error: " + ex.getMessage());
-            ex.printStackTrace();
+            this.sendMessageToConsoleListener(
+                    "\nSND: "+this.numRows+
+                    " : " + command.getCommand() + 
+                    " BUF: " + numberOfCharacters(this.sentBuffer) + 
+                    " REC: ");
         }
+        
+        // If we've received as many responses as we expect... wrap up.
+        if (this.commandList.size() == this.numResponses) {
+            this.finishStreamFileToComm();
+        }            
     }
     
     void finishStreamFileToComm() {
-        try {
-            this.fileStream.close();
-            this.dis.close();
-            this.fstream.close();
-            fileMode = false;
-            
-            this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
-            // Trigger callback
-            if (this.fileStreamCompleteListener != null) {
-                boolean success = (this.numTotal == this.numResponses);
-                this.fileStreamCompleteListener.fileStreamComplete(this.gcodeFile.getName(), success);
-            }
-        } catch (IOException ex) {
-            System.out.println("Error while closing streams: "+ex.getMessage());
+        fileMode = false;
+
+        this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
+        // Trigger callback
+        if (this.fileStreamCompleteListener != null) {
+            boolean success = (this.commandList.size() == this.numResponses);
+            this.fileStreamCompleteListener.fileStreamComplete(this.gcodeFile.getName(), success);
         }
     }
     
@@ -218,29 +242,31 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
 
     // Processes a serial response
-    void fileResponseMessage( String response ) {
-        if (fileMode) {
-            // Command complete, can be 'ok' or 'error'.
-            String okError = "";
-            if (response.toLowerCase().equals("ok")) {
-                okError = "ok";
-            } else if (response.toLowerCase().startsWith("error")) {
-                okError = "error["+response.substring("error: ".length()) +"]";
-            }
-            
-            // If the response was a command terminator, send more commands.
-            if (!okError.isEmpty()) {
-                this.numResponses++;
-                this.sendMessageToConsoleListener(" " + okError +this.numResponses);
+    void responseMessage( String response ) {
+        if (fileMode) {            
+            // Check if was 'ok' or 'error'.
+            if (GcodeCommand.isOkErrorResponse(response)) {
+
+                // TODO: Another iterator for this one would be good.
+                GcodeCommand command = this.commandList.get(this.numResponses);
+                command.setResponse(response);
+                this.numResponses = this.numResponses + 1;
+                
+                this.sendMessageToConsoleListener(" " + command.responseString());
+
                 if (this.commandCompleteListener != null) {
-                    this.commandCompleteListener.commandComplete(this.sentBuffer.get(0), response);
+                    this.commandCompleteListener.commandComplete(command);
                 }
                 // Remove completed command from buffer tracker.
                 this.sentBuffer.remove(0);
 
                 this.streamFileCommands();
             }
+        } else {
+            // If not file mode, send it to the console without processing.
+            this.sendMessageToConsoleListener(response + "\n");
         }
+       
     }
     
     @Override
@@ -268,22 +294,16 @@ public class SerialCommunicator implements SerialPortEventListener{
                     }
                     
                     buffer.append((char)data);
-                    //buffer[len++] = (byte) data;
                 }
 
                 // Strip off that terminator.
                 String output = buffer.toString();
                 buffer.setLength(0);
-                //output = output.replaceAll(lineTerminator, "");
+
                 output = output.replace("\n", "").replace("\r","");
+                
                 // File mode has a stricter handling on data to GUI.
-                if (fileMode) {
-                    this.fileResponseMessage(output);
-                // Else command mode.
-                } else {
-                    // Print it right to the GUI.
-                    this.sendMessageToConsoleListener(output + "\n");
-                }
+                this.responseMessage(output);
             }
             catch ( IOException e )
             {
