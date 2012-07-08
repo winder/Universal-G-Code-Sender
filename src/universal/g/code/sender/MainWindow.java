@@ -11,6 +11,8 @@
 package universal.g.code.sender;
 
 import gnu.io.CommPortIdentifier;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
@@ -19,6 +21,9 @@ import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.Timer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import javax.swing.text.DefaultCaret;
 
 /**
@@ -44,6 +49,7 @@ implements SerialCommunicatorListener, KeyListener {
     private void initComponents() {
 
         lineBreakGroup = new javax.swing.ButtonGroup();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         commandLabel = new javax.swing.JLabel();
         lineBreakNR = new javax.swing.JRadioButton();
@@ -54,8 +60,6 @@ implements SerialCommunicatorListener, KeyListener {
         openButton = new javax.swing.JButton();
         closeButton = new javax.swing.JButton();
         lineBreakN = new javax.swing.JRadioButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        consoleTextArea = new javax.swing.JTextArea();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         browseButton = new javax.swing.JButton();
@@ -69,6 +73,13 @@ implements SerialCommunicatorListener, KeyListener {
         sentRowsValueLabel = new javax.swing.JLabel();
         rowsLabel = new javax.swing.JLabel();
         rowsValueLabel = new javax.swing.JLabel();
+        durationLabel = new javax.swing.JLabel();
+        durationValueLabel = new javax.swing.JLabel();
+        jTabbedPane2 = new javax.swing.JTabbedPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        consoleTextArea = new javax.swing.JTextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        commandTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -144,7 +155,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(openButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(closeButton)
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(0, 4, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -166,10 +177,6 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(closeButton))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        consoleTextArea.setColumns(20);
-        consoleTextArea.setRows(5);
-        jScrollPane2.setViewportView(consoleTextArea);
 
         scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
@@ -223,6 +230,10 @@ implements SerialCommunicatorListener, KeyListener {
 
         rowsValueLabel.setText("0");
 
+        durationLabel.setText("Duration:");
+
+        durationValueLabel.setText("00:00:00");
+
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -233,22 +244,28 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(fileLabel)
-                            .add(jPanel2Layout.createSequentialGroup()
-                                .add(printButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(stopButton)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(overrideSpeedCheckBox))
-                            .add(jPanel2Layout.createSequentialGroup()
-                                .add(sentRowsLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(sentRowsValueLabel)
-                                .add(49, 49, 49)
-                                .add(rowsLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(rowsValueLabel)))
+                            .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel2Layout.createSequentialGroup()
+                                    .add(sentRowsLabel)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(sentRowsValueLabel)
+                                    .add(49, 49, 49)
+                                    .add(rowsLabel)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(rowsValueLabel)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .add(durationLabel)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(durationValueLabel)
+                                    .add(6, 6, 6))
+                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel2Layout.createSequentialGroup()
+                                    .add(printButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(stopButton)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                    .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                    .add(overrideSpeedCheckBox))))
                         .addContainerGap(121, Short.MAX_VALUE))
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(fileTextField)
@@ -269,14 +286,57 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(stopButton)
                     .add(overrideSpeedCheckBox)
                     .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(14, 14, 14)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(sentRowsLabel)
                     .add(sentRowsValueLabel)
                     .add(rowsLabel)
-                    .add(rowsValueLabel))
-                .addContainerGap(8, Short.MAX_VALUE))
+                    .add(rowsValueLabel)
+                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(durationValueLabel)
+                        .add(durationLabel)))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
+
+        consoleTextArea.setColumns(20);
+        consoleTextArea.setRows(5);
+        jScrollPane2.setViewportView(consoleTextArea);
+
+        jTabbedPane2.addTab("Console", jScrollPane2);
+
+        commandTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Command", "Sent", "Done", "Response"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        commandTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(commandTable);
+        commandTable.getColumnModel().getColumn(0).setPreferredWidth(500);
+        commandTable.getColumnModel().getColumn(1).setResizable(false);
+        commandTable.getColumnModel().getColumn(1).setPreferredWidth(40);
+        commandTable.getColumnModel().getColumn(2).setResizable(false);
+        commandTable.getColumnModel().getColumn(2).setPreferredWidth(40);
+        commandTable.getColumnModel().getColumn(3).setPreferredWidth(350);
+
+        jTabbedPane2.addTab("File Commands", jScrollPane1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -285,16 +345,14 @@ implements SerialCommunicatorListener, KeyListener {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jScrollPane2)
                     .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(scrollWindowCheckBox)
-                                .add(0, 0, Short.MAX_VALUE))
-                            .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(scrollWindowCheckBox)
+                        .add(0, 0, Short.MAX_VALUE))
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
+            .add(jTabbedPane2)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -307,8 +365,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(scrollWindowCheckBox))
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 263, Short.MAX_VALUE)
-                .addContainerGap())
+                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
         );
 
         pack();
@@ -323,21 +380,21 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-                        String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-                        this.consoleTextArea.append(">>> "+str+"\n");
-                        this.commPort.sendStringToComm(str + "\n");
-                        this.commandTextField.setText("");
-                        this.commandList.add(str);
-                        this.commandNum = -1;
+        String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
+        this.consoleTextArea.append(">>> "+str+"\n");
+        this.commPort.sendStringToComm(str + "\n");
+        this.commandTextField.setText("");
+        this.commandList.add(str);
+        this.commandNum = -1;
 
-                        try {
-                            if (this.commPort.isCommPortOpen() == false) {
-                                this.closeCommConnection();
-                                this.displayErrorDialog("The serial port has closed unexpectedly.");
-                            }
-                        } catch (Exception e) {
-                            this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
-                        }
+        try {
+            if (this.commPort.isCommPortOpen() == false) {
+                this.closeCommConnection();
+                this.displayErrorDialog("The serial port has closed unexpectedly.");
+            }
+        } catch (Exception e) {
+            this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
+        }
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
     // TODO: Find out how to make these key* functions actions like the above.
@@ -402,6 +459,10 @@ implements SerialCommunicatorListener, KeyListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
             processFile(fileChooser.getSelectedFile());
+            
+            // Reset labels
+            this.durationValueLabel.setText("00:00:00");
+            this.sentRowsValueLabel.setText("0");
         } else {
             System.out.println("Open command cancelled by user.");
         }
@@ -414,14 +475,30 @@ implements SerialCommunicatorListener, KeyListener {
     private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
         this.commPort.setLineTerminator(this.getNewline());
     }//GEN-LAST:event_lineBreakNActionPerformed
-
+    
     private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                durationValueLabel.setText(timePassed());
+            }
+        };
+        
+        startTime = System.currentTimeMillis();
+        if (timer != null) timer.stop();
+        timer = new Timer(1000, actionListener);
+        timer.start();
+        
         try {
+            while (this.tableModel.getRowCount()>0){
+                this.tableModel.removeRow(0);
+            }
             this.sentRowsValueLabel.setText("0");
             this.updateControlsForSend(true);
             int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
             this.commPort.streamFileToComm(this.gcodeFile);
         } catch (Exception e) {
+            timer.stop();
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
     }//GEN-LAST:event_printButtonActionPerformed
@@ -483,14 +560,17 @@ implements SerialCommunicatorListener, KeyListener {
 
         // Register listeners
         this.commPort.setFileStreamCompleteListener(this);
+        this.commPort.setCommandQueuedListener(this);
+        this.commPort.setCommandSentListener(this);
         this.commPort.setCommandCompleteListener(this);
         this.commPort.setCommandPreprocessorListener(this);
         this.commPort.setCommConsoleListener(this);
   
         
         // Command History
-
         this.commandTextField.addKeyListener(this);
+        
+        this.tableModel = (DefaultTableModel) this.commandTable.getModel();
 }
 
     private void updateControlsForComm(boolean isOpen) {
@@ -633,6 +713,19 @@ implements SerialCommunicatorListener, KeyListener {
 
     }
     
+    // TODO: put this in a util class
+    private String timePassed(){
+        long now = System.currentTimeMillis();
+        long elapsedTime = now - startTime;
+        String format = String.format("%%0%dd", 2);  
+        elapsedTime = elapsedTime / 1000;  
+        String seconds = String.format(format, elapsedTime % 60);  
+        String minutes = String.format(format, (elapsedTime % 3600) / 60);  
+        String hours = String.format(format, elapsedTime / 3600);  
+        String time =  hours + ":" + minutes + ":" + seconds;  
+        return time;  
+    }
+    
     private void displayErrorDialog(String errorMessage) {
         JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -642,23 +735,43 @@ implements SerialCommunicatorListener, KeyListener {
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        // Stop the timer
+        this.timer.stop();
+        this.endTime = System.currentTimeMillis();
+        
         this.updateControlsForSend(false);
         if (success) {
-            JOptionPane.showMessageDialog(new JFrame(), "Job complete.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(new JFrame(), "Job complete after "+this.durationValueLabel.getText(), "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
             displayErrorDialog("Job completed with error.");
         }
     }
+    
+    @Override
+    public void commandQueued(GcodeCommand command) {
+        tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
+    }
      
     @Override
     public void commandSent(GcodeCommand command) {
+        //tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
         
+        // command (in case of preprocessor change)
+        tableModel.setValueAt(command.getCommand(), command.getCommandNumber(), 0);
+        // sent
+        tableModel.setValueAt(command.isSent(), command.getCommandNumber(), 1);
     }
     
     @Override
     public void commandComplete(GcodeCommand command) {
         Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
         this.sentRowsValueLabel.setText(i.toString());
+        
+        // done
+        tableModel.setValueAt(command.isOkErrorResponse(), command.getCommandNumber(), 2);
+        
+        // response
+        tableModel.setValueAt(command.getResponse(), command.getCommandNumber(), 3);
     }
     
     @Override
@@ -696,6 +809,12 @@ implements SerialCommunicatorListener, KeyListener {
     private SerialCommunicator commPort;
     private int commandNum = -1;
     private List<String> commandList;
+    private DefaultTableModel tableModel;
+    
+    // Duration timer
+    private Timer timer;
+    private long startTime;
+    private long endTime;
     
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -703,13 +822,19 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JButton closeButton;
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
+    private javax.swing.JTable commandTable;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JTextArea consoleTextArea;
+    private javax.swing.JLabel durationLabel;
+    private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JRadioButton lineBreakN;
     private javax.swing.JRadioButton lineBreakNR;

@@ -10,6 +10,7 @@ package universal.g.code.sender;
  */
 public interface SerialCommunicatorListener {
     void fileStreamComplete(String filename, boolean success);
+    void commandQueued(GcodeCommand command);
     void commandSent(GcodeCommand command);
     void commandComplete(GcodeCommand command);
     void messageForConsole(String msg);
