@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package universal.g.code.sender;
+package com.willwinder.universalgcodesender;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

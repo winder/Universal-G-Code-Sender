@@ -8,7 +8,7 @@
  *
  * Created on Jun 26, 2012, 3:04:38 PM
  */
-package universal.g.code.sender;
+package com.willwinder.universalgcodesender;
 
 import gnu.io.CommPortIdentifier;
 import java.awt.event.ActionEvent;

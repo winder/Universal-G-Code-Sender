@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
-Ant-Version: Apache Ant 1.7.1
+Ant-Version: Apache Ant 1.8.2
 Class-Path: lib/RXTXcomm.jar
-One-Jar-Main-Class: my.stuff.HelloWorld
+One-Jar-Main-Class: com.willwinder.universalgcodesender.MainWindow
