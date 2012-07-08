@@ -15,6 +15,85 @@
         <copy file="release/librxtxSerial.so" flatten="true" todir="${dist.dir}"/> 
         <copy file="release/librxtxSerial64.so" flatten="true" todir="${dist.dir}"/> 
     </target> 
+
+<!-- provide a path where executable distros should be saved  -->
+<property name="release.dir" value="${basedir}/release"/>
+<!-- provide the path to the shared native libraries directory -->
+<property name="natives.dir" value="${basedir}/lib/natives/"/>
+<!-- provide a base name for your executable. -->
+<property name="standalone.jar.name" value="UniversalGcodeSender"/>
+
+    <import file="one-jar-ant-task.xml" />
+    <target name="dist-all" depends="jar"
+            description="Bundles a stand-alone OneJAR distribution">
+        <echo>Bundling: OneJAR is copying natives to ${dist.jar.dir}/natives </echo>
+        <copy todir="${dist.jar.dir}/natives/linux">
+            <fileset dir="${natives.dir}"  includes="*.so"/>
+        </copy>
+        <copy todir="${dist.jar.dir}/natives/win">
+            <fileset dir="${natives.dir}"  includes="*.dll"/>
+        </copy>
+        <copy todir="${dist.jar.dir}/natives/mac">
+            <fileset dir="${natives.dir}"  includes="*.dylib"/>
+            <fileset dir="${natives.dir}"  includes="*.jnilib"/>
+        </copy>
+        <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${natives.dir}/*.*" />
+            </binlib>
+            <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
+        </one-jar> 
+        <echo file="${dist.jar.dir}/README.txt" append="true">
+Run the stand-alone distribution from the command line using:
+        java -jar -Xmx256m ${standalone.jar.name}-all.jar</echo>
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-win.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-win.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/win/*.*" />
+            </binlib>
+        </one-jar>
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-linux.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-linux.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/linux/*.*" />
+            </binlib>
+        </one-jar>
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-mac.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-mac.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
+            </binlib>
+        </one-jar>
+        <echo>Bundling: OneJAR is done.</echo>
+    </target>
+
+
+
     <!--
 
     There exist several targets which are by default empty and which can be 
