@@ -23,7 +23,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 import javax.swing.text.DefaultCaret;
 
 /**
@@ -381,7 +380,6 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
         String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        this.consoleTextArea.append(">>> "+str+"\n");
         this.commPort.sendStringToComm(str + "\n");
         this.commandTextField.setText("");
         this.commandList.add(str);

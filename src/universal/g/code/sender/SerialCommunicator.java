@@ -124,7 +124,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     void sendStringToComm(String command) {
         String str = command;
         
-        this.sendMessageToConsoleListener(">>>> " + command);
+        this.sendMessageToConsoleListener(">>> " + command);
         this.commandStream.append(command);
         synchronized (this.serialWriterThread) {
             this.serialWriterThread.notifyAll();
