@@ -9,9 +9,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TooManyListenersException;
-import javax.swing.JLabel;
-import javax.swing.JTextArea;
 
 /**
  *
@@ -30,7 +27,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     private String lineTerminator = "\r\n";
     private List<GcodeCommand> commandList;
     
-    
     // File transfer variables.
     private File gcodeFile;
     private Integer numRows;
@@ -39,6 +35,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     // Callback interfaces
     SerialCommunicatorListener fileStreamCompleteListener;
+    SerialCommunicatorListener commandQueuedListener;
     SerialCommunicatorListener commandSentListener;
     SerialCommunicatorListener commandCompleteListener;
     SerialCommunicatorListener commandPreprocessorListener;
@@ -56,6 +53,10 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Register for callbacks
     void setFileStreamCompleteListener(SerialCommunicatorListener fscl) {
         this.fileStreamCompleteListener = fscl;
+    }
+    
+    void setCommandQueuedListener(SerialCommunicatorListener fscl) {
+        this.commandQueuedListener = fscl;
     }
     
     void setCommandSentListener(SerialCommunicatorListener fscl) {
@@ -123,6 +124,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     void sendStringToComm(String command) {
         String str = command;
         
+        this.sendMessageToConsoleListener(">>>> " + command);
         this.commandStream.append(command);
         synchronized (this.serialWriterThread) {
             this.serialWriterThread.notifyAll();
@@ -170,10 +172,13 @@ public class SerialCommunicator implements SerialPortEventListener{
 
         String line;
         GcodeCommand command;
-        int commandNum = 1;
+        int commandNum = 0;
         while ((line = fileStream.readLine()) != null) {
             command = new GcodeCommand(line, commandNum++);
             this.commandList.add(command);
+            if (this.commandQueuedListener != null) {
+                this.commandQueuedListener.commandQueued(command);
+            }
         }
         
         return true;
@@ -189,8 +194,6 @@ public class SerialCommunicator implements SerialPortEventListener{
 
         // Keep sending commands until there are no more, or the character
         // buffer is full.
-//((numberOfCharacters(this.sentBuffer) + this.commandList.get(numRows).getCommand().length()) < CommPortUtils.GRBL_RX_BUFFER_SIZE)
-
         while (this.numRows < this.commandList.size() &&
                 checkRoomInBuffer(this.commandList.get(this.numRows).getCommand())) {
 
@@ -207,15 +210,16 @@ public class SerialCommunicator implements SerialPortEventListener{
             this.sentBuffer.add(command.getCommand());
             this.sendStringToComm(command.getCommand() + '\n');
             
+            command.setSent(true);
+            
             if (this.commandSentListener != null) {
                 this.commandCompleteListener.commandSent(command);
             }
             
-            this.sendMessageToConsoleListener(
-                    "\nSND: "+this.numRows+
-                    " : " + command.getCommand() + 
-                    " BUF: " + numberOfCharacters(this.sentBuffer) + 
-                    " REC: ");
+            //this.sendMessageToConsoleListener(
+            //        "\nSND: "+this.numRows+
+            //        " : " + command.getCommand() + 
+            //        " BUF: " + numberOfCharacters(this.sentBuffer));
         }
         
         // If we've received as many responses as we expect... wrap up.
@@ -243,6 +247,10 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     // Processes a serial response
     void responseMessage( String response ) {
+        // If not file mode, send it to the console without processing.
+        this.sendMessageToConsoleListener(response + "\n");
+        
+        // If file mode, parse the output
         if (fileMode) {            
             // Check if was 'ok' or 'error'.
             if (GcodeCommand.isOkErrorResponse(response)) {
@@ -252,7 +260,8 @@ public class SerialCommunicator implements SerialPortEventListener{
                 command.setResponse(response);
                 this.numResponses = this.numResponses + 1;
                 
-                this.sendMessageToConsoleListener(" " + command.responseString());
+                // No longer need ok/error in the console...
+                //this.sendMessageToConsoleListener(" " + command.responseString());
 
                 if (this.commandCompleteListener != null) {
                     this.commandCompleteListener.commandComplete(command);
@@ -262,11 +271,7 @@ public class SerialCommunicator implements SerialPortEventListener{
 
                 this.streamFileCommands();
             }
-        } else {
-            // If not file mode, send it to the console without processing.
-            this.sendMessageToConsoleListener(response + "\n");
         }
-       
     }
     
     @Override
