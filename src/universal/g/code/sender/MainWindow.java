@@ -503,6 +503,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
         this.commPort.cancelSend();
+        //this.updateControlsForSend(true);
         this.updateControlsForSend(true);
     }//GEN-LAST:event_stopButtonActionPerformed
 
