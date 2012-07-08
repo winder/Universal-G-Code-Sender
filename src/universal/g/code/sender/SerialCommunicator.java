@@ -28,6 +28,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     private List<GcodeCommand> commandList;
     
     // File transfer variables.
+    private Boolean sendPaused = false;
     private File gcodeFile;
     private Integer numRows;
     private Integer numResponses;
@@ -116,6 +117,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     void closeCommPort() {
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
+        this.cancelSend();
         this.commPort.close();
     }
     
@@ -124,6 +126,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     void sendStringToComm(String command) {
         String str = command;
         
+        // Command has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         this.commandStream.append(command);
         synchronized (this.serialWriterThread) {
@@ -164,6 +167,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.streamFileCommands();     
     }
     
+    // TODO: This could probably be a static helper that returns the commandList.
     Boolean parseFileIntoCommandList(File file) throws FileNotFoundException, IOException {
 
         FileInputStream fstream = new FileInputStream(this.gcodeFile);
@@ -184,6 +188,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         return true;
     }
     
+    // TODO: This could be a static helper.
     private Boolean checkRoomInBuffer(String nextCommand) {
         int charInBuffer = numberOfCharacters(this.sentBuffer);
         charInBuffer += nextCommand.length();
@@ -239,6 +244,18 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
     }
     
+    void pauseSend() {
+        this.sendMessageToConsoleListener("\n**** Pausing file transfer. ****\n");
+        this.sendPaused = true;
+    }
+    
+    void resumeSend() {
+        this.sendMessageToConsoleListener("\n**** Resuming file transfer. ****\n");
+                
+        this.sendPaused = false;
+        this.streamFileCommands();
+    }
+    
     void cancelSend() {
         if (fileMode) {
             finishStreamFileToComm();
@@ -269,7 +286,9 @@ public class SerialCommunicator implements SerialPortEventListener{
                 // Remove completed command from buffer tracker.
                 this.sentBuffer.remove(0);
 
-                this.streamFileCommands();
+                if (this.sendPaused == false) {
+                    this.streamFileCommands();
+                }
             }
         }
     }

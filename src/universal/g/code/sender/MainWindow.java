@@ -62,8 +62,8 @@ implements SerialCommunicatorListener, KeyListener {
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         browseButton = new javax.swing.JButton();
-        printButton = new javax.swing.JButton();
-        stopButton = new javax.swing.JButton();
+        sendButton = new javax.swing.JButton();
+        pauseButton = new javax.swing.JButton();
         fileTextField = new javax.swing.JTextField();
         fileLabel = new javax.swing.JLabel();
         overrideSpeedCheckBox = new javax.swing.JCheckBox();
@@ -74,6 +74,7 @@ implements SerialCommunicatorListener, KeyListener {
         rowsValueLabel = new javax.swing.JLabel();
         durationLabel = new javax.swing.JLabel();
         durationValueLabel = new javax.swing.JLabel();
+        cancelButton = new javax.swing.JButton();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
@@ -154,7 +155,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(openButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(closeButton)
-                        .add(0, 4, Short.MAX_VALUE)))
+                        .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -195,19 +196,19 @@ implements SerialCommunicatorListener, KeyListener {
             }
         });
 
-        printButton.setText("Send");
-        printButton.setEnabled(false);
-        printButton.addActionListener(new java.awt.event.ActionListener() {
+        sendButton.setText("Send");
+        sendButton.setEnabled(false);
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                printButtonActionPerformed(evt);
+                sendButtonActionPerformed(evt);
             }
         });
 
-        stopButton.setText("Stop");
-        stopButton.setEnabled(false);
-        stopButton.addActionListener(new java.awt.event.ActionListener() {
+        pauseButton.setText("Pause");
+        pauseButton.setEnabled(false);
+        pauseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopButtonActionPerformed(evt);
+                pauseButtonActionPerformed(evt);
             }
         });
 
@@ -233,6 +234,14 @@ implements SerialCommunicatorListener, KeyListener {
 
         durationValueLabel.setText("00:00:00");
 
+        cancelButton.setText("Cancel");
+        cancelButton.setEnabled(false);
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -241,35 +250,36 @@ implements SerialCommunicatorListener, KeyListener {
                 .addContainerGap()
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel2Layout.createSequentialGroup()
+                        .add(fileTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(browseButton))
+                    .add(jPanel2Layout.createSequentialGroup()
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(fileLabel)
-                            .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel2Layout.createSequentialGroup()
-                                    .add(sentRowsLabel)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(sentRowsValueLabel)
-                                    .add(49, 49, 49)
-                                    .add(rowsLabel)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(rowsValueLabel)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .add(durationLabel)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(durationValueLabel)
-                                    .add(6, 6, 6))
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel2Layout.createSequentialGroup()
-                                    .add(printButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(stopButton)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                    .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                    .add(overrideSpeedCheckBox))))
-                        .addContainerGap(121, Short.MAX_VALUE))
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(fileTextField)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(browseButton))))
+                            .add(jPanel2Layout.createSequentialGroup()
+                                .add(sentRowsLabel)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(sentRowsValueLabel)
+                                .add(49, 49, 49)
+                                .add(rowsLabel)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(rowsValueLabel)
+                                .add(46, 46, 46)
+                                .add(durationLabel)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(durationValueLabel))
+                            .add(jPanel2Layout.createSequentialGroup()
+                                .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(cancelButton)
+                                .add(18, 18, 18)
+                                .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(overrideSpeedCheckBox)))
+                        .add(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -281,19 +291,21 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(browseButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(printButton)
-                    .add(stopButton)
+                    .add(sendButton)
+                    .add(pauseButton)
                     .add(overrideSpeedCheckBox)
-                    .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(cancelButton))
                 .add(14, 14, 14)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sentRowsLabel)
-                    .add(sentRowsValueLabel)
-                    .add(rowsLabel)
-                    .add(rowsValueLabel)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(durationValueLabel)
-                        .add(durationLabel)))
+                        .add(durationLabel))
+                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(sentRowsLabel)
+                        .add(sentRowsValueLabel)
+                        .add(rowsLabel)
+                        .add(rowsValueLabel)))
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
@@ -462,7 +474,7 @@ implements SerialCommunicatorListener, KeyListener {
             this.durationValueLabel.setText("00:00:00");
             this.sentRowsValueLabel.setText("0");
         } else {
-            System.out.println("Open command cancelled by user.");
+            // Canceled file open.
         }
     }//GEN-LAST:event_browseButtonActionPerformed
 
@@ -474,7 +486,7 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort.setLineTerminator(this.getNewline());
     }//GEN-LAST:event_lineBreakNActionPerformed
     
-    private void printButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_printButtonActionPerformed
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -499,13 +511,24 @@ implements SerialCommunicatorListener, KeyListener {
             timer.stop();
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
-    }//GEN-LAST:event_printButtonActionPerformed
+    }//GEN-LAST:event_sendButtonActionPerformed
 
-    private void stopButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopButtonActionPerformed
+    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
+        if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
+            this.commPort.pauseSend();
+            this.pauseButton.setText("Resume");
+        }
+        else if (this.pauseButton.getText().equalsIgnoreCase("resume")) {
+            this.commPort.resumeSend();
+            this.pauseButton.setText("Pause");
+        }
+    }//GEN-LAST:event_pauseButtonActionPerformed
+
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.commPort.cancelSend();
-        //this.updateControlsForSend(true);
-        this.updateControlsForSend(true);
-    }//GEN-LAST:event_stopButtonActionPerformed
+                
+        this.updateControlsForSend(false);
+    }//GEN-LAST:event_cancelButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -592,34 +615,37 @@ implements SerialCommunicatorListener, KeyListener {
     
     private void updateFileControlsForComm(boolean isOpen) {
         if (isOpen) {
-            this.printButton.setEnabled(true);
+            this.sendButton.setEnabled(true);
             this.browseButton.setEnabled(true);
             this.overrideSpeedCheckBox.setEnabled(true);
             this.overrideSpeedValueSpinner.setEnabled(true);
             this.fileTextField.setEnabled(true);
         } else {
-            this.printButton.setEnabled(false);
+            this.sendButton.setEnabled(false);
             this.browseButton.setEnabled(false);
             this.overrideSpeedCheckBox.setEnabled(false);
             this.overrideSpeedValueSpinner.setEnabled(false);
             this.fileTextField.setEnabled(false);
             
-            // This might be on... turn it off.
-            this.stopButton.setEnabled(false);
+            // These might be on... turn it off.
+            this.pauseButton.setEnabled(false);
+            this.cancelButton.setEnabled(false);
         }
     }
     
     private void updateControlsForSend(boolean isSending) {
         if (isSending) {
-            this.stopButton.setEnabled(true);
+            this.pauseButton.setEnabled(true);
             this.commandTextField.setEnabled(false);
             this.overrideSpeedCheckBox.setEnabled(false);
             this.overrideSpeedValueSpinner.setEnabled(false);
+            this.cancelButton.setEnabled(true);
         } else {
-            this.stopButton.setEnabled(false);
+            this.pauseButton.setEnabled(false);
             this.commandTextField.setEnabled(true);
             this.overrideSpeedCheckBox.setEnabled(true);
             this.overrideSpeedValueSpinner.setEnabled(true);
+            this.cancelButton.setEnabled(false);
         }
     }
     
@@ -707,6 +733,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void closeCommConnection() {
         this.commPort.closeCommPort();
+        
         this.updateControlsForComm(false);
         this.consoleTextArea.append("\n**** Connection closed ****");
 
@@ -794,6 +821,7 @@ implements SerialCommunicatorListener, KeyListener {
                 System.out.println("New command: "+newCommand);
             }
         }
+        
         return newCommand;
     }
 
@@ -818,6 +846,7 @@ implements SerialCommunicatorListener, KeyListener {
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton browseButton;
+    private javax.swing.JButton cancelButton;
     private javax.swing.JButton closeButton;
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
@@ -841,13 +870,13 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JButton openButton;
     private javax.swing.JCheckBox overrideSpeedCheckBox;
     private javax.swing.JSpinner overrideSpeedValueSpinner;
-    private javax.swing.JButton printButton;
+    private javax.swing.JButton pauseButton;
     private javax.swing.JButton refreshButton;
     private javax.swing.JLabel rowsLabel;
     private javax.swing.JLabel rowsValueLabel;
     private javax.swing.JCheckBox scrollWindowCheckBox;
+    private javax.swing.JButton sendButton;
     private javax.swing.JLabel sentRowsLabel;
     private javax.swing.JLabel sentRowsValueLabel;
-    private javax.swing.JButton stopButton;
     // End of variables declaration//GEN-END:variables
 }
