@@ -22,6 +22,7 @@ public class GcodeFileTypeFilter extends FileFilter {
         if (extension != null) {
             if (extension.equals("cnc") ||
                 extension.equals("nc") ||
+                extension.equals("ngc") ||
                 extension.equals("tap") ||
                 extension.equals("txt") ||
                 extension.equals("gcode")) {
