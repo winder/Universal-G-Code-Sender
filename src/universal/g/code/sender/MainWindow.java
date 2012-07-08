@@ -515,10 +515,28 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
         if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
+            this.commPort.sendStringToComm("!\n");
+            try {
+                if (this.commPort.isCommPortOpen() == false) {
+                    this.closeCommConnection();
+                    this.displayErrorDialog("The serial port has closed unexpectedly.");
+                }
+            } catch (Exception e) {
+                this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
+            }
             this.commPort.pauseSend();
             this.pauseButton.setText("Resume");
         }
         else if (this.pauseButton.getText().equalsIgnoreCase("resume")) {
+            this.commPort.sendStringToComm("~\n");
+            try {
+                if (this.commPort.isCommPortOpen() == false) {
+                    this.closeCommConnection();
+                    this.displayErrorDialog("The serial port has closed unexpectedly.");
+                }
+            } catch (Exception e) {
+                this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
+            }
             this.commPort.resumeSend();
             this.pauseButton.setText("Pause");
         }
