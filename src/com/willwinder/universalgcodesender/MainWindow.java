@@ -485,7 +485,7 @@ implements SerialCommunicatorListener, KeyListener {
     private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
         this.commPort.setLineTerminator(this.getNewline());
     }//GEN-LAST:event_lineBreakNActionPerformed
-    
+
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         ActionListener actionListener = new ActionListener() {
             @Override
@@ -500,15 +500,14 @@ implements SerialCommunicatorListener, KeyListener {
         timer.start();
         
         try {
-            while (this.tableModel.getRowCount()>0){
-                this.tableModel.removeRow(0);
-            }
+            this.clearTable();
             this.sentRowsValueLabel.setText("0");
             this.updateControlsForSend(true);
             int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
             this.commPort.streamFileToComm(this.gcodeFile);
         } catch (Exception e) {
             timer.stop();
+            e.printStackTrace();
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -752,6 +751,12 @@ implements SerialCommunicatorListener, KeyListener {
         return time;  
     }
     
+    void clearTable() {
+        while (this.tableModel.getRowCount()>0){
+            this.tableModel.removeRow(0);
+        }
+    }
+        
     private void displayErrorDialog(String errorMessage) {
         JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
@@ -775,7 +780,7 @@ implements SerialCommunicatorListener, KeyListener {
     
     @Override
     public void commandQueued(GcodeCommand command) {
-        tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
+        tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
     }
      
     @Override
@@ -783,7 +788,7 @@ implements SerialCommunicatorListener, KeyListener {
         //tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
         
         // command (in case of preprocessor change)
-        tableModel.setValueAt(command.getCommand(), command.getCommandNumber(), 0);
+        tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
         // sent
         tableModel.setValueAt(command.isSent(), command.getCommandNumber(), 1);
     }

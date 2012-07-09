@@ -47,7 +47,12 @@ public class GcodeCommand {
     }
     
     /** Getters. */
-    public String getCommand() {
+    @Override
+    public String toString() {
+        return getCommandString();
+    }
+    
+    public String getCommandString() {
         return this.command;
     }
     
