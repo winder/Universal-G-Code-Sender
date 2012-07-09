@@ -10,23 +10,25 @@
 <project name="Universal_G-Code_Sender" default="default" basedir=".">
     <description>Builds, tests, and runs the project Universal G-Code Sender.</description>
     <import file="nbproject/build-impl.xml"/>
-    <target name="-post-jar"> 
-        <copy file="release/start.sh" flatten="true" todir="${dist.dir}"/> 
-        <copy file="release/librxtxSerial.so" flatten="true" todir="${dist.dir}"/> 
-        <copy file="release/librxtxSerial64.so" flatten="true" todir="${dist.dir}"/> 
-    </target> 
 
-<!-- provide a path where executable distros should be saved  -->
-<property name="release.dir" value="${basedir}/release"/>
-<!-- provide the path to the shared native libraries directory -->
-<property name="natives.dir" value="${basedir}/lib/natives/"/>
-<!-- provide a base name for your executable. -->
-<property name="standalone.jar.name" value="UniversalGcodeSender"/>
+    <!-- provide a path where executable distros should be saved  -->
+    <property name="release.dir" value="${basedir}/release"/>
+    <!-- provide the path to the shared native libraries directory -->
+    <property name="natives.dir" value="${basedir}/lib/natives/"/>
+    <!-- provide a base name for your executable. -->
+    <property name="standalone.jar.name" value="UniversalGcodeSender"/>
 
     <import file="one-jar-ant-task.xml" />
-    <target name="dist-all" depends="jar"
+    
+    <!-- One-Jar .jar building -->
+    <target name="onejar-dist-all" depends="jar"
             description="Bundles a stand-alone OneJAR distribution">
         <echo>Bundling: OneJAR is copying natives to ${dist.jar.dir}/natives </echo>
+        <!--
+        <copy todir="${dist.jar.dir}/natives/linux64">
+            <fileset dir="${natives.dir}"  includes="*64.so"/>
+        </copy>
+        -->
         <copy todir="${dist.jar.dir}/natives/linux">
             <fileset dir="${natives.dir}"  includes="*.so"/>
         </copy>
@@ -77,6 +79,21 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/natives/linux/*.*" />
             </binlib>
         </one-jar>
+        <!--
+
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-linux64.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/linux64/*.*" />
+            </binlib>
+        </one-jar>
+        -->
         <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-mac.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-mac.jar" manifest="onejar.mf" update="true">
             <main>
@@ -92,7 +109,63 @@ Run the stand-alone distribution from the command line using:
         <echo>Bundling: OneJAR is done.</echo>
     </target>
 
+    <!-- Zipped One-Jar Releases -->
+    <target name="onejar-dist-all-zip" depends="onejar-dist-all"
+            description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
+        <echo>Bundling: Creating JAR Launchers</echo>
+        <mkdir  dir="${release.dir}" />
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-mac" />
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-win" />
+        <echo  file="${release.dir}/${standalone.jar.name}-win/${standalone.jar.name}.bat">
+    java -jar -Xmx256m ${standalone.jar.name}-win.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-win/"
+                file="${dist.jar.dir}/${standalone.jar.name}-win.jar" />
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-linux" />
+        <echo  file="${release.dir}/${standalone.jar.name}-linux/${standalone.jar.name}.sh">
+    java -jar -Xmx256m ${standalone.jar.name}-linux.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-linux/"
+                file="${dist.jar.dir}/${standalone.jar.name}-linux.jar" />         
+<!--                
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-linux64" />
+        <echo  file="${release.dir}/${standalone.jar.name}-linux64/${standalone.jar.name}.sh">
+    java -jar -Xmx256m ${standalone.jar.name}-linux64.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-linux64/"
+                file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
+-->
+        <echo>Bundling: Creating ZIP Archives</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-win.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-win" update="true" />
+        <zip destfile="${release.dir}/${standalone.jar.name}-linux.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-linux" update="true" />
+<!--            
+        <zip destfile="${release.dir}/${standalone.jar.name}-linux64.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-linux64" update="true" />
+-->
+        <move todir="${release.dir}/${standalone.jar.name}-mac/"
+            file="${dist.jar.dir}/${standalone.jar.name}-mac.jar" >
+        </move>
+        <zip destfile="${release.dir}/${standalone.jar.name}-mac.zip"
+            basedir="${release.dir}/${standalone.jar.name}-mac" update="true" />
+        <echo>Bundling: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-win" />
+        <delete dir="${release.dir}/${standalone.jar.name}-linux" />
+<!--        
+        <delete dir="${release.dir}/${standalone.jar.name}-linux64" />
+-->        
+        <delete dir="${release.dir}/${standalone.jar.name}-mac" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-win.jar" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-linux.jar" />
+<!--        
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
+-->        
+    </target>
 
+    <target name="-post-clean">
+        <delete dir="${release.dir}" />
+    </target>
 
     <!--
 

@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Ant-Version: Apache Ant 1.8.2
 Main-Class: com.simontuffs.onejar.Boot
-Class-Path: lib/RXTXcomm.jar
+Class-Path: lib/RXTXcomm.jar lib/swing-layout-1.0.4.jar
 One-Jar-Main-Class: com.willwinder.universalgcodesender.MainWindow
 
