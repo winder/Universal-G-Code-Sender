@@ -36,11 +36,6 @@ public class GcodeCommandBuffer {
         return this.commandList.size();
     }
     
-// TODO: REMOVE THIS LATER, IT IS FOR TESTING
-GcodeCommand test(int index) {
-    return this.commandList.get(index);
-}
-    
     void resetIterator() {
         this.listIterator = this.commandList.listIterator();
     }

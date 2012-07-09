@@ -787,8 +787,10 @@ implements SerialCommunicatorListener, KeyListener {
     public void commandSent(GcodeCommand command) {
         //tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
         
+        // TODO: If Preprocessor changes the command mark the cell somehow
         // command (in case of preprocessor change)
-        tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
+        //tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
+        
         // sent
         tableModel.setValueAt(command.isSent(), command.getCommandNumber(), 1);
     }

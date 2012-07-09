@@ -181,7 +181,7 @@ public class SerialCommunicator implements SerialPortEventListener{
 
         // Keep sending commands until there are no more, or the character
         // buffer is full.
-        while (this.commandBuffer.hasNext() &&
+        while ((this.commandBuffer.currentCommand().isSent() == false) &&
                 checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
 
             GcodeCommand command = this.commandBuffer.currentCommand();
@@ -251,11 +251,6 @@ public class SerialCommunicator implements SerialPortEventListener{
 
                 // Pop the front of the active list.
                 GcodeCommand command = this.activeCommandList.pop();
-
-// TODO: This is a test to make sure the objects are equal
-//       DELETE IT AFTER TESTING
-GcodeCommand test = this.commandBuffer.test(this.numResponses);
-System.out.println("*******\n command and test should be equal. (command == test) ==" + (command == test)+"\n******");
                 
                 command.setResponse(response);
                 this.numResponses = this.numResponses + 1;
