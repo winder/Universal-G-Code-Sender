@@ -38,15 +38,26 @@
                 <globmapper from="*32.so" to="*.so" /> 
             </mapper>
         </copy>
-        <copy todir="${dist.jar.dir}/natives/win">
-            <fileset dir="${natives.dir}"  includes="*.dll"/>
+        <copy todir="${dist.jar.dir}/natives/win32">
+            <fileset dir="${natives.dir}"  includes="*32.dll"/>
+            <mapper>
+                <globmapper from="*32.dll" to="*.dll" /> 
+            </mapper>
+        </copy>
+        <copy todir="${dist.jar.dir}/natives/win64">
+            <fileset dir="${natives.dir}"  includes="*64.dll"/>
+            <mapper>
+                <globmapper from="*64.dll" to="*.dll" /> 
+            </mapper>
         </copy>
         <copy todir="${dist.jar.dir}/natives/mac">
             <fileset dir="${natives.dir}"  includes="*.dylib"/>
             <fileset dir="${natives.dir}"  includes="*.jnilib"/>
         </copy>
-        <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all.jar</echo>
-        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all.jar" manifest="onejar.mf" update="true">
+        
+        
+        <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all32.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all32.jar" manifest="onejar.mf" update="true">
             <main>
                 <fileset dir="${build.classes.dir}/" />
             </main>
@@ -54,15 +65,37 @@
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${natives.dir}/*.*" />
+                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
+                <fileset file="${dist.jar.dir}/natives/linux32/*.*" />
+                <fileset file="${dist.jar.dir}/natives/win32/*.*" />
+            </binlib>
+            <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
+        </one-jar> 
+         <echo file="${dist.jar.dir}/README.txt" append="true">
+Run the stand-alone distribution from the command line using:
+        java -jar -Xmx256m ${standalone.jar.name}-all32.jar</echo>
+        
+        <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all64.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all64.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
+                <fileset file="${dist.jar.dir}/natives/linux64/*.*" />
+                <fileset file="${dist.jar.dir}/natives/win64/*.*" />
             </binlib>
             <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
         </one-jar> 
         <echo file="${dist.jar.dir}/README.txt" append="true">
 Run the stand-alone distribution from the command line using:
-        java -jar -Xmx256m ${standalone.jar.name}-all.jar</echo>
-        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-win.jar</echo>
-        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-win.jar" manifest="onejar.mf" update="true">
+        java -jar -Xmx256m ${standalone.jar.name}-all64.jar</echo>
+        
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-win32.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-win32.jar" manifest="onejar.mf" update="true">
             <main>
                 <fileset dir="${build.classes.dir}/" />
             </main>
@@ -70,9 +103,25 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/win/*.*" />
+                <fileset file="${dist.jar.dir}/natives/win32/*.*" />
             </binlib>
         </one-jar>
+        
+        
+        
+        <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-win64.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-win64.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*" />
+            </lib>
+            <binlib>
+                <fileset file="${dist.jar.dir}/natives/win64/*.*" />
+            </binlib>
+        </one-jar>
+        
         <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-linux32.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-linux32.jar" manifest="onejar.mf" update="true">
             <main>
@@ -85,7 +134,6 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/natives/linux32/*.*" />
             </binlib>
         </one-jar>
-        
 
         <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-linux64.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" manifest="onejar.mf" update="true">
@@ -121,12 +169,21 @@ Run the stand-alone distribution from the command line using:
         <echo>Bundling: Creating JAR Launchers</echo>
         <mkdir  dir="${release.dir}" />
         <mkdir  dir="${release.dir}/${standalone.jar.name}-mac" />
-        <mkdir  dir="${release.dir}/${standalone.jar.name}-win" />
-        <echo  file="${release.dir}/${standalone.jar.name}-win/${standalone.jar.name}.bat">
-    java -jar -Xmx256m ${standalone.jar.name}-win.jar
+        
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-win32" />
+        <echo  file="${release.dir}/${standalone.jar.name}-win32/${standalone.jar.name}.bat">
+    java -jar -Xmx256m ${standalone.jar.name}-win32.jar
         </echo>
-        <copy todir="${release.dir}/${standalone.jar.name}-win/"
-                file="${dist.jar.dir}/${standalone.jar.name}-win.jar" />
+        <copy todir="${release.dir}/${standalone.jar.name}-win32/"
+                file="${dist.jar.dir}/${standalone.jar.name}-win32.jar" />
+                
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-win64" />
+        <echo  file="${release.dir}/${standalone.jar.name}-win64/${standalone.jar.name}.bat">
+    java -jar -Xmx256m ${standalone.jar.name}-win64.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-win64/"
+                file="${dist.jar.dir}/${standalone.jar.name}-win64.jar" />
+                
         <mkdir  dir="${release.dir}/${standalone.jar.name}-linux32" />
         <echo  file="${release.dir}/${standalone.jar.name}-linux32/${standalone.jar.name}.sh">
     java -jar -Xmx256m ${standalone.jar.name}-linux32.jar
@@ -142,8 +199,10 @@ Run the stand-alone distribution from the command line using:
                 file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
 
         <echo>Bundling: Creating ZIP Archives</echo>
-        <zip destfile="${release.dir}/${standalone.jar.name}-win.zip"  
-            basedir="${release.dir}/${standalone.jar.name}-win" update="true" />
+        <zip destfile="${release.dir}/${standalone.jar.name}-win32.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-win32" update="true" />
+        <zip destfile="${release.dir}/${standalone.jar.name}-win64.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-win64" update="true" />
         <zip destfile="${release.dir}/${standalone.jar.name}-linux32.zip"  
             basedir="${release.dir}/${standalone.jar.name}-linux32" update="true" />
            
@@ -156,15 +215,16 @@ Run the stand-alone distribution from the command line using:
         <zip destfile="${release.dir}/${standalone.jar.name}-mac.zip"
             basedir="${release.dir}/${standalone.jar.name}-mac" update="true" />
         <echo>Bundling: Cleaning up temporary files</echo>
-        <delete dir="${release.dir}/${standalone.jar.name}-win" />
+        <delete dir="${release.dir}/${standalone.jar.name}-win32" />
+        <delete dir="${release.dir}/${standalone.jar.name}-win64" />
         <delete dir="${release.dir}/${standalone.jar.name}-linux32" />
        
         <delete dir="${release.dir}/${standalone.jar.name}-linux64" />
       
         <delete dir="${release.dir}/${standalone.jar.name}-mac" />
-        <delete file="${dist.jar.dir}/${standalone.jar.name}-win.jar" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-win32.jar" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-win64.jar" />
         <delete file="${dist.jar.dir}/${standalone.jar.name}-linux32.jar" />
-       
         <delete file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
         
     </target>
