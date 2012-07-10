@@ -1,8 +1,8 @@
 Universal GcodeSender is a cross platform port of Otto Hermansson GcodeSender.
 
-![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/blob/master/pictures/console_tab.png "Console during a file send.")
+![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/console_tab.png "Console during a file send.")
 
-![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/blob/master/pictures/command_table_tab.png "Command table tab during a file send.")
+![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/command_table_tab.png "Command table tab during a file send.")
 
 The primary purpose is to connect with a GRBL device and stream Gcode commands.
 
