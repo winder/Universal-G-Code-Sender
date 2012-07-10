@@ -9,7 +9,7 @@ Key features:
 * Select serial port in GUI.
 * Execute commands directly.
 * Execute commands from a file.
-* Override speed in file (By looking for F commands and changing the number)
+* Override speed in file (By looking for F commands and changing the number).
 
 Improvements over the original GcodeSender:
 * Duration timer while sending a file.
@@ -27,3 +27,13 @@ Technical details:
 * To build a release open the 'Files' pane and right click build.xml, then 
   select 'Run Target' > 'onejar-dist-all-zip'. A new directory called 'release'
   will contain the .zip files.
+
+Changelog
+---------
+1.0 -> 1.0.1
+* New distribution jar - Application no longer requires RXTX to be installed!
+* Added table view for file streaming.
+* Added Pause/Resume button.
+* Usability improvements.
+* Many bug fixes.
+* Renamed package to com.willwinder.universalgcodesender.
