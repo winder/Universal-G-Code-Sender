@@ -11,6 +11,7 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.CommPortIdentifier;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -778,33 +779,60 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }
     
+    private void scrollTable(int toRow) {
+        // Scroll if selected.
+        if (this.scrollWindowCheckBox.isSelected()) {
+            if (this.commandTable.isVisible()) {
+                this.commandTable.getSelectionModel().setSelectionInterval(toRow, toRow);
+                this.commandTable.scrollRectToVisible(new Rectangle(this.commandTable.getCellRect(toRow, 0, true)));
+            }
+        }
+        
+    }
+    
     @Override
     public void commandQueued(GcodeCommand command) {
-        tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
+        final int row = command.getCommandNumber();
+        final GcodeCommand sentCommand = command;
+
+        this.tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
     }
      
     @Override
     public void commandSent(GcodeCommand command) {
-        //tableModel.addRow(new Object[]{command.getCommand(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
-        
+        final int row = command.getCommandNumber();
+        final GcodeCommand sentCommand = command;
         // TODO: If Preprocessor changes the command mark the cell somehow
         // command (in case of preprocessor change)
         //tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
         
-        // sent
-        tableModel.setValueAt(command.isSent(), command.getCommandNumber(), 1);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // sent
+                tableModel.setValueAt(sentCommand.isSent(), row, 1);
+                scrollTable(row);
+            }});
     }
     
     @Override
     public void commandComplete(GcodeCommand command) {
-        Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
-        this.sentRowsValueLabel.setText(i.toString());
+        final int row = command.getCommandNumber();
+        final GcodeCommand sentCommand = command;
+        final Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
         
-        // done
-        tableModel.setValueAt(command.isOkErrorResponse(), command.getCommandNumber(), 2);
-        
-        // response
-        tableModel.setValueAt(command.getResponse(), command.getCommandNumber(), 3);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // Update label
+                sentRowsValueLabel.setText(i.toString());
+
+                // done
+                tableModel.setValueAt(sentCommand.isOkErrorResponse(), row, 2);
+
+                // response
+                tableModel.setValueAt(sentCommand.getResponse(), row, 3);
+
+                scrollTable(row);
+            }});
     }
     
     @Override
@@ -835,6 +863,11 @@ implements SerialCommunicatorListener, KeyListener {
     @Override
     public void messageForConsole(String msg) {
         this.consoleTextArea.append(msg);
+        
+        if (this.consoleTextArea.isVisible() &&
+                this.scrollWindowCheckBox.isEnabled()) {
+            this.consoleTextArea.setCaretPosition(this.consoleTextArea.getDocument().getLength());
+        }
     }
     
     // My Variables
