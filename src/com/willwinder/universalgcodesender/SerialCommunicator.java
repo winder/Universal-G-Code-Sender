@@ -134,6 +134,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
     }
        
+    /*
     // TODO: Figure out why this isn't working ...
     boolean isCommPortOpen() throws NoSuchPortException {
             CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(this.commPort.getName());
@@ -142,7 +143,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             
             return portIdentifier.isCurrentlyOwned() && owner.equals(thisClass);                    
     }
-      
+    */
     
     /** File Stream Methods. **/
     

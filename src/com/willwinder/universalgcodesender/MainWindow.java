@@ -397,15 +397,6 @@ implements SerialCommunicatorListener, KeyListener {
         this.commandTextField.setText("");
         this.commandList.add(str);
         this.commandNum = -1;
-
-        try {
-            if (this.commPort.isCommPortOpen() == false) {
-                this.closeCommConnection();
-                this.displayErrorDialog("The serial port has closed unexpectedly.");
-            }
-        } catch (Exception e) {
-            this.displayErrorDialog("Unhandled error with serial port: "+e.getMessage());
-        }
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
     // TODO: Find out how to make these key* functions actions like the above.
@@ -474,6 +465,7 @@ implements SerialCommunicatorListener, KeyListener {
             // Reset labels
             this.durationValueLabel.setText("00:00:00");
             this.sentRowsValueLabel.setText("0");
+            this.sentRows = 0;
         } else {
             // Canceled file open.
         }
@@ -491,7 +483,12 @@ implements SerialCommunicatorListener, KeyListener {
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                durationValueLabel.setText(timePassed());
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    durationValueLabel.setText(timePassed());
+                }});
+                
             }
         };
         
@@ -503,8 +500,8 @@ implements SerialCommunicatorListener, KeyListener {
         try {
             this.clearTable();
             this.sentRowsValueLabel.setText("0");
+            this.sentRows = 0;
             this.updateControlsForSend(true);
-            int totalLines = Integer.parseInt(this.rowsValueLabel.getText());
             this.commPort.streamFileToComm(this.gcodeFile);
         } catch (Exception e) {
             timer.stop();
@@ -635,12 +632,14 @@ implements SerialCommunicatorListener, KeyListener {
     
     private void updateControlsForSend(boolean isSending) {
         if (isSending) {
+            this.sendButton.setEnabled(false);
             this.pauseButton.setEnabled(true);
             this.commandTextField.setEnabled(false);
             this.overrideSpeedCheckBox.setEnabled(false);
             this.overrideSpeedValueSpinner.setEnabled(false);
             this.cancelButton.setEnabled(true);
         } else {
+            this.sendButton.setEnabled(true);
             this.pauseButton.setEnabled(false);
             this.commandTextField.setEnabled(true);
             this.overrideSpeedCheckBox.setEnabled(true);
@@ -800,6 +799,9 @@ implements SerialCommunicatorListener, KeyListener {
      
     @Override
     public void commandSent(GcodeCommand command) {
+        // Update # rows sent label
+        this.sentRows++;
+        
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
         // TODO: If Preprocessor changes the command mark the cell somehow
@@ -807,7 +809,10 @@ implements SerialCommunicatorListener, KeyListener {
         //tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
         
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
+                sentRowsValueLabel.setText(""+sentRows);
+                        
                 // sent
                 tableModel.setValueAt(sentCommand.isSent(), row, 1);
                 scrollTable(row);
@@ -818,13 +823,10 @@ implements SerialCommunicatorListener, KeyListener {
     public void commandComplete(GcodeCommand command) {
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
-        final Integer i = Integer.parseInt(this.sentRowsValueLabel.getText()) + 1;
         
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
-                // Update label
-                sentRowsValueLabel.setText(i.toString());
-
                 // done
                 tableModel.setValueAt(sentCommand.isOkErrorResponse(), row, 2);
 
@@ -877,6 +879,7 @@ implements SerialCommunicatorListener, KeyListener {
     private int commandNum = -1;
     private List<String> commandList;
     private DefaultTableModel tableModel;
+    private int sentRows = 0;
     
     // Duration timer
     private Timer timer;
