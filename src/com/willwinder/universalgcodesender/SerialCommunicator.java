@@ -149,6 +149,9 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     // Setup for streaming to serial port then launch the first command.
     void streamFileToComm(File file) throws Exception {
+        if (this.fileMode == true) {
+            throw new Exception("Already sending a file.");
+        }
         this.fileMode = true;
         
         this.numResponses = 0;
@@ -180,8 +183,8 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void streamFileCommands() {
 
-        // Keep sending commands until there are no more, or the character
-        // buffer is full.
+        // Keep sending commands until the last command is sent, or the
+        // character buffer is full.
         while ((this.commandBuffer.currentCommand().isSent() == false) &&
                 checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
 
@@ -202,7 +205,9 @@ public class SerialCommunicator implements SerialPortEventListener{
             }
 
             // Load the next command.
-            this.commandBuffer.nextCommand();
+            if (this.commandBuffer.hasNext()) {
+                this.commandBuffer.nextCommand();
+            }
         }
         
         // If we've received as many responses as we expect... wrap up.
