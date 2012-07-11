@@ -8,6 +8,14 @@ The primary purpose is to connect with a GRBL device and stream Gcode commands.
 To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run 'UniversalGcodeSender.sh' instead.
 
+Note for MAC users:
+You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
+library. To do this open the Terminal application and run the following two
+commands:
+   sudo mkdir /var/lock
+   sudo chmod 777 /var/lock
+
+
 Key features:
 * Select serial port in GUI.
 * Execute commands directly.
