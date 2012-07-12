@@ -845,24 +845,16 @@ implements SerialCommunicatorListener, KeyListener {
     public String preprocessCommand(String command) {
         Integer overrideSpeed = this.getSpeedOverrideValue();
         String newCommand = command;
-        
+
+        // Remove comments from command.
+        newCommand = CommUtils.removeComments(newCommand);
+
+        // Override feed speed
         if (overrideSpeed > 0) {
-            // Check if command sets feed speed.
-            int index = command.toLowerCase().indexOf('f');
-            if (index > 0) {
-                int indexSpaceAfterF = command.indexOf(" ", index+1);
-                // Build that new command.
-                newCommand = (new StringBuilder()
-                        .append(command.substring(0, index+1))
-                        .append(overrideSpeed.toString())
-                        .append(".0")
-                        .append(command.substring(indexSpaceAfterF))
-                        ).toString();
-                
-                System.out.println("New command: "+newCommand);
-            }
+            newCommand = CommUtils.overrideSpeed(command, this.getSpeedOverrideValue());
         }
         
+        // Return the post processed command.
         return newCommand;
     }
 

@@ -22,7 +22,8 @@ public class CommUtils {
     public static final byte GRBL_STATUS_COMMAND = '?';
     public static final byte GRBL_RESET_COMMAND = 0x18;
     
-    /** Generates a list of available serial ports.
+    /** 
+     * Generates a list of available serial ports.
      */
     static java.util.List<CommPortIdentifier> getSerialPortList() {
         int type = CommPortIdentifier.PORT_SERIAL;
@@ -42,7 +43,8 @@ public class CommUtils {
         return returnList;
     }
     
-    /** Reads characters from the input stream until a terminating pattern is
+    /** 
+     * Reads characters from the input stream until a terminating pattern is
      * reached.
      */
     static String readLineFromCommUntil(InputStream in, String term) throws IOException {
@@ -72,7 +74,8 @@ public class CommUtils {
         return buffer.toString();
     }
     
-    /** Checks if there is enough room in the GRBL buffer for nextCommand.
+    /** 
+     * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
     static Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
         String command = nextCommand.getCommandString();
@@ -89,22 +92,73 @@ public class CommUtils {
         return characters < CommUtils.GRBL_RX_BUFFER_SIZE;
     }
     
-    /** Checks if the string contains the GRBL version.
+    /** 
+     * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(String response) {
         return response.startsWith("Grbl ");
     }
     
-    /** Parses the version double out of the version response string.
+    /** 
+     * Parses the version double out of the version response string.
      */
     static double getVersion(String response) {
         String version = response.substring("Grbl ".length());
         return Double.parseDouble(version);
     }
 
-    /** Determines if the version of GRBL is capable of realtime commands.
+    /** 
+     * Determines if the version of GRBL is capable of realtime commands.
      */
     static Boolean isRealTimeCapable(double version) {
         return version > 0.7;
+    }
+    
+    /**
+     * Searches the command string for an 'f' and replaces the text between the
+     * 'f' and the next space with the integer speed (followed by .0).
+     */
+    static String overrideSpeed(String command, Integer speed) {
+        String returnString = command;
+        // Check if command sets feed speed.
+        int index = command.toLowerCase().indexOf('f');
+        if (index > 0) {
+            int indexSpaceAfterF = command.indexOf(" ", index+1);
+            // Build that new command.
+            returnString = (new StringBuilder()
+                    .append(command.substring(0, index+1))
+                    .append(speed.toString())
+                    .append(".0")
+                    .append(command.substring(indexSpaceAfterF))
+                    ).toString();
+        }
+
+        return returnString;
+    }
+    
+    /**
+     * Removes any comments within parentheses or beginning with a semi-colon.
+     */
+    static String removeComments(String command) {
+        String newCommand = command;
+        String tempCommand = command;
+        int index;
+
+        // Remove any comments within ( parentheses )
+        while ( (index = newCommand.indexOf('(')) > -1 ) {
+            newCommand = tempCommand.substring(0, index);
+
+            index = tempCommand.indexOf(')');
+            newCommand += tempCommand.substring(index+1);
+            tempCommand = newCommand;
+        }
+
+        // Remove any comment beginning with ';'
+        index = newCommand.indexOf(';');
+        if (index > -1) {
+            newCommand = newCommand.substring(0, index);
+        }
+
+        return newCommand;
     }
 }
