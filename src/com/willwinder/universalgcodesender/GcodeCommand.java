@@ -39,7 +39,7 @@ public class GcodeCommand {
     public void setResponse(String response) {
         this.response = response;
         this.parseResponse();
-        this.done = this.isOkErrorResponse();
+        this.done = this.isDone();
     }
     
     public void setSent(Boolean sent) {
@@ -112,7 +112,7 @@ public class GcodeCommand {
         return returnString;
     }
     
-    public Boolean isOkErrorResponse() {
+    public Boolean isDone() {
         return this.isOk || this.isError;
     }
     

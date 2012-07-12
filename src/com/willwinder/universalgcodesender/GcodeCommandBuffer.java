@@ -14,14 +14,14 @@ import java.util.ListIterator;
  * @author wwinder
  */
 public class GcodeCommandBuffer {
-    private List<GcodeCommand> commandList;
+    private LinkedList<GcodeCommand> commandList;
     private File gcodeFile;
     private ListIterator<GcodeCommand> listIterator;
     private GcodeCommand currentCommand;
     
     GcodeCommandBuffer(File file) throws FileNotFoundException, IOException {
         this.gcodeFile = file;
-        this. commandList = GcodeCommandBuffer.setFile(file);
+        this.commandList = GcodeCommandBuffer.setFile(file);
     }
     
     GcodeCommandBuffer() {
@@ -34,6 +34,10 @@ public class GcodeCommandBuffer {
    
     int size() {
         return this.commandList.size();
+    }
+    
+    GcodeCommand getFinalCommand() {
+        return this.commandList.getLast();
     }
     
     void resetIterator() {
@@ -58,8 +62,8 @@ public class GcodeCommandBuffer {
     }
     
     // Helper to parse a file into a list of GcodeCommand's
-    static List<GcodeCommand> setFile(File file) throws FileNotFoundException, IOException {
-        List<GcodeCommand> commands = new LinkedList<GcodeCommand>();
+    static LinkedList<GcodeCommand> setFile(File file) throws FileNotFoundException, IOException {
+        LinkedList<GcodeCommand> commands = new LinkedList<GcodeCommand>();
         
         FileInputStream fstream = new FileInputStream(file);
         DataInputStream dis = new DataInputStream(fstream);

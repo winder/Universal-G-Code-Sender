@@ -511,13 +511,17 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
-        if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
-            this.commPort.pauseSend();
-            this.pauseButton.setText("Resume");
-        }
-        else if (this.pauseButton.getText().equalsIgnoreCase("resume")) {
-            this.commPort.resumeSend();
-            this.pauseButton.setText("Pause");
+        try {
+            if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
+                this.commPort.pauseSend();
+                this.pauseButton.setText("Resume");
+            }
+            else if (this.pauseButton.getText().equalsIgnoreCase("resume")) {
+                this.commPort.resumeSend();
+                this.pauseButton.setText("Pause");
+            }
+        } catch (Exception e) {
+            this.displayErrorDialog("Error while trying to pause/resume");
         }
     }//GEN-LAST:event_pauseButtonActionPerformed
 
@@ -652,7 +656,7 @@ implements SerialCommunicatorListener, KeyListener {
     private void loadPortSelector() {
         commPortComboBox.removeAllItems();
         
-        List<CommPortIdentifier> portList = CommPortUtils.getSerialPortList();
+        List<CommPortIdentifier> portList = CommUtils.getSerialPortList();
         
         if (portList.size() < 1) {
             this.displayErrorDialog("No serial ports found.");
@@ -794,7 +798,7 @@ implements SerialCommunicatorListener, KeyListener {
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
 
-        this.tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isOkErrorResponse(), command.getResponse()});
+        this.tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isDone(), command.getResponse()});
     }
      
     @Override
@@ -828,7 +832,7 @@ implements SerialCommunicatorListener, KeyListener {
             @Override
             public void run() {
                 // done
-                tableModel.setValueAt(sentCommand.isOkErrorResponse(), row, 2);
+                tableModel.setValueAt(sentCommand.isDone(), row, 2);
 
                 // response
                 tableModel.setValueAt(sentCommand.getResponse(), row, 3);

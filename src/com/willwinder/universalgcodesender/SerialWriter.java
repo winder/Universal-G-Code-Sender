@@ -30,12 +30,12 @@ public class SerialWriter implements Runnable {
                 // Need to do 2 operations with lineBuffer in a row in here.
                 // linBuffer should be some sort of custom class which has
                 // a synchronized fetch & clear method.
-                if (lineBuffer.length() < CommPortUtils.GRBL_RX_BUFFER_SIZE) {
+                if (lineBuffer.length() < CommUtils.GRBL_RX_BUFFER_SIZE) {
                     s = lineBuffer.toString();
                     lineBuffer.setLength(0);
                 } else {
-                        s = lineBuffer.substring(0, CommPortUtils.GRBL_RX_BUFFER_SIZE-1);
-                        lineBuffer.delete(0, CommPortUtils.GRBL_RX_BUFFER_SIZE-1);
+                        s = lineBuffer.substring(0, CommUtils.GRBL_RX_BUFFER_SIZE-1);
+                        lineBuffer.delete(0, CommUtils.GRBL_RX_BUFFER_SIZE-1);
                 }
 
                 if (s.length() > 0) {
