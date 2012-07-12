@@ -17,7 +17,7 @@ import java.util.LinkedList;
  */
 public class SerialCommunicator implements SerialPortEventListener{
     private double grblVersion;
-    private Boolean realTimeMode;
+    private Boolean realTimeMode = false;
     
     
     // General variables
@@ -321,7 +321,4 @@ public class SerialCommunicator implements SerialPortEventListener{
             this.commConsoleListener.messageForConsole(msg);
         }
     }
-    
-        
-
 }

@@ -95,22 +95,39 @@ public class CommUtils {
     /** 
      * Checks if the string contains the GRBL version.
      */
-    static Boolean isGrblVersionString(String response) {
+    static Boolean isGrblVersionString(final String response) {
         return response.startsWith("Grbl ");
     }
     
     /** 
      * Parses the version double out of the version response string.
      */
-    static double getVersion(String response) {
+    static double getVersion(final String response) {
         String version = response.substring("Grbl ".length());
-        return Double.parseDouble(version);
+        StringBuilder numString = new StringBuilder();
+        int numDecimals = 0;
+        for (int i=0; i < response.length(); i++) {
+            char ch = response.charAt(i);
+            if (Character.isDigit(ch)) {
+                numString.append(ch);
+            } else if ( ch == '.') {
+                numDecimals++;
+                // Only major/minor supported (i.e. 7.0)
+                // major/minor/subminor will fail (i.e. 7.0.1)
+                if (numDecimals > 1) {
+                    break;
+                }
+                numString.append(ch);
+            }
+        }
+
+        return Double.parseDouble(numString.toString());
     }
 
     /** 
      * Determines if the version of GRBL is capable of realtime commands.
      */
-    static Boolean isRealTimeCapable(double version) {
+    static Boolean isRealTimeCapable(final double version) {
         return version > 0.7;
     }
     

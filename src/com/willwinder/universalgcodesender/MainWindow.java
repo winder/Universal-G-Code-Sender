@@ -521,6 +521,7 @@ implements SerialCommunicatorListener, KeyListener {
                 this.pauseButton.setText("Pause");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             this.displayErrorDialog("Error while trying to pause/resume");
         }
     }//GEN-LAST:event_pauseButtonActionPerformed
