@@ -23,10 +23,11 @@ Key features:
 * Override speed in file (By looking for F commands and changing the number).
 
 Improvements over the original GcodeSender:
+* Cross platform - use the same GUI application on OSX / Windows / Linux.
+* Command history - Re-run prior manual commands with up/down arrow.
 * Duration timer while sending a file.
 * Pause / Resume while sending a file.
 * Table view linking the GRBL response to each command as run.
-* Cross platform - use the same GUI application on OSX / Windows / Linux.
 * Faster - tracks GRBL's internal buffer to send multiple commands at a time.
 * More features planned.
 
@@ -41,6 +42,11 @@ Technical details:
 
 Changelog
 ---------
+1.0.1 -> 1.0.2
+* Grbl version checking.
+* Real-time pause/resume commands used for Grbl v0.8.
+* Comment filtering - parses out comments before sending commands.
+
 1.0 -> 1.0.1
 * New distribution jar - Application no longer requires RXTX to be installed!
 * Added table view for file streaming.
