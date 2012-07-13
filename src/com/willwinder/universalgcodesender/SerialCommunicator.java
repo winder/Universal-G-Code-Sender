@@ -287,6 +287,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         if (CommUtils.isGrblVersionString(response)) {
             this.grblVersion = CommUtils.getVersion(response);
             this.realTimeMode = CommUtils.isRealTimeCapable(this.grblVersion);
+            System.out.println("Grbl version = " + this.grblVersion);
+            System.out.println("Real time mode = " + this.realTimeMode);
         }
     }
     

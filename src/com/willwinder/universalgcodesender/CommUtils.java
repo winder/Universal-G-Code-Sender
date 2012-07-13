@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -96,32 +98,24 @@ public class CommUtils {
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
-        return response.startsWith("Grbl ");
+        return response.startsWith("Grbl ") && (getVersion(response) != -1);
     }
     
     /** 
      * Parses the version double out of the version response string.
      */
     static double getVersion(final String response) {
-        String version = response.substring("Grbl ".length());
-        StringBuilder numString = new StringBuilder();
-        int numDecimals = 0;
-        for (int i=0; i < response.length(); i++) {
-            char ch = response.charAt(i);
-            if (Character.isDigit(ch)) {
-                numString.append(ch);
-            } else if ( ch == '.') {
-                numDecimals++;
-                // Only major/minor supported (i.e. 7.0)
-                // major/minor/subminor will fail (i.e. 7.0.1)
-                if (numDecimals > 1) {
-                    break;
-                }
-                numString.append(ch);
-            }
+        double retValue = -1;
+        final String VERSION_REGEX = "[0-9]*\\.[0-9]*";
+        
+        // Search for a version.
+        Pattern versionPattern = Pattern.compile(VERSION_REGEX);
+        Matcher versionMatcher = versionPattern.matcher(response);
+        if (versionMatcher.find()) {
+            retValue = Double.parseDouble(versionMatcher.group(0));
         }
-
-        return Double.parseDouble(numString.toString());
+        
+        return retValue;
     }
 
     /** 
@@ -158,24 +152,13 @@ public class CommUtils {
      */
     static String removeComments(String command) {
         String newCommand = command;
-        String tempCommand = command;
-        int index;
 
-        // Remove any comments within ( parentheses )
-        while ( (index = newCommand.indexOf('(')) > -1 ) {
-            newCommand = tempCommand.substring(0, index);
+        // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
+        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", "");
 
-            index = tempCommand.indexOf(')');
-            newCommand += tempCommand.substring(index+1);
-            tempCommand = newCommand;
-        }
-
-        // Remove any comment beginning with ';'
-        index = newCommand.indexOf(';');
-        if (index > -1) {
-            newCommand = newCommand.substring(0, index);
-        }
-
+        // Remove any comment beginning with ';' with regex "\;[^\\(]*"
+        newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
+        
         return newCommand;
     }
 }
