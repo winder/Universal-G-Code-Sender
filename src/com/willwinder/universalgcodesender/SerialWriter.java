@@ -8,41 +8,53 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
- *
- * @author wwinder
+ * This thread continuously polls a string buffer for data then writes it to an
+ * output stream.
+ * 
+ * @author winder
  */
-// This thread continuously polls a string buffer for data then writes it
-// to an output stream.
+
 public class SerialWriter implements Runnable {
     private StringBuffer lineBuffer;
     private OutputStream out;
     public boolean exit = false;
 
+    // For synchronized operations
+    private final Object syncObject = new Object();
+    
+    /**
+     * Creates the thread object with required parameters
+     * @param os            The output stream that lineBuffer will be written to
+     * @param lineBuffer    A StringBuffer which other threads can write to,
+     *                      this thread will notice new content and write it to
+     *                      the output stream.
+     */
     public SerialWriter(OutputStream os, StringBuffer lineBuffer) {
         this.out = os;
         this.lineBuffer = lineBuffer;
     }
 
+    @Override
     public void run() {
         try {
-            String s;
+            String s = "";
             while (!exit) {
-                // Need to do 2 operations with lineBuffer in a row in here.
-                // linBuffer should be some sort of custom class which has
-                // a synchronized fetch & clear method.
-                if (lineBuffer.length() < CommUtils.GRBL_RX_BUFFER_SIZE) {
-                    s = lineBuffer.toString();
-                    lineBuffer.setLength(0);
-                } else {
-                        s = lineBuffer.substring(0, CommUtils.GRBL_RX_BUFFER_SIZE-1);
-                        lineBuffer.delete(0, CommUtils.GRBL_RX_BUFFER_SIZE-1);
+                // Fetch data and clear buffer.
+                if (lineBuffer.length() > 0) {
+                    synchronized(syncObject) {
+                        s = lineBuffer.toString();
+                        lineBuffer.setLength(0);
+                    }
                 }
-
+                
+                // Send it out
                 if (s.length() > 0) {
                     PrintStream printStream = new PrintStream(this.out);
                     printStream.print(s);
                     printStream.close();    
                 }
+                
+                // Sleep
                 synchronized (this) {
                     this.wait(1000);
                 }
