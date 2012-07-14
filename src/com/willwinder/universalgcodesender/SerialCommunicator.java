@@ -7,6 +7,8 @@ package com.willwinder.universalgcodesender;
 import gnu.io.*;
 import java.io.*;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,16 +23,14 @@ public class SerialCommunicator implements SerialPortEventListener{
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
-    StringBuffer commandStream;
-    private boolean fileMode = false;
     private String lineTerminator = "\r\n";
-    
-    private GcodeCommandBuffer commandBuffer;   // All commands in a file
-    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
-    
+        
     // File transfer variables.
     private Boolean sendPaused = false;
-    
+    private boolean fileMode = false;
+    private GcodeCommandBuffer commandBuffer;   // All commands in a file
+    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
+
     // Callback interfaces
     SerialCommunicatorListener fileStreamCompleteListener;
     SerialCommunicatorListener commandQueuedListener;
@@ -78,7 +78,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
     synchronized boolean openCommPort(String name, int baud) throws Exception {
-        this.commandStream = new StringBuffer();
         this.activeCommandList = new LinkedList<GcodeCommand>();
 
         boolean returnCode;
@@ -107,9 +106,17 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
         
     void closeCommPort() {
+        this.cancelSend();
+
+        try {
+            in.close();
+            out.close();
+        } catch (IOException ex) {
+            Logger.getLogger(SerialCommunicator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
-        this.cancelSend();
         this.commPort.close();
     }
     
