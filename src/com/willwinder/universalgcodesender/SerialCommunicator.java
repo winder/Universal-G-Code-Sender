@@ -5,10 +5,7 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.LinkedList;
 
 /**
@@ -25,8 +22,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     private InputStream in;
     private OutputStream out;
     StringBuffer commandStream;
-    private SerialWriter serialWriter;
-    private Thread serialWriterThread;
     private boolean fileMode = false;
     private String lineTerminator = "\r\n";
     
@@ -104,11 +99,6 @@ public class SerialCommunicator implements SerialPortEventListener{
                 serialPort.addEventListener(this);
                 serialPort.notifyOnDataAvailable(true);  
                 serialPort.notifyOnBreakInterrupt(true);
-
-                // Launch the writer thread.
-                this.serialWriter= new SerialWriter(out, this.commandStream);
-                this.serialWriterThread= new Thread(this.serialWriter);
-                this.serialWriterThread.start();
                 
                 returnCode = true;
         }
@@ -123,15 +113,18 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.commPort.close();
     }
     
-    // Puts a command in the command buffer, the SerialWriter class should pick
-    // it up and send it to the serial device.
+    /**
+     * Sends a command to the serial device.
+     * @param command   Command to be sent to serial device.
+     */
     void sendStringToComm(String command) {
-        // Command has a newline attached.
+        // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
-        this.commandStream.append(command);
-        synchronized (this.serialWriterThread) {
-            this.serialWriterThread.notifyAll();
-        }
+        
+        // Send command to the serial port.
+        PrintStream printStream = new PrintStream(this.out);
+        printStream.print(command);
+        printStream.close();    
     }
     
     /**
