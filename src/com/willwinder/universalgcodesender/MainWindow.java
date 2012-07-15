@@ -572,7 +572,7 @@ implements SerialCommunicatorListener, KeyListener {
     private void initProgram() {
         this.loadPortSelector();
         this.checkScrollWindow();
-        this.setTitle("Universal GcodeSender (Version 1.0.1)");
+        this.setTitle("Universal GcodeSender (Version 1.0.2a)");
         
         // Hook the view up to the model
         this.commandList = new ArrayList<String>();
