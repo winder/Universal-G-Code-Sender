@@ -166,31 +166,77 @@ Run the stand-alone distribution from the command line using:
     <!-- Zipped One-Jar Releases -->
     <target name="onejar-dist-all-zip" depends="onejar-dist-all"
             description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
-        <echo>Bundling: Creating JAR Launchers</echo>
         <mkdir  dir="${release.dir}" />
+
+        <!-- Mac (all in one) -->
+        <echo>Mac: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-mac" />
+        <move todir="${release.dir}/${standalone.jar.name}-mac/"
+            file="${dist.jar.dir}/${standalone.jar.name}-mac.jar" >
+        </move>
+
+        <echo>Mac: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-mac.zip"
+            basedir="${release.dir}/${standalone.jar.name}-mac" update="true" />
+
+        <echo>Mac: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-mac" />
+
         
+        <!-- Windows 32 Bit -->
+        <echo>Win32: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-win32" />
         <echo  file="${release.dir}/${standalone.jar.name}-win32/${standalone.jar.name}.bat">
     java -jar -Xmx256m ${standalone.jar.name}-win32.jar
         </echo>
         <copy todir="${release.dir}/${standalone.jar.name}-win32/"
                 file="${dist.jar.dir}/${standalone.jar.name}-win32.jar" />
+
+        <echo>Win32: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-win32.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-win32" update="true" />
+
+        <echo>Win32: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-win32" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-win32.jar" />
                 
+        <!-- Windows 64 Bit -->
+        <echo>Win64: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-win64" />
         <echo  file="${release.dir}/${standalone.jar.name}-win64/${standalone.jar.name}.bat">
     java -jar -Xmx256m ${standalone.jar.name}-win64.jar
         </echo>
         <copy todir="${release.dir}/${standalone.jar.name}-win64/"
                 file="${dist.jar.dir}/${standalone.jar.name}-win64.jar" />
+
+        <echo>Win64: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-win64.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-win64" update="true" />
+
+        <echo>Win64: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-win64" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-win64.jar" />
                 
+
+        <!-- Linux Bit 32 -->
+        <echo>Linux32: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-linux32" />
         <echo  file="${release.dir}/${standalone.jar.name}-linux32/${standalone.jar.name}.sh">
     java -jar -Xmx256m ${standalone.jar.name}-linux32.jar
         </echo>
         <copy todir="${release.dir}/${standalone.jar.name}-linux32/"
                 file="${dist.jar.dir}/${standalone.jar.name}-linux32.jar" />         
+
+        <echo>Linux32: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-linux32.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-linux32" update="true" />
+
+        <echo>Linux32: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-linux32" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-linux32.jar" />
               
+        <!-- Linux Bit 64 -->
+        <echo>Linux64: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-linux64" />
         <echo  file="${release.dir}/${standalone.jar.name}-linux64/${standalone.jar.name}.sh">
     java -jar -Xmx256m ${standalone.jar.name}-linux64.jar
@@ -198,34 +244,53 @@ Run the stand-alone distribution from the command line using:
         <copy todir="${release.dir}/${standalone.jar.name}-linux64/"
                 file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
 
-        <echo>Bundling: Creating ZIP Archives</echo>
-        <zip destfile="${release.dir}/${standalone.jar.name}-win32.zip"  
-            basedir="${release.dir}/${standalone.jar.name}-win32" update="true" />
-        <zip destfile="${release.dir}/${standalone.jar.name}-win64.zip"  
-            basedir="${release.dir}/${standalone.jar.name}-win64" update="true" />
-        <zip destfile="${release.dir}/${standalone.jar.name}-linux32.zip"  
-            basedir="${release.dir}/${standalone.jar.name}-linux32" update="true" />
-           
+        <echo>Linux64: Creating ZIP Archive</echo>
         <zip destfile="${release.dir}/${standalone.jar.name}-linux64.zip"  
             basedir="${release.dir}/${standalone.jar.name}-linux64" update="true" />
 
-        <move todir="${release.dir}/${standalone.jar.name}-mac/"
-            file="${dist.jar.dir}/${standalone.jar.name}-mac.jar" >
-        </move>
-        <zip destfile="${release.dir}/${standalone.jar.name}-mac.zip"
-            basedir="${release.dir}/${standalone.jar.name}-mac" update="true" />
-        <echo>Bundling: Cleaning up temporary files</echo>
-        <delete dir="${release.dir}/${standalone.jar.name}-win32" />
-        <delete dir="${release.dir}/${standalone.jar.name}-win64" />
-        <delete dir="${release.dir}/${standalone.jar.name}-linux32" />
-       
+        <echo>Linux64: Cleaning up temporary files</echo>
         <delete dir="${release.dir}/${standalone.jar.name}-linux64" />
-      
-        <delete dir="${release.dir}/${standalone.jar.name}-mac" />
-        <delete file="${dist.jar.dir}/${standalone.jar.name}-win32.jar" />
-        <delete file="${dist.jar.dir}/${standalone.jar.name}-win64.jar" />
-        <delete file="${dist.jar.dir}/${standalone.jar.name}-linux32.jar" />
         <delete file="${dist.jar.dir}/${standalone.jar.name}-linux64.jar" />
+           
+        <!-- All 32-Bit -->
+        <echo>All32: Creating JAR Launcher</echo>
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-all32" />
+        <echo  file="${release.dir}/${standalone.jar.name}-all32/README.txt">
+Run the stand-alone distribution from the command line using:
+    java -jar -Xmx256m ${standalone.jar.name}-all32.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+                file="${dist.jar.dir}/${standalone.jar.name}-all32.jar" />
+
+        <echo>All32: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-all32.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-all32" update="true" />
+
+        <echo>All32: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-all32" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-all32.jar" />
+        
+
+        <!-- All 64-Bit -->
+        <echo>All64: Creating JAR Launcher</echo>
+        <mkdir  dir="${release.dir}/${standalone.jar.name}-all64" />
+        <echo  file="${release.dir}/${standalone.jar.name}-all64/README.txt">
+Run the stand-alone distribution from the command line using:
+    java -jar -Xmx256m ${standalone.jar.name}-all64.jar
+        </echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-all64/"
+                file="${dist.jar.dir}/${standalone.jar.name}-all64.jar" />
+
+        <echo>All64: Creating ZIP Archive</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}-all64.zip"  
+            basedir="${release.dir}/${standalone.jar.name}-all64" update="true" />
+
+        <echo>All64: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}-all64" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}-all64.jar" />
+
+       
+      
         
     </target>
 
