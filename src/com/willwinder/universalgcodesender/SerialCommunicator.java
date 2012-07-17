@@ -203,7 +203,9 @@ public class SerialCommunicator implements SerialPortEventListener{
             
             command.setSent(true);
             this.activeCommandList.add(command);
-            this.sendStringToComm(command.getCommandString() + '\n');
+            
+            // Commands parsed by the buffer list have embedded newlines.
+            this.sendStringToComm(command.getCommandString());
 
             if (this.commandSentListener != null) {
                 this.commandCompleteListener.commandSent(command);
