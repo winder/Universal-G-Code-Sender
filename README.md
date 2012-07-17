@@ -46,6 +46,7 @@ Changelog
 * Grbl version checking.
 * Real-time pause/resume commands used for Grbl v0.8.
 * Comment filtering - parses out comments before sending commands.
+* Bug fixes.
 
 1.0 -> 1.0.1
 * New distribution jar - Application no longer requires RXTX to be installed!
