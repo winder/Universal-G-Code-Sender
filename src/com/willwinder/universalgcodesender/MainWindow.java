@@ -11,6 +11,7 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.CommPortIdentifier;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,12 +20,31 @@ import java.awt.event.KeyListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.Timer;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultCaret;
+import org.jdesktop.layout.GroupLayout;
+import org.jdesktop.layout.LayoutStyle;
 
 /**
  *
@@ -48,167 +68,177 @@ implements SerialCommunicatorListener, KeyListener {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lineBreakGroup = new javax.swing.ButtonGroup();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
-        jPanel1 = new javax.swing.JPanel();
-        commandLabel = new javax.swing.JLabel();
-        lineBreakNR = new javax.swing.JRadioButton();
-        lineBreakRN = new javax.swing.JRadioButton();
-        commandTextField = new javax.swing.JTextField();
-        commPortComboBox = new javax.swing.JComboBox();
-        refreshButton = new javax.swing.JButton();
-        openButton = new javax.swing.JButton();
-        closeButton = new javax.swing.JButton();
-        lineBreakN = new javax.swing.JRadioButton();
-        scrollWindowCheckBox = new javax.swing.JCheckBox();
-        jPanel2 = new javax.swing.JPanel();
-        browseButton = new javax.swing.JButton();
-        sendButton = new javax.swing.JButton();
-        pauseButton = new javax.swing.JButton();
-        fileTextField = new javax.swing.JTextField();
-        fileLabel = new javax.swing.JLabel();
-        overrideSpeedCheckBox = new javax.swing.JCheckBox();
-        overrideSpeedValueSpinner = new javax.swing.JSpinner();
-        sentRowsLabel = new javax.swing.JLabel();
-        sentRowsValueLabel = new javax.swing.JLabel();
-        rowsLabel = new javax.swing.JLabel();
-        rowsValueLabel = new javax.swing.JLabel();
-        durationLabel = new javax.swing.JLabel();
-        durationValueLabel = new javax.swing.JLabel();
-        cancelButton = new javax.swing.JButton();
-        jTabbedPane2 = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        consoleTextArea = new javax.swing.JTextArea();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        commandTable = new javax.swing.JTable();
+        lineBreakGroup = new ButtonGroup();
+        jTabbedPane1 = new JTabbedPane();
+        jPanel1 = new JPanel();
+        lineBreakNR = new JRadioButton();
+        lineBreakRN = new JRadioButton();
+        commPortComboBox = new JComboBox();
+        refreshButton = new JButton();
+        openButton = new JButton();
+        closeButton = new JButton();
+        lineBreakN = new JRadioButton();
+        scrollWindowCheckBox = new JCheckBox();
+        jPanel2 = new JPanel();
+        browseButton = new JButton();
+        sendButton = new JButton();
+        pauseButton = new JButton();
+        fileTextField = new JTextField();
+        fileLabel = new JLabel();
+        overrideSpeedCheckBox = new JCheckBox();
+        overrideSpeedValueSpinner = new JSpinner();
+        sentRowsLabel = new JLabel();
+        sentRowsValueLabel = new JLabel();
+        rowsLabel = new JLabel();
+        rowsValueLabel = new JLabel();
+        durationLabel = new JLabel();
+        durationValueLabel = new JLabel();
+        cancelButton = new JButton();
+        jTabbedPane2 = new JTabbedPane();
+        jScrollPane2 = new JScrollPane();
+        consoleTextArea = new JTextArea();
+        jScrollPane1 = new JScrollPane();
+        commandTable = new JTable();
+        jPanel3 = new JPanel();
+        commandTextField = new JTextField();
+        commandLabel = new JLabel();
+        jPanel4 = new JPanel();
+        btnXB10 = new JButton();
+        btnXB5 = new JButton();
+        btnXB1 = new JButton();
+        btnXR1 = new JButton();
+        btnXR5 = new JButton();
+        btnXR10 = new JButton();
+        btnXL1 = new JButton();
+        btnXL5 = new JButton();
+        btnXL10 = new JButton();
+        btnXT1 = new JButton();
+        btnXT5 = new JButton();
+        btnXT10 = new JButton();
+        btnSpindleOn = new JButton();
+        btnSpindleOff = new JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Serial"));
-
-        commandLabel.setText("Command");
+        jPanel1.setBorder(BorderFactory.createTitledBorder("Serial"));
 
         lineBreakGroup.add(lineBreakNR);
         lineBreakNR.setText("\\n\\r");
+        lineBreakNR.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                lineBreakNRActionPerformed(evt);
+            }
+        });
 
         lineBreakGroup.add(lineBreakRN);
         lineBreakRN.setSelected(true);
         lineBreakRN.setText("\\r\\n");
-
-        commandTextField.setEnabled(false);
-        commandTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandTextFieldActionPerformed(evt);
+        lineBreakRN.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                lineBreakRNActionPerformed(evt);
             }
         });
 
-        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/refresh.gif"))); // NOI18N
-        refreshButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        refreshButton.setIcon(new ImageIcon(getClass().getResource("/refresh.gif"))); // NOI18N
+        refreshButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 refreshButtonActionPerformed(evt);
             }
         });
 
         openButton.setText("Open");
-        openButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        openButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 openButtonActionPerformed(evt);
             }
         });
 
         closeButton.setText("Close");
         closeButton.setEnabled(false);
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        closeButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 closeButtonActionPerformed(evt);
             }
         });
 
         lineBreakGroup.add(lineBreakN);
         lineBreakN.setText("\\n");
-        lineBreakN.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        lineBreakN.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 lineBreakNActionPerformed(evt);
             }
         });
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(commandTextField)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(commandLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(lineBreakN)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lineBreakNR)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(lineBreakRN))
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 237, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(openButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(closeButton)
-                        .add(0, 0, Short.MAX_VALUE)))
+                .add(commPortComboBox, GroupLayout.PREFERRED_SIZE, 237, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(refreshButton, GroupLayout.PREFERRED_SIZE, 25, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(openButton)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(closeButton)
+                .addPreferredGap(LayoutStyle.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(lineBreakN)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(lineBreakNR)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(lineBreakRN)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(jPanel1Layout.createParallelGroup(GroupLayout.BASELINE)
                         .add(lineBreakNR)
                         .add(lineBreakRN)
                         .add(lineBreakN))
-                    .add(commandLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(openButton)
-                    .add(closeButton))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jPanel1Layout.createParallelGroup(GroupLayout.LEADING)
+                            .add(refreshButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                            .add(commPortComboBox, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                            .add(jPanel1Layout.createParallelGroup(GroupLayout.BASELINE)
+                                .add(openButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)
+                                .add(closeButton, GroupLayout.PREFERRED_SIZE, 24, GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
-        scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        scrollWindowCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 scrollWindowCheckBoxActionPerformed(evt);
             }
         });
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("File transfer"));
+        jPanel2.setBorder(BorderFactory.createTitledBorder("File transfer"));
 
         browseButton.setText("Browse");
         browseButton.setEnabled(false);
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        browseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 browseButtonActionPerformed(evt);
             }
         });
 
         sendButton.setText("Send");
         sendButton.setEnabled(false);
-        sendButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        sendButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 sendButtonActionPerformed(evt);
             }
         });
 
         pauseButton.setText("Pause");
         pauseButton.setEnabled(false);
-        pauseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        pauseButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 pauseButtonActionPerformed(evt);
             }
         });
@@ -219,8 +249,13 @@ implements SerialCommunicatorListener, KeyListener {
 
         overrideSpeedCheckBox.setText("Override speed");
         overrideSpeedCheckBox.setEnabled(false);
+        overrideSpeedCheckBox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                overrideSpeedCheckBoxActionPerformed(evt);
+            }
+        });
 
-        overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));
+        overrideSpeedValueSpinner.setModel(new SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));
         overrideSpeedValueSpinner.setEnabled(false);
 
         sentRowsLabel.setText("Sent rows:");
@@ -237,77 +272,77 @@ implements SerialCommunicatorListener, KeyListener {
 
         cancelButton.setText("Cancel");
         cancelButton.setEnabled(false);
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
                 cancelButtonActionPerformed(evt);
             }
         });
 
-        org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
+        GroupLayout jPanel2Layout = new GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            jPanel2Layout.createParallelGroup(GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel2Layout.createParallelGroup(GroupLayout.LEADING)
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(fileTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 400, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(fileTextField, GroupLayout.DEFAULT_SIZE, 400, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(browseButton))
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(jPanel2Layout.createParallelGroup(GroupLayout.LEADING)
                             .add(fileLabel)
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(sentRowsLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .addPreferredGap(LayoutStyle.RELATED)
                                 .add(sentRowsValueLabel)
                                 .add(49, 49, 49)
                                 .add(rowsLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .addPreferredGap(LayoutStyle.RELATED)
                                 .add(rowsValueLabel)
                                 .add(46, 46, 46)
                                 .add(durationLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .addPreferredGap(LayoutStyle.RELATED)
                                 .add(durationValueLabel))
                             .add(jPanel2Layout.createSequentialGroup()
-                                .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(sendButton, GroupLayout.PREFERRED_SIZE, 68, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.RELATED)
+                                .add(pauseButton, GroupLayout.PREFERRED_SIZE, 95, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.RELATED)
                                 .add(cancelButton)
                                 .add(18, 18, 18)
-                                .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(overrideSpeedValueSpinner, GroupLayout.PREFERRED_SIZE, 59, GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(LayoutStyle.RELATED)
                                 .add(overrideSpeedCheckBox)))
                         .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            jPanel2Layout.createParallelGroup(GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
                 .add(fileLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(fileTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(GroupLayout.BASELINE)
+                    .add(fileTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .add(browseButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(GroupLayout.BASELINE)
                     .add(sendButton)
                     .add(pauseButton)
                     .add(overrideSpeedCheckBox)
-                    .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(overrideSpeedValueSpinner, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .add(cancelButton))
                 .add(14, 14, 14)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jPanel2Layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(jPanel2Layout.createParallelGroup(GroupLayout.BASELINE)
                         .add(durationValueLabel)
                         .add(durationLabel))
-                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jPanel2Layout.createParallelGroup(GroupLayout.BASELINE)
                         .add(sentRowsLabel)
                         .add(sentRowsValueLabel)
                         .add(rowsLabel)
                         .add(rowsValueLabel)))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         consoleTextArea.setColumns(20);
@@ -316,7 +351,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         jTabbedPane2.addTab("Console", jScrollPane2);
 
-        commandTable.setModel(new javax.swing.table.DefaultTableModel(
+        commandTable.setModel(new DefaultTableModel(
             new Object [][] {
 
             },
@@ -325,7 +360,7 @@ implements SerialCommunicatorListener, KeyListener {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
+                String.class, Boolean.class, Boolean.class, String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false
@@ -350,34 +385,253 @@ implements SerialCommunicatorListener, KeyListener {
 
         jTabbedPane2.addTab("File Commands", jScrollPane1);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+        jPanel3.setBorder(BorderFactory.createTitledBorder("Controller"));
+
+        commandTextField.setEnabled(false);
+        commandTextField.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                commandTextFieldActionPerformed(evt);
+            }
+        });
+
+        commandLabel.setText("Command");
+
+        btnXB10.setLabel("10");
+        btnXB10.setMargin(new Insets(2, 2, 2, 2));
+        btnXB10.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXB10ActionPerformed(evt);
+            }
+        });
+
+        btnXB5.setLabel("5");
+        btnXB5.setMargin(new Insets(2, 2, 2, 2));
+        btnXB5.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXB5ActionPerformed(evt);
+            }
+        });
+
+        btnXB1.setLabel("1");
+        btnXB1.setMargin(new Insets(2, 2, 2, 2));
+        btnXB1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXB1ActionPerformed(evt);
+            }
+        });
+
+        btnXR1.setLabel("1");
+        btnXR1.setMargin(new Insets(2, 2, 2, 2));
+        btnXR1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXR1ActionPerformed(evt);
+            }
+        });
+
+        btnXR5.setLabel("5");
+        btnXR5.setMargin(new Insets(2, 2, 2, 2));
+        btnXR5.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXR5ActionPerformed(evt);
+            }
+        });
+
+        btnXR10.setLabel("10");
+        btnXR10.setMargin(new Insets(2, 2, 2, 2));
+        btnXR10.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXR10ActionPerformed(evt);
+            }
+        });
+
+        btnXL1.setLabel("1");
+        btnXL1.setMargin(new Insets(2, 2, 2, 2));
+        btnXL1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXL1ActionPerformed(evt);
+            }
+        });
+
+        btnXL5.setLabel("5");
+        btnXL5.setMargin(new Insets(2, 2, 2, 2));
+        btnXL5.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXL5ActionPerformed(evt);
+            }
+        });
+
+        btnXL10.setLabel("10");
+        btnXL10.setMargin(new Insets(2, 2, 2, 2));
+        btnXL10.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXL10ActionPerformed(evt);
+            }
+        });
+
+        btnXT1.setLabel("1");
+        btnXT1.setMargin(new Insets(2, 2, 2, 2));
+        btnXT1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXT1ActionPerformed(evt);
+            }
+        });
+
+        btnXT5.setLabel("5");
+        btnXT5.setMargin(new Insets(2, 2, 2, 2));
+        btnXT5.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXT5ActionPerformed(evt);
+            }
+        });
+
+        btnXT10.setLabel("10");
+        btnXT10.setMargin(new Insets(2, 2, 2, 2));
+        btnXT10.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnXT10ActionPerformed(evt);
+            }
+        });
+
+        btnSpindleOn.setText("Spindle On");
+        btnSpindleOn.setMargin(new Insets(2, 2, 2, 2));
+        btnSpindleOn.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnSpindleOnActionPerformed(evt);
+            }
+        });
+
+        btnSpindleOff.setText("Spindle Off");
+        btnSpindleOff.setMargin(new Insets(2, 2, 2, 2));
+        btnSpindleOff.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent evt) {
+                btnSpindleOffActionPerformed(evt);
+            }
+        });
+
+        GroupLayout jPanel4Layout = new GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(btnXL10, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXL5, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXL1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jPanel4Layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(btnXB1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel4Layout.createSequentialGroup()
+                        .add(38, 38, 38)
+                        .add(btnXR1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.RELATED)
+                        .add(btnXR5, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.RELATED)
+                        .add(btnXR10, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+                    .add(btnXB5, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                    .add(btnXB10, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel4Layout.createSequentialGroup()
+                        .add(btnXT5, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                        .add(18, 18, 18)
+                        .add(btnSpindleOff, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE))
+                    .add(btnXT1, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel4Layout.createSequentialGroup()
+                        .add(btnXT10, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+                        .add(18, 18, 18)
+                        .add(btnSpindleOn, GroupLayout.PREFERRED_SIZE, 97, GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(jPanel4Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel4Layout.createParallelGroup(GroupLayout.BASELINE)
+                    .add(btnXT10)
+                    .add(btnSpindleOn))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jPanel4Layout.createParallelGroup(GroupLayout.BASELINE)
+                    .add(btnXT5)
+                    .add(btnSpindleOff))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXT1)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jPanel4Layout.createParallelGroup(GroupLayout.BASELINE)
+                    .add(btnXL10)
+                    .add(btnXR5)
+                    .add(btnXL1)
+                    .add(btnXL5)
+                    .add(btnXR1)
+                    .add(btnXR10))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXB1)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXB5)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(btnXB10)
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        GroupLayout jPanel3Layout = new GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel3Layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(commandTextField)
+                    .add(jPanel3Layout.createSequentialGroup()
+                        .add(commandLabel)
+                        .add(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+            .add(GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(70, Short.MAX_VALUE)
+                .add(jPanel4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(70, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(GroupLayout.LEADING)
+            .add(GroupLayout.TRAILING, jPanel3Layout.createSequentialGroup()
+                .addContainerGap(21, Short.MAX_VALUE)
+                .add(jPanel4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED, 21, Short.MAX_VALUE)
+                .add(commandLabel)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(commandTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            layout.createParallelGroup(GroupLayout.LEADING)
+            .add(jTabbedPane2)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(GroupLayout.LEADING)
+                    .add(jPanel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
-                        .add(scrollWindowCheckBox)
-                        .add(0, 0, Short.MAX_VALUE))
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(layout.createParallelGroup(GroupLayout.LEADING)
+                            .add(jPanel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                            .add(scrollWindowCheckBox))
+                        .addPreferredGap(LayoutStyle.RELATED)
+                        .add(jPanel3, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
-            .add(jTabbedPane2)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            layout.createParallelGroup(GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel1, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(GroupLayout.LEADING, false)
+                    .add(jPanel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
                     .add(layout.createSequentialGroup()
-                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(scrollWindowCheckBox))
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 269, Short.MAX_VALUE))
+                        .add(jPanel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(LayoutStyle.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(scrollWindowCheckBox)))
+                .addPreferredGap(LayoutStyle.RELATED)
+                .add(jTabbedPane2, GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE))
         );
 
         pack();
@@ -387,13 +641,14 @@ implements SerialCommunicatorListener, KeyListener {
     
     /** Generated callback functions, hand coded.
      */
-    private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
+    private void scrollWindowCheckBoxActionPerformed(ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
         checkScrollWindow();
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
-    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
+    private void commandTextFieldActionPerformed(ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
         String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        this.commPort.sendStringToComm(str + "\n");
+        this.sendCommand(str);
+        //this.commPort.sendStringToComm(str + "\n");
         this.commandTextField.setText("");
         this.commandList.add(str);
         this.commandNum = -1;
@@ -440,7 +695,7 @@ implements SerialCommunicatorListener, KeyListener {
         // Or this one...
     }
     
-    private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
+    private void openButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
         try {
             boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
             this.updateControlsForComm(ret);
@@ -452,11 +707,11 @@ implements SerialCommunicatorListener, KeyListener {
         commandTextField.grabFocus();
     }//GEN-LAST:event_openButtonActionPerformed
 
-    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
+    private void refreshButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
         loadPortSelector();
     }//GEN-LAST:event_refreshButtonActionPerformed
 
-    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
+    private void browseButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
@@ -471,15 +726,15 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }//GEN-LAST:event_browseButtonActionPerformed
 
-    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+    private void closeButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         closeCommConnection();
     }//GEN-LAST:event_closeButtonActionPerformed
 
-    private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
+    private void lineBreakNActionPerformed(ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
         this.commPort.setLineTerminator(this.getNewline());
     }//GEN-LAST:event_lineBreakNActionPerformed
 
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+    private void sendButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -493,7 +748,9 @@ implements SerialCommunicatorListener, KeyListener {
         };
         
         startTime = System.currentTimeMillis();
-        if (timer != null) timer.stop();
+        if (timer != null) {
+            timer.stop();
+        }
         timer = new Timer(1000, actionListener);
         timer.start();
         
@@ -510,7 +767,7 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }//GEN-LAST:event_sendButtonActionPerformed
 
-    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
+    private void pauseButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
         try {
             if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
                 this.commPort.pauseSend();
@@ -526,11 +783,90 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }//GEN-LAST:event_pauseButtonActionPerformed
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    private void cancelButtonActionPerformed(ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.commPort.cancelSend();
                 
         this.updateControlsForSend(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void lineBreakNRActionPerformed(ActionEvent evt) {//GEN-FIRST:event_lineBreakNRActionPerformed
+        this.commPort.setLineTerminator(this.getNewline());
+    }//GEN-LAST:event_lineBreakNRActionPerformed
+
+    private void lineBreakRNActionPerformed(ActionEvent evt) {//GEN-FIRST:event_lineBreakRNActionPerformed
+        this.commPort.setLineTerminator(this.getNewline());
+    }//GEN-LAST:event_lineBreakRNActionPerformed
+
+    private void btnXR1ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXR1ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 X1");
+    }//GEN-LAST:event_btnXR1ActionPerformed
+
+    private void btnXR5ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXR5ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 X5");
+    }//GEN-LAST:event_btnXR5ActionPerformed
+
+    private void btnXR10ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXR10ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 X10");
+    }//GEN-LAST:event_btnXR10ActionPerformed
+
+    private void btnXL1ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXL1ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 X-1");
+    }//GEN-LAST:event_btnXL1ActionPerformed
+
+    private void btnXL5ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXL5ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G0 X-5");
+    }//GEN-LAST:event_btnXL5ActionPerformed
+
+    private void btnXL10ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXL10ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 X-10");
+    }//GEN-LAST:event_btnXL10ActionPerformed
+
+    private void btnXT1ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXT1ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 Y1");
+    }//GEN-LAST:event_btnXT1ActionPerformed
+
+    private void btnXT5ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXT5ActionPerformed
+        this.sendCommand("G01 Y5");
+    }//GEN-LAST:event_btnXT5ActionPerformed
+
+    private void btnXT10ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXT10ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 Y+10");
+    }//GEN-LAST:event_btnXT10ActionPerformed
+
+    private void btnXB1ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXB1ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 Y-1");
+    }//GEN-LAST:event_btnXB1ActionPerformed
+
+    private void btnXB5ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXB5ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 Y-5");
+    }//GEN-LAST:event_btnXB5ActionPerformed
+
+    private void btnXB10ActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnXB10ActionPerformed
+        this.sendCommand("G91");
+        this.sendCommand("G01 Y-10");
+    }//GEN-LAST:event_btnXB10ActionPerformed
+
+    private void btnSpindleOnActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnSpindleOnActionPerformed
+        this.sendCommand("M03");
+    }//GEN-LAST:event_btnSpindleOnActionPerformed
+
+    private void btnSpindleOffActionPerformed(ActionEvent evt) {//GEN-FIRST:event_btnSpindleOffActionPerformed
+        this.sendCommand("M05");
+    }//GEN-LAST:event_btnSpindleOffActionPerformed
+
+    private void overrideSpeedCheckBoxActionPerformed(ActionEvent evt) {//GEN-FIRST:event_overrideSpeedCheckBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_overrideSpeedCheckBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -541,6 +877,7 @@ implements SerialCommunicatorListener, KeyListener {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+        /*
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -557,6 +894,7 @@ implements SerialCommunicatorListener, KeyListener {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        * /
         //</editor-fold>
 
         /* Create and display the form */
@@ -595,9 +933,26 @@ implements SerialCommunicatorListener, KeyListener {
         this.commandTextField.addKeyListener(this);
         
         this.tableModel = (DefaultTableModel) this.commandTable.getModel();
-}
+        
+        updateControlsForComm(false);
+    }
 
     private void updateControlsForComm(boolean isOpen) {
+        this.btnXB1.setEnabled(isOpen);
+        this.btnXT1.setEnabled(isOpen);
+        this.btnXL1.setEnabled(isOpen);
+        this.btnXR1.setEnabled(isOpen);
+        this.btnXB5.setEnabled(isOpen);
+        this.btnXT5.setEnabled(isOpen);
+        this.btnXL5.setEnabled(isOpen);
+        this.btnXR5.setEnabled(isOpen);
+        this.btnXB10.setEnabled(isOpen);
+        this.btnXT10.setEnabled(isOpen);
+        this.btnXL10.setEnabled(isOpen);
+        this.btnXR10.setEnabled(isOpen);
+        this.btnSpindleOff.setEnabled(isOpen);
+        this.btnSpindleOn.setEnabled(isOpen);
+        
         if (isOpen) {
             this.commPortComboBox.setEnabled(false);
             this.refreshButton.setEnabled(false);
@@ -636,13 +991,28 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private void updateControlsForSend(boolean isSending) {
+        this.btnXB1.setEnabled(!isSending);
+        this.btnXT1.setEnabled(!isSending);
+        this.btnXL1.setEnabled(!isSending);
+        this.btnXR1.setEnabled(!isSending);
+        this.btnXB5.setEnabled(!isSending);
+        this.btnXT5.setEnabled(!isSending);
+        this.btnXL5.setEnabled(!isSending);
+        this.btnXR5.setEnabled(!isSending);
+        this.btnXB10.setEnabled(!isSending);
+        this.btnXT10.setEnabled(!isSending);
+        this.btnXL10.setEnabled(!isSending);
+        this.btnXR10.setEnabled(!isSending);
+        this.btnSpindleOff.setEnabled(!isSending);
+        this.btnSpindleOn.setEnabled(!isSending);
+        
         if (isSending) {
             this.sendButton.setEnabled(false);
             this.pauseButton.setEnabled(true);
             this.commandTextField.setEnabled(false);
             this.overrideSpeedCheckBox.setEnabled(false);
             this.overrideSpeedValueSpinner.setEnabled(false);
-            this.cancelButton.setEnabled(true);
+            this.cancelButton.setEnabled(true);  
         } else {
             this.sendButton.setEnabled(true);
             this.pauseButton.setEnabled(false);
@@ -701,8 +1071,9 @@ implements SerialCommunicatorListener, KeyListener {
             int readChars;
             while ((readChars = is.read(c)) != -1) {
                 for (int i = 0; i < readChars; ++i) {
-                    if (c[i] == '\n')
+                    if (c[i] == '\n'){
                         ++numRows;
+                    }
                 }
             }
             
@@ -725,14 +1096,15 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private String getNewline() {
-        if (lineBreakNR.isSelected())
+        if (lineBreakNR.isSelected()){
             return "\n\r";
-        else if (lineBreakRN.isSelected())
+        }else if (lineBreakRN.isSelected()){
             return "\r\n";
-        else if (lineBreakN.isSelected())
+        }else if (lineBreakN.isSelected()){
             return "\n";
-        else
+        }else{
             return "wtfbbq";
+        }
     }
 
     private void closeCommConnection() {
@@ -741,6 +1113,10 @@ implements SerialCommunicatorListener, KeyListener {
         this.updateControlsForComm(false);
         this.consoleTextArea.append("\n**** Connection closed ****");
 
+    }
+    
+    private void sendCommand(String command){
+        this.commPort.sendStringToComm(command + "\n");
     }
     
     // TODO: put this in a util class
@@ -885,38 +1261,54 @@ implements SerialCommunicatorListener, KeyListener {
     
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton browseButton;
-    private javax.swing.JButton cancelButton;
-    private javax.swing.JButton closeButton;
-    private javax.swing.JComboBox commPortComboBox;
-    private javax.swing.JLabel commandLabel;
-    private javax.swing.JTable commandTable;
-    private javax.swing.JTextField commandTextField;
-    private javax.swing.JTextArea consoleTextArea;
-    private javax.swing.JLabel durationLabel;
-    private javax.swing.JLabel durationValueLabel;
-    private javax.swing.JLabel fileLabel;
-    private javax.swing.JTextField fileTextField;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.ButtonGroup lineBreakGroup;
-    private javax.swing.JRadioButton lineBreakN;
-    private javax.swing.JRadioButton lineBreakNR;
-    private javax.swing.JRadioButton lineBreakRN;
-    private javax.swing.JButton openButton;
-    private javax.swing.JCheckBox overrideSpeedCheckBox;
-    private javax.swing.JSpinner overrideSpeedValueSpinner;
-    private javax.swing.JButton pauseButton;
-    private javax.swing.JButton refreshButton;
-    private javax.swing.JLabel rowsLabel;
-    private javax.swing.JLabel rowsValueLabel;
-    private javax.swing.JCheckBox scrollWindowCheckBox;
-    private javax.swing.JButton sendButton;
-    private javax.swing.JLabel sentRowsLabel;
-    private javax.swing.JLabel sentRowsValueLabel;
+    private JButton browseButton;
+    private JButton btnSpindleOff;
+    private JButton btnSpindleOn;
+    private JButton btnXB1;
+    private JButton btnXB10;
+    private JButton btnXB5;
+    private JButton btnXL1;
+    private JButton btnXL10;
+    private JButton btnXL5;
+    private JButton btnXR1;
+    private JButton btnXR10;
+    private JButton btnXR5;
+    private JButton btnXT1;
+    private JButton btnXT10;
+    private JButton btnXT5;
+    private JButton cancelButton;
+    private JButton closeButton;
+    private JComboBox commPortComboBox;
+    private JLabel commandLabel;
+    private JTable commandTable;
+    private JTextField commandTextField;
+    private JTextArea consoleTextArea;
+    private JLabel durationLabel;
+    private JLabel durationValueLabel;
+    private JLabel fileLabel;
+    private JTextField fileTextField;
+    private JPanel jPanel1;
+    private JPanel jPanel2;
+    private JPanel jPanel3;
+    private JPanel jPanel4;
+    private JScrollPane jScrollPane1;
+    private JScrollPane jScrollPane2;
+    private JTabbedPane jTabbedPane1;
+    private JTabbedPane jTabbedPane2;
+    private ButtonGroup lineBreakGroup;
+    private JRadioButton lineBreakN;
+    private JRadioButton lineBreakNR;
+    private JRadioButton lineBreakRN;
+    private JButton openButton;
+    private JCheckBox overrideSpeedCheckBox;
+    private JSpinner overrideSpeedValueSpinner;
+    private JButton pauseButton;
+    private JButton refreshButton;
+    private JLabel rowsLabel;
+    private JLabel rowsValueLabel;
+    private JCheckBox scrollWindowCheckBox;
+    private JButton sendButton;
+    private JLabel sentRowsLabel;
+    private JLabel sentRowsValueLabel;
     // End of variables declaration//GEN-END:variables
 }
