@@ -134,17 +134,12 @@ public class CommUtils {
      */
     static String overrideSpeed(String command, Integer speed) {
         String returnString = command;
+        
         // Check if command sets feed speed.
-        int index = command.toLowerCase().indexOf('f');
-        if (index > 0) {
-            int indexSpaceAfterF = command.indexOf(" ", index+1);
-            // Build that new command.
-            returnString = (new StringBuilder()
-                    .append(command.substring(0, index+1))
-                    .append(speed.toString())
-                    .append(".0")
-                    .append(command.substring(indexSpaceAfterF))
-                    ).toString();
+        Pattern speedRegex = Pattern.compile("F[0-9.]+", Pattern.CASE_INSENSITIVE);
+        Matcher speedRegexMatcher = speedRegex.matcher(command);
+        if (speedRegexMatcher.find()){
+            returnString = speedRegexMatcher.replaceAll("F" + speed.toString() + ".0");
         }
 
         return returnString;
