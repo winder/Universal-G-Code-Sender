@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
+import java.lang.System;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -25,7 +26,6 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultCaret;
-
 /**
  *
  * @author wwinder
@@ -57,9 +57,9 @@ implements SerialCommunicatorListener, KeyListener {
         commandTextField = new javax.swing.JTextField();
         commPortComboBox = new javax.swing.JComboBox();
         refreshButton = new javax.swing.JButton();
-        openButton = new javax.swing.JButton();
-        closeButton = new javax.swing.JButton();
+        opencloseButton = new javax.swing.JButton();
         lineBreakN = new javax.swing.JRadioButton();
+        baudrateSelectionComboBox = new javax.swing.JComboBox();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         browseButton = new javax.swing.JButton();
@@ -109,18 +109,10 @@ implements SerialCommunicatorListener, KeyListener {
             }
         });
 
-        openButton.setText("Open");
-        openButton.addActionListener(new java.awt.event.ActionListener() {
+        opencloseButton.setText("Open");
+        opencloseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                openButtonActionPerformed(evt);
-            }
-        });
-
-        closeButton.setText("Close");
-        closeButton.setEnabled(false);
-        closeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeButtonActionPerformed(evt);
+                opencloseButtonActionPerformed(evt);
             }
         });
 
@@ -129,6 +121,15 @@ implements SerialCommunicatorListener, KeyListener {
         lineBreakN.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lineBreakNActionPerformed(evt);
+            }
+        });
+
+        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
+        baudrateSelectionComboBox.setSelectedIndex(2);
+        baudrateSelectionComboBox.setToolTipText("Select baudrate to use for the serial port.");
+        baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                baudrateSelectionComboBoxActionPerformed(evt);
             }
         });
 
@@ -149,14 +150,13 @@ implements SerialCommunicatorListener, KeyListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lineBreakRN))
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 237, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 212, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(baudrateSelectionComboBox, 0, 80, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(openButton)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(closeButton)
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(opencloseButton)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -171,12 +171,18 @@ implements SerialCommunicatorListener, KeyListener {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(openButton)
-                    .add(closeButton))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(0, 0, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .add(0, 0, Short.MAX_VALUE)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(opencloseButton)
+                            .add(baudrateSelectionComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap())
         );
 
         scrollWindowCheckBox.setSelected(true);
@@ -307,7 +313,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(sentRowsValueLabel)
                         .add(rowsLabel)
                         .add(rowsValueLabel)))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         consoleTextArea.setColumns(20);
@@ -440,17 +446,27 @@ implements SerialCommunicatorListener, KeyListener {
         // Or this one...
     }
     
-    private void openButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openButtonActionPerformed
-        try {
-            boolean ret = commPort.openCommPort(commPortComboBox.getSelectedItem().toString(), 9600);
-            this.updateControlsForComm(ret);
-        } catch (Exception e) {
-            this.displayErrorDialog("Error opening connection: "+e.getMessage());
+    private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
+        if( this.opencloseButton.getText().equalsIgnoreCase("open") ) {
+            try {
+                boolean ret = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
+                                                     Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
+                this.updateControlsForComm(ret);
+                this.consoleTextArea.append("\n**** Connected to " 
+                                            + commPortComboBox.getSelectedItem().toString()
+                                            + " @ "
+                                            + baudrateSelectionComboBox.getSelectedItem().toString()
+                                            + " baud ****");
+            } catch (Exception e) {
+                this.displayErrorDialog("Error opening connection: "+e.getMessage());
+            }
+
+            // Let the command field grab focus.
+            commandTextField.grabFocus();
+        } else {
+           closeCommConnection();
         }
-        
-        // Let the command field grab focus.
-        commandTextField.grabFocus();
-    }//GEN-LAST:event_openButtonActionPerformed
+    }//GEN-LAST:event_opencloseButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
         loadPortSelector();
@@ -470,10 +486,6 @@ implements SerialCommunicatorListener, KeyListener {
             // Canceled file open.
         }
     }//GEN-LAST:event_browseButtonActionPerformed
-
-    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        closeCommConnection();
-    }//GEN-LAST:event_closeButtonActionPerformed
 
     private void lineBreakNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNActionPerformed
         this.commPort.setLineTerminator(this.getNewline());
@@ -531,6 +543,10 @@ implements SerialCommunicatorListener, KeyListener {
                 
         this.updateControlsForSend(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
+
+    private void baudrateSelectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baudrateSelectionComboBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_baudrateSelectionComboBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -599,16 +615,16 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void updateControlsForComm(boolean isOpen) {
         if (isOpen) {
+            this.opencloseButton.setText("Close");
             this.commPortComboBox.setEnabled(false);
+            this.baudrateSelectionComboBox.setEnabled(false);
             this.refreshButton.setEnabled(false);
-            this.openButton.setEnabled(false);
-            this.closeButton.setEnabled(true);
             this.commandTextField.setEnabled(true);
         } else {
+            this.opencloseButton.setText("Open");
             this.commPortComboBox.setEnabled(true);
+            this.baudrateSelectionComboBox.setEnabled(true);
             this.refreshButton.setEnabled(true);
-            this.openButton.setEnabled(true);
-            this.closeButton.setEnabled(false);
             this.commandTextField.setEnabled(false);
         }
         
@@ -885,9 +901,9 @@ implements SerialCommunicatorListener, KeyListener {
     
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox baudrateSelectionComboBox;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JButton closeButton;
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
     private javax.swing.JTable commandTable;
@@ -907,7 +923,7 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JRadioButton lineBreakN;
     private javax.swing.JRadioButton lineBreakNR;
     private javax.swing.JRadioButton lineBreakRN;
-    private javax.swing.JButton openButton;
+    private javax.swing.JButton opencloseButton;
     private javax.swing.JCheckBox overrideSpeedCheckBox;
     private javax.swing.JSpinner overrideSpeedValueSpinner;
     private javax.swing.JButton pauseButton;
