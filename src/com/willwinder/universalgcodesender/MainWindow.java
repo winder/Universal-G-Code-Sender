@@ -54,11 +54,11 @@ implements SerialCommunicatorListener, KeyListener {
         commandLabel = new javax.swing.JLabel();
         lineBreakNR = new javax.swing.JRadioButton();
         lineBreakRN = new javax.swing.JRadioButton();
+        lineBreakN = new javax.swing.JRadioButton();
         commandTextField = new javax.swing.JTextField();
         commPortComboBox = new javax.swing.JComboBox();
         refreshButton = new javax.swing.JButton();
         opencloseButton = new javax.swing.JButton();
-        lineBreakN = new javax.swing.JRadioButton();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
@@ -90,10 +90,28 @@ implements SerialCommunicatorListener, KeyListener {
 
         lineBreakGroup.add(lineBreakNR);
         lineBreakNR.setText("\\n\\r");
+        lineBreakNR.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineBreakNRActionPerformed(evt);
+            }
+        });
 
         lineBreakGroup.add(lineBreakRN);
         lineBreakRN.setSelected(true);
         lineBreakRN.setText("\\r\\n");
+        lineBreakRN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineBreakRNActionPerformed(evt);
+            }
+        });
+
+        lineBreakGroup.add(lineBreakN);
+        lineBreakN.setText("\\n");
+        lineBreakN.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lineBreakNActionPerformed(evt);
+            }
+        });
 
         commandTextField.setEnabled(false);
         commandTextField.addActionListener(new java.awt.event.ActionListener() {
@@ -113,14 +131,6 @@ implements SerialCommunicatorListener, KeyListener {
         opencloseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 opencloseButtonActionPerformed(evt);
-            }
-        });
-
-        lineBreakGroup.add(lineBreakN);
-        lineBreakN.setText("\\n");
-        lineBreakN.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                lineBreakNActionPerformed(evt);
             }
         });
 
@@ -539,6 +549,14 @@ implements SerialCommunicatorListener, KeyListener {
         // TODO add your handling code here:
     }//GEN-LAST:event_baudrateSelectionComboBoxActionPerformed
 
+    private void lineBreakNRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNRActionPerformed
+        this.commPort.setLineTerminator(this.getNewline());
+    }//GEN-LAST:event_lineBreakNRActionPerformed
+
+    private void lineBreakRNActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakRNActionPerformed
+        this.commPort.setLineTerminator(this.getNewline());
+    }//GEN-LAST:event_lineBreakRNActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -732,6 +750,7 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private String getNewline() {
+        System.out.println("newline.");
         if (lineBreakNR.isSelected())
             return "\n\r";
         else if (lineBreakRN.isSelected())

@@ -152,6 +152,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="\u005cn\u005cr" containsInvalidXMLChars="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineBreakNRActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JRadioButton" name="lineBreakRN">
           <Properties>
@@ -161,6 +164,20 @@
             <Property name="selected" type="boolean" value="true"/>
             <Property name="text" type="java.lang.String" value="\u005cr\u005cn" containsInvalidXMLChars="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineBreakRNActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JRadioButton" name="lineBreakN">
+          <Properties>
+            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+              <ComponentRef name="lineBreakGroup"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="\u005cn" containsInvalidXMLChars="true"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineBreakNActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="commandTextField">
           <Properties>
@@ -193,17 +210,6 @@
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="opencloseButtonActionPerformed"/>
-          </Events>
-        </Component>
-        <Component class="javax.swing.JRadioButton" name="lineBreakN">
-          <Properties>
-            <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-              <ComponentRef name="lineBreakGroup"/>
-            </Property>
-            <Property name="text" type="java.lang.String" value="\u005cn" containsInvalidXMLChars="true"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lineBreakNActionPerformed"/>
           </Events>
         </Component>
         <Component class="javax.swing.JComboBox" name="baudrateSelectionComboBox">
