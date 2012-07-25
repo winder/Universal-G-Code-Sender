@@ -73,9 +73,12 @@ public class GcodeCommandBuffer {
         GcodeCommand command;
         int commandNum = 0;
         while ((line = fileStream.readLine()) != null) {
-            // Commands end with a newline.
-            command = new GcodeCommand(line + '\n', commandNum++);
-            commands.add(command);
+            // Empty line detection
+            if(!line.trim().equals("")){
+    			// Commands end with a newline.
+                command = new GcodeCommand(line + '\n', commandNum++);
+                commands.add(command);
+            }
         }
         
         return commands;
