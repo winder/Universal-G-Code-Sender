@@ -173,9 +173,9 @@ implements SerialCommunicatorListener, KeyListener {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(0, 0, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                         .add(0, 0, Short.MAX_VALUE)
@@ -448,21 +448,12 @@ implements SerialCommunicatorListener, KeyListener {
     
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase("open") ) {
-            try {
-                boolean ret = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
-                                                     Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
-                this.updateControlsForComm(ret);
-                this.consoleTextArea.append("\n**** Connected to " 
-                                            + commPortComboBox.getSelectedItem().toString()
-                                            + " @ "
-                                            + baudrateSelectionComboBox.getSelectedItem().toString()
-                                            + " baud ****");
-            } catch (Exception e) {
-                this.displayErrorDialog("Error opening connection: "+e.getMessage());
-            }
+            Boolean ret = openCommConnection();
 
-            // Let the command field grab focus.
-            commandTextField.grabFocus();
+            if (ret) {
+                // Let the command field grab focus.
+                commandTextField.grabFocus();
+            }
         } else {
            closeCommConnection();
         }
@@ -751,6 +742,23 @@ implements SerialCommunicatorListener, KeyListener {
             return "wtfbbq";
     }
 
+    private boolean openCommConnection() {
+        boolean connected = false;
+        try {
+            connected = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
+                                                     Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
+            this.updateControlsForComm(connected);
+            this.consoleTextArea.append("\n**** Connected to " 
+                                        + commPortComboBox.getSelectedItem().toString()
+                                        + " @ "
+                                        + baudrateSelectionComboBox.getSelectedItem().toString()
+                                        + " baud ****");
+        } catch (Exception e) {
+            this.displayErrorDialog("Error opening connection: "+e.getMessage());
+        }
+        return connected;
+    }
+    
     private void closeCommConnection() {
         this.commPort.closeCommPort();
         
