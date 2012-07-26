@@ -136,10 +136,14 @@ public class CommUtils {
         String returnString = command;
         
         // Check if command sets feed speed.
-        Pattern speedRegex = Pattern.compile("F[0-9.]+", Pattern.CASE_INSENSITIVE);
+        Pattern speedRegex = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
         Matcher speedRegexMatcher = speedRegex.matcher(command);
         if (speedRegexMatcher.find()){
-            returnString = speedRegexMatcher.replaceAll("F" + speed.toString() + ".0");
+            Double originalFeedRate = Double.parseDouble(speedRegexMatcher.group(1));
+            //System.out.println( "Found feed     " + originalFeedRate.toString() );
+            Double newFeedRate      = originalFeedRate * speed / 100.0;
+            //System.out.println( "Change to feed " + newFeedRate.toString() );
+            returnString = speedRegexMatcher.replaceAll( "F" + newFeedRate.toString() );
         }
 
         return returnString;
