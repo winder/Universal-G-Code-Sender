@@ -750,7 +750,6 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private String getNewline() {
-        System.out.println("newline.");
         if (lineBreakNR.isSelected())
             return "\n\r";
         else if (lineBreakRN.isSelected())

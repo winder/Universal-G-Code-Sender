@@ -187,28 +187,48 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void streamFileCommands() {
-
+        boolean skip;
+        
         // Keep sending commands until the last command is sent, or the
         // character buffer is full.
         while ((this.commandBuffer.currentCommand().isSent() == false) &&
                 CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
 
+            skip = false;
             GcodeCommand command = this.commandBuffer.currentCommand();
 
             // Allow a command preprocessor listener to preprocess the command.
             if (this.commandPreprocessorListener != null) {
                 String processed = this.commandPreprocessorListener.preprocessCommand(command.getCommandString());
                 command.setCommand(processed);
+                
+                if (processed.trim().equals("")) {
+                    skip = true;
+                }
             }
             
-            command.setSent(true);
-            this.activeCommandList.add(command);
-            
-            // Commands parsed by the buffer list have embedded newlines.
-            this.sendStringToComm(command.getCommandString());
+            // Don't send skipped commands.
+            if (!skip) {
+                command.setSent(true);
 
+                this.activeCommandList.add(command);
+            
+                // Commands parsed by the buffer list have embedded newlines.
+                this.sendStringToComm(command.getCommandString());
+            }
+            
             if (this.commandSentListener != null) {
                 this.commandCompleteListener.commandSent(command);
+            }
+            
+            // If the command was skipped let the listeners know.
+            if (skip) {
+                this.sendMessageToConsoleListener("Skipping command #"
+                        + command.getCommandNumber());
+                command.setResponse("<skipped by application>");
+                if (this.commandCompleteListener != null) {
+                    this.commandCompleteListener.commandComplete(command);
+                }
             }
 
             // Load the next command.
