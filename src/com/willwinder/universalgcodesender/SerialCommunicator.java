@@ -321,8 +321,13 @@ public class SerialCommunicator implements SerialPortEventListener{
         if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try
             {
-                String next;
-                
+                String next = CommUtils.readLineFromCommUntil(in, lineTerminator);
+                // Handle response.
+                this.responseMessage(next);
+                    
+                /*
+                 * For some reason calling readLineFromCommUntil more than once
+                 * prevents the close command from working later on.
                 // Read one or more lines from the comm.
                 while ((next = CommUtils.readLineFromCommUntil(in, lineTerminator)).isEmpty() == false) {
                     next = next.replace("\n", "").replace("\r","");
@@ -330,6 +335,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                     // Handle response.
                     this.responseMessage(next);
                 }
+                */
             }
             catch ( IOException e )
             {

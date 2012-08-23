@@ -50,6 +50,7 @@ public class CommUtils {
      * reached.
      */
     static String readLineFromCommUntil(InputStream in, String term) throws IOException {
+        
         if (term == null || term.length() == 0) {
             return "";
         }
