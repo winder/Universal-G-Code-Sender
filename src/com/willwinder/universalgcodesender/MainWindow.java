@@ -499,7 +499,7 @@ implements SerialCommunicatorListener, KeyListener {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                    durationValueLabel.setText(timePassed());
+                    durationValueLabel.setText(Utils.timeSince(startTime));
                 }});
                 
             }
@@ -546,7 +546,6 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void baudrateSelectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baudrateSelectionComboBoxActionPerformed
-        // TODO add your handling code here:
     }//GEN-LAST:event_baudrateSelectionComboBoxActionPerformed
 
     private void lineBreakNRActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lineBreakNRActionPerformed
@@ -783,19 +782,6 @@ implements SerialCommunicatorListener, KeyListener {
         this.updateControlsForComm(false);
         this.consoleTextArea.append("\n**** Connection closed ****");
 
-    }
-    
-    // TODO: put this in a util class
-    private String timePassed(){
-        long now = System.currentTimeMillis();
-        long elapsedTime = now - startTime;
-        String format = String.format("%%0%dd", 2);  
-        elapsedTime = elapsedTime / 1000;  
-        String seconds = String.format(format, elapsedTime % 60);  
-        String minutes = String.format(format, (elapsedTime % 3600) / 60);  
-        String hours = String.format(format, elapsedTime / 3600);  
-        String time =  hours + ":" + minutes + ":" + seconds;  
-        return time;  
     }
     
     void clearTable() {

@@ -11,7 +11,7 @@ import java.io.PrintStream;
  * This thread continuously polls a string buffer for data then writes it to an
  * output stream.
  * 
- * @author winder
+ * @author wwinder
  */
 
 public class SerialWriter implements Runnable {

@@ -7,6 +7,7 @@ package com.willwinder.universalgcodesender;
 import gnu.io.*;
 import java.io.*;
 import java.util.LinkedList;
+import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,7 +78,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
-    synchronized boolean openCommPort(String name, int baud) throws Exception {
+    synchronized boolean openCommPort(String name, int baud) 
+            throws NoSuchPortException, PortInUseException, 
+            UnsupportedCommOperationException, IOException, 
+            TooManyListenersException {
+        
         this.activeCommandList = new LinkedList<GcodeCommand>();
 
         boolean returnCode;
