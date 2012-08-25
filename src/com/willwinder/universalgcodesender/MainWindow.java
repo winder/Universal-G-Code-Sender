@@ -669,8 +669,13 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        this.commPort.queueStringForComm(str + "\n");
+        final String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                commPort.queueStringForComm(str + "\n");
+            }
+        });
         this.commandTextField.setText("");
         this.commandList.add(str);
         this.commandNum = -1;

@@ -255,6 +255,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         // Keep sending commands until the last command is sent, or the
         // character buffer is full.
         while ((this.commandBuffer.currentCommand().isSent() == false) &&
+                (this.commandBuffer.currentCommand().isDone() == false) &&
                 CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
 
             skip = false;
