@@ -154,7 +154,7 @@ implements SerialCommunicatorListener, KeyListener {
         commandTable.getColumnModel().getColumn(2).setPreferredWidth(40);
         commandTable.getColumnModel().getColumn(3).setPreferredWidth(350);
 
-        jTabbedPane2.addTab("File Commands", jScrollPane1);
+        jTabbedPane2.addTab("Command Table", jScrollPane1);
 
         jTabbedPane3.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
@@ -669,7 +669,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
         String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        this.commPort.sendStringToComm(str + "\n");
+        this.commPort.queueStringForComm(str + "\n");
         this.commandTextField.setText("");
         this.commandList.add(str);
         this.commandNum = -1;
@@ -780,6 +780,10 @@ implements SerialCommunicatorListener, KeyListener {
         timer.start();
         
         try {
+            // This will throw an exception and prevent that other stuff from
+            // happening (clearing the table before its ready for clearing.
+            this.commPort.isReadyToStreamFile();
+            
             this.clearTable();
             this.sentRowsValueLabel.setText("0");
             this.sentRows = 0;
@@ -972,7 +976,7 @@ implements SerialCommunicatorListener, KeyListener {
         String command = "G0 X"+this.manualLocation.getX()+
                            " Y"+this.manualLocation.getY()+
                            " Z"+this.manualLocation.getZ();
-        this.commPort.sendStringToComm(command + "\n");
+        this.commPort.queueStringForComm(command + "\n");
     }
     
     private void updateManualLabels(Coordinate coords) {

@@ -61,6 +61,17 @@ public class GcodeCommandBuffer {
         return this.currentCommand();
     }
     
+    void appendCommand(GcodeCommand command) {
+        this.commandList.add(command);
+        
+        if (this.currentCommand != null) {
+            // Reset iterator to get back to where we were.
+            this.listIterator = this.commandList.listIterator();
+            while (this.listIterator.hasNext() && (this.currentCommand != this.listIterator.next()))
+            {/* don't do anything, we're just cycling back to the current command. */};
+        }
+    }
+    
     // Helper to parse a file into a list of GcodeCommand's
     static LinkedList<GcodeCommand> setFile(File file) throws FileNotFoundException, IOException {
         LinkedList<GcodeCommand> commands = new LinkedList<GcodeCommand>();
