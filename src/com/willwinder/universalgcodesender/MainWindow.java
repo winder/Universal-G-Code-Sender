@@ -1070,6 +1070,10 @@ implements SerialCommunicatorListener, KeyListener {
     private boolean openCommConnection() {
         boolean connected = false;
         try {
+            this.clearTable();
+            this.sentRowsValueLabel.setText("0");
+            this.sentRows = 0;
+
             connected = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
                                                      Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
             this.updateControlsForComm(connected);
