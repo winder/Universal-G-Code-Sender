@@ -25,6 +25,7 @@ Key features:
 Improvements over the original GcodeSender:
 * Cross platform - use the same GUI application on OSX / Windows / Linux.
 * Command history - Re-run prior manual commands with up/down arrow.
+* Manual jogging, click buttons to move machine.
 * Duration timer while sending a file.
 * Pause / Resume while sending a file.
 * Table view linking the GRBL response to each command as run.
@@ -42,6 +43,11 @@ Technical details:
 
 Changelog
 ---------
+1.0.2 -> 1.0.3
+* Manual jogging mode, control machine with buttons in the UI.
+* Automatically skip blank lines and comments when sending a file.
+* Bug fixes.
+
 1.0.1 -> 1.0.2
 * Grbl version checking.
 * Real-time pause/resume commands used for Grbl v0.8.
