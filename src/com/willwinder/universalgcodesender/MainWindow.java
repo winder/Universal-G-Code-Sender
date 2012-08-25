@@ -230,7 +230,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         sentRowsValueLabel.setText("0");
 
-        rowsLabel.setText("Rows:");
+        rowsLabel.setText("Rows In File:");
 
         rowsValueLabel.setText("0");
 
@@ -263,18 +263,6 @@ implements SerialCommunicatorListener, KeyListener {
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel2Layout.createSequentialGroup()
-                                        .add(sentRowsLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(sentRowsValueLabel)
-                                        .add(49, 49, 49)
-                                        .add(rowsLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(rowsValueLabel)
-                                        .add(46, 46, 46)
-                                        .add(durationLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(durationValueLabel))
-                                    .add(jPanel2Layout.createSequentialGroup()
                                         .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -283,7 +271,20 @@ implements SerialCommunicatorListener, KeyListener {
                                         .add(18, 18, 18)
                                         .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(overrideSpeedCheckBox)))
+                                        .add(overrideSpeedCheckBox))
+                                    .add(jPanel2Layout.createSequentialGroup()
+                                        .add(6, 6, 6)
+                                        .add(rowsLabel)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(rowsValueLabel)
+                                        .add(45, 45, 45)
+                                        .add(sentRowsLabel)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(sentRowsValueLabel)
+                                        .add(44, 44, 44)
+                                        .add(durationLabel)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(durationValueLabel)))
                                 .add(0, 70, Short.MAX_VALUE)))
                         .addContainerGap())))
         );
@@ -304,15 +305,15 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(cancelButton))
                 .add(14, 14, 14)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(durationValueLabel)
+                    .add(durationLabel)
                     .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(durationValueLabel)
-                        .add(durationLabel))
-                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(sentRowsLabel)
-                        .add(sentRowsValueLabel)
                         .add(rowsLabel)
-                        .add(rowsValueLabel)))
+                        .add(rowsValueLabel)
+                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(sentRowsLabel)
+                            .add(sentRowsValueLabel))))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
 
@@ -784,13 +785,11 @@ implements SerialCommunicatorListener, KeyListener {
             // happening (clearing the table before its ready for clearing.
             this.commPort.isReadyToStreamFile();
             
-            this.clearTable();
-            this.sentRowsValueLabel.setText("0");
-            this.sentRows = 0;
             this.updateControlsForSend(true);
             this.commPort.streamFileToComm(this.gcodeFile);
         } catch (Exception e) {
             timer.stop();
+            this.updateControlsForSend(false);
             e.printStackTrace();
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
@@ -903,7 +902,7 @@ implements SerialCommunicatorListener, KeyListener {
     private void initProgram() {
         this.loadPortSelector();
         this.checkScrollWindow();
-        this.setTitle("Universal GcodeSender (Version 1.0.2)");
+        this.setTitle("Universal GcodeSender (Version 1.0.3 ALPHA) - PLEASE REPORT ISSUES");
         
         // Hook the view up to the model
         this.commandList = new ArrayList<String>();

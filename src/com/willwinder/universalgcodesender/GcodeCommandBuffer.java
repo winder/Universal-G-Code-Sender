@@ -5,6 +5,7 @@
 package com.willwinder.universalgcodesender;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -15,23 +16,14 @@ import java.util.ListIterator;
  */
 public class GcodeCommandBuffer {
     private LinkedList<GcodeCommand> commandList;
-    private File gcodeFile;
     private ListIterator<GcodeCommand> listIterator;
     private GcodeCommand currentCommand;
     
-    GcodeCommandBuffer(File file) throws FileNotFoundException, IOException {
-        this.gcodeFile = file;
-        this.commandList = GcodeCommandBuffer.setFile(file);
-    }
-    
     GcodeCommandBuffer() {
         this.commandList = new LinkedList<GcodeCommand>();
+        this.listIterator = null;
     }
     
-    File getFile() {
-        return this.gcodeFile;
-    }
-   
     int size() {
         return this.commandList.size();
     }
@@ -42,6 +34,36 @@ public class GcodeCommandBuffer {
     
     void resetIterator() {
         this.listIterator = this.commandList.listIterator();
+    }
+    
+    void resetIteratorToNextUnsent() {
+        this.resetIterator();
+        while (this.listIterator.hasNext()){
+            this.currentCommand = this.listIterator.next();
+            if (this.currentCommand.isSent() == false)
+            {
+                return;
+            }
+        }
+    }
+    
+    void resetIteratorTo(GcodeCommand theCommand) {
+        this.resetIterator();
+        while (this.listIterator.hasNext()){
+            GcodeCommand command = this.listIterator.next();
+            if (command == theCommand)
+            {
+                return;
+            }
+        }
+    }
+    
+    void resetIteratorToCurrent() {
+        if (this.currentCommand != null) {
+            resetIteratorTo(this.currentCommand);
+        } else {
+            resetIterator();
+        }
     }
     
     Boolean hasNext() {
@@ -57,18 +79,42 @@ public class GcodeCommandBuffer {
             this.resetIterator();
         }
         
+        
         this.currentCommand = listIterator.next();
         return this.currentCommand();
     }
     
-    void appendCommand(GcodeCommand command) {
+    GcodeCommand appendCommand(String commandString) {
+        GcodeCommand command = new GcodeCommand(commandString);
+        command.setCommandNumber(this.size());
+
         this.commandList.add(command);
+        
+        return command;
+    }
+    
+    /*
+    void appendFile(File file) throws FileNotFoundException, IOException {
+        this.gcodeFile = file;
+                
+        FileInputStream fstream = new FileInputStream(file);
+        DataInputStream dis = new DataInputStream(fstream);
+        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
+
+        String line;
+        GcodeCommand command;
+        int commandNum = this.size();
+        while ((line = fileStream.readLine()) != null) {
+            // Commands end with a newline.
+            command = new GcodeCommand(line + '\n', commandNum++);
+            this.commandList.add(command);
+            //this.appendCommand(line);
+        }
         
         if (this.currentCommand != null) {
             // Reset iterator to get back to where we were.
-            this.listIterator = this.commandList.listIterator();
-            while (this.listIterator.hasNext() && (this.currentCommand != this.listIterator.next()))
-            {/* don't do anything, we're just cycling back to the current command. */};
+            //this.resetIteratorToNextUnsent();
+            this.resetIteratorTo(this.currentCommand);
         }
     }
     
@@ -91,4 +137,5 @@ public class GcodeCommandBuffer {
         
         return commands;
     }
+    */
 }
