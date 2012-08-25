@@ -318,7 +318,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         jTabbedPane3.addTab("File Mode", jPanel2);
 
-        stepSizeSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(0), null, Integer.valueOf(1)));
+        stepSizeSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
         stepSizeSpinner.setEnabled(false);
 
         jLabel1.setText("Step size:");
@@ -830,27 +830,33 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_lineBreakRNActionPerformed
 
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(0, this.getStepSize(), 0);
+        this.sendManualCommand();
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(-1 * this.getStepSize(), 0, 0);
+        this.sendManualCommand();
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(0, -1 * this.getStepSize(), 0);
+        this.sendManualCommand();
     }//GEN-LAST:event_yMinusButtonActionPerformed
 
     private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(this.getStepSize(), 0, 0);
+        this.sendManualCommand();
     }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(0, 0, this.getStepSize());
+        this.sendManualCommand();
     }//GEN-LAST:event_zPlusButtonActionPerformed
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
-        // TODO add your handling code here:
+        this.adjustManualLocation(0, 0, -1 * this.getStepSize());
+        this.sendManualCommand();
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
     /**
@@ -916,6 +922,9 @@ implements SerialCommunicatorListener, KeyListener {
         this.commandTextField.addKeyListener(this);
         
         this.tableModel = (DefaultTableModel) this.commandTable.getModel();
+        
+        // Manual controls
+        this.manualLocation = new Coordinate(0,0,0);
 }
 
     private void updateControlsForComm(boolean isOpen) {
@@ -949,12 +958,34 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }
     
+    private int getStepSize() {
+        return Integer.parseInt( this.stepSizeSpinner.getValue().toString() );
+    }
+    private void adjustManualLocation(int x, int y, int z) {
+        this.manualLocation.setX( this.manualLocation.getX() + x );
+        this.manualLocation.setY( this.manualLocation.getY() + y );
+        this.manualLocation.setZ( this.manualLocation.getZ() + z );
+    }
+    
+    private void sendManualCommand() {
+        updateManualLabels(this.manualLocation);
+        String command = "G0 X"+this.manualLocation.getX()+
+                           " Y"+this.manualLocation.getY()+
+                           " Z"+this.manualLocation.getZ();
+        this.commPort.sendStringToComm(command + "\n");
+    }
+    
+    private void updateManualLabels(Coordinate coords) {
+            this.xLocationLabel.setText(coords.getX()+"");
+            this.yLocationLabel.setText(coords.getY()+"");
+            this.zLocationLabel.setText(coords.getZ()+"");
+    }
+    
     private void updateManualControls(boolean enabled) {
         // Reset labels
         if (enabled) {
-            this.xLocationLabel.setText("0");
-            this.yLocationLabel.setText("0");
-            this.zLocationLabel.setText("0");
+            this.manualLocation = new Coordinate(0,0,0);
+            this.updateManualLabels(this.manualLocation);
         }
         
         this.xMinusButton.setEnabled(enabled);
@@ -1038,11 +1069,6 @@ implements SerialCommunicatorListener, KeyListener {
             connected = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
                                                      Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
             this.updateControlsForComm(connected);
-            this.consoleTextArea.append("\n**** Connected to " 
-                                        + commPortComboBox.getSelectedItem().toString()
-                                        + " @ "
-                                        + baudrateSelectionComboBox.getSelectedItem().toString()
-                                        + " baud ****");
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
         }
@@ -1053,7 +1079,6 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort.closeCommPort();
         
         this.updateControlsForComm(false);
-        this.consoleTextArea.append("\n**** Connection closed ****");
 
     }
     
@@ -1178,6 +1203,7 @@ implements SerialCommunicatorListener, KeyListener {
     private List<String> commandList;
     private DefaultTableModel tableModel;
     private int sentRows = 0;
+    private Coordinate manualLocation;
     
     // Duration timer
     private Timer timer;

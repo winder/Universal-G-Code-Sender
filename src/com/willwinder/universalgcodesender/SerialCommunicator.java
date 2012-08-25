@@ -103,7 +103,13 @@ public class SerialCommunicator implements SerialPortEventListener{
                 serialPort.addEventListener(this);
                 serialPort.notifyOnDataAvailable(true);  
                 serialPort.notifyOnBreakInterrupt(true);
-                
+
+                this.sendMessageToConsoleListener("**** Connected to " 
+                                        + name
+                                        + " @ "
+                                        + baud
+                                        + " baud ****\n");
+
                 returnCode = true;
         }
 
@@ -123,6 +129,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
         this.commPort.close();
+
+        this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
     /**
