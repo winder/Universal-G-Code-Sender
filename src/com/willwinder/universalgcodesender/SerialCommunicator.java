@@ -136,9 +136,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void queueStringForComm(String commandString) {
-        // Command already has a newline attached.
-        //this.sendMessageToConsoleListener(">>> " + commandString);
-        
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommand(commandString);
         this.commandBuffer.resetIteratorToCurrent();

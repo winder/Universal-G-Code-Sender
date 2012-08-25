@@ -36,17 +36,6 @@ public class GcodeCommandBuffer {
         this.listIterator = this.commandList.listIterator();
     }
     
-    void resetIteratorToNextUnsent() {
-        this.resetIterator();
-        while (this.listIterator.hasNext()){
-            this.currentCommand = this.listIterator.next();
-            if (this.currentCommand.isSent() == false)
-            {
-                return;
-            }
-        }
-    }
-    
     void resetIteratorTo(GcodeCommand theCommand) {
         this.resetIterator();
         while (this.listIterator.hasNext()){
@@ -92,50 +81,4 @@ public class GcodeCommandBuffer {
         
         return command;
     }
-    
-    /*
-    void appendFile(File file) throws FileNotFoundException, IOException {
-        this.gcodeFile = file;
-                
-        FileInputStream fstream = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(fstream);
-        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-
-        String line;
-        GcodeCommand command;
-        int commandNum = this.size();
-        while ((line = fileStream.readLine()) != null) {
-            // Commands end with a newline.
-            command = new GcodeCommand(line + '\n', commandNum++);
-            this.commandList.add(command);
-            //this.appendCommand(line);
-        }
-        
-        if (this.currentCommand != null) {
-            // Reset iterator to get back to where we were.
-            //this.resetIteratorToNextUnsent();
-            this.resetIteratorTo(this.currentCommand);
-        }
-    }
-    
-    // Helper to parse a file into a list of GcodeCommand's
-    static LinkedList<GcodeCommand> setFile(File file) throws FileNotFoundException, IOException {
-        LinkedList<GcodeCommand> commands = new LinkedList<GcodeCommand>();
-        
-        FileInputStream fstream = new FileInputStream(file);
-        DataInputStream dis = new DataInputStream(fstream);
-        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-
-        String line;
-        GcodeCommand command;
-        int commandNum = 0;
-        while ((line = fileStream.readLine()) != null) {
-            // Commands end with a newline.
-            command = new GcodeCommand(line + '\n', commandNum++);
-            commands.add(command);
-        }
-        
-        return commands;
-    }
-    */
 }
