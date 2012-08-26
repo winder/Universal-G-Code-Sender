@@ -259,6 +259,34 @@ Run the stand-alone distribution from the command line using:
 Run the stand-alone distribution from the command line using:
     java -jar -Xmx256m ${standalone.jar.name}-all32.jar
         </echo>
+        <echo  file="${release.dir}/${standalone.jar.name}-all32/start-windows.bat">
+java -jar -Xmx256m UniversalGcodeSender-all*.jar
+        </echo>
+        <echo  file="${release.dir}/${standalone.jar.name}-all32/start.sh">
+#!/bin/bash
+
+platform='unknown'
+unamestr=`uname`
+case "$unamestr" in
+        Linux)
+                platform='linux'
+                rootdir="$(dirname $(readlink -f $0))"
+        ;;
+        Darwin)
+                platform='mac'
+                rootdir="$(cd $(dirname $0); pwd -P)"
+        ;;
+esac
+
+case "$platform" in
+        mac)
+                java -Xdock:name=UniversalGCodeSender -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
+        ;;
+        linux)
+                java -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
+        ;;
+esac
+        </echo>
         <copy todir="${release.dir}/${standalone.jar.name}-all32/"
                 file="${dist.jar.dir}/${standalone.jar.name}-all32.jar" />
 
@@ -278,6 +306,35 @@ Run the stand-alone distribution from the command line using:
 Run the stand-alone distribution from the command line using:
     java -jar -Xmx256m ${standalone.jar.name}-all64.jar
         </echo>
+        <echo  file="${release.dir}/${standalone.jar.name}-all64/start-windows.bat">
+java -jar -Xmx256m UniversalGcodeSender-all*.jar
+        </echo>
+        <echo  file="${release.dir}/${standalone.jar.name}-all64/start.sh">
+#!/bin/bash
+
+platform='unknown'
+unamestr=`uname`
+case "$unamestr" in
+        Linux)
+                platform='linux'
+                rootdir="$(dirname $(readlink -f $0))"
+        ;;
+        Darwin)
+                platform='mac'
+                rootdir="$(cd $(dirname $0); pwd -P)"
+        ;;
+esac
+
+case "$platform" in
+        mac)
+                java -Xdock:name=UniversalGCodeSender -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
+        ;;
+        linux)
+                java -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
+        ;;
+esac
+        </echo>
+
         <copy todir="${release.dir}/${standalone.jar.name}-all64/"
                 file="${dist.jar.dir}/${standalone.jar.name}-all64.jar" />
 
