@@ -2,6 +2,7 @@ Universal GcodeSender is a cross platform port of Otto Hermansson GcodeSender.
 
 ![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/console_tab.png "Console during a file send.")
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/command_table_tab.png "Command table tab during a file send.")
+![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/manualcontrol.png "Generate jog commands with some buttons.")
 
 The primary purpose is to connect with a GRBL device and stream Gcode commands.
 
@@ -25,6 +26,7 @@ Key features:
 Improvements over the original GcodeSender:
 * Cross platform - use the same GUI application on OSX / Windows / Linux.
 * Command history - Re-run prior manual commands with up/down arrow.
+* Manual jogging, click buttons to move machine.
 * Duration timer while sending a file.
 * Pause / Resume while sending a file.
 * Table view linking the GRBL response to each command as run.
@@ -42,6 +44,11 @@ Technical details:
 
 Changelog
 ---------
+1.0.2 -> 1.0.3
+* Manual jogging mode, control machine with buttons in the UI.
+* Automatically skip blank lines and comments when sending a file.
+* Bug fixes.
+
 1.0.1 -> 1.0.2
 * Grbl version checking.
 * Real-time pause/resume commands used for Grbl v0.8.

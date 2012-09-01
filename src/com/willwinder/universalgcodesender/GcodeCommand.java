@@ -113,7 +113,7 @@ public class GcodeCommand {
     }
     
     public Boolean isDone() {
-        return this.isOk || this.isError;
+        return (this.response != null);
     }
     
     public static Boolean isOkErrorResponse(String response) {
