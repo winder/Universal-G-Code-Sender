@@ -21,7 +21,7 @@ Key features:
 * Select serial port in GUI.
 * Execute commands directly.
 * Execute commands from a file.
-* Override speed in file (By looking for F commands and changing the number).
+* Override speed in file (By looking for F commands and calculating % change).
 
 Improvements over the original GcodeSender:
 * Cross platform - use the same GUI application on OSX / Windows / Linux.
