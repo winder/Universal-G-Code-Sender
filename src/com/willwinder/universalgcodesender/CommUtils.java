@@ -130,8 +130,10 @@ public class CommUtils {
     }
     
     /**
-     * Searches the command string for an 'f' and replaces the text between the
-     * 'f' and the next space with the integer speed (followed by .0).
+     * Searches the command string for an 'f' and replaces the speed value 
+     * between the 'f' and the next space with a percentage of that speed.
+     * In that way all speed values become a ratio of the provided speed 
+     * and don't get overridden with just a fixed speed.
      */
     static String overrideSpeed(String command, Integer speed) {
         String returnString = command;
