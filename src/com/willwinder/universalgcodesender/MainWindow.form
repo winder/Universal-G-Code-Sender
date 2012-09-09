@@ -357,7 +357,7 @@
             </Component>
             <Component class="javax.swing.JCheckBox" name="overrideSpeedCheckBox">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Override speed"/>
+                <Property name="text" type="java.lang.String" value="Override speed %"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>

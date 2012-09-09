@@ -220,7 +220,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         fileLabel.setText("File");
 
-        overrideSpeedCheckBox.setText("Override speed");
+        overrideSpeedCheckBox.setText("Override speed %");
         overrideSpeedCheckBox.setEnabled(false);
 
         overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));

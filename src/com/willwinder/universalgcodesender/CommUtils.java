@@ -130,17 +130,23 @@ public class CommUtils {
     }
     
     /**
-     * Searches the command string for an 'f' and replaces the text between the
-     * 'f' and the next space with the integer speed (followed by .0).
+     * Searches the command string for an 'f' and replaces the speed value 
+     * between the 'f' and the next space with a percentage of that speed.
+     * In that way all speed values become a ratio of the provided speed 
+     * and don't get overridden with just a fixed speed.
      */
     static String overrideSpeed(String command, Integer speed) {
         String returnString = command;
         
         // Check if command sets feed speed.
-        Pattern speedRegex = Pattern.compile("F[0-9.]+", Pattern.CASE_INSENSITIVE);
+        Pattern speedRegex = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
         Matcher speedRegexMatcher = speedRegex.matcher(command);
         if (speedRegexMatcher.find()){
-            returnString = speedRegexMatcher.replaceAll("F" + speed.toString() + ".0");
+            Double originalFeedRate = Double.parseDouble(speedRegexMatcher.group(1));
+            //System.out.println( "Found feed     " + originalFeedRate.toString() );
+            Double newFeedRate      = originalFeedRate * speed / 100.0;
+            //System.out.println( "Change to feed " + newFeedRate.toString() );
+            returnString = speedRegexMatcher.replaceAll( "F" + newFeedRate.toString() );
         }
 
         return returnString;
