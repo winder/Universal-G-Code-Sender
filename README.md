@@ -44,6 +44,11 @@ Technical details:
 
 Changelog
 ---------
+1.0.3 -> 1.0.4
+* New start scripts added to release zip files.
+* Changed speed override to a percentage rather than absolute.
+* The step size spinner now goes to less than 1.
+
 1.0.2 -> 1.0.3
 * Manual jogging mode, control machine with buttons in the UI.
 * Automatically skip blank lines and comments when sending a file.
