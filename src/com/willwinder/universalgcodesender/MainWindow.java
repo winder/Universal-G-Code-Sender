@@ -19,6 +19,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -989,9 +991,9 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private void updateManualLabels(Coordinate coords) {
-            this.xLocationLabel.setText(coords.getX()+"");
-            this.yLocationLabel.setText(coords.getY()+"");
-            this.zLocationLabel.setText(coords.getZ()+"");
+            this.xLocationLabel.setText(formatter.format(coords.getX()) + "");
+            this.yLocationLabel.setText(formatter.format(coords.getY()) + "");
+            this.zLocationLabel.setText(formatter.format(coords.getZ()) + "");
     }
     
     private void updateManualControls(boolean enabled) {
@@ -1221,6 +1223,7 @@ implements SerialCommunicatorListener, KeyListener {
     private DefaultTableModel tableModel;
     private int sentRows = 0;
     private Coordinate manualLocation;
+    private static NumberFormat formatter = new DecimalFormat("#.###");
     
     // Duration timer
     private Timer timer;

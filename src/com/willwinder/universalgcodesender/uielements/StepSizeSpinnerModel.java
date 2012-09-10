@@ -13,16 +13,12 @@ import javax.swing.SpinnerNumberModel;
  */
 public class StepSizeSpinnerModel extends SpinnerNumberModel {
 
+    Double maxStepSize = null;
+
     public StepSizeSpinnerModel(Number value, Comparable min, Comparable max, Number size) {
         super (value, min, max, size);
         maxStepSize = size.doubleValue();
-    }
-    Double maxStepSize = null;
-    
-//    @Override
-//    public void setStepSize(Number newStepSize) {
-//        super.setStepSize(newStepSize);
-//    }
+    }    
     
     private Double getPreviousStepSize() {
         Number stepSize = this.getStepSize();
