@@ -300,16 +300,18 @@
                           <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="durationValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="durationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Group type="103" alignment="3" groupAlignment="3" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
+                              <Component id="sentRowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="sentRowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="rowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="rowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Group type="103" alignment="3" groupAlignment="3" attributes="0">
-                                  <Component id="sentRowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sentRowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              </Group>
+                          </Group>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="durationValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="durationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace pref="25" max="32767" attributes="0"/>
@@ -428,11 +430,11 @@
                           <Group type="102" attributes="0">
                               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="stepSizeSpinner" min="-2" pref="63" max="-2" attributes="0"/>
+                              <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
                           </Group>
                           <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="79" max="32767" attributes="0"/>
+                      <EmptySpace pref="48" max="32767" attributes="0"/>
                       <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="88" max="-2" attributes="0"/>
                   </Group>
@@ -468,11 +470,14 @@
           <SubComponents>
             <Component class="javax.swing.JSpinner" name="stepSizeSpinner">
               <Properties>
-                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                  <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new StepSizeSpinnerModel(1.0, 0.0, null, 1.0)" type="code"/>
                 </Property>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="stepSizeSpinnerStateChanged"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel1">
               <Properties>
@@ -613,27 +618,27 @@
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <EmptySpace min="-2" pref="32" max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Group type="103" groupAlignment="0" attributes="0">
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="yLocationLabel" min="-2" pref="50" max="-2" attributes="0"/>
+                                          <Component id="yLocationLabel" pref="88" max="32767" attributes="0"/>
                                       </Group>
                                       <Group type="102" alignment="0" attributes="0">
                                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="xLocationLabel" min="-2" pref="50" max="-2" attributes="0"/>
+                                          <Component id="xLocationLabel" max="32767" attributes="0"/>
                                       </Group>
-                                      <Group type="102" alignment="0" attributes="0">
+                                      <Group type="102" attributes="0">
                                           <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                          <Component id="zLocationLabel" min="-2" pref="50" max="-2" attributes="0"/>
+                                          <Component id="zLocationLabel" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                               </Group>
                               <Component id="jLabel8" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -671,12 +676,6 @@
                 <Component class="javax.swing.JLabel" name="jLabel2">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="X:"/>
-                    <Property name="location" type="java.awt.Point" editor="org.netbeans.beaninfo.editors.PointEditor">
-                      <Point value="[0, 0]"/>
-                    </Property>
-                    <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[0, 0]"/>
-                    </Property>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JLabel" name="jLabel8">
@@ -717,9 +716,6 @@
             <TitledBorder title="Connection"/>
           </Border>
         </Property>
-        <Property name="location" type="java.awt.Point" editor="org.netbeans.beaninfo.editors.PointEditor">
-          <Point value="[0, 0]"/>
-        </Property>
         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[325, 125]"/>
         </Property>
@@ -731,9 +727,6 @@
           <Dimension value="[325, 125]"/>
         </Property>
       </Properties>
-      <AccessibilityProperties>
-        <Property name="AccessibleContext.accessibleName" type="java.lang.String" value="Connection"/>
-      </AccessibilityProperties>
 
       <Layout>
         <DimensionLayout dim="0">

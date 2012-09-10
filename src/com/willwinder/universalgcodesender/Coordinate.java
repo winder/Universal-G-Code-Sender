@@ -9,35 +9,35 @@ package com.willwinder.universalgcodesender;
  * @author wwinder
  */
 public class Coordinate {
-    private Integer x,y,z;
+    private Double x,y,z;
     
-    Coordinate(int x, int y, int z) {
+    Coordinate(double x, double y, double z) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
     
-    void setX(int x) {
+    void setX(double x) {
         this.x = x;
     }
     
-    void setY(int y) {
+    void setY(double y) {
         this.y = y;
     }
     
-    void setZ(int z) {
+    void setZ(double z) {
         this.z = z;
     }
     
-    Integer getX() {
+    Double getX() {
         return this.x;
     }
     
-    Integer getY() {
+    Double getY() {
         return this.y;
     }
     
-    Integer getZ() {
+    Double getZ() {
         return this.z;
     }
     

@@ -10,14 +10,15 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import gnu.io.CommPortIdentifier;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.*;
-import java.lang.System;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -305,22 +306,28 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(cancelButton))
                 .add(14, 14, 14)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(durationValueLabel)
-                    .add(durationLabel)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(sentRowsLabel)
+                        .add(sentRowsValueLabel))
                     .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(rowsLabel)
-                        .add(rowsValueLabel)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(sentRowsLabel)
-                            .add(sentRowsValueLabel))))
+                        .add(rowsValueLabel))
+                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(durationValueLabel)
+                        .add(durationLabel)))
                 .addContainerGap(25, Short.MAX_VALUE))
         );
 
         jTabbedPane3.addTab("File Mode", jPanel2);
 
-        stepSizeSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(1), Integer.valueOf(1), null, Integer.valueOf(1)));
+        stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         stepSizeSpinner.setEnabled(false);
+        stepSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                stepSizeSpinnerStateChanged(evt);
+            }
+        });
 
         jLabel1.setText("Step size:");
 
@@ -419,8 +426,6 @@ implements SerialCommunicatorListener, KeyListener {
         xLocationLabel.setText("0");
 
         jLabel2.setText("X:");
-        jLabel2.setLocation(new java.awt.Point(0, 0));
-        jLabel2.setSize(new java.awt.Dimension(0, 0));
 
         jLabel8.setText("Manual Location:");
 
@@ -441,21 +446,21 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel6Layout.createSequentialGroup()
                         .add(32, 32, 32)
-                        .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                        .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel6Layout.createSequentialGroup()
                                 .add(jLabel4)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(yLocationLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(yLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE))
                             .add(jPanel6Layout.createSequentialGroup()
                                 .add(jLabel2)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(xLocationLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(xLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .add(jPanel6Layout.createSequentialGroup()
                                 .add(jLabel6)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(zLocationLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                .add(zLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .add(jLabel8))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -487,9 +492,9 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(jPanel4Layout.createSequentialGroup()
                         .add(jLabel1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 63, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 79, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 48, Short.MAX_VALUE)
                 .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(88, 88, 88))
         );
@@ -516,7 +521,6 @@ implements SerialCommunicatorListener, KeyListener {
         jTabbedPane3.addTab("Manual Control", jPanel4);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
-        jPanel3.setLocation(new java.awt.Point(0, 0));
         jPanel3.setMaximumSize(new java.awt.Dimension(325, 125));
         jPanel3.setMinimumSize(new java.awt.Dimension(325, 125));
         jPanel3.setName("Connection");
@@ -654,8 +658,6 @@ implements SerialCommunicatorListener, KeyListener {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
         );
-
-        jPanel3.getAccessibleContext().setAccessibleName("Connection");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -867,6 +869,9 @@ implements SerialCommunicatorListener, KeyListener {
         this.sendManualCommand();
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
+    private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
+    }//GEN-LAST:event_stepSizeSpinnerStateChanged
+
     /**
      * @param args the command line arguments
      */
@@ -966,10 +971,10 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }
     
-    private int getStepSize() {
-        return Integer.parseInt( this.stepSizeSpinner.getValue().toString() );
+    private double getStepSize() {
+        return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
-    private void adjustManualLocation(int x, int y, int z) {
+    private void adjustManualLocation(double x, double y, double z) {
         this.manualLocation.setX( this.manualLocation.getX() + x );
         this.manualLocation.setY( this.manualLocation.getY() + y );
         this.manualLocation.setZ( this.manualLocation.getZ() + z );
