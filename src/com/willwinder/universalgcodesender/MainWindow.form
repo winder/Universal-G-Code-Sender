@@ -40,7 +40,7 @@
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="jTabbedPane3" pref="0" max="32767" attributes="0"/>
+              <Component id="controlContextTabbedPane" pref="604" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
           </Group>
           <Component id="jTabbedPane2" alignment="0" max="32767" attributes="0"/>
@@ -56,7 +56,7 @@
                       <EmptySpace max="32767" attributes="0"/>
                       <Component id="scrollWindowCheckBox" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jTabbedPane3" min="-2" pref="217" max="-2" attributes="0"/>
+                  <Component id="controlContextTabbedPane" min="-2" pref="217" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="jTabbedPane2" pref="234" max="32767" attributes="0"/>
@@ -157,7 +157,7 @@
         </Container>
       </SubComponents>
     </Container>
-    <Container class="javax.swing.JTabbedPane" name="jTabbedPane3">
+    <Container class="javax.swing.JTabbedPane" name="controlContextTabbedPane">
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
@@ -185,9 +185,9 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="489" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="495" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="commandTextField" alignment="0" pref="540" max="32767" attributes="0"/>
+                          <Component id="commandTextField" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -272,7 +272,7 @@
                                               <Component id="durationValueLabel" min="-2" max="-2" attributes="0"/>
                                           </Group>
                                       </Group>
-                                      <EmptySpace min="0" pref="70" max="32767" attributes="0"/>
+                                      <EmptySpace min="0" pref="76" max="32767" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
@@ -439,10 +439,10 @@
                           </Group>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
+                      <Component id="manualControlPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="14" max="32767" attributes="0"/>
+                      <EmptySpace pref="20" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -467,7 +467,7 @@
                           <Group type="102" attributes="0">
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
-                                  <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
+                                  <Component id="manualControlPanel" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
@@ -493,7 +493,7 @@
                 <Property name="text" type="java.lang.String" value="Step size:"/>
               </Properties>
             </Component>
-            <Container class="javax.swing.JPanel" name="jPanel5">
+            <Container class="javax.swing.JPanel" name="manualControlPanel">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                   <Border info="org.netbeans.modules.form.compat2.border.EtchedBorderInfo">
@@ -633,17 +633,15 @@
                                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                                           <Component id="zLocationLabel" pref="51" max="32767" attributes="0"/>
                                       </Group>
-                                      <Group type="103" alignment="1" groupAlignment="1" max="-2" attributes="0">
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                              <Component id="yLocationLabel" pref="51" max="32767" attributes="0"/>
-                                          </Group>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                              <Component id="xLocationLabel" max="32767" attributes="0"/>
-                                          </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="yLocationLabel" pref="51" max="32767" attributes="0"/>
+                                      </Group>
+                                      <Group type="102" alignment="0" attributes="0">
+                                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
+                                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                                          <Component id="xLocationLabel" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
                               </Group>

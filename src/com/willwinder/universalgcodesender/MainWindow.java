@@ -12,6 +12,8 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import gnu.io.CommPortIdentifier;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,7 +61,7 @@ implements SerialCommunicatorListener, KeyListener {
         consoleTextArea = new javax.swing.JTextArea();
         jScrollPane1 = new javax.swing.JScrollPane();
         commandTable = new javax.swing.JTable();
-        jTabbedPane3 = new javax.swing.JTabbedPane();
+        controlContextTabbedPane = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         commandLabel = new javax.swing.JLabel();
         commandTextField = new javax.swing.JTextField();
@@ -81,7 +83,7 @@ implements SerialCommunicatorListener, KeyListener {
         jPanel4 = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
         stepSizeLabel = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
+        manualControlPanel = new javax.swing.JPanel();
         xPlusButton = new javax.swing.JButton();
         xMinusButton = new javax.swing.JButton();
         yMinusButton = new javax.swing.JButton();
@@ -162,7 +164,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         jTabbedPane2.addTab("Command Table", jScrollPane1);
 
-        jTabbedPane3.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
 
         commandLabel.setText("Command");
 
@@ -182,8 +184,8 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 489, Short.MAX_VALUE))
-                    .add(commandTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE))
+                        .add(0, 495, Short.MAX_VALUE))
+                    .add(commandTextField))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -196,7 +198,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .addContainerGap(103, Short.MAX_VALUE))
         );
 
-        jTabbedPane3.addTab("Command Mode", jPanel1);
+        controlContextTabbedPane.addTab("Command Mode", jPanel1);
 
         browseButton.setText("Browse");
         browseButton.setEnabled(false);
@@ -291,7 +293,7 @@ implements SerialCommunicatorListener, KeyListener {
                                         .add(durationLabel)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(durationValueLabel)))
-                                .add(0, 70, Short.MAX_VALUE)))
+                                .add(0, 76, Short.MAX_VALUE)))
                         .addContainerGap())))
         );
         jPanel2Layout.setVerticalGroup(
@@ -324,7 +326,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .addContainerGap(25, Short.MAX_VALUE))
         );
 
-        jTabbedPane3.addTab("File Mode", jPanel2);
+        controlContextTabbedPane.addTab("File Mode", jPanel2);
 
         stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         stepSizeSpinner.setEnabled(false);
@@ -336,7 +338,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         stepSizeLabel.setText("Step size:");
 
-        jPanel5.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        manualControlPanel.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         xPlusButton.setText("X+");
         xPlusButton.setEnabled(false);
@@ -386,41 +388,41 @@ implements SerialCommunicatorListener, KeyListener {
             }
         });
 
-        org.jdesktop.layout.GroupLayout jPanel5Layout = new org.jdesktop.layout.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel5Layout.createSequentialGroup()
+        org.jdesktop.layout.GroupLayout manualControlPanelLayout = new org.jdesktop.layout.GroupLayout(manualControlPanel);
+        manualControlPanel.setLayout(manualControlPanelLayout);
+        manualControlPanelLayout.setHorizontalGroup(
+            manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(manualControlPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel5Layout.createSequentialGroup()
-                .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel5Layout.createSequentialGroup()
+        manualControlPanelLayout.setVerticalGroup(
+            manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(manualControlPanelLayout.createSequentialGroup()
+                .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(manualControlPanelLayout.createSequentialGroup()
                         .add(38, 38, 38)
-                        .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(jPanel5Layout.createSequentialGroup()
+                    .add(manualControlPanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -456,15 +458,14 @@ implements SerialCommunicatorListener, KeyListener {
                                 .add(jLabel6)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                 .add(zLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel6Layout.createSequentialGroup()
-                                    .add(jLabel4)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                    .add(yLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
-                                .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel6Layout.createSequentialGroup()
-                                    .add(jLabel2)
-                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                    .add(xLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                            .add(jPanel6Layout.createSequentialGroup()
+                                .add(jLabel4)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(yLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
+                            .add(jPanel6Layout.createSequentialGroup()
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(xLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .add(jLabel8))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -525,10 +526,10 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 158, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .add(18, 18, 18)
-                .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(manualControlPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(14, Short.MAX_VALUE))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {performHomingCycleButton, resetCoordinatesButton, returnToZeroButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -552,13 +553,13 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(jPanel4Layout.createSequentialGroup()
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(manualControlPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(0, 0, Short.MAX_VALUE))))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
-        jTabbedPane3.addTab("Manual Control", jPanel4);
+        controlContextTabbedPane.addTab("Manual Control", jPanel4);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         jPanel3.setMaximumSize(new java.awt.Dimension(325, 125));
@@ -681,7 +682,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(scrollWindowCheckBox)
                     .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTabbedPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
                 .add(12, 12, 12))
             .add(jTabbedPane2)
         );
@@ -694,7 +695,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(scrollWindowCheckBox))
-                    .add(jTabbedPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 217, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 217, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 234, Short.MAX_VALUE))
         );
@@ -879,25 +880,25 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort.setLineTerminator(this.getNewline());
     }//GEN-LAST:event_lineBreakRNActionPerformed
 
-    private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
-        this.adjustManualLocation(0, this.getStepSize(), 0);
+    private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
+        this.adjustManualLocation(this.getStepSize(), 0, 0);
         this.sendManualCommand();
-    }//GEN-LAST:event_yPlusButtonActionPerformed
+    }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
         this.adjustManualLocation(-1 * this.getStepSize(), 0, 0);
         this.sendManualCommand();
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
+    private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
+        this.adjustManualLocation(0, this.getStepSize(), 0);
+        this.sendManualCommand();
+    }//GEN-LAST:event_yPlusButtonActionPerformed
+
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
         this.adjustManualLocation(0, -1 * this.getStepSize(), 0);
         this.sendManualCommand();
     }//GEN-LAST:event_yMinusButtonActionPerformed
-
-    private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
-        this.adjustManualLocation(this.getStepSize(), 0, 0);
-        this.sendManualCommand();
-    }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
         this.adjustManualLocation(0, 0, this.getStepSize());
@@ -1000,7 +1001,40 @@ implements SerialCommunicatorListener, KeyListener {
         
         // Manual controls
         this.manualLocation = new Coordinate(0,0,0);
-}
+        
+        // Add keyboard listener for manual controls.
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+            .addKeyEventDispatcher(new KeyEventDispatcher() {
+                @Override
+                public boolean dispatchKeyEvent(KeyEvent e) {
+                    // Check context.
+                    if (((controlContextTabbedPane.getSelectedIndex() == 2) &&
+                            e.getID() == KeyEvent.KEY_PRESSED) &&
+                            xPlusButton.isEnabled()) {
+                        switch (e.getKeyCode()) {
+                            case KeyEvent.VK_RIGHT:
+                                xPlusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_LEFT:
+                                xMinusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_UP:
+                                yPlusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_DOWN:
+                                yMinusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                        }
+                    }
+                    
+                    return false;
+                }
+            });
+    }
 
     private void updateControlsForComm(boolean isOpen) {
 
@@ -1307,6 +1341,7 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JTable commandTable;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JTextArea consoleTextArea;
+    private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JLabel durationLabel;
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
@@ -1322,17 +1357,16 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTabbedPane jTabbedPane3;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JRadioButton lineBreakN;
     private javax.swing.JRadioButton lineBreakNR;
     private javax.swing.JRadioButton lineBreakRN;
+    private javax.swing.JPanel manualControlPanel;
     private javax.swing.JButton opencloseButton;
     private javax.swing.JCheckBox overrideSpeedCheckBox;
     private javax.swing.JSpinner overrideSpeedValueSpinner;
