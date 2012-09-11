@@ -19,10 +19,21 @@ import java.util.regex.Pattern;
 public class CommUtils {
     // Note: One character of this buffer is reserved for real time commands.
     public static final int GRBL_RX_BUFFER_SIZE= 127;
+    
+    /**
+     * Real-time commands
+     */
     public static final byte GRBL_PAUSE_COMMAND = '!';
     public static final byte GRBL_RESUME_COMMAND = '~';
     public static final byte GRBL_STATUS_COMMAND = '?';
     public static final byte GRBL_RESET_COMMAND = 0x18;
+    
+    /**
+     * Gcode Commands
+     */
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G92 X0 Y0 Z0";
+    public static final String GCODE_RETURN_TO_ZERO_LOCATION = "G0 X0 Y0 Z0";
+    public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
     
     /** 
      * Generates a list of available serial ports.
