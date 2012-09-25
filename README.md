@@ -1,4 +1,4 @@
-Universal GcodeSender is a cross platform port of Otto Hermansson GcodeSender.
+Universal GcodeSender is a Java based GRBL compatibl cross platform G-Code sender. The original implementation is based off of Otto Hermansson GcodeSender GUI.
 
 ![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/console_tab.png "Console during a file send.")
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/command_table_tab.png "Command table tab during a file send.")
@@ -13,7 +13,9 @@ Note for MAC users:
 You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
 library. To do this open the Terminal application and run the following two
 commands:
+
    sudo mkdir /var/lock
+   
    sudo chmod 777 /var/lock
 
 
@@ -41,6 +43,12 @@ Technical details:
 * To build a release open the 'Files' pane and right click build.xml, then 
   select 'Run Target' > 'onejar-dist-all-zip'. A new directory called 'release'
   will contain the .zip files.
+
+Downloads
+---------
+[1.0.3 32-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all32.zip)
+[1.0.3 64-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all64.zip)
+[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/downloads)
 
 Changelog
 ---------
