@@ -13,10 +13,11 @@ Note for MAC users:
 You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
 library. To do this open the Terminal application and run the following two
 commands:
-
+<br />
    sudo mkdir /var/lock
-   
+<br />
    sudo chmod 777 /var/lock
+<br />
 
 
 Key features:
@@ -47,8 +48,11 @@ Technical details:
 Downloads
 ---------
 [1.0.3 32-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all32.zip)
+<br />
 [1.0.3 64-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all64.zip)
+<br />
 [Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/downloads)
+<br />
 
 Changelog
 ---------
