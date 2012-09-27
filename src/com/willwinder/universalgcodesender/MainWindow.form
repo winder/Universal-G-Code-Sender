@@ -40,7 +40,7 @@
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="controlContextTabbedPane" pref="604" max="32767" attributes="0"/>
+              <Component id="controlContextTabbedPane" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
           </Group>
           <Component id="jTabbedPane2" alignment="0" max="32767" attributes="0"/>

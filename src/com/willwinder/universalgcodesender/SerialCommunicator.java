@@ -119,7 +119,8 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
         
     void closeCommPort() {
-        this.cancelSend();
+        //This is unnecessary and slow
+        //this.cancelSend();
 
         try {
             in.close();
@@ -343,6 +344,9 @@ public class SerialCommunicator implements SerialPortEventListener{
         if (this.fileMode) {
             this.sendPaused = true;
             GcodeCommand command;
+            
+            this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n");
+
 
             // Cancel the current command if it isn't too late.
             command = this.commandBuffer.currentCommand();

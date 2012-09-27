@@ -1,9 +1,4 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
  * MainWindow.java
  *
  * Created on Jun 26, 2012, 3:04:38 PM
@@ -865,7 +860,8 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.commPort.cancelSend();
-                
+        this.disablePauseResume();
+        
         this.updateControlsForSend(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
@@ -923,7 +919,8 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE + "\n");
         
         // TODO: Are these needed after the homing cycle?
-        this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+        //this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+        
         this.setManualLocation(0, 0, 0);
         this.updateManualLabels(this.manualLocation);
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
@@ -1062,8 +1059,7 @@ implements SerialCommunicatorListener, KeyListener {
 
         if (!enabled) {
             // These might be on, so make sure they're off.
-            this.pauseButton.setEnabled(false);
-            this.cancelButton.setEnabled(false);
+            this.disablePauseResume();
         }
     }
     
@@ -1124,6 +1120,10 @@ implements SerialCommunicatorListener, KeyListener {
         this.cancelButton.setEnabled(isSending);
         // Manual tab
         this.updateManualControls(!isSending);
+        
+        if (!isSending) {
+            this.disablePauseResume();
+        }
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
@@ -1199,13 +1199,17 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort.closeCommPort();
         
         this.updateControlsForComm(false);
-
     }
     
     void clearTable() {
         while (this.tableModel.getRowCount()>0){
             this.tableModel.removeRow(0);
         }
+    }
+    
+    private void disablePauseResume() {
+        this.pauseButton.setText("Pause");
+        this.cancelButton.setEnabled(false);
     }
        
     private void scrollTable(int toRow) {
