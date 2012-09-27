@@ -1081,9 +1081,9 @@ implements SerialCommunicatorListener, KeyListener {
     
     private void sendManualCommand() {
         updateManualLabels(this.manualLocation);
-        String command = "G0 X"+this.manualLocation.getX()+
-                           " Y"+this.manualLocation.getY()+
-                           " Z"+this.manualLocation.getZ();
+        String command = "G0 X"+this.xLocationLabel.getText()+
+                           " Y"+this.yLocationLabel.getText()+
+                           " Z"+this.zLocationLabel.getText();
         this.commPort.queueStringForComm(command + "\n");
     }
     
