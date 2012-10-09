@@ -717,6 +717,7 @@
             <Component class="javax.swing.JButton" name="resetCoordinatesButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Reset Coordinates"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetCoordinatesButtonActionPerformed"/>
@@ -725,6 +726,7 @@
             <Component class="javax.swing.JButton" name="returnToZeroButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Return to Zero"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnToZeroButtonActionPerformed"/>
@@ -733,6 +735,7 @@
             <Component class="javax.swing.JButton" name="performHomingCycleButton">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Do Homing Cycle"/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="performHomingCycleButtonActionPerformed"/>

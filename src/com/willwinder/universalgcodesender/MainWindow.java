@@ -485,6 +485,7 @@ implements SerialCommunicatorListener, KeyListener {
         );
 
         resetCoordinatesButton.setText("Reset Coordinates");
+        resetCoordinatesButton.setEnabled(false);
         resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 resetCoordinatesButtonActionPerformed(evt);
@@ -492,6 +493,7 @@ implements SerialCommunicatorListener, KeyListener {
         });
 
         returnToZeroButton.setText("Return to Zero");
+        returnToZeroButton.setEnabled(false);
         returnToZeroButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 returnToZeroButtonActionPerformed(evt);
@@ -499,6 +501,7 @@ implements SerialCommunicatorListener, KeyListener {
         });
 
         performHomingCycleButton.setText("Do Homing Cycle");
+        performHomingCycleButton.setEnabled(false);
         performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 performHomingCycleButtonActionPerformed(evt);
@@ -677,7 +680,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(scrollWindowCheckBox)
                     .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 604, Short.MAX_VALUE)
+                .add(controlContextTabbedPane)
                 .add(12, 12, 12))
             .add(jTabbedPane2)
         );
@@ -1107,6 +1110,9 @@ implements SerialCommunicatorListener, KeyListener {
         this.zMinusButton.setEnabled(enabled);
         this.zPlusButton.setEnabled(enabled);
         this.stepSizeSpinner.setEnabled(enabled);
+        this.resetCoordinatesButton.setEnabled(enabled);
+        this.returnToZeroButton.setEnabled(enabled);
+        this.performHomingCycleButton.setEnabled(enabled);
     }
     
     private void updateControlsForSend(boolean isSending) {
