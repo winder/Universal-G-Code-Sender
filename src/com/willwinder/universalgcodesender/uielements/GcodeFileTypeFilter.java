@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.uielements;
 
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
