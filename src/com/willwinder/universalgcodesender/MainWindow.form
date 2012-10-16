@@ -233,49 +233,61 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="fileLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="fileTextField" max="32767" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="browseButton" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="fileTextField" max="32767" attributes="0"/>
+                              <Component id="sendButton" min="-2" pref="68" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="pauseButton" min="-2" pref="95" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Component id="overrideSpeedValueSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="overrideSpeedCheckBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace pref="99" max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="102" attributes="0">
-                                              <Component id="sendButton" min="-2" pref="68" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="pauseButton" min="-2" pref="95" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                                              <Component id="overrideSpeedValueSpinner" min="-2" pref="59" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="overrideSpeedCheckBox" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="102" attributes="0">
-                                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                                              <Component id="rowsLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="rowsValueLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
-                                              <Component id="sentRowsLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="sentRowsValueLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
-                                              <Component id="durationLabel" min="-2" max="-2" attributes="0"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="durationValueLabel" min="-2" max="-2" attributes="0"/>
-                                          </Group>
-                                      </Group>
-                                      <EmptySpace min="0" pref="76" max="32767" attributes="0"/>
+                                      <Component id="sentRowsLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="sentRowsValueLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" attributes="0">
+                                      <Component id="rowsLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="rowsValueLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="remainingRowsLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="remainingRowsValueLabel" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="remainingTimeLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="remainingTimeValueLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="durationLabel" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="durationValueLabel" min="-2" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="-2" pref="97" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -286,35 +298,42 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="fileLabel" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="fileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="fileTextField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <Component id="browseButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileTextField" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="sendButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="pauseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="overrideSpeedValueSpinner" max="-2" attributes="0"/>
+                              <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="overrideSpeedCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="rowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="rowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="durationValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="durationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sendButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pauseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="overrideSpeedCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="overrideSpeedValueSpinner" max="-2" attributes="0"/>
-                          <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sentRowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="sentRowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                              <Component id="sentRowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="sentRowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="rowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="rowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="durationValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="durationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="remainingRowsLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="remainingRowsValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="remainingTimeValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="remainingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="25" max="32767" attributes="0"/>
+                      <EmptySpace pref="17" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -373,7 +392,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="sentRowsLabel">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Sent rows:"/>
+                <Property name="text" type="java.lang.String" value="Sent Rows:"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="sentRowsValueLabel">
@@ -383,7 +402,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="rowsLabel">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Rows In File:"/>
+                <Property name="text" type="java.lang.String" value="Total Rows In File:"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="rowsValueLabel">
@@ -409,6 +428,26 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JLabel" name="remainingRowsValueLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="0"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="remainingRowsLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Remaining Rows:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="remainingTimeLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Estimated Time Remaining:"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JLabel" name="remainingTimeValueLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="--:--:--"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>
