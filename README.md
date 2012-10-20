@@ -56,6 +56,9 @@ Downloads
 
 Changelog
 ---------
+1.0.4 -> 1.0.5
+* Job duration estimate now displayed when running a file.
+
 1.0.3 -> 1.0.4
 * The step size spinner now goes to less than 1.
 * New buttons on the manual control page for common functions.
