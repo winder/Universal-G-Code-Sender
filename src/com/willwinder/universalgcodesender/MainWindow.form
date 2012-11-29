@@ -185,7 +185,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="495" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="512" max="32767" attributes="0"/>
                           </Group>
                           <Component id="commandTextField" alignment="0" max="32767" attributes="0"/>
                       </Group>
@@ -481,7 +481,7 @@
                       <Component id="manualControlPanel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="20" max="32767" attributes="0"/>
+                      <EmptySpace pref="37" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>

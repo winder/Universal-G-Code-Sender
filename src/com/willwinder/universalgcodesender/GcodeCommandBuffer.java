@@ -5,79 +5,54 @@
 package com.willwinder.universalgcodesender;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 /**
  *
  * @author wwinder
  */
 public class GcodeCommandBuffer {
-    private LinkedList<GcodeCommand> commandList;
-    private ListIterator<GcodeCommand> listIterator;
-    private GcodeCommand currentCommand;
+    private Queue<GcodeCommand> commandQueue;
+    private GcodeCommand currentCommand = null;
+    private int numCommands = 0;
     
     GcodeCommandBuffer() {
-        this.commandList = new LinkedList<GcodeCommand>();
-        this.listIterator = null;
+        this.commandQueue = new LinkedList<GcodeCommand>();
     }
     
     int size() {
-        return this.commandList.size();
+        return this.commandQueue.size();
     }
-    
-    GcodeCommand getFinalCommand() {
-        return this.commandList.getLast();
-    }
-    
-    void resetIterator() {
-        this.listIterator = this.commandList.listIterator();
-    }
-    
-    void resetIteratorTo(GcodeCommand theCommand) {
-        this.resetIterator();
-        while (this.listIterator.hasNext()){
-            GcodeCommand command = this.listIterator.next();
-            if (command == theCommand)
-            {
-                return;
-            }
-        }
-    }
-    
-    void resetIteratorToCurrent() {
-        if (this.currentCommand != null) {
-            resetIteratorTo(this.currentCommand);
-        } else {
-            resetIterator();
-        }
-    }
-    
+
     Boolean hasNext() {
-        return this.listIterator.hasNext();
+        return this.commandQueue.size() > 0;
+        //return this.listIterator.hasNext();
     }
     
     GcodeCommand currentCommand() {
-        return this.currentCommand;
+        return currentCommand;
+        //if (this.size() > 0)
+        //    return this.commandQueue.peek();
+        //return null;
     }
     
     GcodeCommand nextCommand() {
-        if (this.listIterator == null) {
-            this.resetIterator();
+        // Leave the "currentCommand" alone if we've exausted the queue.
+        if (this.hasNext()) {
+            this.currentCommand = this.commandQueue.remove();
         }
         
-        
-        this.currentCommand = listIterator.next();
         return this.currentCommand();
     }
     
-    GcodeCommand appendCommand(String commandString) {
+    GcodeCommand appendCommandString(String commandString) {
         GcodeCommand command = new GcodeCommand(commandString);
-        command.setCommandNumber(this.size());
-
-        this.commandList.add(command);
+        command.setCommandNumber(this.numCommands++);
+        this.commandQueue.add(command);
+        
+        if (this.currentCommand == null || this.currentCommand.isSent()) {
+            this.nextCommand();
+        }
         
         return command;
     }

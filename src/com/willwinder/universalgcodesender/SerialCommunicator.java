@@ -138,8 +138,8 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void queueStringForComm(String commandString) {
         // Add command to queue
-        GcodeCommand command = this.commandBuffer.appendCommand(commandString);
-        this.commandBuffer.resetIteratorToCurrent();
+        GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
+
         if (this.commandQueuedListener != null) {
             this.commandQueuedListener.commandQueued(command);
         }
@@ -187,7 +187,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             throw new Exception("Already sending a file.");
         }
         if ((this.commandBuffer.size() > 0) && 
-                (this.commandBuffer.getFinalCommand().isDone() != true)) {
+                (this.commandBuffer.currentCommand().isDone() != true)) {
             throw new Exception("Cannot send file until there are no commands running. (Commands remaining in command buffer)");
         }
         if (this.activeCommandList.size() > 0) {
@@ -214,16 +214,13 @@ public class SerialCommunicator implements SerialPortEventListener{
             GcodeCommand command;
             while ((line = fileStream.readLine()) != null) {
                 // Add command to queue
-                command = this.commandBuffer.appendCommand(line + '\n');
+                command = this.commandBuffer.appendCommandString(line + '\n');
                 
                 // Notify listener of new command
                 if (this.commandQueuedListener != null) {
                     this.commandQueuedListener.commandQueued(command);
                 }
             }
-            
-            // We changed the container, so reset the iterator.
-            this.commandBuffer.resetIteratorToCurrent();
         } catch (Exception e) {
             // On error, wrap up then re-throw exception for GUI to display.
             finishStreamFileToComm();
@@ -237,26 +234,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     void streamCommands() {
         boolean skip;
         
-        // If this is the first command, we need to initialize the iterator.
-        if (this.commandBuffer.currentCommand() == null) {
-            this.commandBuffer.resetIterator();
-            this.commandBuffer.nextCommand();
-        }    
+        // The GcodeCommandBuffer class always preloads the next command, so as
+        // long as the currentCommand exists and hasn't been sent it is the next
+        // which should be sent.
         
-        // This case is for sending a manual command (or jog command)
-        // In that case there could be a command sitting at the end of the
-        // buffer and we need to increment to the next one.
-        if (this.commandBuffer.currentCommand().isSent() || this.commandBuffer.currentCommand().isDone())
-        {
-            if (this.commandBuffer.hasNext()) {
-                this.commandBuffer.nextCommand();
-            }
-        }
-        
-        // Keep sending commands until the last command is sent, or the
-        // character buffer is full.
         while ((this.commandBuffer.currentCommand().isSent() == false) &&
-                (this.commandBuffer.currentCommand().isDone() == false) &&
                 CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
 
             skip = false;
@@ -298,13 +280,12 @@ public class SerialCommunicator implements SerialPortEventListener{
             }
 
             // Load the next command.
-            if (this.commandBuffer.hasNext()) {
-                this.commandBuffer.nextCommand();
-            }
+            this.commandBuffer.nextCommand();
         }
 
         // If the final response is done and we're in file mode then wrap up.
-        if (this.fileMode && this.commandBuffer.getFinalCommand().isDone()) {
+        if (this.fileMode && (this.commandBuffer.size() == 0) &&
+                this.commandBuffer.currentCommand().isDone() ) {
             this.finishStreamFileToComm();
         }            
     }
@@ -315,7 +296,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
         // Trigger callback
         if (this.fileStreamCompleteListener != null) {
-            boolean success = this.commandBuffer.getFinalCommand().isDone();
+            boolean success = this.commandBuffer.currentCommand().isDone();
             this.fileStreamCompleteListener.fileStreamComplete(file.getName(), success);
         }
     }

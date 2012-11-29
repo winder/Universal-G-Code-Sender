@@ -814,16 +814,10 @@ implements SerialCommunicatorListener, KeyListener {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 gcodeFile = fileChooser.getSelectedFile();
-                    Integer numRows = Utils.processFile(gcodeFile);
+                Integer numRows = Utils.processFile(gcodeFile);
 
-                rowsValueLabel.setText(numRows.toString());
-
-                // Reset labels
-                this.durationValueLabel.setText("00:00:00");
-                this.remainingTimeValueLabel.setText("--:--:--");
-                this.sentRowsValueLabel.setText("0");
-                this.sentRows = 0;
-                this.remainingRowsValueLabel.setText(numRows.toString());
+                // Reset send context.
+                this.resetSentRowLabels(numRows);
             } catch (FileNotFoundException ex) {
                 this.displayErrorDialog("Problem opening file: " + ex.getMessage());
             } catch (IOException e) {
@@ -858,6 +852,8 @@ implements SerialCommunicatorListener, KeyListener {
                 
             }
         };
+        
+        this.resetSentRowLabels(Integer.parseInt(this.rowsValueLabel.getText()));
         
         startTime = System.currentTimeMillis();
         if (timer != null) timer.stop();
@@ -1107,6 +1103,7 @@ implements SerialCommunicatorListener, KeyListener {
     private double getStepSize() {
         return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
+    
     private void adjustManualLocation(double x, double y, double z) {
         this.manualLocation.setX( this.manualLocation.getX() + x );
         this.manualLocation.setY( this.manualLocation.getY() + y );
@@ -1168,6 +1165,16 @@ implements SerialCommunicatorListener, KeyListener {
         if (!isSending) {
             this.disablePauseResume();
         }
+    }
+    
+    private void resetSentRowLabels(Integer numRows) {
+        // Reset labels
+        this.durationValueLabel.setText("00:00:00");
+        this.remainingTimeValueLabel.setText("--:--:--");
+        this.sentRowsValueLabel.setText("0");
+        this.sentRows = 0;
+        this.remainingRowsValueLabel.setText(numRows.toString());
+        rowsValueLabel.setText(numRows.toString());
     }
     
     // Scans for comm ports and puts them in the comm port combo box.

@@ -49,7 +49,7 @@ public class GcodeCommand {
     /** Getters. */
     @Override
     public String toString() {
-        return getCommandString();
+        return getCommandString()  + "("+commandNum+")";
     }
     
     public String getCommandString() {

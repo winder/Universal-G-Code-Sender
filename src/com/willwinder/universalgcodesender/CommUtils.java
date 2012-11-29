@@ -94,7 +94,10 @@ public class CommUtils {
     static Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
         String command = nextCommand.getCommandString();
         int characters = getSizeOfBuffer(list);
-        characters += command.length();
+        // TODO: Carefully trace the newlines in commands and make sure
+        //       the GRBL_RX_BUFFER_SIZE is honored.
+        //       For now add a safety character to each command.
+        characters += command.length() + 1;
         return characters < CommUtils.GRBL_RX_BUFFER_SIZE;
     }
     
@@ -104,7 +107,10 @@ public class CommUtils {
         Iterator<GcodeCommand> iter = list.iterator();
         while (iter.hasNext()) {
             String next = iter.next().toString();
-            characters += next.length();
+            // TODO: Carefully trace the newlines in commands and make sure
+            //       the GRBL_RX_BUFFER_SIZE is honored.
+            //       For now add a safety character to each command.
+            characters += next.length() + 1;
         }
         return characters;
     }
