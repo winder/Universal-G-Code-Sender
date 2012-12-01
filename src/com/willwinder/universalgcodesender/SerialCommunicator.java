@@ -5,27 +5,34 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.Timer;
 
 /**
  *
  * @author wwinder
  */
 public class SerialCommunicator implements SerialPortEventListener{
-    private double grblVersion;
-    private Boolean realTimeMode = false;
+    private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
+    private String grblVersionLetter;   // The c in 'Grbl 0.8c'
     
+    private Boolean realTimeMode = false;
+    private Boolean realTimePosition = false;
+    private CommUtils.Capabilities positionMode = null;
     
     // General variables
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
     private String lineTerminator = "\r\n";
-        
+    private boolean isPositionPending = false;
+    private Timer positionPollTimer = null;    
     // File transfer variables.
     private Boolean sendPaused = false;
     private boolean fileMode = false;
@@ -40,7 +47,10 @@ public class SerialCommunicator implements SerialPortEventListener{
     SerialCommunicatorListener commandCompleteListener;
     SerialCommunicatorListener commandPreprocessorListener;
     SerialCommunicatorListener commConsoleListener;
-
+    SerialCommunicatorListener commVerboseConsoleListener;
+    SerialCommunicatorListener capabilitiesListener;
+    SerialCommunicatorListener positionListener;
+    
     /** Getters & Setters. */
     void setLineTerminator(String terminator) {
         if (terminator.length() < 1) {
@@ -51,6 +61,18 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
 
     // Register for callbacks
+    void setListenAll(SerialCommunicatorListener fscl) {
+        this.setFileStreamCompleteListener(fscl);
+        this.setCommandQueuedListener(fscl);
+        this.setCommandSentListener(fscl);
+        this.setCommandCompleteListener(fscl);
+        this.setCommandPreprocessorListener(fscl);
+        this.setCommConsoleListener(fscl);
+        this.setCommVerboseConsoleListener(fscl);
+        this.setCapabilitiesListener(fscl);
+        this.setPositionStringListener(fscl);
+    }
+    
     void setFileStreamCompleteListener(SerialCommunicatorListener fscl) {
         this.fileStreamCompleteListener = fscl;
     }
@@ -73,6 +95,18 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void setCommConsoleListener(SerialCommunicatorListener fscl) {
         this.commConsoleListener = fscl;
+    }
+
+    void setCommVerboseConsoleListener(SerialCommunicatorListener fscl) {
+        this.commVerboseConsoleListener = fscl;
+    }
+    
+    void setCapabilitiesListener(SerialCommunicatorListener fscl) {
+        this.capabilitiesListener = fscl;
+    }
+    
+    void setPositionStringListener(SerialCommunicatorListener fscl) {
+        this.positionListener = fscl;
     }
 
     
@@ -356,11 +390,12 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     // Processes a serial response
     void responseMessage( String response ) {
-        // If not file mode, send it to the console without processing.
-        this.sendMessageToConsoleListener(response + "\n");
 
         // Check if was 'ok' or 'error'.
         if (GcodeCommand.isOkErrorResponse(response)) {
+            // All Ok/Error messages go to console
+            this.sendMessageToConsoleListener(response + "\n");
+
             // Pop the front of the active list.
             GcodeCommand command = this.activeCommandList.pop();
 
@@ -375,12 +410,75 @@ public class SerialCommunicator implements SerialPortEventListener{
             }
         }
         
-        if (CommUtils.isGrblVersionString(response)) {
-            this.grblVersion = CommUtils.getVersion(response);
-            this.realTimeMode = CommUtils.isRealTimeCapable(this.grblVersion);
-            System.out.println("Grbl version = " + this.grblVersion);
+        else if (GrblUtils.isGrblVersionString(response)) {
+            // Version string goes to console
+            this.sendMessageToConsoleListener(response + "\n");
+            
+            this.grblVersion = GrblUtils.getVersionDouble(response);
+            this.grblVersionLetter = GrblUtils.getVersionLetter(response);
+            
+            this.realTimeMode = GrblUtils.isRealTimeCapable(this.grblVersion);
+            if (this.realTimeMode) {
+                if (this.capabilitiesListener != null) {
+                    this.capabilitiesListener.capabilitiesListener(CommUtils.Capabilities.REAL_TIME);
+                }
+            }
+            
+            this.positionMode = GrblUtils.getGrblPositionCapabilities(this.grblVersion, this.grblVersionLetter);
+            if (this.positionMode != null) {
+                this.realTimePosition = true;
+                
+                // Start sending '?' commands.
+                this.beginPollingPosition();
+            }
+            
+            if (this.realTimePosition) {
+                if (this.capabilitiesListener != null) {
+                    this.capabilitiesListener.capabilitiesListener(CommUtils.Capabilities.POSITION_C);
+                }
+            }
+            
+            System.out.println("Grbl version = " + this.grblVersion + this.grblVersionLetter);
             System.out.println("Real time mode = " + this.realTimeMode);
         }
+        
+        else if (GrblUtils.isGrblPositionString(response)) {
+            // Position string goes to verbose console
+            this.sendMessageToConsoleListener(response + "\n", true);
+            
+            if (this.positionListener != null) {
+                this.positionListener.positionStringListener(response);
+            }
+        }
+    }
+    
+    private void beginPollingPosition() {
+        System.out.println("BEGIN POLLING POSITION");
+        
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                        } catch (IOException ex) {
+                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage());
+                        }
+                    }
+                });
+                
+            }
+        };
+        
+        this.positionPollTimer = new Timer(1000, actionListener);
+        this.positionPollTimer.start();
+    }
+
+    private void stopPollingPosition() {
+        if (this.positionPollTimer != null)
+            this.positionPollTimer.stop();
     }
     
     @Override
@@ -418,8 +516,15 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     // Helper for the console listener.              
     void sendMessageToConsoleListener(String msg) {
-        if (this.commConsoleListener != null) {
+        this.sendMessageToConsoleListener(msg, false);
+    }
+    
+    void sendMessageToConsoleListener(String msg, boolean verbose) {
+        if (!verbose && this.commConsoleListener != null) {
             this.commConsoleListener.messageForConsole(msg);
+        }
+        else if (verbose && this.commVerboseConsoleListener != null) {
+            this.commVerboseConsoleListener.verboseMessageForConsole(msg);
         }
     }
 }

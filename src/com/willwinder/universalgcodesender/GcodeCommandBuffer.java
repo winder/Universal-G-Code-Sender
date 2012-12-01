@@ -26,14 +26,10 @@ public class GcodeCommandBuffer {
 
     Boolean hasNext() {
         return this.commandQueue.size() > 0;
-        //return this.listIterator.hasNext();
     }
     
     GcodeCommand currentCommand() {
         return currentCommand;
-        //if (this.size() > 0)
-        //    return this.commandQueue.peek();
-        //return null;
     }
     
     GcodeCommand nextCommand() {
@@ -50,6 +46,7 @@ public class GcodeCommandBuffer {
         command.setCommandNumber(this.numCommands++);
         this.commandQueue.add(command);
         
+        // Preload first command, or next command if the first batch finished.
         if (this.currentCommand == null || this.currentCommand.isSent()) {
             this.nextCommand();
         }

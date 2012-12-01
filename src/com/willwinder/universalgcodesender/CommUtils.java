@@ -35,6 +35,10 @@ public class CommUtils {
     public static final String GCODE_RETURN_TO_ZERO_LOCATION = "G0 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
     
+    public enum Capabilities {
+        REAL_TIME, POSITION_C
+    }
+
     /** 
      * Generates a list of available serial ports.
      */
@@ -115,37 +119,6 @@ public class CommUtils {
         return characters;
     }
     
-    /** 
-     * Checks if the string contains the GRBL version.
-     */
-    static Boolean isGrblVersionString(final String response) {
-        return response.startsWith("Grbl ") && (getVersion(response) != -1);
-    }
-    
-    /** 
-     * Parses the version double out of the version response string.
-     */
-    static double getVersion(final String response) {
-        double retValue = -1;
-        final String VERSION_REGEX = "[0-9]*\\.[0-9]*";
-        
-        // Search for a version.
-        Pattern versionPattern = Pattern.compile(VERSION_REGEX);
-        Matcher versionMatcher = versionPattern.matcher(response);
-        if (versionMatcher.find()) {
-            retValue = Double.parseDouble(versionMatcher.group(0));
-        }
-        
-        return retValue;
-    }
-
-    /** 
-     * Determines if the version of GRBL is capable of realtime commands.
-     */
-    static Boolean isRealTimeCapable(final double version) {
-        return version > 0.7;
-    }
-    
     /**
      * Searches the command string for an 'f' and replaces the speed value 
      * between the 'f' and the next space with a percentage of that speed.
@@ -156,14 +129,14 @@ public class CommUtils {
         String returnString = command;
         
         // Check if command sets feed speed.
-        Pattern speedRegex = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
-        Matcher speedRegexMatcher = speedRegex.matcher(command);
-        if (speedRegexMatcher.find()){
-            Double originalFeedRate = Double.parseDouble(speedRegexMatcher.group(1));
+        Pattern pattern = Pattern.compile("F([0-9.]+)", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(command);
+        if (matcher.find()){
+            Double originalFeedRate = Double.parseDouble(matcher.group(1));
             //System.out.println( "Found feed     " + originalFeedRate.toString() );
             Double newFeedRate      = originalFeedRate * speed / 100.0;
             //System.out.println( "Change to feed " + newFeedRate.toString() );
-            returnString = speedRegexMatcher.replaceAll( "F" + newFeedRate.toString() );
+            returnString = matcher.replaceAll( "F" + newFeedRate.toString() );
         }
 
         return returnString;
