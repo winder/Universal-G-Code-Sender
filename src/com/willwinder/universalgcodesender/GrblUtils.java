@@ -143,7 +143,6 @@ public class GrblUtils {
         Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(position);
         if (matcher.find()) {
-            System.out.println("Found matches... (work)");
             ret = new Coordinate( Double.parseDouble(matcher.group(1)),
                                   Double.parseDouble(matcher.group(2)),
                                   Double.parseDouble(matcher.group(3)));

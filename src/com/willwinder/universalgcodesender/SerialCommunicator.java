@@ -450,6 +450,11 @@ public class SerialCommunicator implements SerialPortEventListener{
                 this.positionListener.positionStringListener(response);
             }
         }
+        
+        else {
+            // Display any unhandled messages
+            this.sendMessageToConsoleListener(response + "\n");
+        }
     }
     
     private void beginPollingPosition() {
