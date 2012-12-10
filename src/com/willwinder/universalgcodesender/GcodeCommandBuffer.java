@@ -53,4 +53,9 @@ public class GcodeCommandBuffer {
         
         return command;
     }
+    
+    void clearBuffer() {
+        this.currentCommand = null;
+        this.commandQueue.clear();
+    }
 }

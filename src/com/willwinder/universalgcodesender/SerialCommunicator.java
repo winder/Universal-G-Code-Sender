@@ -153,9 +153,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
         
     void closeCommPort() {
-        //This is unnecessary and slow
-        //this.cancelSend();
+        
+        this.cancelSend();
 
+        this.stopPollingPosition();
+        
         try {
             in.close();
             out.close();
@@ -357,12 +359,22 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void cancelSend() {
         if (this.fileMode) {
-            this.sendPaused = true;
-            GcodeCommand command;
+            this.fileMode = false;
             
             this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n");
 
+            this.commandBuffer.clearBuffer();
+            
+            // Clear the active command list?
+            this.activeCommandList.clear();
+            
+            // Canceling the remaining commands rather than just clearing the
+            // buffer would be nice, but it is too slow.
+            /*
+            this.sendPaused = true;
 
+             GcodeCommand command;
+ 
             // Cancel the current command if it isn't too late.
             command = this.commandBuffer.currentCommand();
             if (command.isSent() == false) {
@@ -384,7 +396,9 @@ public class SerialCommunicator implements SerialPortEventListener{
             
             this.sendPaused = false;
             
-            this.finishStreamFileToComm();
+            */
+            
+            //this.finishStreamFileToComm();
         }
     }
 
@@ -469,7 +483,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                         try {
                             sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
                         } catch (IOException ex) {
-                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage());
+                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage() + "\n");
                         }
                     }
                 });
