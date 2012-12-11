@@ -63,6 +63,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     SerialCommunicatorListener fileStreamCompleteListener;
     SerialCommunicatorListener commandQueuedListener;
     SerialCommunicatorListener commandSentListener;
+    SerialCommunicatorListener commandCommentListener;
     SerialCommunicatorListener commandCompleteListener;
     SerialCommunicatorListener commandPreprocessorListener;
     SerialCommunicatorListener commConsoleListener;
@@ -85,6 +86,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.setCommandQueuedListener(fscl);
         this.setCommandSentListener(fscl);
         this.setCommandCompleteListener(fscl);
+        this.setCommandCommentListener(fscl);
         this.setCommandPreprocessorListener(fscl);
         this.setCommConsoleListener(fscl);
         this.setCommVerboseConsoleListener(fscl);
@@ -102,6 +104,10 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void setCommandSentListener(SerialCommunicatorListener fscl) {
         this.commandSentListener = fscl;
+    }
+    
+    void setCommandCommentListener(SerialCommunicatorListener fscl) {
+        this.commandCommentListener = fscl;
     }
     
     void setCommandCompleteListener(SerialCommunicatorListener fscl) {
@@ -302,6 +308,14 @@ public class SerialCommunicator implements SerialPortEventListener{
             // Allow a command preprocessor listener to preprocess the command.
             if (this.commandPreprocessorListener != null) {
                 String processed = this.commandPreprocessorListener.preprocessCommand(command.getCommandString());
+                
+                // If the lengths differ, update the latest comment.
+                if (this.commandCommentListener != null) {
+                    if (processed.length() != command.getCommandString().length()) {
+                        this.commandCommentListener.commandComment(CommUtils.parseComment(command.getCommandString()));
+                    }
+                }
+        
                 command.setCommand(processed);
                 
                 if (processed.trim().equals("")) {

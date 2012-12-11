@@ -164,7 +164,7 @@ public class CommUtils {
     /**
      * Removes any comments within parentheses or beginning with a semi-colon.
      */
-    static String removeComments(String command) {
+    static String removeComment(String command) {
         String newCommand = command;
 
         // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
@@ -174,5 +174,24 @@ public class CommUtils {
         newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
         
         return newCommand;
+    }
+    
+    /**
+     * Searches for a comment in the input string and returns the first match.
+     */
+    static String parseComment(String command) {
+        String comment = "";
+
+        // REGEX: Find any comment, includes the comment characters:
+        //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
+        //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
+        
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*");
+        Matcher matcher = pattern.matcher(command);
+        if (matcher.find()){
+            comment = matcher.group(0);
+        }
+
+        return comment;
     }
 }

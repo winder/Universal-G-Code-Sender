@@ -32,6 +32,7 @@ public interface SerialCommunicatorListener {
     void commandQueued(GcodeCommand command);
     void commandSent(GcodeCommand command);
     void commandComplete(GcodeCommand command);
+    void commandComment(String comment);
     void messageForConsole(String msg);
     void verboseMessageForConsole(String msg);
     void capabilitiesListener(CommUtils.Capabilities capability);
