@@ -47,9 +47,9 @@ Technical details:
 
 Downloads
 ---------
-[1.0.4 32-bit](https://github.com/winder/Universal-G-Code-Sender/raw/master/releases/UniversalGcodeSender-v1.0.4-all32.zip)
+[1.0.4 32-bit](https://bit.ly/UU3GkU)
 <br />
-[1.0.4 64-bit](https://github.com/winder/Universal-G-Code-Sender/raw/master/releases/UniversalGcodeSender-v1.0.4-all64.zip)
+[1.0.4 64-bit](https://bit.ly/SVefDv)
 <br />
 [Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
 <br />
