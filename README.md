@@ -51,7 +51,7 @@ Downloads
 <br />
 [1.0.4 64-bit](https://github.com/winder/Universal-G-Code-Sender/raw/master/releases/UniversalGcodeSender-v1.0.4-all64.zip)
 <br />
-[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/releases)
+[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
 <br />
 
 Changelog
