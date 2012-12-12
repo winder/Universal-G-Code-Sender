@@ -47,17 +47,20 @@ Technical details:
 
 Downloads
 ---------
-[1.0.3 32-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all32.zip)
+[1.0.4 32-bit](https://github.com/winder/Universal-G-Code-Sender/raw/master/releases/UniversalGcodeSender-v1.0.4-all32.zip)
 <br />
-[1.0.3 64-bit](https://github.com/downloads/winder/Universal-G-Code-Sender/UniversalGcodeSender-v1.0.3-all64.zip)
+[1.0.4 64-bit](https://github.com/winder/Universal-G-Code-Sender/raw/master/releases/UniversalGcodeSender-v1.0.4-all64.zip)
 <br />
-[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/downloads)
+[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/releases)
 <br />
 
 Changelog
 ---------
 1.0.4 -> 1.0.5
 * Job duration estimate now displayed when running a file.
+* Real-time machine position display for GRBL v8.0c.
+* Display for most recent GcodeComment.
+* Bug fixes - no more dropped commands!
 
 1.0.3 -> 1.0.4
 * The step size spinner now goes to less than 1.
