@@ -36,6 +36,12 @@ public class Coordinate {
         this.z = z;
     }
     
+    void setCoordinates(Coordinate coord) {
+        this.x = coord.getX();
+        this.y = coord.getY();
+        this.z = coord.getZ();
+    }
+    
     void setX(double x) {
         this.x = x;
     }

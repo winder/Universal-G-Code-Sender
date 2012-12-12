@@ -41,6 +41,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -110,14 +112,6 @@ implements SerialCommunicatorListener, KeyListener {
         zPlusButton = new javax.swing.JButton();
         zMinusButton = new javax.swing.JButton();
         yPlusButton = new javax.swing.JButton();
-        jPanel6 = new javax.swing.JPanel();
-        xLocationLabel = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        zLocationLabel = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        yLocationLabel = new javax.swing.JLabel();
         resetCoordinatesButton = new javax.swing.JButton();
         returnToZeroButton = new javax.swing.JButton();
         performHomingCycleButton = new javax.swing.JButton();
@@ -491,67 +485,6 @@ implements SerialCommunicatorListener, KeyListener {
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        jPanel6.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        xLocationLabel.setText("0");
-
-        jLabel2.setText("X:");
-
-        jLabel8.setText("Manual Location:");
-
-        jLabel6.setText("Z:");
-
-        zLocationLabel.setText("0");
-
-        jLabel4.setText("Y:");
-
-        yLocationLabel.setText("0");
-
-        org.jdesktop.layout.GroupLayout jPanel6Layout = new org.jdesktop.layout.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel6Layout.createSequentialGroup()
-                        .add(32, 32, 32)
-                        .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(jPanel6Layout.createSequentialGroup()
-                                .add(jLabel6)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(zLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
-                            .add(jPanel6Layout.createSequentialGroup()
-                                .add(jLabel4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(yLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
-                            .add(jPanel6Layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(xLocationLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                    .add(jLabel8))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jLabel8)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(xLocationLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(yLocationLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel6)
-                    .add(zLocationLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         resetCoordinatesButton.setText("Reset Coordinates");
         resetCoordinatesButton.setEnabled(false);
         resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
@@ -593,9 +526,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 158, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .add(18, 18, 18)
                 .add(manualControlPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(11, Short.MAX_VALUE))
+                .addContainerGap(146, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {performHomingCycleButton, resetCoordinatesButton, returnToZeroButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -615,9 +546,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(performHomingCycleButton)
                 .addContainerGap())
             .add(jPanel4Layout.createSequentialGroup()
-                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(manualControlPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(manualControlPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(0, 0, Short.MAX_VALUE))
         );
 
@@ -938,7 +867,11 @@ implements SerialCommunicatorListener, KeyListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                commPort.queueStringForComm(str + "\n");
+                try {
+                    commPort.queueStringForComm(str + "\n");
+                } catch (Exception ex) {
+                    displayErrorDialog(ex.getMessage());
+                }
             }
         });
         this.commandTextField.setText("");
@@ -1116,58 +1049,60 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
         this.adjustManualLocation(this.getStepSize(), 0, 0);
-        this.sendManualCommand();
     }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
         this.adjustManualLocation(-1 * this.getStepSize(), 0, 0);
-        this.sendManualCommand();
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
         this.adjustManualLocation(0, this.getStepSize(), 0);
-        this.sendManualCommand();
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
         this.adjustManualLocation(0, -1 * this.getStepSize(), 0);
-        this.sendManualCommand();
     }//GEN-LAST:event_yMinusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
         this.adjustManualLocation(0, 0, this.getStepSize());
-        this.sendManualCommand();
     }//GEN-LAST:event_zPlusButtonActionPerformed
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
         this.adjustManualLocation(0, 0, -1 * this.getStepSize());
-        this.sendManualCommand();
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
-        this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+        try {
+            this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
         this.setManualLocation(0, 0, 0);
-        this.updateManualLabels(this.manualLocation);
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
-        this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE + "\n");
+        try {
+            this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE + "\n");
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
         
         // TODO: Are these needed after the homing cycle?
         //this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
         
         this.setManualLocation(0, 0, 0);
-        this.updateManualLabels(this.manualLocation);
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
-        this.commPort.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION + "\n");
+        try {
+            this.commPort.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION + "\n");
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
         this.setManualLocation(0, 0, 0);
-        this.updateManualLabels(this.manualLocation);
-
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
     private void showVerboseOutputCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showVerboseOutputCheckBoxActionPerformed
@@ -1303,10 +1238,23 @@ implements SerialCommunicatorListener, KeyListener {
         return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
     
+    /**
+     * Sends a jog command after adjusting the current location in some
+     * combination of x, y and z directions.
+     */
     private void adjustManualLocation(double x, double y, double z) {
+        
+        // If the machine is idle, update the manual location to match the
+        // machine location.
+        if (this.activeStateValueLabel.getText().equals("Idle")) {
+            this.manualLocation.setCoordinates( this.machineCoordinate );
+        }
+
         this.manualLocation.setX( this.manualLocation.getX() + x );
         this.manualLocation.setY( this.manualLocation.getY() + y );
         this.manualLocation.setZ( this.manualLocation.getZ() + z );
+        
+        this.sendJogCommand(this.manualLocation);
     }
     
     private void setManualLocation(double x, double y, double z) {
@@ -1316,27 +1264,18 @@ implements SerialCommunicatorListener, KeyListener {
     }
 
     
-    private void sendManualCommand() {
-        updateManualLabels(this.manualLocation);
-        String command = "G0 X"+this.xLocationLabel.getText()+
-                           " Y"+this.yLocationLabel.getText()+
-                           " Z"+this.zLocationLabel.getText();
-        this.commPort.queueStringForComm(command + "\n");
-    }
-    
-    private void updateManualLabels(Coordinate coords) {
-            this.xLocationLabel.setText(formatter.format(coords.getX()) + "");
-            this.yLocationLabel.setText(formatter.format(coords.getY()) + "");
-            this.zLocationLabel.setText(formatter.format(coords.getZ()) + "");
+    private void sendJogCommand(Coordinate coord) {
+        String command = "G0 X"+coord.getX() +
+                           " Y"+coord.getY() +
+                           " Z"+coord.getZ();
+        try {
+            this.commPort.queueStringForComm(command + "\n");
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
     }
     
     private void updateManualControls(boolean enabled) {
-        // Reset labels
-        if (enabled) {
-            this.manualLocation = new Coordinate(0,0,0);
-            this.updateManualLabels(this.manualLocation);
-        }
-        
         this.xMinusButton.setEnabled(enabled);
         this.xPlusButton.setEnabled(enabled);
         this.yMinusButton.setEnabled(enabled);
@@ -1419,12 +1358,18 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private String getNewline() {
-        if (lineBreakNR.isSelected())
+        if (lineBreakNR.isSelected()){ 
+            System.out.println("NR SELECTED");
             return "\n\r";
-        else if (lineBreakRN.isSelected())
+        }
+        else if (lineBreakRN.isSelected()) {
+            System.out.println("RN SELECTED");
             return "\r\n";
-        else if (lineBreakN.isSelected())
+        }
+        else if (lineBreakN.isSelected()) {
+            System.out.println("N SELECTED");
             return "\n";
+        }
         else
             return "wtfbbq";
     }
@@ -1611,6 +1556,7 @@ implements SerialCommunicatorListener, KeyListener {
         
         Coordinate coord = GrblUtils.getMachinePositionFromPositionString(string, this.position);
         if (coord != null) {
+            this.machineCoordinate = coord;
             this.machinePositionXValueLabel.setText( formatter.format(coord.getX()) + "" );
             this.machinePositionYValueLabel.setText( formatter.format(coord.getY()) + "" );
             this.machinePositionZValueLabel.setText( formatter.format(coord.getZ()) + "" );
@@ -1618,6 +1564,7 @@ implements SerialCommunicatorListener, KeyListener {
         
         coord = GrblUtils.getWorkPositionFromPositionString(string, this.position);
         if (coord != null) {
+            this.workCoordinate = coord;
             this.workPositionXValueLabel.setText( formatter.format(coord.getX()) + "" );
             this.workPositionYValueLabel.setText( formatter.format(coord.getY()) + "" );
             this.workPositionZValueLabel.setText( formatter.format(coord.getZ()) + "" );
@@ -1633,6 +1580,8 @@ implements SerialCommunicatorListener, KeyListener {
     private DefaultTableModel tableModel;
     private int sentRows = 0;
     private Coordinate manualLocation;
+    private Coordinate machineCoordinate;
+    private Coordinate workCoordinate;
     private static NumberFormat formatter = new DecimalFormat("#.###");
     private CommUtils.Capabilities position = null;
 
@@ -1658,19 +1607,14 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
-    private javax.swing.JPanel jPanel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -1717,13 +1661,10 @@ implements SerialCommunicatorListener, KeyListener {
     private javax.swing.JLabel workPositionYValueLabel;
     private javax.swing.JLabel workPositionZLabel;
     private javax.swing.JLabel workPositionZValueLabel;
-    private javax.swing.JLabel xLocationLabel;
     private javax.swing.JButton xMinusButton;
     private javax.swing.JButton xPlusButton;
-    private javax.swing.JLabel yLocationLabel;
     private javax.swing.JButton yMinusButton;
     private javax.swing.JButton yPlusButton;
-    private javax.swing.JLabel zLocationLabel;
     private javax.swing.JButton zMinusButton;
     private javax.swing.JButton zPlusButton;
     // End of variables declaration//GEN-END:variables

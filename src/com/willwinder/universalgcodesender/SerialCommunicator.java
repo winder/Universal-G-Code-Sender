@@ -197,7 +197,11 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
-    void queueStringForComm(String commandString) {
+    void queueStringForComm(String commandString) throws Exception {
+        if (this.fileMode) {
+            throw new Exception("Cannot add commands while in file mode.");
+        }
+        
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
 
@@ -260,8 +264,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Setup for streaming to serial port then launch the first command.
     void streamFileToComm(File commandfile) throws Exception {
         isReadyToStreamFile();
-        
-        this.fileMode = true;
 
         // Get command list.
         try {
@@ -287,6 +289,9 @@ public class SerialCommunicator implements SerialPortEventListener{
             finishStreamFileToComm();
             throw e;
         }
+
+        // Now that we are setup for file mode, enable and begin streaming.
+        this.fileMode = true;
         
         // Start sending commands.
         this.streamCommands();     
