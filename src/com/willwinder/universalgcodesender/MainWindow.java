@@ -767,7 +767,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 60, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         manualControlPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
@@ -951,6 +951,7 @@ implements SerialCommunicatorListener, KeyListener {
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
         timer.start();
+        this.isSendingFile = true;
         
         try {
             // This will throw an exception and prevent that other stuff from
@@ -1397,6 +1398,8 @@ implements SerialCommunicatorListener, KeyListener {
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        this.isSendingFile = false;
+        
         // Stop the timer
         this.timer.stop();
         this.endTime = System.currentTimeMillis();
@@ -1420,11 +1423,14 @@ implements SerialCommunicatorListener, KeyListener {
      
     @Override
     public void commandSent(GcodeCommand command) {
-        // Update # rows sent label
-        this.sentRows++;
+        if (this.isSendingFile) {
+            // Update # rows sent label
+            this.sentRows++;
+        }
         
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
+        
         // TODO: If Preprocessor changes the command mark the cell somehow
         // command (in case of preprocessor change)
         //tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
@@ -1433,7 +1439,7 @@ implements SerialCommunicatorListener, KeyListener {
             @Override
             public void run() {
                 sentRowsValueLabel.setText(""+sentRows);
-                        
+
                 // sent
                 tableModel.setValueAt(sentCommand.isSent(), row, 1);
                 scrollTable(row);
@@ -1461,11 +1467,12 @@ implements SerialCommunicatorListener, KeyListener {
 
                 scrollTable(row);
                 
-                
                 // decrement remaining rows
                 int remaining = Integer.parseInt(remainingRowsValueLabel.getText());
-                remaining--;
-                remainingRowsValueLabel.setText("" + remaining);
+                if (remaining > 0) {
+                    remaining--;
+                    remainingRowsValueLabel.setText("" + remaining);
+                }
 
             }});
     }
@@ -1559,6 +1566,7 @@ implements SerialCommunicatorListener, KeyListener {
     private Timer timer;
     private long startTime;
     private long endTime;
+    private boolean isSendingFile;
     
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
