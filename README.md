@@ -1,10 +1,4 @@
-Universal GcodeSender is a Java based GRBL compatibl cross platform G-Code sender. The original implementation is based off of Otto Hermansson GcodeSender GUI.
-
-![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/console_tab.png "Console during a file send.")
-![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/command_table_tab.png "Command table tab during a file send.")
-![Console during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/manualcontrol.png "Generate jog commands with some buttons.")
-
-The primary purpose is to connect with a GRBL device and stream Gcode commands.
+Universal GcodeSender is a Java based GRBL compatibl cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
 To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run 'UniversalGcodeSender.sh' instead.
@@ -19,22 +13,17 @@ commands:
    sudo chmod 777 /var/lock
 <br />
 
+Downloads
+---------
+[1.0.5 32-bit](http://bit.ly/SYSrWs)
+<br />
+[1.0.5 64-bit](http://bit.ly/Z8VgKI)
+<br />
+[Older releases can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
+<br />
 
-Key features:
-* Select serial port in GUI.
-* Execute commands directly.
-* Execute commands from a file.
-* Override speed in file (By looking for F commands and calculating % change).
-
-Improvements over the original GcodeSender:
-* Cross platform - use the same GUI application on OSX / Windows / Linux.
-* Command history - Re-run prior manual commands with up/down arrow.
-* Manual jogging, click buttons to move machine.
-* Duration timer while sending a file.
-* Pause / Resume while sending a file.
-* Table view linking the GRBL response to each command as run.
-* Faster - tracks GRBL's internal buffer to send multiple commands at a time.
-* More features planned.
+![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/sending_file_1.0.5.png "Command table tab during a file send.")
+![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/finished_sending_file_1.0.5.png "Popup after finishing a file send.")
 
 Technical details:
 * RXTX for serial communication.
@@ -45,15 +34,6 @@ Technical details:
   select 'Run Target' > 'onejar-dist-all-zip'. A new directory called 'release'
   will contain the .zip files.
 
-Downloads
----------
-[1.0.4 32-bit](https://bit.ly/UU3GkU)
-<br />
-[1.0.4 64-bit](https://bit.ly/SVefDv)
-<br />
-[Older versions can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
-<br />
-
 Changelog
 ---------
 1.0.4 -> 1.0.5
@@ -61,6 +41,7 @@ Changelog
 * Real-time machine position display for GRBL v8.0c.
 * Display for most recent GcodeComment.
 * Bug fixes - no more dropped commands!
+* Overhauled the GUI to display more information.
 
 1.0.3 -> 1.0.4
 * The step size spinner now goes to less than 1.
