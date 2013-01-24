@@ -836,7 +836,7 @@ implements SerialCommunicatorListener, KeyListener {
             @Override
             public void run() {
                 try {
-                    commPort.queueStringForComm(str + "\n");
+                    commPort.queueStringForComm(str);
                 } catch (Exception ex) {
                     displayErrorDialog(ex.getMessage());
                 }
@@ -928,6 +928,17 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+        
+        if (G91Mode) {
+            try {
+                this.commPort.queueStringForComm("G90");
+                G91Mode = false;
+            } catch (Exception ex) {
+                this.displayErrorDialog(ex.getMessage());
+                return;
+            }
+        }
+        
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -1005,27 +1016,27 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_baudrateSelectionComboBoxActionPerformed
 
     private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
-        this.adjustManualLocation(this.getStepSize(), 0, 0);
+        this.adjustManualLocation(1, 0, 0);
     }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
-        this.adjustManualLocation(-1 * this.getStepSize(), 0, 0);
+        this.adjustManualLocation(-1, 0, 0);
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
-        this.adjustManualLocation(0, this.getStepSize(), 0);
+        this.adjustManualLocation(0, 1, 0);
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
-        this.adjustManualLocation(0, -1 * this.getStepSize(), 0);
+        this.adjustManualLocation(0, -1, 0);
     }//GEN-LAST:event_yMinusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
-        this.adjustManualLocation(0, 0, this.getStepSize());
+        this.adjustManualLocation(0, 0, 1);
     }//GEN-LAST:event_zPlusButtonActionPerformed
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
-        this.adjustManualLocation(0, 0, -1 * this.getStepSize());
+        this.adjustManualLocation(0, 0, -1);
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
@@ -1033,33 +1044,30 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+            this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
-        this.setManualLocation(0, 0, 0);
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE + "\n");
+            this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
         
         // TODO: Are these needed after the homing cycle?
-        //this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO + "\n");
+        //this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
         
-        this.setManualLocation(0, 0, 0);
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION + "\n");
+            this.commPort.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
-        this.setManualLocation(0, 0, 0);
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
     private void showVerboseOutputCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showVerboseOutputCheckBoxActionPerformed
@@ -1127,9 +1135,6 @@ implements SerialCommunicatorListener, KeyListener {
         this.commandTextField.addKeyListener(this);
         
         this.tableModel = (DefaultTableModel) this.commandTable.getModel();
-        
-        // Manual controls
-        this.manualLocation = new Coordinate(0,0,0);
         
         // Add keyboard listener for manual controls.
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
@@ -1205,37 +1210,44 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     /**
-     * Sends a jog command after adjusting the current location in some
-     * combination of x, y and z directions.
+     * Sends a G91 command in some combination of x, y, and z directions with a
+     * step size of stepDirection.
+     * 
+     * Direction is specified by the direction param being positive or negative.
      */
-    private void adjustManualLocation(double x, double y, double z) {
+    private void adjustManualLocation(int dirX, int dirY, int dirZ) {
         
-        // If the machine is idle, update the manual location to match the
-        // machine location.
-        if (this.activeStateValueLabel.getText().equals("Idle")) {
-            this.manualLocation.setCoordinates( this.machineCoordinate );
+        // Don't send empty commands.
+        if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
+            return;
         }
 
-        this.manualLocation.setX( this.manualLocation.getX() + x );
-        this.manualLocation.setY( this.manualLocation.getY() + y );
-        this.manualLocation.setZ( this.manualLocation.getZ() + z );
-        
-        this.sendJogCommand(this.manualLocation);
-    }
-    
-    private void setManualLocation(double x, double y, double z) {
-        this.manualLocation.setX( x );
-        this.manualLocation.setY( y );
-        this.manualLocation.setZ( z );
-    }
+        // Format step size from spinner.
+        String stepSize = formatter.format(this.getStepSize());
 
-    
-    private void sendJogCommand(Coordinate coord) {
-        String command = "G0 X"+coord.getX() +
-                           " Y"+coord.getY() +
-                           " Z"+coord.getZ();
+        // Build G91 command.
+        StringBuilder command = new StringBuilder("G91");
+        
+        if (dirX != 0) {
+            command.append(" X");
+            if (dirX < 0)
+                command.append('-');
+            command.append(stepSize);
+        } if (dirY != 0) {
+            command.append(" Y");
+            if (dirY < 0)
+                command.append('-');
+            command.append(stepSize);
+        } if (dirZ != 0) {
+            command.append(" Z");
+            if (dirZ < 0)
+                command.append('-');
+            command.append(stepSize);
+        }
+
         try {
-            this.commPort.queueStringForComm(command + "\n");
+            this.commPort.queueStringForComm(command.toString());
+            G91Mode = true;
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1562,12 +1574,12 @@ implements SerialCommunicatorListener, KeyListener {
     private List<String> commandList;
     private DefaultTableModel tableModel;
     private int sentRows = 0;
-    private Coordinate manualLocation;
     private Coordinate machineCoordinate;
     private Coordinate workCoordinate;
     private static NumberFormat formatter = new DecimalFormat("#.###");
     private CommUtils.Capabilities position = null;
-
+    private boolean G91Mode = false;
+    
     // Duration timer
     private Timer timer;
     private long startTime;

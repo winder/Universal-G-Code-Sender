@@ -197,11 +197,16 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
-    void queueStringForComm(String commandString) throws Exception {
+    void queueStringForComm(final String input) throws Exception {
         if (this.fileMode) {
             throw new Exception("Cannot add commands while in file mode.");
         }
         
+        String commandString = input;
+        
+        if (! commandString.endsWith("\n")) {
+            commandString += "\n";
+        }
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
 
