@@ -15,7 +15,7 @@ commands:
 
 Downloads
 ---------
-[1.0.5 32-bit](http://bit.ly/XCjGps)
+[1.0.5 32-bit](http://bit.ly/Xz4U1R)
 <br />
 [1.0.5 64-bit](http://bit.ly/SGKfMN)
 <br />
