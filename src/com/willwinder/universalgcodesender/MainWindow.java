@@ -41,8 +41,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -928,17 +926,7 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-        
-        if (G91Mode) {
-            try {
-                this.commPort.queueStringForComm("G90");
-                G91Mode = false;
-            } catch (Exception ex) {
-                this.displayErrorDialog(ex.getMessage());
-                return;
-            }
-        }
-        
+      
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -976,7 +964,13 @@ implements SerialCommunicatorListener, KeyListener {
             this.commPort.isReadyToStreamFile();
             
             this.updateControlsForSend(true);
-            this.commPort.streamFileToComm(this.gcodeFile);
+
+            if (G91Mode) {
+                this.commPort.appendGcodeCommand("G90");
+            }
+            
+            this.commPort.appendGcodeFile(this.gcodeFile);
+            this.commPort.streamToComm();
         } catch (Exception e) {
             timer.stop();
             this.updateControlsForSend(false);
@@ -1230,18 +1224,21 @@ implements SerialCommunicatorListener, KeyListener {
         
         if (dirX != 0) {
             command.append(" X");
-            if (dirX < 0)
+            if (dirX < 0) {
                 command.append('-');
+            }
             command.append(stepSize);
         } if (dirY != 0) {
             command.append(" Y");
-            if (dirY < 0)
+            if (dirY < 0) {
                 command.append('-');
+            }
             command.append(stepSize);
         } if (dirZ != 0) {
             command.append(" Z");
-            if (dirZ < 0)
+            if (dirZ < 0) {
                 command.append('-');
+            }
             command.append(stepSize);
         }
 
@@ -1371,7 +1368,7 @@ implements SerialCommunicatorListener, KeyListener {
             this.sentRows = 0;
 
             connected = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
-                                                     Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
+            Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
             this.updateControlsForComm(connected);
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());

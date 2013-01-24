@@ -41,6 +41,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter;   // The c in 'Grbl 0.8c'
     
+    // Capability flags
     private Boolean realTimeMode = false;
     private Boolean realTimePosition = false;
     private CommUtils.Capabilities positionMode = null;
@@ -50,11 +51,12 @@ public class SerialCommunicator implements SerialPortEventListener{
     private InputStream in;
     private OutputStream out;
     private String lineTerminator = "\r\n";
-    private boolean isPositionPending = false;
-    private Timer positionPollTimer = null;    
+    private Timer positionPollTimer = null;  
+    
     // File transfer variables.
     private Boolean sendPaused = false;
     private boolean fileMode = false;
+    private boolean fileModeSending = false;
     private File file = null;
     private GcodeCommandBuffer commandBuffer;   // All commands in a file
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
@@ -197,6 +199,10 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
+    /**
+     * Add command to the command queue outside file mode. This is the only way
+     * to send a command to the comm port without being in file mode.
+     */
     void queueStringForComm(final String input) throws Exception {
         if (this.fileMode) {
             throw new Exception("Cannot add commands while in file mode.");
@@ -207,6 +213,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         if (! commandString.endsWith("\n")) {
             commandString += "\n";
         }
+        
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
 
@@ -219,10 +226,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     /**
-     * Sends a command to the serial device.
+     * Sends a command to the serial device. This actually streams the bits to
+     * the comm port.
      * @param command   Command to be sent to serial device.
      */
-    void sendStringToComm(String command) {
+    private void sendStringToComm(String command) {
         // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         
@@ -235,7 +243,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     /**
      * Immediately sends a byte, used for real-time commands.
      */
-    void sendByteImmediately(byte b) throws IOException {
+    private void sendByteImmediately(byte b) throws IOException {
         out.write(b);
     }
        
@@ -253,10 +261,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     /** File Stream Methods. **/
     
     void isReadyToStreamFile() throws Exception {
-        if (this.fileMode == true) {
+        if (this.fileModeSending == true) {
             throw new Exception("Already sending a file.");
         }
-        if ((this.commandBuffer.size() > 0) && 
+        if ((this.fileMode == false) &&
+                (this.commandBuffer.size() > 0) && 
                 (this.commandBuffer.currentCommand().isDone() != true)) {
             throw new Exception("Cannot send file until there are no commands running. (Commands remaining in command buffer)");
         }
@@ -266,10 +275,33 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     }
     
-    // Setup for streaming to serial port then launch the first command.
-    void streamFileToComm(File commandfile) throws Exception {
+    void appendGcodeCommand(String input) throws Exception {
         isReadyToStreamFile();
 
+        // Changing to file mode.
+        this.fileMode = true;
+        
+        String commandString = input;
+        
+        if (! commandString.endsWith("\n")) {
+            commandString += "\n";
+        }
+        
+        GcodeCommand command;
+        command = this.commandBuffer.appendCommandString(commandString);
+        
+        // Notify listener of new command
+        if (this.commandQueuedListener != null) {
+            this.commandQueuedListener.commandQueued(command);
+        }
+    }
+    
+    void appendGcodeFile(File commandfile) throws Exception {
+        isReadyToStreamFile();
+
+        // Changing to file mode.
+        this.fileMode = true;
+        
         // Get command list.
         try {
             this.file = commandfile;
@@ -294,15 +326,23 @@ public class SerialCommunicator implements SerialPortEventListener{
             finishStreamFileToComm();
             throw e;
         }
+    }
+    
+    // Setup for streaming to serial port then launch the first command.
+    void streamToComm() throws Exception {
+        isReadyToStreamFile();
+
+        // Changing to file mode.
+        this.fileMode = true;
 
         // Now that we are setup for file mode, enable and begin streaming.
-        this.fileMode = true;
+        this.fileModeSending = true;
         
         // Start sending commands.
         this.streamCommands();     
     }
     
-    void streamCommands() {
+    private void streamCommands() {
         boolean skip;
         
         // The GcodeCommandBuffer class always preloads the next command, so as
@@ -369,7 +409,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         }            
     }
     
-    void finishStreamFileToComm() {
+    private void finishStreamFileToComm() {
         this.fileMode = false;
 
         this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
@@ -446,7 +486,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
 
     // Processes a serial response
-    void responseMessage( String response ) {
+    private void responseMessage( String response ) {
 
         // Check if was 'ok' or 'error'.
         if (GcodeCommand.isOkErrorResponse(response)) {
@@ -577,11 +617,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
 
     // Helper for the console listener.              
-    void sendMessageToConsoleListener(String msg) {
+    private void sendMessageToConsoleListener(String msg) {
         this.sendMessageToConsoleListener(msg, false);
     }
     
-    void sendMessageToConsoleListener(String msg, boolean verbose) {
+    private void sendMessageToConsoleListener(String msg, boolean verbose) {
         if (!verbose && this.commConsoleListener != null) {
             this.commConsoleListener.messageForConsole(msg);
         }
