@@ -15,9 +15,9 @@ commands:
 
 Downloads
 ---------
-[1.0.5 32-bit](http://bit.ly/SYSrWs)
+[1.0.5 32-bit](http://bit.ly/XCjGps)
 <br />
-[1.0.5 64-bit](http://bit.ly/Z8VgKI)
+[1.0.5 64-bit](http://bit.ly/SGKfMN)
 <br />
 [Older releases can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
 <br />
