@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  * @author moll
  */
 class SettingsFactory {
-    private static File SETTINGS_FILE  = new File(System.getProperty("user.home")+"/Library/Preferences/",".UniversalGcodeSender.properties");;
+    private static File SETTINGS_FILE  = new File(System.getProperty("user.home"),".UniversalGcodeSender.properties");;
     
     private static Properties settings = new Properties();
     private static Logger logger = Logger.getLogger(SettingsFactory.class.getName());
