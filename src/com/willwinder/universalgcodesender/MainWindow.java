@@ -1109,10 +1109,14 @@ implements SerialCommunicatorListener, KeyListener {
         
         /* Apply the settings to the MainWindow bofore showing it */
         mw.arrowMovementEnabled.setSelected(SettingsFactory.getManualControllesEnabled());
-        mw.stepSizeSpinner.setValue(SettingsFactory.setStepSize());
+        mw.stepSizeSpinner.setValue(SettingsFactory.getStepSize());
         mw.fileChooser = new JFileChooser(SettingsFactory.getLastPath());
         mw.commPortComboBox.setSelectedItem(SettingsFactory.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
+        mw.scrollWindowCheckBox.setSelected(SettingsFactory.isScrollWindow());
+        mw.showVerboseOutputCheckBox.setSelected(SettingsFactory.isVerboseOutput());
+        mw.overrideSpeedCheckBox.setSelected(SettingsFactory.isOverrideSpeedSelected());
+        mw.overrideSpeedValueSpinner.setValue(SettingsFactory.getOverrideSpeedValue());
         
         /* Display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1124,13 +1128,19 @@ implements SerialCommunicatorListener, KeyListener {
         });
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
             public void run() {
-                if (mw.fileChooser.getSelectedFile() != null )
+                if (mw.fileChooser.getSelectedFile() != null ) {
                     SettingsFactory.setLastPath(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                }
                 SettingsFactory.setStepSize(mw.getStepSize());
                 SettingsFactory.setManualControllesEnabled(mw.arrowMovementEnabled.isSelected());
                 SettingsFactory.setPort(mw.commPortComboBox.getSelectedItem().toString());
                 SettingsFactory.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
+                SettingsFactory.setScrollWindow(mw.scrollWindowCheckBox.isSelected());
+                SettingsFactory.setVerboseOutput(mw.showVerboseOutputCheckBox.isSelected());
+                SettingsFactory.setOverrideSpeedSelected(mw.overrideSpeedCheckBox.isSelected());
+                SettingsFactory.setOverrideSpeedValue(Double.valueOf(mw.overrideSpeedValueSpinner.getValue()+""));
                 SettingsFactory.saveSettings();
             }
         });
