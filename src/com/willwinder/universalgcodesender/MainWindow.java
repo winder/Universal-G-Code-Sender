@@ -910,9 +910,7 @@ implements SerialCommunicatorListener, KeyListener {
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
-                SettingsFactory.setLastPath(fileName);
-                fileTextField.setText(fileName);
+                fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 gcodeFile = fileChooser.getSelectedFile();
                 Integer numRows = Utils.processFile(gcodeFile);
 
@@ -1079,6 +1077,7 @@ implements SerialCommunicatorListener, KeyListener {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -1105,17 +1104,33 @@ implements SerialCommunicatorListener, KeyListener {
         /* Load the stored settings or generate defaults */
         SettingsFactory.loadSettings();
 
-        /* Create and display the form */
+        /* Create the form */
+        final MainWindow mw = new MainWindow();
+        
+        /* Apply the settings to the MainWindow bofore showing it */
+        mw.arrowMovementEnabled.setSelected(SettingsFactory.getManualControllesEnabled());
+        mw.stepSizeSpinner.setValue(SettingsFactory.setStepSize());
+        mw.fileChooser = new JFileChooser(SettingsFactory.getLastPath());
+        mw.commPortComboBox.setSelectedItem(SettingsFactory.getPort());
+        mw.baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
+        
+        /* Display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 
             @Override
             public void run() {
-                new MainWindow().setVisible(true);
+                mw.setVisible(true);
             }
         });
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
+                if (mw.fileChooser.getSelectedFile() != null )
+                    SettingsFactory.setLastPath(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                SettingsFactory.setStepSize(mw.getStepSize());
+                SettingsFactory.setManualControllesEnabled(mw.arrowMovementEnabled.isSelected());
+                SettingsFactory.setPort(mw.commPortComboBox.getSelectedItem().toString());
+                SettingsFactory.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings();
             }
         });
@@ -1131,12 +1146,12 @@ implements SerialCommunicatorListener, KeyListener {
         this.commPort = new SerialCommunicator();
         
         // Setup file browser.
-        this.fileChooser = new JFileChooser(SettingsFactory.getLastPath()); 
+        this.fileChooser = new JFileChooser(); 
         this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
 
         // Register comm listeners
         this.commPort.setListenAll(this);
-        
+               
         // Command History
         this.commandTextField.addKeyListener(this);
         
@@ -1336,13 +1351,6 @@ implements SerialCommunicatorListener, KeyListener {
             }
             
             commPortComboBox.setSelectedIndex(0);
-            if (SettingsFactory.getPort().length() > 0) {
-                commPortComboBox.setSelectedItem(SettingsFactory.getPort());
-            }
-            if (SettingsFactory.getPortRate().length() > 0) {
-                System.err.println(SettingsFactory.getPortRate());
-                baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
-            }
         }
     }
     
@@ -1387,12 +1395,9 @@ implements SerialCommunicatorListener, KeyListener {
             this.sentRows = 0;
 
             String port = commPortComboBox.getSelectedItem().toString();
-            int rate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
-            
-            SettingsFactory.setPort(port);
-            SettingsFactory.setPortRate(rate+"");
-            
-            connected = commPort.openCommPort(port, rate);
+            int portRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
+             
+            connected = commPort.openCommPort(port, portRate);
             this.updateControlsForComm(connected);
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
