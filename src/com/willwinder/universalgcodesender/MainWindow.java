@@ -53,6 +53,7 @@ import javax.swing.text.DefaultCaret;
  */
 public class MainWindow extends javax.swing.JFrame 
 implements SerialCommunicatorListener, KeyListener {
+    private static String VERSION = "1.0.5";
 
     /** Creates new form MainWindow */
     public MainWindow() {
@@ -222,7 +223,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(commandTextField)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 374, Short.MAX_VALUE)))
+                        .add(0, 359, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -232,7 +233,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(commandLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(117, Short.MAX_VALUE))
+                .addContainerGap(89, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Command Mode", jPanel1);
@@ -383,7 +384,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(remainingRowsLabel)
                     .add(remainingRowsValueLabel))
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -422,7 +423,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(returnToZeroButton)
                     .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 158, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(283, Short.MAX_VALUE))
+                .addContainerGap(271, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {performHomingCycleButton, resetCoordinatesButton, returnToZeroButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -436,7 +437,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(returnToZeroButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(performHomingCycleButton)
-                .addContainerGap(37, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Workfow Commands", jPanel4);
@@ -742,7 +743,7 @@ implements SerialCommunicatorListener, KeyListener {
                                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 40, Short.MAX_VALUE)
                                 .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                                     .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -909,7 +910,9 @@ implements SerialCommunicatorListener, KeyListener {
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                SettingsFactory.setLastPath(fileName);
+                fileTextField.setText(fileName);
                 gcodeFile = fileChooser.getSelectedFile();
                 Integer numRows = Utils.processFile(gcodeFile);
 
@@ -1098,6 +1101,9 @@ implements SerialCommunicatorListener, KeyListener {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        /* Load the stored settings or generate defaults */
+        SettingsFactory.loadSettings();
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1107,19 +1113,25 @@ implements SerialCommunicatorListener, KeyListener {
                 new MainWindow().setVisible(true);
             }
         });
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                SettingsFactory.saveSettings();
+            }
+        });
     }
         
     private void initProgram() {
         this.loadPortSelector();
         this.checkScrollWindow();
-        this.setTitle("Universal GcodeSender (Version 1.0.5)");
+        this.setTitle("Universal GcodeSender (Version " + VERSION + ")");
         
         // Hook the view up to the model
         this.commandList = new ArrayList<String>();
         this.commPort = new SerialCommunicator();
         
         // Setup file browser.
-        this.fileChooser = new JFileChooser();
+        this.fileChooser = new JFileChooser(SettingsFactory.getLastPath()); 
         this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
 
         // Register comm listeners
@@ -1324,6 +1336,13 @@ implements SerialCommunicatorListener, KeyListener {
             }
             
             commPortComboBox.setSelectedIndex(0);
+            if (SettingsFactory.getPort().length() > 0) {
+                commPortComboBox.setSelectedItem(SettingsFactory.getPort());
+            }
+            if (SettingsFactory.getPortRate().length() > 0) {
+                System.err.println(SettingsFactory.getPortRate());
+                baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
+            }
         }
     }
     
@@ -1367,8 +1386,13 @@ implements SerialCommunicatorListener, KeyListener {
             this.sentRowsValueLabel.setText("0");
             this.sentRows = 0;
 
-            connected = commPort.openCommPort( commPortComboBox.getSelectedItem().toString(), 
-            Integer.parseInt( baudrateSelectionComboBox.getSelectedItem().toString() ) );
+            String port = commPortComboBox.getSelectedItem().toString();
+            int rate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
+            
+            SettingsFactory.setPort(port);
+            SettingsFactory.setPortRate(rate+"");
+            
+            connected = commPort.openCommPort(port, rate);
             this.updateControlsForComm(connected);
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
