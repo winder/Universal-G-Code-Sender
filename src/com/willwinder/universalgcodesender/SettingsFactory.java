@@ -167,7 +167,7 @@ class SettingsFactory {
     }
     
     static Object getOverrideSpeedValue() {
-        throw new UnsupportedOperationException("Not yet implemented");
+        return overrideSpeedValue;
     }
 
     

@@ -19,6 +19,7 @@
     <property name="standalone.jar.name" value="UniversalGcodeSender"/>
 
     <import file="one-jar-ant-task.xml" />
+    <import file="MacApp-task.xml" />
     
     <!-- One-Jar .jar building -->
     <target name="onejar-dist-all" depends="jar"
