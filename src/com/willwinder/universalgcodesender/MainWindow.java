@@ -38,6 +38,7 @@ import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -1612,7 +1613,9 @@ implements SerialCommunicatorListener, KeyListener {
     private int sentRows = 0;
     private Coordinate machineCoordinate;
     private Coordinate workCoordinate;
-    private static NumberFormat formatter = new DecimalFormat("#.###");
+    private static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+    static {dfs.setDecimalSeparator('.');}
+    private static NumberFormat formatter = new DecimalFormat("#.###", dfs);
     private CommUtils.Capabilities position = null;
     private boolean G91Mode = false;
     
