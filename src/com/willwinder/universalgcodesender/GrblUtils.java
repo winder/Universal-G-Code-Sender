@@ -82,10 +82,12 @@ public class GrblUtils {
      * Determines version of GRBL position capability.
      */
     static CommUtils.Capabilities getGrblPositionCapabilities(final double version, final String letter) {
-        if (version == 0.8 && letter.equals("c")) {
-            return CommUtils.Capabilities.POSITION_C;
-        } else if (version == 0.9 && letter.equals("a")) {
-            return CommUtils.Capabilities.POSITION_C;
+        if (version >= 0.8) {
+            if (version==0.8 && letter.equals("c")) {
+                return CommUtils.Capabilities.POSITION_C;
+            } else if (version >= 0.9) {
+                return CommUtils.Capabilities.POSITION_C;
+            }
         }
         return null;
     }
