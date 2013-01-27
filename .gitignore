@@ -3,7 +3,5 @@
 /nbproject/private
 /release/
 .DS_Store
-
 librxtxSerial.jnilib
-
-test_files/grbl_v0_8c_atmega328p_16mhz_9600_build20121216.hex
+test_files/grbl_*.hex.txt
