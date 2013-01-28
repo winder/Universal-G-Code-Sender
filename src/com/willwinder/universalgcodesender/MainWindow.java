@@ -146,7 +146,6 @@ implements SerialCommunicatorListener, KeyListener {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(885, 650));
-        setPreferredSize(new java.awt.Dimension(970, 470));
 
         scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
@@ -224,7 +223,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(commandTextField)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 359, Short.MAX_VALUE)))
+                        .add(0, 382, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -234,13 +233,12 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(commandLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(89, Short.MAX_VALUE))
+                .addContainerGap(117, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Command Mode", jPanel1);
 
         browseButton.setText("Browse");
-        browseButton.setEnabled(false);
         browseButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 browseButtonActionPerformed(evt);
@@ -313,7 +311,8 @@ implements SerialCommunicatorListener, KeyListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(fileTextField)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(browseButton))
+                        .add(browseButton)
+                        .addContainerGap())
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -324,7 +323,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(overrideSpeedCheckBox)
-                        .addContainerGap())
+                        .add(0, 5, Short.MAX_VALUE))
                     .add(jPanel2Layout.createSequentialGroup()
                         .add(22, 22, 22)
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -353,11 +352,10 @@ implements SerialCommunicatorListener, KeyListener {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(fileLabel)
-                        .add(fileTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(15, 15, 15)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(fileLabel)
+                    .add(fileTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(browseButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -385,7 +383,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(remainingRowsLabel)
                     .add(remainingRowsValueLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -424,7 +422,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(returnToZeroButton)
                     .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 158, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(271, Short.MAX_VALUE))
+                .addContainerGap(291, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {performHomingCycleButton, resetCoordinatesButton, returnToZeroButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -438,7 +436,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(returnToZeroButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(performHomingCycleButton)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Workfow Commands", jPanel4);
@@ -480,7 +478,7 @@ implements SerialCommunicatorListener, KeyListener {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jPanel3Layout.createSequentialGroup()
                         .add(jLabel7)
@@ -744,7 +742,7 @@ implements SerialCommunicatorListener, KeyListener {
                                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 40, Short.MAX_VALUE)
                                 .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                                     .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -895,11 +893,13 @@ implements SerialCommunicatorListener, KeyListener {
             Boolean ret = openCommConnection();
 
             if (ret) {
+                this.updateControlsForState(ControlState.COMM_IDLE);
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
             }
         } else {
-           closeCommConnection();
+            this.closeCommConnection();
+            this.updateControlsForState(ControlState.COMM_DISCONNECTED);
         }
     }//GEN-LAST:event_opencloseButtonActionPerformed
 
@@ -965,8 +965,7 @@ implements SerialCommunicatorListener, KeyListener {
             // happening (clearing the table before its ready for clearing.
             this.commPort.isReadyToStreamFile();
             
-            this.updateControlsForSend(true);
-
+            this.updateControlsForState(ControlState.COMM_SENDING);
             if (G91Mode) {
                 this.commPort.appendGcodeCommand("G90");
             }
@@ -975,7 +974,7 @@ implements SerialCommunicatorListener, KeyListener {
             this.commPort.streamToComm();
         } catch (Exception e) {
             timer.stop();
-            this.updateControlsForSend(false);
+            this.updateControlsForState(ControlState.COMM_IDLE);
             e.printStackTrace();
             this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
         }
@@ -1003,9 +1002,8 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.commPort.cancelSend();
-        this.disablePauseResume();
-        
-        this.updateControlsForSend(false);
+
+        this.updateControlsForState(ControlState.COMM_IDLE);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void baudrateSelectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baudrateSelectionComboBoxActionPerformed
@@ -1202,41 +1200,6 @@ implements SerialCommunicatorListener, KeyListener {
             });
     }
 
-    private void updateControlsForComm(boolean isOpen) {
-
-        this.commPortComboBox.setEnabled(!isOpen);
-        this.baudrateSelectionComboBox.setEnabled(!isOpen);
-        this.refreshButton.setEnabled(!isOpen);
-        this.commandTextField.setEnabled(isOpen);
-
-        if (isOpen) {
-            this.opencloseButton.setText("Close");
-        } else {
-            this.opencloseButton.setText("Open");
-        }
-        
-        this.updateFileControls(isOpen);
-        this.updateWorkflowCommands(isOpen);
-        
-        this.arrowMovementEnabled.setEnabled(isOpen);
-        if (this.arrowMovementEnabled.isSelected()) {
-            this.updateManualControls(isOpen);
-        }
-    }
-    
-    private void updateFileControls(boolean enabled) {
-        this.sendButton.setEnabled(enabled);
-        this.browseButton.setEnabled(enabled);
-        this.overrideSpeedCheckBox.setEnabled(enabled);
-        this.overrideSpeedValueSpinner.setEnabled(enabled);
-        this.fileTextField.setEnabled(enabled);
-
-        if (!enabled) {
-            // These might be on, so make sure they're off.
-            this.disablePauseResume();
-        }
-    }
-    
     private double getStepSize() {
         return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
@@ -1288,7 +1251,92 @@ implements SerialCommunicatorListener, KeyListener {
         }
     }
     
+    private void updateControlsForState(ControlState state) {
+        
+        switch (state) {
+            case COMM_DISCONNECTED:
+                this.updateConnectionControls(false);
+                this.updateManualControls(false);
+                this.updateWorkflowCommands(false);
+                this.updateFileControls(false);
+                this.resetSentRowLabels(0);
+                break;
+            case COMM_IDLE:
+                this.updateConnectionControls(true);
+                this.updateManualControls(true);
+                this.updateWorkflowCommands(true);
+                this.updateFileControls(true);
+                break;
+            case COMM_SENDING:
+                // Command tab
+                this.commandTextField.setEnabled(false);
+
+                // File tab
+                this.sendButton.setEnabled(false);
+                this.pauseButton.setEnabled(true);
+                this.cancelButton.setEnabled(true);
+                this.pauseButton.setText("Pause");
+                // TODO: Allow on the fly speed override?
+                this.overrideSpeedCheckBox.setEnabled(false);
+                this.overrideSpeedValueSpinner.setEnabled(false);
+
+                // Workflow tab
+                this.updateWorkflowCommands(false);
+
+                // Jogging commands
+                this.updateManualControls(false);
+        
+                break;
+            case COMM_SENDING_PAUSED:
+                this.pauseButton.setText("Resume");
+                break;
+            default:
+                
+        }
+    }
+    
+    /**
+     * Enable/disable connection frame based on connection state.
+     */
+    private void updateConnectionControls(boolean isOpen) {
+
+        this.commPortComboBox.setEnabled(!isOpen);
+        this.baudrateSelectionComboBox.setEnabled(!isOpen);
+        this.refreshButton.setEnabled(!isOpen);
+        this.commandTextField.setEnabled(isOpen);
+
+        if (isOpen) {
+            this.opencloseButton.setText("Close");
+        } else {
+            this.opencloseButton.setText("Open");
+        }
+    }
+    
+    /**
+     * Enable/disable file frame based on connection state.
+     */
+    private void updateFileControls(boolean enabled) {
+        this.sendButton.setEnabled(enabled);
+        //browse always enabled.
+        //this.browseButton.setEnabled(enabled);
+        this.overrideSpeedCheckBox.setEnabled(enabled);
+        this.overrideSpeedValueSpinner.setEnabled(enabled);
+        this.fileTextField.setEnabled(enabled);
+
+        if (!enabled) {
+            // In case transitioning from file sending or file send paused.
+            this.pauseButton.setText("Pause");
+            this.pauseButton.setEnabled(false);
+            this.cancelButton.setEnabled(false);
+        }
+    }
+    
+    /**
+     * Enable/disable jogging controls.
+     */
     private void updateManualControls(boolean enabled) {
+        this.arrowMovementEnabled.setEnabled(enabled);
+
         this.xMinusButton.setEnabled(enabled);
         this.xPlusButton.setEnabled(enabled);
         this.yMinusButton.setEnabled(enabled);
@@ -1303,32 +1351,6 @@ implements SerialCommunicatorListener, KeyListener {
         this.resetCoordinatesButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
         this.performHomingCycleButton.setEnabled(enabled);
-    }
-    
-    private void updateControlsForSend(boolean isSending) {
-        // Command tab
-        this.commandTextField.setEnabled(!isSending);
-        
-        // File tab
-        this.sendButton.setEnabled(!isSending);
-        this.pauseButton.setEnabled(isSending);
-        this.overrideSpeedCheckBox.setEnabled(!isSending);
-        this.overrideSpeedValueSpinner.setEnabled(!isSending);
-        this.cancelButton.setEnabled(isSending);
-        
-        // Workflow tab
-        this.updateWorkflowCommands(!isSending);
-        
-        // Jogging commands
-        this.arrowMovementEnabled.setEnabled(!isSending);
-        if (this.arrowMovementEnabled.isSelected()) {
-            this.updateManualControls(!isSending);
-        }
-        
-        // If not sending, reset pause button to "Pause" and disabled.
-        if (!isSending) {
-            this.disablePauseResume();
-        }
     }
     
     private void resetSentRowLabels(Integer numRows) {
@@ -1409,7 +1431,7 @@ implements SerialCommunicatorListener, KeyListener {
             int portRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
              
             connected = commPort.openCommPort(port, portRate);
-            this.updateControlsForComm(connected);
+
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
         }
@@ -1418,19 +1440,12 @@ implements SerialCommunicatorListener, KeyListener {
     
     private void closeCommConnection() {
         this.commPort.closeCommPort();
-        
-        this.updateControlsForComm(false);
     }
     
     void clearTable() {
         while (this.tableModel.getRowCount()>0){
             this.tableModel.removeRow(0);
         }
-    }
-    
-    private void disablePauseResume() {
-        this.pauseButton.setText("Pause");
-        this.cancelButton.setEnabled(false);
     }
        
     private void scrollTable(int toRow) {
@@ -1460,7 +1475,8 @@ implements SerialCommunicatorListener, KeyListener {
         this.endTime = System.currentTimeMillis();
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
 
-        this.updateControlsForSend(false);
+        this.updateControlsForState(ControlState.COMM_IDLE);
+        
         if (success) {
             JOptionPane.showMessageDialog(new JFrame(), "Job complete after "+this.durationValueLabel.getText(), "Success", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -1624,6 +1640,13 @@ implements SerialCommunicatorListener, KeyListener {
     private long startTime;
     private long endTime;
     private boolean isSendingFile;
+    
+    private enum ControlState {
+        COMM_DISCONNECTED,
+        COMM_IDLE,
+        COMM_SENDING,
+        COMM_SENDING_PAUSED,
+    };
     
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
