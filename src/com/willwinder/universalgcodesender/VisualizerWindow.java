@@ -1,7 +1,7 @@
 /*
  * Window manager for visualizer. Creates 3D canvas and manages data.
  *
- * Created on Jan 29, 2013, 3:04:38 PM
+ * Created on Jan 29, 2013
  */
 
 /*
