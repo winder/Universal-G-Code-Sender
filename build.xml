@@ -33,26 +33,26 @@
         </copy>
         
         <copy todir="${dist.jar.dir}/natives/linux32">
-            <fileset dir="${natives.dir}"  includes="*32.so"/>
+            <fileset dir="${natives.dir}/linux32"  includes="*32.so"/>
             <mapper>
                 <globmapper from="*32.so" to="*.so" /> 
             </mapper>
         </copy>
         <copy todir="${dist.jar.dir}/natives/win32">
-            <fileset dir="${natives.dir}"  includes="*32.dll"/>
+            <fileset dir="${natives.dir}/win32"  includes="*32.dll"/>
             <mapper>
                 <globmapper from="*32.dll" to="*.dll" /> 
             </mapper>
         </copy>
         <copy todir="${dist.jar.dir}/natives/win64">
-            <fileset dir="${natives.dir}"  includes="*64.dll"/>
+            <fileset dir="${natives.dir}/win64"  includes="*64.dll"/>
             <mapper>
                 <globmapper from="*64.dll" to="*.dll" /> 
             </mapper>
         </copy>
         <copy todir="${dist.jar.dir}/natives/mac">
-            <fileset dir="${natives.dir}"  includes="*.dylib"/>
-            <fileset dir="${natives.dir}"  includes="*.jnilib"/>
+            <fileset dir="${natives.dir}/mac"  includes="*.dylib"/>
+            <fileset dir="${natives.dir}/mac"  includes="*.jnilib"/>
         </copy>
         
         
