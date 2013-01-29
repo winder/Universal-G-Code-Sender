@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 /**
  *
  * @author wwinder
+ * @template http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html
  */
 public class VisualizerWindow extends javax.swing.JFrame {
 

@@ -39,7 +39,8 @@ import javax.media.opengl.glu.GLU;
 /**
  *
  * @author wwinder
- *
+ * @template http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html
+ * 
  * JOGL 2.0 Program Template (GLCanvas)
  * This is a "Component" which can be added into a top-level "Container".
  * It also handles the OpenGL events to render graphics.
@@ -47,7 +48,7 @@ import javax.media.opengl.glu.GLU;
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener {
     private GLU glu;  // for the GL Utility
-     private float angle = 0.0f;  // rotation angle of the triangle
+    private float angle = 0.0f;  // rotation angle of the triangle
     /** Constructor to setup the GUI for this Component */
     public VisualizerCanvas() {
        this.addGLEventListener(this);
