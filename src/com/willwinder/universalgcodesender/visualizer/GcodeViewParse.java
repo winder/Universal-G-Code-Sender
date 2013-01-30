@@ -112,7 +112,8 @@ public class GcodeViewParse {
             {
                 curToolhead = 1;
             }
-            if (s.matches(".*G1.*")) 
+            // Straight lines.
+            if (s.matches(".*G0.*") || s.matches(".*G1.*") || s.matches(".*G2.*") || s.matches(".*G3.*")) 
             {
                 String[] sarr = s.split(" ");
                 parsedX = parseCoord(sarr, 'X');
@@ -131,12 +132,12 @@ public class GcodeViewParse {
                 }
                 if(!Float.isNaN(parsedZ))
                 {
-                    /*
-                      if (!(Math.abs(parsedZ - lastCoord[2]) <= tolerance))
-                      {
-                              curLayer++;
-                      }
-                     */
+                    
+                    if (!(Math.abs(parsedZ - lastCoord[2]) <= tolerance))
+                    {
+                        curLayer++;
+                    }
+                    
                     lastCoord[2] = parsedZ;
                 }
                 if(!Float.isNaN(parsedF))
@@ -162,6 +163,11 @@ public class GcodeViewParse {
                     lastPoint = curPoint;
                 }
             }
+            // Arc lines
+            if (s.matches(".*G2.*") || s.matches(".*G3.*")) {
+                
+        
+            }
         }
         return lines;
     }
@@ -174,6 +180,8 @@ public class GcodeViewParse {
             {
                 //System.out.println("te : " + t);
                 return Float.parseFloat(t.substring(1,t.length()));
+            } else {
+                System.out.println("No match: " + t);
             }
         }
         return Float.NaN;

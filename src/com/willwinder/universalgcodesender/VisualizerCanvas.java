@@ -59,7 +59,9 @@ import javax.media.opengl.glu.GLU;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener {
-    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/buffer_stress_test.gcode";
+    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/line_skip_test.gcode";
     
     private GLU glu;  // for the GL Utility
     private float angle = 0.0f;  // rotation angle of the triangle
@@ -101,7 +103,20 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         GcodeViewParse gcvp = new GcodeViewParse();
         objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
         float bounds[] = gcvp.getExtremes();
-        System.out.println("Object bounds = " + bounds);
+        //extremes[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; // -x, -y, -z, x, y, z
+        
+        
+        System.out.println("Object bounds");
+        System.out.println("           "+bounds[4]);
+        System.out.println("             / \\"+bounds[2]);
+        System.out.println("              | /            ");
+        System.out.println("              |/             "+bounds[3]);
+        System.out.println(bounds[0]+"<---------------------->");
+        System.out.println("             /|              ");
+        System.out.println("            / |              ");
+        System.out.println("           / \\ /          ");
+        System.out.println("          /"+bounds[1]);
+        System.out.println("      "+bounds[5]);
         float cent[] = findCenter(bounds);
         System.out.println("Center = " + cent);
         //cam.lookAt(-1*bounds[0], -1*bounds[1], 0, camOffset);
@@ -183,7 +198,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         gl.glLoadIdentity();
-        gl.glTranslatef(0.0f, 0.0f, -6.0f); // translate into the screen
+        gl.glTranslatef(0.0f, 0.0f, -46.0f); // translate into the screen
 
         gl.glPushMatrix();
         //noSmooth();
