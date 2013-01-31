@@ -62,7 +62,7 @@ public class VisualizerWindow extends javax.swing.JFrame {
         final FPSAnimator animator = new FPSAnimator(canvas, FPS, true);
 
         // Create the top-level container
-        final JFrame frame = new JFrame(); // Swing's JFrame or AWT's Frame
+        final JFrame frame = this; // Swing's JFrame or AWT's Frame
         frame.getContentPane().add(canvas);
         frame.addWindowListener(new WindowAdapter() {
             @Override
