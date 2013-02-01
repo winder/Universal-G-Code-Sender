@@ -27,6 +27,8 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -60,18 +62,34 @@ import javax.vecmath.Point3f;
  * It also handles the OpenGL events to render graphics.
  */
 @SuppressWarnings("serial")
-public class VisualizerCanvas extends GLCanvas implements GLEventListener {
-    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
+public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/face.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/buffer_stress_test.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/line_skip_test.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/electric_turtle.nc";
     
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/Gates_combined_R12.nc";
+    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/c17056_rev_3-controller plate-116x330.nc";
+    
     private GLU glu;  // for the GL Utility
     private float angle = 0.0f;  // rotation angle of the triangle
-    /** Constructor to setup the GUI for this Component */
+    private Point3d center, eye, cent;
+    private Point3d objectMin, objectMax;
+    private double maxSide;
+    private double scaleFactor = 1;
     
+    public VisualizerCanvas() {
+       this.addGLEventListener(this);
+       
+       //this.eye = new Point3d(70, 57, -35);
+       this.eye = new Point3d(0, 0, 2);
+       this.cent = new Point3d(0, 0, 0);
+    }
+    
+    
+    /** Constructor to setup the GUI for this Component */
     public ArrayList<String> readFiletoArrayList(String gCode) {
         ArrayList<String> vect = null;
         
@@ -95,7 +113,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         return vect;
     }
     
-    private Point3d findCenter(Point3d min, Point3d max)
+    static private Point3d findCenter(Point3d min, Point3d max)
     {
         Point3d center = new Point3d();
         center.x = (min.x + max.x) / 2.0;
@@ -105,47 +123,44 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         return center;
     }
     
+    static private double findMaxSide(Point3d min, Point3d max) {
+        double x = Math.abs(min.x) + Math.abs(max.x);
+        double y = Math.abs(min.y) + Math.abs(max.y);
+        double z = Math.abs(min.z) + Math.abs(max.z);
+        return Math.max(x, Math.max(y, z));
+    }
+    
     public void generateObject()
     {
-        //scale(1, -1, 1); //orient cooridnate plane right-handed props to whosawwhatsis for discovering this
-
         GcodeViewParse gcvp = new GcodeViewParse();
         objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
-        //float bounds[] = gcvp.getExtremes();
-        Point3d min = gcvp.getMinimumExtremes();
-        Point3d max = gcvp.getMaximumExtremes();
-        //extremes[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; // -x, -y, -z, x, y, z
-        
+
+        objectMin = gcvp.getMinimumExtremes();
+        objectMax = gcvp.getMaximumExtremes();
         
         System.out.println("Object bounds");
-        System.out.println("           "+max.y);
-        System.out.println("             / \\"+max.z);
+        System.out.println("           "+objectMax.y);
+        System.out.println("             / \\"+objectMax.z);
         System.out.println("              | /            ");
         System.out.println("              |/             ");
-        System.out.println(min.x+"<---------------------->"+max.x);
+        System.out.println(objectMin.x+"<---------------------->"+objectMax.x);
         System.out.println("             /|              ");
         System.out.println("            / |              ");
         System.out.println("           / \\ /          ");
-        System.out.println("          /"+min.y);
-        System.out.println("      "+min.z);
+        System.out.println("          /"+objectMin.y);
+        System.out.println("      "+objectMin.z);
         
-        Point3d center = findCenter(min, max);
-        
+        this.center = findCenter(objectMin, objectMax);
+        this.cent = center;
         System.out.println("Center = " + center.toString());
         //cam.lookAt(-1*bounds[0], -1*bounds[1], 0, camOffset);
         System.out.println("objComBumands :" + objCommands.size());
         maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
         defaultValue = maxSlider;
-        //controlP5.remove("Layer Slider");
-        //controlP5.addSlider("Layer Slider",minSlider,maxSlider,defaultValue,20,100,10,300).setNumberOfTickMarks(maxSlider);
-        //controlP5.addControlWindow("ControlWindow", 50, 50, 20, 20);
+        this.maxSide = findMaxSide(objectMin, objectMax);
+        this.scaleFactor = 1.0/this.maxSide;
 
-        //curLayer = (int)Math.round(controlP5.controller("Layer Slider").value());
         isDrawable = true;
-    }
-    
-    public VisualizerCanvas() {
-       this.addGLEventListener(this);
     }
 
     // ------ Implement methods declared in GLEventListener ------
@@ -156,8 +171,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
      */
     @Override
     public void init(GLAutoDrawable drawable) {
-        // Parse random gcode file and generate something to draw.
-        generateObject();
+        this.addKeyListener(this);
+       // Parse random gcode file and generate something to draw.
+       generateObject();
         
        GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
        glu = new GLU();                         // get GL Utilities
@@ -194,8 +210,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         glu.gluPerspective(45.0, aspect, 0.1, 100.0); // fovy, aspect, zNear, zFar
 
         // Move camera out and point it at the origin
-        glu.gluLookAt(0, 0, -10, 0, 0, 0, 0, -1, 0);
-
+        //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
+        glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,     // Eye
+                      0, 0, 0, //this.cent.x, this.cent.y, -this.cent.z,    // Center
+                      0, 1, 0);                                // Up
         // Enable the model-view transform
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glLoadIdentity(); // reset
@@ -206,20 +224,47 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
      */
     @Override
     public void display(GLAutoDrawable drawable) {
+        reshape (drawable, this.xSize, this.ySize, this.xSize, this.ySize);
         final GL2 gl = drawable.getGL().getGL2();
+/*
+        // Move camera out and point it at the origin
+        //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
+        glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,     // Eye
+                      this.cent.x, this.cent.y, this.cent.z,    // Center
+                      0, -1, 0);           // Enable the model-view transform
+        gl.glMatrixMode(GL_MODELVIEW);
+        //gl.glLoadIdentity(); // reset
+*/
+        gl.glPushMatrix();
+        gl.glLoadIdentity();
+        
+        
+        gl.glTranslated(-this.cent.x * scaleFactor, -this.cent.y * scaleFactor, 0);
+        
+        
+        render(drawable);
+        gl.glPopMatrix();
+        
+            //update();
+    }
+
+    // Render a triangle
+    private void render(GLAutoDrawable drawable) {
+        final GL2 gl = drawable.getGL().getGL2();
+
         gl.glEnable(GL.GL_DEPTH_TEST);
 
 
 
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        gl.glLoadIdentity();
+        //gl.glLoadIdentity();
 
-        gl.glPushMatrix();
+        //gl.glPushMatrix();
         //noSmooth();
 
         if(isDrawable) {
-            gl.glScaled(1, -1, 1);
+            gl.glScaled(1.0/this.maxSide, 1.0/this.maxSide, 1.0/this.maxSide);
             Point3d start, end;
 
             int maxLayer = 100; //(int)Math.round(controlP5.controller("Layer Slider").value());
@@ -321,33 +366,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         // makes the gui stay on top of elements
         // drawn before.
         gl.glDisable(GL.GL_DEPTH_TEST);
-
-
-            //render(drawable);
-            //update();
-    }
-
-    // Render a triangle
-    private void render(GLAutoDrawable drawable) {
-        // Get the OpenGL graphics context
-        GL2 gl = drawable.getGL().getGL2();
-        // Clear the color and the depth buffers
-        gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // Reset the view (x, y, z axes back to normal)
-        gl.glLoadIdentity();   
-
-        // Draw a triangle
-        double sin = Math.sin(angle);
-        double cos = Math.cos(angle);
-        gl.glTranslatef(0.0f, 0.0f, -6.0f); // translate into the screen
-        gl.glBegin(GL_TRIANGLES);
-            gl.glColor3f(1.0f, 0.0f, 0.0f);   // Red
-            gl.glVertex2d(-cos, -cos);
-            gl.glColor3f(0.0f, 1.0f, 0.0f);   // Green
-            gl.glVertex2d(0.0f, cos);
-            gl.glColor3f(0.0f, 0.0f, 1.0f);   // Blue
-            gl.glVertex2d(sin, -sin);
-        gl.glEnd();
     }
 
     // Update the angle of the triangle after each frame
@@ -426,4 +444,64 @@ private boolean dualExtrusionColoring = false ;
     private int camOffset = 70;
     private int textBoxOffset = 200;
 
+    @Override
+    public void keyTyped(KeyEvent ke) {
+        //System.out.println ("key typed");
+    }
+
+    static double DELTA_SIZE = 0.1;
+    @Override
+    public void keyPressed(KeyEvent ke) {
+        switch(ke.getKeyCode()) {
+            case KeyEvent.VK_UP:
+                this.eye.y+=DELTA_SIZE;
+                break;
+            case KeyEvent.VK_DOWN:
+                this.eye.y-=DELTA_SIZE;
+                break;
+            case KeyEvent.VK_LEFT:
+                this.eye.x-=DELTA_SIZE;
+                break;
+            case KeyEvent.VK_RIGHT:
+                this.eye.x+=DELTA_SIZE;
+                break;
+        }
+        
+        switch(ke.getKeyChar()) {
+            case 'p':
+                this.eye.z+=DELTA_SIZE;
+                break;
+            case ';':
+                this.eye.z-=DELTA_SIZE;
+                break;
+                
+            case 'w':
+                this.cent.y+=DELTA_SIZE;
+                break;
+            case 's':
+                this.cent.y-=DELTA_SIZE;
+                break;
+            case 'a':
+                this.cent.x-=DELTA_SIZE;
+                break;
+            case 'd':
+                this.cent.x+=DELTA_SIZE;
+                break;
+            case 'r':
+                this.cent.z+=DELTA_SIZE;
+                break;
+            case 'f':
+                this.cent.z-=DELTA_SIZE;
+                break;
+        }
+        
+                
+        System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
+
+    }
+
+    @Override
+    public void keyReleased(KeyEvent ke) {
+        //System.out.println ("key released");
+    }
 }

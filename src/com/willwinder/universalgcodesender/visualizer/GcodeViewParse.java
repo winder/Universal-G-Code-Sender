@@ -102,7 +102,8 @@ public class GcodeViewParse {
         boolean currentExtruding = false;
         for(String s : gcode)
         {          
-            System.out.println("Gcode: " + s);
+            //System.out.println("Gcode: " + s);
+            
             // Parse out gcode values
             String[] sarr = s.split(" ");
             parsedX = parseCoord(sarr, 'X');
@@ -212,8 +213,8 @@ public class GcodeViewParse {
     }
     
     private void addArcSegments(Point3d start, Point3d center, Point3d endpoint, boolean clockwise) {
-         System.out.println("Arc from " + start.toString() + " to " +
-         endpoint.toString() + " with center " + center);
+         //System.out.println("Arc from " + start.toString() + " to " +
+         //endpoint.toString() + " with center " + center);
         
         // angle variables.
         double angleA;
