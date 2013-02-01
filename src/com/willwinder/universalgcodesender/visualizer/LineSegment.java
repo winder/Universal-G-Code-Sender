@@ -25,24 +25,24 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import javax.vecmath.Point3f;
+import javax.vecmath.Point3d;
  
 public class LineSegment {
 
     private int layer;
     private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
-    private float speed;
-    private Point3f first, second;
+    private double speed;
+    private Point3d first, second;
     private boolean isExtruding;
 
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz)
+    public LineSegment (Point3d a,Point3d b, int layernum, double speedz)
     {
         first = a;
         second = b;
         layer = layernum;
         speed = speedz;
     }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, boolean extrudz)
+    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, boolean extrudz)
     {
         first = a;
         second = b;
@@ -50,14 +50,14 @@ public class LineSegment {
         speed = speedz;
         isExtruding = extrudz;
     }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz)
+    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz)
     {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
+        first = new Point3d(x1, y1, z1);
+        second = new Point3d(x2, y2, z2);
         layernum = layer;
         speed = speedz;
     }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, int toolheadz)
+    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, int toolheadz)
     {
         first = a;
         second = b;
@@ -65,15 +65,15 @@ public class LineSegment {
         speed = speedz;
         toolhead = toolheadz;
     }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz, int toolheadz)
+    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz, int toolheadz)
     {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
+        first = new Point3d(x1, y1, z1);
+        second = new Point3d(x2, y2, z2);
         layernum = layer;
         speed = speedz;
         toolhead = toolheadz;
     }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, int toolheadz, boolean extrudz)
+    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, int toolheadz, boolean extrudz)
     {
         first = a;
         second = b;
@@ -82,26 +82,34 @@ public class LineSegment {
         toolhead = toolheadz;
         isExtruding = extrudz;
     }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz, int toolheadz, boolean extrudz)
+    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz, int toolheadz, boolean extrudz)
     {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
+        first = new Point3d(x1, y1, z1);
+        second = new Point3d(x2, y2, z2);
         layernum = layer;
         speed = speedz;
         toolhead = toolheadz;
         isExtruding = extrudz;
     }
     
-    public Point3f[] getPointArray()
+    public Point3d[] getPointArray()
     {
-        Point3f[] pointarr = { first, second };
+        Point3d[] pointarr = { first, second };
         return pointarr;
     }
     
-    public float[] getPoints()
+    public double[] getPoints()
     {
-        float[] points = {first.x, first.y, first.z , second.x, second.y, second.z };
+        double[] points = {first.x, first.y, first.z , second.x, second.y, second.z };
         return points;
+    }
+    
+    public Point3d getStart() {
+        return this.first;
+    }
+
+    public Point3d getEnd() {
+        return this.second;
     }
     
     public int getToolhead()
@@ -109,7 +117,7 @@ public class LineSegment {
         return toolhead;
     }
     
-    public float getSpeed()
+    public double getSpeed()
     {
         return speed;
     }

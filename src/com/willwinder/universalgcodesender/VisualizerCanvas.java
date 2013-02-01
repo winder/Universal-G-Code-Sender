@@ -46,6 +46,8 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
+import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
 
  
 /**
@@ -59,8 +61,8 @@ import javax.media.opengl.glu.GLU;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener {
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
-    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
+    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/face.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/buffer_stress_test.gcode";
     //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/line_skip_test.gcode";
@@ -93,10 +95,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         return vect;
     }
     
-    private float[] findCenter(float[] bounds)
+    private Point3d findCenter(Point3d min, Point3d max)
     {
-        float cent[] = {(bounds[0] + bounds[3]),(bounds[1] + bounds[4]),(bounds[2] + bounds[5])};
-        return cent;
+        Point3d center = new Point3d();
+        center.x = (min.x + max.x) / 2.0;
+        center.y = (min.y + max.y) / 2.0;
+        center.z = (min.z + max.z) / 2.0;
+        
+        return center;
     }
     
     public void generateObject()
@@ -105,23 +111,27 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
 
         GcodeViewParse gcvp = new GcodeViewParse();
         objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
-        float bounds[] = gcvp.getExtremes();
+        //float bounds[] = gcvp.getExtremes();
+        Point3d min = gcvp.getMinimumExtremes();
+        Point3d max = gcvp.getMaximumExtremes();
         //extremes[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; // -x, -y, -z, x, y, z
         
         
         System.out.println("Object bounds");
-        System.out.println("           "+bounds[4]);
-        System.out.println("             / \\"+bounds[2]);
+        System.out.println("           "+max.y);
+        System.out.println("             / \\"+max.z);
         System.out.println("              | /            ");
-        System.out.println("              |/             "+bounds[3]);
-        System.out.println(bounds[0]+"<---------------------->");
+        System.out.println("              |/             ");
+        System.out.println(min.x+"<---------------------->"+max.x);
         System.out.println("             /|              ");
         System.out.println("            / |              ");
         System.out.println("           / \\ /          ");
-        System.out.println("          /"+bounds[1]);
-        System.out.println("      "+bounds[5]);
-        float cent[] = findCenter(bounds);
-        System.out.println("Center = " + cent);
+        System.out.println("          /"+min.y);
+        System.out.println("      "+min.z);
+        
+        Point3d center = findCenter(min, max);
+        
+        System.out.println("Center = " + center.toString());
         //cam.lookAt(-1*bounds[0], -1*bounds[1], 0, camOffset);
         System.out.println("objComBumands :" + objCommands.size());
         maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
@@ -210,7 +220,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
 
         if(isDrawable) {
             gl.glScaled(1, -1, 1);
-            float[] points = new float[6];
+            Point3d start, end;
 
             int maxLayer = 100; //(int)Math.round(controlP5.controller("Layer Slider").value());
 
@@ -290,10 +300,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
 
                 // Actually draw it.
                 if(!is2D || (ls.getLayer() == maxLayer)) {
-                    points = ls.getPoints();
-
-                    gl.glVertex3d(points[0], points[1], points[2]);
-                    gl.glVertex3d(points[3], points[4], points[5]);
+                    start = ls.getStart();
+                    end = ls.getEnd();
+                    
+                    gl.glVertex3d(start.x, start.y, start.z);
+                    gl.glVertex3d(end.x, end.y, end.z);
                 }
             }
 
@@ -326,8 +337,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener {
         gl.glLoadIdentity();   
 
         // Draw a triangle
-        float sin = (float)Math.sin(angle);
-        float cos = (float)Math.cos(angle);
+        double sin = Math.sin(angle);
+        double cos = Math.cos(angle);
         gl.glTranslatef(0.0f, 0.0f, -6.0f); // translate into the screen
         gl.glBegin(GL_TRIANGLES);
             gl.glColor3f(1.0f, 0.0f, 0.0f);   // Red
