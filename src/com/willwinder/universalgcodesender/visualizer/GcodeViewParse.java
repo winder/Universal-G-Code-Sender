@@ -93,16 +93,16 @@ public class GcodeViewParse {
     public ArrayList<LineSegment> toObj(ArrayList<String> gcode)
     {
         double speed = 2; //DEFAULTS to 2
-        Point3d curPoint = null;
+        Point3d nextPoint = null;
         int curLayer = 0;
         int curToolhead = 0;
         double parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ, parsedK;
         double tolerance = .0002f;
-        //ArrayList<LineSegment> lines = new ArrayList<LineSegment>();
-        double[] lastCoord = { 0.0f, 0.0f, 0.0f};
+        double[] nextCoord = { 0.0f, 0.0f, 0.0f};
         boolean currentExtruding = false;
         for(String s : gcode)
         {          
+            System.out.println("Gcode: " + s);
             // Parse out gcode values
             String[] sarr = s.split(" ");
             parsedX = parseCoord(sarr, 'X');
@@ -113,63 +113,58 @@ public class GcodeViewParse {
             parsedJ = parseCoord(sarr, 'J');
             parsedK = parseCoord(sarr, 'K');
             
-            //System.out.println(Arrays.toString(sarr));
+
             if(!Double.isNaN(parsedX)) {
                 if (!this.absoluteMode)
-                    parsedX += lastCoord[0];
-                lastCoord[0] = parsedX;
+                    parsedX += nextCoord[0];
+                nextCoord[0] = parsedX;
             }
             if(!Double.isNaN(parsedY)) {
                 if (!this.absoluteMode)
-                    parsedY += lastCoord[1];
-                lastCoord[1] = parsedY;
+                    parsedY += nextCoord[1];
+                nextCoord[1] = parsedY;
             }
             if(!Double.isNaN(parsedZ)) {
                 if (!this.absoluteMode)
-                    parsedZ += lastCoord[2];
-                lastCoord[2] = parsedZ;
+                    parsedZ += nextCoord[2];
+                nextCoord[2] = parsedZ;
             }
             
             if(!Double.isNaN(parsedI)) {
                 if (!this.absoluteIJK)
-                    parsedI += lastCoord[0];
+                    parsedI += lastPoint.x;
             } 
 
             if(!Double.isNaN(parsedJ)) {
                 if (!this.absoluteIJK)
-                    parsedJ += lastCoord[1];
+                    parsedJ += lastPoint.y;
             }
 
             if(!Double.isNaN(parsedK)) {
                 if (!this.absoluteIJK)
-                    parsedK += lastCoord[2];
+                    parsedK += lastPoint.z;
             }
             
             if(!Double.isNaN(parsedF)) {
                 speed = parsedF;
             }
             
-            curPoint = new Point3d(lastCoord[0], lastCoord[1], lastCoord[2]);
-            testExtremes(curPoint);
+            nextPoint = new Point3d(nextCoord[0], nextCoord[1], nextCoord[2]);
+            testExtremes(nextPoint);
             
             // Straight lines.
             if (s.matches(".*G0.*") || s.matches(".*G1.*")) 
             {
 
-                if(!(Double.isNaN(lastCoord [0]) || Double.isNaN(lastCoord [1]) || Double.isNaN(lastCoord [2])))
+                if(!(Double.isNaN(nextCoord [0]) || Double.isNaN(nextCoord [1]) || Double.isNaN(nextCoord [2])))
                 {
                     if(debugVals)
                     {
-                        System.out.println(lastCoord[0] + "," + lastCoord [1] + "," + lastCoord[2] + ", speed =" + speed + 
+                        System.out.println(nextCoord[0] + "," + nextCoord [1] + "," + nextCoord[2] + ", speed =" + speed + 
                                         ", layer=" + curLayer);
                     }
 
-                    if(lastPoint != null)
-                    {
-                        //lines.add(new LineSegment(lastPoint, curPoint, curLayer, speed, curToolhead, currentExtruding));
-                        this.queuePoint(curPoint);
-                    }
-                    lastPoint = curPoint;
+                    this.queuePoint(nextPoint);
                 }
             }
             
@@ -195,12 +190,12 @@ public class GcodeViewParse {
                     
                     // draw the arc itself.
                     if (gCode == 2)
-                        addArcSegments(lastPoint, center, curPoint, true);
+                        addArcSegments(lastPoint, center, nextPoint, true);
                     else
-                        addArcSegments(lastPoint, center, curPoint, false);
-                }
+                        addArcSegments(lastPoint, center, nextPoint, false);
                 
-                lastPoint = curPoint;
+                
+                }
             }
             
             // Absolute Positioning
@@ -268,11 +263,12 @@ public class GcodeViewParse {
 
         // Maximum of either 2.4 times the angle in radians
         // or the length of the curve divided by the curve section constant
-        steps = (int) Math.ceil(Math.max(angle * 2.4, length / 0.1));
+        steps = (int) Math.ceil(Math.max(angle * 2.4, length / 0.01));
 
         // this is the real draw action.
         Point3d newPoint = new Point3d();
         double arcStartZ = start.z;
+
         for (s = 1; s <= steps; s++) {
                 // Forwards for CCW, backwards for CW
                 if (!clockwise)
