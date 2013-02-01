@@ -143,7 +143,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     synchronized boolean openCommPort(String name, int baud) 
             throws NoSuchPortException, PortInUseException, 
             UnsupportedCommOperationException, IOException, 
-            TooManyListenersException {
+            TooManyListenersException, Exception {
         
         this.commandBuffer = new GcodeCommandBuffer();
         this.activeCommandList = new LinkedList<GcodeCommand>();
@@ -153,7 +153,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
            
         if (portIdentifier.isCurrentlyOwned()) {
-            returnCode = false;
+            throw new Exception("This port is already owned by another process.");
         } else {
                 this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
 
@@ -180,7 +180,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
         
     void closeCommPort() {
-        
         this.cancelSend();
 
         this.stopPollingPosition();
@@ -196,6 +195,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         serialPort.removeEventListener();
         this.commPort.close();
 
+        this.commPort = null;
         this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
@@ -421,7 +421,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void pauseSend() throws IOException {
-        this.sendMessageToConsoleListener("\n**** Pausing file transfer. ****\n");
+        this.sendMessageToConsoleListener("\n**** Pausing file transfer. ****\n\n");
         this.sendPaused = true;
         
         if (this.realTimeMode) {
@@ -430,7 +430,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void resumeSend() throws IOException {
-        this.sendMessageToConsoleListener("\n**** Resuming file transfer. ****\n");
+        this.sendMessageToConsoleListener("\n**** Resuming file transfer. ****\n\n");
                 
         this.sendPaused = false;
         this.streamCommands();
@@ -441,10 +441,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void cancelSend() {
-        if (this.fileMode) {
+        if (this.fileMode || this.fileModeSending) {
             this.fileMode = false;
+            this.fileModeSending = false;
             
-            this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n");
+            this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n\n");
 
             this.commandBuffer.clearBuffer();
             
