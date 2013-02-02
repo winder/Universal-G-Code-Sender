@@ -1194,7 +1194,9 @@ implements SerialCommunicatorListener, KeyListener {
 
         // Register comm listeners
         this.commPort.setListenAll(this);
-               
+        // The preprocessor listener is special so not included in listen all.
+        this.commPort.commandPreprocessorListener(this);   
+        
         // Command History
         this.commandTextField.addKeyListener(this);
         
