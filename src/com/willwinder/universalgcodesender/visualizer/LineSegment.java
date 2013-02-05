@@ -35,17 +35,17 @@ public class LineSegment {
     private Point3d first, second;
     private boolean isExtruding;
 
-    public LineSegment (Point3d a,Point3d b, int layernum, double speedz)
+    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz)
     {
-        first = a;
-        second = b;
+        first = new Point3d(a);
+        second = new Point3d (b);
         layer = layernum;
         speed = speedz;
     }
-    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, boolean extrudz)
+    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, boolean extrudz)
     {
-        first = a;
-        second = b;
+        first = new Point3d(a);
+        second = new Point3d (b);
         layer = layernum;
         speed = speedz;
         isExtruding = extrudz;
@@ -57,10 +57,10 @@ public class LineSegment {
         layernum = layer;
         speed = speedz;
     }
-    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, int toolheadz)
+    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, int toolheadz)
     {
-        first = a;
-        second = b;
+        first = new Point3d(a);
+        second = new Point3d (b);
         layer = layernum;
         speed = speedz;
         toolhead = toolheadz;
@@ -73,10 +73,10 @@ public class LineSegment {
         speed = speedz;
         toolhead = toolheadz;
     }
-    public LineSegment (Point3d a,Point3d b, int layernum, double speedz, int toolheadz, boolean extrudz)
+    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, int toolheadz, boolean extrudz)
     {
-        first = a;
-        second = b;
+        first = new Point3d(a);
+        second = new Point3d (b);
         layer = layernum;
         speed = speedz;
         toolhead = toolheadz;

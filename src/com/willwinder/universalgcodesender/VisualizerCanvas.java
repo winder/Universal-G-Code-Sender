@@ -62,8 +62,13 @@ import javax.vecmath.Point3d;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
-    private String gcodeFile = null;
-    
+    //private String gcodeFile = null;
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/Gates_combined_R12.nc";
+    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/serial_stress_test.gcode";
+    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/c17056_rev_3-controller plate-116x330.nc";
+
     private GLU glu;  // for the GL Utility
     private Point3d center, eye, cent;
     private Point3d objectMin, objectMax;
@@ -71,7 +76,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private double scaleFactor;
     
     private double aspectRatio;
-    private double objectAspectRatio;
     
     public VisualizerCanvas() {
        this.addGLEventListener(this);
@@ -181,7 +185,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
         defaultValue = maxSlider;
         this.maxSide = findMaxSide(objectMin, objectMax);
-        this.objectAspectRatio = findAspectRatio(objectMin, objectMax);
         
         this.scaleFactor = 1.0/this.maxSide;
         this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
@@ -500,7 +503,7 @@ private boolean dualExtrusionColoring = false ;
         }
         
                 
-        System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
+        //System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
 
     }
 
