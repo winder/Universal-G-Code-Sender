@@ -938,6 +938,10 @@ implements SerialCommunicatorListener, KeyListener {
 
                 // Reset send context.
                 this.resetSentRowLabels(numRows);
+                
+                if (this.vw != null) {
+                    vw.setGcodeFile(gcodeFile.getAbsolutePath());
+                }
             } catch (FileNotFoundException ex) {
                 this.displayErrorDialog("Problem opening file: " + ex.getMessage());
             } catch (IOException e) {
@@ -1094,8 +1098,12 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_arrowMovementEnabledActionPerformed
 
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
-        final VisualizerWindow vw = new VisualizerWindow();
+        if (this.vw != null) return;
         
+        this.vw = new VisualizerWindow();
+        if (this.fileTextField.getText().length() > 1) {
+            vw.setGcodeFile(this.fileTextField.getText());
+        }
         // Add listeners
         this.commPort.addCapabilitiesListener(vw);        
         this.commPort.addPositionStringListener(vw);
@@ -1674,6 +1682,9 @@ implements SerialCommunicatorListener, KeyListener {
     private static NumberFormat formatter = new DecimalFormat("#.###", dfs);
     private CommUtils.Capabilities position = null;
     private boolean G91Mode = false;
+    
+    // Other windows
+    VisualizerWindow vw = null;
     
     // Duration timer
     private Timer timer;

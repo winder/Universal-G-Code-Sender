@@ -30,12 +30,7 @@ import com.willwinder.universalgcodesender.CommUtils.Capabilities;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
 import javax.media.opengl.awt.GLCanvas;
-import javax.media.opengl.awt.GLJPanel;
 import javax.swing.JFrame;
 
 /**
@@ -56,6 +51,9 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     private Capabilities positionVersion = null;
     private Coordinate machineCoordinate;
     private Coordinate workCoordinate;
+
+    private String gcodeFile = null;
+    private VisualizerCanvas canvas = null;
     
     /**
      * Creates new form Visualizer
@@ -63,7 +61,7 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     public VisualizerWindow() {
 
         // Create the OpenGL rendering canvas
-        GLCanvas canvas = new VisualizerCanvas();
+        this.canvas = new VisualizerCanvas();
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         // Create a animator that drives canvas' display() at the specified FPS.
@@ -92,6 +90,10 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
         animator.start(); // start the animation loop
     }                                
 
+    public void setGcodeFile(String file) {
+        this.gcodeFile = file;
+        canvas.setGcodeFile(file);
+    }
     
     @Override
     public void capabilitiesListener(Capabilities capability) {

@@ -25,12 +25,7 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
@@ -291,9 +286,6 @@ public class GcodeViewParse {
     }
     
     private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw) {
-        System.out.println("Arc from " + p1.toString() + " to " +
-         p2.toString() + " with center " + center);
-		
         int numPoints = 15;  // TODO: ....could this be dynamic or user selectable?		
         double radius;
         Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);

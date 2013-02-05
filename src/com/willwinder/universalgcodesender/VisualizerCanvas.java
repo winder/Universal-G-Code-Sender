@@ -33,12 +33,10 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.media.opengl.GL;
-import static javax.media.opengl.GL.*; // GL2 constants
+import static javax.media.opengl.GL.*;
 import javax.media.opengl.GL2;
 import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import javax.media.opengl.GLAutoDrawable;
@@ -62,12 +60,7 @@ import javax.vecmath.Point3d;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
-    //private String gcodeFile = null;
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/Gates_combined_R12.nc";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/serial_stress_test.gcode";
-    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/c17056_rev_3-controller plate-116x330.nc";
+    private String gcodeFile = null;
 
     private GLU glu;  // for the GL Utility
     private Point3d center, eye, cent;
@@ -84,6 +77,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
        this.cent = new Point3d(0, 0, 0);
     }
     
+    public void setGcodeFile(String file) {
+        this.gcodeFile = file;
+        generateObject();
+    }
     
     /** Constructor to setup the GUI for this Component */
     public ArrayList<String> readFiletoArrayList(String gCode) {
@@ -165,23 +162,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         objectMin = gcvp.getMinimumExtremes();
         objectMax = gcvp.getMaximumExtremes();
         
-        System.out.println("Object bounds");
-        System.out.println("           "+objectMax.y);
-        System.out.println("             / \\"+objectMax.z);
-        System.out.println("              | /            ");
-        System.out.println("              |/             ");
-        System.out.println(objectMin.x+"<---------------------->"+objectMax.x);
-        System.out.println("             /|              ");
-        System.out.println("            / |              ");
-        System.out.println("           / \\ /          ");
-        System.out.println("          /"+objectMin.y);
-        System.out.println("      "+objectMin.z);
+        System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
+        System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
+        System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
         
         this.center = findCenter(objectMin, objectMax);
         this.cent = center;
         System.out.println("Center = " + center.toString());
-        //cam.lookAt(-1*bounds[0], -1*bounds[1], 0, camOffset);
-        System.out.println("objComBumands :" + objCommands.size());
+        System.out.println("Num Line Segments :" + objCommands.size());
         maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
         defaultValue = maxSlider;
         this.maxSide = findMaxSide(objectMin, objectMax);
