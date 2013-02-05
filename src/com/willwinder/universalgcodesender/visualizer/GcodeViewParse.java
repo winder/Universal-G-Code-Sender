@@ -188,13 +188,6 @@ public class GcodeViewParse {
                 handleGCode(gCode, lastPoint, center, nextPoint);
             }
             
-            // If there isn't a new code, use the last code.
-            if (gCode == -1 || lastGCode != -1) {
-                gCode = lastGCode;
-                System.out.println("(Last) : G" + gCode + ",   '"+s+"'");
-                handleGCode(gCode, lastPoint, center, nextPoint);
-            }
-            
             // Check multiple matches on one line in case of state commands:
             matcher = this.mPattern.matcher(s);
             mCode = -1;
@@ -203,9 +196,18 @@ public class GcodeViewParse {
                 System.out.println("Command: M" + mCode + ",   '"+s+"'");
                 handleMCode(mCode, lastPoint, center, nextPoint);
             }
-
+           
+            // If there isn't a new code, use the last code.
+            if (gCode == -1 && mCode == -1 && lastGCode != -1) {
+                gCode = lastGCode;
+                System.out.println("(Last) : G" + gCode + ",   '"+s+"'");
+                handleGCode(gCode, lastPoint, center, nextPoint);
+            }
+            
             // Save the last commands.
-            lastGCode = gCode;
+            if (gCode != -1) {
+                lastGCode = gCode;
+            }
         }
         return lines;
     }
