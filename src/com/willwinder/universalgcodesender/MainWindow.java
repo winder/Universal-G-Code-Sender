@@ -1096,6 +1096,10 @@ implements SerialCommunicatorListener, KeyListener {
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
         final VisualizerWindow vw = new VisualizerWindow();
         
+        // Add listeners
+        this.commPort.addCapabilitiesListener(vw);        
+        this.commPort.addPositionStringListener(vw);
+        
         /* Display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 

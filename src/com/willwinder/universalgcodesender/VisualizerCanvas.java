@@ -49,7 +49,6 @@ import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
 import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
 
  
 /**
@@ -63,28 +62,21 @@ import javax.vecmath.Point3f;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/shapeoko.txt";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/bigarc.gcode";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/face.gcode";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/buffer_stress_test.gcode";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/line_skip_test.gcode";
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/electric_turtle.nc";
-    
-    //private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/Gates_combined_R12.nc";
-    private String gcodeFile = "/home/wwinder/Desktop/programs/GRBL/Universal-G-Code-Sender/test_files/c17056_rev_3-controller plate-116x330.nc";
+    private String gcodeFile = null;
     
     private GLU glu;  // for the GL Utility
-    private float angle = 0.0f;  // rotation angle of the triangle
     private Point3d center, eye, cent;
     private Point3d objectMin, objectMax;
     private double maxSide;
-    private double scaleFactor = 1;
+    private double scaleFactor;
+    
+    private double aspectRatio;
+    private double objectAspectRatio;
     
     public VisualizerCanvas() {
        this.addGLEventListener(this);
        
-       //this.eye = new Point3d(70, 57, -35);
-       this.eye = new Point3d(0, 0, 2);
+       this.eye = new Point3d(0, 0, 1.5);
        this.cent = new Point3d(0, 0, 0);
     }
     
@@ -130,8 +122,39 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         return Math.max(x, Math.max(y, z));
     }
     
+    static private double findAspectRatio(Point3d min, Point3d max) {
+        double x = Math.abs(min.x) + Math.abs(max.x);
+        double y = Math.abs(min.y) + Math.abs(max.y);
+        
+        return x / y;
+    }
+    
+    /**
+     * Find a factor to scale the object model by so that it fits in the window.
+     */
+    static private double findScaleFactor(double x, double y, Point3d min, Point3d max) {
+        if (y == 0 || x == 0 || min == null || max == null) {
+            return 1;
+        }
+        
+        double xObj = Math.abs(min.x) + Math.abs(max.x);
+        double yObj = Math.abs(min.y) + Math.abs(max.y);
+        
+        double windowRatio = x/y;
+        double objRatio = xObj/yObj;
+
+        // This works for narrow tall objects.
+        if (windowRatio < objRatio) {
+            return (1.0/xObj) * windowRatio;
+        } else {
+            return 1.0/yObj;
+        }
+    }
+    
     public void generateObject()
     {
+        if (this.gcodeFile == null) return;
+        
         GcodeViewParse gcvp = new GcodeViewParse();
         objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
 
@@ -158,7 +181,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
         defaultValue = maxSlider;
         this.maxSide = findMaxSide(objectMin, objectMax);
+        this.objectAspectRatio = findAspectRatio(objectMin, objectMax);
+        
         this.scaleFactor = 1.0/this.maxSide;
+        this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
 
         isDrawable = true;
     }
@@ -199,15 +225,17 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
 
         if (height == 0) height = 1;   // prevent divide by zero
-        float aspect = (float)width / height;
+        this.aspectRatio = (float)width / height;
 
+        this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        
         // Set the view port (display area) to cover the entire window
         gl.glViewport(0, 0, width, height);
 
         // Setup perspective projection, with aspect ratio matches viewport
         gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
         gl.glLoadIdentity();             // reset projection matrix
-        glu.gluPerspective(45.0, aspect, 0.1, 100.0); // fovy, aspect, zNear, zFar
+        glu.gluPerspective(45.0, this.aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
 
         // Move camera out and point it at the origin
         //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
@@ -226,26 +254,22 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     public void display(GLAutoDrawable drawable) {
         reshape (drawable, this.xSize, this.ySize, this.xSize, this.ySize);
         final GL2 gl = drawable.getGL().getGL2();
-/*
-        // Move camera out and point it at the origin
-        //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
-        glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,     // Eye
-                      this.cent.x, this.cent.y, this.cent.z,    // Center
-                      0, -1, 0);           // Enable the model-view transform
-        gl.glMatrixMode(GL_MODELVIEW);
-        //gl.glLoadIdentity(); // reset
-*/
+
         gl.glPushMatrix();
         gl.glLoadIdentity();
         
+        // Scale the model so that it will fit on the window.
+        gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
+
+        // Shift model to center of window.
+        gl.glTranslated(-this.cent.x, -this.cent.y, 0);
         
-        gl.glTranslated(-this.cent.x * scaleFactor, -this.cent.y * scaleFactor, 0);
+        // Draw model
+        if (isDrawable) {
+            render(drawable);
+        }
         
-        
-        render(drawable);
-        gl.glPopMatrix();
-        
-            //update();
+        gl.glPopMatrix();        
     }
 
     // Render a triangle
@@ -254,123 +278,103 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         gl.glEnable(GL.GL_DEPTH_TEST);
 
-
-
         gl.glMatrixMode(GL_MODELVIEW);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        //gl.glLoadIdentity();
 
-        //gl.glPushMatrix();
-        //noSmooth();
+        Point3d start, end;
 
-        if(isDrawable) {
-            gl.glScaled(1.0/this.maxSide, 1.0/this.maxSide, 1.0/this.maxSide);
-            Point3d start, end;
+        int maxLayer = 100; //(int)Math.round(controlP5.controller("Layer Slider").value());
 
-            int maxLayer = 100; //(int)Math.round(controlP5.controller("Layer Slider").value());
+        int curTransparency = 0;
+        int curColor = 0;
+        // TODO: By using a GL_LINE_STRIP I can easily use half the number of
+        //       verticies. May lose some control over line colors though.
+        gl.glBegin(GL_LINES);
+        gl.glLineWidth(2.0f);
 
-            int curTransparency = 0;
-            int curColor = 0;
-            gl.glBegin(GL_LINES);
-            //beginShape(LINES);
-            gl.glLineWidth(2.0f);
-
-            for(LineSegment ls : objCommands)
-            {
-                if(ls.getLayer() < maxLayer) {
-                        curTransparency = SOLID;
-                }
-                if(ls.getLayer() == maxLayer) {
-                        curTransparency = SUPERSOLID;
-                }
-                if(ls.getLayer() > maxLayer) {
-                        curTransparency = TRANSPARENT;
-                }
-                if(!ls.getExtruding()) {
-                        //stroke(WHITE,TRANSPARENT);
-                }
-                if(!dualExtrusionColoring) {
-                    if(ls.getExtruding())
-                    {
-                        if(isSpeedColored)
-                        {
-                            if(ls.getSpeed() > LOW_SPEED && ls.getSpeed() < MEDIUM_SPEED) {
-                                    //stroke(PURPLE, curTransparency);
-                            }
-                            if(ls.getSpeed() > MEDIUM_SPEED && ls.getSpeed() < HIGH_SPEED) {
-                                    //stroke(BLUE, curTransparency);
-                            }
-                            else if(ls.getSpeed() >= HIGH_SPEED) {
-                                    //stroke(OTHER_YELLOW, curTransparency);
-                            }
-                            else { //Very low speed....
-                                    //stroke(GREEN, curTransparency);
-                            }
-                        }
-                        if(!isSpeedColored)
-                        {
-                            if(curColor == 0) {
-                             //stroke(GREEN, SUPERSOLID);
-                            } 
-                            if(curColor == 1) {
-                            //stroke(RED, SUPERSOLID); 
-                            } 
-                            if(curColor == 2) {
-                             //stroke(BLUE, SUPERSOLID);
-                            } 
-                            if(curColor == 3) {
-                             //stroke(YELLOW, SUPERSOLID);
-                            }
-                             curColor++; 
-                            if(curColor == 4) {
-                                curColor = 0; 
-                            }
-                        }
-                    }
-                }
-                if(dualExtrusionColoring)
+        for(LineSegment ls : objCommands)
+        {
+            if(ls.getLayer() < maxLayer) {
+                    curTransparency = SOLID;
+            }
+            if(ls.getLayer() == maxLayer) {
+                    curTransparency = SUPERSOLID;
+            }
+            if(ls.getLayer() > maxLayer) {
+                    curTransparency = TRANSPARENT;
+            }
+            if(!ls.getExtruding()) {
+                    //stroke(WHITE,TRANSPARENT);
+            }
+            if(!dualExtrusionColoring) {
+                if(ls.getExtruding())
                 {
-                    if(ls.getExtruding())
+                    if(isSpeedColored)
                     {
-                        if(ls.getToolhead() == 0)
-                        {
+                        if(ls.getSpeed() > LOW_SPEED && ls.getSpeed() < MEDIUM_SPEED) {
+                                //stroke(PURPLE, curTransparency);
+                        }
+                        if(ls.getSpeed() > MEDIUM_SPEED && ls.getSpeed() < HIGH_SPEED) {
                                 //stroke(BLUE, curTransparency);
                         }
-                        if(ls.getToolhead() == 1)
-                        {
+                        else if(ls.getSpeed() >= HIGH_SPEED) {
+                                //stroke(OTHER_YELLOW, curTransparency);
+                        }
+                        else { //Very low speed....
                                 //stroke(GREEN, curTransparency);
                         }
                     }
-                }
-
-                // Actually draw it.
-                if(!is2D || (ls.getLayer() == maxLayer)) {
-                    start = ls.getStart();
-                    end = ls.getEnd();
-                    
-                    gl.glVertex3d(start.x, start.y, start.z);
-                    gl.glVertex3d(end.x, end.y, end.z);
+                    if(!isSpeedColored)
+                    {
+                        if(curColor == 0) {
+                         //stroke(GREEN, SUPERSOLID);
+                        } 
+                        if(curColor == 1) {
+                        //stroke(RED, SUPERSOLID); 
+                        } 
+                        if(curColor == 2) {
+                         //stroke(BLUE, SUPERSOLID);
+                        } 
+                        if(curColor == 3) {
+                         //stroke(YELLOW, SUPERSOLID);
+                        }
+                         curColor++; 
+                        if(curColor == 4) {
+                            curColor = 0; 
+                        }
+                    }
                 }
             }
-
-            gl.glEnd();
-            //endShape();
-            if((curLayer != maxLayer) && is2D)
+            if(dualExtrusionColoring)
             {
-              //cam.setDistance(cam.getDistance() + (maxLayer - curLayer)*.3,0);
+                if(ls.getExtruding())
+                {
+                    if(ls.getToolhead() == 0)
+                    {
+                            //stroke(BLUE, curTransparency);
+                    }
+                    if(ls.getToolhead() == 1)
+                    {
+                            //stroke(GREEN, curTransparency);
+                    }
+                }
             }
-             curLayer = maxLayer;
+
+            // Actually draw it.
+            if(!is2D || (ls.getLayer() == maxLayer)) {
+                start = ls.getStart();
+                end = ls.getEnd();
+
+                gl.glVertex3d(start.x, start.y, start.z);
+                gl.glVertex3d(end.x, end.y, end.z);
+            }
         }
 
-        gl.glPopMatrix();
+        gl.glEnd();
+
         // makes the gui stay on top of elements
         // drawn before.
         gl.glDisable(GL.GL_DEPTH_TEST);
-    }
-
-    // Update the angle of the triangle after each frame
-    private void update() {
-        angle += 0.01f;
     }
 
     /**

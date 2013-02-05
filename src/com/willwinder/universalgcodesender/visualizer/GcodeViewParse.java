@@ -43,9 +43,11 @@ public class GcodeViewParse {
     private ArrayList<LineSegment> lines;
     
     private Point3d lastPoint;
-    private Pattern gcodePattern = null;
+    private Pattern gPattern = null;
+    private Pattern mPattern = null;
     
-    private static String gCommand = "G0*(\\d+)";
+    private static String gCommand = "[Gg]0*(\\d+)";
+    private static String mCommand = "[Mm]0*(\\d+)";
     
     // false = incremental; true = absolute
     boolean absoluteMode = false;
@@ -57,7 +59,8 @@ public class GcodeViewParse {
         max = new Point3d();
         lines = new ArrayList<LineSegment>();
 
-        this.gcodePattern = Pattern.compile(gCommand);
+        this.gPattern = Pattern.compile(gCommand);
+        this.mPattern = Pattern.compile(mCommand);
     }
 
     public Point3d getMinimumExtremes()
@@ -109,8 +112,10 @@ public class GcodeViewParse {
         double tolerance = .0002f;
         double[] nextCoord = { 0.0f, 0.0f, 0.0f};
         boolean currentExtruding = false;
-        int code = -1;
-        int lastCode = -1;
+        int gCode = -1;
+        int mCode = -1;
+        int lastGCode = -1;
+        Matcher matcher;
 
         for(String s : gcode)
         {                      
@@ -168,43 +173,44 @@ public class GcodeViewParse {
                 center.y = parsedJ;
             if (!Double.isNaN(parsedK))
                 center.z = parsedK;
-
             
             nextPoint = new Point3d(nextCoord[0], nextCoord[1], nextCoord[2]);
+
+            // Save any updated bounaries.
             testExtremes(nextPoint);
             
-            // Get the gcode.
-            code = this.getCode(s);
+            // Check multiple matches on one line in case of state commands:
+            matcher = this.gPattern.matcher(s);
+            gCode = -1;
+            while (matcher.find()) {
+                gCode = Integer.parseInt(matcher.group(1));
+                System.out.println("Command: G" + gCode + ",   '"+s+"'");
+                handleGCode(gCode, lastPoint, center, nextPoint);
+            }
+            
+            // If there isn't a new code, use the last code.
+            if (gCode == -1 || lastGCode != -1) {
+                gCode = lastGCode;
+                System.out.println("(Last) : G" + gCode + ",   '"+s+"'");
+                handleGCode(gCode, lastPoint, center, nextPoint);
+            }
             
             // Check multiple matches on one line in case of state commands:
-            // >> G17 G20 G90 G94 G54
-            Matcher matcher = this.gcodePattern.matcher(s);
-            code = -1;
+            matcher = this.mPattern.matcher(s);
+            mCode = -1;
             while (matcher.find()) {
-                code = Integer.parseInt(matcher.group(1));
-                System.out.println("Command: " + code + ",   '"+s+"'");
-                handleGcode(code, lastPoint, center, nextPoint);
+                mCode = Integer.parseInt(matcher.group(1));
+                System.out.println("Command: M" + mCode + ",   '"+s+"'");
+                handleMCode(mCode, lastPoint, center, nextPoint);
             }
 
-            
-            //handleGcode(code, lastPoint, center, nextPoint);
-            // If there isn't a new code, use the last code.
-            if (code == -1) {
-                if (lastCode == -1) {
-                    System.out.println("Bogus gcode");
-                    return null;
-                }
-                code = lastCode;
-                System.out.println("(Last) : " + code + ",   '"+s+"'");
-                handleGcode(code, lastPoint, center, nextPoint);
-            }
-
-            lastCode = code;
+            // Save the last commands.
+            lastGCode = gCode;
         }
         return lines;
     }
     
-    private void handleGcode(int code, Point3d lastPoint, Point3d center, Point3d endpoint) {
+    private void handleGCode(int code, Point3d lastPoint, Point3d center, Point3d endpoint) {
         
         switch (code) {
             case 0:
@@ -214,7 +220,6 @@ public class GcodeViewParse {
             case 2:
             case 3:
                 boolean clockwise = true;
-                //if (s.matches(".*G3.*")) {
                 if (code == 3) {
                     clockwise = false;
                 }
@@ -228,6 +233,22 @@ public class GcodeViewParse {
                 break;
             case 91:
                 absoluteMode = false;
+                break;
+        }
+    }
+    
+    private void handleMCode(int code, Point3d lastPoint, Point3d center, Point3d endpoint) {
+        switch (code) {
+            case 0:
+            case 1:
+                break;
+            case 2:
+            case 3:
+                break;
+                
+            case 90:
+                break;
+            case 91:
                 break;
         }
     }
@@ -343,13 +364,12 @@ while(yes) {try {
         return Double.NaN;
     }
     
-    private int getCode(String str) {
-        Matcher matcher = this.gcodePattern.matcher(str);
+    private int getGCode(String str) {
+        Matcher matcher = this.gPattern.matcher(str);
 
         if (matcher.find()) {
             return Integer.parseInt(matcher.group(1));
         }
         return -1;
-    }
-    
+    }    
 }

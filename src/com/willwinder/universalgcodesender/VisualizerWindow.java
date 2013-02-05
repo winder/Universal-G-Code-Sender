@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import com.willwinder.universalgcodesender.CommUtils.Capabilities;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -42,13 +43,20 @@ import javax.swing.JFrame;
  * @author wwinder
  * @template http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html
  */
-public class VisualizerWindow extends javax.swing.JFrame {
+public class VisualizerWindow extends javax.swing.JFrame implements SerialCommunicatorListener {
 
     private static String TITLE = "G-Code Visualizer";  // window's title
     private static final int CANVAS_WIDTH = 640;  // width of the drawable
     private static final int CANVAS_HEIGHT = 480; // height of the drawable
     private static final int FPS = 60; // animator's target frames per second
 
+    // Interactive members.
+    private boolean realTime = false;
+    private boolean position = false;
+    private Capabilities positionVersion = null;
+    private Coordinate machineCoordinate;
+    private Coordinate workCoordinate;
+    
     /**
      * Creates new form Visualizer
      */
@@ -83,4 +91,65 @@ public class VisualizerWindow extends javax.swing.JFrame {
         frame.setVisible(true);
         animator.start(); // start the animation loop
     }                                
+
+    
+    @Override
+    public void capabilitiesListener(Capabilities capability) {
+        switch (capability) {
+            case REAL_TIME:
+                this.realTime = true;
+                break;
+            case POSITION_C:
+                this.position = true;
+                this.positionVersion = Capabilities.POSITION_C;
+                break;
+        }
+    }
+
+    @Override
+    public void positionStringListener(String position) {
+        machineCoordinate = GrblUtils.getMachinePositionFromPositionString(position, this.positionVersion);        
+        workCoordinate = GrblUtils.getWorkPositionFromPositionString(position, this.positionVersion);
+    }
+    
+    
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void commandQueued(GcodeCommand command) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void commandComplete(GcodeCommand command) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void commandComment(String comment) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void messageForConsole(String msg) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void verboseMessageForConsole(String msg) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public String preprocessCommand(String command) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

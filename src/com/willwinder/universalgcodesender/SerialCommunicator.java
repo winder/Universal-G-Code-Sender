@@ -119,7 +119,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.addCommConsoleListener(scl);
         this.addCommVerboseConsoleListener(scl);
         this.addCapabilitiesListener(scl);
-        this.setPositionStringListener(scl);
+        this.addPositionStringListener(scl);
     }
     
     void addFileStreamCompleteListener(SerialCommunicatorListener scl) {
@@ -156,9 +156,18 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void addCapabilitiesListener(SerialCommunicatorListener scl) {
         this.capabilitiesListeners.add(scl);
+        
+        // TODO: Stick the capabilities updates in a new function
+        if (this.positionMode != null) {
+            scl.capabilitiesListener(this.positionMode);
+        }
+        
+        if (this.realTimeMode) {
+            scl.capabilitiesListener(CommUtils.Capabilities.REAL_TIME);
+        }
     }
     
-    void setPositionStringListener(SerialCommunicatorListener scl) {
+    void addPositionStringListener(SerialCommunicatorListener scl) {
         this.positionListeners.add(scl);
     }
 
