@@ -37,11 +37,17 @@ public class LineSegment {
     private boolean isZMovement = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
-
-    public LineSegment (final Point3d a,final Point3d b)
+    private int lineNumber;
+    
+    public LineSegment (final Point3d a,final Point3d b, int num)
     {
         first = new Point3d(a);
         second = new Point3d (b);
+        lineNumber = num;
+    }
+    
+    public int getLineNumber() {
+        return lineNumber;
     }
     
     public Point3d[] getPointArray()

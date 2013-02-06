@@ -38,6 +38,7 @@ public class GcodeViewParse {
     private ArrayList<LineSegment> lines;
     
     private Point3d lastPoint;
+    
     private Pattern gPattern = null;
     private Pattern mPattern = null;
     
@@ -47,6 +48,8 @@ public class GcodeViewParse {
     // false = incremental; true = absolute
     boolean absoluteMode = true;
     static boolean absoluteIJK = false;
+    
+    private int currentNumber = 0;
     
     public GcodeViewParse()
     {
@@ -210,7 +213,7 @@ public class GcodeViewParse {
         LineSegment ls;
         switch (code) {
             case 0:
-                ls = new LineSegment(start, end);
+                ls = new LineSegment(start, end, currentNumber++);
                 ls.setIsFastTraverse(true);
                 if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
                     ls.setIsZMovement(true);
@@ -219,7 +222,7 @@ public class GcodeViewParse {
                 break;
 
             case 1:
-                ls = new LineSegment(start, end);
+                ls = new LineSegment(start, end, currentNumber++);
                 if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
                     ls.setIsZMovement(true);
                 }                ls.isFastTraverse();
@@ -236,6 +239,7 @@ public class GcodeViewParse {
                 // draw the arc itself.
                 //addArcSegmentsReplicatorG(start, end, center, clockwise);
                 addArcSegmentsBDring(start, end, center, clockwise);
+                currentNumber++;
                 break;
                 
             case 90:
@@ -440,7 +444,7 @@ public class GcodeViewParse {
     
     private void queuePoint(final Point3d point) {
         if (lastPoint != null) {
-            lines.add(new LineSegment(lastPoint, point));
+            lines.add(new LineSegment(lastPoint, point, currentNumber));
         }
         //lastPoint = point;
         lastPoint.set(point);
@@ -451,7 +455,7 @@ public class GcodeViewParse {
     }
     
     private void queueArcLine(final Point3d start, final Point3d end) {
-        LineSegment ls = new LineSegment(start, end);
+        LineSegment ls = new LineSegment(start, end, currentNumber);
         ls.setIsArc(true);
         lines.add(ls);
     }

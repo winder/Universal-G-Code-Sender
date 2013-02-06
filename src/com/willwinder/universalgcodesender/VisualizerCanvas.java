@@ -69,14 +69,19 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private Point3d objectMin, objectMax;
     private double maxSide;
     private double scaleFactor;
-    
     private double aspectRatio;
+    private int cutoffNumber = 0;
+    private int largestNumber = 0;
     
     public VisualizerCanvas() {
        this.addGLEventListener(this);
        
        this.eye = new Point3d(0, 0, 1.5);
        this.cent = new Point3d(0, 0, 0);
+    }
+    
+    public void setCutoffNumber(int num) {
+        this.cutoffNumber = num;
     }
     
     public void setGcodeFile(String file) {
@@ -156,11 +161,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     
     public void generateObject()
     {
-        if (this.gcodeFile == null) return;
+        if (this.gcodeFile == null){ return; }
         
         GcodeViewParse gcvp = new GcodeViewParse();
         objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
-
+        
+        // Grab the line number off the last line.
+        this.largestNumber = objCommands.get(objCommands.size() - 1).getLineNumber();
+        
         objectMin = gcvp.getMinimumExtremes();
         objectMax = gcvp.getMaximumExtremes();
         
@@ -277,48 +285,35 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (this.ortho) {
             gl.glRotated(this.orthoRotation, 1.0, 0.0, 0.0);
         }
+ 
         
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
+
         // Draw model
         if (isDrawable) {
             render(drawable);
         }
         
-        gl.glPopMatrix();        
+        gl.glPopMatrix();
+        
+        update();
     }
     
     // Render a triangle
     private void render(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
+        Point3d p1, p2;
 
-
-
-        //gl.glMatrixMode(GL_MODELVIEW);
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
-        Point3d start, end;
-
-        int maxLayer = 100; //(int)Math.round(controlP5.controller("Layer Slider").value());
-
-        int curTransparency = 0;
-        int curColor = 0;
         // TODO: By using a GL_LINE_STRIP I can easily use half the number of
         //       verticies. May lose some control over line colors though.
+        //gl.glEnable(GL2.GL_LINE_SMOOTH);
         gl.glBegin(GL_LINES);
         gl.glLineWidth(1.0f);
         Color color = Color.WHITE;
+
         for(LineSegment ls : objCommands)
         {
-            /*
-            // Transparency control
-            if(ls.getLayer() < maxLayer) {
-                    curTransparency = SOLID;
-            } else if(ls.getLayer() == maxLayer) {
-                    curTransparency = SUPERSOLID;
-            } else {
-                    curTransparency = TRANSPARENT;
-            }
-            */
-            
+            // Find the lines color.
             if (ls.isArc()) {
                 color = Color.RED;
             } else if (ls.isFastTraverse()) {
@@ -329,28 +324,51 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 color = Color.WHITE;
             }
 
-            // Actually draw it.
+            // Override color if it is cutoff
+            if (ls.getLineNumber() < this.cutoffNumber) {
+                color = Color.GRAY;
+            }
+            
+            // Draw it.
             {
-                start = ls.getStart();
-                end = ls.getEnd();
+                p1 = ls.getStart();
+                p2 = ls.getEnd();
 
-                this.makeVertexColor(color, gl);
-                //gl.glColor3d(1.0, 0.0, 0.0);
-                gl.glVertex3d(start.x, start.y, start.z);
-                this.makeVertexColor(color, gl);
-                //gl.glColor3d(1.0, 0.0, 0.0);
-                gl.glVertex3d(end.x, end.y, end.z);
+                makeVertexColor(color, gl);
+                gl.glVertex3d(p1.x, p1.y, p1.z);
+                 
+               makeVertexColor(color, gl);
+                gl.glVertex3d(p2.x, p2.y, p2.z);
             }
         }
 
         gl.glEnd();
 
+        //gl.glDisable(GL2.GL_LINE_SMOOTH);
         // makes the gui stay on top of elements
         // drawn before.
         gl.glDisable(GL.GL_DEPTH_TEST);
     }
 
-    private void makeVertexColor(VisualizerCanvas.Color color, GL2 gl) {
+    // For seeing the tool path.
+    //private int count = 0;
+    //private boolean increasing = true;
+    
+    private void update() {
+        
+        /*
+        // Increases the cutoff number each frame to show the tool path.
+        count++;
+        
+        if (increasing) cutoffNumber+=10;
+        else            cutoffNumber-=10;
+
+        if (this.cutoffNumber > this.largestNumber) increasing = false;
+        else if (this.cutoffNumber <= 0)             increasing = true;
+        */ 
+    }
+    
+    private static void makeVertexColor(VisualizerCanvas.Color color, GL2 gl) {
         switch (color) {
             case RED:
                 gl.glColor3ub((byte)255, (byte)100, (byte)100);
@@ -373,6 +391,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             case WHITE:
                 gl.glColor3ub((byte)255, (byte)255, (byte)255);
                 break;
+            case GRAY:
+                gl.glColor3ub((byte)80, (byte)80, (byte)80);
         }
     }
     /**
@@ -404,7 +424,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         YELLOW, 
         OTHER_YELLOW, 
         GREEN, 
-        WHITE
+        WHITE,
+        GRAY,
     }
     //////////////////////////////////////
 
