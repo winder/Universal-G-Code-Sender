@@ -29,67 +29,19 @@ import javax.vecmath.Point3d;
  
 public class LineSegment {
 
-    private int layer;
     private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
     private Point3d first, second;
-    private boolean isExtruding;
+    
+    // Line properties
+    private boolean isZMovement = false;
+    private boolean isArc = false;
+    private boolean isFastTraverse = false;
 
-    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz)
+    public LineSegment (final Point3d a,final Point3d b)
     {
         first = new Point3d(a);
         second = new Point3d (b);
-        layer = layernum;
-        speed = speedz;
-    }
-    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, boolean extrudz)
-    {
-        first = new Point3d(a);
-        second = new Point3d (b);
-        layer = layernum;
-        speed = speedz;
-        isExtruding = extrudz;
-    }
-    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz)
-    {
-        first = new Point3d(x1, y1, z1);
-        second = new Point3d(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-    }
-    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, int toolheadz)
-    {
-        first = new Point3d(a);
-        second = new Point3d (b);
-        layer = layernum;
-        speed = speedz;
-        toolhead = toolheadz;
-    }
-    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz, int toolheadz)
-    {
-        first = new Point3d(x1, y1, z1);
-        second = new Point3d(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-        toolhead = toolheadz;
-    }
-    public LineSegment (final Point3d a,final Point3d b, int layernum, double speedz, int toolheadz, boolean extrudz)
-    {
-        first = new Point3d(a);
-        second = new Point3d (b);
-        layer = layernum;
-        speed = speedz;
-        toolhead = toolheadz;
-        isExtruding = extrudz;
-    }
-    public LineSegment(double x1, double y1, double z1, double x2, double y2, double z2, int layernum, double speedz, int toolheadz, boolean extrudz)
-    {
-        first = new Point3d(x1, y1, z1);
-        second = new Point3d(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-        toolhead = toolheadz;
-        isExtruding = extrudz;
     }
     
     public Point3d[] getPointArray()
@@ -111,10 +63,18 @@ public class LineSegment {
     public Point3d getEnd() {
         return this.second;
     }
+
+    public void setToolHead(int head) {
+        this.toolhead = head;
+    }
     
     public int getToolhead()
     {
         return toolhead;
+    }
+    
+    public void setSpeed(double s) {
+        this.speed = s;
     }
     
     public double getSpeed()
@@ -122,13 +82,27 @@ public class LineSegment {
         return speed;
     }
     
-    public int getLayer()
-    {
-        return layer;
+    public void setIsZMovement(boolean isZ) {
+        this.isZMovement = isZ;
     }
     
-    public boolean getExtruding()
-    {
-        return isExtruding;
+    public boolean isZMovement() {
+        return isZMovement;
+    }
+
+    public void setIsArc(boolean isA) {
+        this.isArc = isA;
+    }
+    
+    public boolean isArc() {
+        return isArc;
+    }
+    
+    public void setIsFastTraverse(boolean isF) {
+        this.isFastTraverse = isF;
+    }
+    
+    public boolean isFastTraverse() {
+        return this.isFastTraverse;
     }
 }

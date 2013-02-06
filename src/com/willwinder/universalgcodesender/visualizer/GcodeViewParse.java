@@ -207,13 +207,25 @@ public class GcodeViewParse {
     }
     
     private void handleGCode(int code, final Point3d start, final Point3d center, final Point3d end) {
-        
+        LineSegment ls;
         switch (code) {
             case 0:
-            case 1:
-                //this.queuePoint(endpoint);
-                this.queueLine(start, end);
+                ls = new LineSegment(start, end);
+                ls.setIsFastTraverse(true);
+                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
+                    ls.setIsZMovement(true);
+                }
+                this.queueLine(ls);
                 break;
+
+            case 1:
+                ls = new LineSegment(start, end);
+                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
+                    ls.setIsZMovement(true);
+                }                ls.isFastTraverse();
+                this.queueLine(ls);
+                break;
+            
             case 2:
             case 3:
                 boolean clockwise = true;
@@ -331,12 +343,12 @@ public class GcodeViewParse {
 
             this.testExtremes(lineEnd);
             
-            this.queueLine(lineStart, lineEnd);
+            this.queueArcLine(lineStart, lineEnd);
 
             lineStart.set(lineEnd);
         }
         
-        this.queueLine(lineEnd, p2);
+        this.queueArcLine(lineEnd, p2);
         //this.queuePoint(lineStart, p2);
     }
 
@@ -420,22 +432,28 @@ public class GcodeViewParse {
 
                 // start the move
                 //setTarget(newPoint);
-                this.queueLine(current, newPoint);
+                this.queueArcLine(current, newPoint);
                 current = newPoint;
         }
-        this.queueLine(current, endpoint);
+        this.queueArcLine(current, endpoint);
     }
     
     private void queuePoint(final Point3d point) {
         if (lastPoint != null) {
-            lines.add(new LineSegment(lastPoint, point, 0, 0));
+            lines.add(new LineSegment(lastPoint, point));
         }
         //lastPoint = point;
         lastPoint.set(point);
     }
     
-    private void queueLine(final Point3d start, final Point3d end) {
-        lines.add(new LineSegment(start, end, 0, 0));
+    private void queueLine(LineSegment line) {
+        lines.add(line);
+    }
+    
+    private void queueArcLine(final Point3d start, final Point3d end) {
+        LineSegment ls = new LineSegment(start, end);
+        ls.setIsArc(true);
+        lines.add(ls);
     }
     
     private double parseCoord(String[] sarr, char c)

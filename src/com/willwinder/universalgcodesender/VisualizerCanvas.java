@@ -61,7 +61,7 @@ import javax.vecmath.Point3d;
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
     static boolean ortho = true;
-    
+    static double orthoRotation = -35;
     private String gcodeFile = null;
 
     private GLU glu;  // for the GL Utility
@@ -172,8 +172,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.cent = center;
         System.out.println("Center = " + center.toString());
         System.out.println("Num Line Segments :" + objCommands.size());
-        maxSlider = objCommands.get(objCommands.size() - 1).getLayer() - 1; // Maximum slider value is highest layer
-        defaultValue = maxSlider;
+
         this.maxSide = findMaxSide(objectMin, objectMax);
         
         this.scaleFactor = 1.0/this.maxSide;
@@ -275,7 +274,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         // Shift model to center of window.
         gl.glTranslated(-this.cent.x, -this.cent.y, 0);
         
-        gl.glRotated(35.0, -1.0, 0.0, 0.0);
+        if (this.ortho) {
+            gl.glRotated(this.orthoRotation, 1.0, 0.0, 0.0);
+        }
+        
         // Draw model
         if (isDrawable) {
             render(drawable);
@@ -303,81 +305,40 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         //       verticies. May lose some control over line colors though.
         gl.glBegin(GL_LINES);
         gl.glLineWidth(1.0f);
-
+        Color color = Color.WHITE;
         for(LineSegment ls : objCommands)
         {
+            /*
+            // Transparency control
             if(ls.getLayer() < maxLayer) {
                     curTransparency = SOLID;
-            }
-            if(ls.getLayer() == maxLayer) {
+            } else if(ls.getLayer() == maxLayer) {
                     curTransparency = SUPERSOLID;
-            }
-            if(ls.getLayer() > maxLayer) {
+            } else {
                     curTransparency = TRANSPARENT;
             }
-            if(!ls.getExtruding()) {
-                    //stroke(WHITE,TRANSPARENT);
-            }
-            if(!dualExtrusionColoring) {
-                if(ls.getExtruding())
-                {
-                    if(isSpeedColored)
-                    {
-                        if(ls.getSpeed() > LOW_SPEED && ls.getSpeed() < MEDIUM_SPEED) {
-                                //stroke(PURPLE, curTransparency);
-                        }
-                        if(ls.getSpeed() > MEDIUM_SPEED && ls.getSpeed() < HIGH_SPEED) {
-                                //stroke(BLUE, curTransparency);
-                        }
-                        else if(ls.getSpeed() >= HIGH_SPEED) {
-                                //stroke(OTHER_YELLOW, curTransparency);
-                        }
-                        else { //Very low speed....
-                                //stroke(GREEN, curTransparency);
-                        }
-                    }
-                    if(!isSpeedColored)
-                    {
-                        if(curColor == 0) {
-                         //stroke(GREEN, SUPERSOLID);
-                        } 
-                        if(curColor == 1) {
-                        //stroke(RED, SUPERSOLID); 
-                        } 
-                        if(curColor == 2) {
-                         //stroke(BLUE, SUPERSOLID);
-                        } 
-                        if(curColor == 3) {
-                         //stroke(YELLOW, SUPERSOLID);
-                        }
-                         curColor++; 
-                        if(curColor == 4) {
-                            curColor = 0; 
-                        }
-                    }
-                }
-            }
-            if(dualExtrusionColoring)
-            {
-                if(ls.getExtruding())
-                {
-                    if(ls.getToolhead() == 0)
-                    {
-                            //stroke(BLUE, curTransparency);
-                    }
-                    if(ls.getToolhead() == 1)
-                    {
-                            //stroke(GREEN, curTransparency);
-                    }
-                }
+            */
+            
+            if (ls.isArc()) {
+                color = Color.RED;
+            } else if (ls.isFastTraverse()) {
+                color = Color.BLUE;
+            } else if (ls.isZMovement()) {
+                color = Color.GREEN;
+            } else {
+                color = Color.WHITE;
             }
 
             // Actually draw it.
-            if(!is2D || (ls.getLayer() == maxLayer)) {
+            {
                 start = ls.getStart();
                 end = ls.getEnd();
 
+                this.makeVertexColor(color, gl);
+                //gl.glColor3d(1.0, 0.0, 0.0);
                 gl.glVertex3d(start.x, start.y, start.z);
+                this.makeVertexColor(color, gl);
+                //gl.glColor3d(1.0, 0.0, 0.0);
                 gl.glVertex3d(end.x, end.y, end.z);
             }
         }
@@ -389,6 +350,31 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         gl.glDisable(GL.GL_DEPTH_TEST);
     }
 
+    private void makeVertexColor(VisualizerCanvas.Color color, GL2 gl) {
+        switch (color) {
+            case RED:
+                gl.glColor3ub((byte)255, (byte)100, (byte)100);
+                break;
+            case BLUE:
+                gl.glColor3ub((byte)0, (byte)255, (byte)255);
+                break;
+            case PURPLE: 
+                gl.glColor3ub((byte)242, (byte)0, (byte)255);
+                break;
+            case YELLOW: 
+                gl.glColor3ub((byte)237, (byte)255, (byte)0);
+                break;
+            case OTHER_YELLOW: 
+                gl.glColor3ub((byte)234, (byte)212, (byte)7);
+                break;
+            case GREEN: 
+                gl.glColor3ub((byte)33, (byte)255, (byte)0);
+                break;
+            case WHITE:
+                gl.glColor3ub((byte)255, (byte)255, (byte)255);
+                break;
+        }
+    }
     /**
      * Called back before the OpenGL context is destroyed. Release resource such as buffers.
      */
@@ -397,21 +383,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
 
 
-private boolean dualExtrusionColoring = false ;
-
-    //PeasyCam cam; //The camera object, PeasyCam extends the default processing camera and enables user interaction
-    //ControlP5 controlP5; //ControlP5 object, ControlP5 is a library used for drawing GUI items
-    //PMatrix3D currCameraMatrix; //By having 2 camera matrix I'm able to switch a 3D pannable area and a fixed gui in relation to the user
-    //PGraphicsOpenGL g3; //The graphics object, necessary for openGL manipulations
-    //ControlGroup panButts; //The group of controlP5 buttons related to panning
-    private boolean is2D = false;
     private boolean isDrawable = false; //True if a file is loaded; false if not
-    private boolean isPlatformed = false;
     private boolean isSpeedColored = true;
-    private String gCode; //The path of the gcode File
     private ArrayList<LineSegment> objCommands; //An ArrayList of linesegments composing the model
-    private int curScale = 20; 
-    private int curLayer = 0;
 
 
     ////////////ALPHA VALUES//////////////
@@ -423,16 +397,15 @@ private boolean dualExtrusionColoring = false ;
     //////////////////////////////////////
 
     ////////////COLOR VALUES/////////////
-
-/*
-    private final int RED = color(255,200,200);
-    private final int BLUE = color(0, 255, 255);
-    private final int PURPLE = color(242, 0, 255);
-    private final int YELLOW = color(237, 255, 0);
-    private final int OTHER_YELLOW = color(234, 212, 7);
-    private final int GREEN = color(33, 255, 0);
-    private final int WHITE = color(255, 255, 255);
-*/
+    private enum Color {
+        RED, 
+        BLUE, 
+        PURPLE, 
+        YELLOW, 
+        OTHER_YELLOW, 
+        GREEN, 
+        WHITE
+    }
     //////////////////////////////////////
 
     ///////////SPEED VALUES///////////////
@@ -457,8 +430,6 @@ private boolean dualExtrusionColoring = false ;
     private int ySize;
 
     ////////////////////////////////////
-    private int camOffset = 70;
-    private int textBoxOffset = 200;
 
     @Override
     public void keyTyped(KeyEvent ke) {
