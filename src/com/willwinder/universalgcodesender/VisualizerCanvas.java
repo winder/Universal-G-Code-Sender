@@ -60,6 +60,8 @@ import javax.vecmath.Point3d;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
+    static boolean ortho = true;
+    
     private String gcodeFile = null;
 
     private GLU glu;  // for the GL Utility
@@ -222,20 +224,40 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         // Set the view port (display area) to cover the entire window
         gl.glViewport(0, 0, width, height);
+    }
 
-        // Setup perspective projection, with aspect ratio matches viewport
-        gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
-        gl.glLoadIdentity();             // reset projection matrix
-        glu.gluPerspective(45.0, this.aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
+    private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
+        final GL2 gl = drawable.getGL().getGL2();
+        
+        if (ortho) {
+            gl.glDisable(GL_DEPTH_TEST);
+            //gl.glDisable(GL_LIGHTING);
+            gl.glMatrixMode(GL_PROJECTION);
+            gl.glPushMatrix();
+            gl.glLoadIdentity();
+            // Object's longest dimension is 1, make window slightly larger.
+            gl.glOrtho(-0.51*this.aspectRatio,0.51*this.aspectRatio,-0.51,0.51,-10,10);
+            gl.glMatrixMode(GL_MODELVIEW);
+            gl.glPushMatrix();
+            gl.glLoadIdentity();
+        } else {
+            gl.glEnable(GL.GL_DEPTH_TEST);
 
-        // Move camera out and point it at the origin
-        //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
-        glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,     // Eye
-                      0, 0, 0, //this.cent.x, this.cent.y, -this.cent.z,    // Center
-                      0, 1, 0);                                // Up
-        // Enable the model-view transform
-        gl.glMatrixMode(GL_MODELVIEW);
-        gl.glLoadIdentity(); // reset
+            // Setup perspective projection, with aspect ratio matches viewport
+            gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
+            gl.glLoadIdentity();             // reset projection matrix
+
+            glu.gluPerspective(45.0, this.aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
+            // Move camera out and point it at the origin
+            //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
+            glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,
+                          0, 0, 0,
+                          0, 1, 0);
+            // Enable the model-view transform
+            gl.glMatrixMode(GL_MODELVIEW);
+            gl.glLoadIdentity(); // reset
+
+        }
     }
 
     /**
@@ -243,11 +265,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void display(GLAutoDrawable drawable) {
-        reshape (drawable, this.xSize, this.ySize, this.xSize, this.ySize);
-        final GL2 gl = drawable.getGL().getGL2();
+        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
-        gl.glPushMatrix();
-        gl.glLoadIdentity();
+        final GL2 gl = drawable.getGL().getGL2();
         
         // Scale the model so that it will fit on the window.
         gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
@@ -255,6 +275,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         // Shift model to center of window.
         gl.glTranslated(-this.cent.x, -this.cent.y, 0);
         
+        gl.glRotated(35.0, -1.0, 0.0, 0.0);
         // Draw model
         if (isDrawable) {
             render(drawable);
@@ -262,14 +283,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         gl.glPopMatrix();        
     }
-
+    
     // Render a triangle
     private void render(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
 
-        gl.glEnable(GL.GL_DEPTH_TEST);
 
-        gl.glMatrixMode(GL_MODELVIEW);
+
+        //gl.glMatrixMode(GL_MODELVIEW);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         Point3d start, end;
@@ -281,7 +302,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         // TODO: By using a GL_LINE_STRIP I can easily use half the number of
         //       verticies. May lose some control over line colors though.
         gl.glBegin(GL_LINES);
-        gl.glLineWidth(2.0f);
+        gl.glLineWidth(1.0f);
 
         for(LineSegment ls : objCommands)
         {
