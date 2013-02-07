@@ -46,6 +46,7 @@ public class CommUtils {
     public static final byte GRBL_RESUME_COMMAND = '~';
     public static final byte GRBL_STATUS_COMMAND = '?';
     public static final byte GRBL_RESET_COMMAND = 0x18;
+    public static final String GRBL_UNLOCK_COMMAND = "$X";
     
     /**
      * Gcode Commands
@@ -53,7 +54,7 @@ public class CommUtils {
     public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G92 X0 Y0 Z0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION = "G0 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
-    
+   
     public enum Capabilities {
         REAL_TIME, POSITION_C
     }

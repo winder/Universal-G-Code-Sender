@@ -4,4 +4,4 @@
 /release/
 .DS_Store
 librxtxSerial.jnilib
-test_files/grbl_*.hex.txt
+test_files/grbl_*
