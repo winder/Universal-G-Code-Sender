@@ -79,7 +79,8 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
                     @Override
                     public void run() {
                         if (animator.isStarted()) animator.stop();
-                        System.exit(0);
+//                        System.exit(0);
+                        VisualizerWindow.this.dispose();
                     }
                 }.start();
             }

@@ -36,9 +36,9 @@
           <Group type="102" attributes="0">
               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="jPanel3" alignment="1" max="32767" attributes="0"/>
                   <Component id="jPanel5" alignment="1" max="32767" attributes="0"/>
                   <Component id="manualControlPanel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jPanel3" alignment="0" pref="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -48,9 +48,9 @@
                       <Component id="showVerboseOutputCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jTabbedPane2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jTabbedPane2" alignment="0" pref="474" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
-                      <Component id="controlContextTabbedPane" max="32767" attributes="0"/>
+                      <Component id="controlContextTabbedPane" pref="0" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -63,25 +63,24 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
+                      <Component id="jPanel3" min="-2" pref="97" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="manualControlPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="25" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
                       <Component id="controlContextTabbedPane" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="scrollWindowCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="showVerboseOutputCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jTabbedPane2" pref="0" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
-                      <Component id="manualControlPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jTabbedPane2" max="32767" attributes="0"/>
                   </Group>
               </Group>
-              <EmptySpace min="-2" pref="15" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -233,7 +232,7 @@
                           <Component id="commandTextField" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="457" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="359" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -247,7 +246,7 @@
                       <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="commandTextField" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="120" max="32767" attributes="0"/>
+                      <EmptySpace pref="133" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -324,7 +323,7 @@
                                       </Group>
                                   </Group>
                               </Group>
-                              <EmptySpace pref="89" max="32767" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
                                       <Component id="remainingRowsLabel" min="-2" max="-2" attributes="0"/>
@@ -544,7 +543,7 @@
                           <Component id="resetCoordinatesButton" linkSize="3" max="32767" attributes="0"/>
                           <Component id="performHomingCycleButton" linkSize="3" alignment="0" min="-2" pref="158" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="366" max="32767" attributes="0"/>
+                      <EmptySpace pref="271" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -557,7 +556,7 @@
                       <Component id="returnToZeroButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="performHomingCycleButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="40" max="32767" attributes="0"/>
+                      <EmptySpace pref="44" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -631,6 +630,7 @@
                           <Component id="opencloseButton" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -650,6 +650,7 @@
                       <Component id="refreshButton" min="-2" pref="24" max="-2" attributes="0"/>
                       <Component id="opencloseButton" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -743,7 +744,7 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="latestCommentLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="latestCommentValueLabel" pref="193" max="32767" attributes="0"/>
+                          <Component id="latestCommentValueLabel" max="32767" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -811,7 +812,7 @@
                       <Component id="latestCommentLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="latestCommentValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="9" max="32767" attributes="0"/>
+                  <EmptySpace pref="17" max="32767" attributes="0"/>
                   <Group type="103" groupAlignment="1" attributes="0">
                       <Group type="102" alignment="1" attributes="0">
                           <Component id="workPositionLabel" min="-2" max="-2" attributes="0"/>
@@ -963,7 +964,7 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="xMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
@@ -972,25 +973,31 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="xPlusButton" pref="50" max="-2" attributes="0"/>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="zMinusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                              <Component id="zPlusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
+                              <Component id="zMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
+                              <Component id="zPlusButton" min="-2" pref="50" max="-2" attributes="0"/>
                           </Group>
                       </Group>
+                      <Group type="102" attributes="0">
+                          <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="arrowMovementEnabled" min="-2" max="-2" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                  <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="arrowMovementEnabled" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="resetCoordinatesButton1" pref="0" max="32767" attributes="0"/>
+                              <Component id="performHomingCycleButton1" min="-2" pref="146" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="returnToZeroButton1" min="-2" pref="114" max="-2" attributes="0"/>
+                              <Component id="unlockButton" alignment="0" min="-2" pref="114" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                   </Group>
-                  <EmptySpace max="-2" attributes="0"/>
+                  <EmptySpace pref="35" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1020,7 +1027,16 @@
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace min="-2" pref="23" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="performHomingCycleButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="unlockButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="resetCoordinatesButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="returnToZeroButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1104,6 +1120,42 @@
           </Properties>
           <Events>
             <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="stepSizeSpinnerStateChanged"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="performHomingCycleButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Do Homing Cycle"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="performHomingCycleButton1ActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="resetCoordinatesButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Reset Coordinates"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetCoordinatesButton1ActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="returnToZeroButton1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Return to Zero"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnToZeroButton1ActionPerformed"/>
+          </Events>
+        </Component>
+        <Component class="javax.swing.JButton" name="unlockButton">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Unlock"/>
+            <Property name="enabled" type="boolean" value="false"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="UnlockActionPerformed"/>
           </Events>
         </Component>
       </SubComponents>
