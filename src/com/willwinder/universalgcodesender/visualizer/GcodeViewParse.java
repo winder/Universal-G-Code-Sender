@@ -1,11 +1,11 @@
 /*
- * 
+ * Gcode parser that creates an array of line segments which can be drawn.
  *
  * Created on Jan 29, 2013
  */
 
 /*
-    Copywrite 2013 Noah Levy
+    Copywrite 2013 Noah Levy, William Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,79 +25,96 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
 
-import javax.vecmath.Point3f;
-
 
 public class GcodeViewParse {
     private static boolean debugVals = false;
-    private static float extremes[] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}; // -x, -y, -z, x, y, z
+    private Point3d min;
+    private Point3d max;
+    private ArrayList<LineSegment> lines;
+    
+    private Point3d lastPoint;
+    
+    private Pattern gPattern = null;
+    private Pattern mPattern = null;
+    
+    private static String gCommand = "[Gg]0*(\\d+)";
+    private static String mCommand = "[Mm]0*(\\d+)";
+    
     // false = incremental; true = absolute
-    boolean absoluteMode = false;
-
+    boolean absoluteMode = true;
+    static boolean absoluteIJK = false;
+    
+    private int currentNumber = 0;
+    
     public GcodeViewParse()
     {
+        min = new Point3d();
+        max = new Point3d();
+        lastPoint = new Point3d();
+        lines = new ArrayList<LineSegment>();
 
+        this.gPattern = Pattern.compile(gCommand);
+        this.mPattern = Pattern.compile(mCommand);
     }
 
-    public float[] getExtremes()
+    public Point3d getMinimumExtremes()
     {
-        return extremes;
+        return min;
     }
     
-    private void testExtremes(Point3f p3f)
+    public Point3d getMaximumExtremes()
     {
-        testExtremes(p3f.x, p3f.y, p3f.z);
+        return max;
     }
     
-    private void testExtremes(float x, float y, float z)
+    private void testExtremes(final Point3d p3d)
     {
-        if(x < extremes[0])
-        {
-            extremes[0] = x;
+        testExtremes(p3d.x, p3d.y, p3d.z);
+    }
+    
+    private void testExtremes(double x, double y, double z)
+    {
+        if(x < min.x) {
+            min.x = x;
         }
-        if(x > extremes[3])
-        {
-            extremes[3] = x;
+        if(x > max.x) {
+            max.x = x;
         }
-        if(y < extremes[1])
-        {
-            extremes[1] = y;
+        if(y < min.y) {
+            min.y = y;
         }
-        if(y > extremes[4])
-        {
-            extremes[4] = y;
+        if(y > max.y) {
+            max.y = y;
         }
-        if(z < extremes[2])
-        {
-            extremes[2] = z;
+        if(z < min.z) {
+            min.z = z;
         }
-        if(z > extremes[5])
-        {
-            extremes[5] = z;
+        if(z > max.z) {
+            max.z = z;
         }
     }
+    
     public ArrayList<LineSegment> toObj(ArrayList<String> gcode)
     {
-        float speed = 2; //DEFAULTS to 2
-        Point3f lastPoint = null;
-        Point3f curPoint = null;
-        int curLayer = 0;
-        int curToolhead = 0;
-        float parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ;
-        float tolerance = .0002f;
-        ArrayList<LineSegment> lines = new ArrayList<LineSegment>();
-        float[] lastCoord = { 0.0f, 0.0f, 0.0f};
-        boolean currentExtruding = false;
+        double speed = 2; //DEFAULTS to 2
+        double[] newCoord = { 0.0f, 0.0f, 0.0f};
+
+        Point3d next = new Point3d();
+        Point3d center = new Point3d(0.0, 0.0, 0.0);
+        Point3d last = new Point3d(0.0, 0.0, 0.0);
+        double parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ, parsedK;
+        int gCode = -1;
+        int mCode = -1;
+        int lastGCode = -1;
+        Matcher matcher;
+
         for(String s : gcode)
-        {          
+        {            
             // Parse out gcode values
             String[] sarr = s.split(" ");
             parsedX = parseCoord(sarr, 'X');
@@ -106,142 +123,273 @@ public class GcodeViewParse {
             parsedF = parseCoord(sarr, 'F');
             parsedI = parseCoord(sarr, 'I');
             parsedJ = parseCoord(sarr, 'J');
+            parsedK = parseCoord(sarr, 'K');
+
+            // At this point next == last
+            if(!Double.isNaN(parsedX)) {
+                if (!this.absoluteMode)
+                    parsedX += last.x;
+                next.x = parsedX;
+            }
+            if(!Double.isNaN(parsedY)) {
+                if (!this.absoluteMode)
+                    parsedY += last.y;
+                next.y = parsedY;
+            }
+            if(!Double.isNaN(parsedZ)) {
+                if (!this.absoluteMode)
+                    parsedZ += last.z;
+                next.z = parsedZ;
+            }
             
-            //System.out.println(Arrays.toString(sarr));
-            if(!Float.isNaN(parsedX))
-            {
-                if (!this.absoluteMode)
-                    parsedX += lastCoord[0];
-                lastCoord[0] = parsedX;
-            }
-            if(!Float.isNaN(parsedY))
-            {
-                if (!this.absoluteMode)
-                    parsedY += lastCoord[1];
-                lastCoord[1] = parsedY;
-            }
-            if(!Float.isNaN(parsedZ))
-            {
-
-                if (!(Math.abs(parsedZ - lastCoord[2]) <= tolerance))
-                {
-                    curLayer++;
-                }
-
-                if (!this.absoluteMode)
-                    parsedZ += lastCoord[2];
-                lastCoord[2] = parsedZ;
-            }
-            if(!Float.isNaN(parsedF))
-            {
+            
+            if(!Double.isNaN(parsedF)) {
                 speed = parsedF;
             }
-            
-            curPoint = new Point3f(lastCoord[0], lastCoord[1], lastCoord[2]);
-            
-            // Straight lines.
-            if (s.matches(".*G0.*") || s.matches(".*G1.*")) 
-            {
-
-                if(!(Float.isNaN(lastCoord [0]) || Float.isNaN(lastCoord [1]) || Float.isNaN(lastCoord [2])))
-                {
-                    if(debugVals)
-                    {
-                        System.out.println(lastCoord[0] + "," + lastCoord [1] + "," + lastCoord[2] + ", speed =" + speed + 
-                                        ", layer=" + curLayer);
-                    }
-                    
-                    if(currentExtruding && curLayer > 5)
-                    {
-                        testExtremes(curPoint);
-                    }
-                    if(lastPoint != null)
-                    {
-                        lines.add(new LineSegment(lastPoint, curPoint, curLayer, speed, curToolhead, currentExtruding));
-                    }
-                    lastPoint = curPoint;
+                      
+                        
+            // Centerpoint in case of arc
+            center.set(0.0, 0.0, 0.0);
+            if (!Double.isNaN(parsedI)) {
+                if (!this.absoluteIJK) {
+                    center.x = last.x + parsedI;
+                } else {
+                    center.x = parsedI;
                 }
-            }
-            
-            // Arc lines
-            if (s.matches(".*G2.*") || s.matches(".*G3.*")) {
-                int gCode = 2;
-                if (s.matches(".*G3.*")) {
-                    gCode = 3;
-                }
-                
-                // call our arc drawing function.
-                if (!Float.isNaN(parsedI) && !Float.isNaN(parsedJ)) {
-                    
-                    // our centerpoint
-                    Point3f center = new Point3f();
-                    center.x = lastCoord[0] + parsedI;
-                    center.y = lastCoord[1] + parsedJ;
-                    center.z = 0;
-                    
-                    // draw the arc itself.
-                    if (lastPoint!= null) {
-                        if (gCode == 2)
-                            lines.addAll( segmentArc(lastPoint, center, curPoint, true) );
-                        else
-                            lines.addAll( segmentArc(lastPoint, center, curPoint, false) );
-                    }
-                }
-                
-                lastPoint = curPoint;
-            }
-            
-            // Absolute Positioning
-            if (s.matches(".*G90.*")) {
-                    absoluteMode = true;
             }
 
-            // Incremental Positioning
-            if (s.matches(".*G91.*")) {
-                    absoluteMode = false;
+            if (!Double.isNaN(parsedJ)) {
+                if (!this.absoluteIJK) {
+                    center.y = last.y + parsedJ;
+                } else {
+                    center.y = parsedJ;
+                }
             }
+
+            if (!Double.isNaN(parsedK)) {
+                if (!this.absoluteIJK) {
+                    center.z = last.z + parsedK;
+                } else {
+                    center.z = parsedK;
+                }
+            }
+            
+            // Save any updated bounaries.
+            testExtremes(next);
+            
+            // Check multiple matches on one line in case of state commands:
+            matcher = this.gPattern.matcher(s);
+            gCode = -1;
+            while (matcher.find()) {
+                gCode = Integer.parseInt(matcher.group(1));
+                handleGCode(gCode, last, center, next);
+            }
+            
+            // Check multiple matches on one line in case of state commands:
+            matcher = this.mPattern.matcher(s);
+            mCode = -1;
+            while (matcher.find()) {
+                mCode = Integer.parseInt(matcher.group(1));
+                handleMCode(mCode, last, center, next);
+            }
+           
+            // If there isn't a new code, use the last code.
+            if (gCode == -1 && mCode == -1 && lastGCode != -1) {
+                gCode = lastGCode;
+                handleGCode(gCode, last, center, next);
+            }
+            
+            // Save the last commands.
+            if (gCode != -1) {
+                lastGCode = gCode;
+            }
+            
+            last.set(next);
         }
         return lines;
     }
     
+    private void handleGCode(int code, final Point3d start, final Point3d center, final Point3d end) {
+        LineSegment ls;
+        switch (code) {
+            case 0:
+                ls = new LineSegment(start, end, currentNumber++);
+                ls.setIsFastTraverse(true);
+                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
+                    ls.setIsZMovement(true);
+                }
+                this.queueLine(ls);
+                break;
+
+            case 1:
+                ls = new LineSegment(start, end, currentNumber++);
+                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
+                    ls.setIsZMovement(true);
+                }                ls.isFastTraverse();
+                this.queueLine(ls);
+                break;
+            
+            case 2:
+            case 3:
+                boolean clockwise = true;
+                if (code == 3) {
+                    clockwise = false;
+                }
+
+                // draw the arc itself.
+                //addArcSegmentsReplicatorG(start, end, center, clockwise);
+                addArcSegmentsBDring(start, end, center, clockwise);
+                currentNumber++;
+                break;
+                
+            case 90:
+                absoluteMode = true;
+                break;
+            case 91:
+                absoluteMode = false;
+                break;
+        }
+    }
     
-    private ArrayList<LineSegment> segmentArc(Point3f start, Point3f center, Point3f endpoint, boolean clockwise) {
-        System.out.println("Arc from " + start.toString() + " to " +
-                           endpoint.toString() + " with center " + center);
-        ArrayList<LineSegment> lines = new ArrayList<LineSegment>();
-        Point3f current = new Point3f();
-        current.x = start.x;
-        current.y = start.y;
-        current.z = start.z;
+    private void handleMCode(int code, final Point3d start, final Point3d center, final Point3d endpoint) {
+        switch (code) {
+            case 0:
+            case 1:
+                break;
+            case 2:
+            case 3:
+                break;
+                
+            case 90:
+                break;
+            case 91:
+                break;
+        }
+    }
+    
+    
+    /** Return the angle when going from p1 to p2.
+     */
+    private double getAngle(final Point3d p1, final Point3d p2) {
+        double deltaX = p2.x - p1.x;
+        double deltaY = p2.y - p1.y;
+
+        double angle = 0.0;
+
+        if (deltaX != 0) {			// prevent div by 0
+            // it helps to know what quadrant you are in
+            if (deltaX > 0 && deltaY >= 0)  // 0 - 90
+                angle = Math.atan(deltaY/deltaX);
+            else if (deltaX < 0 && deltaY >= 0) // 90 to 180
+                angle = Math.PI - Math.abs(Math.atan(deltaY/deltaX));
+            else if (deltaX < 0 && deltaY < 0) // 180 - 270
+                angle = Math.PI + Math.abs(Math.atan(deltaY/deltaX));
+            else if (deltaX > 0 && deltaY < 0) // 270 - 360
+                angle = Math.PI * 2 - Math.abs(Math.atan(deltaY/deltaX));
+        }
+        else {
+            // 90 deg
+            if (deltaY > 0) {
+                angle = Math.PI / 2.0;
+            }
+            // 270 deg
+            else {
+                angle = Math.PI * 3.0 / 2.0;
+            }
+        }
+      
+        return angle;
+    }
+    
+    private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw) {
+        int numPoints = 15;  // TODO: ....could this be dynamic or user selectable?		
+        double radius;
+        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
+        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
+        double sweep;
+        double angle;
+
+        //use pythag theorum...to get the radius
+        radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
+
+        double startAngle = getAngle(center, p1);
+        double endAngle = getAngle(center, p2);
+
+        // if it ends at 0 it really should end at 360
+        if (endAngle == 0) {
+                endAngle = Math.PI * 2;
+        }
+
+        if (!isCw && endAngle < startAngle) {
+            sweep = ((Math.PI * 2 - startAngle) + endAngle);
+        } else if (isCw && endAngle > startAngle) {
+            sweep = ((Math.PI * 2 - endAngle) + startAngle);
+        } else {
+            sweep = Math.abs(endAngle - startAngle);
+        }
+        
+        double zIncrement = (p2.z - p1.z) / numPoints;
+        for(int i=0; i<numPoints; i++)
+        {
+            if (isCw) {
+                angle = (startAngle - i * sweep/numPoints);
+            } else {
+                angle = (startAngle + i * sweep/numPoints);
+            }
+
+            if (angle >= Math.PI * 2) {
+                angle = angle - Math.PI * 2;
+            }
+
+            lineEnd.x = Math.cos(angle) * radius + center.x;
+            lineEnd.y = Math.sin(angle) * radius + center.y;
+            lineEnd.z += zIncrement;
+
+            this.testExtremes(lineEnd);
+            
+            this.queueArcLine(lineStart, lineEnd);
+
+            lineStart.set(lineEnd);
+        }
+        
+        this.queueArcLine(lineEnd, p2);
+        //this.queuePoint(lineStart, p2);
+    }
+
+    // This one doesn't work right.
+    private void addArcSegmentsReplicatorG(final Point3d start, final Point3d endpoint, final Point3d center, boolean clockwise) {
+        // System.out.println("Arc from " + current.toString() + " to " +
+        // endpoint.toString() + " with center " + center);
+        Point3d current = new Point3d(start.x, start.y, start.z);
         
         // angle variables.
-        float angleA;
-        float angleB;
-        float angle;
-        float radius;
-        float length;
+        double angleA;
+        double angleB;
+        double angle;
+        double radius;
+        double length;
 
         // delta variables.
-        float aX;
-        float aY;
-        float bX;
-        float bY;
+        double aX;
+        double aY;
+        double bX;
+        double bY;
 
         // figure out our deltas
-        aX = current.x - center.x;
-        aY = current.y - center.y;
+        aX = start.x - center.x;
+        aY = start.y - center.y;
         bX = endpoint.x - center.x;
         bY = endpoint.y - center.y;
 
         // Clockwise
         if (clockwise) {
-                angleA = (float)Math.atan2(bY, bX);
-                angleB = (float)Math.atan2(aY, aX);
+                angleA = Math.atan2(bY, bX);
+                angleB = Math.atan2(aY, aX);
         }
         // Counterclockwise
         else {
-                angleA = (float)Math.atan2(aY, aX);
-                angleB = (float)Math.atan2(bY, bX);
+                angleA = Math.atan2(aY, aX);
+                angleB = Math.atan2(bY, bX);
         }
 
         // Make sure angleB is always greater than angleA
@@ -252,7 +400,7 @@ public class GcodeViewParse {
                 angleB += 2 * Math.PI;
         angle = angleB - angleA;
         // calculate a couple useful things.
-        radius = (float)Math.sqrt(aX * aX + aY * aY);
+        radius = Math.sqrt(aX * aX + aY * aY);
         length = radius * angle;
 
         // for doing the actual move.
@@ -262,11 +410,13 @@ public class GcodeViewParse {
 
         // Maximum of either 2.4 times the angle in radians
         // or the length of the curve divided by the curve section constant
-        steps = (int) Math.ceil(Math.max(angle * 2.4, length / 0.02));
-        steps = 35;
+        //steps = (int) Math.ceil(Math.max(angle * 2.4, length / curveSection));
+        steps = 3;
+        
         // this is the real draw action.
-        Point3f newPoint = new Point3f();
-        float arcStartZ = current.z;
+        Point3d newPoint = new Point3d();
+        double arcStartZ = start.z;
+        double fraction;
         for (s = 1; s <= steps; s++) {
                 // Forwards for CCW, backwards for CW
                 if (!clockwise)
@@ -274,35 +424,61 @@ public class GcodeViewParse {
                 else
                         step = steps - s;
 
+                fraction = (double) step / steps;
                 // calculate our waypoint.
-                newPoint.x = (float)center.x + radius
-                                * (float)Math.cos(angleA + angle * ((float) step / steps));
-                newPoint.y = (float)center.y + radius
-                                * (float)Math.sin(angleA + angle * ((float) step / steps));
-                newPoint.z = arcStartZ + (endpoint.z - arcStartZ) * s / steps;
+                newPoint.x = center.x + radius
+                                * Math.cos(angleA + angle * fraction);
+                newPoint.y = center.y + radius
+                                * Math.sin(angleA + angle * fraction);
+                newPoint.z = arcStartZ + (endpoint.z - arcStartZ) * fraction;
+
+                //System.out.println("    "+newPoint.toString());
 
                 // start the move
-                //lines.add(new LineSegment(current, newPoint, 0, 0));
-                
-                current.x = newPoint.x;
-                current.y = newPoint.y;
-                current.z = newPoint.z;
+                //setTarget(newPoint);
+                this.queueArcLine(current, newPoint);
+                current = newPoint;
         }
-        lines.add(new LineSegment(start, endpoint, 0, 0));
-        return lines;
+        this.queueArcLine(current, endpoint);
     }
-
-    private float parseCoord(String[] sarr, char c)
+    
+    private void queuePoint(final Point3d point) {
+        if (lastPoint != null) {
+            lines.add(new LineSegment(lastPoint, point, currentNumber));
+        }
+        //lastPoint = point;
+        lastPoint.set(point);
+    }
+    
+    private void queueLine(LineSegment line) {
+        lines.add(line);
+    }
+    
+    private void queueArcLine(final Point3d start, final Point3d end) {
+        LineSegment ls = new LineSegment(start, end, currentNumber);
+        ls.setIsArc(true);
+        lines.add(ls);
+    }
+    
+    private double parseCoord(String[] sarr, char c)
     {
         for(String t : sarr)
         {
             if(t.matches("\\s*[" + c + "]\\s*-*[\\d|\\.]+"))
             {
                 //System.out.println("te : " + t);
-                return Float.parseFloat(t.substring(1,t.length()));
+                return Double.parseDouble(t.substring(1,t.length()));
             }
         }
-        return Float.NaN;
+        return Double.NaN;
     }
     
+    private int getGCode(String str) {
+        Matcher matcher = this.gPattern.matcher(str);
+
+        if (matcher.find()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return -1;
+    }    
 }

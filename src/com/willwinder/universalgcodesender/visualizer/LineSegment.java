@@ -25,83 +25,53 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import javax.vecmath.Point3f;
+import javax.vecmath.Point3d;
  
 public class LineSegment {
 
-    private int layer;
     private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
-    private float speed;
-    private Point3f first, second;
-    private boolean isExtruding;
-
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz)
+    private double speed;
+    private Point3d first, second;
+    
+    // Line properties
+    private boolean isZMovement = false;
+    private boolean isArc = false;
+    private boolean isFastTraverse = false;
+    private int lineNumber;
+    
+    public LineSegment (final Point3d a,final Point3d b, int num)
     {
-        first = a;
-        second = b;
-        layer = layernum;
-        speed = speedz;
-    }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, boolean extrudz)
-    {
-        first = a;
-        second = b;
-        layer = layernum;
-        speed = speedz;
-        isExtruding = extrudz;
-    }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz)
-    {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-    }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, int toolheadz)
-    {
-        first = a;
-        second = b;
-        layer = layernum;
-        speed = speedz;
-        toolhead = toolheadz;
-    }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz, int toolheadz)
-    {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-        toolhead = toolheadz;
-    }
-    public LineSegment (Point3f a,Point3f b, int layernum, float speedz, int toolheadz, boolean extrudz)
-    {
-        first = a;
-        second = b;
-        layer = layernum;
-        speed = speedz;
-        toolhead = toolheadz;
-        isExtruding = extrudz;
-    }
-    public LineSegment(float x1, float y1, float z1, float x2, float y2, float z2, int layernum, float speedz, int toolheadz, boolean extrudz)
-    {
-        first = new Point3f(x1, y1, z1);
-        second = new Point3f(x2, y2, z2);
-        layernum = layer;
-        speed = speedz;
-        toolhead = toolheadz;
-        isExtruding = extrudz;
+        first = new Point3d(a);
+        second = new Point3d (b);
+        lineNumber = num;
     }
     
-    public Point3f[] getPointArray()
+    public int getLineNumber() {
+        return lineNumber;
+    }
+    
+    public Point3d[] getPointArray()
     {
-        Point3f[] pointarr = { first, second };
+        Point3d[] pointarr = { first, second };
         return pointarr;
     }
     
-    public float[] getPoints()
+    public double[] getPoints()
     {
-        float[] points = {first.x, first.y, first.z , second.x, second.y, second.z };
+        double[] points = {first.x, first.y, first.z , second.x, second.y, second.z };
         return points;
+    }
+    
+    public Point3d getStart() {
+        return this.first;
+    }
+
+    public Point3d getEnd() {
+        return this.second;
+    }
+
+    public void setToolHead(int head) {
+        this.toolhead = head;
     }
     
     public int getToolhead()
@@ -109,18 +79,36 @@ public class LineSegment {
         return toolhead;
     }
     
-    public float getSpeed()
+    public void setSpeed(double s) {
+        this.speed = s;
+    }
+    
+    public double getSpeed()
     {
         return speed;
     }
     
-    public int getLayer()
-    {
-        return layer;
+    public void setIsZMovement(boolean isZ) {
+        this.isZMovement = isZ;
     }
     
-    public boolean getExtruding()
-    {
-        return isExtruding;
+    public boolean isZMovement() {
+        return isZMovement;
+    }
+
+    public void setIsArc(boolean isA) {
+        this.isArc = isA;
+    }
+    
+    public boolean isArc() {
+        return isArc;
+    }
+    
+    public void setIsFastTraverse(boolean isF) {
+        this.isFastTraverse = isF;
+    }
+    
+    public boolean isFastTraverse() {
+        return this.isFastTraverse;
     }
 }
