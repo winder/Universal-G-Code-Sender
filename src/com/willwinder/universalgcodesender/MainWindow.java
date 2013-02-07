@@ -1098,19 +1098,19 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_arrowMovementEnabledActionPerformed
 
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
-        if (this.vw != null) return;
-        
-        this.vw = new VisualizerWindow();
-        if (this.fileTextField.getText().length() > 1) {
-            vw.setGcodeFile(this.fileTextField.getText());
+        // Create new object if it is null.
+        if (this.vw == null) {
+            this.vw = new VisualizerWindow();
+            if (this.fileTextField.getText().length() > 1) {
+                vw.setGcodeFile(this.fileTextField.getText());
+            }
+            // Add listeners
+            this.commPort.addCapabilitiesListener(vw);        
+            this.commPort.addPositionStringListener(vw);
         }
-        // Add listeners
-        this.commPort.addCapabilitiesListener(vw);        
-        this.commPort.addPositionStringListener(vw);
         
-        /* Display the form */
+        // Display the form
         java.awt.EventQueue.invokeLater(new Runnable() {
-
             @Override
             public void run() {
                 vw.setVisible(true);

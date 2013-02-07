@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.jogamp.common.nio.Buffers;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.event.KeyEvent;
@@ -34,6 +35,8 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL.*;
@@ -47,43 +50,75 @@ import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
 import javax.vecmath.Point3d;
-
  
 /**
  *
  * @author wwinder
- * @template http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html
  * 
- * JOGL 2.0 Program Template (GLCanvas)
- * This is a "Component" which can be added into a top-level "Container".
- * It also handles the OpenGL events to render graphics.
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
     static boolean ortho = true;
     static double orthoRotation = -35;
-    private String gcodeFile = null;
+    static boolean forceOldStyle = false;
 
-    private GLU glu;  // for the GL Utility
-    private Point3d center, eye, cent;
+    private String gcodeFile = null;
+    private boolean isDrawable = false; //True if a file is loaded; false if not
+    private ArrayList<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
+    private int currentCommandNumber = 0;
+    private int lastCommandNumber = 0;
+
+    // GL Utility
+    private GLU glu;
+    
+    // Projection variables
+    private Point3d center, eye;
     private Point3d objectMin, objectMax;
     private double maxSide;
     private double scaleFactor;
     private double aspectRatio;
-    private int cutoffNumber = 0;
-    private int largestNumber = 0;
+    private int xSize, ySize;
+
+    
+    // OpenGL Object Buffer Variables
+    private int numberOfVertices = -1;
+    private float[] lineVertexData = null;
+    private byte[] lineColorData = null;
+    private FloatBuffer lineVertexBuffer = null;
+    private ByteBuffer lineColorBuffer = null;
+    
+    // Track when arrays need to be updated due to changing data.
+    private boolean colorArrayDirty = false;
+    private boolean vertexArrayDirty = false;
+    
+    private enum Color {
+        RED, 
+        BLUE, 
+        PURPLE, 
+        YELLOW, 
+        OTHER_YELLOW, 
+        GREEN, 
+        WHITE,
+        GRAY,
+    }
     
     public VisualizerCanvas() {
        this.addGLEventListener(this);
-       
+       this.addKeyListener(this);
+
        this.eye = new Point3d(0, 0, 1.5);
-       this.cent = new Point3d(0, 0, 0);
+       this.center = new Point3d(0, 0, 0);
     }
     
-    public void setCutoffNumber(int num) {
-        this.cutoffNumber = num;
+    public void setCurrentCommandNumber(int num) {
+        this.currentCommandNumber = num;
+        this.createVertexBuffers();
+        this.colorArrayDirty = true;
     }
     
+    public int getLastCommandNumber() {
+        return this.lastCommandNumber;
+    }
     public void setGcodeFile(String file) {
         this.gcodeFile = file;
         generateObject();
@@ -164,29 +199,33 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (this.gcodeFile == null){ return; }
         
         GcodeViewParse gcvp = new GcodeViewParse();
-        objCommands = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
-        
-        // Grab the line number off the last line.
-        this.largestNumber = objCommands.get(objCommands.size() - 1).getLineNumber();
+        gcodeLineList = (gcvp.toObj(readFiletoArrayList(this.gcodeFile)));
         
         objectMin = gcvp.getMinimumExtremes();
         objectMax = gcvp.getMaximumExtremes();
+
+        // Grab the line number off the last line.
+        this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
         
         System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
         System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
         System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
         
         this.center = findCenter(objectMin, objectMax);
-        this.cent = center;
         System.out.println("Center = " + center.toString());
-        System.out.println("Num Line Segments :" + objCommands.size());
+        System.out.println("Num Line Segments :" + gcodeLineList.size());
 
         this.maxSide = findMaxSide(objectMin, objectMax);
         
         this.scaleFactor = 1.0/this.maxSide;
-        this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);        
 
         isDrawable = true;
+        
+        // Now that the object is known, fill the buffers.
+        this.createVertexBuffers();
+        this.colorArrayDirty = true;
+        this.vertexArrayDirty = true;
     }
 
     // ------ Implement methods declared in GLEventListener ------
@@ -197,20 +236,16 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void init(GLAutoDrawable drawable) {
-        this.addKeyListener(this);
-       // Parse random gcode file and generate something to draw.
-       generateObject();
-        
-       GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
-       glu = new GLU();                         // get GL Utilities
-       gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
-       gl.glClearDepth(1.0f);      // set clear depth value to farthest
-       gl.glEnable(GL_DEPTH_TEST); // enables depth testing
-       gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
-       gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
-       gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
-
-       // ----- Your OpenGL initialization code here -----
+        // Parse random gcode file and generate something to draw.
+        generateObject();
+        GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
+        glu = new GLU();                         // get GL Utilities
+        gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
+        gl.glClearDepth(1.0f);      // set clear depth value to farthest
+        gl.glEnable(GL_DEPTH_TEST); // enables depth testing
+        gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
+        gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
+        gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
     }
 
     /**
@@ -224,7 +259,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
 
-        if (height == 0) height = 1;   // prevent divide by zero
+        if (height == 0){ height = 1; }  // prevent divide by zero
         this.aspectRatio = (float)width / height;
 
         this.scaleFactor = findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
@@ -256,10 +291,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
             glu.gluPerspective(45.0, this.aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
             // Move camera out and point it at the origin
-            //glu.gluLookAt(this.center.x, this.center.y, -70, this.center.x, this.center.y, this.center.z, 0, -1, 0);
             glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,
                           0, 0, 0,
                           0, 1, 0);
+            
             // Enable the model-view transform
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity(); // reset
@@ -280,13 +315,12 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
 
         // Shift model to center of window.
-        gl.glTranslated(-this.cent.x, -this.cent.y, 0);
+        gl.glTranslated(-this.center.x, -this.center.y, 0);
         
-        if (this.ortho) {
-            gl.glRotated(this.orthoRotation, 1.0, 0.0, 0.0);
+        if (ortho) {
+            gl.glRotated(orthoRotation, 1.0, 0.0, 0.0);
         }
  
-        
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         // Draw model
@@ -294,13 +328,101 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             render(drawable);
         }
         
+        gl.glDisable(GL.GL_DEPTH_TEST);
+
         gl.glPopMatrix();
         
         update();
     }
     
-    // Render a triangle
+    /**
+     * Render the GCode object.
+     */
     private void render(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+        
+        // Batch mode if available 
+        if(!forceOldStyle
+                && gl.isFunctionAvailable( "glGenBuffers" )
+                && gl.isFunctionAvailable( "glBindBuffer" )
+                && gl.isFunctionAvailable( "glBufferData" )
+                && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
+            // Initialize OpenGL arrays if required.
+            if (this.colorArrayDirty) {
+                this.updateGLColorArray(drawable);
+                this.colorArrayDirty = false;
+            }
+            if (this.vertexArrayDirty) {
+                this.updateGLGeometryArray(drawable);
+                this.vertexArrayDirty = false;
+            }
+            
+            gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
+            gl.glDrawArrays( GL.GL_LINES, 0, numberOfVertices);
+            gl.glDisableClientState(GL2.GL_COLOR_ARRAY);
+            gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+        }
+        // Traditional OpenGL
+        else {
+            this.oldStyle(drawable);
+        }
+
+        // makes the gui stay on top of elements
+        // drawn before.
+    }
+
+    /**
+     * Initialize open gl geometry array in native buffer objects.
+     */
+    private void updateGLGeometryArray(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+        
+        // Reset buffer and set to null of new geometry doesn't fit.
+        if (lineVertexBuffer != null) {
+            lineVertexBuffer.clear();
+            if (lineVertexBuffer.remaining() < lineVertexData.length) {
+                lineVertexBuffer = null;
+            }
+        }
+        
+        if (lineVertexBuffer == null) {
+            lineVertexBuffer = Buffers.newDirectFloatBuffer(lineVertexData.length);
+        }
+        
+        lineVertexBuffer.put(lineVertexData);
+        lineVertexBuffer.flip();
+        gl.glVertexPointer( 3, GL.GL_FLOAT, 0, lineVertexBuffer );
+    }
+    
+    /**
+     * Initialize open gl color array in native buffer objects.
+     */
+    private void updateGLColorArray(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+        
+        // Reset buffer and set to null of new colors don't fit.
+        if (lineColorBuffer != null) {
+            lineColorBuffer.clear();
+
+            if (lineColorBuffer.remaining() < lineColorData.length) {
+                lineColorBuffer = null;
+            }
+        }
+        
+        if (lineColorBuffer == null) {
+            lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
+        }
+        
+        lineColorBuffer.put(lineColorData);
+        lineColorBuffer.flip();
+        gl.glColorPointer( 3, GL.GL_UNSIGNED_BYTE, 0, lineColorBuffer );
+    }
+    
+    /**
+     * Traditional OpenGL writing each point and color.
+     */
+    private void oldStyle(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
         Point3d p1, p2;
 
@@ -309,47 +431,81 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         //gl.glEnable(GL2.GL_LINE_SMOOTH);
         gl.glBegin(GL_LINES);
         gl.glLineWidth(1.0f);
-        Color color = Color.WHITE;
 
-        for(LineSegment ls : objCommands)
+        int verts = 0;
+        int colors = 0;
+        for(LineSegment ls : gcodeLineList)
         {
-            // Find the lines color.
-            if (ls.isArc()) {
-                color = Color.RED;
-            } else if (ls.isFastTraverse()) {
-                color = Color.BLUE;
-            } else if (ls.isZMovement()) {
-                color = Color.GREEN;
-            } else {
-                color = Color.WHITE;
-            }
-
-            // Override color if it is cutoff
-            if (ls.getLineNumber() < this.cutoffNumber) {
-                color = Color.GRAY;
-            }
-            
-            // Draw it.
-            {
-                p1 = ls.getStart();
-                p2 = ls.getEnd();
-
-                makeVertexColor(color, gl);
-                gl.glVertex3d(p1.x, p1.y, p1.z);
-                 
-               makeVertexColor(color, gl);
-                gl.glVertex3d(p2.x, p2.y, p2.z);
-            }
+            gl.glColor3ub(lineColorData[colors++],lineColorData[colors++],lineColorData[colors++]);
+            gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
+            gl.glColor3ub(lineColorData[colors++],lineColorData[colors++],lineColorData[colors++]);
+            gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
         }
 
         gl.glEnd();
 
         //gl.glDisable(GL2.GL_LINE_SMOOTH);
-        // makes the gui stay on top of elements
-        // drawn before.
-        gl.glDisable(GL.GL_DEPTH_TEST);
     }
+    
+    /**
+     * Convert the gcodeLineList into vertex and color arrays.
+     */
+    private void createVertexBuffers() {
+        if (this.isDrawable) {
+            this.numberOfVertices = gcodeLineList.size() * 2;
+            this.lineVertexData = new float[numberOfVertices * 3];
+            this.lineColorData = new byte[numberOfVertices * 3];
+            
+            Color color;
+            int vertIndex = 0;
+            int colorIndex = 0;
+            for(LineSegment ls : gcodeLineList) {
+                // Find the lines color.
+                if (ls.isArc()) {
+                    color = Color.RED;
+                } else if (ls.isFastTraverse()) {
+                    color = Color.BLUE;
+                } else if (ls.isZMovement()) {
+                    color = Color.GREEN;
+                } else {
+                    color = Color.WHITE;
+                }
 
+                // Override color if it is cutoff
+                if (ls.getLineNumber() < this.currentCommandNumber) {
+                    color = Color.GRAY;
+                }
+
+                // Draw it.
+                {
+                    Point3d p1 = ls.getStart();
+                    Point3d p2 = ls.getEnd();
+                    byte[] c = getVertexColor(color);
+
+                    // colors
+                    //p1
+                    lineColorData[colorIndex++] = c[0];
+                    lineColorData[colorIndex++] = c[1];
+                    lineColorData[colorIndex++] = c[2];
+                    
+                    //p2
+                    lineColorData[colorIndex++] = c[0];
+                    lineColorData[colorIndex++] = c[1];
+                    lineColorData[colorIndex++] = c[2];
+                    
+                    // p1 location
+                    lineVertexData[vertIndex++] = (float)p1.x;
+                    lineVertexData[vertIndex++] = (float)p1.y;
+                    lineVertexData[vertIndex++] = (float)p1.z;
+                    //p2
+                    lineVertexData[vertIndex++] = (float)p2.x;
+                    lineVertexData[vertIndex++] = (float)p2.y;
+                    lineVertexData[vertIndex++] = (float)p2.z;
+                }
+            }
+        }
+    }
+    
     // For seeing the tool path.
     //private int count = 0;
     //private boolean increasing = true;
@@ -360,97 +516,53 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         // Increases the cutoff number each frame to show the tool path.
         count++;
         
-        if (increasing) cutoffNumber+=10;
-        else            cutoffNumber-=10;
+        if (increasing) currentCommandNumber+=10;
+        else            currentCommandNumber-=10;
 
-        if (this.cutoffNumber > this.largestNumber) increasing = false;
-        else if (this.cutoffNumber <= 0)             increasing = true;
+        if (this.currentCommandNumber > this.lastCommandNumber) increasing = false;
+        else if (this.currentCommandNumber <= 0)             increasing = true;
         */ 
     }
     
-    private static void makeVertexColor(VisualizerCanvas.Color color, GL2 gl) {
+    private byte[] getVertexColor(VisualizerCanvas.Color color) {
+        byte[] ret;
         switch (color) {
             case RED:
-                gl.glColor3ub((byte)255, (byte)100, (byte)100);
+                ret = new byte[]{(byte)255, (byte)100, (byte)100};
                 break;
             case BLUE:
-                gl.glColor3ub((byte)0, (byte)255, (byte)255);
+                ret = new byte[]{(byte)0, (byte)255, (byte)255};
                 break;
             case PURPLE: 
-                gl.glColor3ub((byte)242, (byte)0, (byte)255);
+                ret = new byte[]{(byte)242, (byte)0, (byte)255};
                 break;
             case YELLOW: 
-                gl.glColor3ub((byte)237, (byte)255, (byte)0);
+                ret = new byte[]{(byte)237, (byte)255, (byte)0};
                 break;
             case OTHER_YELLOW: 
-                gl.glColor3ub((byte)234, (byte)212, (byte)7);
+                ret = new byte[]{(byte)234, (byte)212, (byte)7};
                 break;
             case GREEN: 
-                gl.glColor3ub((byte)33, (byte)255, (byte)0);
+                ret = new byte[]{(byte)33, (byte)255, (byte)0};
                 break;
             case WHITE:
-                gl.glColor3ub((byte)255, (byte)255, (byte)255);
+                ret = new byte[]{(byte)255, (byte)255, (byte)255};
                 break;
             case GRAY:
-                gl.glColor3ub((byte)80, (byte)80, (byte)80);
+                ret = new byte[]{(byte)80, (byte)80, (byte)80};
+                break;
+            default:
+                // white
+                ret = new byte[]{(byte)255, (byte)255, (byte)255};
         }
+        return ret;
     }
+    
     /**
      * Called back before the OpenGL context is destroyed. Release resource such as buffers.
      */
     @Override
     public void dispose(GLAutoDrawable drawable) { }
-
-
-
-    private boolean isDrawable = false; //True if a file is loaded; false if not
-    private boolean isSpeedColored = true;
-    private ArrayList<LineSegment> objCommands; //An ArrayList of linesegments composing the model
-
-
-    ////////////ALPHA VALUES//////////////
-
-    private final int TRANSPARENT = 20;
-    private final int SOLID = 100;
-    private final int SUPERSOLID = 255;
-
-    //////////////////////////////////////
-
-    ////////////COLOR VALUES/////////////
-    private enum Color {
-        RED, 
-        BLUE, 
-        PURPLE, 
-        YELLOW, 
-        OTHER_YELLOW, 
-        GREEN, 
-        WHITE,
-        GRAY,
-    }
-    //////////////////////////////////////
-
-    ///////////SPEED VALUES///////////////
-
-    private float LOW_SPEED = 700;
-    private float MEDIUM_SPEED = 1400;
-    private float HIGH_SPEED = 1900;
-
-    //////////////////////////////////////
-
-    //////////SLIDER VALUES/////////////
-
-    private int minSlider = 1;
-    private int maxSlider;
-    private int defaultValue;
-
-    ////////////////////////////////////
-
-    /////////Canvas Size///////////////
-
-    private int xSize;
-    private int ySize;
-
-    ////////////////////////////////////
 
     @Override
     public void keyTyped(KeyEvent ke) {
@@ -484,28 +596,26 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 break;
                 
             case 'w':
-                this.cent.y+=DELTA_SIZE;
+                this.center.y+=DELTA_SIZE;
                 break;
             case 's':
-                this.cent.y-=DELTA_SIZE;
+                this.center.y-=DELTA_SIZE;
                 break;
             case 'a':
-                this.cent.x-=DELTA_SIZE;
+                this.center.x-=DELTA_SIZE;
                 break;
             case 'd':
-                this.cent.x+=DELTA_SIZE;
+                this.center.x+=DELTA_SIZE;
                 break;
             case 'r':
-                this.cent.z+=DELTA_SIZE;
+                this.center.z+=DELTA_SIZE;
                 break;
             case 'f':
-                this.cent.z-=DELTA_SIZE;
+                this.center.z-=DELTA_SIZE;
                 break;
         }
         
-                
         //System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
-
     }
 
     @Override

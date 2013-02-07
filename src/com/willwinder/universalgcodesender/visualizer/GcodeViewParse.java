@@ -49,7 +49,8 @@ public class GcodeViewParse {
     boolean absoluteMode = true;
     static boolean absoluteIJK = false;
     
-    private int currentNumber = 0;
+    // For assigning numbers to line segment corresponding to the current line.
+    private int currentLine = 0;
     
     public GcodeViewParse()
     {
@@ -102,14 +103,12 @@ public class GcodeViewParse {
     public ArrayList<LineSegment> toObj(ArrayList<String> gcode)
     {
         double speed = 2; //DEFAULTS to 2
-        double[] newCoord = { 0.0f, 0.0f, 0.0f};
 
         Point3d next = new Point3d();
         Point3d center = new Point3d(0.0, 0.0, 0.0);
         Point3d last = new Point3d(0.0, 0.0, 0.0);
         double parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ, parsedK;
-        int gCode = -1;
-        int mCode = -1;
+        int gCode, mCode;
         int lastGCode = -1;
         Matcher matcher;
 
@@ -127,18 +126,21 @@ public class GcodeViewParse {
 
             // At this point next == last
             if(!Double.isNaN(parsedX)) {
-                if (!this.absoluteMode)
+                if (!this.absoluteMode) {
                     parsedX += last.x;
+                }
                 next.x = parsedX;
             }
             if(!Double.isNaN(parsedY)) {
-                if (!this.absoluteMode)
+                if (!this.absoluteMode) {
                     parsedY += last.y;
+                }
                 next.y = parsedY;
             }
             if(!Double.isNaN(parsedZ)) {
-                if (!this.absoluteMode)
+                if (!this.absoluteMode) {
                     parsedZ += last.z;
+                }
                 next.z = parsedZ;
             }
             
@@ -151,7 +153,7 @@ public class GcodeViewParse {
             // Centerpoint in case of arc
             center.set(0.0, 0.0, 0.0);
             if (!Double.isNaN(parsedI)) {
-                if (!this.absoluteIJK) {
+                if (!absoluteIJK) {
                     center.x = last.x + parsedI;
                 } else {
                     center.x = parsedI;
@@ -159,7 +161,7 @@ public class GcodeViewParse {
             }
 
             if (!Double.isNaN(parsedJ)) {
-                if (!this.absoluteIJK) {
+                if (!absoluteIJK) {
                     center.y = last.y + parsedJ;
                 } else {
                     center.y = parsedJ;
@@ -167,7 +169,7 @@ public class GcodeViewParse {
             }
 
             if (!Double.isNaN(parsedK)) {
-                if (!this.absoluteIJK) {
+                if (!absoluteIJK) {
                     center.z = last.z + parsedK;
                 } else {
                     center.z = parsedK;
@@ -213,7 +215,7 @@ public class GcodeViewParse {
         LineSegment ls;
         switch (code) {
             case 0:
-                ls = new LineSegment(start, end, currentNumber++);
+                ls = new LineSegment(start, end, currentLine++);
                 ls.setIsFastTraverse(true);
                 if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
                     ls.setIsZMovement(true);
@@ -222,7 +224,7 @@ public class GcodeViewParse {
                 break;
 
             case 1:
-                ls = new LineSegment(start, end, currentNumber++);
+                ls = new LineSegment(start, end, currentLine++);
                 if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
                     ls.setIsZMovement(true);
                 }                ls.isFastTraverse();
@@ -239,7 +241,7 @@ public class GcodeViewParse {
                 // draw the arc itself.
                 //addArcSegmentsReplicatorG(start, end, center, clockwise);
                 addArcSegmentsBDring(start, end, center, clockwise);
-                currentNumber++;
+                currentLine++;
                 break;
                 
             case 90:
@@ -278,14 +280,15 @@ public class GcodeViewParse {
 
         if (deltaX != 0) {			// prevent div by 0
             // it helps to know what quadrant you are in
-            if (deltaX > 0 && deltaY >= 0)  // 0 - 90
+            if (deltaX > 0 && deltaY >= 0) {  // 0 - 90
                 angle = Math.atan(deltaY/deltaX);
-            else if (deltaX < 0 && deltaY >= 0) // 90 to 180
+            } else if (deltaX < 0 && deltaY >= 0) { // 90 to 180
                 angle = Math.PI - Math.abs(Math.atan(deltaY/deltaX));
-            else if (deltaX < 0 && deltaY < 0) // 180 - 270
+            } else if (deltaX < 0 && deltaY < 0) { // 180 - 270
                 angle = Math.PI + Math.abs(Math.atan(deltaY/deltaX));
-            else if (deltaX > 0 && deltaY < 0) // 270 - 360
+            } else if (deltaX > 0 && deltaY < 0) { // 270 - 360
                 angle = Math.PI * 2 - Math.abs(Math.atan(deltaY/deltaX));
+            }
         }
         else {
             // 90 deg
@@ -396,8 +399,9 @@ public class GcodeViewParse {
         // and if not add 2PI so that it is (this also takes
         // care of the special case of angleA == angleB,
         // ie we want a complete circle)
-        if (angleB <= angleA)
+        if (angleB <= angleA) {
                 angleB += 2 * Math.PI;
+        }
         angle = angleB - angleA;
         // calculate a couple useful things.
         radius = Math.sqrt(aX * aX + aY * aY);
@@ -419,10 +423,11 @@ public class GcodeViewParse {
         double fraction;
         for (s = 1; s <= steps; s++) {
                 // Forwards for CCW, backwards for CW
-                if (!clockwise)
-                        step = s;
-                else
-                        step = steps - s;
+                if (!clockwise) {
+                    step = s;
+                } else {
+                    step = steps - s;
+                }
 
                 fraction = (double) step / steps;
                 // calculate our waypoint.
@@ -444,7 +449,7 @@ public class GcodeViewParse {
     
     private void queuePoint(final Point3d point) {
         if (lastPoint != null) {
-            lines.add(new LineSegment(lastPoint, point, currentNumber));
+            lines.add(new LineSegment(lastPoint, point, currentLine));
         }
         //lastPoint = point;
         lastPoint.set(point);
@@ -455,7 +460,7 @@ public class GcodeViewParse {
     }
     
     private void queueArcLine(final Point3d start, final Point3d end) {
-        LineSegment ls = new LineSegment(start, end, currentNumber);
+        LineSegment ls = new LineSegment(start, end, currentLine);
         ls.setIsArc(true);
         lines.add(ls);
     }

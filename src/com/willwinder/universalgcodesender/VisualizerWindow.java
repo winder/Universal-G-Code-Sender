@@ -30,13 +30,11 @@ import com.willwinder.universalgcodesender.CommUtils.Capabilities;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.media.opengl.awt.GLCanvas;
 import javax.swing.JFrame;
 
 /**
  *
  * @author wwinder
- * @template http://www3.ntu.edu.sg/home/ehchua/programming/opengl/JOGL2.0.html
  */
 public class VisualizerWindow extends javax.swing.JFrame implements SerialCommunicatorListener {
 
@@ -51,7 +49,7 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     private Capabilities positionVersion = null;
     private Coordinate machineCoordinate;
     private Coordinate workCoordinate;
-
+    private int firstCommandNumber = -1;
     private String gcodeFile = null;
     private VisualizerCanvas canvas = null;
     
@@ -78,8 +76,7 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
                 new Thread() {
                     @Override
                     public void run() {
-                        if (animator.isStarted()) animator.stop();
-                        System.exit(0);
+                        if (animator.isStarted()){ animator.stop(); }
                     }
                 }.start();
             }
@@ -92,7 +89,11 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
 
     public void setGcodeFile(String file) {
         this.gcodeFile = file;
-        canvas.setGcodeFile(file);
+        canvas.setGcodeFile(this.gcodeFile);
+    }
+    
+    public void setFirstCommandNumber(int num) {
+        this.firstCommandNumber = num;
     }
     
     @Override
@@ -112,8 +113,9 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     public void positionStringListener(String position) {
         machineCoordinate = GrblUtils.getMachinePositionFromPositionString(position, this.positionVersion);        
         workCoordinate = GrblUtils.getWorkPositionFromPositionString(position, this.positionVersion);
+        
+        // TODO: Give coordinates to canvas.
     }
-    
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
