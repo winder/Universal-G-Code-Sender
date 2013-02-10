@@ -455,6 +455,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     private void finishStreamFileToComm() {
         this.fileMode = false;
+        this.fileModeSending = false;
 
         this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
         // Trigger callback
