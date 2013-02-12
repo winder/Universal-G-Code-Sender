@@ -23,6 +23,8 @@
 
 package com.willwinder.universalgcodesender;
 
+import javax.vecmath.Point3d;
+
 /**
  *
  * @author wwinder
@@ -64,6 +66,10 @@ public class Coordinate {
     
     Double getZ() {
         return this.z;
+    }
+    
+    Point3d getPoint() {
+        return new Point3d(x, y, z);
     }
     
     @Override

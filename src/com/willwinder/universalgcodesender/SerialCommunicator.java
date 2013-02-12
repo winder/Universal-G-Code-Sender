@@ -252,10 +252,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
 
-        SerialCommunicator.dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, commandQueuedListeners, command);
-        //if (this.commandQueuedListeners != null) {
-        //    this.commandQueuedListeners.commandQueued(command);
-        //}
+        dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, 
+                commandQueuedListeners, command);
 
         // Send command to the serial port.
         this.streamCommands();
@@ -327,7 +325,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         command = this.commandBuffer.appendCommandString(commandString);
         
         // Notify listener of new command
-        dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, this.commandQueuedListeners, command);
+        dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, 
+                this.commandQueuedListeners, command);
     }
     
     void appendGcodeFile(File commandfile) throws Exception {
@@ -416,7 +415,8 @@ public class SerialCommunicator implements SerialPortEventListener{
                 this.sendStringToComm(command.getCommandString());
             }
             
-            dispatchListenerEvents(LISTENER_EVENT.COMMAND_SENT, this.commandCompleteListeners, command);
+            dispatchListenerEvents(LISTENER_EVENT.COMMAND_SENT, 
+                    this.commandCompleteListeners, command);
             
             // If the command was skipped let the listeners know.
             if (skip) {
@@ -424,7 +424,8 @@ public class SerialCommunicator implements SerialPortEventListener{
                         + command.getCommandNumber() + "\n");
                 command.setResponse("<skipped by application>");
 
-                dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, this.commandCompleteListeners, command);
+                dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, 
+                        this.commandCompleteListeners, command);
             }
 
             // Load the next command.
@@ -499,7 +500,8 @@ public class SerialCommunicator implements SerialPortEventListener{
 
             command.setResponse(response);
 
-            dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, this.commandCompleteListeners, command);
+            dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, 
+                    this.commandCompleteListeners, command);
 
             if (this.sendPaused == false) {
                 this.streamCommands();
