@@ -32,11 +32,6 @@ import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -63,6 +58,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     static boolean ortho = true;
     static double orthoRotation = -35;
     static boolean forceOldStyle = false;
+    static boolean debugCoordinates = false; // turn on coordinate debug output
 
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
@@ -105,6 +101,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
        this.eye = new Point3d(0, 0, 1.5);
        this.center = new Point3d(0, 0, 0);
+       
+       this.workCoord = new Point3d(0, 0, 0);
+       this.machineCoord = new Point3d(0, 0, 0);
     }
     
     /**
@@ -129,6 +128,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     public void setGcodeFile(String file) {
         this.gcodeFile = file;
         generateObject();
+    }
+    
+    public void setWorkCoordinate(Point3d p) {
+        this.workCoord.set(p);
+    }
+    
+    public void setMachineCoordinate(Point3d p) {
+        this.machineCoord.set(p);
     }
 
     // ------ Implement methods declared in GLEventListener ------
@@ -199,7 +206,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         // Draw model
         if (isDrawable) {
-            render(drawable);
+            renderModel(drawable);
+            renderTool(drawable);
         }
         
         gl.glDisable(GL.GL_DEPTH_TEST);
@@ -214,9 +222,32 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     }
     
     /**
+     * Draws a tool at the current work coordinates.
+     */
+    private void renderTool(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+
+        
+        gl.glLineWidth(8.0f);
+        byte []color;
+        color = VisualizerUtils.getVertexColor(VisualizerUtils.Color.YELLOW);
+        int verts = 0;
+        int colors = 0;
+        
+        gl.glBegin(GL_LINES);
+        
+            gl.glColor3ub(color[0], color[1], color[2]);
+            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z);
+            gl.glColor3ub(color[0], color[1], color[2]);
+            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z+(1.0/this.scaleFactor));
+            
+        gl.glEnd();
+    }
+    
+    /**
      * Render the GCode object.
      */
-    private void render(GLAutoDrawable drawable) {
+    private void renderModel(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         
         // Batch mode if available 
@@ -234,7 +265,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 this.updateGLGeometryArray(drawable);
                 this.vertexArrayDirty = false;
             }
-            
+            gl.glLineWidth(1.0f);
+
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
             gl.glDrawArrays( GL.GL_LINES, 0, numberOfVertices);
@@ -454,6 +486,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      * Called after each render.
      */
     private void update() {
+        if (debugCoordinates) {
+            System.out.println("Machine coordinates: " + this.machineCoord.toString());
+            System.out.println("Work coordinates: " + this.workCoord.toString());
+            System.out.println("-----------------");
+        }
         
         /*
         // Increases the cutoff number each frame to show the tool path.

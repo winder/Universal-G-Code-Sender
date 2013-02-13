@@ -1540,6 +1540,7 @@ implements SerialCommunicatorListener, KeyListener {
         this.tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isDone(), command.getResponse()});
     }
      
+    int buffered=0;
     @Override
     public void commandSent(GcodeCommand command) {
         if (this.isSendingFile) {
@@ -1547,6 +1548,7 @@ implements SerialCommunicatorListener, KeyListener {
             this.sentRows++;
         }
         
+        buffered ++;
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
         
@@ -1572,6 +1574,7 @@ implements SerialCommunicatorListener, KeyListener {
     
     @Override
     public void commandComplete(GcodeCommand command) {
+        buffered --;
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
         
@@ -1592,6 +1595,10 @@ implements SerialCommunicatorListener, KeyListener {
                     remaining--;
                     remainingRowsValueLabel.setText("" + remaining);
                 }
+                if (vw != null) {
+                    vw.setCompletedCommandNumber(sentRows);
+                }
+                System.out.println("buffered: " + buffered);
 
             }});
     }

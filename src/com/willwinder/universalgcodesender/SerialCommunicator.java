@@ -53,6 +53,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     private OutputStream out;
     private String lineTerminator = "\r\n";
     private Timer positionPollTimer = null;  
+    private int pollingRate = 100;
     
     // File transfer variables.
     private Boolean sendPaused = false;
@@ -577,7 +578,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             }
         };
         
-        this.positionPollTimer = new Timer(1000, actionListener);
+        this.positionPollTimer = new Timer(pollingRate, actionListener);
         this.positionPollTimer.start();
     }
 
