@@ -1305,15 +1305,17 @@ implements SerialCommunicatorListener, KeyListener {
             case COMM_DISCONNECTED:
                 this.updateConnectionControls(false);
                 this.updateManualControls(false);
-                this.updateWorkflowCommands(false);
+                this.updateWorkflowControls(false);
                 this.updateFileControls(false);
                 this.resetSentRowLabels(0);
+                this.updateControlsStopSending();
                 break;
             case COMM_IDLE:
                 this.updateConnectionControls(true);
                 this.updateManualControls(true);
-                this.updateWorkflowCommands(true);
+                this.updateWorkflowControls(true);
                 this.updateFileControls(true);
+                this.updateControlsStopSending();
                 break;
             case COMM_SENDING:
                 // Command tab
@@ -1329,7 +1331,7 @@ implements SerialCommunicatorListener, KeyListener {
                 this.overrideSpeedValueSpinner.setEnabled(false);
 
                 // Workflow tab
-                this.updateWorkflowCommands(false);
+                this.updateWorkflowControls(false);
 
                 // Jogging commands
                 this.updateManualControls(false);
@@ -1372,11 +1374,20 @@ implements SerialCommunicatorListener, KeyListener {
         this.fileTextField.setEnabled(enabled);
 
         if (!enabled) {
-            // In case transitioning from file sending or file send paused.
-            this.pauseButton.setText("Pause");
-            this.pauseButton.setEnabled(false);
-            this.cancelButton.setEnabled(false);
+            updateControlsStopSending();
         }
+    }
+    
+    private void updateControlsStopSending() {
+        if (this.timer != null && this.timer.isRunning()) {
+            // Stop the timer
+            this.timer.stop();
+        }
+        
+        // In case transitioning from file sending or file send paused.
+        this.pauseButton.setText("Pause");
+        this.pauseButton.setEnabled(false);
+        this.cancelButton.setEnabled(false);
     }
     
     /**
@@ -1395,7 +1406,7 @@ implements SerialCommunicatorListener, KeyListener {
         this.stepSizeSpinner.setEnabled(enabled);
     }
     
-    private void updateWorkflowCommands(boolean enabled) {
+    private void updateWorkflowControls(boolean enabled) {
         this.resetCoordinatesButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
         this.performHomingCycleButton.setEnabled(enabled);
