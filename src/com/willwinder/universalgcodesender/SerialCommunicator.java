@@ -41,7 +41,7 @@ import javax.swing.Timer;
 public class SerialCommunicator implements SerialPortEventListener{
     private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter;   // The c in 'Grbl 0.8c'
-    
+    private Boolean isReady = false;    // Not ready until version is received.
     // Capability flags
     private Boolean realTimeMode = false;
     private Boolean realTimePosition = false;
@@ -296,6 +296,9 @@ public class SerialCommunicator implements SerialPortEventListener{
     /** File Stream Methods. **/
     
     void isReadyToStreamFile() throws Exception {
+        if (isReady == false) {
+            throw new Exception("Grbl has not finished booting.");
+        }
         if (this.fileModeSending == true) {
             throw new Exception("Already sending a file.");
         }
@@ -515,6 +518,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             
             this.grblVersion = GrblUtils.getVersionDouble(response);
             this.grblVersionLetter = GrblUtils.getVersionLetter(response);
+            this.isReady = true;
             
             this.realTimeMode = GrblUtils.isRealTimeCapable(this.grblVersion);
             if (this.realTimeMode) {
