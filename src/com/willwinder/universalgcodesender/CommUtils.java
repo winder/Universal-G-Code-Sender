@@ -24,8 +24,6 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.CommPortIdentifier;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -36,8 +34,8 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class CommUtils {
-    // Note: One character of this buffer is reserved for real time commands.
-    public static final int GRBL_RX_BUFFER_SIZE= 110;
+    // Note: 5 characters of this buffer reserved for real time commands.
+    public static final int GRBL_RX_BUFFER_SIZE= 123;
     
     /**
      * Real-time commands

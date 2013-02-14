@@ -1094,7 +1094,8 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_showVerboseOutputCheckBoxActionPerformed
 
     private void arrowMovementEnabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arrowMovementEnabledActionPerformed
-        this.updateManualControls(this.arrowMovementEnabled.isSelected());
+        // Valid to click the buttons even when arrow movement is disabled.
+        //this.updateManualControls(this.arrowMovementEnabled.isSelected());
     }//GEN-LAST:event_arrowMovementEnabledActionPerformed
 
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
