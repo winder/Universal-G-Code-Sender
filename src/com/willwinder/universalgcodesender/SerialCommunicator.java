@@ -38,10 +38,11 @@ import javax.swing.Timer;
  *
  * @author wwinder
  */
-public class SerialCommunicator implements SerialPortEventListener{
+public class SerialCommunicator implements SerialPortEventListener{    
     private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter;   // The c in 'Grbl 0.8c'
     private Boolean isReady = false;    // Not ready until version is received.
+    
     // Capability flags
     private Boolean realTimeMode = false;
     private Boolean realTimePosition = false;
@@ -51,9 +52,11 @@ public class SerialCommunicator implements SerialPortEventListener{
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
+    private StringBuilder inputBuffer = null;
     private String lineTerminator = "\r\n";
     private Timer positionPollTimer = null;  
-    private int pollingRate = 100;
+    private int pollingRate = 200;
+    private Boolean outstandingPolls = false;
     
     // File transfer variables.
     private Boolean sendPaused = false;
@@ -99,6 +102,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
         this.capabilitiesListeners       = new ArrayList<SerialCommunicatorListener>();
         this.positionListeners           = new ArrayList<SerialCommunicatorListener>();
+        
+        this.inputBuffer = new StringBuilder();
     }
     
     /** Getters & Setters. */
@@ -272,7 +277,7 @@ public class SerialCommunicator implements SerialPortEventListener{
          // Send command to the serial port.
          PrintStream printStream = new PrintStream(this.out);
          printStream.print(command);
-         printStream.close();     
+         printStream.close(); 
     }
     
     /**
@@ -367,7 +372,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Setup for streaming to serial port then launch the first command.
     void streamToComm() throws Exception {
         isReadyToStreamFile();
-
+        
         // Changing to file mode.
         this.fileMode = true;
 
@@ -493,9 +498,10 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Processes message from GRBL.
      */
     private void responseMessage( String response ) {
-
+        
         // Check if was 'ok' or 'error'.
         if (GcodeCommand.isOkErrorResponse(response)) {
+            
             // All Ok/Error messages go to console
             this.sendMessageToConsoleListener(response + "\n");
 
@@ -511,7 +517,9 @@ public class SerialCommunicator implements SerialPortEventListener{
                 this.streamCommands();
             }
         }
-        
+        else if (response.contains("ok") || response.contains("error)")) {
+            System.out.println("MISSED AN OK OR ERROR: " + response);
+        }
         else if (GrblUtils.isGrblVersionString(response)) {
             // Version string goes to console
             this.sendMessageToConsoleListener(response + "\n");
@@ -546,6 +554,8 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
         
         else if (GrblUtils.isGrblPositionString(response)) {
+            this.outstandingPolls = false;
+
             // Position string goes to verbose console
             this.sendMessageToConsoleListener(response + "\n", true);
             
@@ -563,8 +573,6 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Begin issuing GRBL status request commands to the serial port.
      */
     private void beginPollingPosition() {
-        System.out.println("BEGIN POLLING POSITION");
-        
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -572,7 +580,10 @@ public class SerialCommunicator implements SerialPortEventListener{
                     @Override
                     public void run() {
                         try {
-                            sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                            if (!outstandingPolls) {
+                                sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                                outstandingPolls = true;
+                            }
                         } catch (IOException ex) {
                             sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage() + "\n");
                         }
@@ -597,27 +608,33 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Reads data from the serial port. RXTX SerialPortEventListener method.
      */
     public void serialEvent(SerialPortEvent arg0) {
-
+        //System.out.println("Serial Event.");
         if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try
             {
-                String next = CommUtils.readLineFromCommUntil(in, lineTerminator);
-                next = next.replace("\n", "").replace("\r","");
-                
-                // Handle response.
-                this.responseMessage(next);
-                    
-                /*
-                 * For some reason calling readLineFromCommUntil more than once
-                 * prevents the close command from working later on.
-                // Read one or more lines from the comm.
-                while ((next = CommUtils.readLineFromCommUntil(in, lineTerminator)).isEmpty() == false) {
-                    next = next.replace("\n", "").replace("\r","");
-                
-                    // Handle response.
-                    this.responseMessage(next);
-                }
-                */
+                int availableBytes = in.available();
+                if (availableBytes > 0) {
+                    byte[] readBuffer = new byte[availableBytes];
+
+                    // Read from serial port
+                    in.read(readBuffer, 0, availableBytes);
+                    inputBuffer.append(new String(readBuffer, 0, availableBytes));
+                                        
+                    // Check for line terminator and split out command(s).
+                    if (inputBuffer.toString().contains(lineTerminator)) {
+                        // Split with the -1 option will give an empty string at
+                        // the end if there is a terminator there as well.
+                        String []commands = inputBuffer.toString().split(lineTerminator, -1);
+
+                        for (int i=0; i < commands.length; i++) {
+                            if ((i+1) < commands.length) {
+                                this.responseMessage(commands[i]);
+                            } else {
+                                inputBuffer = new StringBuilder().append(commands[i]);
+                            }
+                        }
+                    }
+                }                
             }
             catch ( IOException e )
             {
@@ -650,6 +667,9 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
 
     
+    /**
+     * A bunch of methods to dispatch listener events with various arguments.
+     */
     static private void dispatchListenerEvents(LISTENER_EVENT event, ArrayList<SerialCommunicatorListener> sclList, String message) {
         if (sclList != null) {
             for (SerialCommunicatorListener s : sclList) {

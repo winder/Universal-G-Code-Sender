@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
  */
 public class CommUtils {
     // Note: One character of this buffer is reserved for real time commands.
-    public static final int GRBL_RX_BUFFER_SIZE= 127;
+    public static final int GRBL_RX_BUFFER_SIZE= 110;
     
     /**
      * Real-time commands
@@ -77,38 +77,6 @@ public class CommUtils {
             }
         }
         return returnList;
-    }
-    
-    /** 
-     * Reads characters from the input stream until a terminating pattern is
-     * reached.
-     */
-    static String readLineFromCommUntil(InputStream in, String term) throws IOException {
-        
-        if (term == null || term.length() == 0) {
-            return "";
-        }
-        
-        int data;
-        StringBuilder buffer = new StringBuilder();
-        int terminatorPosition = 0;
-        
-        while ( ( data = in.read()) > -1 ) {
-            // My funky way of checking for the terminating characters..
-            if ( data == term.charAt(terminatorPosition) ) {
-                terminatorPosition++;
-            } else {
-                terminatorPosition = 0;
-            }
-
-            if (terminatorPosition == term.length()) {
-                break;
-            }
-
-            buffer.append((char)data);
-        }
-        
-        return buffer.toString();
     }
     
     /** 
