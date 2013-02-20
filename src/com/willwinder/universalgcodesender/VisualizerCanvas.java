@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -342,8 +343,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     {
         if (this.gcodeFile == null){ return; }
         
+        try {
+
         GcodeViewParse gcvp = new GcodeViewParse();
-        ArrayList<String> linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+        ArrayList<String> linesInFile;
+        linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
         gcodeLineList = gcvp.toObj(linesInFile);
         
         this.objectMin = gcvp.getMinimumExtremes();
@@ -371,6 +375,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.createVertexBuffers();
         this.colorArrayDirty = true;
         this.vertexArrayDirty = true;
+        
+        } catch (IOException e) {
+            System.out.println("Error opening file: " + e.getLocalizedMessage());
+        }
+
     }
 
     /**

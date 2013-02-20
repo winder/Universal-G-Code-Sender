@@ -58,13 +58,16 @@ public class SerialCommunicator implements SerialPortEventListener{
     private int pollingRate = 200;
     private Boolean outstandingPolls = false;
     
-    // File transfer variables.
+    // Command streaming variables
     private Boolean sendPaused = false;
+    private GcodeCommandBuffer commandBuffer;   // All commands in a file
+    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
+
+    // File transfer variables.
+    // TODO: Finish deleting these
     private boolean fileMode = false;
     private boolean fileModeSending = false;
     private File file = null;
-    private GcodeCommandBuffer commandBuffer;   // All commands in a file
-    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
 
     // Callback interfaces
     ArrayList<SerialCommunicatorListener> fileStreamCompleteListeners;
@@ -325,72 +328,6 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
 
     }
-    /*
-    void appendGcodeCommand(String input) throws Exception {
-        isReadyToStreamFile();
-
-        // Changing to file mode.
-        this.fileMode = true;
-        
-        String commandString = input;
-        
-        if (! commandString.endsWith("\n")) {
-            commandString += "\n";
-        }
-        
-        GcodeCommand command;
-        command = this.commandBuffer.appendCommandString(commandString);
-        
-        // Notify listener of new command
-        ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_QUEUED, 
-                this.commandQueuedListeners, command);
-    }
-    
-    void appendGcodeFile(File commandfile) throws Exception {
-        isReadyToStreamFile();
-
-        // Changing to file mode.
-        this.fileMode = true;
-        
-        // Get command list.
-        try {
-            this.file = commandfile;
-            
-            FileInputStream fstream = new FileInputStream(this.file);
-            DataInputStream dis = new DataInputStream(fstream);
-            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-
-            String line;
-            GcodeCommand command;
-            while ((line = fileStream.readLine()) != null) {
-                // Add command to queue
-                command = this.commandBuffer.appendCommandString(line + '\n');
-                
-                // Notify listener of new command
-                ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_QUEUED, 
-                        this.commandQueuedListeners, command);
-            }
-        } catch (Exception e) {
-            // On error, wrap up then re-throw exception for GUI to display.
-            finishStreamFileToComm();
-            throw e;
-        }
-    }
-    
-    // Setup for streaming to serial port then launch the first command.
-    void streamToComm() throws Exception {
-        isReadyToStreamFile();
-        
-        // Changing to file mode.
-        this.fileMode = true;
-
-        // Now that we are setup for file mode, enable and begin streaming.
-        this.fileModeSending = true;
-        
-        // Start sending commands.
-        this.streamCommands();     
-    }
-    */
     
     /**
      * Streams anything in the command buffer to the comm port.
@@ -493,17 +430,17 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     void cancelSend() {
-        if (this.fileMode || this.fileModeSending) {
-            this.fileMode = false;
-            this.fileModeSending = false;
+        //if (this.fileMode || this.fileModeSending) {
+        //    this.fileMode = false;
+        //    this.fileModeSending = false;
             
-            this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n\n");
+        //    this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n\n");
 
             this.commandBuffer.clearBuffer();
             
             // Clear the active command list?
             this.activeCommandList.clear();
-        }
+        //}
     }
 
 

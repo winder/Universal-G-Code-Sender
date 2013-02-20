@@ -34,6 +34,7 @@ public class GrblController implements SerialCommunicatorListener {
     private Boolean isStreaming = false;
     private long streamStart = 0;
     private long streamStop = 0;
+    private int numCommands = 0;
     private File gcodeFile;
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
     
@@ -103,13 +104,17 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public int rowsInSend() {
-        return  this.outgoingQueue.size() +
-                this.awaitingResponseQueue.size() +
-                this.completedCommandList.size();
+        return this.numCommands;
+        // Because of discarded commands the value had to be cached early.
+        //return  this.outgoingQueue.size() +
+        //        this.awaitingResponseQueue.size() +
+        //        this.completedCommandList.size();
     }
     
     public int rowsSent() {
-        return this.completedCommandList.size() + this.awaitingResponseQueue.size();
+        return this.numCommands - this.outgoingQueue.size();
+        
+        //return this.completedCommandList.size() + this.awaitingResponseQueue.size();
     }
     
     public int rowsRemaining() {
@@ -169,6 +174,7 @@ public class GrblController implements SerialCommunicatorListener {
         this.isStreaming = true;
         this.streamStop = 0;
         this.streamStart = System.currentTimeMillis();
+        this.numCommands = this.commandQueue.size();
         
         try {
             // Send all queued commands and wait for a response.
@@ -183,9 +189,9 @@ public class GrblController implements SerialCommunicatorListener {
                 if (processed.trim().equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
                     command.setResponse("<skipped by application>");
-
-                    //this.awaitingResponseQueue.add(command);
                     this.commandComplete(command);
+                    // For the listeners...
+                    dispatchCommandSent(listeners, command);
                 } else {
                     this.outgoingQueue.add(command);
                     this.sendStringToComm(processed);
@@ -207,7 +213,18 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public void cancelSend() {
+        this.messageForConsole("\n**** Canceling file transfer. ****\n\n");
+        
+        this.flushSendQueues();
         this.comm.cancelSend();
+    }
+    
+    private void flushSendQueues() {
+        this.commandQueue.clear();
+        this.outgoingQueue.clear();
+        this.awaitingResponseQueue.clear();
+        this.completedCommandList.clear();
+        this.errorCommandList.clear();
     }
 
     private void printStateOfQueues() {

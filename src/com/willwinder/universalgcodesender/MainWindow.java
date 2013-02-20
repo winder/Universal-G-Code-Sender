@@ -973,8 +973,9 @@ implements KeyListener, ControllerListener {
                     public void run() {
                     long elapsedTime = controller.getSendDuration();
                     durationValueLabel.setText(Utils.formattedMillis(elapsedTime));
-                    int sent  = Integer.parseInt(sentRowsValueLabel.getText()); 
-                    int remainingRows = Integer.parseInt(remainingRowsValueLabel.getText());
+                    
+                    int sent = controller.rowsSent();                    
+                    int remainingRows = controller.rowsRemaining();
 
                     long timePerRow = elapsedTime / sent;
                     long remainingTime = timePerRow * remainingRows;
@@ -1435,7 +1436,6 @@ implements KeyListener, ControllerListener {
         this.durationValueLabel.setText("00:00:00");
         this.remainingTimeValueLabel.setText("--:--:--");
         this.sentRowsValueLabel.setText("0");
-        this.sentRows = 0;
         this.remainingRowsValueLabel.setText(numRows.toString());
         rowsValueLabel.setText(numRows.toString());
     }
@@ -1583,8 +1583,8 @@ implements KeyListener, ControllerListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                sentRowsValueLabel.setText(""+sentRows);
-
+                //sentRowsValueLabel.setText(""+sentRows);
+                sentRowsValueLabel.setText(""+controller.rowsSent());
                 // sent
                 tableModel.setValueAt(sentCommand.isSent(), row, 1);
                 scrollTable(row);
@@ -1619,7 +1619,7 @@ implements KeyListener, ControllerListener {
                     remainingRowsValueLabel.setText("" + remaining);
                 }
                 if (vw != null) {
-                    vw.setCompletedCommandNumber(sentRows);
+                    vw.setCompletedCommandNumber(controller.rowsSent());
                 }
             }});
     }
@@ -1657,10 +1657,15 @@ implements KeyListener, ControllerListener {
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
 
-    private GrblController controller;
+    // TODO: Move command history box into a self contained object.
+    // This is for the command history box.
     private int commandNum = -1;
     private List<String> manualCommandHistory;
+
     private DefaultTableModel tableModel;
+    
+    private GrblController controller;
+    
     private int sentRows = 0;
     private boolean G91Mode = false;
 
