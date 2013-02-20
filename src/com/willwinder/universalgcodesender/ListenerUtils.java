@@ -23,6 +23,7 @@ public class ListenerUtils {
     static final int VERBOSE_CONSOLE_MESSAGE = 8;
     static final int CAPABILITY = 9;
     static final int POSITION_UPDATE = 10;
+    static final int RAW_RESPONSE = 11;
     
     /**
      * A bunch of methods to dispatch listener events with various arguments.
@@ -63,17 +64,14 @@ public class ListenerUtils {
             String string, boolean bool, CommUtils.Capabilities capability, GcodeCommand command,
             Point3d workLocation, Point3d machineLocation) {
         switch(event) {
-            case FILE_STREAM_COMPLETE:
-                scl.fileStreamComplete(string, bool);
+            case COMMAND_COMPLETE:
+                scl.commandComplete(command);
                 break;
             case COMMAND_SENT:
                 scl.commandSent(command);
                 break;
             case COMMAND_COMMENT:
                 scl.commandComment(string);
-                break;
-            case COMMAND_COMPLETE:
-                scl.commandComplete(command);
                 break;
             case COMMAND_PREPROCESS:
                 throw new UnsupportedOperationException("Cannot dispatch preprocessor listeners");
@@ -84,12 +82,8 @@ public class ListenerUtils {
             case VERBOSE_CONSOLE_MESSAGE:
                 scl.verboseMessageForConsole(string);
                 break;
-            case CAPABILITY:
-                scl.capabilitiesListener(capability);
-                break;
-            case POSITION_UPDATE:
-                scl.positionStringListener(string);
-                break;
+            case RAW_RESPONSE:
+                scl.rawResponseListener(string);
             default:
 
         }

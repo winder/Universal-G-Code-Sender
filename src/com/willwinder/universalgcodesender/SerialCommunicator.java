@@ -38,15 +38,11 @@ import javax.swing.Timer;
  *
  * @author wwinder
  */
-public class SerialCommunicator implements SerialPortEventListener{    
-    private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
-    private String grblVersionLetter;   // The c in 'Grbl 0.8c'
-    private Boolean isReady = false;    // Not ready until version is received.
-    
+public class SerialCommunicator implements SerialPortEventListener{        
     // Capability flags
-    private Boolean realTimeMode = false;
-    private Boolean realTimePosition = false;
-    private CommUtils.Capabilities positionMode = null;
+    //private Boolean realTimeMode = false;
+    //private Boolean realTimePosition = false;
+    //private CommUtils.Capabilities positionMode = null;
     
     // General variables
     private CommPort commPort;
@@ -70,26 +66,21 @@ public class SerialCommunicator implements SerialPortEventListener{
     private File file = null;
 
     // Callback interfaces
-    ArrayList<SerialCommunicatorListener> fileStreamCompleteListeners;
     ArrayList<SerialCommunicatorListener> commandSentListeners;
-    ArrayList<SerialCommunicatorListener> commandCommentListeners;
     ArrayList<SerialCommunicatorListener> commandCompleteListeners;
     ArrayList<SerialCommunicatorListener> commConsoleListeners;
     ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
-    ArrayList<SerialCommunicatorListener> capabilitiesListeners;
-    ArrayList<SerialCommunicatorListener> positionListeners;
+    ArrayList<SerialCommunicatorListener> commRawResponseListener;
+
     // Only one listener can preprocess a command.
     SerialCommunicatorListener commandPreprocessorListener;
     
     SerialCommunicator() {
-        this.fileStreamCompleteListeners = new ArrayList<SerialCommunicatorListener>();
         this.commandSentListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commandCommentListeners     = new ArrayList<SerialCommunicatorListener>();
         this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
         this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
         this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
-        this.capabilitiesListeners       = new ArrayList<SerialCommunicatorListener>();
-        this.positionListeners           = new ArrayList<SerialCommunicatorListener>();
+        this.commRawResponseListener         = new ArrayList<SerialCommunicatorListener>();
         
         // Part of the serial data read event.
         this.inputBuffer = new StringBuilder();
@@ -132,34 +123,19 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     // Register for callbacks
     void setListenAll(SerialCommunicatorListener scl) {
-        this.addFileStreamCompleteListener(scl);
         this.addCommandSentListener(scl);
         this.addCommandCompleteListener(scl);
-        this.addCommandCommentListener(scl);
         this.addCommConsoleListener(scl);
         this.addCommVerboseConsoleListener(scl);
-        this.addCapabilitiesListener(scl);
-        this.addPositionStringListener(scl);
+        this.addCommRawResponseListener(scl);
     }
-    
-    void addFileStreamCompleteListener(SerialCommunicatorListener scl) {
-        this.fileStreamCompleteListeners.add(scl);
-    }
-    
+
     void addCommandSentListener(SerialCommunicatorListener scl) {
         this.commandSentListeners.add(scl);
     }
-    
-    void addCommandCommentListener(SerialCommunicatorListener scl) {
-        this.commandCommentListeners.add(scl);
-    }
-    
+
     void addCommandCompleteListener(SerialCommunicatorListener scl) {
         this.commandCompleteListeners.add(scl);
-    }
-    
-    void commandPreprocessorListener(SerialCommunicatorListener scl) {
-        this.commandPreprocessorListener = scl;
     }
     
     void addCommConsoleListener(SerialCommunicatorListener scl) {
@@ -170,23 +146,9 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.commVerboseConsoleListeners.add(scl);
     }
     
-    void addCapabilitiesListener(SerialCommunicatorListener scl) {
-        this.capabilitiesListeners.add(scl);
-        
-        // TODO: Stick the capabilities updates in a new function
-        if (this.positionMode != null) {
-            scl.capabilitiesListener(this.positionMode);
-        }
-        
-        if (this.realTimeMode) {
-            scl.capabilitiesListener(CommUtils.Capabilities.REAL_TIME);
-        }
+    void addCommRawResponseListener(SerialCommunicatorListener scl) {
+        this.commRawResponseListener.add(scl);
     }
-    
-    void addPositionStringListener(SerialCommunicatorListener scl) {
-        this.positionListeners.add(scl);
-    }
-
     
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
     // $ sudo mkdir /var/lock
@@ -220,12 +182,6 @@ public class SerialCommunicator implements SerialPortEventListener{
                 serialPort.notifyOnDataAvailable(true);  
                 serialPort.notifyOnBreakInterrupt(true);
 
-                this.sendMessageToConsoleListener("**** Connected to " 
-                                        + name
-                                        + " @ "
-                                        + baud
-                                        + " baud ****\n");
-
                 returnCode = true;
         }
 
@@ -249,7 +205,6 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.commPort.close();
 
         this.commPort = null;
-        this.sendMessageToConsoleListener("**** Connection closed ****\n");
     }
     
     /**
@@ -292,7 +247,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     /**
      * Immediately sends a byte, used for real-time commands.
      */
-    private void sendByteImmediately(byte b) throws IOException {
+    public void sendByteImmediately(byte b) throws IOException {
         out.write(b);
     }
        
@@ -310,9 +265,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     /** File Stream Methods. **/
     
     void isReadyToStreamFile() throws Exception {
-        if (isReady == false) {
-            throw new Exception("Grbl has not finished booting.");
-        }
         if (this.activeCommandList.size() > 0) {
             throw new Exception("Cannot send file until there are no commands running. (Active Command List > 0).");
         }
@@ -333,123 +285,54 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Streams anything in the command buffer to the comm port.
      */
     private void streamCommands() {
-        boolean skip;
-        
         // The GcodeCommandBuffer class always preloads the next command, so as
         // long as the currentCommand exists and hasn't been sent it is the next
         // which should be sent.
         
         while ((this.commandBuffer.currentCommand().isSent() == false) &&
                 CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
-
-            skip = false;
             GcodeCommand command = this.commandBuffer.currentCommand();
-
-            // Allow a command preprocessor listener to preprocess the command.
-            if (this.commandPreprocessorListener != null) {
-                String processed = this.commandPreprocessorListener.preprocessCommand(command.getCommandString());
-                
-                // If the lengths differ, update the latest comment.
-                if (processed.length() != command.getCommandString().length()) {
-                    String comment = CommUtils.parseComment(command.getCommandString());
-                    ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMMENT, 
-                            this.commandCommentListeners, comment);
-                }
-        
-                command.setCommand(processed);
-                
-                // If the Controller class hits this case all hell breaks loose.
-                if (processed.trim().equals("")) {
-                    skip = true;
-                }
-            }
             
             // Don't send skipped commands.
-            if (!skip) {
-                command.setSent(true);
+            command.setSent(true);
 
-                this.activeCommandList.add(command);
-            
-                // Commands parsed by the buffer list have embedded newlines.
-                this.sendStringToComm(command.getCommandString());
-            }
+            this.activeCommandList.add(command);
+
+            // Commands parsed by the buffer list have embedded newlines.
+            this.sendStringToComm(command.getCommandString());
             
             ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_SENT, 
-                    this.commandCompleteListeners, command);
-            
-            // If the command was skipped let the listeners know.
-            if (skip) {
-                this.sendMessageToConsoleListener("Skipping command #"
-                        + command.getCommandNumber() + "\n");
-                command.setResponse("<skipped by application>");
-
-                ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
-                        this.commandCompleteListeners, command);
-            }
+                    this.commandSentListeners, command);
 
             // Load the next command.
             this.commandBuffer.nextCommand();
         }
-
-        // If the final response is done and we're in file mode then wrap up.
-        if (this.fileMode && (this.commandBuffer.size() == 0) &&
-                this.commandBuffer.currentCommand().isDone() ) {
-            this.finishStreamFileToComm();
-        }            
-    }
-    
-    private void finishStreamFileToComm() {
-        this.fileMode = false;
-        this.fileModeSending = false;
-
-        this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
-        // Trigger callback
-        ListenerUtils.dispatchListenerEvents(ListenerUtils.FILE_STREAM_COMPLETE, 
-                this.fileStreamCompleteListeners, file.getName(), 
-                this.commandBuffer.currentCommand().isDone());
     }
     
     void pauseSend() throws IOException {
-        this.sendMessageToConsoleListener("\n**** Pausing file transfer. ****\n\n");
         this.sendPaused = true;
-        
-        if (this.realTimeMode) {
-            this.sendByteImmediately(CommUtils.GRBL_PAUSE_COMMAND);
-        }
     }
     
     void resumeSend() throws IOException {
-        this.sendMessageToConsoleListener("\n**** Resuming file transfer. ****\n\n");
-                
         this.sendPaused = false;
         this.streamCommands();
-        
-        if (this.realTimeMode) {
-            this.sendByteImmediately(CommUtils.GRBL_RESUME_COMMAND);
-        }
     }
     
     void cancelSend() {
-        //if (this.fileMode || this.fileModeSending) {
-        //    this.fileMode = false;
-        //    this.fileModeSending = false;
-            
-        //    this.sendMessageToConsoleListener("\n**** Canceling file transfer. ****\n\n");
-
             this.commandBuffer.clearBuffer();
             
             // Clear the active command list?
             this.activeCommandList.clear();
-        //}
     }
-
 
     /** 
      * Processes message from GRBL.
      */
     private void responseMessage( String response ) {
-        
-        // Check if was 'ok' or 'error'.
+        // SerialCommunicator no longer knows what to do with responses.
+        ListenerUtils.dispatchListenerEvents(ListenerUtils.RAW_RESPONSE, this.commRawResponseListener, response);
+
+        // Keep the data flow going for now.
         if (GcodeCommand.isOkErrorResponse(response)) {
             
             // All Ok/Error messages go to console
@@ -466,56 +349,6 @@ public class SerialCommunicator implements SerialPortEventListener{
             if (this.sendPaused == false) {
                 this.streamCommands();
             }
-        }
-        else if (response.contains("ok") || response.contains("error)")) {
-            System.out.println("MISSED AN OK OR ERROR: " + response);
-        }
-        else if (GrblUtils.isGrblVersionString(response)) {
-            // Version string goes to console
-            this.sendMessageToConsoleListener(response + "\n");
-            
-            this.grblVersion = GrblUtils.getVersionDouble(response);
-            this.grblVersionLetter = GrblUtils.getVersionLetter(response);
-            this.isReady = true;
-            
-            this.realTimeMode = GrblUtils.isRealTimeCapable(this.grblVersion);
-            if (this.realTimeMode) {
-                ListenerUtils.dispatchListenerEvents(ListenerUtils.CAPABILITY, 
-                        this.capabilitiesListeners, 
-                        CommUtils.Capabilities.REAL_TIME);
-            }
-            
-            this.positionMode = GrblUtils.getGrblPositionCapabilities(this.grblVersion, this.grblVersionLetter);
-            if (this.positionMode != null) {
-                this.realTimePosition = true;
-                
-                // Start sending '?' commands.
-                this.beginPollingPosition();
-            }
-            
-            if (this.realTimePosition) {
-                ListenerUtils.dispatchListenerEvents(ListenerUtils.CAPABILITY, 
-                        this.capabilitiesListeners, 
-                        CommUtils.Capabilities.POSITION_C);
-            }
-            
-            System.out.println("Grbl version = " + this.grblVersion + this.grblVersionLetter);
-            System.out.println("Real time mode = " + this.realTimeMode);
-        }
-        
-        else if (GrblUtils.isGrblPositionString(response)) {
-            this.outstandingPolls = false;
-
-            // Position string goes to verbose console
-            this.sendMessageToConsoleListener(response + "\n", true);
-            
-            ListenerUtils.dispatchListenerEvents(ListenerUtils.POSITION_UPDATE, 
-                    this.positionListeners, response);
-        }
-        
-        else {
-            // Display any unhandled messages
-            this.sendMessageToConsoleListener(response + "\n");
         }
     }
     
