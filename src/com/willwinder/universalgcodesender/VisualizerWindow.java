@@ -31,12 +31,13 @@ import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
+import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
-public class VisualizerWindow extends javax.swing.JFrame implements SerialCommunicatorListener {
+public class VisualizerWindow extends javax.swing.JFrame implements ControllerListener {
 
     private static String TITLE = "G-Code Visualizer";  // window's title
     private static final int CANVAS_WIDTH = 640;  // width of the drawable
@@ -44,11 +45,9 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     private static final int FPS = 60; // animator's target frames per second
 
     // Interactive members.
-    private boolean realTime = false;
-    private boolean position = false;
     private Capabilities positionVersion = null;
-    private Coordinate machineCoordinate;
-    private Coordinate workCoordinate;
+    private Point3d machineCoordinate;
+    private Point3d workCoordinate;
     private int completedCommandNumber = -1;
     private String gcodeFile = null;
     private VisualizerCanvas canvas = null;
@@ -105,65 +104,42 @@ public class VisualizerWindow extends javax.swing.JFrame implements SerialCommun
     }
     
     @Override
-    public void capabilitiesListener(Capabilities capability) {
-        switch (capability) {
-            case REAL_TIME:
-                this.realTime = true;
-                break;
-            case POSITION_C:
-                this.position = true;
-                this.positionVersion = Capabilities.POSITION_C;
-                break;
-        }
-    }
-
-    @Override
-    public void positionStringListener(String position) {
-        machineCoordinate = GrblUtils.getMachinePositionFromPositionString(position, this.positionVersion);        
-        workCoordinate = GrblUtils.getWorkPositionFromPositionString(position, this.positionVersion);
+    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+        machineCoordinate = machineCoord;
+        workCoordinate = workCoord;
         
         // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(this.machineCoordinate.getPoint());
-        this.canvas.setWorkCoordinate(this.workCoordinate.getPoint());
+        this.canvas.setMachineCoordinate(this.machineCoordinate);
+        this.canvas.setWorkCoordinate(this.workCoordinate);
     }
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandQueued(GcodeCommand command) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandSent(GcodeCommand command) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandComment(String comment) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void messageForConsole(String msg) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void verboseMessageForConsole(String msg) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public String preprocessCommand(String command) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void messageForConsole(String msg, Boolean verbose) {
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -25,6 +25,7 @@ package com.willwinder.universalgcodesender;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -133,8 +134,8 @@ public class GrblUtils {
     }
     
     
-    static Coordinate getMachinePositionFromPositionString(final String position, final CommUtils.Capabilities version) {
-        Coordinate ret = null;
+    static Point3d getMachinePositionFromPositionString(final String position, final CommUtils.Capabilities version) {
+        Point3d ret = null;
         String REGEX;
         
         if (version == CommUtils.Capabilities.POSITION_C) {
@@ -147,7 +148,7 @@ public class GrblUtils {
         Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(position);
         if (matcher.find()) {
-            ret = new Coordinate( Double.parseDouble(matcher.group(1)),
+            ret = new Point3d ( Double.parseDouble(matcher.group(1)),
                                   Double.parseDouble(matcher.group(2)),
                                   Double.parseDouble(matcher.group(3)));
         }
@@ -155,8 +156,8 @@ public class GrblUtils {
         return ret;
     }
 
-    static Coordinate getWorkPositionFromPositionString(final String position, final CommUtils.Capabilities version) {
-        Coordinate ret = null;
+    static Point3d getWorkPositionFromPositionString(final String position, final CommUtils.Capabilities version) {
+        Point3d ret = null;
         String REGEX;
 
         if (version == CommUtils.Capabilities.POSITION_C) {
@@ -169,7 +170,7 @@ public class GrblUtils {
         Pattern pattern = Pattern.compile(REGEX);
         Matcher matcher = pattern.matcher(position);
         if (matcher.find()) {
-            ret = new Coordinate( Double.parseDouble(matcher.group(1)),
+            ret = new Point3d( Double.parseDouble(matcher.group(1)),
                                   Double.parseDouble(matcher.group(2)),
                                   Double.parseDouble(matcher.group(3)));
         }

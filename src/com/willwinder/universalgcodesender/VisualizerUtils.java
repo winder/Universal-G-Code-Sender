@@ -8,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import javax.vecmath.Point3d;
@@ -78,21 +79,18 @@ public class VisualizerUtils {
     }
 
     /** Constructor to setup the GUI for this Component */
-    public static ArrayList<String> readFiletoArrayList(String gCode) {
+    public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
         ArrayList<String> vect = null;
-        try {
-            File gCodeFile = new File(gCode);
-            vect = new ArrayList<String>();
-            FileInputStream fstream = new FileInputStream(gCodeFile);
-            DataInputStream dis = new DataInputStream(fstream);
-            BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
-            String line;
-            while ((line = fileStream.readLine()) != null) {
-                vect.add(line);
-            }
-        } catch (Exception e) {
-            System.out.println("Crapped out while reading file in visualizer canvas.");
+        File gCodeFile = new File(gCode);
+        vect = new ArrayList<String>();
+        FileInputStream fstream = new FileInputStream(gCodeFile);
+        DataInputStream dis = new DataInputStream(fstream);
+        BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
+        String line;
+        while ((line = fileStream.readLine()) != null) {
+            vect.add(line);
         }
+
         return vect;
     }
 

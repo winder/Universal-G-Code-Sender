@@ -447,6 +447,9 @@
                 <Property name="text" type="java.lang.String" value="Override speed %"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="overrideSpeedCheckBoxActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JSpinner" name="overrideSpeedValueSpinner">
               <Properties>
@@ -455,6 +458,9 @@
                 </Property>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
+              <Events>
+                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="overrideSpeedValueSpinnerStateChanged"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="sentRowsLabel">
               <Properties>

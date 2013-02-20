@@ -68,7 +68,6 @@ public class SerialCommunicator implements SerialPortEventListener{
 
     // Callback interfaces
     ArrayList<SerialCommunicatorListener> fileStreamCompleteListeners;
-    ArrayList<SerialCommunicatorListener> commandQueuedListeners;
     ArrayList<SerialCommunicatorListener> commandSentListeners;
     ArrayList<SerialCommunicatorListener> commandCommentListeners;
     ArrayList<SerialCommunicatorListener> commandCompleteListeners;
@@ -78,23 +77,9 @@ public class SerialCommunicator implements SerialPortEventListener{
     ArrayList<SerialCommunicatorListener> positionListeners;
     // Only one listener can preprocess a command.
     SerialCommunicatorListener commandPreprocessorListener;
-
-    private enum LISTENER_EVENT {
-        FILE_STREAM_COMPLETE,
-        COMMAND_QUEUED,
-        COMMAND_SENT,
-        COMMAND_COMMENT,
-        COMMAND_COMPLETE,
-        COMMAND_PREPROCESS,
-        CONSOLE_MESSAGE,
-        VERBOSE_CONSOLE_MESSAGE,
-        CAPABILITY,
-        POSITION_UPDATE,
-    }
     
     SerialCommunicator() {
         this.fileStreamCompleteListeners = new ArrayList<SerialCommunicatorListener>();
-        this.commandQueuedListeners      = new ArrayList<SerialCommunicatorListener>();
         this.commandSentListeners        = new ArrayList<SerialCommunicatorListener>();
         this.commandCommentListeners     = new ArrayList<SerialCommunicatorListener>();
         this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
@@ -103,7 +88,34 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.capabilitiesListeners       = new ArrayList<SerialCommunicatorListener>();
         this.positionListeners           = new ArrayList<SerialCommunicatorListener>();
         
+        // Part of the serial data read event.
         this.inputBuffer = new StringBuilder();
+        
+        // Action Listener for polling mechanism.
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (!outstandingPolls) {
+                                sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                                outstandingPolls = true;
+                            } else {
+                                System.out.println("Outstanding poll...");
+                            }
+                        } catch (IOException ex) {
+                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage() + "\n");
+                        }
+                    }
+                });
+                
+            }
+        };
+        
+        this.positionPollTimer = new Timer(pollingRate, actionListener);
+
     }
     
     /** Getters & Setters. */
@@ -118,7 +130,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     // Register for callbacks
     void setListenAll(SerialCommunicatorListener scl) {
         this.addFileStreamCompleteListener(scl);
-        this.addCommandQueuedListener(scl);
         this.addCommandSentListener(scl);
         this.addCommandCompleteListener(scl);
         this.addCommandCommentListener(scl);
@@ -130,10 +141,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     void addFileStreamCompleteListener(SerialCommunicatorListener scl) {
         this.fileStreamCompleteListeners.add(scl);
-    }
-    
-    void addCommandQueuedListener(SerialCommunicatorListener scl) {
-        this.commandQueuedListeners.add(scl);
     }
     
     void addCommandSentListener(SerialCommunicatorListener scl) {
@@ -186,7 +193,9 @@ public class SerialCommunicator implements SerialPortEventListener{
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException, Exception {
         
+        // TODO: Move command buffer control into the GrblController class.
         this.commandBuffer = new GcodeCommandBuffer();
+        
         this.activeCommandList = new LinkedList<GcodeCommand>();
 
         boolean returnCode;
@@ -258,9 +267,6 @@ public class SerialCommunicator implements SerialPortEventListener{
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
 
-        dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, 
-                commandQueuedListeners, command);
-
         // Send command to the serial port.
         this.streamCommands();
     }
@@ -270,14 +276,14 @@ public class SerialCommunicator implements SerialPortEventListener{
      * the comm port.
      * @param command   Command to be sent to serial device.
      */
-    private void sendStringToComm(String command) {
+    public void sendStringToComm(String command) {
         // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         
-         // Send command to the serial port.
-         PrintStream printStream = new PrintStream(this.out);
-         printStream.print(command);
-         printStream.close(); 
+        // Send command to the serial port.
+        PrintStream printStream = new PrintStream(this.out);
+        printStream.print(command);
+        printStream.close(); 
     }
     
     /**
@@ -304,6 +310,11 @@ public class SerialCommunicator implements SerialPortEventListener{
         if (isReady == false) {
             throw new Exception("Grbl has not finished booting.");
         }
+        if (this.activeCommandList.size() > 0) {
+            throw new Exception("Cannot send file until there are no commands running. (Active Command List > 0).");
+        }
+
+        // TODO: delete all trace of a 'file mode' concept in this class.
         if (this.fileModeSending == true) {
             throw new Exception("Already sending a file.");
         }
@@ -312,12 +323,9 @@ public class SerialCommunicator implements SerialPortEventListener{
                 (this.commandBuffer.currentCommand().isDone() != true)) {
             throw new Exception("Cannot send file until there are no commands running. (Commands remaining in command buffer)");
         }
-        if (this.activeCommandList.size() > 0) {
-            throw new Exception("Cannot send file until there are no commands running. (Active Command List > 0).");
-        }
 
     }
-    
+    /*
     void appendGcodeCommand(String input) throws Exception {
         isReadyToStreamFile();
 
@@ -334,7 +342,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         command = this.commandBuffer.appendCommandString(commandString);
         
         // Notify listener of new command
-        dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, 
+        ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_QUEUED, 
                 this.commandQueuedListeners, command);
     }
     
@@ -359,7 +367,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                 command = this.commandBuffer.appendCommandString(line + '\n');
                 
                 // Notify listener of new command
-                dispatchListenerEvents(LISTENER_EVENT.COMMAND_QUEUED, 
+                ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_QUEUED, 
                         this.commandQueuedListeners, command);
             }
         } catch (Exception e) {
@@ -382,7 +390,11 @@ public class SerialCommunicator implements SerialPortEventListener{
         // Start sending commands.
         this.streamCommands();     
     }
+    */
     
+    /**
+     * Streams anything in the command buffer to the comm port.
+     */
     private void streamCommands() {
         boolean skip;
         
@@ -403,12 +415,13 @@ public class SerialCommunicator implements SerialPortEventListener{
                 // If the lengths differ, update the latest comment.
                 if (processed.length() != command.getCommandString().length()) {
                     String comment = CommUtils.parseComment(command.getCommandString());
-                    dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMMENT, 
+                    ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMMENT, 
                             this.commandCommentListeners, comment);
                 }
         
                 command.setCommand(processed);
                 
+                // If the Controller class hits this case all hell breaks loose.
                 if (processed.trim().equals("")) {
                     skip = true;
                 }
@@ -424,7 +437,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                 this.sendStringToComm(command.getCommandString());
             }
             
-            dispatchListenerEvents(LISTENER_EVENT.COMMAND_SENT, 
+            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_SENT, 
                     this.commandCompleteListeners, command);
             
             // If the command was skipped let the listeners know.
@@ -433,7 +446,7 @@ public class SerialCommunicator implements SerialPortEventListener{
                         + command.getCommandNumber() + "\n");
                 command.setResponse("<skipped by application>");
 
-                dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, 
+                ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
                         this.commandCompleteListeners, command);
             }
 
@@ -454,7 +467,7 @@ public class SerialCommunicator implements SerialPortEventListener{
 
         this.sendMessageToConsoleListener("\n**** Finished sending file. ****\n\n");
         // Trigger callback
-        dispatchListenerEvents(LISTENER_EVENT.FILE_STREAM_COMPLETE, 
+        ListenerUtils.dispatchListenerEvents(ListenerUtils.FILE_STREAM_COMPLETE, 
                 this.fileStreamCompleteListeners, file.getName(), 
                 this.commandBuffer.currentCommand().isDone());
     }
@@ -510,7 +523,7 @@ public class SerialCommunicator implements SerialPortEventListener{
 
             command.setResponse(response);
 
-            dispatchListenerEvents(LISTENER_EVENT.COMMAND_COMPLETE, 
+            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
                     this.commandCompleteListeners, command);
 
             if (this.sendPaused == false) {
@@ -530,7 +543,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             
             this.realTimeMode = GrblUtils.isRealTimeCapable(this.grblVersion);
             if (this.realTimeMode) {
-                dispatchListenerEvents(LISTENER_EVENT.CAPABILITY, 
+                ListenerUtils.dispatchListenerEvents(ListenerUtils.CAPABILITY, 
                         this.capabilitiesListeners, 
                         CommUtils.Capabilities.REAL_TIME);
             }
@@ -544,7 +557,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             }
             
             if (this.realTimePosition) {
-                dispatchListenerEvents(LISTENER_EVENT.CAPABILITY, 
+                ListenerUtils.dispatchListenerEvents(ListenerUtils.CAPABILITY, 
                         this.capabilitiesListeners, 
                         CommUtils.Capabilities.POSITION_C);
             }
@@ -559,7 +572,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             // Position string goes to verbose console
             this.sendMessageToConsoleListener(response + "\n", true);
             
-            dispatchListenerEvents(LISTENER_EVENT.POSITION_UPDATE, 
+            ListenerUtils.dispatchListenerEvents(ListenerUtils.POSITION_UPDATE, 
                     this.positionListeners, response);
         }
         
@@ -570,35 +583,19 @@ public class SerialCommunicator implements SerialPortEventListener{
     }
     
     /**
-     * Begin issuing GRBL status request commands to the serial port.
+     * Begin issuing GRBL status request commands.
      */
     private void beginPollingPosition() {
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (!outstandingPolls) {
-                                sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
-                                outstandingPolls = true;
-                            }
-                        } catch (IOException ex) {
-                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage() + "\n");
-                        }
-                    }
-                });
-                
-            }
-        };
-        
-        this.positionPollTimer = new Timer(pollingRate, actionListener);
-        this.positionPollTimer.start();
+        if (this.positionPollTimer.isRunning() == false) {
+            this.positionPollTimer.start();
+        }
     }
 
+    /**
+     * Stop issuing GRBL status request commands.
+     */
     private void stopPollingPosition() {
-        if (this.positionPollTimer != null) {
+        if (this.positionPollTimer.isRunning()) {
             this.positionPollTimer.stop();
         }
     }
@@ -655,86 +652,14 @@ public class SerialCommunicator implements SerialPortEventListener{
             return;
         }
         
-        LISTENER_EVENT verbosity;
+        int verbosity;
         if (!verbose) {
-            verbosity = LISTENER_EVENT.CONSOLE_MESSAGE;
+            verbosity = ListenerUtils.CONSOLE_MESSAGE;
         }
         else {
-            verbosity = LISTENER_EVENT.VERBOSE_CONSOLE_MESSAGE;
+            verbosity = ListenerUtils.VERBOSE_CONSOLE_MESSAGE;
         }
         
-        dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
-    }
-
-    
-    /**
-     * A bunch of methods to dispatch listener events with various arguments.
-     */
-    static private void dispatchListenerEvents(LISTENER_EVENT event, ArrayList<SerialCommunicatorListener> sclList, String message) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                SerialCommunicator.sendEventToListener(event, s, message, false, null, null);
-            }
-        }
-    }
-        
-    static private void dispatchListenerEvents(LISTENER_EVENT event, ArrayList<SerialCommunicatorListener> sclList, String filename, boolean success) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                SerialCommunicator.sendEventToListener(event, s, filename, success, null, null);
-            }
-        }
-    }
-
-    static private void dispatchListenerEvents(LISTENER_EVENT event, ArrayList<SerialCommunicatorListener> sclList, GcodeCommand command) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                SerialCommunicator.sendEventToListener(event, s, null, false, null, command);
-            }
-        }
-    }
-    
-    static private void dispatchListenerEvents(LISTENER_EVENT event, ArrayList<SerialCommunicatorListener> sclList, CommUtils.Capabilities capability) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                SerialCommunicator.sendEventToListener(event, s, null, false, capability, null);
-            }
-        }
-    }
-    
-    static private void sendEventToListener(LISTENER_EVENT event, SerialCommunicatorListener scl, 
-            String string, boolean bool, CommUtils.Capabilities capability, GcodeCommand command) {
-        switch(event) {
-            case FILE_STREAM_COMPLETE:
-                scl.fileStreamComplete(string, bool);
-                break;
-            case COMMAND_QUEUED:
-                scl.commandQueued(command);
-                break;
-            case COMMAND_SENT:
-                scl.commandSent(command);
-                break;
-            case COMMAND_COMMENT:
-                scl.commandComment(string);
-                break;
-            case COMMAND_COMPLETE:
-                scl.commandComplete(command);
-                break;
-            case COMMAND_PREPROCESS:
-                throw new UnsupportedOperationException("Cannot dispatch preprocessor listeners");
-
-            case CONSOLE_MESSAGE:
-                scl.messageForConsole(string);
-                break;
-            case VERBOSE_CONSOLE_MESSAGE:
-                scl.verboseMessageForConsole(string);
-                break;
-            case CAPABILITY:
-                scl.capabilitiesListener(capability);
-                break;
-            case POSITION_UPDATE:
-                scl.positionStringListener(string);
-                break;
-        }
-    }
+        ListenerUtils.dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
+    }    
 }

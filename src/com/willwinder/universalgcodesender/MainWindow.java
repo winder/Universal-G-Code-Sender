@@ -48,12 +48,13 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultCaret;
+import javax.vecmath.Point3d;
 /**
  *
  * @author wwinder
  */
 public class MainWindow extends javax.swing.JFrame 
-implements SerialCommunicatorListener, KeyListener {
+implements KeyListener, ControllerListener {
     private static String VERSION = "1.0.5";
 
     /** Creates new form MainWindow */
@@ -225,7 +226,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(commandTextField)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 407, Short.MAX_VALUE)))
+                        .add(0, 504, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -235,7 +236,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(commandLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(107, Short.MAX_VALUE))
+                .addContainerGap(133, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Command Mode", jPanel1);
@@ -271,9 +272,19 @@ implements SerialCommunicatorListener, KeyListener {
 
         overrideSpeedCheckBox.setText("Override speed %");
         overrideSpeedCheckBox.setEnabled(false);
+        overrideSpeedCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                overrideSpeedCheckBoxActionPerformed(evt);
+            }
+        });
 
         overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));
         overrideSpeedValueSpinner.setEnabled(false);
+        overrideSpeedValueSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                overrideSpeedValueSpinnerStateChanged(evt);
+            }
+        });
 
         sentRowsLabel.setText("Sent Rows:");
 
@@ -346,7 +357,7 @@ implements SerialCommunicatorListener, KeyListener {
                                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(durationValueLabel)
                                     .add(remainingTimeValueLabel))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 39, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 89, Short.MAX_VALUE)
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(remainingRowsLabel)
@@ -403,7 +414,7 @@ implements SerialCommunicatorListener, KeyListener {
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(remainingRowsLabel)
                             .add(remainingRowsValueLabel))))
-                .addContainerGap(21, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -442,7 +453,7 @@ implements SerialCommunicatorListener, KeyListener {
                     .add(returnToZeroButton)
                     .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 158, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(316, Short.MAX_VALUE))
+                .addContainerGap(416, Short.MAX_VALUE))
         );
 
         jPanel4Layout.linkSize(new java.awt.Component[] {performHomingCycleButton, resetCoordinatesButton, returnToZeroButton}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
@@ -456,7 +467,7 @@ implements SerialCommunicatorListener, KeyListener {
                 .add(returnToZeroButton)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(performHomingCycleButton)
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Workfow Commands", jPanel4);
@@ -752,7 +763,7 @@ implements SerialCommunicatorListener, KeyListener {
                             .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(manualControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -855,14 +866,14 @@ implements SerialCommunicatorListener, KeyListener {
             @Override
             public void run() {
                 try {
-                    commPort.queueStringForComm(str);
+                    controller.queueStringForComm(str);
                 } catch (Exception ex) {
                     displayErrorDialog(ex.getMessage());
                 }
             }
         });
         this.commandTextField.setText("");
-        this.commandList.add(str);
+        this.manualCommandHistory.add(str);
         this.commandNum = -1;
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
@@ -875,17 +886,17 @@ implements SerialCommunicatorListener, KeyListener {
         
         if (ke.getKeyCode() == KeyEvent.VK_UP) {
             pressed = true;
-            if (this.commandNum == 0 || this.commandList.isEmpty()) {
+            if (this.commandNum == 0 || this.manualCommandHistory.isEmpty()) {
                 java.awt.Toolkit.getDefaultToolkit().beep();
             } else if (this.commandNum == -1) {
-                this.commandNum = this.commandList.size() -1;
+                this.commandNum = this.manualCommandHistory.size() -1;
             } else {
                 this.commandNum--;
             }
         }
         else if (ke.getKeyCode() == KeyEvent.VK_DOWN) {
             pressed = true;
-            if ((this.commandNum == -1) || this.commandNum == (this.commandList.size() -1)) {
+            if ((this.commandNum == -1) || this.commandNum == (this.manualCommandHistory.size() -1)) {
                 java.awt.Toolkit.getDefaultToolkit().beep();
                 return;
             } else {
@@ -894,7 +905,7 @@ implements SerialCommunicatorListener, KeyListener {
         }
         
         if (pressed && this.commandNum != -1) {
-            String text = this.commandList.get(this.commandNum);
+            String text = this.manualCommandHistory.get(this.commandNum);
             this.commandTextField.setText(text);
         }
     }
@@ -953,14 +964,14 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_browseButtonActionPerformed
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-      
+
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                    long elapsedTime = Utils.millisSince(startTime);
+                    long elapsedTime = controller.getSendDuration();
                     durationValueLabel.setText(Utils.formattedMillis(elapsedTime));
                     int sent  = Integer.parseInt(sentRowsValueLabel.getText()); 
                     int remainingRows = Integer.parseInt(remainingRowsValueLabel.getText());
@@ -976,27 +987,25 @@ implements SerialCommunicatorListener, KeyListener {
         
         this.resetSentRowLabels(Integer.parseInt(this.rowsValueLabel.getText()));
         
-        startTime = System.currentTimeMillis();
-        if (timer != null) timer.stop();
+        if (timer != null){ timer.stop(); }
         timer = new Timer(1000, actionListener);
 
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
         timer.start();
-        this.isSendingFile = true;
         
         try {
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
-            this.commPort.isReadyToStreamFile();
+            this.controller.isReadyToStreamFile();
             
             this.updateControlsForState(ControlState.COMM_SENDING);
             if (G91Mode) {
-                this.commPort.appendGcodeCommand("G90");
+                this.controller.appendGcodeCommand("G90");
             }
             
-            this.commPort.appendGcodeFile(this.gcodeFile);
-            this.commPort.streamToComm();
+            this.controller.appendGcodeFile(this.gcodeFile);
+            this.controller.beginStreaming();
         } catch (Exception e) {
             timer.stop();
             this.updateControlsForState(ControlState.COMM_IDLE);
@@ -1010,12 +1019,12 @@ implements SerialCommunicatorListener, KeyListener {
         //       in the GRBL buffer which can't be un-sent.
         try {
             if (this.pauseButton.getText().equalsIgnoreCase("pause")) {
-                this.commPort.pauseSend();
+                this.controller.pauseStreaming();
                 this.pauseButton.setText("Resume");
                 this.cancelButton.setEnabled(false);
             }
             else if (this.pauseButton.getText().equalsIgnoreCase("resume")) {
-                this.commPort.resumeSend();
+                this.controller.resumeStreaming();
                 this.pauseButton.setText("Pause");
                 this.cancelButton.setEnabled(true);
             }
@@ -1026,7 +1035,7 @@ implements SerialCommunicatorListener, KeyListener {
     }//GEN-LAST:event_pauseButtonActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        this.commPort.cancelSend();
+        this.controller.cancelSend();
 
         this.updateControlsForState(ControlState.COMM_IDLE);
     }//GEN-LAST:event_cancelButtonActionPerformed
@@ -1063,7 +1072,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
+            this.controller.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1071,7 +1080,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE);
+            this.controller.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1083,7 +1092,7 @@ implements SerialCommunicatorListener, KeyListener {
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
         try {
-            this.commPort.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION);
+            this.controller.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1105,9 +1114,8 @@ implements SerialCommunicatorListener, KeyListener {
             if (this.fileTextField.getText().length() > 1) {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
-            // Add listeners
-            this.commPort.addCapabilitiesListener(vw);        
-            this.commPort.addPositionStringListener(vw);
+            // Add listener
+            this.controller.addListener(vw);
         }
         
         // Display the form
@@ -1118,6 +1126,16 @@ implements SerialCommunicatorListener, KeyListener {
             }
         });
     }//GEN-LAST:event_visualizeButtonActionPerformed
+
+    private void overrideSpeedValueSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_overrideSpeedValueSpinnerStateChanged
+        this.controller.setSpeedOverride(getSpeedOverrideValue());
+        System.out.println("Action.");
+    }//GEN-LAST:event_overrideSpeedValueSpinnerStateChanged
+
+    private void overrideSpeedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideSpeedCheckBoxActionPerformed
+        this.controller.setSpeedOverride(getSpeedOverrideValue());
+        System.out.println("Action.");
+    }//GEN-LAST:event_overrideSpeedCheckBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1196,23 +1214,22 @@ implements SerialCommunicatorListener, KeyListener {
         this.loadPortSelector();
         this.checkScrollWindow();
         this.setTitle("Universal GcodeSender (Version " + VERSION + ")");
-        
+
         // Hook the view up to the model
-        this.commandList = new ArrayList<String>();
-        this.commPort = new SerialCommunicator();
+        this.controller = new GrblController();
         
         // Setup file browser.
         this.fileChooser = new JFileChooser(); 
         this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
-
+        
         // Register comm listeners
-        this.commPort.setListenAll(this);
-        // The preprocessor listener is special so not included in listen all.
-        this.commPort.commandPreprocessorListener(this);   
+        this.controller.addListener(this);
         
         // Command History
+        this.manualCommandHistory = new ArrayList<String>();
         this.commandTextField.addKeyListener(this);
         
+        // TODO: Make a special class to handle command table view.
         this.tableModel = (DefaultTableModel) this.commandTable.getModel();
         
         // Add keyboard listener for manual controls.
@@ -1293,7 +1310,7 @@ implements SerialCommunicatorListener, KeyListener {
         }
 
         try {
-            this.commPort.queueStringForComm(command.toString());
+            this.controller.queueStringForComm(command.toString());
             G91Mode = true;
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
@@ -1490,7 +1507,7 @@ implements SerialCommunicatorListener, KeyListener {
             String port = commPortComboBox.getSelectedItem().toString();
             int portRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
              
-            connected = commPort.openCommPort(port, portRate);
+            connected = controller.openCommPort(port, portRate);
 
         } catch (Exception e) {
             this.displayErrorDialog("Error opening connection: "+e.getMessage());
@@ -1499,7 +1516,7 @@ implements SerialCommunicatorListener, KeyListener {
     }
     
     private void closeCommConnection() {
-        this.commPort.closeCommPort();
+        this.controller.closeCommPort();
     }
     
     void clearTable() {
@@ -1528,11 +1545,8 @@ implements SerialCommunicatorListener, KeyListener {
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        this.isSendingFile = false;
-        
         // Stop the timer
         this.timer.stop();
-        this.endTime = System.currentTimeMillis();
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
 
         this.updateControlsForState(ControlState.COMM_IDLE);
@@ -1554,7 +1568,7 @@ implements SerialCommunicatorListener, KeyListener {
      
     @Override
     public void commandSent(GcodeCommand command) {
-        if (this.isSendingFile) {
+        if (this.controller.isStreamingFile()) {
             // Update # rows sent label
             this.sentRows++;
         }
@@ -1609,102 +1623,52 @@ implements SerialCommunicatorListener, KeyListener {
                 }
             }});
     }
-    
-    @Override
-    public String preprocessCommand(String command) {
-        Integer overrideSpeed = this.getSpeedOverrideValue();
-        String newCommand = command;
-
-        // Remove comments from command.
-        newCommand = CommUtils.removeComment(newCommand);
-
-        // Override feed speed
-        if (overrideSpeed > 0) {
-            newCommand = CommUtils.overrideSpeed(command, this.getSpeedOverrideValue());
-        }
-        
-        // Return the post processed command.
-        return newCommand;
-    }
 
     @Override
-    public void messageForConsole(String msg) {
-        this.consoleTextArea.append(msg);
-        
-        if (this.consoleTextArea.isVisible() &&
-                this.scrollWindowCheckBox.isEnabled()) {
-            this.consoleTextArea.setCaretPosition(this.consoleTextArea.getDocument().getLength());
-        }
-    }
-    
-    @Override
-    public void verboseMessageForConsole(String msg) {
-        if (this.showVerboseOutputCheckBox.isSelected()) {
-            this.consoleTextArea.append("[Verbose] " + msg);
-
+    public void messageForConsole(String msg, Boolean verbose) {
+        if (!verbose || this.showVerboseOutputCheckBox.isSelected()) {
+            this.consoleTextArea.append((verbose ? "[verbose]" : "") + msg);
+            
             if (this.consoleTextArea.isVisible() &&
                     this.scrollWindowCheckBox.isEnabled()) {
                 this.consoleTextArea.setCaretPosition(this.consoleTextArea.getDocument().getLength());
             }
         }
-
     }
     
     @Override
-    public void capabilitiesListener(CommUtils.Capabilities capability) {
-        if (capability == CommUtils.Capabilities.POSITION_C) {
-            System.out.println("Found position C capability");
-            this.position = capability;
-        } else if (capability == CommUtils.Capabilities.REAL_TIME) {
-            System.out.println("Found real time capability");
-        }
-    }
-    
-    @Override
-    public void positionStringListener(String string) {        
-        this.activeStateValueLabel.setText( GrblUtils.getStatusFromPositionString(string, this.position) );
+    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+        this.activeStateValueLabel.setText( state );
         
-        Coordinate coord = GrblUtils.getMachinePositionFromPositionString(string, this.position);
-        if (coord != null) {
-            this.machineCoordinate = coord;
-            this.machinePositionXValueLabel.setText( formatter.format(coord.getX()) + "" );
-            this.machinePositionYValueLabel.setText( formatter.format(coord.getY()) + "" );
-            this.machinePositionZValueLabel.setText( formatter.format(coord.getZ()) + "" );
+        if (machineCoord != null) {
+            this.machinePositionXValueLabel.setText( formatter.format(machineCoord.x) + "" );
+            this.machinePositionYValueLabel.setText( formatter.format(machineCoord.y) + "" );
+            this.machinePositionZValueLabel.setText( formatter.format(machineCoord.z) + "" );
         }
         
-        coord = GrblUtils.getWorkPositionFromPositionString(string, this.position);
-        if (coord != null) {
-            this.workCoordinate = coord;
-            this.workPositionXValueLabel.setText( formatter.format(coord.getX()) + "" );
-            this.workPositionYValueLabel.setText( formatter.format(coord.getY()) + "" );
-            this.workPositionZValueLabel.setText( formatter.format(coord.getZ()) + "" );
+        if (workCoord != null) {
+            this.workPositionXValueLabel.setText( formatter.format(workCoord.x) + "" );
+            this.workPositionYValueLabel.setText( formatter.format(workCoord.y) + "" );
+            this.workPositionZValueLabel.setText( formatter.format(workCoord.z) + "" );
         }
     }
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
     private java.io.File gcodeFile;
-    private SerialCommunicator commPort;
+
+    private GrblController controller;
     private int commandNum = -1;
-    private List<String> commandList;
+    private List<String> manualCommandHistory;
     private DefaultTableModel tableModel;
     private int sentRows = 0;
-    private Coordinate machineCoordinate;
-    private Coordinate workCoordinate;
-    private static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
-    static {dfs.setDecimalSeparator('.');}
-    private static NumberFormat formatter = new DecimalFormat("#.###", dfs);
-    private CommUtils.Capabilities position = null;
     private boolean G91Mode = false;
-    
+
     // Other windows
     VisualizerWindow vw = null;
     
     // Duration timer
     private Timer timer;
-    private long startTime;
-    private long endTime;
-    private boolean isSendingFile;
     
     private enum ControlState {
         COMM_DISCONNECTED,
@@ -1712,7 +1676,12 @@ implements SerialCommunicatorListener, KeyListener {
         COMM_SENDING,
         COMM_SENDING_PAUSED,
     };
-    
+        
+    // Static utilities
+    private final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+    static {dfs.setDecimalSeparator('.');}
+    private static NumberFormat formatter = new DecimalFormat("#.###", dfs);
+
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel activeStateLabel;

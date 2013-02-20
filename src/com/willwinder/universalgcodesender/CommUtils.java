@@ -95,7 +95,7 @@ public class CommUtils {
         // Number of characters in list.
         Iterator<GcodeCommand> iter = list.iterator();
         while (iter.hasNext()) {
-            String next = iter.next().toString();
+            String next = iter.next().getCommandString();
             // TODO: Carefully trace the newlines in commands and make sure
             //       the GRBL_RX_BUFFER_SIZE is honored.
             //       For now add a safety character to each command.

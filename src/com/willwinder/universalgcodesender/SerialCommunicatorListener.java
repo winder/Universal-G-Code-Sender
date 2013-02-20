@@ -30,7 +30,6 @@ package com.willwinder.universalgcodesender;
  */
 public interface SerialCommunicatorListener {
     void fileStreamComplete(String filename, boolean success);
-    void commandQueued(GcodeCommand command);
     void commandSent(GcodeCommand command);
     void commandComplete(GcodeCommand command);
     void commandComment(String comment);
