@@ -4,6 +4,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import javax.swing.Timer;
 import javax.vecmath.Point3d;
 
 /**
@@ -25,11 +28,7 @@ public class GrblController implements SerialCommunicatorListener {
     private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter;   // The c in 'Grbl 0.8c'
     private Boolean isReady = false;    // Not ready until version is received.
-    
-    // TODO: Make a separate class for the polling thread?
-    // Polling state
-    private Boolean outstandingPolls = false;
-    
+        
     // Outside influence
     private Integer speedOverride = -1;
     
@@ -47,6 +46,12 @@ public class GrblController implements SerialCommunicatorListener {
     private int numCommands = 0;
     private File gcodeFile;
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
+    
+    // TODO: Make a separate class for the polling thread?
+    // Polling state
+    private Boolean outstandingPolls = false;
+    private Timer positionPollTimer = null;  
+    private int pollingRate = 200;
     
     // Structures for organizing all streaming commands.
     private LinkedList<GcodeCommand> commandQueue;          // preparing for send
@@ -78,6 +83,31 @@ public class GrblController implements SerialCommunicatorListener {
         this.listeners = new ArrayList<ControllerListener>();
         
         this.commandCreator = new GcodeCommandCreator();
+        
+        // Action Listener for polling mechanism.
+        ActionListener actionListener = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (!outstandingPolls) {
+                                comm.sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                                outstandingPolls = true;
+                            } else {
+                                System.out.println("Outstanding poll...");
+                            }
+                        } catch (IOException ex) {
+                            messageForConsole("IOException while sending status command: " + ex.getMessage() + "\n");
+                        }
+                    }
+                });
+                
+            }
+        };
+
+        this.positionPollTimer = new Timer(pollingRate, actionListener);
     }
     
     /**
@@ -101,7 +131,8 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public Boolean closeCommPort() {
-        this.messageForConsole("**** Connection closed ****\n");
+        this.messageForConsole("**** Connection closed ****\n");        
+        this.stopPollingPosition();
         this.comm.closeCommPort();
         return true;
     }
@@ -246,6 +277,24 @@ public class GrblController implements SerialCommunicatorListener {
         
         this.flushSendQueues();
         this.comm.cancelSend();
+    }
+    
+    /**
+     * Begin issuing GRBL status request commands.
+     */
+    private void beginPollingPosition() {
+        if (this.positionPollTimer.isRunning() == false) {
+            this.positionPollTimer.start();
+        }
+    }
+
+    /**
+     * Stop issuing GRBL status request commands.
+     */
+    private void stopPollingPosition() {
+        if (this.positionPollTimer.isRunning()) {
+            this.positionPollTimer.stop();
+        }
     }
     
     private void flushSendQueues() {
@@ -404,7 +453,7 @@ public class GrblController implements SerialCommunicatorListener {
             this.positionMode = GrblUtils.getGrblPositionCapabilities(this.grblVersion, this.grblVersionLetter);
             if (this.positionMode != null) {
                 // Start sending '?' commands.
-                //this.beginPollingPosition();
+                this.beginPollingPosition();
             }
             
             System.out.println("Grbl version = " + this.grblVersion + this.grblVersionLetter);

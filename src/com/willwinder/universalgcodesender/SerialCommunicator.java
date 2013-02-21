@@ -38,21 +38,13 @@ import javax.swing.Timer;
  *
  * @author wwinder
  */
-public class SerialCommunicator implements SerialPortEventListener{        
-    // Capability flags
-    //private Boolean realTimeMode = false;
-    //private Boolean realTimePosition = false;
-    //private CommUtils.Capabilities positionMode = null;
-    
+public class SerialCommunicator implements SerialPortEventListener{    
     // General variables
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
     private StringBuilder inputBuffer = null;
     private String lineTerminator = "\r\n";
-    private Timer positionPollTimer = null;  
-    private int pollingRate = 200;
-    private Boolean outstandingPolls = false;
     
     // Command streaming variables
     private Boolean sendPaused = false;
@@ -84,32 +76,6 @@ public class SerialCommunicator implements SerialPortEventListener{
         
         // Part of the serial data read event.
         this.inputBuffer = new StringBuilder();
-        
-        // Action Listener for polling mechanism.
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (!outstandingPolls) {
-                                sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
-                                outstandingPolls = true;
-                            } else {
-                                System.out.println("Outstanding poll...");
-                            }
-                        } catch (IOException ex) {
-                            sendMessageToConsoleListener("IOException while sending status command: " + ex.getMessage() + "\n");
-                        }
-                    }
-                });
-                
-            }
-        };
-        
-        this.positionPollTimer = new Timer(pollingRate, actionListener);
-
     }
     
     /** Getters & Setters. */
@@ -190,8 +156,6 @@ public class SerialCommunicator implements SerialPortEventListener{
         
     void closeCommPort() {
         this.cancelSend();
-
-        this.stopPollingPosition();
         
         try {
             in.close();
@@ -349,24 +313,6 @@ public class SerialCommunicator implements SerialPortEventListener{
             if (this.sendPaused == false) {
                 this.streamCommands();
             }
-        }
-    }
-    
-    /**
-     * Begin issuing GRBL status request commands.
-     */
-    private void beginPollingPosition() {
-        if (this.positionPollTimer.isRunning() == false) {
-            this.positionPollTimer.start();
-        }
-    }
-
-    /**
-     * Stop issuing GRBL status request commands.
-     */
-    private void stopPollingPosition() {
-        if (this.positionPollTimer.isRunning()) {
-            this.positionPollTimer.stop();
         }
     }
     
