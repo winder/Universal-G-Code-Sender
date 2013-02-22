@@ -298,10 +298,6 @@ public class SerialCommunicator implements SerialPortEventListener{
 
         // Keep the data flow going for now.
         if (GcodeCommand.isOkErrorResponse(response)) {
-            
-            // All Ok/Error messages go to console
-            this.sendMessageToConsoleListener(response + "\n");
-
             // Pop the front of the active list.
             GcodeCommand command = this.activeCommandList.pop();
 

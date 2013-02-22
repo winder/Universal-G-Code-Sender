@@ -1183,6 +1183,8 @@ implements KeyListener, ControllerListener {
         mw.overrideSpeedCheckBox.setSelected(SettingsFactory.isOverrideSpeedSelected());
         mw.overrideSpeedValueSpinner.setValue(SettingsFactory.getOverrideSpeedValue());
         
+        // TODO: Apply settings to controller object.
+        
         /* Display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
 

@@ -23,12 +23,8 @@ package com.willwinder.universalgcodesender;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import javax.swing.Timer;
@@ -62,9 +58,7 @@ public class GrblController implements SerialCommunicatorListener {
     private long streamStop = 0;
     private int numCommands = 0;
     private File gcodeFile;
-    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
     
-    // TODO: Make a separate class for the polling thread?
     // Polling state
     private Boolean outstandingPolls = false;
     private Timer positionPollTimer = null;  
@@ -85,8 +79,6 @@ public class GrblController implements SerialCommunicatorListener {
     
     public GrblController() {
         this.comm = new SerialCommunicator();
-        
-        this.activeCommandList = new LinkedList<GcodeCommand>();
         
         this.commandQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
@@ -113,7 +105,7 @@ public class GrblController implements SerialCommunicatorListener {
                                 comm.sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
                                 outstandingPolls = true;
                             } else {
-                                System.out.println("Outstanding poll...");
+                                System.out.print("outstanding poll...");
                             }
                         } catch (IOException ex) {
                             messageForConsole("IOException while sending status command: " + ex.getMessage() + "\n");
@@ -193,6 +185,8 @@ public class GrblController implements SerialCommunicatorListener {
     public void queueStringForComm(String str) throws Exception {
         GcodeCommand command = this.commandCreator.createCommand(str);
         this.outgoingQueue.add(command);
+
+        this.commandQueued(command);
         this.sendStringToComm(command.getCommandString());
     }
     
@@ -213,8 +207,6 @@ public class GrblController implements SerialCommunicatorListener {
     public void appendGcodeCommand(String commandString) {
         GcodeCommand command = this.commandCreator.createCommand(commandString);
         this.commandQueue.add(command);
-
-        this.commandQueued(command);
     }
     
     /**
@@ -258,11 +250,16 @@ public class GrblController implements SerialCommunicatorListener {
                 if (processed.trim().equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
                     command.setResponse("<skipped by application>");
+                    
+                    // Need to queue the command first so that listeners don't
+                    // see a random command complete without notice.
+                    this.commandQueued(command);
                     this.commandComplete(command);
                     // For the listeners...
                     dispatchCommandSent(listeners, command);
                 } else {
                     this.outgoingQueue.add(command);
+                    this.commandQueued(command);
                     this.sendStringToComm(processed);
                 }
             }
@@ -396,7 +393,7 @@ public class GrblController implements SerialCommunicatorListener {
     @Override
     public void commandComplete(GcodeCommand command) {
         GcodeCommand c = command;
-        
+
         // If the command wasn't sent, it was discarted and should be ignored
         // from the remaining queues.
         if (command.isSent()) {
@@ -457,7 +454,11 @@ public class GrblController implements SerialCommunicatorListener {
             }
         }
         */
-        if (GrblUtils.isGrblVersionString(response)) {
+        if (GcodeCommand.isOkErrorResponse(response)) {
+            this.messageForConsole(response + "\n");
+        }
+        
+        else if (GrblUtils.isGrblVersionString(response)) {
             // Version string goes to console
             this.messageForConsole(response + "\n");
             
