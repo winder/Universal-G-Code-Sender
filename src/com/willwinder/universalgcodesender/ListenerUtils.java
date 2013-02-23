@@ -87,9 +87,6 @@ public class ListenerUtils {
             case COMMAND_SENT:
                 scl.commandSent(command);
                 break;
-            case COMMAND_COMMENT:
-                scl.commandComment(string);
-                break;
             case COMMAND_PREPROCESS:
                 throw new UnsupportedOperationException("Cannot dispatch preprocessor listeners");
 

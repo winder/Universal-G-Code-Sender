@@ -35,6 +35,10 @@ public class GcodeCommandCreator {
         this.numCommands = num;
     }
     
+    public void resetNum() {
+        this.numCommands = 0;
+    }
+    
     int nextCommandNum() {
         return this.numCommands;
     }

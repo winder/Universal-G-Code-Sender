@@ -130,18 +130,15 @@ public class GrblController implements SerialCommunicatorListener {
     public Boolean openCommPort(String port, int portRate) throws Exception {
         // No point in checking response, it throws an exception on errors.
         this.comm.openCommPort(port, portRate);
-        
-        this.messageForConsole("**** Connected to "
-                                        + port
-                                        + " @ "
-                                        + portRate
-                                        + " baud ****\n");
-
+        this.messageForConsole(
+               "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         return true;
     }
     
     public Boolean closeCommPort() {
-        this.messageForConsole("**** Connection closed ****\n");        
+        this.messageForConsole("**** Connection closed ****\n");  
+        this.flushSendQueues();
+        this.commandCreator.resetNum();
         this.stopPollingPosition();
         this.comm.closeCommPort();
         return true;
@@ -196,7 +193,12 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public void isReadyToStreamFile() throws Exception {
-        this.comm.isReadyToStreamFile();
+        if (this.comm.areActiveCommands()) {
+            throw new Exception("Cannot send file until there are no commands running. (Comm reports active commands).");
+        }
+        if (this.awaitingResponseQueue.size() > 0) {
+            throw new Exception("Cannot send file until there are no commands running. (Controller reports active commands).");
+        }
         if (this.isReady == false) {
             throw new Exception("Grbl has not finished booting.");
         }
@@ -273,23 +275,22 @@ public class GrblController implements SerialCommunicatorListener {
     
     public void pauseStreaming() throws IOException {
         this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
-        this.comm.pauseSend();
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(CommUtils.GRBL_PAUSE_COMMAND);
         }
+        this.comm.pauseSend();
     }
     
     public void resumeStreaming() throws IOException {
         this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
-        this.comm.resumeSend();
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(CommUtils.GRBL_RESUME_COMMAND);
         }
+        this.comm.resumeSend();
     }
     
     public void cancelSend() {
         this.messageForConsole("\n**** Canceling file transfer. ****\n\n");
-        
         this.flushSendQueues();
         this.comm.cancelSend();
     }
@@ -335,12 +336,14 @@ public class GrblController implements SerialCommunicatorListener {
         dispatchCommandQueued(listeners, command);
     }
 
+    // No longer a listener event
     public void fileStreamComplete(String filename, boolean success) {
         this.messageForConsole("\n**** Finished sending file. ****\n\n");
         this.streamStop = System.currentTimeMillis();
         dispatchStreamComplete(listeners, filename, success);        
     }
-        
+
+    // No longer a listener event
     public String preprocessCommand(String command) {
         String newCommand = command;
 
@@ -362,8 +365,7 @@ public class GrblController implements SerialCommunicatorListener {
         return newCommand;
     }
     
-    // TODO: SerialCommunicator shouldn't know what a capability is.
-    @Override
+    // No longer a listener event
     public void capabilitiesListener(CommUtils.Capabilities capability) {
         
         if (capability == CommUtils.Capabilities.POSITION_C) {
@@ -375,6 +377,17 @@ public class GrblController implements SerialCommunicatorListener {
         }
         
     }
+    
+    // No longer a listener event
+    public void handlePositionString(String string) {
+        if (this.positionMode != null) {
+            this.grblState = GrblUtils.getStatusFromPositionString(string, this.positionMode);
+            this.machineLocation = GrblUtils.getMachinePositionFromPositionString(string, this.positionMode);
+            this.workLocation = GrblUtils.getWorkPositionFromPositionString(string, this.positionMode);
+         
+            dispatchStatusString(listeners, this.grblState, this.machineLocation, this.workLocation);
+        }
+    }
      
     @Override
     public void commandSent(GcodeCommand command) {
@@ -384,11 +397,6 @@ public class GrblController implements SerialCommunicatorListener {
         this.awaitingResponseQueue.add(c);
         
         dispatchCommandSent(listeners, c);
-    }
-    
-    @Override
-    public void commandComment(String comment) {
-        dispatchCommandCommment(listeners, comment);
     }
     
     @Override
@@ -421,16 +429,6 @@ public class GrblController implements SerialCommunicatorListener {
     @Override
     public void verboseMessageForConsole(String msg) {
         dispatchConsoleMessage(listeners, msg, Boolean.TRUE);
-    }
-    
-    public void handlePositionString(String string) {
-        if (this.positionMode != null) {
-            this.grblState = GrblUtils.getStatusFromPositionString(string, this.positionMode);
-            this.machineLocation = GrblUtils.getMachinePositionFromPositionString(string, this.positionMode);
-            this.workLocation = GrblUtils.getWorkPositionFromPositionString(string, this.positionMode);
-         
-            dispatchStatusString(listeners, this.grblState, this.machineLocation, this.workLocation);
-        }
     }
 
     @Override

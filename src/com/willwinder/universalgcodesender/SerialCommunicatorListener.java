@@ -29,12 +29,11 @@ package com.willwinder.universalgcodesender;
  * @author wwinder
  */
 public interface SerialCommunicatorListener {
-    void capabilitiesListener(CommUtils.Capabilities capability);
+    //void capabilitiesListener(CommUtils.Capabilities capability);
     void rawResponseListener(String response);
     
     void commandSent(GcodeCommand command);
     void commandComplete(GcodeCommand command);
-    void commandComment(String comment);
     void messageForConsole(String msg);
     void verboseMessageForConsole(String msg);
 }

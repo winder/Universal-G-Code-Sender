@@ -24,15 +24,12 @@
 package com.willwinder.universalgcodesender;
 
 import gnu.io.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Timer;
 
 /**
  *
@@ -50,12 +47,6 @@ public class SerialCommunicator implements SerialPortEventListener{
     private Boolean sendPaused = false;
     private GcodeCommandBuffer commandBuffer;   // All commands in a file
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
-
-    // File transfer variables.
-    // TODO: Finish deleting these
-    private boolean fileMode = false;
-    private boolean fileModeSending = false;
-    private File file = null;
 
     // Callback interfaces
     ArrayList<SerialCommunicatorListener> commandSentListeners;
@@ -175,11 +166,7 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Add command to the command queue outside file mode. This is the only way
      * to send a command to the comm port without being in file mode.
      */
-    void queueStringForComm(final String input) throws Exception {
-        if (this.fileMode) {
-            throw new Exception("Cannot add commands while in file mode.");
-        }
-        
+    void queueStringForComm(final String input) throws Exception {        
         String commandString = input;
         
         if (! commandString.endsWith("\n")) {
@@ -228,21 +215,8 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     /** File Stream Methods. **/
     
-    void isReadyToStreamFile() throws Exception {
-        if (this.activeCommandList.size() > 0) {
-            throw new Exception("Cannot send file until there are no commands running. (Active Command List > 0).");
-        }
-
-        // TODO: delete all trace of a 'file mode' concept in this class.
-        if (this.fileModeSending == true) {
-            throw new Exception("Already sending a file.");
-        }
-        if ((this.fileMode == false) &&
-                (this.commandBuffer.size() > 0) && 
-                (this.commandBuffer.currentCommand().isDone() != true)) {
-            throw new Exception("Cannot send file until there are no commands running. (Commands remaining in command buffer)");
-        }
-
+    public boolean areActiveCommands() throws Exception {
+        return (this.activeCommandList.size() > 0);
     }
     
     /**
