@@ -181,7 +181,7 @@ class SettingsFactory {
         SettingsFactory.overrideSpeedValue = value;
     }
     
-    static Object getOverrideSpeedValue() {
+    static double getOverrideSpeedValue() {
         return overrideSpeedValue;
     }
 

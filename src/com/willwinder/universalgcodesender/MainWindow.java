@@ -1129,13 +1129,15 @@ implements KeyListener, ControllerListener {
     }//GEN-LAST:event_visualizeButtonActionPerformed
 
     private void overrideSpeedValueSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_overrideSpeedValueSpinnerStateChanged
-        this.controller.setSpeedOverride(getSpeedOverrideValue());
-        System.out.println("Action.");
+        this.overrideSpeedCheckBoxActionPerformed(null);
     }//GEN-LAST:event_overrideSpeedValueSpinnerStateChanged
 
     private void overrideSpeedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideSpeedCheckBoxActionPerformed
-        this.controller.setSpeedOverride(getSpeedOverrideValue());
-        System.out.println("Action.");
+        if (this.overrideSpeedCheckBox.isSelected()) {
+            this.controller.setSpeedOverride(getSpeedOverrideValue());
+        } else {
+            this.controller.setSpeedOverride(-1.0);
+        }
     }//GEN-LAST:event_overrideSpeedCheckBoxActionPerformed
 
     /**
@@ -1220,6 +1222,12 @@ implements KeyListener, ControllerListener {
 
         // Hook the view up to the model
         this.controller = new GrblController();
+        
+        // Apply SettingsFactory settings to controller.
+        if (SettingsFactory.isOverrideSpeedSelected()) {
+            double value = SettingsFactory.getOverrideSpeedValue();
+            this.controller.setSpeedOverride(value);
+        }
         
         // Setup file browser.
         this.fileChooser = new JFileChooser(); 
@@ -1476,10 +1484,10 @@ implements KeyListener, ControllerListener {
         }
     }
     
-    private int getSpeedOverrideValue() {
-        int ret = -1;
+    private double getSpeedOverrideValue() {
+        double ret = -1;
         if (this.overrideSpeedCheckBox.isSelected()) {
-            ret = Integer.parseInt( this.overrideSpeedValueSpinner.getValue().toString() );
+            ret = Double.parseDouble( this.overrideSpeedValueSpinner.getValue().toString() );
         }
         return ret;
     }

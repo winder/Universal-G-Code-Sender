@@ -43,7 +43,7 @@ public class GrblController implements SerialCommunicatorListener {
     private Boolean isReady = false;    // Not ready until version is received.
         
     // Outside influence
-    private Integer speedOverride = -1;
+    private double speedOverride = -1;
     
     // Grbl status members.
     private CommUtils.Capabilities positionMode = null;
@@ -122,7 +122,8 @@ public class GrblController implements SerialCommunicatorListener {
     /**
      * Overrides the feed rate in gcode commands. Disable by setting to -1.
      */
-    public void setSpeedOverride(int override) {
+    public void setSpeedOverride(double override) {
+        System.out.println("Setting override: " + override);
         this.speedOverride = override;
     }
     
@@ -245,7 +246,7 @@ public class GrblController implements SerialCommunicatorListener {
                 
                 // TODO: Expand this to handle canned cycles (Issue#49)
                 processed = this.preprocessCommand(command.getCommandString());
-                
+                System.out.println("Processed: " + processed);
                 // Don't send zero length commands.
                 if (processed.trim().equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");

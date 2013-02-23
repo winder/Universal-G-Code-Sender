@@ -110,7 +110,7 @@ public class CommUtils {
      * In that way all speed values become a ratio of the provided speed 
      * and don't get overridden with just a fixed speed.
      */
-    static String overrideSpeed(String command, Integer speed) {
+    static String overrideSpeed(String command, double speed) {
         String returnString = command;
         
         // Check if command sets feed speed.
