@@ -21,6 +21,10 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -46,7 +50,7 @@ public class GrblController implements SerialCommunicatorListener {
     private double speedOverride = -1;
     
     // Grbl status members.
-    private CommUtils.Capabilities positionMode = null;
+    private GrblUtils.Capabilities positionMode = null;
     private Boolean realTimeCapable = false;
     private String grblState;
     private Point3d machineLocation;
@@ -102,7 +106,7 @@ public class GrblController implements SerialCommunicatorListener {
                     public void run() {
                         try {
                             if (!outstandingPolls) {
-                                comm.sendByteImmediately(CommUtils.GRBL_STATUS_COMMAND);
+                                comm.sendByteImmediately(GrblUtils.GRBL_STATUS_COMMAND);
                                 outstandingPolls = true;
                             } else {
                                 System.out.print("outstanding poll...");
@@ -123,7 +127,6 @@ public class GrblController implements SerialCommunicatorListener {
      * Overrides the feed rate in gcode commands. Disable by setting to -1.
      */
     public void setSpeedOverride(double override) {
-        System.out.println("Setting override: " + override);
         this.speedOverride = override;
     }
     
@@ -276,7 +279,7 @@ public class GrblController implements SerialCommunicatorListener {
     public void pauseStreaming() throws IOException {
         this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
         if (this.realTimeCapable) {
-            this.comm.sendByteImmediately(CommUtils.GRBL_PAUSE_COMMAND);
+            this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         }
         this.comm.pauseSend();
     }
@@ -284,7 +287,7 @@ public class GrblController implements SerialCommunicatorListener {
     public void resumeStreaming() throws IOException {
         this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
         if (this.realTimeCapable) {
-            this.comm.sendByteImmediately(CommUtils.GRBL_RESUME_COMMAND);
+            this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         }
         this.comm.resumeSend();
     }
@@ -349,12 +352,12 @@ public class GrblController implements SerialCommunicatorListener {
         String newCommand = command;
 
         // Remove comments from command.
-        newCommand = CommUtils.removeComment(newCommand);
+        newCommand = GrblUtils.removeComment(newCommand);
 
         // Check for comment if length changed while preprocessing.
         if (command.length() != newCommand.length()) {
-            String comment = CommUtils.parseComment(command);
-            dispatchCommandCommment(listeners, CommUtils.parseComment(command));
+            String comment = GrblUtils.parseComment(command);
+            dispatchCommandCommment(listeners, GrblUtils.parseComment(command));
         }
         
         // Override feed speed
@@ -367,12 +370,12 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     // No longer a listener event
-    public void capabilitiesListener(CommUtils.Capabilities capability) {
+    public void capabilitiesListener(GrblUtils.Capabilities capability) {
         
-        if (capability == CommUtils.Capabilities.POSITION_C) {
+        if (capability == GrblUtils.Capabilities.POSITION_C) {
             System.out.println("Found position C capability");
             this.positionMode = capability;
-        } else if (capability == CommUtils.Capabilities.REAL_TIME) {
+        } else if (capability == GrblUtils.Capabilities.REAL_TIME) {
             this.realTimeCapable = true;
             System.out.println("Found real time capability");
         }

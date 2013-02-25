@@ -1,10 +1,8 @@
 /*
- * This is the interface which the SerialCommunicator class uses to notify
- * external programs of important events during communication.
+ * Controler Listener event interface
  */
-
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2013 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,19 +19,21 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.willwinder.universalgcodesender.listeners;
 
-package com.willwinder.universalgcodesender;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
-public interface SerialCommunicatorListener {
-    //void capabilitiesListener(CommUtils.Capabilities capability);
-    void rawResponseListener(String response);
-    
+public interface ControllerListener {
+    void fileStreamComplete(String filename, boolean success);
+    void commandQueued(GcodeCommand command);
     void commandSent(GcodeCommand command);
     void commandComplete(GcodeCommand command);
-    void messageForConsole(String msg);
-    void verboseMessageForConsole(String msg);
+    void commandComment(String comment);
+    void messageForConsole(String msg, Boolean verbose);
+    void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
 }

@@ -21,6 +21,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+
 /**
  *
  * @author wwinder

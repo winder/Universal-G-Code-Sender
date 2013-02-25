@@ -23,10 +23,11 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.universalgcodesender.CommUtils.Capabilities;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -45,7 +46,6 @@ public class VisualizerWindow extends javax.swing.JFrame implements ControllerLi
     private static final int FPS = 60; // animator's target frames per second
 
     // Interactive members.
-    private Capabilities positionVersion = null;
     private Point3d machineCoordinate;
     private Point3d workCoordinate;
     private int completedCommandNumber = -1;

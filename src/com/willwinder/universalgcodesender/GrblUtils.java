@@ -32,7 +32,62 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GrblUtils {
-/** 
+// Note: 5 characters of this buffer reserved for real time commands.
+    public static final int GRBL_RX_BUFFER_SIZE= 123;
+    
+    /**
+     * Real-time commands
+     */
+    public static final byte GRBL_PAUSE_COMMAND = '!';
+    public static final byte GRBL_RESUME_COMMAND = '~';
+    public static final byte GRBL_STATUS_COMMAND = '?';
+    public static final byte GRBL_RESET_COMMAND = 0x18;
+    
+    /**
+     * Gcode Commands
+     */
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G92 X0 Y0 Z0";
+    public static final String GCODE_RETURN_TO_ZERO_LOCATION = "G0 X0 Y0 Z0";
+    public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
+    
+    public enum Capabilities {
+        REAL_TIME, POSITION_C
+    }
+    /**
+     * Removes any comments within parentheses or beginning with a semi-colon.
+     */
+    static protected String removeComment(String command) {
+        String newCommand = command;
+
+        // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
+        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", "");
+
+        // Remove any comment beginning with ';' with regex "\;[^\\(]*"
+        newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
+        
+        return newCommand;
+    }
+    
+    /**
+     * Searches for a comment in the input string and returns the first match.
+     */
+    static protected String parseComment(String command) {
+        String comment = "";
+
+        // REGEX: Find any comment, includes the comment characters:
+        //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
+        //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
+        
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*");
+        Matcher matcher = pattern.matcher(command);
+        if (matcher.find()){
+            comment = matcher.group(0);
+        }
+
+        return comment;
+    }
+    
+    /** 
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
@@ -42,7 +97,7 @@ public class GrblUtils {
     /** 
      * Parses the version double out of the version response string.
      */
-    static double getVersionDouble(final String response) {
+    static protected double getVersionDouble(final String response) {
         double retValue = -1;
         final String VERSION_REGEX = "[0-9]*\\.[0-9]*";
         
@@ -56,7 +111,7 @@ public class GrblUtils {
         return retValue;
     }
     
-    static String getVersionLetter(final String response) {
+    static protected String getVersionLetter(final String response) {
         String retValue = null;
         final String VERSION_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
         
@@ -75,19 +130,19 @@ public class GrblUtils {
     /** 
      * Determines if the version of GRBL is capable of realtime commands.
      */
-    static Boolean isRealTimeCapable(final double version) {
+    static protected Boolean isRealTimeCapable(final double version) {
         return version > 0.7;
     }
     
     /**
      * Determines version of GRBL position capability.
      */
-    static CommUtils.Capabilities getGrblPositionCapabilities(final double version, final String letter) {
+    static protected Capabilities getGrblPositionCapabilities(final double version, final String letter) {
         if (version >= 0.8) {
             if (version==0.8 && letter.equals("c")) {
-                return CommUtils.Capabilities.POSITION_C;
+                return Capabilities.POSITION_C;
             } else if (version >= 0.9) {
-                return CommUtils.Capabilities.POSITION_C;
+                return Capabilities.POSITION_C;
             }
         }
         return null;
@@ -96,7 +151,7 @@ public class GrblUtils {
     /**
      * Check if a string contains a GRBL position string.
      */
-    static Boolean isGrblPositionString(final String response) {
+    static protected Boolean isGrblPositionString(final String response) {
         double retValue = -1;
         final String REGEX = "\\<.*\\>";
         
@@ -112,11 +167,11 @@ public class GrblUtils {
     /**
      * Parse status out of position string.
      */
-    static String getStatusFromPositionString(final String position, final CommUtils.Capabilities version) {
+    static protected String getStatusFromPositionString(final String position, final Capabilities version) {
         String retValue = null;
         String REGEX;
         
-        if (version == CommUtils.Capabilities.POSITION_C) {
+        if (version == Capabilities.POSITION_C) {
             REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
         } else {
             return null;
@@ -134,11 +189,11 @@ public class GrblUtils {
     }
     
     
-    static Point3d getMachinePositionFromPositionString(final String position, final CommUtils.Capabilities version) {
+    static protected Point3d getMachinePositionFromPositionString(final String position, final Capabilities version) {
         Point3d ret = null;
         String REGEX;
         
-        if (version == CommUtils.Capabilities.POSITION_C) {
+        if (version == Capabilities.POSITION_C) {
             REGEX = "(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)";
         } else {
             return null;
@@ -156,11 +211,11 @@ public class GrblUtils {
         return ret;
     }
 
-    static Point3d getWorkPositionFromPositionString(final String position, final CommUtils.Capabilities version) {
+    static protected Point3d getWorkPositionFromPositionString(final String position, final Capabilities version) {
         Point3d ret = null;
         String REGEX;
 
-        if (version == CommUtils.Capabilities.POSITION_C) {
+        if (version == Capabilities.POSITION_C) {
             REGEX = "(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)";
         } else {
             return null;

@@ -25,6 +25,9 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import gnu.io.CommPortIdentifier;
@@ -1073,7 +1076,7 @@ implements KeyListener, ControllerListener {
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         try {
-            this.controller.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
+            this.controller.queueStringForComm(GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1081,7 +1084,7 @@ implements KeyListener, ControllerListener {
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
-            this.controller.queueStringForComm(CommUtils.GCODE_PERFORM_HOMING_CYCLE);
+            this.controller.queueStringForComm(GrblUtils.GCODE_PERFORM_HOMING_CYCLE);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1093,7 +1096,7 @@ implements KeyListener, ControllerListener {
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
         try {
-            this.controller.queueStringForComm(CommUtils.GCODE_RETURN_TO_ZERO_LOCATION);
+            this.controller.queueStringForComm(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }

@@ -23,6 +23,8 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import gnu.io.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ import java.util.LinkedList;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -63,7 +66,7 @@ public class SerialCommunicator implements SerialPortEventListener{
         this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
         this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
         this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
-        this.commRawResponseListener         = new ArrayList<SerialCommunicatorListener>();
+        this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
         
         // Part of the serial data read event.
         this.inputBuffer = new StringBuilder();
@@ -239,8 +242,7 @@ public class SerialCommunicator implements SerialPortEventListener{
             // Commands parsed by the buffer list have embedded newlines.
             this.sendStringToComm(command.getCommandString());
             
-            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_SENT, 
-                    this.commandSentListeners, command);
+            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
 
             // Load the next command.
             this.commandBuffer.nextCommand();
@@ -268,7 +270,7 @@ public class SerialCommunicator implements SerialPortEventListener{
      */
     private void responseMessage( String response ) {
         // SerialCommunicator no longer knows what to do with responses.
-        ListenerUtils.dispatchListenerEvents(ListenerUtils.RAW_RESPONSE, this.commRawResponseListener, response);
+        dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
         // Keep the data flow going for now.
         if (GcodeCommand.isOkErrorResponse(response)) {
@@ -277,8 +279,7 @@ public class SerialCommunicator implements SerialPortEventListener{
 
             command.setResponse(response);
 
-            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
-                    this.commandCompleteListeners, command);
+            dispatchListenerEvents(COMMAND_COMPLETE, this.commandCompleteListeners, command);
 
             if (this.sendPaused == false) {
                 this.streamCommands();
@@ -340,12 +341,60 @@ public class SerialCommunicator implements SerialPortEventListener{
         
         int verbosity;
         if (!verbose) {
-            verbosity = ListenerUtils.CONSOLE_MESSAGE;
+            verbosity = CONSOLE_MESSAGE;
         }
         else {
-            verbosity = ListenerUtils.VERBOSE_CONSOLE_MESSAGE;
+            verbosity = VERBOSE_CONSOLE_MESSAGE;
         }
         
-        ListenerUtils.dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
-    }    
+        dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
+    }
+    
+    // Serial Communicator Listener Events
+    private static final int COMMAND_SENT = 1;
+    private static final int COMMAND_COMPLETE = 2;
+    private static final int RAW_RESPONSE = 3;
+    private static final int CONSOLE_MESSAGE = 4;
+    private static final int VERBOSE_CONSOLE_MESSAGE = 5;
+    
+    /**
+     * A bunch of methods to dispatch listener events with various arguments.
+     */
+    static private void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, String message) {
+        if (sclList != null) {
+            for (SerialCommunicatorListener s : sclList) {
+                sendEventToListener(event, s, message, null);
+            }
+        }
+    }
+    
+    static private void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, GcodeCommand command) {
+        if (sclList != null) {
+            for (SerialCommunicatorListener s : sclList) {
+                sendEventToListener(event, s, null, command);
+            }
+        }
+    }
+
+    static private void sendEventToListener(int event, SerialCommunicatorListener scl, 
+                                            String string, GcodeCommand command) {
+        switch(event) {
+            case COMMAND_COMPLETE:
+                scl.commandComplete(command);
+                break;
+            case COMMAND_SENT:
+                scl.commandSent(command);
+                break;
+            case CONSOLE_MESSAGE:
+                scl.messageForConsole(string);
+                break;
+            case VERBOSE_CONSOLE_MESSAGE:
+                scl.verboseMessageForConsole(string);
+                break;
+            case RAW_RESPONSE:
+                scl.rawResponseListener(string);
+            default:
+
+        }
+    }
 }

@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.*;
 import java.util.*;
 

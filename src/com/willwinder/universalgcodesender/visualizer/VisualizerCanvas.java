@@ -23,7 +23,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
