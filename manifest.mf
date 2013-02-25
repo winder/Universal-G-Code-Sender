@@ -1,5 +1,21 @@
 Manifest-Version: 1.0
 X-COMMENT: Main-Class will be added automatically by build
 Ant-Version: Apache Ant 1.8.2
-Class-Path: lib/RXTXcomm.jar lib/swing-layout-1.0.4.jar
+Class-Path: lib/RXTXcomm.jar 
+            lib/swing-layout-1.0.4.jar 
+            lib/vecmath.jar 
+            lib/jogl-all.jar 
+            lib/jogl-all-natives-windows-amd64.jar
+            lib/jogl-all-natives-windows-i586.jar
+            lib/jogl-all-natives-linux-amd64.jar
+            lib/jogl-all-natives-linux-armv6.jar
+            lib/jogl-all-natives-linux-i586.jar 
+            lib/jogl-all-natives-macosx-universal.jar
+            lib/gluegen-rt.jar 
+            lib/gluegen-rt-natives-windows-i586.jar
+            lib/gluegen-rt-natives-linux-amd64.jar
+            lib/gluegen-rt-natives-linux-armv6.jar
+            lib/gluegen-rt-natives-linux-i586.jar
+            lib/gluegen-rt-natives-macosx-universal.jar 
+            lib/gluegen-rt-natives-windows-amd64.jar 
 One-Jar-Main-Class: com.willwinder.universalgcodesender.MainWindow
