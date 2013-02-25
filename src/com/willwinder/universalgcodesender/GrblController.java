@@ -340,6 +340,7 @@ public class GrblController implements SerialCommunicatorListener {
     public void fileStreamComplete(String filename, boolean success) {
         this.messageForConsole("\n**** Finished sending file. ****\n\n");
         this.streamStop = System.currentTimeMillis();
+        this.isStreaming = false;
         dispatchStreamComplete(listeners, filename, success);        
     }
 
