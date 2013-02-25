@@ -207,7 +207,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         // Draw model
         if (isDrawable) {
-            renderAxes(drawable);
+            //renderAxes(drawable);
             renderModel(drawable);
             renderTool(drawable);
         }
