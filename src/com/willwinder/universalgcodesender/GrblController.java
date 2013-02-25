@@ -504,7 +504,7 @@ public class GrblController implements SerialCommunicatorListener {
     }
 
     //  void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
-    static private void dispatchStatusString(ArrayList<ControllerListener> clList, String state, Point3d work, Point3d machine) {
+    static private void dispatchStatusString(ArrayList<ControllerListener> clList, String state, Point3d machine, Point3d work) {
         if (clList != null) {
             for (ControllerListener c : clList) {
                 c.statusStringListener(state, machine, work);
