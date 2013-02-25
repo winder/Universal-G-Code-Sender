@@ -207,6 +207,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         // Draw model
         if (isDrawable) {
+            renderAxes(drawable);
             renderModel(drawable);
             renderTool(drawable);
         }
@@ -220,6 +221,42 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         
         update();
+    }
+    
+    private void renderAxes(GLAutoDrawable drawable) {
+        final GL2 gl = drawable.getGL().getGL2();
+        
+        gl.glBegin(GL_LINES);
+        
+        // X-Axis
+        gl.glColor3f( 1, 0, 0 );
+        gl.glVertex3f( 0, 0, 0 );
+        gl.glVertex3f( 50, 0, 0 );
+
+        // Y-Axis
+        gl.glColor3f( 0, 1, 0 );
+        gl.glVertex3f( 0, 0, 0 );
+        gl.glVertex3f( 0, 50, 0 );
+        
+        // Z-Axis
+        gl.glColor3f( 0, 0, 1 );
+        gl.glVertex3f( 0, 0, 0 );
+        gl.glVertex3f( 0, 0, 50 );
+        
+        gl.glEnd();
+        
+        //# Draw number 50 on x/y-axis line.
+        //glRasterPos2f(50,-5)
+        //glutInit()
+        //A = 53
+        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, A)
+        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 48)
+
+        //glRasterPos2f(-5,50)
+        //glutInit()
+        //A = 53
+        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, A)
+        //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 48)
     }
     
     /**
