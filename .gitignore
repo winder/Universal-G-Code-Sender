@@ -3,5 +3,4 @@
 /nbproject/private
 /release/
 .DS_Store
-librxtxSerial.jnilib
 test_files/grbl_*.hex.txt
