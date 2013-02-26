@@ -139,12 +139,33 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public Boolean closeCommPort() {
-        this.messageForConsole("**** Connection closed ****\n");  
+        this.messageForConsole("**** Connection closed ****\n");
+        this.stopPollingPosition();
+        
+        // I was noticing odd behavior, such as continuing to send 'ok's after
+        // closing and reopening the comm port.
+        // Note: The "Configuring-Grbl-v0.8" documentation recommends frequent
+        //       soft resets, but also warns that the "startup" block will run
+        //       on a reset and startup blocks may include motion commands.
+        this.issueSoftReset();
         this.flushSendQueues();
         this.commandCreator.resetNum();
-        this.stopPollingPosition();
+        
         this.comm.closeCommPort();
         return true;
+    }
+    
+    /**
+     * If it is supported, a soft reset real-time command will be issued.
+     */
+    public void issueSoftReset() {
+        if (this.realTimeCapable) {
+            try {
+                this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+            } catch (IOException e) {
+                // Oh well.
+            }
+        }
     }
     
     //// File send metadata ////
@@ -237,6 +258,12 @@ public class GrblController implements SerialCommunicatorListener {
             throw new Exception("Cannot begin streaming until there are no outstanding commands.");
         }
         
+        // Grbl's "Configuring-Grbl-v0.8" documentation recommends a soft reset
+        // prior to starting a job. But will this cause GRBL to reset all the
+        // way to reporting version info? Need to double check that before
+        // enabling.
+        //this.issueSoftReset();
+        
         this.isStreaming = true;
         this.streamStop = 0;
         this.streamStart = System.currentTimeMillis();
@@ -303,6 +330,7 @@ public class GrblController implements SerialCommunicatorListener {
      */
     private void beginPollingPosition() {
         if (this.positionPollTimer.isRunning() == false) {
+            this.outstandingPolls = false;
             this.positionPollTimer.start();
         }
     }
