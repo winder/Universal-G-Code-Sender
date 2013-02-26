@@ -38,9 +38,9 @@
         <copy todir="${dist.jar.dir}/natives/win64">
             <fileset dir="${natives.dir}/win64"  includes="*"/>
         </copy>
-        <copy todir="${dist.jar.dir}/natives/mac">
-            <fileset dir="${natives.dir}/mac"  includes="*.dylib"/>
-            <fileset dir="${natives.dir}/mac"  includes="*.jnilib"/>
+        <copy todir="${dist.jar.dir}/natives/macosx">
+            <fileset dir="${natives.dir}/macosx"  includes="*.dylib"/>
+            <fileset dir="${natives.dir}/macosx"  includes="*.jnilib"/>
         </copy>
         
         
@@ -53,9 +53,9 @@
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
-                <fileset file="${dist.jar.dir}/natives/linux32/*.*" />
-                <fileset file="${dist.jar.dir}/natives/win32/*.*" />
+                <fileset dir="macosx"    file="${dist.jar.dir}/natives/macosx/*.*" />
+                <fileset dir="linux32"   file="${dist.jar.dir}/natives/linux32/*.*" />
+                <fileset dir="windows32" file="${dist.jar.dir}/natives/win32/*.*" />
             </binlib>
             <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
         </one-jar> 
@@ -72,7 +72,7 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
+                <fileset file="${dist.jar.dir}/natives/macosx/*.*" />
                 <fileset file="${dist.jar.dir}/natives/linux64/*.*" />
                 <fileset file="${dist.jar.dir}/natives/win64/*.*" />
             </binlib>
@@ -143,7 +143,7 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/mac/*.*" />
+                <fileset file="${dist.jar.dir}/natives/macosx/*.*" />
             </binlib>
         </one-jar>
         <echo>Bundling: OneJAR is done.</echo>
