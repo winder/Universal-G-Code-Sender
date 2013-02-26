@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.willwinder.universalgcodesender</groupId>
+	<artifactId>UGS</artifactId>
+	<version>1.6</version>
+
+	<packaging>jar</packaging>
+
+	<properties>
+		<jetty.version>7.0.2.v20100331</jetty.version>
+		<slf4j.version>1.7.2</slf4j.version>
+		<guice.version>3.1.2</guice.version>
+		<jersey.version>1.16</jersey.version>
+		<jackson.version>1.9.10</jackson.version>
+	</properties>
+
+	<dependencies>
+	  <!-- ===================== -->
+	  <!-- == My dependencies == -->
+	  <!-- ===================== -->
+     <dependency>
+       <groupId>org.jogamp.gluegen</groupId>
+       <artifactId>gluegen-rt-main</artifactId>
+       <version>2.0-rc11</version>
+     </dependency>
+
+     <dependency>
+       <groupId>org.jogamp.jogl</groupId>
+       <artifactId>jogl-all-main</artifactId>
+       <version>2.0-rc11</version>
+     </dependency>
+
+    <dependency>
+      <groupId>java3d</groupId>
+      <artifactId>vecmath</artifactId>
+      <version>1.3.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.rxtx</groupId>
+      <artifactId>rxtx</artifactId>
+      <version>2.1.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.3</version>
+    </dependency>
+	</dependencies>
+
+	<build>
+	  <!-- ================================================== -->
+	  <!-- = Change default maven src dir to match Netbeans = -->
+	  <!-- ================================================== -->
+		<sourceDirectory>src/</sourceDirectory>
+
+		<resources>
+			<resource>
+				<directory>src/com/willwinder/universalgcodesender/images</directory>
+        <includes>
+          <include>refresh.gif</include>
+        </includes>
+			</resource>
+		</resources>
+
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+		<plugins>
+		  <!-- ===================== -->
+		  <!-- == Manifest Config == -->
+		  <!-- ===================== -->
+			<plugin>
+			  <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+                <descriptorRefs>
+                    <descriptorRef>jar-with-dependencies</descriptorRef>
+                </descriptorRefs>
+                <archive>
+                    <manifest>
+                        <mainClass>com.willwinder.universalgcodesender.MainWindow</mainClass>
+                    </manifest>
+                </archive>
+            </configuration>
+      </plugin>
+      <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty.version}</version>
+				<configuration>
+					<scanIntervalSeconds>0</scanIntervalSeconds>
+					<useTestClasspath>true</useTestClasspath>
+				</configuration>
+			</plugin>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <configuration>
+              <archive>
+                  <manifest>
+                      <mainClass>com.willwinder.universalgcodesender.MainWindow</mainClass>
+                  </manifest>
+              </archive>
+          </configuration>
+      </plugin>
+      <plugin>
+          <groupId>org.dstovall</groupId>
+          <artifactId>onejar-maven-plugin</artifactId>
+          <version>1.4.4</version>
+          <executions>
+              <execution>
+                  <configuration>
+                      <!-- Optional -->
+                      <onejarVersion>0.97</onejarVersion>
+                      <binlibs>
+                        <!-- ========== -->
+                        <!-- == RXTX == -->
+                        <!-- ========== -->
+                        <binlib>
+                          <os>mac</os>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/mac</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>linux</os>
+                          <arch>32</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/linux32</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>linux</os>
+                          <arch>64</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/linux64</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>windows</os>
+                          <arch>64</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/win64</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>windows</os>
+                          <arch>32</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/win32</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                      </binlibs>
+                      <!-- Optional, default is false -->
+                      <attachToBuild>true</attachToBuild>
+                      <!-- Optional, default is "onejar" -->
+                      <classifier>onejar</classifier>
+                  </configuration>
+                  <goals>
+                      <goal>one-jar</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
+  </plugins>
+</build>
+
+<pluginRepositories>
+    <pluginRepository>
+        <id>onejar-maven-plugin.googlecode.com</id>
+        <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+    </pluginRepository>
+</pluginRepositories>
+
+</project>
