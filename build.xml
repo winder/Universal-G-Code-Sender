@@ -21,28 +21,27 @@
     <import file="one-jar-ant-task.xml" />
     
     <!-- One-Jar .jar building -->
-    <target name="onejar-dist-all" depends="jar"
+    <target name="onejar-individual-platforms" depends="jar"
             description="Bundles a stand-alone OneJAR distribution">
         <echo>Bundling: OneJAR is copying natives to ${dist.jar.dir}/natives </echo>
         
+        <!-- Move natives into build directory. -->
         <copy todir="${dist.jar.dir}/natives/linux64">
             <fileset dir="${natives.dir}"  includes="*"/>
         </copy>
-        
         <copy todir="${dist.jar.dir}/natives/linux32">
             <fileset dir="${natives.dir}/linux32"  includes="*"/>
         </copy>
-        <copy todir="${dist.jar.dir}/natives/win32">
-            <fileset dir="${natives.dir}/win32"  includes="*"/>
+        <copy todir="${dist.jar.dir}/natives/windows32">
+            <fileset dir="${natives.dir}/windows32"  includes="*"/>
         </copy>
-        <copy todir="${dist.jar.dir}/natives/win64">
-            <fileset dir="${natives.dir}/win64"  includes="*"/>
+        <copy todir="${dist.jar.dir}/natives/windows64">
+            <fileset dir="${natives.dir}/windows64"  includes="*"/>
         </copy>
         <copy todir="${dist.jar.dir}/natives/macosx">
             <fileset dir="${natives.dir}/macosx"  includes="*.dylib"/>
             <fileset dir="${natives.dir}/macosx"  includes="*.jnilib"/>
         </copy>
-        
         
         <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all32.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all32.jar" manifest="onejar.mf" update="true">
@@ -55,13 +54,12 @@
             <binlib>
                 <fileset dir="macosx"    file="${dist.jar.dir}/natives/macosx/*.*" />
                 <fileset dir="linux32"   file="${dist.jar.dir}/natives/linux32/*.*" />
-                <fileset dir="windows32" file="${dist.jar.dir}/natives/win32/*.*" />
+                <fileset dir="windows32" file="${dist.jar.dir}/natives/windows32/*.*" />
             </binlib>
             <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
         </one-jar> 
-         <echo file="${dist.jar.dir}/README.txt" append="true">
-Run the stand-alone distribution from the command line using:
-        java -jar -Xmx256m ${standalone.jar.name}-all32.jar</echo>
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+               file="${basedir}/release_files/README.txt"/>
         
         <echo>Bundling: OneJAR is composing ${standalone.jar.name}-all64.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-all64.jar" manifest="onejar.mf" update="true">
@@ -74,14 +72,13 @@ Run the stand-alone distribution from the command line using:
             <binlib>
                 <fileset file="${dist.jar.dir}/natives/macosx/*.*" />
                 <fileset file="${dist.jar.dir}/natives/linux64/*.*" />
-                <fileset file="${dist.jar.dir}/natives/win64/*.*" />
+                <fileset file="${dist.jar.dir}/natives/windows64/*.*" />
             </binlib>
             <fileset file="${basedir}/properties.cfg"></fileset><!-- optional -->
         </one-jar> 
-        <echo file="${dist.jar.dir}/README.txt" append="true">
-Run the stand-alone distribution from the command line using:
-        java -jar -Xmx256m ${standalone.jar.name}-all64.jar</echo>
-        
+
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+               file="${basedir}/release_files/README.txt"/>
         <echo>Bundling: OneJAR is preparing ${standalone.jar.name}-win32.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}-win32.jar" manifest="onejar.mf" update="true">
             <main>
@@ -91,7 +88,7 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/win32/*.*" />
+                <fileset file="${dist.jar.dir}/natives/windows32/*.*" />
             </binlib>
         </one-jar>
         
@@ -104,7 +101,7 @@ Run the stand-alone distribution from the command line using:
                 <fileset file="${dist.jar.dir}/lib/*.*" />
             </lib>
             <binlib>
-                <fileset file="${dist.jar.dir}/natives/win64/*.*" />
+                <fileset file="${dist.jar.dir}/natives/windows64/*.*" />
             </binlib>
         </one-jar>
         
@@ -150,7 +147,7 @@ Run the stand-alone distribution from the command line using:
     </target>
 
     <!-- Zipped One-Jar Releases -->
-    <target name="onejar-dist-all-zip" depends="onejar-dist-all"
+    <target name="onejar-individual-platforms-zip" depends="onejar-individual-platforms"
             description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
         <mkdir  dir="${release.dir}" />
 
@@ -241,38 +238,16 @@ Run the stand-alone distribution from the command line using:
         <!-- All 32-Bit -->
         <echo>All32: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-all32" />
-        <echo  file="${release.dir}/${standalone.jar.name}-all32/README.txt">
-Run the stand-alone distribution from the command line using:
-    java -jar -Xmx256m ${standalone.jar.name}-all32.jar
-        </echo>
-        <echo  file="${release.dir}/${standalone.jar.name}-all32/start-windows.bat">
-java -jar -Xmx256m UniversalGcodeSender-all*.jar
-        </echo>
-        <echo  file="${release.dir}/${standalone.jar.name}-all32/start.sh">
-#!/bin/bash
 
-platform='unknown'
-unamestr=`uname`
-case "$unamestr" in
-        Linux)
-                platform='linux'
-                rootdir="$(dirname $(readlink -f $0))"
-        ;;
-        Darwin)
-                platform='mac'
-                rootdir="$(cd $(dirname $0); pwd -P)"
-        ;;
-esac
+        <!-- static files and scripts -->
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+               file="${basedir}/release_files/README.txt"/>
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+               file="${basedir}/release_files/start-windows.bat"/>
+        <copy todir="${release.dir}/${standalone.jar.name}-all32/"
+               file="${basedir}/release_files/start.sh"/>
 
-case "$platform" in
-        mac)
-                java -Xdock:name=UniversalGCodeSender -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
-        ;;
-        linux)
-                java -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
-        ;;
-esac
-        </echo>
+        <!-- JAR -->
         <copy todir="${release.dir}/${standalone.jar.name}-all32/"
                 file="${dist.jar.dir}/${standalone.jar.name}-all32.jar" />
 
@@ -288,39 +263,16 @@ esac
         <!-- All 64-Bit -->
         <echo>All64: Creating JAR Launcher</echo>
         <mkdir  dir="${release.dir}/${standalone.jar.name}-all64" />
-        <echo  file="${release.dir}/${standalone.jar.name}-all64/README.txt">
-Run the stand-alone distribution from the command line using:
-    java -jar -Xmx256m ${standalone.jar.name}-all64.jar
-        </echo>
-        <echo  file="${release.dir}/${standalone.jar.name}-all64/start-windows.bat">
-java -jar -Xmx256m UniversalGcodeSender-all*.jar
-        </echo>
-        <echo  file="${release.dir}/${standalone.jar.name}-all64/start.sh">
-#!/bin/bash
 
-platform='unknown'
-unamestr=`uname`
-case "$unamestr" in
-        Linux)
-                platform='linux'
-                rootdir="$(dirname $(readlink -f $0))"
-        ;;
-        Darwin)
-                platform='mac'
-                rootdir="$(cd $(dirname $0); pwd -P)"
-        ;;
-esac
+        <!-- static files and scripts -->
+        <copy todir="${release.dir}/${standalone.jar.name}-all64/"
+               file="${basedir}/release_files/README.txt"/>
+        <copy todir="${release.dir}/${standalone.jar.name}-all64/"
+               file="${basedir}/release_files/start-windows.bat"/>
+        <copy todir="${release.dir}/${standalone.jar.name}-all64/"
+               file="${basedir}/release_files/start.sh"/>
 
-case "$platform" in
-        mac)
-                java -Xdock:name=UniversalGCodeSender -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
-        ;;
-        linux)
-                java -jar -Xmx256m $rootdir/UniversalGcodeSender-all*.jar
-        ;;
-esac
-        </echo>
-
+        <!-- JAR -->
         <copy todir="${release.dir}/${standalone.jar.name}-all64/"
                 file="${dist.jar.dir}/${standalone.jar.name}-all64.jar" />
 
@@ -331,10 +283,51 @@ esac
         <echo>All64: Cleaning up temporary files</echo>
         <delete dir="${release.dir}/${standalone.jar.name}-all64" />
         <delete file="${dist.jar.dir}/${standalone.jar.name}-all64.jar" />
+    </target>
 
-       
-      
+
+    <!-- One-Jar release to be manually edited. -->
+    <target name="onejar-build-release" depends="jar"
+            description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
+        <mkdir  dir="${release.dir}" />
+
+        <echo>Release Build: OneJAR is preparing ${standalone.jar.name}.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}.jar" manifest="onejar.mf" update="true">
+            <main>
+                <fileset dir="${build.classes.dir}/" />
+            </main>
+            <lib>
+                <fileset file="${dist.jar.dir}/lib/*.*">
+                    <!-- Switch to native jars when JOGL fixes One-Jar bug. -->
+                    <exclude name="*-natives-*" />
+                </fileset>
+            </lib>
+            <binlib>
+                <fileset file="${natives.dir}/**" />
+            </binlib>
+        </one-jar>
+        <echo>Bundling: OneJAR is done.</echo>
+
+        <!-- static files and scripts -->
+        <echo>Release Build: Copying in support files.</echo>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/README.txt"/>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/start-windows.bat"/>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/start.sh"/>
+
+        <echo>Release Build: Creating JAR.</echo>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+                file="${dist.jar.dir}/${standalone.jar.name}.jar" />
         
+        <echo>Release Build: Creating zip file.</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}.zip"  
+            basedir="${release.dir}/${standalone.jar.name}" update="true" />
+        
+        <echo>Release Build: Cleaning up temporary files</echo>
+        <delete dir="${release.dir}/${standalone.jar.name}" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}.jar" />
     </target>
 
     <target name="-post-clean">
