@@ -58,7 +58,7 @@ import javax.vecmath.Point3d;
  */
 public class MainWindow extends javax.swing.JFrame 
 implements KeyListener, ControllerListener {
-    private static String VERSION = "1.0.5";
+    private static String VERSION = "1.0.6";
 
     /** Creates new form MainWindow */
     public MainWindow() {
