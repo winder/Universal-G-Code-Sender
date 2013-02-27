@@ -51,7 +51,7 @@ public class GrblUtils {
     public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
     
     public enum Capabilities {
-        REAL_TIME, POSITION_C
+        REAL_TIME, STATUS_C
     }
     /**
      * Removes any comments within parentheses or beginning with a semi-colon.
@@ -137,12 +137,12 @@ public class GrblUtils {
     /**
      * Determines version of GRBL position capability.
      */
-    static protected Capabilities getGrblPositionCapabilities(final double version, final String letter) {
+    static protected Capabilities getGrblStatusCapabilities(final double version, final String letter) {
         if (version >= 0.8) {
             if (version==0.8 && letter.equals("c")) {
-                return Capabilities.POSITION_C;
+                return Capabilities.STATUS_C;
             } else if (version >= 0.9) {
-                return Capabilities.POSITION_C;
+                return Capabilities.STATUS_C;
             }
         }
         return null;
@@ -151,7 +151,7 @@ public class GrblUtils {
     /**
      * Check if a string contains a GRBL position string.
      */
-    static protected Boolean isGrblPositionString(final String response) {
+    static protected Boolean isGrblStatusString(final String response) {
         double retValue = -1;
         final String REGEX = "\\<.*\\>";
         
@@ -165,13 +165,13 @@ public class GrblUtils {
     }
     
     /**
-     * Parse status out of position string.
+     * Parse state out of position string.
      */
-    static protected String getStatusFromPositionString(final String position, final Capabilities version) {
+    static protected String getStateFromStatusString(final String status, final Capabilities version) {
         String retValue = null;
         String REGEX;
         
-        if (version == Capabilities.POSITION_C) {
+        if (version == Capabilities.STATUS_C) {
             REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
         } else {
             return null;
@@ -180,7 +180,7 @@ public class GrblUtils {
         
         // Search for a version.
         Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(position);
+        Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
             retValue = matcher.group(0);;
         }
@@ -189,47 +189,43 @@ public class GrblUtils {
     }
     
     
-    static protected Point3d getMachinePositionFromPositionString(final String position, final Capabilities version) {
+    static protected Point3d getMachinePositionFromStatusString(final String status, final Capabilities version) {
         Point3d ret = null;
         String REGEX;
         
-        if (version == Capabilities.POSITION_C) {
+        if (version == Capabilities.STATUS_C) {
             REGEX = "(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)";
         } else {
             return null;
         }
         
         // Search for a version.
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(position);
-        if (matcher.find()) {
-            ret = new Point3d ( Double.parseDouble(matcher.group(1)),
-                                  Double.parseDouble(matcher.group(2)),
-                                  Double.parseDouble(matcher.group(3)));
-        }
-
-        return ret;
+        return GrblUtils.getPositionFromStatusString(status, REGEX);
     }
 
-    static protected Point3d getWorkPositionFromPositionString(final String position, final Capabilities version) {
+    static protected Point3d getWorkPositionFromStatusString(final String status, final Capabilities version) {
         Point3d ret = null;
         String REGEX;
 
-        if (version == Capabilities.POSITION_C) {
+        if (version == Capabilities.STATUS_C) {
             REGEX = "(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)";
         } else {
             return null;
         }
         
         // Search for a version.
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(position);
+        return GrblUtils.getPositionFromStatusString(status, REGEX);
+    }
+    
+    static private Point3d getPositionFromStatusString(final String status, final String regex) {
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
-            ret = new Point3d( Double.parseDouble(matcher.group(1)),
-                                  Double.parseDouble(matcher.group(2)),
-                                  Double.parseDouble(matcher.group(3)));
+            return new Point3d( Double.parseDouble(matcher.group(1)),
+                                Double.parseDouble(matcher.group(2)),
+                                Double.parseDouble(matcher.group(3)));
         }
-
-        return ret;
+        
+        return null;
     }
 }

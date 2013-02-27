@@ -64,7 +64,7 @@ public class GrblController implements SerialCommunicatorListener {
     private File gcodeFile;
     
     // Polling state
-    private Boolean outstandingPolls = false;
+    private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
     private int pollingRate = 200;
     
@@ -105,11 +105,16 @@ public class GrblController implements SerialCommunicatorListener {
                     @Override
                     public void run() {
                         try {
-                            if (!outstandingPolls) {
+                            if (outstandingPolls == 0) {
+                                outstandingPolls++;
                                 comm.sendByteImmediately(GrblUtils.GRBL_STATUS_COMMAND);
-                                outstandingPolls = true;
                             } else {
-                                System.out.print("outstanding poll...");
+                                // If a poll is somehow lost after 20 intervals,
+                                // reset for sending another.
+                                outstandingPolls++;
+                                if (outstandingPolls >= 20) {
+                                    outstandingPolls = 0;
+                                }
                             }
                         } catch (IOException ex) {
                             messageForConsole("IOException while sending status command: " + ex.getMessage() + "\n");
@@ -278,7 +283,7 @@ public class GrblController implements SerialCommunicatorListener {
                 
                 // TODO: Expand this to handle canned cycles (Issue#49)
                 processed = this.preprocessCommand(command.getCommandString());
-                System.out.println("Processed: " + processed);
+
                 // Don't send zero length commands.
                 if (processed.trim().equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
@@ -330,7 +335,7 @@ public class GrblController implements SerialCommunicatorListener {
      */
     private void beginPollingPosition() {
         if (this.positionPollTimer.isRunning() == false) {
-            this.outstandingPolls = false;
+            this.outstandingPolls = 0;
             this.positionPollTimer.start();
         }
     }
@@ -400,7 +405,7 @@ public class GrblController implements SerialCommunicatorListener {
     // No longer a listener event
     public void capabilitiesListener(GrblUtils.Capabilities capability) {
         
-        if (capability == GrblUtils.Capabilities.POSITION_C) {
+        if (capability == GrblUtils.Capabilities.STATUS_C) {
             System.out.println("Found position C capability");
             this.positionMode = capability;
         } else if (capability == GrblUtils.Capabilities.REAL_TIME) {
@@ -413,9 +418,9 @@ public class GrblController implements SerialCommunicatorListener {
     // No longer a listener event
     public void handlePositionString(String string) {
         if (this.positionMode != null) {
-            this.grblState = GrblUtils.getStatusFromPositionString(string, this.positionMode);
-            this.machineLocation = GrblUtils.getMachinePositionFromPositionString(string, this.positionMode);
-            this.workLocation = GrblUtils.getWorkPositionFromPositionString(string, this.positionMode);
+            this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
+            this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
+            this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
          
             dispatchStatusString(listeners, this.grblState, this.machineLocation, this.workLocation);
         }
@@ -499,7 +504,7 @@ public class GrblController implements SerialCommunicatorListener {
             
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
-            this.positionMode = GrblUtils.getGrblPositionCapabilities(this.grblVersion, this.grblVersionLetter);
+            this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
             if (this.positionMode != null) {
                 // Start sending '?' commands.
                 this.beginPollingPosition();
@@ -509,10 +514,11 @@ public class GrblController implements SerialCommunicatorListener {
             System.out.println("Real time mode = " + this.realTimeCapable);
         }
         
-        else if (GrblUtils.isGrblPositionString(response)) {
-            this.outstandingPolls = false;
+        else if (GrblUtils.isGrblStatusString(response)) {
+            // Only 1 poll is sent at a time so don't decrement, reset to zero.
+            this.outstandingPolls = 0;
 
-            // Position string goes to verbose console
+            // Status string goes to verbose console
             dispatchConsoleMessage(listeners, response + "\n", true);
             
             this.handlePositionString(response);

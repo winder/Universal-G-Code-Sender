@@ -69,6 +69,10 @@ public class CommUtils {
         return characters < GrblUtils.GRBL_RX_BUFFER_SIZE;
     }
     
+    /**
+     * Returns the number of characters in the list of GcodeCommands and adds
+     * the length of the list representing one newline per command.
+     */
     static protected int getSizeOfBuffer(List<GcodeCommand> list) {
         int characters = 0;
         // Number of characters in list.
