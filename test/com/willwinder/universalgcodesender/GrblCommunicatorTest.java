@@ -22,11 +22,8 @@ import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.IOException;
 import java.util.LinkedList;
-import org.junit.After;
-import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -40,24 +37,12 @@ public class GrblCommunicatorTest {
     
     public GrblCommunicatorTest() {
     }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-    
+
     @Before
     public void setUp() {
         this.mg = new MockGrbl();
         this.gcb = new GcodeCommandBuffer();
         this.acl = new LinkedList<GcodeCommand>();
-    }
-    
-    @After
-    public void tearDown() {
     }
 
     /**
@@ -66,61 +51,20 @@ public class GrblCommunicatorTest {
     @Test
     public void testSetLineTerminator() {
         System.out.println("setLineTerminator");
-        System.out.println("-not testing setter.");
-    }
-    
-    /**
-     * Test of setListenAll method, of class GrblCommunicator.
-     */
-    @Test
-    public void testSetListenAll() {
-        System.out.println("setListenAll");
-        System.out.println("-not testing listener stuff.");
-    }
-
-    /**
-     * Test of addCommandSentListener method, of class GrblCommunicator.
-     */
-    @Test
-    public void testAddCommandSentListener() {
-        System.out.println("addCommandSentListener");
-        System.out.println("-not testing listener stuff.");
-    }
-
-    /**
-     * Test of addCommandCompleteListener method, of class GrblCommunicator.
-     */
-    @Test
-    public void testAddCommandCompleteListener() {
-        System.out.println("addCommandCompleteListener");
-        System.out.println("-not testing listener stuff.");
-    }
-
-    /**
-     * Test of addCommConsoleListener method, of class GrblCommunicator.
-     */
-    @Test
-    public void testAddCommConsoleListener() {
-        System.out.println("addCommConsoleListener");
-        System.out.println("-not testing listener stuff.");
-    }
-
-    /**
-     * Test of addCommVerboseConsoleListener method, of class GrblCommunicator.
-     */
-    @Test
-    public void testAddCommVerboseConsoleListener() {
-        System.out.println("addCommVerboseConsoleListener");
-        System.out.println("-not testing listener stuff.");
-    }
-
-    /**
-     * Test of addCommRawResponseListener method, of class GrblCommunicator.
-     */
-    @Test
-    public void testAddCommRawResponseListener() {
-        System.out.println("addCommRawResponseListener");
-        System.out.println("-not testing listener stuff.");
+        GrblCommunicator instance = new GrblCommunicator();
+        String defaultTerminator = AbstractCommunicator.DEFAULT_TERMINATOR;
+        
+        // Initial value.
+        assertEquals(defaultTerminator, instance.getLineTerminator());
+        
+        instance.setLineTerminator("tada");
+        assertEquals("tada", instance.getLineTerminator());
+        
+        instance.setLineTerminator(null);
+        assertEquals(defaultTerminator, instance.getLineTerminator());
+        
+        instance.setLineTerminator("");
+        assertEquals(defaultTerminator, instance.getLineTerminator());
     }
 
     /**

@@ -36,7 +36,7 @@ import java.util.TooManyListenersException;
  * @author wwinder
  */
 public abstract class AbstractCommunicator{
-    private String DEFAULT_TERMINATOR = "\r\n";
+    public static String DEFAULT_TERMINATOR = "\r\n";
     private String lineTerminator;
 
     // Callback interfaces
@@ -76,7 +76,7 @@ public abstract class AbstractCommunicator{
     
     /** Getters & Setters. */
     void setLineTerminator(String terminator) {
-        if (terminator.length() < 1) {
+        if (terminator == null || terminator.length() < 1) {
             this.lineTerminator = DEFAULT_TERMINATOR;
         } else {
             this.lineTerminator = terminator;
