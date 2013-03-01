@@ -43,9 +43,15 @@ public class Utils {
     public static String formattedMillis(long millis) {
         String format = String.format("%%0%dd", 2);  
         long elapsedTime = millis / 1000;  
-        String seconds = String.format(format, elapsedTime % 60);  
-        String minutes = String.format(format, (elapsedTime % 3600) / 60);  
-        String hours = String.format(format, elapsedTime / 3600);  
+        String hours = String.format(format, elapsedTime / 3600);
+        elapsedTime %= 3600;
+        
+        String minutes = String.format(format, elapsedTime / 60);
+        elapsedTime %= 60;
+        
+        String seconds = String.format(format, elapsedTime);
+
+          
         String time =  hours + ":" + minutes + ":" + seconds;  
         return time;
     }

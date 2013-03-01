@@ -39,7 +39,7 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GrblController implements SerialCommunicatorListener {
-    private SerialCommunicator comm;
+    private GrblCommunicator comm;
 
     // Grbl state
     private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
@@ -81,8 +81,16 @@ public class GrblController implements SerialCommunicatorListener {
     // Helper objects
     private GcodeCommandCreator commandCreator;
     
+    /**
+     * Dependency injection constructor to allow a mock communicator.
+     */
+    protected GrblController(GrblCommunicator comm) {
+        this();
+        this.comm = comm;
+    }
+    
     public GrblController() {
-        this.comm = new SerialCommunicator();
+        this.comm = new GrblCommunicator();
         
         this.commandQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
@@ -167,6 +175,8 @@ public class GrblController implements SerialCommunicatorListener {
         if (this.realTimeCapable) {
             try {
                 this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+                //Does GRBL need more time to handle the reset?
+                this.comm.softReset();
             } catch (IOException e) {
                 // Oh well.
             }
@@ -219,6 +229,9 @@ public class GrblController implements SerialCommunicatorListener {
     
     private void sendStringToComm(String command) throws Exception {
         this.comm.queueStringForComm(command+"\n");
+        // Send command to the serial port.
+        this.comm.streamCommands();
+
     }
     
     public void isReadyToStreamFile() throws Exception {

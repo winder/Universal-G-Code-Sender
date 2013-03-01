@@ -66,7 +66,7 @@ public class CommUtils {
         //       the GRBL_RX_BUFFER_SIZE is honored.
         //       For now add a safety character to each command.
         characters += command.length() + 1;
-        return characters < GrblUtils.GRBL_RX_BUFFER_SIZE;
+        return characters <= GrblUtils.GRBL_RX_BUFFER_SIZE;
     }
     
     /**

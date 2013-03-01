@@ -64,8 +64,8 @@ public class GrblUtils {
 
         // Remove any comment beginning with ';' with regex "\;[^\\(]*"
         newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
-        
-        return newCommand;
+
+        return newCommand.trim();
     }
     
     /**

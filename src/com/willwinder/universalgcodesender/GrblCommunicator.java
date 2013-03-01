@@ -23,97 +23,58 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import gnu.io.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
-public class SerialCommunicator implements SerialPortEventListener{    
+public class GrblCommunicator extends AbstractCommunicator 
+implements SerialPortEventListener{    
     // General variables
     private CommPort commPort;
     private InputStream in;
     private OutputStream out;
     private StringBuilder inputBuffer = null;
-    private String lineTerminator = "\r\n";
     
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommandBuffer commandBuffer;   // All commands in a file
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
 
-    // Callback interfaces
-    ArrayList<SerialCommunicatorListener> commandSentListeners;
-    ArrayList<SerialCommunicatorListener> commandCompleteListeners;
-    ArrayList<SerialCommunicatorListener> commConsoleListeners;
-    ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
-    ArrayList<SerialCommunicatorListener> commRawResponseListener;
-
-    // Only one listener can preprocess a command.
-    SerialCommunicatorListener commandPreprocessorListener;
-    
-    SerialCommunicator() {
-        this.commandSentListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
-        this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
-        this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
-        
+    public GrblCommunicator() {
+        this.setLineTerminator("\r\n");
+                
         // Part of the serial data read event.
         this.inputBuffer = new StringBuilder();
     }
     
-    /** Getters & Setters. */
-    void setLineTerminator(String terminator) {
-        if (terminator.length() < 1) {
-            this.lineTerminator = "\r\n";
-        } else {
-            this.lineTerminator = terminator;
-        }
+    /**
+     * This constructor is for dependency injection so a mock serial device can
+     * act as GRBL.
+     */
+    protected GrblCommunicator(final InputStream in, final OutputStream out,
+            GcodeCommandBuffer gcb, LinkedList<GcodeCommand> acl) {
+        // Base constructor.
+        this();
+        
+        this.in = in;
+        this.out = out;
+        this.commandBuffer = gcb;
+        this.activeCommandList = acl;
     }
 
-    // Register for callbacks
-    void setListenAll(SerialCommunicatorListener scl) {
-        this.addCommandSentListener(scl);
-        this.addCommandCompleteListener(scl);
-        this.addCommConsoleListener(scl);
-        this.addCommVerboseConsoleListener(scl);
-        this.addCommRawResponseListener(scl);
-    }
-
-    void addCommandSentListener(SerialCommunicatorListener scl) {
-        this.commandSentListeners.add(scl);
-    }
-
-    void addCommandCompleteListener(SerialCommunicatorListener scl) {
-        this.commandCompleteListeners.add(scl);
-    }
-    
-    void addCommConsoleListener(SerialCommunicatorListener scl) {
-        this.commConsoleListeners.add(scl);
-    }
-
-    void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        this.commVerboseConsoleListeners.add(scl);
-    }
-    
-    void addCommRawResponseListener(SerialCommunicatorListener scl) {
-        this.commRawResponseListener.add(scl);
-    }
-    
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
-    synchronized boolean openCommPort(String name, int baud) 
+    @Override
+    synchronized public  boolean openCommPort(String name, int baud) 
             throws NoSuchPortException, PortInUseException, 
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException, Exception {
@@ -148,18 +109,21 @@ public class SerialCommunicator implements SerialPortEventListener{
         return returnCode;
     }
         
-    void closeCommPort() {
+    @Override
+    public void closeCommPort() {
+        // Stop listening before anything, we're done here.
+        SerialPort serialPort = (SerialPort) this.commPort;
+        serialPort.removeEventListener();
+
         this.cancelSend();
         
         try {
             in.close();
             out.close();
         } catch (IOException ex) {
-            Logger.getLogger(SerialCommunicator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(GrblCommunicator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        SerialPort serialPort = (SerialPort) this.commPort;
-        serialPort.removeEventListener();
         this.commPort.close();
 
         this.commPort = null;
@@ -169,7 +133,8 @@ public class SerialCommunicator implements SerialPortEventListener{
      * Add command to the command queue outside file mode. This is the only way
      * to send a command to the comm port without being in file mode.
      */
-    void queueStringForComm(final String input) throws Exception {        
+    @Override
+    public void queueStringForComm(final String input) {        
         String commandString = input;
         
         if (! commandString.endsWith("\n")) {
@@ -178,17 +143,15 @@ public class SerialCommunicator implements SerialPortEventListener{
         
         // Add command to queue
         GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
-
-        // Send command to the serial port.
-        this.streamCommands();
     }
     
     /**
      * Sends a command to the serial device. This actually streams the bits to
      * the comm port.
      * @param command   Command to be sent to serial device.
+     * Protected instead of private solely so that I can test it.
      */
-    public void sendStringToComm(String command) {
+    protected void sendStringToComm(String command) {
         // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         
@@ -201,6 +164,7 @@ public class SerialCommunicator implements SerialPortEventListener{
     /**
      * Immediately sends a byte, used for real-time commands.
      */
+    @Override
     public void sendByteImmediately(byte b) throws IOException {
         out.write(b);
     }
@@ -218,14 +182,26 @@ public class SerialCommunicator implements SerialPortEventListener{
     
     /** File Stream Methods. **/
     
-    public boolean areActiveCommands() throws Exception {
+    @Override
+    public boolean areActiveCommands() {
         return (this.activeCommandList.size() > 0);
     }
     
     /**
      * Streams anything in the command buffer to the comm port.
      */
-    private void streamCommands() {
+    @Override
+    public void streamCommands() {
+        if (this.commandBuffer.currentCommand() == null) {
+            // NO-OP
+            return;
+        }
+        
+        if (this.sendPaused) {
+            // Another NO-OP
+            return;
+        }
+        
         // The GcodeCommandBuffer class always preloads the next command, so as
         // long as the currentCommand exists and hasn't been sent it is the next
         // which should be sent.
@@ -234,12 +210,10 @@ public class SerialCommunicator implements SerialPortEventListener{
                 CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
             GcodeCommand command = this.commandBuffer.currentCommand();
             
-            // Don't send skipped commands.
             command.setSent(true);
-
             this.activeCommandList.add(command);
 
-            // Commands parsed by the buffer list have embedded newlines.
+            // Newlines are embedded when they get queued.
             this.sendStringToComm(command.getCommandString());
             
             dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
@@ -249,27 +223,36 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
     }
     
-    void pauseSend() throws IOException {
+    @Override
+    public void pauseSend() {
         this.sendPaused = true;
     }
     
-    void resumeSend() throws IOException {
+    @Override
+    public void resumeSend() {
         this.sendPaused = false;
         this.streamCommands();
     }
     
-    void cancelSend() {
-            this.commandBuffer.clearBuffer();
-            
-            // Clear the active command list?
-            this.activeCommandList.clear();
+    @Override
+    public void cancelSend() {
+        this.commandBuffer.clearBuffer();
+    }
+    
+    /**
+     * This is to allow the GRBL Ctrl-C soft reset command.
+     */
+    @Override
+    public void softReset() {
+        this.commandBuffer.clearBuffer();
+        this.activeCommandList.clear();
     }
 
     /** 
      * Processes message from GRBL.
      */
     private void responseMessage( String response ) {
-        // SerialCommunicator no longer knows what to do with responses.
+        // GrblCommunicator no longer knows what to do with responses.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
         // Keep the data flow going for now.
@@ -287,13 +270,13 @@ public class SerialCommunicator implements SerialPortEventListener{
         }
     }
     
-    @Override
     /**
      * Reads data from the serial port. RXTX SerialPortEventListener method.
      */
-    public void serialEvent(SerialPortEvent arg0) {
-        //System.out.println("Serial Event.");
-        if (arg0.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+    @Override
+    public void serialEvent(SerialPortEvent evt) {
+        // Check for evt == null to allow faking a call to this event.
+        if (evt == null || evt.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try
             {
                 int availableBytes = in.available();
@@ -305,10 +288,10 @@ public class SerialCommunicator implements SerialPortEventListener{
                     inputBuffer.append(new String(readBuffer, 0, availableBytes));
                                         
                     // Check for line terminator and split out command(s).
-                    if (inputBuffer.toString().contains(lineTerminator)) {
+                    if (inputBuffer.toString().contains(this.getLineTerminator())) {
                         // Split with the -1 option will give an empty string at
                         // the end if there is a terminator there as well.
-                        String []commands = inputBuffer.toString().split(lineTerminator, -1);
+                        String []commands = inputBuffer.toString().split(getLineTerminator(), -1);
 
                         for (int i=0; i < commands.length; i++) {
                             if ((i+1) < commands.length) {
@@ -325,76 +308,6 @@ public class SerialCommunicator implements SerialPortEventListener{
                 e.printStackTrace();
                 System.exit(-1);
             }
-        }
-    }
-
-    // Helper for the console listener.              
-    private void sendMessageToConsoleListener(String msg) {
-        this.sendMessageToConsoleListener(msg, false);
-    }
-    
-    private void sendMessageToConsoleListener(String msg, boolean verbose) {
-        // Exit early if there are no listeners.
-        if (this.commConsoleListeners == null) {
-            return;
-        }
-        
-        int verbosity;
-        if (!verbose) {
-            verbosity = CONSOLE_MESSAGE;
-        }
-        else {
-            verbosity = VERBOSE_CONSOLE_MESSAGE;
-        }
-        
-        dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
-    }
-    
-    // Serial Communicator Listener Events
-    private static final int COMMAND_SENT = 1;
-    private static final int COMMAND_COMPLETE = 2;
-    private static final int RAW_RESPONSE = 3;
-    private static final int CONSOLE_MESSAGE = 4;
-    private static final int VERBOSE_CONSOLE_MESSAGE = 5;
-    
-    /**
-     * A bunch of methods to dispatch listener events with various arguments.
-     */
-    static private void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, String message) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, message, null);
-            }
-        }
-    }
-    
-    static private void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, GcodeCommand command) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, null, command);
-            }
-        }
-    }
-
-    static private void sendEventToListener(int event, SerialCommunicatorListener scl, 
-                                            String string, GcodeCommand command) {
-        switch(event) {
-            case COMMAND_COMPLETE:
-                scl.commandComplete(command);
-                break;
-            case COMMAND_SENT:
-                scl.commandSent(command);
-                break;
-            case CONSOLE_MESSAGE:
-                scl.messageForConsole(string);
-                break;
-            case VERBOSE_CONSOLE_MESSAGE:
-                scl.verboseMessageForConsole(string);
-                break;
-            case RAW_RESPONSE:
-                scl.rawResponseListener(string);
-            default:
-
         }
     }
 }
