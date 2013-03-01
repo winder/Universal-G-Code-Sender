@@ -1272,6 +1272,14 @@ implements KeyListener, ControllerListener {
                                 yMinusButtonActionPerformed(null);
                                 e.consume();
                                 return true;
+                            case KeyEvent.VK_PAGE_UP:
+                                zPlusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_PAGE_DOWN:
+                                zMinusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
                         }
                     }
                     
