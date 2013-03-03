@@ -974,11 +974,14 @@ implements KeyListener, ControllerListener {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                    int sent = controller.rowsSent();
+                    int remainingRows = controller.rowsRemaining();
+                    
+                    // Early exit condition.
+                    if (sent == 0) { return; }
+                    
                     long elapsedTime = controller.getSendDuration();
                     durationValueLabel.setText(Utils.formattedMillis(elapsedTime));
-                    
-                    int sent = controller.rowsSent();                    
-                    int remainingRows = controller.rowsRemaining();
 
                     long timePerRow = elapsedTime / sent;
                     long remainingTime = timePerRow * remainingRows;

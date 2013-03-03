@@ -36,58 +36,107 @@ import java.util.TooManyListenersException;
  * @author wwinder
  */
 public class MockGrblCommunicator extends GrblCommunicator {
-
+    // Inputs.
+    public String portName;
+    public int    portRate;
+    public String queuedString;
+    public byte   sentByte;
+    public Boolean open = false;
+    
+    // Function calls.
+    public int numOpenCommPortCalls;
+    public int numCloseCommPortCalls;
+    public int numQueueStringForCommCalls;
+    public int numSendByteImmediatelyCalls;
+    public int numAreActiveCommandsCalls;
+    public int numStreamCommandsCalls;
+    public int numPauseSendCalls;
+    public int numResumeSendCalls;
+    public int numCancelSendCalls;
+    public int numSoftResetCalls;
+    
+    public void resetInputsAndFunctionCalls() {
+        this.portName = "";
+        this.portRate = 0;
+        this.queuedString = "";
+        this.sentByte = 0x0;
+        this.open = false;
+        
+        this.numOpenCommPortCalls = 0;
+        this.numCloseCommPortCalls = 0;
+        this.numQueueStringForCommCalls = 0;
+        this.numSendByteImmediatelyCalls = 0;
+        this.numAreActiveCommandsCalls = 0;
+        this.numStreamCommandsCalls = 0;
+        this.numPauseSendCalls = 0;
+        this.numResumeSendCalls = 0;
+        this.numCancelSendCalls = 0;
+        this.numSoftResetCalls = 0;
+    }
+    
     public MockGrblCommunicator() {
         
     }   
 
     @Override
     public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numOpenCommPortCalls++;
+
+        this.portName = name;
+        this.portRate = baud;
+        this.open     = true;
+        return true;
     }
 
     @Override
     public void closeCommPort() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numCloseCommPortCalls++;
+        
+        this.open = false;
     }
 
     @Override
     public void queueStringForComm(String input) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numQueueStringForCommCalls++;
+        
+        this.queuedString = input;
     }
 
     @Override
     public void sendByteImmediately(byte b) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numSendByteImmediatelyCalls++;
+
+        this.sentByte = b;
     }
 
     @Override
     public boolean areActiveCommands() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numAreActiveCommandsCalls++;
+        return false;
     }
 
     @Override
     public void streamCommands() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numStreamCommandsCalls++;
     }
 
     @Override
     public void pauseSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numPauseSendCalls++;
     }
 
     @Override
     public void resumeSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numResumeSendCalls++;
     }
 
     @Override
     public void cancelSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numCancelSendCalls++;
     }
 
     @Override
     public void softReset() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.numSoftResetCalls++;
     }
 }

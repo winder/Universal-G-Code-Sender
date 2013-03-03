@@ -170,7 +170,9 @@ public abstract class AbstractCommunicator{
                                             String string, GcodeCommand command) {
         switch(event) {
             case COMMAND_COMPLETE:
+                try {
                 scl.commandComplete(command);
+                } catch (Exception e) {}
                 break;
             case COMMAND_SENT:
                 scl.commandSent(command);

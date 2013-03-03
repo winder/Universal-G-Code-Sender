@@ -74,7 +74,7 @@ implements SerialPortEventListener{
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
     @Override
-    synchronized public  boolean openCommPort(String name, int baud) 
+    synchronized public boolean openCommPort(String name, int baud) 
             throws NoSuchPortException, PortInUseException, 
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException, Exception {

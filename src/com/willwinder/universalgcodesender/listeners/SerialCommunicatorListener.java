@@ -35,7 +35,7 @@ public interface SerialCommunicatorListener {
     void rawResponseListener(String response);
     
     void commandSent(GcodeCommand command);
-    void commandComplete(GcodeCommand command);
+    void commandComplete(GcodeCommand command) throws Exception;
     void messageForConsole(String msg);
     void verboseMessageForConsole(String msg);
 }
