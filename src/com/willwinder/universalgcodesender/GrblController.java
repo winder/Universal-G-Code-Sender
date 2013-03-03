@@ -321,7 +321,7 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     /**
-     * Send all queued commands to comm port. After this 
+     * Send all queued commands to comm port.
      */
     public void beginStreaming() throws Exception {
         this.isReadyToStreamFile();
@@ -554,9 +554,6 @@ public class GrblController implements SerialCommunicatorListener {
                 status = false;
             }
             
-            System.out.println("num commands         = " + this.numCommands);
-            System.out.println("num commands sent    = " + this.numCommandsSent);
-            System.out.println("num commands skipped = " + this.numCommandsSkipped);
             boolean isSuccess = (this.numCommands == (this.numCommandsSent + this.numCommandsSkipped));
             this.fileStreamComplete(streamName, isSuccess);
         }
