@@ -71,7 +71,7 @@ public class GrblController implements SerialCommunicatorListener {
     private int numCommands = 0;
     private int numCommandsSent = 0;
     private int numCommandsSkipped = 0;
-
+    private int numCommandsCompleted = 0;
     
     // Polling state
     private int outstandingPolls = 0;
@@ -100,16 +100,11 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public GrblController() {
-        this.comm = new GrblCommunicator();
-        
         this.commandQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
         this.awaitingResponseQueue = new LinkedList<GcodeCommand>();
         this.completedCommandList = new LinkedList<GcodeCommand>();
         this.errorCommandList = new LinkedList<GcodeCommand>();
-        
-        // Register comm listeners
-        this.comm.setListenAll(this);
         
         this.listeners = new ArrayList<ControllerListener>();
         
@@ -162,6 +157,10 @@ public class GrblController implements SerialCommunicatorListener {
             throw new Exception("Comm port is already open.");
         }
         
+        // Create and setup the new communicator.
+        this.comm = new GrblCommunicator();
+        this.comm.setListenAll(this);
+        
         // No point in checking response, it throws an exception on errors.
         this.commOpen = this.comm.openCommPort(port, portRate);
         
@@ -191,6 +190,7 @@ public class GrblController implements SerialCommunicatorListener {
         this.flushSendQueues();
         this.commandCreator.resetNum();
         this.comm.closeCommPort();
+        this.comm = null;
         this.commOpen = false;
         
         return true;
@@ -249,7 +249,7 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public int rowsRemaining() {
-        return this.numCommands - this.numCommandsSent - this.numCommandsSkipped;
+        return this.numCommands - this.numCommandsCompleted - this.numCommandsSkipped;
     }
     
     /**
@@ -342,6 +342,7 @@ public class GrblController implements SerialCommunicatorListener {
         this.numCommands = this.commandQueue.size();
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
+        this.numCommandsCompleted = 0;
 
         try {
             // Send all queued commands and wait for a response.
@@ -355,7 +356,6 @@ public class GrblController implements SerialCommunicatorListener {
 
                 // Don't send zero length commands.
                 if (processed.trim().equals("")) {
-                    this.numCommandsSkipped++;
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
                     command.setResponse("<skipped by application>");
                     // Need to queue the command first so that listeners don't
@@ -511,7 +511,9 @@ public class GrblController implements SerialCommunicatorListener {
      
     @Override
     public void commandSent(GcodeCommand command) {
-        this.numCommandsSent++;
+        if (this.isStreamingFile()) {
+            this.numCommandsSent++;
+        }
 
         GcodeCommand c = this.outgoingQueue.remove();
         c.setSent(true);
@@ -525,7 +527,7 @@ public class GrblController implements SerialCommunicatorListener {
     public void commandComplete(GcodeCommand command) throws Exception {
         GcodeCommand c = command;
 
-        // If the command wasn't sent, it was discarted and should be ignored
+        // If the command wasn't sent, it was skipped and should be ignored
         // from the remaining queues.
         if (command.isSent()) {
             if (this.awaitingResponseQueue.size() == 0) {
@@ -536,6 +538,14 @@ public class GrblController implements SerialCommunicatorListener {
             c = this.awaitingResponseQueue.remove();
             c.setResponse(command.getResponse());
             this.completedCommandList.add(c);
+            
+            if (this.isStreamingFile()) {
+                this.numCommandsCompleted++;
+            }
+        } else {
+            if (this.isStreamingFile()) {
+                this.numCommandsSkipped++;
+            }
         }
         
         dispatchCommandComplete(listeners, c);
@@ -611,14 +621,10 @@ public class GrblController implements SerialCommunicatorListener {
                 this.beginPollingPosition();
             }
             
-            //System.out.println("Grbl version = " + this.grblVersion + this.grblVersionLetter);
-            //System.out.println("Real time mode = " + this.realTimeCapable);
-            
-            Logger.getLogger(GrblController.class.getName()).log(Level.INFO, 
+            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                     "Grbl version = " + this.grblVersion + this.grblVersionLetter);
-            Logger.getLogger(GrblController.class.getName()).log(Level.INFO,
+            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG,
                     "Real time mode = " + this.realTimeCapable);
-
         }
         
         else if (GrblUtils.isGrblStatusString(response)) {

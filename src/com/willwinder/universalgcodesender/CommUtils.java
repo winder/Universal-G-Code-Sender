@@ -72,13 +72,18 @@ public class CommUtils {
     /**
      * Returns the number of characters in the list of GcodeCommands and adds
      * the length of the list representing one newline per command.
+     * 
+     * Synchronized because this list is frequently modified through events,
+     * especially at the beginning of a file transfer.
      */
-    static protected int getSizeOfBuffer(List<GcodeCommand> list) {
+    static synchronized protected int getSizeOfBuffer(List<GcodeCommand> list) {
         int characters = 0;
+        GcodeCommand command;
         // Number of characters in list.
         Iterator<GcodeCommand> iter = list.iterator();
         while (iter.hasNext()) {
-            String next = iter.next().getCommandString();
+            command = iter.next();
+            String next = command.getCommandString();
             // TODO: Carefully trace the newlines in commands and make sure
             //       the GRBL_RX_BUFFER_SIZE is honored.
             //       For now add a safety character to each command.
