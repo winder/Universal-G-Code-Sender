@@ -20,8 +20,8 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
 import javax.vecmath.Point3d;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  *

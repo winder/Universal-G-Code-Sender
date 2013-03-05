@@ -18,15 +18,11 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;

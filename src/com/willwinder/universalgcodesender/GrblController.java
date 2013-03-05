@@ -100,6 +100,9 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public GrblController() {
+        this.comm = new GrblCommunicator();
+        this.comm.setListenAll(this);
+        
         this.commandQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
         this.awaitingResponseQueue = new LinkedList<GcodeCommand>();
@@ -158,8 +161,8 @@ public class GrblController implements SerialCommunicatorListener {
         }
         
         // Create and setup the new communicator.
-        this.comm = new GrblCommunicator();
-        this.comm.setListenAll(this);
+        //this.comm = new GrblCommunicator();
+        //this.comm.setListenAll(this);
         
         // No point in checking response, it throws an exception on errors.
         this.commOpen = this.comm.openCommPort(port, portRate);
