@@ -1,7 +1,7 @@
 Universal GcodeSender is a Java based GRBL compatibl cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
 To run simply unzip the .zip file and double click the .jar file.
-On some platforms you will need to run 'UniversalGcodeSender.sh' instead.
+On some platforms you will need to run an included start script.
 
 Note for MAC users:
 You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
@@ -27,15 +27,26 @@ Downloads
 
 Technical details:
 * RXTX for serial communication.
+* JogAmp for OpenGL.
 * Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
-* Developed with NetBeans 7.1.2 or later.
+* Developed with NetBeans 7.2.1 or later.
 * For development you will need to install RXTX.
 * To build a release open the 'Files' pane and right click build.xml, then 
-  select 'Run Target' > 'onejar-dist-all-zip'. A new directory called 'release'
-  will contain the .zip files.
+  select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
+  will contain the .zip file.
 
 Changelog
 ---------
+1.0.5 -> 1.0.6
+* 3D gcode visualizer!
+* - color coded line segments
+* - real time tool position
+* - real time gcode buffer position
+* Complete all-in-one release, 32 and 64 bit linux/windows/mac
+* Settings saved between runs (thanks lazyzero)
+* Due to popular demand, RaspberryPi support. (not tested)
+* Unit tests added, over 1200 lines of unit test code.
+
 1.0.4 -> 1.0.5
 * Job duration estimate now displayed when running a file.
 * Real-time machine position display for GRBL v8.0c.
