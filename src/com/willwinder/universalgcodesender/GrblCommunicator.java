@@ -91,19 +91,19 @@ implements SerialPortEventListener{
         if (portIdentifier.isCurrentlyOwned()) {
             throw new Exception("This port is already owned by another process.");
         } else {
-                this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
+            this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
 
-                SerialPort serialPort = (SerialPort) this.commPort;
-                serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
+            SerialPort serialPort = (SerialPort) this.commPort;
+            serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
 
-                this.in = serialPort.getInputStream();
-                this.out = serialPort.getOutputStream();
+            this.in = serialPort.getInputStream();
+            this.out = serialPort.getOutputStream();
 
-                serialPort.addEventListener(this);
-                serialPort.notifyOnDataAvailable(true);  
-                serialPort.notifyOnBreakInterrupt(true);
+            serialPort.addEventListener(this);
+            serialPort.notifyOnDataAvailable(true);  
+            serialPort.notifyOnBreakInterrupt(true);
 
-                returnCode = true;
+            returnCode = true;
         }
 
         return returnCode;

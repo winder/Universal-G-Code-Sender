@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import gnu.io.CommPortIdentifier;
+import gnu.io.PortInUseException;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Rectangle;
@@ -1533,8 +1534,14 @@ implements KeyListener, ControllerListener {
              
             connected = controller.openCommPort(port, portRate);
 
-        } catch (Exception e) {
-            this.displayErrorDialog("Error opening connection: "+e.getMessage());
+        } catch (PortInUseException e) {
+            this.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage()+
+                    "\n\nMac and Linux users, if this port is not in use please create a" +
+                    "\ndirectory named \"/var/lock\" with the following commands:" +
+                    "\n     sudo mkdir /var/lock" +
+                    "\n     sudo chmod 777 /var/lock");
+        }catch (Exception e) {
+            this.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage());
         }
         return connected;
     }
