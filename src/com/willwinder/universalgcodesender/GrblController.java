@@ -193,7 +193,7 @@ public class GrblController implements SerialCommunicatorListener {
         this.flushSendQueues();
         this.commandCreator.resetNum();
         this.comm.closeCommPort();
-        this.comm = null;
+        //this.comm = null;
         this.commOpen = false;
         
         return true;

@@ -50,9 +50,6 @@ implements SerialPortEventListener{
 
     public GrblCommunicator() {
         this.setLineTerminator("\r\n");
-                
-        // Part of the serial data read event.
-        this.inputBuffer = new StringBuilder();
     }
     
     /**
@@ -81,9 +78,9 @@ implements SerialPortEventListener{
         
         // TODO: Move command buffer control into the GrblController class.
         this.commandBuffer = new GcodeCommandBuffer();
-        
         this.activeCommandList = new LinkedList<GcodeCommand>();
-
+        this.inputBuffer = new StringBuilder();
+        
         boolean returnCode;
 
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
@@ -120,13 +117,21 @@ implements SerialPortEventListener{
         try {
             in.close();
             out.close();
+            in = null;
+            out = null;
         } catch (IOException ex) {
             Logger.getLogger(GrblCommunicator.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        this.inputBuffer = null;
+        this.sendPaused = false;
+        this.commandBuffer = null;
+        this.activeCommandList = null;
+        
         this.commPort.close();
 
         this.commPort = null;
+
     }
     
     /**
@@ -275,6 +280,10 @@ implements SerialPortEventListener{
      */
     @Override
     public void serialEvent(SerialPortEvent evt) {
+        if (inputBuffer == null) {
+            inputBuffer = new StringBuilder();
+        }
+        
         // Check for evt == null to allow faking a call to this event.
         if (evt == null || evt.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
             try
