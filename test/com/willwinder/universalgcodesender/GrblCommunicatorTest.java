@@ -122,9 +122,11 @@ public class GrblCommunicatorTest {
         }
     }
 
+    
     /**
      * Test of sendStringToComm method, of class GrblCommunicator.
      */
+    /* This function is private...
     @Test
     public void testSendStringToComm() {
         System.out.println("sendStringToComm");
@@ -137,7 +139,7 @@ public class GrblCommunicatorTest {
         // Make sure the string made it to GRBL.
         assertEquals(command, mg.readStringFromGrblBuffer());
     }
-
+    */
     /**
      * Test of sendByteImmediately method, of class GrblCommunicator.
      */

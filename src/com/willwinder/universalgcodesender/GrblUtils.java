@@ -36,19 +36,26 @@ public class GrblUtils {
     public static final int GRBL_RX_BUFFER_SIZE= 123;
     
     /**
-     * Real-time commands
+     * Grbl commands
      */
+    // Real time
     public static final byte GRBL_PAUSE_COMMAND = '!';
     public static final byte GRBL_RESUME_COMMAND = '~';
     public static final byte GRBL_STATUS_COMMAND = '?';
     public static final byte GRBL_RESET_COMMAND = 0x18;
+    // Non real time
+    public static final String GRBL_KILL_ALARM_LOCK_COMMAND = "$X";
+    public static final String GRBL_TOGGLE_CHECK_MODE_COMMAND = "$C";
+    public static final String GRBL_VIEW_PARSER_STATE_COMMAND = "$G";
     
     /**
      * Gcode Commands
      */
     public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G92 X0 Y0 Z0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION = "G0 X0 Y0 Z0";
-    public static final String GCODE_PERFORM_HOMING_CYCLE = "G28 X0 Y0 Z0";
+    
+    public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
+    public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
     
     public enum Capabilities {
         REAL_TIME, STATUS_C
@@ -134,12 +141,55 @@ public class GrblUtils {
         return version > 0.7;
     }
     
+    static protected String getHomingCommand(final double version, final String letter) {
+        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+                || version >= 0.9) {
+            return GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
+        }
+        else if (version >= 0.8) {
+            return GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
+        }
+        else {
+            return "";
+        }
+    }
+    
+    static protected String getKillAlarmLockCommand(final double version, final String letter) {
+        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+                || version >= 0.9) {
+            return GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
+        }
+        else {
+            return "";
+        }
+    }
+    
+    static protected String getToggleCheckModeCommand(final double version, final String letter) {
+        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+                || version >= 0.9) {
+            return GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
+        }
+        else {
+            return "";
+        }
+    }
+    
+    static protected String getViewParserStateCommand(final double version, final String letter) {
+        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+                || version >= 0.9) {
+            return GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
+        }
+        else {
+            return "";
+        }
+    }
+    
     /**
      * Determines version of GRBL position capability.
      */
     static protected Capabilities getGrblStatusCapabilities(final double version, final String letter) {
         if (version >= 0.8) {
-            if (version==0.8 && letter.equals("c")) {
+            if (version==0.8 && (letter != null) && letter.equals("c")) {
                 return Capabilities.STATUS_C;
             } else if (version >= 0.9) {
                 return Capabilities.STATUS_C;

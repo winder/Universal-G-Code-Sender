@@ -62,6 +62,40 @@ public class GrblControllerTest {
         instance.setSpeedOverride(override);
         assertEquals(override, instance.getSpeedOverride(), 0.0);
     }
+    
+    @Test
+    public void testGetGrblVersion() throws Exception {
+        System.out.println("getGrblVersion");
+        GrblController instance = new GrblController(mgc);
+        String result;
+        String expResult;
+        String versionString;
+        
+        expResult = "<not connected>";
+        result = instance.getGrblVersion();
+        assertEquals(expResult, result);
+        
+        instance.openCommPort("blah", 1234);
+        expResult = "Grbl 0.5b";
+        instance.rawResponseListener(expResult);
+        result = instance.getGrblVersion();
+        assertEquals(expResult, result);
+        
+        expResult = "Grbl 0.57";
+        instance.rawResponseListener(expResult);
+        result = instance.getGrblVersion();
+        assertEquals(expResult, result);
+        
+        expResult = "Grbl 0.8";
+        instance.rawResponseListener(expResult);
+        result = instance.getGrblVersion();
+        assertEquals(expResult, result);
+        
+        expResult = "Grbl 0.8c";
+        instance.rawResponseListener(expResult);
+        result = instance.getGrblVersion();
+        assertEquals(expResult, result);
+    }
 
     /**
      * Test of numOpenCommPortCalls method, of class GrblController.
@@ -121,6 +155,50 @@ public class GrblControllerTest {
         assertEquals(false, instance.isCommOpen());
     }
 
+    @Test
+    public void testPerformHomingCycle() throws Exception {
+        System.out.println("performHomingCycle");
+        String expResult;
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("blah", 1234);
+        
+        boolean hitIt = false;
+        try {
+            instance.performHomingCycle();
+        } catch (Exception e) {
+            hitIt = true;
+            assert(e.getMessage().startsWith("No supported homing method for "));
+        }
+        assertEquals(true, hitIt);
+        
+        instance.rawResponseListener("Grbl 0.7");
+        hitIt = false;
+        try {
+            instance.performHomingCycle();
+        } catch (Exception e) {
+            hitIt = true;
+            assert(e.getMessage().startsWith("No supported homing method for Grbl 0.7"));
+        }
+        assertEquals(true, hitIt);
+        
+        instance.rawResponseListener("Grbl 0.8");
+        instance.performHomingCycle();
+        assertEquals(1, mgc.numStreamCommandsCalls);
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8 + "\n";
+        assertEquals(expResult, mgc.queuedString);
+        
+        instance.rawResponseListener("Grbl 0.8c");
+        instance.performHomingCycle();
+        assertEquals(2, mgc.numStreamCommandsCalls);
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        assertEquals(expResult, mgc.queuedString);
+        
+        instance.rawResponseListener("Grbl 0.9");
+        instance.performHomingCycle();
+        assertEquals(3, mgc.numStreamCommandsCalls);
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        assertEquals(expResult, mgc.queuedString);
+    }
     /**
      * Test of issueSoftReset method, of class GrblController.
      */

@@ -49,7 +49,7 @@
                       <Component id="showVerboseOutputCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
-                  <Component id="controlContextTabbedPane" pref="0" max="32767" attributes="0"/>
+                  <Component id="controlContextTabbedPane" max="32767" attributes="0"/>
               </Group>
           </Group>
           <Component id="jTabbedPane2" max="32767" attributes="0"/>
@@ -577,31 +577,33 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="returnToZeroButton" alignment="0" max="32767" attributes="0"/>
-                          <Component id="resetCoordinatesButton" alignment="0" pref="0" max="32767" attributes="0"/>
-                          <Component id="performHomingCycleButton" max="32767" attributes="0"/>
-                      </Group>
-                      <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="102" attributes="0">
-                              <EmptySpace min="-2" pref="14" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="arrowMovementEnabled" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
+                              <Component id="requestStateInformation" min="-2" pref="49" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
+                              <Component id="helpButtonMachineControl" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                              <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="resetCoordinatesButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
+                                  <Component id="returnToZeroButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
+                                  <Component id="softResetMachineControl" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="performHomingCycleButton" min="-2" pref="49" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="killAlarmLock" min="-2" pref="49" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="toggleCheckMode" min="-2" pref="49" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="118" max="32767" attributes="0"/>
+                      <EmptySpace pref="119" max="32767" attributes="0"/>
+                      <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -609,26 +611,28 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
                               <Component id="resetCoordinatesButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="returnToZeroButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="performHomingCycleButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="arrowMovementEnabled" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="softResetMachineControl" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="3" attributes="0">
-                                  <Component id="stepSizeLabel" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
-                                  <Component id="stepSizeSpinner" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="performHomingCycleButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="killAlarmLock" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="toggleCheckMode" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="3" attributes="0">
+                                  <Component id="helpButtonMachineControl" alignment="3" min="-2" max="-2" attributes="0"/>
+                                  <Component id="requestStateInformation" alignment="3" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
-                      <EmptySpace pref="24" max="32767" attributes="0"/>
+                      <EmptySpace pref="15" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -636,7 +640,7 @@
           <SubComponents>
             <Component class="javax.swing.JButton" name="resetCoordinatesButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Reset Coordinates"/>
+                <Property name="text" type="java.lang.String" value="Reset Zero"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
@@ -652,139 +656,217 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnToZeroButtonActionPerformed"/>
               </Events>
             </Component>
+            <Container class="javax.swing.JPanel" name="jPanel7">
+
+              <Layout>
+                <DimensionLayout dim="0">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="arrowMovementEnabled" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
+                      </Group>
+                      <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                </DimensionLayout>
+                <DimensionLayout dim="1">
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Group type="102" attributes="0">
+                          <Component id="arrowMovementEnabled" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="stepSizeLabel" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="stepSizeSpinner" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="jPanel6" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                </DimensionLayout>
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JSpinner" name="stepSizeSpinner">
+                  <Properties>
+                    <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                      <Connection code="new StepSizeSpinnerModel(1.0, 0.0, null, 1.0)" type="code"/>
+                    </Property>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="stepSizeSpinnerStateChanged"/>
+                  </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="arrowMovementEnabled">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Enable Keyboard Movement"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="arrowMovementEnabledActionPerformed"/>
+                  </Events>
+                </Component>
+                <Container class="javax.swing.JPanel" name="jPanel6">
+
+                  <Layout>
+                    <DimensionLayout dim="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="xMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="yPlusButton" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="yMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="xPlusButton" pref="50" max="-2" attributes="0"/>
+                              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="zMinusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
+                                  <Component id="zPlusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                    <DimensionLayout dim="1">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="103" groupAlignment="2" attributes="0">
+                              <Component id="xMinusButton" alignment="2" min="-2" pref="45" max="-2" attributes="0"/>
+                              <Component id="xPlusButton" alignment="2" min="-2" pref="45" max="-2" attributes="0"/>
+                              <Group type="102" alignment="2" attributes="0">
+                                  <Component id="yPlusButton" min="-2" pref="45" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="yMinusButton" min="-2" pref="45" max="-2" attributes="0"/>
+                              </Group>
+                              <Group type="102" alignment="2" attributes="0">
+                                  <Component id="zPlusButton" min="-2" pref="46" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="zMinusButton" min="-2" pref="45" max="-2" attributes="0"/>
+                              </Group>
+                          </Group>
+                      </Group>
+                    </DimensionLayout>
+                  </Layout>
+                  <SubComponents>
+                    <Component class="javax.swing.JButton" name="zMinusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Z-"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zMinusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="yMinusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Y-"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yMinusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="xPlusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="X+"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xPlusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="xMinusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="X-"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xMinusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="zPlusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Z+"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zPlusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                    <Component class="javax.swing.JButton" name="yPlusButton">
+                      <Properties>
+                        <Property name="text" type="java.lang.String" value="Y+"/>
+                        <Property name="enabled" type="boolean" value="false"/>
+                      </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yPlusButtonActionPerformed"/>
+                      </Events>
+                    </Component>
+                  </SubComponents>
+                </Container>
+                <Component class="javax.swing.JLabel" name="stepSizeLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Step size:"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
             <Component class="javax.swing.JButton" name="performHomingCycleButton">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Do Homing Cycle"/>
+                <Property name="text" type="java.lang.String" value="$H"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="performHomingCycleButtonActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JSpinner" name="stepSizeSpinner">
+            <Component class="javax.swing.JButton" name="killAlarmLock">
               <Properties>
-                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new StepSizeSpinnerModel(1.0, 0.0, null, 1.0)" type="code"/>
-                </Property>
+                <Property name="text" type="java.lang.String" value="$X"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="stepSizeSpinnerStateChanged"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="killAlarmLockActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JLabel" name="stepSizeLabel">
+            <Component class="javax.swing.JButton" name="toggleCheckMode">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Step size:"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JCheckBox" name="arrowMovementEnabled">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Enable Keyboard Movement"/>
+                <Property name="text" type="java.lang.String" value="$C"/>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="arrowMovementEnabledActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="toggleCheckModeActionPerformed"/>
               </Events>
             </Component>
-            <Container class="javax.swing.JPanel" name="jPanel6">
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="xMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="yPlusButton" min="-2" pref="50" max="-2" attributes="0"/>
-                              <Component id="yMinusButton" min="-2" pref="50" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="xPlusButton" pref="50" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="zMinusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                              <Component id="zPlusButton" alignment="1" min="-2" pref="50" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="103" groupAlignment="2" attributes="0">
-                          <Component id="xMinusButton" alignment="2" min="-2" pref="45" max="-2" attributes="0"/>
-                          <Component id="xPlusButton" alignment="2" min="-2" pref="45" max="-2" attributes="0"/>
-                          <Group type="102" alignment="2" attributes="0">
-                              <Component id="yPlusButton" min="-2" pref="45" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="yMinusButton" min="-2" pref="45" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" alignment="2" attributes="0">
-                              <Component id="zPlusButton" min="-2" pref="46" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="zMinusButton" min="-2" pref="45" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-              <SubComponents>
-                <Component class="javax.swing.JButton" name="zMinusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Z-"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zMinusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="yMinusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Y-"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yMinusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="xPlusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="X+"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xPlusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="xMinusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="X-"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="xMinusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="zPlusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Z+"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="zPlusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-                <Component class="javax.swing.JButton" name="yPlusButton">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Y+"/>
-                    <Property name="enabled" type="boolean" value="false"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="yPlusButtonActionPerformed"/>
-                  </Events>
-                </Component>
-              </SubComponents>
-            </Container>
+            <Component class="javax.swing.JButton" name="helpButtonMachineControl">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Help"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="helpButtonMachineControlActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="softResetMachineControl">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Soft Reset"/>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="softResetMachineControlActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="requestStateInformation">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="$G"/>
+                <Property name="enabled" type="boolean" value="false"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="requestStateInformationActionPerformed"/>
+              </Events>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>

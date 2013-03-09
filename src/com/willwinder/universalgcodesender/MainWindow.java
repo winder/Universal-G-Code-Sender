@@ -46,6 +46,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -111,9 +113,8 @@ implements KeyListener, ControllerListener {
         jPanel4 = new javax.swing.JPanel();
         resetCoordinatesButton = new javax.swing.JButton();
         returnToZeroButton = new javax.swing.JButton();
-        performHomingCycleButton = new javax.swing.JButton();
+        jPanel7 = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
-        stepSizeLabel = new javax.swing.JLabel();
         arrowMovementEnabled = new javax.swing.JCheckBox();
         jPanel6 = new javax.swing.JPanel();
         zMinusButton = new javax.swing.JButton();
@@ -122,6 +123,13 @@ implements KeyListener, ControllerListener {
         xMinusButton = new javax.swing.JButton();
         zPlusButton = new javax.swing.JButton();
         yPlusButton = new javax.swing.JButton();
+        stepSizeLabel = new javax.swing.JLabel();
+        performHomingCycleButton = new javax.swing.JButton();
+        killAlarmLock = new javax.swing.JButton();
+        toggleCheckMode = new javax.swing.JButton();
+        helpButtonMachineControl = new javax.swing.JButton();
+        softResetMachineControl = new javax.swing.JButton();
+        requestStateInformation = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -438,7 +446,7 @@ implements KeyListener, ControllerListener {
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
 
-        resetCoordinatesButton.setText("Reset Coordinates");
+        resetCoordinatesButton.setText("Reset Zero");
         resetCoordinatesButton.setEnabled(false);
         resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -454,14 +462,6 @@ implements KeyListener, ControllerListener {
             }
         });
 
-        performHomingCycleButton.setText("Do Homing Cycle");
-        performHomingCycleButton.setEnabled(false);
-        performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                performHomingCycleButtonActionPerformed(evt);
-            }
-        });
-
         stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         stepSizeSpinner.setEnabled(false);
         stepSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -469,9 +469,6 @@ implements KeyListener, ControllerListener {
                 stepSizeSpinnerStateChanged(evt);
             }
         });
-
-        stepSizeLabel.setText("Step size:");
-        stepSizeLabel.setEnabled(false);
 
         arrowMovementEnabled.setText("Enable Keyboard Movement");
         arrowMovementEnabled.setEnabled(false);
@@ -561,53 +558,133 @@ implements KeyListener, ControllerListener {
                     .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
+        stepSizeLabel.setText("Step size:");
+        stepSizeLabel.setEnabled(false);
+
+        org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
+        jPanel7.setLayout(jPanel7Layout);
+        jPanel7Layout.setHorizontalGroup(
+            jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(arrowMovementEnabled)
+            .add(jPanel7Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(stepSizeLabel)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+        );
+        jPanel7Layout.setVerticalGroup(
+            jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel7Layout.createSequentialGroup()
+                .add(arrowMovementEnabled)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(stepSizeLabel)
+                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+
+        jPanel7Layout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
+        performHomingCycleButton.setText("$H");
+        performHomingCycleButton.setEnabled(false);
+        performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                performHomingCycleButtonActionPerformed(evt);
+            }
+        });
+
+        killAlarmLock.setText("$X");
+        killAlarmLock.setEnabled(false);
+        killAlarmLock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                killAlarmLockActionPerformed(evt);
+            }
+        });
+
+        toggleCheckMode.setText("$C");
+        toggleCheckMode.setEnabled(false);
+        toggleCheckMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                toggleCheckModeActionPerformed(evt);
+            }
+        });
+
+        helpButtonMachineControl.setText("Help");
+        helpButtonMachineControl.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                helpButtonMachineControlActionPerformed(evt);
+            }
+        });
+
+        softResetMachineControl.setText("Soft Reset");
+        softResetMachineControl.setEnabled(false);
+        softResetMachineControl.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                softResetMachineControlActionPerformed(evt);
+            }
+        });
+
+        requestStateInformation.setText("$G");
+        requestStateInformation.setEnabled(false);
+        requestStateInformation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                requestStateInformationActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel4Layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, returnToZeroButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, resetCoordinatesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jPanel4Layout.createSequentialGroup()
-                        .add(14, 14, 14)
-                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(arrowMovementEnabled)
-                            .add(jPanel4Layout.createSequentialGroup()
-                                .add(stepSizeLabel)
+                        .add(requestStateInformation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(helpButtonMachineControl))
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel4Layout.createSequentialGroup()
+                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, resetCoordinatesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, returnToZeroButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, softResetMachineControl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel4Layout.createSequentialGroup()
+                                .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                    .add(jPanel4Layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(118, Short.MAX_VALUE))
+                                .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 119, Short.MAX_VALUE)
+                .add(jPanel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(jPanel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jPanel4Layout.createSequentialGroup()
                         .add(resetCoordinatesButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(returnToZeroButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(performHomingCycleButton))
-                    .add(jPanel4Layout.createSequentialGroup()
-                        .add(arrowMovementEnabled)
+                        .add(softResetMachineControl)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(performHomingCycleButton)
+                            .add(killAlarmLock)
+                            .add(toggleCheckMode))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(stepSizeLabel)
-                            .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(24, Short.MAX_VALUE))
+                            .add(helpButtonMachineControl)
+                            .add(requestStateInformation))))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
-
-        jPanel4Layout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
         controlContextTabbedPane.addTab("Machine Control", jPanel4);
 
@@ -835,7 +912,7 @@ implements KeyListener, ControllerListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(showVerboseOutputCheckBox)
                         .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -1092,7 +1169,8 @@ implements KeyListener, ControllerListener {
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
-            this.controller.queueStringForComm(GrblUtils.GCODE_PERFORM_HOMING_CYCLE);
+            this.controller.performHomingCycle();
+            //this.controller.queueStringForComm(GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
@@ -1146,6 +1224,56 @@ implements KeyListener, ControllerListener {
             this.controller.setSpeedOverride(-1.0);
         }
     }//GEN-LAST:event_overrideSpeedCheckBoxActionPerformed
+
+    private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
+        String message =
+                "Reset zero: Changes the current coordinaes to zero without moving the machine." +
+                "\nReturn to zero: Moves machine to 0, 0, 0 location." +
+                "\nSoft Reset: Reset GRBL state without updating position." +
+                "\n$H: Begin homing cycle. This requires Grbl 0.8c for full support" +
+                "\n$X: Disables the GRBL alarm lock." +
+                "\n$C: Toggle 'check' mode, where GRBL parses gcode but does not move the machine." +
+                "\n$G: Requests state information from GRBL (result output to console).";
+        
+        JOptionPane.showMessageDialog(new JFrame(), 
+                message, 
+                "Machine Control Help",
+                JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_helpButtonMachineControlActionPerformed
+
+    private void killAlarmLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killAlarmLockActionPerformed
+        try {
+            this.controller.killAlarmLock();
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_killAlarmLockActionPerformed
+
+    private void toggleCheckModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleCheckModeActionPerformed
+        try {
+            this.controller.toggleCheckMode();
+        } catch (Exception ex) {
+            this.displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_toggleCheckModeActionPerformed
+
+    private void requestStateInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestStateInformationActionPerformed
+        try {
+            this.controller.viewParserState();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            this.displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_requestStateInformationActionPerformed
+
+    private void softResetMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_softResetMachineControlActionPerformed
+        try {
+            this.controller.issueSoftReset();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            this.displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_softResetMachineControlActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1454,6 +1582,10 @@ implements KeyListener, ControllerListener {
         this.resetCoordinatesButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
         this.performHomingCycleButton.setEnabled(enabled);
+        this.softResetMachineControl.setEnabled(enabled);
+        this.killAlarmLock.setEnabled(enabled);
+        this.toggleCheckMode.setEnabled(enabled);
+        this.requestStateInformation.setEnabled(enabled);
     }
     
     private void resetSentRowLabels(Integer numRows) {
@@ -1737,6 +1869,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
+    private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
@@ -1745,10 +1878,12 @@ implements KeyListener, ControllerListener {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
+    private javax.swing.JPanel jPanel7;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
+    private javax.swing.JButton killAlarmLock;
     private javax.swing.JLabel latestCommentLabel;
     private javax.swing.JLabel latestCommentValueLabel;
     private javax.swing.ButtonGroup lineBreakGroup;
@@ -1769,6 +1904,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JLabel remainingRowsValueLabel;
     private javax.swing.JLabel remainingTimeLabel;
     private javax.swing.JLabel remainingTimeValueLabel;
+    private javax.swing.JButton requestStateInformation;
     private javax.swing.JButton resetCoordinatesButton;
     private javax.swing.JButton returnToZeroButton;
     private javax.swing.JLabel rowsLabel;
@@ -1778,8 +1914,10 @@ implements KeyListener, ControllerListener {
     private javax.swing.JLabel sentRowsLabel;
     private javax.swing.JLabel sentRowsValueLabel;
     private javax.swing.JCheckBox showVerboseOutputCheckBox;
+    private javax.swing.JButton softResetMachineControl;
     private javax.swing.JLabel stepSizeLabel;
     private javax.swing.JSpinner stepSizeSpinner;
+    private javax.swing.JButton toggleCheckMode;
     private javax.swing.JButton visualizeButton;
     private javax.swing.JLabel workPositionLabel;
     private javax.swing.JLabel workPositionXLabel;

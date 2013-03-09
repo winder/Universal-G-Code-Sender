@@ -44,9 +44,9 @@ public class GrblController implements SerialCommunicatorListener {
     private GrblCommunicator comm;
 
     // Grbl state
-    private double grblVersion;         // The 0.8 in 'Grbl 0.8c'
-    private String grblVersionLetter;   // The c in 'Grbl 0.8c'
-    private Boolean isReady = false;    // Not ready until version is received.
+    private double grblVersion = 0.0;        // The 0.8 in 'Grbl 0.8c'
+    private String grblVersionLetter = null; // The c in 'Grbl 0.8c'
+    private Boolean isReady = false;         // Not ready until version is received.
     private Boolean commOpen = false;
     
     // Outside influence
@@ -155,6 +155,21 @@ public class GrblController implements SerialCommunicatorListener {
         return this.speedOverride;
     }
     
+    public String getGrblVersion() {
+        if (this.commOpen) {
+            StringBuilder str = new StringBuilder();
+            str.append("Grbl ");
+            if (this.grblVersion > 0.0) {
+                str.append(this.grblVersion);
+            }
+            if (this.grblVersionLetter != null) {
+                str.append(this.grblVersionLetter);
+            }
+            return str.toString();
+        }
+        return "<not connected>";
+    }
+    
     public Boolean openCommPort(String port, int portRate) throws Exception {
         if (this.commOpen) {
             throw new Exception("Comm port is already open.");
@@ -195,13 +210,65 @@ public class GrblController implements SerialCommunicatorListener {
         this.comm.closeCommPort();
         //this.comm = null;
         this.commOpen = false;
-        
+        this.grblVersion = 0.0;
+        this.grblVersionLetter = null;
         return true;
     }
     
     public Boolean isCommOpen() {
         // TODO: Query comm port for this information.
         return this.commOpen;
+    }
+    
+    /**********************************/
+    /* GRBL Version Specific Commands */
+    /**********************************/
+    
+    /**
+     * Sends the version specific homing cycle to the machine.
+     */
+    public void performHomingCycle() throws Exception {
+        if (this.commOpen) {
+            String command = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported homing method for " + this.getGrblVersion());
+    }
+    
+    public void killAlarmLock() throws Exception {
+        if (this.commOpen) {
+            String command = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported kill alarm lock method for " + this.getGrblVersion());
+    }
+
+    public void toggleCheckMode() throws Exception {
+        if (this.commOpen) {
+            String command = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported toggle check mode method for " + this.getGrblVersion());
+    }
+
+    public void viewParserState() throws Exception {
+        if (this.commOpen) {
+            String command = GrblUtils.getViewParserStateCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported view parser state method for " + this.getGrblVersion());
     }
     
     /**

@@ -139,6 +139,132 @@ public class GrblUtilsTest {
         result = GrblUtils.isRealTimeCapable(version);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testGetHomingCommand() {
+        System.out.println("getHomingCommand");
+        double version;
+        String letter;
+        String result;
+        String expResult;
+        
+        version = 0.7;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getHomingCommand(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.8;
+        letter = null;
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
+        result = GrblUtils.getHomingCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.8;
+        letter = "c";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
+        result = GrblUtils.getHomingCommand(version, letter);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetKillAlarmLockCommand() {
+        System.out.println("getKillAlarmLockCommand");
+        double version;
+        String letter;
+        String result;
+        String expResult;
+        
+        version = 0.7;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getKillAlarmLockCommand(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.8;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getKillAlarmLockCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.8;
+        letter = "c";
+        expResult = GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
+        result = GrblUtils.getKillAlarmLockCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.9;
+        letter = null;
+        expResult = GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
+        result = GrblUtils.getKillAlarmLockCommand(version, letter);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testToggleCheckModeCommand() {
+        System.out.println("getToggleCheckModeCommand");
+        double version;
+        String letter;
+        String result;
+        String expResult;
+        
+        version = 0.7;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getToggleCheckModeCommand(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.8;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getToggleCheckModeCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.8;
+        letter = "c";
+        expResult = GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
+        result = GrblUtils.getToggleCheckModeCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.9;
+        letter = null;
+        expResult = GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
+        result = GrblUtils.getToggleCheckModeCommand(version, letter);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetViewParserStateCommand() {
+        System.out.println("getViewParserStateCommand");
+        double version;
+        String letter;
+        String result;
+        String expResult;
+        
+        version = 0.7;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getViewParserStateCommand(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.8;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getViewParserStateCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.8;
+        letter = "c";
+        expResult = GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
+        result = GrblUtils.getViewParserStateCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.9;
+        letter = null;
+        expResult = GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
+        result = GrblUtils.getViewParserStateCommand(version, letter);
+        assertEquals(expResult, result);
+    }
 
     /**
      * Test of getGrblStatusCapabilities method, of class GrblUtils.
@@ -160,6 +286,12 @@ public class GrblUtilsTest {
         version = 0.8;
         letter = "a";
         expResult = null;
+        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.9;
+        letter = null;
+        expResult = Capabilities.STATUS_C;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
         assertEquals(expResult, result);
     }

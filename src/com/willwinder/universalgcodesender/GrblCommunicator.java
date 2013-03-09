@@ -154,9 +154,8 @@ implements SerialPortEventListener{
      * Sends a command to the serial device. This actually streams the bits to
      * the comm port.
      * @param command   Command to be sent to serial device.
-     * Protected instead of private solely so that I can test it.
      */
-    protected void sendStringToComm(String command) {
+    private void sendStringToComm(String command) {
         // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         
