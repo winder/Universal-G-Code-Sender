@@ -160,7 +160,6 @@ implements KeyListener, ControllerListener {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 430));
-        setPreferredSize(new java.awt.Dimension(800, 530));
 
         scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
@@ -693,6 +692,8 @@ implements KeyListener, ControllerListener {
         jPanel3.setMinimumSize(new java.awt.Dimension(247, 100));
         jPanel3.setName("Connection"); // NOI18N
         jPanel3.setPreferredSize(new java.awt.Dimension(247, 100));
+
+        commPortComboBox.setEditable(true);
 
         baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
         baudrateSelectionComboBox.setSelectedIndex(2);
