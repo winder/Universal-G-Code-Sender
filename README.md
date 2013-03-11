@@ -19,7 +19,7 @@ Downloads
 <br />
 [1.0.5 64-bit](http://bit.ly/SGKfMN)
 <br />
-[Older releases can be found on the downloads page](https://github.com/winder/Universal-G-Code-Sender/tree/master/releases)
+[Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/sending_file_1.0.5.png "Command table tab during a file send.")
