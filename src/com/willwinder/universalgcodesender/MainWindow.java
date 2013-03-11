@@ -1183,7 +1183,9 @@ implements KeyListener, ControllerListener {
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
         try {
-            this.controller.queueStringForComm(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION);
+            this.controller.returnToHome();
+            // The return to home command uses G91 to lift the tool.
+            this.G91Mode = true;
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }

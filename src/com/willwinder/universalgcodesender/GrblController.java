@@ -238,6 +238,17 @@ public class GrblController implements SerialCommunicatorListener {
         throw new Exception("No supported homing method for " + this.getGrblVersion());
     }
     
+    public void returnToHome() throws Exception {
+        if (this.commOpen) {
+            String command = GrblUtils.getReturnToHomeCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported homing method for " + this.getGrblVersion());
+    }
+    
     public void killAlarmLock() throws Exception {
         if (this.commOpen) {
             String command = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);

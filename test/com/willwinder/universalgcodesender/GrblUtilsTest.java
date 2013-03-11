@@ -168,6 +168,33 @@ public class GrblUtilsTest {
     }
     
     @Test
+    public void testGetReturnToHomeCommand() {
+        System.out.println("getReturnToHomeCommand");
+        double version;
+        String letter;
+        String result;
+        String expResult;
+        
+        version = 0.7;
+        letter = null;
+        expResult = "";
+        result = GrblUtils.getReturnToHomeCommand(version, letter);
+        assertEquals(expResult, result);
+        
+        version = 0.8;
+        letter = null;
+        expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
+        result = GrblUtils.getReturnToHomeCommand(version, letter);
+        assertEquals(expResult, result);
+
+        version = 0.8;
+        letter = "c";
+        expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C;
+        result = GrblUtils.getReturnToHomeCommand(version, letter);
+        assertEquals(expResult, result);
+    }
+        
+    @Test
     public void testGetKillAlarmLockCommand() {
         System.out.println("getKillAlarmLockCommand");
         double version;
