@@ -15,6 +15,8 @@ commands:
 
 Downloads
 ---------
+[1.0.6](http://bit.ly/16q7obd)
+<br />
 [1.0.5 32-bit](http://bit.ly/Xz4U1R)
 <br />
 [1.0.5 64-bit](http://bit.ly/SGKfMN)
@@ -22,8 +24,10 @@ Downloads
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
-![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/sending_file_1.0.5.png "Command table tab during a file send.")
-![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/finished_sending_file_1.0.5.png "Popup after finishing a file send.")
+![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_command_table.png "Command table tab during a file send.")
+![3D Visualizer Window](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_visualizer.png "Visualizer window during a file send.")
+![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_job_finished.png "Popup after finishing a file send.")
+![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_advanced_machine_control.png "Advanced GRBL control buttons.")
 
 Technical details:
 * RXTX for serial communication.
@@ -42,10 +46,11 @@ Changelog
 * - color coded line segments
 * - real time tool position
 * - real time gcode buffer position
-* Complete all-in-one release, 32 and 64 bit linux/windows/mac
+* Due to popular demand, RaspberryPi support.
+* Complete all-in-one release, 32 and 64 bit linux/windows/mac + RaspberryPi
 * Settings saved between runs (thanks lazyzero)
-* Due to popular demand, RaspberryPi support. (not tested)
-* Unit tests added, over 1200 lines of unit test code.
+* Major backend refactoring to make code more stable and testable.
+* Unit tests added, over 1300 lines of unit test code.
 
 1.0.4 -> 1.0.5
 * Job duration estimate now displayed when running a file.

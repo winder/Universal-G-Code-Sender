@@ -246,7 +246,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         this.fpsCounter.draw();
         //this(drawable, new Font("SansSerif", Font.BOLD, 12));
-
         
         update();
     }
