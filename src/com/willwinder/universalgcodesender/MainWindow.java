@@ -471,11 +471,6 @@ implements KeyListener, ControllerListener {
 
         arrowMovementEnabled.setText("Enable Keyboard Movement");
         arrowMovementEnabled.setEnabled(false);
-        arrowMovementEnabled.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                arrowMovementEnabledActionPerformed(evt);
-            }
-        });
 
         zMinusButton.setText("Z-");
         zMinusButton.setEnabled(false);
@@ -1171,14 +1166,9 @@ implements KeyListener, ControllerListener {
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
             this.controller.performHomingCycle();
-            //this.controller.queueStringForComm(GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8);
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }
-        
-        // TODO: Are these needed after the homing cycle?
-        //this.commPort.queueStringForComm(CommUtils.GCODE_RESET_COORDINATES_TO_ZERO);
-        
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
@@ -1190,11 +1180,6 @@ implements KeyListener, ControllerListener {
             this.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
-
-    private void arrowMovementEnabledActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_arrowMovementEnabledActionPerformed
-        // Valid to click the buttons even when arrow movement is disabled.
-        //this.updateManualControls(this.arrowMovementEnabled.isSelected());
-    }//GEN-LAST:event_arrowMovementEnabledActionPerformed
 
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
         // Create new object if it is null.
@@ -1444,7 +1429,7 @@ implements KeyListener, ControllerListener {
         String stepSize = formatter.format(this.getStepSize());
 
         // Build G91 command.
-        StringBuilder command = new StringBuilder("G91");
+        StringBuilder command = new StringBuilder("G91 G0 ");
         
         if (dirX != 0) {
             command.append(" X");
