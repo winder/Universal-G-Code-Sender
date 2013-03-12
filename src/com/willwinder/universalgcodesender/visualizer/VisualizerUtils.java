@@ -81,6 +81,8 @@ public class VisualizerUtils {
      * Find a factor to scale an object by so that it fits in the window.
      */
     static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
+        final double bufferFactor = 0.9;
+        
         if (y == 0 || x == 0 || min == null || max == null) {
             return 1;
         }
@@ -89,9 +91,9 @@ public class VisualizerUtils {
         double windowRatio = x / y;
         double objRatio = xObj / yObj;
         if (windowRatio < objRatio) {
-            return (1.0 / xObj) * windowRatio;
+            return (1.0 / xObj) * windowRatio * bufferFactor;
         } else {
-            return 1.0 / yObj;
+            return (1.0 / yObj) * bufferFactor;
         }
     }
 

@@ -30,8 +30,12 @@ import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -47,7 +51,9 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
+import javax.vecmath.Point2f;
 import javax.vecmath.Point3d;
+import javax.vecmath.Point3f;
  
 /**
  *
@@ -55,19 +61,22 @@ import javax.vecmath.Point3d;
  * 
  */
 @SuppressWarnings("serial")
-public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener {
+public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener {
     static boolean ortho = true;
-    static double orthoRotation = -35;
+    static double orthoRotation = -45;
     static boolean forceOldStyle = false;
     static boolean debugCoordinates = false; // turn on coordinate debug output
 
+    // Machine data
+    private Point3d machineCoord;
+    private Point3d workCoord;
+    
+    // Gcode file data
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private ArrayList<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
     private int lastCommandNumber = 0;
-    private Point3d machineCoord;
-    private Point3d workCoord;
 
     // GL Utility
     private GLU glu;
@@ -79,6 +88,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private double scaleFactor;
     private double aspectRatio;
     private int xSize, ySize;
+
+    // Mouse rotation data
+    Point last;
+    Point current;
+    private Point3d rotation;
 
     // OpenGL Object Buffer Variables
     private int numberOfVertices = -1;
@@ -99,12 +113,15 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     public VisualizerCanvas() {
        this.addGLEventListener(this);
        this.addKeyListener(this);
+       this.addMouseMotionListener(this);
 
        this.eye = new Point3d(0, 0, 1.5);
        this.center = new Point3d(0, 0, 0);
        
        this.workCoord = new Point3d(0, 0, 0);
        this.machineCoord = new Point3d(0, 0, 0);
+       
+       this.rotation = new Point3d(0.0, 0.0, 0.0);
     }
     
     /**
@@ -128,6 +145,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     public void setGcodeFile(String file) {
         this.gcodeFile = file;
+        this.isDrawable = false;
+        this.currentCommandNumber = 0;
+        this.lastCommandNumber = 0;
+
         generateObject();
     }
     
@@ -195,13 +216,20 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         // Scale the model so that it will fit on the window.
         gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
-
+        
+                // Rotate prior to translating so that rotation happens from middle of
+        // object.
+        if (ortho) {
+            // Default rotation
+            gl.glRotated(-30, 1.0, 0.0, 0.0);
+            
+            // Manual rotation
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+        }
+        
         // Shift model to center of window.
         gl.glTranslated(-this.center.x, -this.center.y, 0);
-        
-        if (ortho) {
-            gl.glRotated(orthoRotation, 1.0, 0.0, 0.0);
-        }
  
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
@@ -628,5 +656,24 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     @Override
     public void keyReleased(KeyEvent ke) {
         //System.out.println ("key released");
+    }
+
+    
+    /** Mouse Motion Listener Events **/
+    @Override
+    public void mouseDragged(MouseEvent me) {
+        this.current = me.getPoint();
+        
+        this.rotation.x += (this.current.x - this.last.x) / 2.0;
+        this.rotation.y += (this.current.y - this.last.y) / 2.0;
+        
+        // Now that the motion has been accumulated, reset last.
+        this.last = this.current;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent me) {
+        // Keep last location up to date so that we're ready to start dragging.
+        last = me.getPoint();
     }
 }
