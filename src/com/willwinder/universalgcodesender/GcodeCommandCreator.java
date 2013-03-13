@@ -45,8 +45,8 @@ public class GcodeCommandCreator {
         return this.numCommands;
     }
     
-    GcodeCommand createCommand(String commandString) {
-        GcodeCommand command = new GcodeCommand(commandString);
+    GcodeCommand createCommand(String commandString, boolean isTinygMode) {
+        GcodeCommand command = new GcodeCommand(commandString, isTinygMode);
         command.setCommandNumber(this.numCommands++);
         return command;
     }

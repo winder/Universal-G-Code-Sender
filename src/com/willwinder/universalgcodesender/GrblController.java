@@ -41,6 +41,9 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GrblController implements SerialCommunicatorListener {
+    
+    private static Logger logger = Logger.getLogger(GrblController.class.getName());
+    
     private GrblCommunicator comm;
 
     // Grbl state
@@ -90,6 +93,7 @@ public class GrblController implements SerialCommunicatorListener {
     
     // Helper objects
     private GcodeCommandCreator commandCreator;
+    private boolean isTinygMode;
     
     /**
      * Dependency injection constructor to allow a mock communicator.
@@ -171,6 +175,15 @@ public class GrblController implements SerialCommunicatorListener {
     }
     
     public Boolean openCommPort(String port, int portRate) throws Exception {
+        return openCommPort(port, portRate, false);
+    }
+    
+    public Boolean openCommPort(String port, int portRate, boolean isTinygMode) throws Exception {
+        
+        // Store whether we're in tinygmode
+        this.isTinygMode = isTinygMode;
+        logger.info("Are we in tinygmode: " + isTinygMode);
+        
         if (this.commOpen) {
             throw new Exception("Comm port is already open.");
         }
@@ -180,11 +193,13 @@ public class GrblController implements SerialCommunicatorListener {
         //this.comm.setListenAll(this);
         
         // No point in checking response, it throws an exception on errors.
-        this.commOpen = this.comm.openCommPort(port, portRate);
+        this.commOpen = this.comm.openCommPort(port, portRate, isTinygMode);
         
         if (this.commOpen) {
+            String tinyGModeNotice = "";
+            if (this.isTinygMode) tinyGModeNotice = " (In TinyG Mode)";
             this.messageForConsole(
-                   "**** Connected to " + port + " @ " + portRate + " baud ****\n");
+                   "**** Connected to " + port + " @ " + portRate + " baud ****" + tinyGModeNotice + "\n");
         }
         
         return this.commOpen;
@@ -338,7 +353,7 @@ public class GrblController implements SerialCommunicatorListener {
      * Note: this is the only place where a string is sent to the comm.
      */
     public void queueStringForComm(String str) throws Exception {
-        GcodeCommand command = this.commandCreator.createCommand(str);
+        GcodeCommand command = this.commandCreator.createCommand(str, this.isTinygMode);
         this.outgoingQueue.add(command);
 
         this.commandQueued(command);
@@ -366,7 +381,7 @@ public class GrblController implements SerialCommunicatorListener {
         if (this.commOpen == false) {
             throw new Exception("Cannot begin streaming, comm port is not open.");
         }
-        if (this.isReady == false) {
+        if (!this.isTinygMode && this.isReady == false) {
             throw new Exception("Grbl has not finished booting.");
         }
         if (this.awaitingResponseQueue.size() != 0 || this.outgoingQueue.size() != 0) {
@@ -383,7 +398,7 @@ public class GrblController implements SerialCommunicatorListener {
      * Appends command string to a queue awaiting to be sent.
      */
     public void appendGcodeCommand(String commandString) {
-        GcodeCommand command = this.commandCreator.createCommand(commandString);
+        GcodeCommand command = this.commandCreator.createCommand(commandString, this.isTinygMode);
         this.commandQueue.add(command);
     }
     
@@ -682,7 +697,7 @@ public class GrblController implements SerialCommunicatorListener {
             }
         }
         */
-        if (GcodeCommand.isOkErrorResponse(response)) {
+        if (GcodeCommand.isOkErrorResponse(response, this.isTinygMode)) {
             this.messageForConsole(response + "\n");
         }
         

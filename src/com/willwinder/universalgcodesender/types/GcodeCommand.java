@@ -42,12 +42,47 @@ public class GcodeCommand {
     private Integer commandNum = -1;
     
     public GcodeCommand(String command) {
-        this.command = command;
+        this(command, -1, false);
     }
     
     public GcodeCommand(String command, int num) {
-        this.command = command;
-        this.commandNum = num;
+        this(command, num, false);
+    }
+    
+    public GcodeCommand(String command, boolean isTinygMode) {
+        this(command, -1, isTinygMode);
+    }
+    
+    public GcodeCommand(String command, int num, boolean isTinygMode) {
+        
+        // rewrap the commands into json for the tinyg controller
+        if (isTinygMode) {  
+            // wrap in json
+            if (command.equals("\n") || 
+                    command.equals("\r\n") ||
+                    command.equals("?") || 
+                    command.startsWith("{\"sr")) {
+                // this is a status request cmd
+                this.command = "{\"sr\":\"\"}\n";
+            } else if (command.startsWith("{")) {
+                // it is already json ready. leave it alone.
+                this.command = command.trim() + "\n";
+            } else if (command.startsWith("(")) {
+                // it's a comment. pass it thru. this app will handle it nicely
+                this.command = command;
+            } else {
+                // assume it needs wrapping for gcode cmd
+                String c = command.trim();
+                this.command = "{\"gc\":\"" + c + "\"}\n";
+            }
+        } else {
+            // handle as normal
+            this.command = command;
+        }
+        
+        if (num != -1) {
+            this.commandNum = num;
+        }
     }
     
     /** Setters. */
@@ -139,12 +174,21 @@ public class GcodeCommand {
         return (this.response != null);
     }
     
-    public static Boolean isOkErrorResponse(String response) {
-        if (response.toLowerCase().equals("ok")) {
-            return true;
-        } else if (response.toLowerCase().startsWith("error")) {
-            return true;
+    public static Boolean isOkErrorResponse(String response, boolean isTinygMode) {
+        if (isTinygMode) {
+            if (response.contains("{")) {
+                // for now just return true, but try to catch errors still
+                return true;
+            }
+        } else {
+            // original code
+            if (response.toLowerCase().equals("ok")) {
+                return true;
+            } else if (response.toLowerCase().startsWith("error")) {
+                return true;
+            }
         }
         return false;
     }
+
 }
