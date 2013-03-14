@@ -35,8 +35,8 @@ Technical details:
 * Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
 * Developed with NetBeans 7.2.1 or later.
 * For development you will need to install RXTX.
-* To build a release open the 'Files' pane and right click build.xml, then 
-  select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
+* To build a release using Netbeans open the 'Files' pane and right click build.xml,
+  then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
   will contain the .zip file.
 
 Changelog
