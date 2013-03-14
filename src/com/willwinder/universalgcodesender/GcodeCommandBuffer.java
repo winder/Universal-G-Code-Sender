@@ -63,8 +63,8 @@ public class GcodeCommandBuffer {
         return this.currentCommand();
     }
     
-    GcodeCommand appendCommandString(String commandString) {
-        GcodeCommand command = new GcodeCommand(commandString);
+    GcodeCommand appendCommandString(String commandString, boolean isTinygMode) {
+        GcodeCommand command = new GcodeCommand(commandString, isTinygMode);
         command.setCommandNumber(this.numCommands++);
         this.commandQueue.add(command);
         

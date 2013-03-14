@@ -37,6 +37,9 @@ import java.util.logging.Logger;
  */
 public class GrblCommunicator extends AbstractCommunicator 
 implements SerialPortEventListener{    
+    
+    private static Logger logger = Logger.getLogger(GrblCommunicator.class.getName());
+    
     // General variables
     private CommPort commPort;
     private InputStream in;
@@ -47,6 +50,7 @@ implements SerialPortEventListener{
     private Boolean sendPaused = false;
     private GcodeCommandBuffer commandBuffer;   // All commands in a file
     private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
+    private boolean isTinygMode;
 
     public GrblCommunicator() {
         this.setLineTerminator("\r\n");
@@ -66,7 +70,16 @@ implements SerialPortEventListener{
         this.commandBuffer = gcb;
         this.activeCommandList = acl;
     }
-
+    // Added to support TinyG mode where no response comes from the controller on 
+    // each send.
+    public boolean openCommPort(String name, int baud, boolean isTinygMode) 
+            throws NoSuchPortException, PortInUseException, 
+            UnsupportedCommOperationException, IOException, 
+            TooManyListenersException, Exception {
+        logger.info("Going into tinyg mode");
+        this.isTinygMode = isTinygMode;
+        return openCommPort(name, baud);
+    }
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
@@ -147,7 +160,7 @@ implements SerialPortEventListener{
         }
         
         // Add command to queue
-        GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
+        GcodeCommand command = this.commandBuffer.appendCommandString(commandString, this.isTinygMode);
     }
     
     /**
@@ -156,6 +169,9 @@ implements SerialPortEventListener{
      * @param command   Command to be sent to serial device.
      */
     private void sendStringToComm(String command) {
+        
+        logger.info("sendStringToComm. command: " + command);
+        
         // Command already has a newline attached.
         this.sendMessageToConsoleListener(">>> " + command);
         
@@ -163,6 +179,7 @@ implements SerialPortEventListener{
         PrintStream printStream = new PrintStream(this.out);
         printStream.print(command);
         printStream.close(); 
+        
     }
     
     /**
@@ -196,6 +213,9 @@ implements SerialPortEventListener{
      */
     @Override
     public void streamCommands() {
+        
+        logger.info("We are streaming to the comm port");
+        
         if (this.commandBuffer.currentCommand() == null) {
             // NO-OP
             return;
@@ -256,11 +276,14 @@ implements SerialPortEventListener{
      * Processes message from GRBL.
      */
     private void responseMessage( String response ) {
+        
+        logger.info("Inside responseMessage. response is: " + response);
+        
         // GrblCommunicator no longer knows what to do with responses.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
         // Keep the data flow going for now.
-        if (GcodeCommand.isOkErrorResponse(response)) {
+        if (GcodeCommand.isOkErrorResponse(response, this.isTinygMode)) {
             // Pop the front of the active list.
             GcodeCommand command = this.activeCommandList.pop();
 
@@ -279,6 +302,9 @@ implements SerialPortEventListener{
      */
     @Override
     public void serialEvent(SerialPortEvent evt) {
+        
+        logger.info("Got serialEvent");
+        
         if (inputBuffer == null) {
             inputBuffer = new StringBuilder();
         }
@@ -296,15 +322,21 @@ implements SerialPortEventListener{
                     inputBuffer.append(new String(readBuffer, 0, availableBytes));
                                         
                     // Check for line terminator and split out command(s).
-                    if (inputBuffer.toString().contains(this.getLineTerminator())) {
+                    String lineTerminator = this.getLineTerminator(this.isTinygMode);
+                    //if (this.isTinygMode) lineTerminator = "tinyg [mm] ok>";
+                    
+                    if (inputBuffer.toString().contains(lineTerminator)) {
                         // Split with the -1 option will give an empty string at
                         // the end if there is a terminator there as well.
-                        String []commands = inputBuffer.toString().split(getLineTerminator(), -1);
+                        //String []commands = inputBuffer.toString().split(getLineTerminator(), -1);
+                        String []commands = inputBuffer.toString().split(lineTerminator, -1);
 
                         for (int i=0; i < commands.length; i++) {
                             if ((i+1) < commands.length) {
+                                
                                 this.responseMessage(commands[i]);
                             } else {
+                                
                                 inputBuffer = new StringBuilder().append(commands[i]);
                             }
                         }
@@ -316,6 +348,15 @@ implements SerialPortEventListener{
                 e.printStackTrace();
                 System.exit(-1);
             }
+            
+            logger.info("inputBuffer is: " + inputBuffer);
+            /*if (this.isTinygMode) {
+                // Now call responseMessage once
+                this.responseMessage(inputBuffer.toString());
+                inputBuffer = new StringBuilder();
+            }*/
+        } else {
+            logger.info("didn't have a real event???");
         }
     }
 }
