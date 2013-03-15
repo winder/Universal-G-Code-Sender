@@ -615,8 +615,6 @@ public class GrblController implements SerialCommunicatorListener {
         
         // If the command wasn't sent, it was skipped and should be ignored
         // from the remaining queues.
-        System.out.println("Completed: " + c.getCommandString());
-        System.out.println("expected: " + expected);
         if (expected.equals(received)) {
             if (this.awaitingResponseQueue.size() == 0) {
                 throw new Exception("Attempting to completing a command that "
