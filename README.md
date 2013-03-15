@@ -49,6 +49,7 @@ Changelog
 * Due to popular demand, RaspberryPi support.
 * Complete all-in-one release, 32 and 64 bit linux/windows/mac + RaspberryPi
 * Settings saved between runs (thanks lazyzero)
+* Advanced GRBL control, new buttons for GRBL 0.8c features (gcode check mode, homing, etc)
 * Major backend refactoring to make code more stable and testable.
 * Unit tests added, over 1300 lines of unit test code.
 

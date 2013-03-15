@@ -1,3 +1,2 @@
-
-java -jar -Xmx256m UniversalGcodeSender-all*.jar
+java -jar -Xmx256m UniversalGcodeSender*.jar
         
