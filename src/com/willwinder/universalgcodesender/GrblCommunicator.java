@@ -45,9 +45,10 @@ implements SerialPortEventListener{
     
     // Command streaming variables
     private Boolean sendPaused = false;
-    private GcodeCommandBuffer commandBuffer;   // All commands in a file
-    private LinkedList<GcodeCommand> activeCommandList;  // Currently running commands
-
+    private LinkedList<String> commandBuffer;      // All commands in a file
+    private LinkedList<String> activeStringList;  // Currently running commands
+    private int sentBufferSize = 0;
+    
     public GrblCommunicator() {
         this.setLineTerminator("\r\n");
     }
@@ -57,14 +58,14 @@ implements SerialPortEventListener{
      * act as GRBL.
      */
     protected GrblCommunicator(final InputStream in, final OutputStream out,
-            GcodeCommandBuffer gcb, LinkedList<GcodeCommand> acl) {
+            LinkedList<String> cb, LinkedList<String> asl) {
         // Base constructor.
         this();
         
         this.in = in;
         this.out = out;
-        this.commandBuffer = gcb;
-        this.activeCommandList = acl;
+        this.commandBuffer = cb;
+        this.activeStringList = asl;
     }
 
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
@@ -76,9 +77,9 @@ implements SerialPortEventListener{
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException, Exception {
         
-        // TODO: Move command buffer control into the GrblController class.
-        this.commandBuffer = new GcodeCommandBuffer();
-        this.activeCommandList = new LinkedList<GcodeCommand>();
+        this.commandBuffer = new LinkedList<String>();
+        this.activeStringList = new LinkedList<String>();
+        this.sentBufferSize = 0;
         this.inputBuffer = new StringBuilder();
         
         boolean returnCode;
@@ -126,7 +127,6 @@ implements SerialPortEventListener{
         this.inputBuffer = null;
         this.sendPaused = false;
         this.commandBuffer = null;
-        this.activeCommandList = null;
         
         this.commPort.close();
 
@@ -147,7 +147,7 @@ implements SerialPortEventListener{
         }
         
         // Add command to queue
-        GcodeCommand command = this.commandBuffer.appendCommandString(commandString);
+        this.commandBuffer.add(commandString);
     }
     
     /**
@@ -188,7 +188,7 @@ implements SerialPortEventListener{
     
     @Override
     public boolean areActiveCommands() {
-        return (this.activeCommandList.size() > 0);
+        return (this.activeStringList.size() > 0);
     }
     
     /**
@@ -196,7 +196,7 @@ implements SerialPortEventListener{
      */
     @Override
     public void streamCommands() {
-        if (this.commandBuffer.currentCommand() == null) {
+        if (this.commandBuffer.size() == 0) {
             // NO-OP
             return;
         }
@@ -206,24 +206,18 @@ implements SerialPortEventListener{
             return;
         }
         
-        // The GcodeCommandBuffer class always preloads the next command, so as
-        // long as the currentCommand exists and hasn't been sent it is the next
-        // which should be sent.
-        
-        while ((this.commandBuffer.currentCommand().isSent() == false) &&
-                CommUtils.checkRoomInBuffer(this.activeCommandList, this.commandBuffer.currentCommand())) {
-            GcodeCommand command = this.commandBuffer.currentCommand();
+        // Try sending the first command.
+        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())) {
+            String commandString = this.commandBuffer.pop();
+            this.activeStringList.add(commandString);
+            this.sentBufferSize += commandString.length();
             
+            // Newlines are embedded when they get queued so just send it.
+            this.sendStringToComm(commandString);
+            
+            GcodeCommand command = new GcodeCommand(commandString);
             command.setSent(true);
-            this.activeCommandList.add(command);
-
-            // Newlines are embedded when they get queued.
-            this.sendStringToComm(command.getCommandString());
-            
             dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
-
-            // Load the next command.
-            this.commandBuffer.nextCommand();
         }
     }
     
@@ -240,7 +234,7 @@ implements SerialPortEventListener{
     
     @Override
     public void cancelSend() {
-        this.commandBuffer.clearBuffer();
+        this.commandBuffer.clear();
     }
     
     /**
@@ -248,8 +242,9 @@ implements SerialPortEventListener{
      */
     @Override
     public void softReset() {
-        this.commandBuffer.clearBuffer();
-        this.activeCommandList.clear();
+        this.commandBuffer.clear();
+        this.activeStringList.clear();
+        this.sentBufferSize = 0;
     }
 
     /** 
@@ -262,8 +257,10 @@ implements SerialPortEventListener{
         // Keep the data flow going for now.
         if (GcodeCommand.isOkErrorResponse(response)) {
             // Pop the front of the active list.
-            GcodeCommand command = this.activeCommandList.pop();
-
+            String commandString = this.activeStringList.pop();
+            this.sentBufferSize -= commandString.length();
+            
+            GcodeCommand command = new GcodeCommand(commandString);
             command.setResponse(response);
 
             dispatchListenerEvents(COMMAND_COMPLETE, this.commandCompleteListeners, command);

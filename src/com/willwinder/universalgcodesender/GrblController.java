@@ -607,10 +607,17 @@ public class GrblController implements SerialCommunicatorListener {
     @Override
     public void commandComplete(GcodeCommand command) throws Exception {
         GcodeCommand c = command;
-
+        String received = command.getCommandString().trim();
+        String expected = "";
+        try {
+            expected = this.awaitingResponseQueue.peek().getCommandString().trim();
+        } catch (NullPointerException e) { }
+        
         // If the command wasn't sent, it was skipped and should be ignored
         // from the remaining queues.
-        if (command.isSent()) {
+        System.out.println("Completed: " + c.getCommandString());
+        System.out.println("expected: " + expected);
+        if (expected.equals(received)) {
             if (this.awaitingResponseQueue.size() == 0) {
                 throw new Exception("Attempting to completing a command that "
                         + "doesn't exist: <" + command.toString() + ">");

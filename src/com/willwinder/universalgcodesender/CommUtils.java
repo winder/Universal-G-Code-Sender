@@ -59,6 +59,18 @@ public class CommUtils {
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
+    static protected Boolean checkRoomInBuffer(int sentBuffer, String nextCommand) {
+        if (nextCommand == null ) {
+            return false;
+        }
+        
+        int characters = sentBuffer + nextCommand.length() + 1;
+        return characters <= GrblUtils.GRBL_RX_BUFFER_SIZE;
+    }
+    
+    /** 
+     * Checks if there is enough room in the GRBL buffer for nextCommand.
+     */
     static protected Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
         String command = nextCommand.getCommandString();
         int characters = getSizeOfBuffer(list);

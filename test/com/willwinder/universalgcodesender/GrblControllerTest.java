@@ -811,7 +811,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         
         // Test 1. Complete a command that was marked as sent but never declared
-        //         withi commandSent(command).
+        //         within commandSent(command).
         command = new GcodeCommand("blah");
         command.setSent(true);
         boolean hitException = false;
@@ -823,9 +823,10 @@ public class GrblControllerTest {
             assert(ex.getMessage().startsWith(
                     "Attempting to completing a command that doesn't exist: <"));
         }
-        assertEquals(true, hitException);
+        // Note: Completing a command that is not in the awaiting response queue
+        //       is now synonymous with skipping a command.
+        assertEquals(false, hitException);
         
-
         // TODO: Test that command complete triggers a listener event.
 
         // TODO: Test that command complete triggers fileStreamComplete.

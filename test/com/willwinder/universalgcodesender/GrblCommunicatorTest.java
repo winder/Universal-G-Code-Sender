@@ -32,8 +32,8 @@ import org.junit.Test;
  */
 public class GrblCommunicatorTest {
     MockGrbl mg;
-    GcodeCommandBuffer gcb;
-    LinkedList<GcodeCommand> acl;
+    LinkedList<String> cb;
+    LinkedList<String> asl;
     
     public GrblCommunicatorTest() {
     }
@@ -41,8 +41,8 @@ public class GrblCommunicatorTest {
     @Before
     public void setUp() {
         this.mg = new MockGrbl();
-        this.gcb = new GcodeCommandBuffer();
-        this.acl = new LinkedList<GcodeCommand>();
+        this.cb = new LinkedList<String>();
+        this.asl = new LinkedList<String>();
     }
 
     /**
@@ -93,29 +93,29 @@ public class GrblCommunicatorTest {
         
         System.out.println("queueStringForComm");
         String input = "someCommand";
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         
         try {
             instance.queueStringForComm(input);
-            // The gcb preloads commands so the size represents queued commands.
-            assertEquals(0, gcb.size());
+            // The cb preloads commands so the size represents queued commands.
+            assertEquals(1, cb.size());
             
             // Test that instance adds newline to improperly formed command.
-            assertEquals(input + "\n", gcb.currentCommand().getCommandString());
+            assertEquals(input + "\n", cb.peek());
             
             instance.queueStringForComm(input);
             instance.queueStringForComm(input);
             
             // Test that instance continues to queue inputs.
-            assertEquals(2, gcb.size());
+            assertEquals(3, cb.size());
             
             input = "someCommand\n";
-            gcb = new GcodeCommandBuffer();
-            instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+            cb = new LinkedList<String>();
+            instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
             
             instance.queueStringForComm(input);
             // Test that instance doesn't add superfluous newlines.
-            assertEquals(input, gcb.currentCommand().getCommandString());
+            assertEquals(input, cb.peek());
 
         } catch (Exception e) {
             fail("queueStringForComm threw an exception: "+e.getMessage());
@@ -130,7 +130,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testSendStringToComm() {
         System.out.println("sendStringToComm");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
 
         
         String command = "someCommand";
@@ -146,7 +146,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testSendByteImmediately() {
         System.out.println("sendByteImmediately");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
 
         // Ctrl-C is a common byte to send immediately.
         byte b = 0x18;
@@ -188,7 +188,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testAreActiveCommands() {
         System.out.println("areActiveCommands");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         
         boolean expResult = false;
         boolean result = instance.areActiveCommands();
@@ -232,7 +232,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testStreamCommands() {
         System.out.println("streamCommands");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         String thirtyNineCharString = "thirty-nine character command here.....";
 
         boolean result;
@@ -312,7 +312,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testPauseSendAndResumeSend() {
         System.out.println("pauseSend");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -367,7 +367,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testCancelSend() {
         System.out.println("cancelSend");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -428,7 +428,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testSoftReset() {
         System.out.println("softReset");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -453,7 +453,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testSerialEvent() {
         System.out.println("serialEvent");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, gcb, acl);
+        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
         instance.serialEvent(null);
         
         // serialEvent is tested in other commands, except for being called
