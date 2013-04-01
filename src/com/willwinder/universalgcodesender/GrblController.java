@@ -434,9 +434,11 @@ public class GrblController implements SerialCommunicatorListener {
                 
                 // TODO: Expand this to handle canned cycles (Issue#49)
                 processed = this.preprocessCommand(command.getCommandString());
+                processed = processed.trim();
+                command.setCommand(processed);
 
                 // Don't send zero length commands.
-                if (processed.trim().equals("")) {
+                if (processed.equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
                     command.setResponse("<skipped by application>");
                     // Need to queue the command first so that listeners don't
@@ -629,6 +631,9 @@ public class GrblController implements SerialCommunicatorListener {
                 this.numCommandsCompleted++;
             }
         } else {
+            Logger.getLogger(GrblController.class.getName()).log(Level.WARNING, 
+                    "Detected skipped command during command complete.");
+
             if (this.isStreamingFile()) {
                 this.numCommandsSkipped++;
             }

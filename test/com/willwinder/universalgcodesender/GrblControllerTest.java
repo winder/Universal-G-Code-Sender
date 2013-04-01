@@ -603,8 +603,9 @@ public class GrblControllerTest {
         } catch (Exception ex) {
             assertEquals("Cannot stream while there are active commands (controller).", ex.getMessage());
         }
+        assertEquals(1, mgc.numQueueStringForCommCalls);
         assertEquals(true, check);
-        // Wrap it up.
+        // Wrap up test 2.
         GcodeCommand command = new GcodeCommand("G0 X1");
         command.setSent(true);
         command.setResponse("ok");
@@ -621,6 +622,32 @@ public class GrblControllerTest {
             fail("Unexpected exception in GrblController: " + ex.getMessage());
         }
         assertEquals(30, instance.rowsRemaining());
+        assertEquals(31, mgc.numQueueStringForCommCalls);
+        // Wrap up test 3.
+        for (int i=0; i < 30; i++) {
+            command.setCommand("G0 X" + i);
+            instance.commandSent(command);
+            instance.commandComplete(command);
+        }
+
+        // Test 4. Commands being sent are properly preprocessed.
+        instance.setSpeedOverride(1000.0);
+        instance.appendGcodeCommand("G0 X1 Y1 Z1 F100");
+        try {
+            // Start the stream.
+            instance.beginStreaming();
+        } catch (Exception ex) {
+            System.out.println("Remaining rows: " + instance.rowsRemaining());
+            ex.printStackTrace();
+            fail("Unexpected exception in GrblController: " + ex.getMessage());
+        }
+        assertEquals(32, mgc.numQueueStringForCommCalls);
+        assertEquals("G0 X1 Y1 Z1 F1000.0", mgc.queuedString.trim());
+        // Wrap up test 4.
+        command.setCommand("G0 X1 Y1 Z1 F1000.0");
+        instance.commandSent(command);
+        instance.commandComplete(command);
+
     }
 
     /**
