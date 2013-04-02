@@ -35,6 +35,7 @@ class SettingsFactory {
     private static Properties settings = new Properties();
     private static Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     
+    private static String firmwareVersion = "";
     private static String fileName = "";
     private static String port = "";
     private static String portRate;
@@ -57,6 +58,7 @@ class SettingsFactory {
         try {
             settings.load(new FileInputStream(SETTINGS_FILE));
             try {
+                SettingsFactory.firmwareVersion = settings.getProperty("firmwareVersion", "GRBL");
                 SettingsFactory.fileName = settings.getProperty("last.dir", System.getProperty("user.home"));
                 SettingsFactory.port = settings.getProperty("port", "");
                 SettingsFactory.portRate = settings.getProperty("port.rate", "9600");
@@ -81,6 +83,7 @@ class SettingsFactory {
         logger.info("Save settings");
         try {
             try {
+                settings.put("firmwareVersion", firmwareVersion);
                 settings.put("last.dir", fileName);
                 settings.put("port", port);
                 settings.put("port.rate", portRate);
@@ -102,6 +105,7 @@ class SettingsFactory {
     }
     
     private static void loadDefaults() {
+        SettingsFactory.firmwareVersion = "GRBL";
         SettingsFactory.fileName = System.getProperty("user.home");
         SettingsFactory.port = "";
         SettingsFactory.portRate = "9600";
@@ -185,13 +189,11 @@ class SettingsFactory {
         return overrideSpeedValue;
     }
 
+    static void setFirmware(String value) {
+        firmwareVersion = value;
+    }
     
-
-   
-   
-
-   
-
-   
-    
+    static String getFirmware() {
+        return firmwareVersion;
+    }
 }

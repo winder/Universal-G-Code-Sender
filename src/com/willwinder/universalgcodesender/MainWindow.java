@@ -939,9 +939,10 @@ implements KeyListener, ControllerListener {
                     .add(layout.createSequentialGroup()
                         .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 264, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
-                            .add(showVerboseOutputCheckBox))
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(showVerboseOutputCheckBox)))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 205, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
@@ -1339,7 +1340,7 @@ implements KeyListener, ControllerListener {
         mw.showVerboseOutputCheckBox.setSelected(SettingsFactory.isVerboseOutput());
         mw.overrideSpeedCheckBox.setSelected(SettingsFactory.isOverrideSpeedSelected());
         mw.overrideSpeedValueSpinner.setValue(SettingsFactory.getOverrideSpeedValue());
-        
+        mw.firmwareComboBox.setSelectedItem(SettingsFactory.getFirmware());
         // TODO: Apply settings to controller object.
         
         /* Display the form */
@@ -1357,6 +1358,7 @@ implements KeyListener, ControllerListener {
                 if (mw.fileChooser.getSelectedFile() != null ) {
                     SettingsFactory.setLastPath(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
+                
                 SettingsFactory.setStepSize(mw.getStepSize());
                 SettingsFactory.setManualControllesEnabled(mw.arrowMovementEnabled.isSelected());
                 SettingsFactory.setPort(mw.commPortComboBox.getSelectedItem().toString());
@@ -1365,6 +1367,7 @@ implements KeyListener, ControllerListener {
                 SettingsFactory.setVerboseOutput(mw.showVerboseOutputCheckBox.isSelected());
                 SettingsFactory.setOverrideSpeedSelected(mw.overrideSpeedCheckBox.isSelected());
                 SettingsFactory.setOverrideSpeedValue(Double.valueOf(mw.overrideSpeedValueSpinner.getValue()+""));
+                SettingsFactory.setFirmware(mw.firmwareComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings();
             }
         });
