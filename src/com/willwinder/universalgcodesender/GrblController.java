@@ -610,7 +610,7 @@ public class GrblController implements SerialCommunicatorListener {
     public void commandComplete(GcodeCommand command) throws Exception {
         GcodeCommand c = command;
         String received = command.getCommandString().trim();
-        String expected = "";
+        String expected = "none";
         try {
             expected = this.awaitingResponseQueue.peek().getCommandString().trim();
         } catch (NullPointerException e) { }
