@@ -521,14 +521,7 @@ public class GrblControllerTest {
         System.out.println("isReadyToStreamFile");
         GrblController instance = new GrblController(mgc);
         
-        // Test 1. No streaming if comm isn't open.
-        try {
-            instance.isReadyToStreamFile();
-        } catch (Exception e) {
-            assertEquals("Cannot begin streaming, comm port is not open.", e.getMessage());
-        }
-
-        // Test 2. Grbl has not yet responded.
+        // Test 1. Grbl has not yet responded.
         try {
             instance.openCommPort("blah", 1234);
             instance.isReadyToStreamFile();
@@ -536,8 +529,15 @@ public class GrblControllerTest {
             assertEquals("Grbl has not finished booting.", e.getMessage());
         }
         
-        // Test 3. Grbl ready, ready for send.
+        // Test 2. No streaming if comm isn't open.
         instance.rawResponseListener("Grbl 0.8c");
+        try {
+            instance.isReadyToStreamFile();
+        } catch (Exception e) {
+            assertEquals("Cannot begin streaming, comm port is not open.", e.getMessage());
+        }
+        
+        // Test 3. Grbl ready, ready for send.
         Boolean result = instance.isReadyToStreamFile();
         assertEquals(true, result);
         
@@ -729,6 +729,8 @@ public class GrblControllerTest {
         }
         instance.cancelSend();
         assertEquals(30, instance.rowsInSend());
+        // Note: It is hoped that one day cancel will proactively clear out the
+        //       in progress commands. But that day is not today.
         assertEquals(0, instance.rowsRemaining());
 
         // Test 2.2
