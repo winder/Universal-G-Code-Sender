@@ -1853,7 +1853,7 @@ implements KeyListener, ControllerListener {
 
     private DefaultTableModel tableModel;
     
-    private GrblController controller;
+    private AbstractController controller;
     
     private int sentRows = 0;
     private boolean G91Mode = false;
