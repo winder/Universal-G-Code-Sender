@@ -68,6 +68,7 @@ public class GrblController extends AbstractController {
      ***********************
      */
     
+    @Override
     protected void rawResponseHandler(String response) {
         /*
         // Check if was 'ok' or 'error'.
@@ -111,9 +112,9 @@ public class GrblController extends AbstractController {
             }
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "Grbl version = " + this.grblVersion + this.grblVersionLetter);
-            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG,
-                    "Real time mode = " + this.realTimeCapable);
+                    "Grbl version = {0}{1}", new Object[]{this.grblVersion, this.grblVersionLetter});
+            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
+                    "Real time mode = {0}", this.realTimeCapable);
         }
         
         else if (GrblUtils.isGrblStatusString(response)) {
@@ -183,6 +184,7 @@ public class GrblController extends AbstractController {
         }
     }
     
+    @Override
     protected void cancelSendAfterEvent() {
     }
     

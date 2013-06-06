@@ -30,7 +30,7 @@ import org.junit.Test;
 
 /**
  *
- * @author Owen
+ * @author wwinder
  */
 public class GrblControllerTest {
     MockGrblCommunicator mgc;

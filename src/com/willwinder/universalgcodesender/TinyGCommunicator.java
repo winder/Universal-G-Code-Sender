@@ -28,6 +28,9 @@ import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.LinkedList;
 import java.util.TooManyListenersException;
 
 /**
@@ -36,6 +39,25 @@ import java.util.TooManyListenersException;
  */
 public class TinyGCommunicator extends SerialCommunicator implements SerialPortEventListener {
 
+    TinyGCommunicator() {
+        this.setLineTerminator("\r\n");
+    }
+    
+    /**
+     * This constructor is for dependency injection so a mock serial device can
+     * act as GRBL.
+     */
+    protected TinyGCommunicator(final InputStream in, final OutputStream out,
+            LinkedList<String> cb, LinkedList<String> asl) {
+        // Base constructor.
+        this();
+        
+        this.in = in;
+        this.out = out;
+        //this.commandBuffer = cb;
+        //this.activeStringList = asl;
+    }
+    
     @Override
     protected void commPortOpenedEvent() {
         //throw new UnsupportedOperationException("Not supported yet.");

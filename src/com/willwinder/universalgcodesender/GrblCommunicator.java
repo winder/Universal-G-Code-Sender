@@ -24,12 +24,8 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import gnu.io.*;
 import java.io.*;
 import java.util.LinkedList;
-import java.util.TooManyListenersException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +34,7 @@ import java.util.logging.Logger;
 public class GrblCommunicator extends SerialCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
-    private LinkedList<String> commandBuffer;      // All commands in a file
+    private LinkedList<String> commandBuffer;     // All commands in a file
     private LinkedList<String> activeStringList;  // Currently running commands
     private int sentBufferSize = 0;
     
