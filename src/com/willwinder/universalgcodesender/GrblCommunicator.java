@@ -1,5 +1,5 @@
 /*
- * Serial port interface class. Also coordinates a buffer of Gcode commands.
+ * GRBL serial port interface class.
  */
 
 /*
@@ -35,14 +35,7 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-public class GrblCommunicator extends AbstractCommunicator 
-implements SerialPortEventListener{    
-    // General variables
-    private CommPort commPort;
-    private InputStream in;
-    private OutputStream out;
-    private StringBuilder inputBuffer = null;
-    
+public class GrblCommunicator extends SerialCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private LinkedList<String> commandBuffer;      // All commands in a file
@@ -67,72 +60,21 @@ implements SerialPortEventListener{
         this.commandBuffer = cb;
         this.activeStringList = asl;
     }
-
-    // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
-    // $ sudo mkdir /var/lock
-    // $ sudo chmod 777 /var/lock
+    
+    /**
+     * API Implementation.
+     */
     @Override
-    synchronized public boolean openCommPort(String name, int baud) 
-            throws NoSuchPortException, PortInUseException, 
-            UnsupportedCommOperationException, IOException, 
-            TooManyListenersException, Exception {
-        
+    protected void commPortOpenedEvent() {
         this.commandBuffer = new LinkedList<String>();
         this.activeStringList = new LinkedList<String>();
         this.sentBufferSize = 0;
-        this.inputBuffer = new StringBuilder();
-        
-        boolean returnCode;
-
-        CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
-           
-        if (portIdentifier.isCurrentlyOwned()) {
-            throw new Exception("This port is already owned by another process.");
-        } else {
-            this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
-
-            SerialPort serialPort = (SerialPort) this.commPort;
-            serialPort.setSerialPortParams(baud,SerialPort.DATABITS_8,SerialPort.STOPBITS_1,SerialPort.PARITY_NONE);
-
-            this.in = serialPort.getInputStream();
-            this.out = serialPort.getOutputStream();
-
-            serialPort.addEventListener(this);
-            serialPort.notifyOnDataAvailable(true);  
-            serialPort.notifyOnBreakInterrupt(true);
-
-            returnCode = true;
-        }
-
-        return returnCode;
     }
-        
-    @Override
-    public void closeCommPort() {
-        // Stop listening before anything, we're done here.
-        SerialPort serialPort = (SerialPort) this.commPort;
-        serialPort.removeEventListener();
-
-        this.cancelSend();
-        
-        try {
-            in.close();
-            out.close();
-            in = null;
-            out = null;
-        } catch (IOException ex) {
-            Logger.getLogger(GrblCommunicator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        this.inputBuffer = null;
+    
+    protected void commPortClosedEvent() {
         this.sendPaused = false;
         this.commandBuffer = null;
         this.activeStringList = null;
-        
-        this.commPort.close();
-
-        this.commPort = null;
-
     }
     
     /**
@@ -251,7 +193,8 @@ implements SerialPortEventListener{
     /** 
      * Processes message from GRBL.
      */
-    private void responseMessage( String response ) {
+    @Override
+    protected void responseMessage(String response) {
         // GrblCommunicator no longer knows what to do with responses.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
@@ -268,51 +211,6 @@ implements SerialPortEventListener{
 
             if (this.sendPaused == false) {
                 this.streamCommands();
-            }
-        }
-    }
-    
-    /**
-     * Reads data from the serial port. RXTX SerialPortEventListener method.
-     */
-    @Override
-    public void serialEvent(SerialPortEvent evt) {
-        if (inputBuffer == null) {
-            inputBuffer = new StringBuilder();
-        }
-        
-        // Check for evt == null to allow faking a call to this event.
-        if (evt == null || evt.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-            try
-            {
-                int availableBytes = in.available();
-                if (availableBytes > 0) {
-                    byte[] readBuffer = new byte[availableBytes];
-
-                    // Read from serial port
-                    in.read(readBuffer, 0, availableBytes);
-                    inputBuffer.append(new String(readBuffer, 0, availableBytes));
-                                        
-                    // Check for line terminator and split out command(s).
-                    if (inputBuffer.toString().contains(this.getLineTerminator())) {
-                        // Split with the -1 option will give an empty string at
-                        // the end if there is a terminator there as well.
-                        String []commands = inputBuffer.toString().split(getLineTerminator(), -1);
-
-                        for (int i=0; i < commands.length; i++) {
-                            if ((i+1) < commands.length) {
-                                this.responseMessage(commands[i]);
-                            } else {
-                                inputBuffer = new StringBuilder().append(commands[i]);
-                            }
-                        }
-                    }
-                }                
-            }
-            catch ( IOException e )
-            {
-                e.printStackTrace();
-                System.exit(-1);
             }
         }
     }

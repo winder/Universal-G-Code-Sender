@@ -43,7 +43,7 @@ public class FirmwareUtils {
         return ret;
     }
     
-    public static GrblController getControllerFor(String firmware) {
+    public static AbstractController getControllerFor(String firmware) {
         if (firmware.equals(GRBL)) {
             return new GrblController();
         }
@@ -51,7 +51,7 @@ public class FirmwareUtils {
             
         }
         if (firmware.equals(TinyG)) {
-            
+            return new TinyGController();
         }
         
         return null;

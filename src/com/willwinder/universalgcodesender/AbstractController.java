@@ -1,5 +1,5 @@
 /*
- * Control layer, coordinates all aspects of GRBL control.
+ * Abstract Control layer, coordinates all aspects of control.
  */
 /*
     Copywrite 2013 Will Winder
@@ -42,30 +42,67 @@ import javax.vecmath.Point3d;
  */
 public abstract class AbstractController implements SerialCommunicatorListener {
     /** API Interface. */
+    
     /**
      * Called before and after comm shutdown allowing device specific behavior.
      */
     abstract protected void closeCommBeforeEvent();
     abstract protected void closeCommAfterEvent();
     
+    /**
+     * Called before and after a send cancel allowing device specific behavior.
+     */
     abstract protected void cancelSendBeforeEvent();
     abstract protected void cancelSendAfterEvent();
     
+    /**
+     * Called before the comm is paused and before it is resumed. 
+     */
     abstract protected void pauseStreamingEvent() throws IOException;
     abstract protected void resumeStreamingEvent() throws IOException;
     
-    abstract protected void rawResponseHandler(String response);
     /**
-     * Device specific commands.
+     * Called prior to streaming commands, throw an exception if not ready.
      */
-    abstract public void performHomingCycle() throws Exception;
-    abstract public void returnToHome() throws Exception;
-    abstract public void killAlarmLock() throws Exception;
-    abstract public void toggleCheckMode() throws Exception;
-    abstract public void viewParserState() throws Exception;
-    
     abstract protected void isReadyToStreamFileEvent() throws Exception;
 
+    /**
+     * Raw responses from the serial communicator.
+     */
+    abstract protected void rawResponseHandler(String response);
+    
+    /**
+     * Performs homing cycle, throw an exception if not supported.
+     */
+    abstract public void performHomingCycle() throws Exception;
+    
+    /**
+     * Returns machine to home location, throw an exception if not supported.
+     */
+    abstract public void returnToHome() throws Exception;
+    
+    /**
+     * Disable alarm mode and put device into idle state, throw an exception 
+     * if not supported.
+     */
+    abstract public void killAlarmLock() throws Exception;
+    
+    /**
+     * Toggles check mode on or off, throw an exception if not supported.
+     */
+    abstract public void toggleCheckMode() throws Exception;
+    
+    /**
+     * Request parser state, either print it here or expect it in the response
+     * handler. Throw an exception if not supported.
+     */
+    abstract public void viewParserState() throws Exception;
+    
+    /**
+     * Execute a soft reset, throw an exception if not supported.
+     */
+    abstract public void issueSoftReset() throws Exception;
+    
     // These abstract objects are initialized in concrete class.
     protected AbstractCommunicator comm;
     protected GcodeCommandCreator commandCreator;
@@ -246,11 +283,10 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * This is the only place where commands with an expected 'ok'/'error'
      * response are sent to the comm.
      */
-    private void sendStringToComm(String command) {        
+    private void sendStringToComm(String command) {
         this.comm.queueStringForComm(command+"\n");
         // Send command to the serial port.
         this.comm.streamCommands();
-
     }
     
     public Boolean isReadyToStreamFile() throws Exception {
