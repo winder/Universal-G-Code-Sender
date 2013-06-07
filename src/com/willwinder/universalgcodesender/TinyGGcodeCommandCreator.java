@@ -1,5 +1,5 @@
 /*
- * Simple class to increment gcode command numbers.
+ * Minor change to the command creator - create TinyG commands.
  */
 /*
     Copywrite 2013 Will Winder
@@ -22,31 +22,16 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
 /**
  *
  * @author wwinder
  */
-public class GcodeCommandCreator {
-    protected int numCommands = 0;
-    
-    public GcodeCommandCreator() {
-    }
-    
-    public GcodeCommandCreator(int num) {
-        this.numCommands = num;
-    }
-    
-    public void resetNum() {
-        this.numCommands = 0;
-    }
-    
-    int nextCommandNum() {
-        return this.numCommands;
-    }
-    
+public class TinyGGcodeCommandCreator extends GcodeCommandCreator {
+    @Override
     GcodeCommand createCommand(String commandString) {
-        GcodeCommand command = new GcodeCommand(commandString);
+        TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
         command.setCommandNumber(this.numCommands++);
         return command;
     }

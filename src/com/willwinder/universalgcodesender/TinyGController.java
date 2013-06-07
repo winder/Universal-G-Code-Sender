@@ -21,7 +21,11 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -32,7 +36,7 @@ public class TinyGController extends AbstractController {
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
         
-        //this.commandCreator = new GcodeCommandCreator();
+        this.commandCreator = new TinyGGcodeCommandCreator();
         //this.positionPollTimer = createPositionPollTimer();
     }
     
@@ -72,7 +76,23 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void rawResponseHandler(String response) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (TinyGGcodeCommand.isOkErrorResponse(response)) {
+            this.messageForConsole(response + "\n");
+        }
+        /*
+        // boot information check?
+        else if (GrblUtils.isGrblVersionString(response)) {
+
+        }
+        // position / status info?
+        else if (GrblUtils.isGrblStatusString(response)) {
+
+        }
+        */
+        else {
+            // Display any unhandled messages
+            this.messageForConsole(response + "\n");
+        }
     }
 
     @Override

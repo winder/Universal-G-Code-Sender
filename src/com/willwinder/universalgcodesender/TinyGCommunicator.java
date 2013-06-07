@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
 import gnu.io.SerialPortEvent;
@@ -38,7 +39,13 @@ import java.util.TooManyListenersException;
  * @author wwinder
  */
 public class TinyGCommunicator extends SerialCommunicator implements SerialPortEventListener {
-
+    // Command streaming variables
+    private Boolean sendPaused = false;
+    private LinkedList<String> commandBuffer;     // All commands in a file
+    private LinkedList<String> activeStringList;  // Currently running commands
+    private int sentBufferSize = 0;
+    
+    
     TinyGCommunicator() {
         this.setLineTerminator("\r\n");
     }
@@ -54,63 +61,128 @@ public class TinyGCommunicator extends SerialCommunicator implements SerialPortE
         
         this.in = in;
         this.out = out;
-        //this.commandBuffer = cb;
-        //this.activeStringList = asl;
+        this.commandBuffer = cb;
+        this.activeStringList = asl;
     }
+    
+    // TODO: Override openCommPort and use socket flow control?
     
     @Override
     protected void commPortOpenedEvent() {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        this.commandBuffer = new LinkedList<String>();
+        this.activeStringList = new LinkedList<String>();
+        this.sentBufferSize = 0;
     }
-
+    
     @Override
     protected void commPortClosedEvent() {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        this.sendPaused = false;
+        this.commandBuffer = null;
+        this.activeStringList = null;
     }
 
+    
+    /** 
+     * Processes message from GRBL.
+     */
     @Override
     protected void responseMessage(String response) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        // GrblCommunicator no longer knows what to do with responses.
+        dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
+
+        // Keep the data flow going for now.
+        if (TinyGGcodeCommand.isOkErrorResponse(response)) {
+            // Pop the front of the active list.
+            String commandString = this.activeStringList.pop();
+            this.sentBufferSize -= commandString.length();
+            
+            TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
+            command.setResponse(response);
+
+            dispatchListenerEvents(COMMAND_COMPLETE, this.commandCompleteListeners, command);
+
+            if (this.sendPaused == false) {
+                this.streamCommands();
+            }
+        }
+    }
+    
+    /**
+     * Add command to the command queue outside file mode. This is the only way
+     * to send a command to the comm port without being in file mode.
+     */
+    @Override
+    public void queueStringForComm(final String input) {        
+        String commandString = input;
+        
+        if (! commandString.endsWith("\n")) {
+            commandString += "\n";
+        }
+        
+        // Add command to queue
+        this.commandBuffer.add(commandString);
     }
 
-    @Override
-    public void queueStringForComm(String input) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void sendByteImmediately(byte b) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public boolean areActiveCommands() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return (this.activeStringList.size() > 0);
     }
-
+    
+    /**
+     * Streams anything in the command buffer to the comm port.
+     */
     @Override
     public void streamCommands() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        if (this.commandBuffer.size() == 0) {
+            // NO-OP
+            return;
+        }
+        
+        if (this.sendPaused) {
+            // Another NO-OP
+            return;
+        }
+        
+        // TODO: Find out rules for TinyG buffer size
+        // Try sending the first command.
+        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())) {
+            String commandString = this.commandBuffer.pop();
+            this.activeStringList.add(commandString);
+            this.sentBufferSize += commandString.length();
+            
+            // Newlines are embedded when they get queued so just send it.
+            this.sendStringToComm(commandString);
+            
+            TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
+            command.setSent(true);
+            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
+        }
     }
-
+    
     @Override
     public void pauseSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.sendPaused = true;
     }
-
+    
     @Override
     public void resumeSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.sendPaused = false;
+        this.streamCommands();
     }
-
+    
     @Override
     public void cancelSend() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.commandBuffer.clear();
     }
-
+    
     @Override
     public void softReset() {
         throw new UnsupportedOperationException("Not supported yet.");
+        /*
+        this.commandBuffer.clear();
+        this.activeStringList.clear();
+        this.sentBufferSize = 0;
+        */
     }
-
 }

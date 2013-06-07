@@ -15,6 +15,7 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -99,6 +100,29 @@ public abstract class SerialCommunicator extends AbstractCommunicator implements
 
         this.commPort = null;
 
+    }
+    
+    /**
+     * Sends a command to the serial device. This actually streams the bits to
+     * the comm port.
+     * @param command   Command to be sent to serial device.
+     */
+    protected void sendStringToComm(String command) {
+        // Command already has a newline attached.
+        this.sendMessageToConsoleListener(">>> " + command);
+        
+        // Send command to the serial port.
+        PrintStream printStream = new PrintStream(this.out);
+        printStream.print(command);
+        printStream.close(); 
+    }
+        
+    /**
+     * Immediately sends a byte, used for real-time commands.
+     */
+    @Override
+    public void sendByteImmediately(byte b) throws IOException {
+        out.write(b);
     }
     
         /**

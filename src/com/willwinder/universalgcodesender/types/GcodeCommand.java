@@ -42,7 +42,7 @@ public class GcodeCommand {
     private Integer commandNum = -1;
     
     public GcodeCommand(String command) {
-        this.command = command;
+        this(command, -1);
     }
     
     public GcodeCommand(String command, int num) {
