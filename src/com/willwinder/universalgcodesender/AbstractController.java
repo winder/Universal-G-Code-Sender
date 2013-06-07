@@ -25,15 +25,12 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Timer;
 import javax.vecmath.Point3d;
 
 /**

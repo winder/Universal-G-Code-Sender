@@ -1,6 +1,7 @@
 /*
  * TinyG Gcode command to deal with some JSON details.
  */
+
 /*
     Copywrite 2013 Will Winder, John Lauer
 

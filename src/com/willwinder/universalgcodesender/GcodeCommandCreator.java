@@ -1,6 +1,7 @@
 /*
  * Simple class to increment gcode command numbers.
  */
+
 /*
     Copywrite 2013 Will Winder
 

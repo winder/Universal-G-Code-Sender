@@ -23,22 +23,16 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-import gnu.io.UnsupportedCommOperationException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
-import java.util.TooManyListenersException;
 
 /**
  *
  * @author wwinder
  */
-public class TinyGCommunicator extends SerialCommunicator implements SerialPortEventListener {
+public class TinyGCommunicator extends AbstractSerialCommunicator implements SerialPortEventListener {
     // Command streaming variables
     private Boolean sendPaused = false;
     private LinkedList<String> commandBuffer;     // All commands in a file

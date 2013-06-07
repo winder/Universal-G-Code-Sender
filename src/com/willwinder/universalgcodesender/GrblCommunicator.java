@@ -31,7 +31,7 @@ import java.util.LinkedList;
  *
  * @author wwinder
  */
-public class GrblCommunicator extends SerialCommunicator {
+public class GrblCommunicator extends AbstractSerialCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private LinkedList<String> commandBuffer;     // All commands in a file
