@@ -34,7 +34,6 @@ import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -50,9 +49,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
+
 /**
  *
  * @author wwinder
@@ -83,7 +82,7 @@ implements KeyListener, ControllerListener {
         jScrollPane2 = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
         jScrollPane1 = new javax.swing.JScrollPane();
-        commandTable = new javax.swing.JTable();
+        commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         jPanel1 = new javax.swing.JPanel();
         commandLabel = new javax.swing.JLabel();
@@ -181,39 +180,10 @@ implements KeyListener, ControllerListener {
 
         jTabbedPane2.addTab("Console", jScrollPane2);
 
-        commandTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Command", "Sent", "Done", "Response"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
+        commandTable.setModel(new com.willwinder.universalgcodesender.uielements.GcodeTableModel());
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
-        commandTable.setMinimumSize(new java.awt.Dimension(0, 0));
         commandTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(commandTable);
-        commandTable.getColumnModel().getColumn(0).setPreferredWidth(400);
-        commandTable.getColumnModel().getColumn(1).setResizable(false);
-        commandTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-        commandTable.getColumnModel().getColumn(2).setResizable(false);
-        commandTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-        commandTable.getColumnModel().getColumn(3).setPreferredWidth(250);
 
         jTabbedPane2.addTab("Command Table", jScrollPane1);
 
@@ -939,8 +909,7 @@ implements KeyListener, ControllerListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
-                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                .add(showVerboseOutputCheckBox)))
+                            .add(showVerboseOutputCheckBox))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 205, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
@@ -1385,9 +1354,6 @@ implements KeyListener, ControllerListener {
         this.manualCommandHistory = new ArrayList<String>();
         this.commandTextField.addKeyListener(this);
         
-        // TODO: Make a special class to handle command table view.
-        this.tableModel = (DefaultTableModel) this.commandTable.getModel();
-        
         // Add keyboard listener for manual controls.
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
             .addKeyEventDispatcher(new KeyEventDispatcher() {
@@ -1645,6 +1611,7 @@ implements KeyListener, ControllerListener {
     }
     
     private void checkScrollWindow() {
+        // Console output.
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
         if (scrollWindowCheckBox.isSelected()) {
           caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
@@ -1652,6 +1619,9 @@ implements KeyListener, ControllerListener {
         } else {
             caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         }
+        
+        // Command table.
+        this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
     }
     
     private double getSpeedOverrideValue() {
@@ -1707,20 +1677,7 @@ implements KeyListener, ControllerListener {
     }
     
     void clearTable() {
-        while (this.tableModel.getRowCount()>0){
-            this.tableModel.removeRow(0);
-        }
-    }
-       
-    private void scrollTable(int toRow) {
-        // Scroll if selected.
-        if (this.scrollWindowCheckBox.isSelected()) {
-            if (this.commandTable.isVisible()) {
-                this.commandTable.getSelectionModel().setSelectionInterval(toRow, toRow);
-                this.commandTable.scrollRectToVisible(new Rectangle(this.commandTable.getCellRect(toRow, 0, true)));
-            }
-        }
-        
+        this.commandTable.clear();
     }
         
     private void displayErrorDialog(String errorMessage) {
@@ -1750,31 +1707,24 @@ implements KeyListener, ControllerListener {
         final int row = command.getCommandNumber();
         final GcodeCommand sentCommand = command;
 
-        this.tableModel.addRow(new Object[]{command.getCommandString(), command.isSent(), command.isDone(), command.getResponse()});
+        this.commandTable.addRow(command);
     }
      
     @Override
-    public void commandSent(GcodeCommand command) {
+    public void commandSent(final GcodeCommand command) {
         if (this.controller.isStreamingFile()) {
             // Update # rows sent label
             this.sentRows++;
         }
-        
-        final int row = command.getCommandNumber();
-        final GcodeCommand sentCommand = command;
-        
-        // TODO: If Preprocessor changes the command mark the cell somehow
-        // command (in case of preprocessor change)
-        //tableModel.setValueAt(command.getCommandString(), command.getCommandNumber(), 0);
         
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 //sentRowsValueLabel.setText(""+sentRows);
                 sentRowsValueLabel.setText(""+controller.rowsSent());
+                
                 // sent
-                tableModel.setValueAt(sentCommand.isSent(), row, 1);
-                scrollTable(row);
+                commandTable.updateRow(command);
             }});
     }
     
@@ -1784,20 +1734,11 @@ implements KeyListener, ControllerListener {
     }
     
     @Override
-    public void commandComplete(GcodeCommand command) {
-        final int row = command.getCommandNumber();
-        final GcodeCommand sentCommand = command;
-        
+    public void commandComplete(final GcodeCommand command) {       
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                // done
-                tableModel.setValueAt(sentCommand.isDone(), row, 2);
-
-                // response
-                tableModel.setValueAt(sentCommand.getResponse(), row, 3);
-
-                scrollTable(row);
+                commandTable.updateRow(command);
                 
                 // decrement remaining rows
                 int remaining = Integer.parseInt(remainingRowsValueLabel.getText());
@@ -1848,8 +1789,6 @@ implements KeyListener, ControllerListener {
     // This is for the command history box.
     private int commandNum = -1;
     private List<String> manualCommandHistory;
-
-    private DefaultTableModel tableModel;
     
     private AbstractController controller;
     
@@ -1884,7 +1823,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JButton cancelButton;
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
-    private javax.swing.JTable commandTable;
+    private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
