@@ -1154,7 +1154,7 @@ implements KeyListener, ControllerListener {
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         try {
-            this.controller.queueStringForComm(GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO);
+            this.controller.resetCoordinatesToZero();
         } catch (Exception ex) {
             this.displayErrorDialog(ex.getMessage());
         }

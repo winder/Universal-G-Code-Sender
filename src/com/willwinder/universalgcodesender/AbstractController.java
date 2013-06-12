@@ -77,6 +77,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Returns machine to home location, throw an exception if not supported.
      */
     abstract public void returnToHome() throws Exception;
+        
+    /**
+     * Reset machine coordinates to zero at the current location.
+     */
+    abstract public void resetCoordinatesToZero() throws Exception;
     
     /**
      * Disable alarm mode and put device into idle state, throw an exception 

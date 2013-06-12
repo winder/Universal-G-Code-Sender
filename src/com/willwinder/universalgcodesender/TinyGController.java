@@ -22,11 +22,8 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -100,7 +97,12 @@ public class TinyGController extends AbstractController {
     public void performHomingCycle() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
+    @Override
+    public void resetCoordinatesToZero() throws Exception {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
     @Override
     public void returnToHome() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");

@@ -204,6 +204,18 @@ public class GrblController extends AbstractController {
     }
     
     @Override
+    public void resetCoordinatesToZero() throws Exception {
+        if (this.isCommOpen()) {
+            String command = GrblUtils.getResetCoordsToZeroCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        throw new Exception("No supported coordinate reset method for " + this.getGrblVersion());
+    }
+    
+    @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
             String command = GrblUtils.getReturnToHomeCommand(this.grblVersion, this.grblVersionLetter);
@@ -277,6 +289,11 @@ public class GrblController extends AbstractController {
             if (this.grblVersionLetter != null) {
                 str.append(this.grblVersionLetter);
             }
+            
+            if (this.grblVersion <= 0.0 && this.grblVersionLetter == null) {
+                str.append("<unknown>");
+            }
+            
             return str.toString();
         }
         return "<not connected>";

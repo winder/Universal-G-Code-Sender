@@ -51,7 +51,9 @@ public class GrblUtils {
     /**
      * Gcode Commands
      */
-    public static final String GCODE_RESET_COORDINATES_TO_ZERO = "G92 X0 Y0 Z0";
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 X0 Y0 Z0";
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
+    
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
     
@@ -149,6 +151,22 @@ public class GrblUtils {
         }
         else if (version >= 0.8) {
             return GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
+        }
+        else {
+            return "";
+        }
+    }
+    
+    static protected String getResetCoordsToZeroCommand(final double version, final String letter) {
+        if (version >= 0.9) {
+            return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V9;
+        }
+        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+            // TODO: Is G10 available in 0.8c?
+            return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V8;
+        }
+        else if (version >= 0.8) {
+            return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V8;
         }
         else {
             return "";
