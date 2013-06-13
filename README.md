@@ -1,4 +1,4 @@
-Universal GcodeSender is a Java based GRBL compatibl cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
+Universal GcodeSender is a Java based GRBL compatible cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
 To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run an included start script.
