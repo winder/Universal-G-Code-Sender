@@ -28,6 +28,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.GrblConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import gnu.io.CommPortIdentifier;
@@ -90,8 +91,6 @@ implements KeyListener, ControllerListener {
         jPanel2 = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
-        overrideSpeedCheckBox = new javax.swing.JCheckBox();
-        overrideSpeedValueSpinner = new javax.swing.JSpinner();
         sentRowsLabel = new javax.swing.JLabel();
         sentRowsValueLabel = new javax.swing.JLabel();
         rowsLabel = new javax.swing.JLabel();
@@ -156,9 +155,13 @@ implements KeyListener, ControllerListener {
         workPositionZValueLabel = new javax.swing.JLabel();
         latestCommentValueLabel = new javax.swing.JLabel();
         latestCommentLabel = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setMinimumSize(new java.awt.Dimension(640, 430));
+        setMinimumSize(new java.awt.Dimension(640, 520));
+        setPreferredSize(new java.awt.Dimension(794, 520));
 
         scrollWindowCheckBox.setSelected(true);
         scrollWindowCheckBox.setText("Scroll output window");
@@ -242,22 +245,6 @@ implements KeyListener, ControllerListener {
             }
         });
 
-        overrideSpeedCheckBox.setText("Override speed %");
-        overrideSpeedCheckBox.setEnabled(false);
-        overrideSpeedCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                overrideSpeedCheckBoxActionPerformed(evt);
-            }
-        });
-
-        overrideSpeedValueSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(60), Integer.valueOf(1), null, Integer.valueOf(1)));
-        overrideSpeedValueSpinner.setEnabled(false);
-        overrideSpeedValueSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                overrideSpeedValueSpinnerStateChanged(evt);
-            }
-        });
-
         sentRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         sentRowsLabel.setText("Sent Rows:");
         sentRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -326,7 +313,22 @@ implements KeyListener, ControllerListener {
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingTimeLabel)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, durationLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(durationValueLabel)
+                            .add(remainingRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(remainingTimeValueLabel)
+                            .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 353, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 353, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .add(jPanel2Layout.createSequentialGroup()
                         .add(8, 8, 8)
                         .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
@@ -335,40 +337,14 @@ implements KeyListener, ControllerListener {
                                 .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(cancelButton)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 139, Short.MAX_VALUE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .add(visualizeButton))
                             .add(jPanel2Layout.createSequentialGroup()
                                 .add(fileLabel)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(fileTextField, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(browseButton))))
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel2Layout.createSequentialGroup()
-                                .add(overrideSpeedCheckBox)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 59, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel2Layout.createSequentialGroup()
-                                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                                    .add(durationLabel)
-                                    .add(remainingTimeLabel))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(durationValueLabel)
-                                    .add(remainingTimeValueLabel))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 78, Short.MAX_VALUE)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, rowsLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, sentRowsLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingRowsLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(7, 7, 7)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(remainingRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 40, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 74, Short.MAX_VALUE)))
+                                .add(browseButton)))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -384,33 +360,29 @@ implements KeyListener, ControllerListener {
                     .add(pauseButton)
                     .add(cancelButton)
                     .add(visualizeButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(27, 27, 27)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(overrideSpeedValueSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(overrideSpeedCheckBox))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(remainingTimeLabel)
-                            .add(remainingTimeValueLabel))
+                        .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(durationValueLabel)
-                            .add(durationLabel)))
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(rowsValueLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sentRowsValueLabel)
+                        .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(remainingRowsValueLabel))
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .add(0, 101, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(remainingTimeLabel)
+                    .add(remainingTimeValueLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(durationValueLabel)
+                    .add(durationLabel))
+                .add(53, 53, 53))
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -734,7 +706,7 @@ implements KeyListener, ControllerListener {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -876,6 +848,20 @@ implements KeyListener, ControllerListener {
                 .addContainerGap(22, Short.MAX_VALUE))
         );
 
+        jMenu1.setText("Settings");
+
+        grblConnectionSettingsMenuItem.setText("GRBL Connection");
+        grblConnectionSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                grblConnectionSettingsMenuItemActionPerformed(evt);
+            }
+        });
+        jMenu1.add(grblConnectionSettingsMenuItem);
+
+        jMenuBar1.add(jMenu1);
+
+        setJMenuBar(jMenuBar1);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -900,18 +886,17 @@ implements KeyListener, ControllerListener {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 132, Short.MAX_VALUE)
+                        .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(12, 12, 12))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
                     .add(layout.createSequentialGroup()
                         .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 264, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
-                            .add(showVerboseOutputCheckBox))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 205, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(showVerboseOutputCheckBox))))
+                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE))
         );
 
         pack();
@@ -1198,21 +1183,6 @@ implements KeyListener, ControllerListener {
         });
     }//GEN-LAST:event_visualizeButtonActionPerformed
 
-    private void overrideSpeedValueSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_overrideSpeedValueSpinnerStateChanged
-        this.overrideSpeedCheckBoxActionPerformed(null);
-    }//GEN-LAST:event_overrideSpeedValueSpinnerStateChanged
-
-    private void overrideSpeedCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_overrideSpeedCheckBoxActionPerformed
-        if (this.controller == null)
-            return;
-        
-        if (this.overrideSpeedCheckBox.isSelected()) {
-            this.controller.setSpeedOverride(getSpeedOverrideValue());
-        } else {
-            this.controller.setSpeedOverride(-1.0);
-        }
-    }//GEN-LAST:event_overrideSpeedCheckBoxActionPerformed
-
     private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
         String message =
                 "Reset zero: Changes the current coordinaes to zero without moving the machine." +
@@ -1263,6 +1233,40 @@ implements KeyListener, ControllerListener {
         }
     }//GEN-LAST:event_softResetMachineControlActionPerformed
 
+    private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
+        GrblConnectionSettingsDialog gcsd = new GrblConnectionSettingsDialog(this, true);
+        
+        gcsd.setSpeedOverrideEnabled(SettingsFactory.isOverrideSpeedSelected());
+        gcsd.setSpeedOverridePercent((int) SettingsFactory.getOverrideSpeedValue());
+        gcsd.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
+        gcsd.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
+        gcsd.setSingleStepModeEnabled(SettingsFactory.getSingleStepMode());
+        
+        gcsd.setVisible(true);
+        
+        if (gcsd.saveChanges()) {
+            // Override speed
+            SettingsFactory.setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
+            SettingsFactory.setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
+            SettingsFactory.setMaxCommandLength(gcsd.getMaxCommandLength());
+            SettingsFactory.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
+            SettingsFactory.setSingleStepMode(gcsd.getSingleStepModeEnabled());
+            
+            if (this.controller != null) {
+                if (gcsd.getSpeedOverrideEnabled()) {
+                    this.controller.setSpeedOverride(gcsd.getSpeedOverridePercent());
+                } else {
+                    this.controller.setSpeedOverride(-1);
+                }
+                
+                // TODO: Enable these commands.
+                //this.controller.setMaxCommandLength(gcsd.getMaxCommandLength());
+                //this.controller.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
+                //this.controller.setSingleStepMode(gcsd.getSingleStepModeEnabled());
+            }
+        }
+    }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1305,8 +1309,6 @@ implements KeyListener, ControllerListener {
         mw.baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
         mw.scrollWindowCheckBox.setSelected(SettingsFactory.isScrollWindow());
         mw.showVerboseOutputCheckBox.setSelected(SettingsFactory.isVerboseOutput());
-        mw.overrideSpeedCheckBox.setSelected(SettingsFactory.isOverrideSpeedSelected());
-        mw.overrideSpeedValueSpinner.setValue(SettingsFactory.getOverrideSpeedValue());
         mw.firmwareComboBox.setSelectedItem(SettingsFactory.getFirmware());
         // TODO: Apply settings to controller object.
         
@@ -1332,8 +1334,6 @@ implements KeyListener, ControllerListener {
                 SettingsFactory.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 SettingsFactory.setScrollWindow(mw.scrollWindowCheckBox.isSelected());
                 SettingsFactory.setVerboseOutput(mw.showVerboseOutputCheckBox.isSelected());
-                SettingsFactory.setOverrideSpeedSelected(mw.overrideSpeedCheckBox.isSelected());
-                SettingsFactory.setOverrideSpeedValue(Double.valueOf(mw.overrideSpeedValueSpinner.getValue()+""));
                 SettingsFactory.setFirmware(mw.firmwareComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings();
             }
@@ -1474,9 +1474,6 @@ implements KeyListener, ControllerListener {
                 this.pauseButton.setEnabled(true);
                 this.cancelButton.setEnabled(true);
                 this.pauseButton.setText("Pause");
-                // TODO: Allow on the fly speed override?
-                this.overrideSpeedCheckBox.setEnabled(false);
-                this.overrideSpeedValueSpinner.setEnabled(false);
 
                 // Workflow tab
                 this.updateWorkflowControls(false);
@@ -1517,8 +1514,6 @@ implements KeyListener, ControllerListener {
         this.sendButton.setEnabled(enabled);
         //browse always enabled.
         //this.browseButton.setEnabled(enabled);
-        this.overrideSpeedCheckBox.setEnabled(enabled);
-        this.overrideSpeedValueSpinner.setEnabled(enabled);
         this.fileTextField.setEnabled(enabled);
 
         if (!enabled) {
@@ -1622,14 +1617,6 @@ implements KeyListener, ControllerListener {
         
         // Command table.
         this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
-    }
-    
-    private double getSpeedOverrideValue() {
-        double ret = -1;
-        if (this.overrideSpeedCheckBox.isSelected()) {
-            ret = Double.parseDouble( this.overrideSpeedValueSpinner.getValue().toString() );
-        }
-        return ret;
     }
     
     private String getNewline() {
@@ -1832,10 +1819,13 @@ implements KeyListener, ControllerListener {
     private javax.swing.JLabel fileLabel;
     private javax.swing.JTextField fileTextField;
     private javax.swing.JComboBox firmwareComboBox;
+    private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel7;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -1859,8 +1849,6 @@ implements KeyListener, ControllerListener {
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
     private javax.swing.JButton opencloseButton;
-    private javax.swing.JCheckBox overrideSpeedCheckBox;
-    private javax.swing.JSpinner overrideSpeedValueSpinner;
     private javax.swing.JButton pauseButton;
     private javax.swing.JButton performHomingCycleButton;
     private javax.swing.JButton refreshButton;

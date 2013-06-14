@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013 Christian Moll
+    Copywrite 2013 Christian Moll, Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,7 +33,7 @@ class SettingsFactory {
     private static File SETTINGS_FILE  = new File(System.getProperty("user.home"),".UniversalGcodeSender.properties");
     
     private static Properties settings = new Properties();
-    private static Logger logger = Logger.getLogger(SettingsFactory.class.getName());
+    private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     
     private static String firmwareVersion = "";
     private static String fileName = "";
@@ -43,8 +43,12 @@ class SettingsFactory {
     private static double manualModeStepSize;
     private static boolean scrollWindowEnabled;
     private static boolean verboseOutputEnabled;
+    // Grbl Settings
     private static boolean overrideSpeedSelected;
     private static double overrideSpeedValue;
+    private static boolean singleStepMode;
+    private static int maxCommandLength;
+    private static int truncateDecimalLength;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -57,8 +61,9 @@ class SettingsFactory {
         logger.info("Load settings");
         try {
             settings.load(new FileInputStream(SETTINGS_FILE));
+            
+            // V1 Settings - These are settings from the very beginning.
             try {
-                SettingsFactory.firmwareVersion = settings.getProperty("firmwareVersion", "GRBL");
                 SettingsFactory.fileName = settings.getProperty("last.dir", System.getProperty("user.home"));
                 SettingsFactory.port = settings.getProperty("port", "");
                 SettingsFactory.portRate = settings.getProperty("port.rate", "9600");
@@ -73,9 +78,22 @@ class SettingsFactory {
                 logger.warning("Can't load settings use defaults!");
                 loadDefaults();
             } 
+            
+            // V1.0.7 Settings - New settings, load separately to avoid
+            //                   overwriting them with loadDefaults.
+            try {
+                SettingsFactory.firmwareVersion = settings.getProperty("firmwareVersion", "GRBL");
+                SettingsFactory.singleStepMode = Boolean.valueOf(settings.getProperty("singleStepMode", "false"));
+                SettingsFactory.maxCommandLength = Integer.valueOf(settings.getProperty("maxCommandLength", "50"));
+                SettingsFactory.truncateDecimalLength = Integer.valueOf(settings.getProperty("truncateDecimalLength", "4"));
+            } catch (Exception e) {
+                logger.warning("Can't load settings file!");
+                loadDefaults2();
+            }
         } catch (Exception e) {
             logger.warning("Can't load settings file!");
             loadDefaults();
+            loadDefaults2();
         }
     }
 
@@ -105,7 +123,6 @@ class SettingsFactory {
     }
     
     private static void loadDefaults() {
-        SettingsFactory.firmwareVersion = "GRBL";
         SettingsFactory.fileName = System.getProperty("user.home");
         SettingsFactory.port = "";
         SettingsFactory.portRate = "9600";
@@ -115,6 +132,13 @@ class SettingsFactory {
         SettingsFactory.verboseOutputEnabled = false;
         SettingsFactory.overrideSpeedSelected = false;
         SettingsFactory.overrideSpeedValue = 60;
+    }
+    
+    private static void loadDefaults2() {
+        SettingsFactory.firmwareVersion = "GRBL";
+        SettingsFactory.singleStepMode = false;
+        SettingsFactory.maxCommandLength = 50;
+        SettingsFactory.truncateDecimalLength = 4;
     }
 
     public static void setLastPath(String fileName) {
@@ -129,71 +153,95 @@ class SettingsFactory {
         SettingsFactory.port = port;
     }
 
-    static String getPort() {
+    public static String getPort() {
         return port;
     }
     
-    static void setPortRate(String rate) {
+    public static void setPortRate(String rate) {
         SettingsFactory.portRate = rate;
     }
 
-    static String getPortRate() {
+    public static String getPortRate() {
         return portRate;
     }
 
-    static void setManualControllesEnabled(boolean enabled) {
+    public static void setManualControllesEnabled(boolean enabled) {
         SettingsFactory.manualModeEnabled = enabled;
     }
     
-    static boolean getManualControllesEnabled() {
+    public static boolean getManualControllesEnabled() {
         return manualModeEnabled;
     }
 
-    static void setStepSize(double stepSize) {
+    public static void setStepSize(double stepSize) {
         SettingsFactory.manualModeStepSize = stepSize;
     }
     
-    static double getStepSize() {
+    public static double getStepSize() {
         return manualModeStepSize;
     }
 
-    static void setScrollWindow(boolean selected) {
+    public static void setScrollWindow(boolean selected) {
         SettingsFactory.scrollWindowEnabled = selected;
     }
      
-    static boolean isScrollWindow() {
+    public static boolean isScrollWindow() {
         return scrollWindowEnabled;
     }
     
-    static void setVerboseOutput(boolean selected) {
+    public static void setVerboseOutput(boolean selected) {
         SettingsFactory.verboseOutputEnabled = selected;
     }
 
-    static boolean isVerboseOutput() {
+    public static boolean isVerboseOutput() {
         return verboseOutputEnabled;
     }
    
-    static void setOverrideSpeedSelected(boolean selected) {
+    public static void setOverrideSpeedSelected(boolean selected) {
         SettingsFactory.overrideSpeedSelected = selected;
     }
 
-    static boolean isOverrideSpeedSelected() {
+    public static boolean isOverrideSpeedSelected() {
         return overrideSpeedSelected;
     }
     
-    static void setOverrideSpeedValue(double value) {
+    public static void setOverrideSpeedValue(double value) {
         SettingsFactory.overrideSpeedValue = value;
     }
     
-    static double getOverrideSpeedValue() {
+    public static double getOverrideSpeedValue() {
         return overrideSpeedValue;
     }
 
-    static void setFirmware(String value) {
+    public static void setFirmware(String value) {
         firmwareVersion = value;
     }
     
-    static String getFirmware() {
+    public static String getFirmware() {
         return firmwareVersion;
+    }
+    
+    public static void setSingleStepMode(boolean enabled) {
+        singleStepMode = enabled;
+    }
+    
+    public static boolean getSingleStepMode() {
+        return singleStepMode;
+    }
+    
+    public static void setMaxCommandLength(int length) {
+        maxCommandLength = length;
+    }
+    
+    public static int getMaxCommandLength() {
+        return maxCommandLength;
+    }
+    
+    public static void setTruncateDecimalLength(int length) {
+        truncateDecimalLength = length;
+    }
+    
+    public static int getTruncateDecimalLength() {
+        return truncateDecimalLength;
     }
 }
