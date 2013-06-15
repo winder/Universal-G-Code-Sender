@@ -65,6 +65,8 @@ public abstract class AbstractCommunicator{
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException,         Exception;
     abstract public void closeCommPort();
+    abstract public void setSingleStepMode(boolean enable);
+    abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
     abstract public void sendByteImmediately(byte b) throws IOException;
     abstract public boolean areActiveCommands();

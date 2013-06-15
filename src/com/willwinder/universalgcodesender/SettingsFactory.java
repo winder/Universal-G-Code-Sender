@@ -43,12 +43,13 @@ class SettingsFactory {
     private static double manualModeStepSize;
     private static boolean scrollWindowEnabled;
     private static boolean verboseOutputEnabled;
-    // Grbl Settings
+    // Sender Settings
     private static boolean overrideSpeedSelected;
     private static double overrideSpeedValue;
     private static boolean singleStepMode;
     private static int maxCommandLength;
     private static int truncateDecimalLength;
+    private static boolean removeAllWhitespace;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -86,6 +87,8 @@ class SettingsFactory {
                 SettingsFactory.singleStepMode = Boolean.valueOf(settings.getProperty("singleStepMode", "false"));
                 SettingsFactory.maxCommandLength = Integer.valueOf(settings.getProperty("maxCommandLength", "50"));
                 SettingsFactory.truncateDecimalLength = Integer.valueOf(settings.getProperty("truncateDecimalLength", "4"));
+                SettingsFactory.removeAllWhitespace = Boolean.valueOf(settings.getProperty("removeAllWhitespace", "true"));
+
             } catch (Exception e) {
                 logger.warning("Can't load settings file!");
                 loadDefaults2();
@@ -111,6 +114,12 @@ class SettingsFactory {
                 settings.put("verboseOutput.enabled", verboseOutputEnabled+"");
                 settings.put("overrideSpeed.enabled", overrideSpeedSelected+"");
                 settings.put("overrideSpeed.value", overrideSpeedValue+"");
+                
+                // Controller settings
+                settings.put("singleStepMode", singleStepMode+"");
+                settings.put("maxCommandLength", maxCommandLength+"");
+                settings.put("truncateDecimalLength", truncateDecimalLength+"");
+                settings.put("removeAllWhitespace", removeAllWhitespace+"");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -139,6 +148,7 @@ class SettingsFactory {
         SettingsFactory.singleStepMode = false;
         SettingsFactory.maxCommandLength = 50;
         SettingsFactory.truncateDecimalLength = 4;
+        SettingsFactory.removeAllWhitespace = true;
     }
 
     public static void setLastPath(String fileName) {
@@ -243,5 +253,13 @@ class SettingsFactory {
     
     public static int getTruncateDecimalLength() {
         return truncateDecimalLength;
+    }
+    
+    public static void setRemoveAllWhitespace(boolean enabled) {
+        removeAllWhitespace = enabled;
+    }
+    
+    public static boolean getRemoveAllWhitespace() {
+        return removeAllWhitespace;
     }
 }

@@ -58,7 +58,10 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
-                              <Component id="singleStepModeCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="removeAllWhitespaceCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="singleStepModeCheckBox" min="-2" max="-2" attributes="0"/>
+                              </Group>
                           </Group>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
@@ -91,7 +94,9 @@
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Component id="singleStepModeCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="23" max="32767" attributes="0"/>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="removeAllWhitespaceCheckBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="18" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="closeWithSave" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="closeWithoutSave" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -180,6 +185,11 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="helpButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="removeAllWhitespaceCheckBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Remove all whitespace in commands"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

@@ -71,6 +71,10 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
     public int getTruncateDecimalLength() {
         return Integer.parseInt(this.truncateDecimalDigitsSpinner.getValue().toString());
     }
+
+    public boolean getRemoveAllWhitespace() {
+        return this.removeAllWhitespaceCheckBox.isSelected();
+    }
     
     /**
      * Setters for all the values.
@@ -95,6 +99,10 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
         this.truncateDecimalDigitsSpinner.setValue(truncateLength);
     }
     
+    public void setRemoveAllWhitespace(boolean enabled) {
+        this.removeAllWhitespaceCheckBox.setSelected(enabled);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -116,6 +124,7 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
         closeWithSave = new javax.swing.JButton();
         closeWithoutSave = new javax.swing.JButton();
         helpButton = new javax.swing.JButton();
+        removeAllWhitespaceCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -159,6 +168,8 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
             }
         });
 
+        removeAllWhitespaceCheckBox.setText("Remove all whitespace in commands");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -194,7 +205,9 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
                                 .addComponent(truncateDecimalDigitsLabel))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(43, 43, 43)
-                                .addComponent(singleStepModeCheckBox)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(removeAllWhitespaceCheckBox)
+                                    .addComponent(singleStepModeCheckBox))))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -218,7 +231,9 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
                     .addComponent(truncateDecimalDigitsLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(singleStepModeCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(removeAllWhitespaceCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -245,7 +260,8 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
                 "\n\nSpeed override percent: Factor that speeds will be scaled by." +
                 "\n\nMax command length: Maximum length of a command before an error is triggered." +
                 "\n\nTruncate decimal digits: Number of fractional digits that will be sent to firmware." +
-                "\n\nEnable single step mode: Turns on single step mode, this is very slow.";
+                "\n\nEnable single step mode: Turns on single step mode, this is very slow." +
+                "\n\nRemove all whitespace: Removes the usually unnecessary whitespace in gcode commands.";
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 
@@ -262,6 +278,7 @@ public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox overrideSpeedCheckBox;
     private javax.swing.JLabel overrideSpeedPercentLabel;
     private javax.swing.JSpinner overrideSpeedPercentSpinner;
+    private javax.swing.JCheckBox removeAllWhitespaceCheckBox;
     private javax.swing.JCheckBox singleStepModeCheckBox;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JLabel truncateDecimalDigitsLabel;

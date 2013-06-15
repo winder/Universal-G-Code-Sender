@@ -17,7 +17,7 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="grblConnectionSettingsMenuItem">
               <Properties>
-                <Property name="text" type="java.lang.String" value="GRBL Connection"/>
+                <Property name="text" type="java.lang.String" value="Sender Settings"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="grblConnectionSettingsMenuItemActionPerformed"/>
@@ -34,7 +34,7 @@
       <Dimension value="[640, 520]"/>
     </Property>
     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-      <Dimension value="[794, 520]"/>
+      <Dimension value="[691, 520]"/>
     </Property>
   </Properties>
   <SyntheticProperties>
@@ -67,9 +67,9 @@
                       <Component id="scrollWindowCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="showVerboseOutputCheckBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace pref="102" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="controlContextTabbedPane" max="32767" attributes="0"/>
+                  <Component id="controlContextTabbedPane" pref="0" max="32767" attributes="0"/>
               </Group>
           </Group>
           <Component id="jTabbedPane2" alignment="0" max="32767" attributes="0"/>
@@ -81,10 +81,9 @@
               <EmptySpace min="-2" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
-                      <Component id="jPanel3" pref="124" max="32767" attributes="0"/>
+                      <Component id="jPanel3" min="-2" pref="144" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel5" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Component id="controlContextTabbedPane" min="-2" pref="264" max="-2" attributes="0"/>
@@ -95,7 +94,8 @@
                       </Group>
                   </Group>
               </Group>
-              <Component id="jTabbedPane2" pref="156" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jTabbedPane2" pref="176" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -221,7 +221,7 @@
                           <Component id="commandTextField" max="32767" attributes="0"/>
                           <Group type="102" attributes="0">
                               <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="447" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="328" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -235,7 +235,7 @@
                       <Component id="commandLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="commandTextField" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="178" max="32767" attributes="0"/>
+                      <EmptySpace pref="150" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -276,7 +276,7 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Component id="remainingRowsLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Component id="remainingTimeLabel" alignment="1" min="-2" max="-2" attributes="0"/>
@@ -285,56 +285,58 @@
                                   <Component id="durationLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="durationValueLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="remainingRowsValueLabel" alignment="0" min="-2" pref="40" max="-2" attributes="0"/>
-                                  <Component id="remainingTimeValueLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sentRowsValueLabel" alignment="0" min="-2" pref="353" max="-2" attributes="0"/>
-                                  <Component id="rowsValueLabel" alignment="0" min="-2" pref="353" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="durationValueLabel" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="remainingRowsValueLabel" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="sentRowsValueLabel" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="remainingTimeValueLabel" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="rowsValueLabel" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="1" attributes="0">
-                                      <Component id="sendButton" min="-2" pref="68" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="pauseButton" min="-2" pref="95" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="32767" attributes="0"/>
-                                      <Component id="visualizeButton" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="fileLabel" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="fileTextField" max="32767" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="browseButton" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
+                              <Component id="fileLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace min="-2" pref="2" max="-2" attributes="0"/>
+                      <Component id="sendButton" min="-2" pref="68" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="pauseButton" min="-2" pref="95" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="visualizeButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="browseButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileTextField" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="fileLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="browseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="fileTextField" alignment="3" max="-2" attributes="0"/>
-                      </Group>
+                      <Component id="fileLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="fileTextField" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="sendButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="pauseButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="visualizeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="browseButton" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="sendButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="pauseButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="visualizeButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
-                      <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
+                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Group type="102" alignment="1" attributes="0">
                               <Component id="rowsValueLabel" min="-2" pref="14" max="-2" attributes="0"/>
@@ -351,7 +353,7 @@
                               <Component id="remainingRowsLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="remainingTimeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="remainingTimeValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -361,7 +363,7 @@
                           <Component id="durationValueLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="durationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="53" max="-2" attributes="0"/>
+                      <EmptySpace pref="9" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -499,12 +501,6 @@
             <Component class="javax.swing.JTextField" name="fileTextField">
               <Properties>
                 <Property name="enabled" type="boolean" value="false"/>
-                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[200, 19]"/>
-                </Property>
-                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[200, 27]"/>
-                </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="fileLabel">
@@ -529,28 +525,23 @@
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Group type="102" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="requestStateInformation" min="-2" pref="49" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
+                              <EmptySpace min="-2" pref="35" max="-2" attributes="0"/>
                               <Component id="helpButtonMachineControl" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="resetCoordinatesButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
+                          <Component id="returnToZeroButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
+                          <Component id="softResetMachineControl" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="resetCoordinatesButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
-                                  <Component id="returnToZeroButton" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
-                                  <Component id="softResetMachineControl" alignment="0" min="-2" pref="159" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="performHomingCycleButton" min="-2" pref="49" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="killAlarmLock" min="-2" pref="49" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="toggleCheckMode" min="-2" pref="49" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                              <Component id="performHomingCycleButton" min="-2" pref="49" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="killAlarmLock" min="-2" pref="49" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="toggleCheckMode" min="-2" pref="49" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="119" max="32767" attributes="0"/>
+                      <EmptySpace pref="9" max="32767" attributes="0"/>
                       <Component id="jPanel7" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -581,7 +572,7 @@
                               </Group>
                           </Group>
                       </Group>
-                      <EmptySpace pref="59" max="32767" attributes="0"/>
+                      <EmptySpace pref="31" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -889,7 +880,7 @@
                       <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="firmwareComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="18" max="32767" attributes="0"/>
+                  <EmptySpace pref="19" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1108,7 +1099,7 @@
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace pref="22" max="32767" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>

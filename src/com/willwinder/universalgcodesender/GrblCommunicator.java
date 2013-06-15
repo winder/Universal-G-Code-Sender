@@ -38,6 +38,8 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
     private LinkedList<String> activeStringList;  // Currently running commands
     private int sentBufferSize = 0;
     
+    private Boolean singleStepModeEnabled = false;
+    
     public GrblCommunicator() {
         this.setLineTerminator("\r\n");
     }
@@ -72,6 +74,16 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
         this.sendPaused = false;
         this.commandBuffer = null;
         this.activeStringList = null;
+    }
+    
+    @Override
+    public void setSingleStepMode(boolean enable) {
+        this.singleStepModeEnabled = enable;
+    }
+    
+    @Override
+    public boolean getSingleStepMode() {
+        return this.singleStepModeEnabled;
     }
     
     /**
@@ -123,8 +135,13 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
             return;
         }
         
-        // Try sending the first command.
-        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())) {
+        // Send command if:
+        // There is room in the buffer.
+        // AND We are NOT in single step mode.
+        // OR  We are in single command mode and there are no active commands.
+        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())
+                && (!this.singleStepModeEnabled
+                    || (this.singleStepModeEnabled && !areActiveCommands()))){
             String commandString = this.commandBuffer.pop();
             this.activeStringList.add(commandString);
             this.sentBufferSize += commandString.length();

@@ -75,6 +75,15 @@ public class TinyGCommunicator extends AbstractSerialCommunicator implements Ser
         this.activeStringList = null;
     }
 
+    @Override
+    public void setSingleStepMode(boolean enable) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    @Override
+    public boolean getSingleStepMode() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
     
     /** 
      * Processes message from GRBL.

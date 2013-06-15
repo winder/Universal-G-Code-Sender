@@ -111,7 +111,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     
     // Outside influence
     private double speedOverride = -1;
-
+    private int maxCommandLength = 50;
+    private int truncateDecimalLength = 40;
+    private boolean singleStepMode = false;
+    private boolean removeAllWhitespace = true;
+    
     // State
     private Boolean commOpen = false;
     
@@ -171,15 +175,39 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     public double getSpeedOverride() {
         return this.speedOverride;
     }
+
+    public void setMaxCommandLength(int length) {
+        this.maxCommandLength = length;
+    }
+    
+    public int getMaxCommandLength() {
+        return this.maxCommandLength;
+    }
+    
+    public void setTruncateDecimalLength(int length) {
+        this.truncateDecimalLength = length;
+    }
+    
+    public void setSingleStepMode(boolean enabled) {
+        this.comm.setSingleStepMode(enabled);
+    }
+
+    public boolean getSingleStepMode() {
+        return this.comm.getSingleStepMode();
+    }
+    
+    public void setRemoveAllWhitespace(boolean enabled) {
+        this.removeAllWhitespace = enabled;
+    }
+
+    public boolean getRemoveAllWhitespace() {
+        return this.removeAllWhitespace;
+    }
     
     public Boolean openCommPort(String port, int portRate) throws Exception {
         if (this.commOpen) {
             throw new Exception("Comm port is already open.");
         }
-        
-        // Create and setup the new communicator.
-        //this.comm = new GrblCommunicator();
-        //this.comm.setListenAll(this);
         
         // No point in checking response, it throws an exception on errors.
         this.commOpen = this.comm.openCommPort(port, portRate);
@@ -375,11 +403,16 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                     this.commandComplete(command);
                     // For the listeners...
                     dispatchCommandSent(command);
+                } else if (processed.length() > this.maxCommandLength) {
+                    throw new Exception("Command #" + command.getCommandNumber()
+                            + " too long: (" + processed.length() + " > "
+                            + maxCommandLength + ") "+ processed);
                 } else {
                     queueCommandForComm(command);
                 }
             }
         } catch(Exception e) {
+            e.printStackTrace();
             this.isStreaming = false;
             this.streamStart = 0;
             throw e;
@@ -456,17 +489,24 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         String newCommand = command;
 
         // Remove comments from command.
-        newCommand = GrblUtils.removeComment(newCommand);
+        newCommand = GcodePreprocessorUtils.removeComment(newCommand);
 
         // Check for comment if length changed while preprocessing.
         if (command.length() != newCommand.length()) {
-            String comment = GrblUtils.parseComment(command);
-            dispatchCommandCommment(GrblUtils.parseComment(command));
+            dispatchCommandCommment(GcodePreprocessorUtils.parseComment(command));
         }
         
         // Override feed speed
         if (this.speedOverride > 0) {
-            newCommand = CommUtils.overrideSpeed(command, this.speedOverride);
+            newCommand = GcodePreprocessorUtils.overrideSpeed(newCommand, this.speedOverride);
+        }
+        
+        if (this.truncateDecimalLength > 0) {
+            newCommand = GcodePreprocessorUtils.truncateDecimals(this.truncateDecimalLength, newCommand);
+        }
+        
+        if (this.removeAllWhitespace) {
+            newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
         }
 
         // Return the post processed command.

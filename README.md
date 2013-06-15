@@ -41,6 +41,16 @@ Technical details:
 
 Changelog
 ---------
+1.0.6 -> 1.0.7 (Unreleased)
+* (BETA) TinyG support!
+* Many improvements to code architecture to allow future support for multiple firmwares (Marlin, TinyG, Smoothie, etc).
+* Added a menu bar! Now new features can be added without cluttering the GUI.
+* Additional on-the-fly gcode command modifications:
+* - truncate and round long decimals to configurable length.
+* - enforce max command length.
+* - remove whitespaces.
+* Added a single-step mode.
+
 1.0.5 -> 1.0.6
 * 3D gcode visualizer!
 * - color coded line segments

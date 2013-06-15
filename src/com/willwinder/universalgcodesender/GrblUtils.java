@@ -63,39 +63,6 @@ public class GrblUtils {
     public enum Capabilities {
         REAL_TIME, STATUS_C
     }
-    /**
-     * Removes any comments within parentheses or beginning with a semi-colon.
-     */
-    static protected String removeComment(String command) {
-        String newCommand = command;
-
-        // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
-        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", "");
-
-        // Remove any comment beginning with ';' with regex "\;[^\\(]*"
-        newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
-
-        return newCommand.trim();
-    }
-    
-    /**
-     * Searches for a comment in the input string and returns the first match.
-     */
-    static protected String parseComment(String command) {
-        String comment = "";
-
-        // REGEX: Find any comment, includes the comment characters:
-        //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
-        //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
-        
-        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*");
-        Matcher matcher = pattern.matcher(command);
-        if (matcher.find()){
-            comment = matcher.group(0);
-        }
-
-        return comment;
-    }
     
     /** 
      * Checks if the string contains the GRBL version.
