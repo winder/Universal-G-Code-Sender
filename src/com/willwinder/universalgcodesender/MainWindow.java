@@ -985,7 +985,10 @@ implements KeyListener, ControllerListener {
 
             // Register comm listeners
             this.controller.addListener(this);
-
+            if (vw != null) {
+                this.controller.addListener(vw);
+            }
+            
             Boolean ret = openCommConnection();
 
             if (ret) {
@@ -1177,7 +1180,9 @@ implements KeyListener, ControllerListener {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
             // Add listener
-            this.controller.addListener(vw);
+            if (this.controller != null) {
+                this.controller.addListener(vw);
+            }
         }
 
         // Display the form
