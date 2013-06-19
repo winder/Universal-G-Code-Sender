@@ -24,11 +24,8 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.Rectangle;
 import javax.swing.JTable;
-import javax.swing.JViewport;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 /**
@@ -56,10 +53,10 @@ public class GcodeTable extends JTable {
         // width for the boolean columns.
         setPreferredColumnWidths(new double[] {0.55, 0.2, 0.2, 0.2} );
 
-        getColumnModel().getColumn(COL_INDEX_SENT)    .setResizable(false);
-        getColumnModel().getColumn(COL_INDEX_SENT)    .setMaxWidth(50);
-        getColumnModel().getColumn(COL_INDEX_DONE)    .setResizable(false);
-        getColumnModel().getColumn(COL_INDEX_DONE)    .setMaxWidth(50);
+        getColumnModel().getColumn(COL_INDEX_SENT).setResizable(false);
+        getColumnModel().getColumn(COL_INDEX_SENT).setMaxWidth(50);
+        getColumnModel().getColumn(COL_INDEX_DONE).setResizable(false);
+        getColumnModel().getColumn(COL_INDEX_DONE).setMaxWidth(50);
     }
     
     public void setAutoWindowScroll(boolean autoWindowScroll) {
@@ -102,8 +99,8 @@ public class GcodeTable extends JTable {
             // Change cell color?
         }
         
-        getModel().setValueAt(command.isSent(), row, COL_INDEX_SENT);
-        getModel().setValueAt(command.isDone(), row, COL_INDEX_DONE);
+        getModel().setValueAt(command.isSent(),      row, COL_INDEX_SENT);
+        getModel().setValueAt(command.isDone(),      row, COL_INDEX_DONE);
         getModel().setValueAt(command.getResponse(), row, COL_INDEX_RESPONSE);
         
         scrollTable(row);
@@ -125,19 +122,16 @@ public class GcodeTable extends JTable {
      * Helper function to set preferred widths as a percentage.
      * http://stackoverflow.com/questions/1046005/jtable-column-resize-isnt-working
      */
-    private void setPreferredColumnWidths(double[] percentages)
-    {
+    private void setPreferredColumnWidths(double[] percentages) {
         Dimension tableDim = getPreferredSize();
 
         double total = 0;
 
-        for (int i = 0; i < getColumnModel().getColumnCount(); i++)
-        {
+        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
             total += percentages[i];
         }
 
-        for (int i = 0; i < getColumnModel().getColumnCount(); i++)
-        {
+        for (int i = 0; i < getColumnModel().getColumnCount(); i++) {
             TableColumn column = getColumnModel().getColumn(i);
             column.setPreferredWidth(
                  (int)(tableDim.width * (percentages[i] / total)));

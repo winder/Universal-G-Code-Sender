@@ -28,13 +28,13 @@ import javax.swing.JOptionPane;
  *
  * @author wwinder
  */
-public class GrblConnectionSettingsDialog extends javax.swing.JDialog {
+public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private boolean saveChanges;
     
     /**
      * Creates new form GrblSettingsDialog
      */
-    public GrblConnectionSettingsDialog(java.awt.Frame parent, boolean modal) {
+    public ConnectionSettingsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         
