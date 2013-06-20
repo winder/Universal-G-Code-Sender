@@ -599,7 +599,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     /**
      * Listener management.
      */
-    void addListener(ControllerListener cl) {
+    public void addListener(ControllerListener cl) {
         this.listeners.add(cl);
     }
 

@@ -7,6 +7,15 @@ package com.willwinder.universalgcodesender.uielements;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.vecmath.Point3d;
 
@@ -16,7 +25,11 @@ import javax.vecmath.Point3d;
  */
 public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements ControllerListener {
     // Controller object to fetch settings from.
-    GrblController grblController;
+    private GrblController grblController;
+    private TableCellListener tcl;
+    private int numberOfSettings = 0;
+    //private List<String> commandList;
+    private String[] commands = null;
     
     private static int COL_INDEX_SETTING     = 0;
     private static int COL_INDEX_VALUE       = 1;
@@ -34,16 +47,46 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         }
         
         this.grblController = gcl;
+        this.grblController.addListener(this);
+        
         initSettings();
+        
+        Action action = new AbstractAction()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                TableCellListener tcl = (TableCellListener)e.getSource();
+                handleSettingChange(tcl.getRow(), tcl.getColumn(), tcl.getOldValue(), tcl.getNewValue());
+            }
+        };
+
+        tcl = new TableCellListener(this.settingsTable, action);
     }
     
     private void initSettings() throws Exception {
         this.grblController.queueStringForComm("$$");
         
+        // TODO: All thats left is to add a messageForConsole handler to pick
+        //       out the settings programatically as they arive.
+        
         this.addSetting("$1", "99", "(this is the first setting)");
         this.addSetting("$2", "-3", "(more settings)");
         this.addSetting("$3", "pi", "(these will be set in 'messageForConsole')");
         this.addSetting("$4", "42", "(instead of 'initSettings')");
+        
+        // Update with number of settings received.
+        this.numberOfSettings = 4;
+    }
+    
+    /**
+     * We are interested in settings.
+     */
+    @Override
+    public void messageForConsole(String msg, Boolean verbose) {
+
+        // Increment for each setting.
+        this.numberOfSettings++;
     }
     
     private void addSetting(String setting, String value, String description) {
@@ -59,12 +102,25 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         this.settingsTable.getModel().setValueAt(description, row, COL_INDEX_DESCRIPTION);
     }
 
-    /**
-     * We are interested in settings.
-     */
-    @Override
-    public void messageForConsole(String msg, Boolean verbose) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+    private void handleSettingChange(int row, int column, Object oldValue, Object newValue) {
+                
+        // TODO: Initialize the command array the first time a column is edited.
+        if ((this.commands == null) && (this.numberOfSettings > 0)) {
+            this.commands = new String[numberOfSettings];
+        }
+        
+        // If the user somehow edited a command (thus creating the array) before
+        // all the commands were loaded this situation arises.
+        if (row > this.commands.length) {
+            String before[] = this.commands;
+            this.commands = new String[numberOfSettings];
+            System.arraycopy(before, 0, this.commands, 0, before.length);
+        }
+        
+        String setting = this.settingsTable.getModel().getValueAt(row, COL_INDEX_SETTING).toString();
+        String command = setting + "=" + newValue;
+        
+        this.commands[row] = command;
     }
         
     /**
@@ -159,13 +215,25 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         boolean initialSingleStepMode = this.grblController.getSingleStepMode();
         
-        // GRBL EEPROM settings may not be batched.
+        // Single step mode is required for commands which modify GRBL's EEPROM.
         this.grblController.setSingleStepMode(true);
         
-        // TODO: Loop through modified settings and send them.
-        // TODO: Modified settings will be stored in an array as table
-        //       modification events show up.
-        
+        try {
+            int i=0;
+            for (String command : this.commands) {
+                if (command != null) {
+                    System.out.println(command);
+                    this.grblController.queueStringForComm(command);
+                } else {
+                    System.out.println("Index " + i + " was not modified");
+                }
+                i++;
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                "Error from firmware while saving settings: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);    
+        }
         this.grblController.setSingleStepMode(initialSingleStepMode);
     }//GEN-LAST:event_saveButtonActionPerformed
 
