@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
@@ -46,6 +48,7 @@ public class GrblController extends AbstractController {
     private String grblState;
     private Point3d machineLocation;
     private Point3d workLocation;
+    private double maxZLocation;
     
     // Polling state
     private int outstandingPolls = 0;
@@ -218,9 +221,14 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getReturnToHomeCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
-                this.queueStringForComm(command);
+            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.maxZLocation);
+            if (!commands.isEmpty()) {
+                Iterator<String> iter = commands.iterator();
+                // Perform the homing commands
+                while(iter.hasNext()){
+                    String command = iter.next();
+                    this.queueStringForComm(command);
+                }
                 return;
             }
         }
@@ -358,6 +366,7 @@ public class GrblController extends AbstractController {
             this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
             this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
             this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
+            this.maxZLocation = ( this.machineLocation.z > this.maxZLocation) ? this.machineLocation.z : this.maxZLocation;
          
             this.dispatchStatusString(this.grblState, this.machineLocation, this.workLocation);
         }

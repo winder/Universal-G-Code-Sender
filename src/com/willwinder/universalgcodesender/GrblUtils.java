@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
@@ -55,7 +56,9 @@ public class GrblUtils {
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
-    public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
+    //public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
+    public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G90 G28 X0 Y0";
+    public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8C = "G90 G0 Z";
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
@@ -130,6 +133,7 @@ public class GrblUtils {
         }
         else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
             // TODO: Is G10 available in 0.8c?
+            // No it is not -> error: Unsupported statement
             return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V8;
         }
         else if (version >= 0.8) {
@@ -151,6 +155,20 @@ public class GrblUtils {
         else {
             return "";
         }
+    }
+    
+    static protected ArrayList<String> getReturnToHomeCommands(final double version, final String letter, final double maxZOffset) {
+        ArrayList<String> commands = new ArrayList<String>();    
+        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+                || version >= 0.9) {
+            commands.add(GrblUtils.GCODE_RETURN_TO_MAX_Z_LOCATION_V8C + maxZOffset);
+            commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C);
+        }
+        else if (version >= 0.8) {
+            commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8);
+        }
+        
+        return commands;
     }
     
     static protected String getKillAlarmLockCommand(final double version, final String letter) {
@@ -251,7 +269,7 @@ public class GrblUtils {
         // Search for a version.
         return GrblUtils.getPositionFromStatusString(status, REGEX);
     }
-
+    
     static protected Point3d getWorkPositionFromStatusString(final String status, final Capabilities version) {
         Point3d ret = null;
         String REGEX;
