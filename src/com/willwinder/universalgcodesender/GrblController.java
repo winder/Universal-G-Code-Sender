@@ -59,6 +59,7 @@ public class GrblController extends AbstractController {
         
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
+        this.maxZLocation = -1;
     }
     
     public GrblController() {
@@ -217,7 +218,11 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.maxZLocation);
+            double max = 4;
+            if (this.maxZLocation != -1) {
+                max = this.maxZLocation;
+            }
+            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, max);
             if (!commands.isEmpty()) {
                 Iterator<String> iter = commands.iterator();
                 // Perform the homing commands
@@ -365,12 +370,15 @@ public class GrblController extends AbstractController {
             this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
             this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
             this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
-            this.maxZLocation = ( this.machineLocation.z > this.maxZLocation) ? this.machineLocation.z : this.maxZLocation;
+            if ( this.machineLocation.z > this.maxZLocation) {
+                this.maxZLocation = this.machineLocation.z;
+            }
          
             this.dispatchStatusString(this.grblState, this.machineLocation, this.workLocation);
         }
     }
     
+    @Override
     protected void statusUpdatesEnabledValueChanged(boolean enabled) {
         if (enabled) {
             beginPollingPosition();
@@ -379,6 +387,7 @@ public class GrblController extends AbstractController {
         }
     }
     
+    @Override
     protected void statusUpdatesRateValueChanged(int rate) {
         this.stopPollingPosition();
         this.positionPollTimer = this.createPositionPollTimer();
