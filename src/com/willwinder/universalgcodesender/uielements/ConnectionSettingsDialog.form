@@ -34,22 +34,17 @@
                       <Component id="closeWithSave" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                   </Group>
-                  <Group type="102" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="maxCommandLengthSpinner" min="-2" pref="59" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="maxCommandLengthLabel" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="overrideSpeedPercentSpinner" min="-2" pref="59" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="overrideSpeedPercentLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
-                              <Component id="overrideSpeedCheckBox" min="-2" max="-2" attributes="0"/>
+                              <Component id="maxCommandLengthSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="maxCommandLengthLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="truncateDecimalDigitsSpinner" min="-2" pref="59" max="-2" attributes="0"/>
@@ -57,12 +52,25 @@
                               <Component id="truncateDecimalDigitsLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <EmptySpace min="-2" pref="43" max="-2" attributes="0"/>
+                              <Component id="statusPollRateSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="statusPollingRate" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                      </Group>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <EmptySpace min="-2" pref="38" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="removeAllWhitespaceCheckBox" min="-2" max="-2" attributes="0"/>
-                                  <Component id="singleStepModeCheckBox" min="-2" max="-2" attributes="0"/>
+                                  <Component id="sendStatusPolls" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="removeAllWhitespaceCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="singleStepModeCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="overrideSpeedCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
+                          <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
@@ -75,9 +83,9 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="overrideSpeedCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="10" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="2" attributes="0">
                   <Component id="overrideSpeedPercentLabel" alignment="2" min="-2" max="-2" attributes="0"/>
                   <Component id="overrideSpeedPercentSpinner" alignment="2" max="-2" attributes="0"/>
@@ -92,11 +100,18 @@
                   <Component id="truncateDecimalDigitsSpinner" alignment="2" max="-2" attributes="0"/>
                   <Component id="truncateDecimalDigitsLabel" alignment="2" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="singleStepModeCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Component id="removeAllWhitespaceCheckBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="18" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="sendStatusPolls" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="statusPollingRate" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="statusPollRateSpinner" alignment="2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="23" max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="closeWithSave" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="closeWithoutSave" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -159,7 +174,7 @@
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Dialog" size="18" style="0"/>
         </Property>
-        <Property name="text" type="java.lang.String" value="GRBL Connection Settings"/>
+        <Property name="text" type="java.lang.String" value="Connection Settings"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="closeWithSave">
@@ -189,6 +204,23 @@
     <Component class="javax.swing.JCheckBox" name="removeAllWhitespaceCheckBox">
       <Properties>
         <Property name="text" type="java.lang.String" value="Remove all whitespace in commands"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="sendStatusPolls">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Enable status polling"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="statusPollingRate">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Status poll rate (ms)"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="statusPollRateSpinner">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="100" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

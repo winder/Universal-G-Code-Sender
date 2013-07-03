@@ -50,7 +50,6 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private int pollingRate = 200;
     
     protected GrblController(GrblCommunicator comm) {
         super(comm);
@@ -106,10 +105,7 @@ public class GrblController extends AbstractController {
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
             this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
-            if (this.positionMode != null) {
-                // Start sending '?' commands.
-                this.beginPollingPosition();
-            }
+            this.beginPollingPosition();
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                     "Grbl version = {0}{1}", new Object[]{this.grblVersion, this.grblVersionLetter});
@@ -331,15 +327,18 @@ public class GrblController extends AbstractController {
             }
         };
         
-        return new Timer(pollingRate, actionListener);
+        return new Timer(this.getStatusUpdateRate(), actionListener);
     }
     /**
      * Begin issuing GRBL status request commands.
      */
     private void beginPollingPosition() {
-        if (this.positionPollTimer.isRunning() == false) {
-            this.outstandingPolls = 0;
-            this.positionPollTimer.start();
+        // Start sending '?' commands if supported and enabled.
+        if (this.positionMode != null && this.getStatusUpdatesEnabled()) {
+            if (this.positionPollTimer.isRunning() == false) {
+                this.outstandingPolls = 0;
+                this.positionPollTimer.start();
+            }
         }
     }
 
@@ -361,6 +360,22 @@ public class GrblController extends AbstractController {
          
             this.dispatchStatusString(this.grblState, this.machineLocation, this.workLocation);
         }
+    }
+    
+    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+        if (enabled) {
+            beginPollingPosition();
+        } else {
+            stopPollingPosition();
+        }
+    }
+    
+    protected void statusUpdatesRateValueChanged(int rate) {
+        this.stopPollingPosition();
+        this.positionPollTimer = this.createPositionPollTimer();
+        
+        // This will start the timer up again if it is supported and enabled.
+        this.beginPollingPosition();
     }
 }
     

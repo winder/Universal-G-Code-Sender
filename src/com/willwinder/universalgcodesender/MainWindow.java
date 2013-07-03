@@ -217,7 +217,7 @@ implements KeyListener, ControllerListener {
                     .add(commandTextField)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 283, Short.MAX_VALUE)))
+                        .add(0, 328, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -227,7 +227,7 @@ implements KeyListener, ControllerListener {
                 .add(commandLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(178, Short.MAX_VALUE))
+                .addContainerGap(150, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Commands", jPanel1);
@@ -388,7 +388,7 @@ implements KeyListener, ControllerListener {
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(durationValueLabel)
                     .add(durationLabel))
-                .addContainerGap(54, Short.MAX_VALUE))
+                .addContainerGap(9, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -479,7 +479,7 @@ implements KeyListener, ControllerListener {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -597,7 +597,7 @@ implements KeyListener, ControllerListener {
                         .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 9, Short.MAX_VALUE)
                 .add(jPanel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -622,7 +622,7 @@ implements KeyListener, ControllerListener {
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(helpButtonMachineControl)
                             .add(requestStateInformation))))
-                .addContainerGap(59, Short.MAX_VALUE))
+                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Machine Control", jPanel4);
@@ -709,7 +709,7 @@ implements KeyListener, ControllerListener {
                 .add(jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -848,7 +848,7 @@ implements KeyListener, ControllerListener {
                         .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(22, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jMenu1.setText("Settings");
@@ -999,7 +999,9 @@ implements KeyListener, ControllerListener {
             this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
             this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
             this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
-
+            this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
+            this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+            
             // Register comm listeners
             this.controller.addListener(this);
             if (vw != null) {
@@ -1139,7 +1141,8 @@ implements KeyListener, ControllerListener {
         gcsd.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
         gcsd.setSingleStepModeEnabled(SettingsFactory.getSingleStepMode());
         gcsd.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
-        
+        gcsd.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
+        gcsd.setStatusUpdatesRate(SettingsFactory.getStatusUpdateRate());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1149,6 +1152,8 @@ implements KeyListener, ControllerListener {
             SettingsFactory.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
             SettingsFactory.setSingleStepMode(gcsd.getSingleStepModeEnabled());
             SettingsFactory.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
+            SettingsFactory.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
+            SettingsFactory.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
             
             if (this.controller != null) {
                 if (gcsd.getSpeedOverrideEnabled()) {
@@ -1161,6 +1166,8 @@ implements KeyListener, ControllerListener {
                 this.controller.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
                 this.controller.setSingleStepMode(gcsd.getSingleStepModeEnabled());
                 this.controller.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
+                this.controller.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
+                this.controller.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
             }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
