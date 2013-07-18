@@ -29,48 +29,6 @@ import org.junit.Test;
  */
 public class GrblUtilsTest {
     /**
-     * Test of removeComment method, of class GrblUtils.
-     */
-    @Test
-    public void testRemoveComment() {
-        System.out.println("removeComment");
-        String command;
-        String expResult;
-        String result;
-
-        command   = "some command ;comment";
-        expResult = "some command";
-        result = GrblUtils.removeComment(command);
-        assertEquals(expResult, result);
-
-        command   = "some (comment here) command ;comment";
-        expResult = "some  command";
-        result = GrblUtils.removeComment(command);
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of parseComment method, of class GrblUtils.
-     */
-    @Test
-    public void testParseComment() {
-        System.out.println("parseComment");
-        String command;
-        String expResult;
-        String result;
-        
-        command   = "some command ;comment";
-        expResult = "comment";
-        result = GrblUtils.parseComment(command);
-        assertEquals(expResult, result);
-        
-        command   = "some (comment here) command ;comment";
-        expResult = "comment here";
-        result = GrblUtils.parseComment(command);
-        assertEquals(expResult, result);
-    }
-
-    /**
      * Test of isGrblVersionString method, of class GrblUtils.
      */
     @Test

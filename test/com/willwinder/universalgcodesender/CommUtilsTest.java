@@ -102,27 +102,4 @@ public class CommUtilsTest {
         int result = CommUtils.getSizeOfBuffer(list);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of overrideSpeed method, of class CommUtils.
-     */
-    @Test
-    public void testOverrideSpeed() {
-        System.out.println("overrideSpeed");
-        String command;
-        double speed;
-        String expResult;
-        String result;
-
-        
-        command = "some command F100 blah blah blah";
-        speed = 22.5;
-        expResult = "some command F22.5 blah blah blah";
-        result = CommUtils.overrideSpeed(command, speed);
-        assertEquals(expResult, result);
-        
-        command = "some command F100.0 blah blah blah";
-        result = CommUtils.overrideSpeed(command, speed);
-        assertEquals(expResult, result);
-    }
 }

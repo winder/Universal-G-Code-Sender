@@ -92,7 +92,9 @@ public class GcodePreprocessorUtils {
         StringBuilder df = new StringBuilder();
         
         // Build up the decimal formatter.
-        df.append("#.");
+        df.append("#");
+        
+        if (length != 0) { df.append("."); }
         for (int i=0; i < length; i++) {
             df.append('#');
         }
@@ -122,6 +124,6 @@ public class GcodePreprocessorUtils {
     }
     
     static protected String removeAllWhitespace(String command) {
-        return command.replaceAll(" ", "");
+        return command.replaceAll("\\s","");
     }
 }
