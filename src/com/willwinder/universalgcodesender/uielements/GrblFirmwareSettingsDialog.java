@@ -1,6 +1,23 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * GRBL Firmware Settings. Dynamically load and save all GRBL settings.
+ */
+/*
+    Copywrite 2013 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender.uielements;
 
@@ -8,10 +25,8 @@ import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JFrame;
@@ -29,11 +44,28 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private TableCellListener tcl;
     private int numberOfSettings = 0;
     //private List<String> commandList;
+    private boolean loadingSettings;
+    
     private String[] commands = null;
     
     private static int COL_INDEX_SETTING     = 0;
     private static int COL_INDEX_VALUE       = 1;
     private static int COL_INDEX_DESCRIPTION = 2;
+    
+    
+    private static String settingNumRegex = "\\$(\\d*)";
+    private static String settingValueRegex = "\\=(\\d*\\.?\\d*)";
+    private static String commentRegex = "\\(.*\\)";
+    
+    private Pattern settingNumPattern;
+    private Pattern settingValuePattern;
+    private Pattern commentPattern;
+
+    // These guys are used to save initial settings and determine when they can
+    // be restored.
+    boolean initialSingleStepMode;
+    boolean statusUpdatesEnabled;
+    boolean savingSettings;
     
     /**
      * Creates new form GrblFirmwareSettingsDialog
@@ -48,11 +80,16 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         
         this.grblController = gcl;
         this.grblController.addListener(this);
+        this.loadingSettings = false;
+        
+        // Compile regular expressions.
+        this.settingNumPattern   = Pattern.compile(settingNumRegex);
+        this.settingValuePattern = Pattern.compile(settingValueRegex);
+        this.commentPattern      = Pattern.compile(commentRegex);
         
         initSettings();
         
-        Action action = new AbstractAction()
-        {
+        Action action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e)
             {
@@ -65,18 +102,24 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }
     
     private void initSettings() throws Exception {
+        this.loadingSettings = true;
         this.grblController.queueStringForComm("$$");
-        
-        // TODO: All thats left is to add a messageForConsole handler to pick
-        //       out the settings programatically as they arive.
-        
-        this.addSetting("$1", "99", "(this is the first setting)");
-        this.addSetting("$2", "-3", "(more settings)");
-        this.addSetting("$3", "pi", "(these will be set in 'messageForConsole')");
-        this.addSetting("$4", "42", "(instead of 'initSettings')");
-        
-        // Update with number of settings received.
-        this.numberOfSettings = 4;
+    }
+    
+    private void checkDoneSavingSettings() {
+                
+        if (this.savingSettings) {
+            // If the controller is done sending (we just received the final OK)
+            // then reset the original user settings.
+            if (this.grblController.rowsRemaining() == 0) {
+                // Reset controller to previous settings.
+                //These should not be re-enabled until all ok arrive
+                this.grblController.setSingleStepMode(initialSingleStepMode);
+                this.grblController.setStatusUpdatesEnabled(statusUpdatesEnabled);
+                this.savingSettings = false;
+            }
+        }
+
     }
     
     /**
@@ -84,9 +127,54 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
      */
     @Override
     public void messageForConsole(String msg, Boolean verbose) {
-
-        // Increment for each setting.
-        this.numberOfSettings++;
+        // Initially we are in load-settings mode, looking for results to "$$".
+        if (this.loadingSettings) {
+            if ("ok".equals(msg)) {
+                this.loadingSettings = false;
+            } else if (this.isSettingString(msg)) {
+                this.addSetting(msg);
+                // Increment for each setting.
+                this.numberOfSettings++;
+            }
+        }
+        
+        // Later we can be in save-settings mode.
+        if (this.savingSettings) {
+            this.checkDoneSavingSettings();
+        }
+    }
+    
+    private boolean isSettingString(String msg) {
+        if (msg.startsWith("$$")) {
+            return false;
+        }
+        else if (msg.startsWith("$")) {
+            return true;
+        }
+        return false;
+    }
+    
+    private void addSetting(String msg) {
+        String setting;
+        String value;
+        String comment;
+        
+        Matcher matcher = this.settingNumPattern.matcher(msg);
+        if (matcher.find()) {
+            setting = matcher.group();
+        } else { return; }
+        
+        matcher = this.settingValuePattern.matcher(msg);
+        if (matcher.find()) {
+            value = matcher.group(1);
+        } else { return; }
+        
+        matcher = this.commentPattern.matcher(msg);
+        if (matcher.find()) {
+            comment = matcher.group();
+        } else { return; }
+        
+        addSetting(setting, value, comment);
     }
     
     private void addSetting(String setting, String value, String description) {
@@ -209,80 +297,57 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }// </editor-fold>//GEN-END:initComponents
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-        this.setVisible(false);
+        if (this.savingSettings) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                "Cannot close dialog until settings have finished being saved."
+                + "\nIf we got here by mistake open a bug report on github.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            this.setVisible(false);
+        }
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        boolean initialSingleStepMode = this.grblController.getSingleStepMode();
+        // Cannot update firmware if the controller is busy.
+        if (this.grblController.rowsRemaining() != 0) {
+            JOptionPane.showMessageDialog(new JFrame(),
+                "Cannot update firmware while it is busy, there are " +
+                this.grblController.rowsRemaining() + "active commands.",
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        initialSingleStepMode = this.grblController.getSingleStepMode();
+        statusUpdatesEnabled = this.grblController.getStatusUpdatesEnabled();
         
         // Single step mode is required for commands which modify GRBL's EEPROM.
         this.grblController.setSingleStepMode(true);
-        
-        try {
-            int i=0;
-            for (String command : this.commands) {
+        this.grblController.setStatusUpdatesEnabled(false);
+        this.savingSettings = true;
+
+        // Search command array for commands and send them.
+        try {            
+            String command;
+            for (int i=0; i < this.commands.length; i++) {
+                command = this.commands[i];
                 if (command != null) {
                     System.out.println(command);
+                    // If GRBL is feeling especially quick, we may need to keep
+                    // setting these guys.
+                    this.grblController.setSingleStepMode(true);
+                    this.grblController.setStatusUpdatesEnabled(false);
+
                     this.grblController.queueStringForComm(command);
-                } else {
-                    System.out.println("Index " + i + " was not modified");
+                    this.commands[i] = null;
                 }
-                i++;
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(new JFrame(),
                 "Error from firmware while saving settings: " + ex.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);    
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
-        this.grblController.setSingleStepMode(initialSingleStepMode);
     }//GEN-LAST:event_saveButtonActionPerformed
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GrblFirmwareSettingsDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GrblFirmwareSettingsDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GrblFirmwareSettingsDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GrblFirmwareSettingsDialog.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                GrblFirmwareSettingsDialog dialog = new GrblFirmwareSettingsDialog(new javax.swing.JFrame(), true, null);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-                } catch (Exception ex) {
-                    System.out.println("Caught exception: " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-            }
-        });
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeButton;
     private javax.swing.JButton saveButton;
@@ -294,7 +359,11 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     public void fileStreamComplete(String filename, boolean success) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
-
+    
+    @Override
+    public void commandComplete(GcodeCommand command) {
+    }
+    
     @Override
     public void commandQueued(GcodeCommand command) {
         //throw new UnsupportedOperationException("Not supported yet.");
@@ -302,11 +371,6 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
 
     @Override
     public void commandSent(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 

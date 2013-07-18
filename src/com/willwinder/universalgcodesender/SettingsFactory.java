@@ -50,6 +50,8 @@ class SettingsFactory {
     private static int maxCommandLength;
     private static int truncateDecimalLength;
     private static boolean removeAllWhitespace;
+    private static boolean statusUpdatesEnabled;
+    private static int statusUpdateRate;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -88,6 +90,8 @@ class SettingsFactory {
                 SettingsFactory.maxCommandLength = Integer.valueOf(settings.getProperty("maxCommandLength", "50"));
                 SettingsFactory.truncateDecimalLength = Integer.valueOf(settings.getProperty("truncateDecimalLength", "4"));
                 SettingsFactory.removeAllWhitespace = Boolean.valueOf(settings.getProperty("removeAllWhitespace", "true"));
+                SettingsFactory.statusUpdatesEnabled = Boolean.valueOf(settings.getProperty("statusUpdatesEnabled", "true"));
+                SettingsFactory.statusUpdateRate = Integer.valueOf(settings.getProperty("statusUpdateRate", "200"));
 
             } catch (Exception e) {
                 logger.warning("Can't load settings file!");
@@ -120,6 +124,8 @@ class SettingsFactory {
                 settings.put("maxCommandLength", maxCommandLength+"");
                 settings.put("truncateDecimalLength", truncateDecimalLength+"");
                 settings.put("removeAllWhitespace", removeAllWhitespace+"");
+                settings.put("statusUpdatesEnabled", statusUpdatesEnabled+"");
+                settings.put("statusUpdateRate", statusUpdateRate+"");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -149,6 +155,8 @@ class SettingsFactory {
         SettingsFactory.maxCommandLength = 50;
         SettingsFactory.truncateDecimalLength = 4;
         SettingsFactory.removeAllWhitespace = true;
+        SettingsFactory.statusUpdatesEnabled = true;
+        SettingsFactory.statusUpdateRate = 200;
     }
 
     public static void setLastPath(String fileName) {
@@ -261,5 +269,21 @@ class SettingsFactory {
     
     public static boolean getRemoveAllWhitespace() {
         return removeAllWhitespace;
+    }
+    
+    public static void setStatusUpdatesEnabled(boolean enabled) {
+        statusUpdatesEnabled = enabled;         
+    }
+    
+    public static boolean getStatusUpdatesEnabled() {
+        return statusUpdatesEnabled;
+    }
+    
+    public static void setStatusUpdateRate(int rate) {
+        statusUpdateRate = rate;
+    }
+    
+    public static int getStatusUpdateRate() {
+        return statusUpdateRate;
     }
 }

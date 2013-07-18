@@ -76,6 +76,14 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         return this.removeAllWhitespaceCheckBox.isSelected();
     }
     
+    public boolean getStatusUpdatesEnabled() {
+        return this.sendStatusPolls.isSelected();
+    }
+    
+    public int getStatusUpdatesRate() {
+        return Integer.parseInt(this.statusPollRateSpinner.getValue().toString());
+    }
+    
     /**
      * Setters for all the values.
      */
@@ -103,6 +111,14 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.removeAllWhitespaceCheckBox.setSelected(enabled);
     }
     
+    public void setStatusUpdatesEnabled(boolean enabled) {
+        this.sendStatusPolls.setSelected(enabled);
+    }
+    
+    public void setStatusUpdatesRate(int milliseconds) {
+        this.statusPollRateSpinner.setValue(milliseconds);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -125,6 +141,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         closeWithoutSave = new javax.swing.JButton();
         helpButton = new javax.swing.JButton();
         removeAllWhitespaceCheckBox = new javax.swing.JCheckBox();
+        sendStatusPolls = new javax.swing.JCheckBox();
+        statusPollingRate = new javax.swing.JLabel();
+        statusPollRateSpinner = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -145,7 +164,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         singleStepModeCheckBox.setText("Enable single step mode");
 
         titleLabel.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-        titleLabel.setText("GRBL Connection Settings");
+        titleLabel.setText("Connection Settings");
 
         closeWithSave.setText("Save and close");
         closeWithSave.addActionListener(new java.awt.event.ActionListener() {
@@ -170,6 +189,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         removeAllWhitespaceCheckBox.setText("Remove all whitespace in commands");
 
+        sendStatusPolls.setText("Enable status polling");
+
+        statusPollingRate.setText("Status poll rate (ms)");
+
+        statusPollRateSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -188,26 +213,32 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(maxCommandLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(maxCommandLengthLabel))
-                            .addComponent(titleLabel)
-                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(overrideSpeedPercentSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(overrideSpeedPercentLabel))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(41, 41, 41)
-                                .addComponent(overrideSpeedCheckBox))
+                                .addComponent(maxCommandLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(maxCommandLengthLabel))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(truncateDecimalDigitsSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(truncateDecimalDigitsLabel))
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(43, 43, 43)
+                                .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(statusPollingRate)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(38, 38, 38)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(sendStatusPolls)
                                     .addComponent(removeAllWhitespaceCheckBox)
-                                    .addComponent(singleStepModeCheckBox))))
+                                    .addComponent(singleStepModeCheckBox)
+                                    .addComponent(overrideSpeedCheckBox)))
+                            .addComponent(titleLabel))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -215,9 +246,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(titleLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(overrideSpeedCheckBox)
-                .addGap(10, 10, 10)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(overrideSpeedPercentLabel)
                     .addComponent(overrideSpeedPercentSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -229,11 +260,17 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(truncateDecimalDigitsSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(truncateDecimalDigitsLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(singleStepModeCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(removeAllWhitespaceCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(sendStatusPolls)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(statusPollingRate)
+                    .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -261,7 +298,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 "\n\nMax command length: Maximum length of a command before an error is triggered." +
                 "\n\nTruncate decimal digits: Number of fractional digits that will be sent to firmware." +
                 "\n\nEnable single step mode: Turns on single step mode, this is very slow." +
-                "\n\nRemove all whitespace: Removes the usually unnecessary whitespace in gcode commands.";
+                "\n\nRemove all whitespace: Removes the usually unnecessary whitespace in gcode commands." +
+                "\n\nEnable status updates: Turns on status polling for firmware if supported." +
+                "\n\nStatus update rate: The rate in milliseconds that status requests are sent at.";
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 
@@ -279,7 +318,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JLabel overrideSpeedPercentLabel;
     private javax.swing.JSpinner overrideSpeedPercentSpinner;
     private javax.swing.JCheckBox removeAllWhitespaceCheckBox;
+    private javax.swing.JCheckBox sendStatusPolls;
     private javax.swing.JCheckBox singleStepModeCheckBox;
+    private javax.swing.JSpinner statusPollRateSpinner;
+    private javax.swing.JLabel statusPollingRate;
     private javax.swing.JLabel titleLabel;
     private javax.swing.JLabel truncateDecimalDigitsLabel;
     private javax.swing.JSpinner truncateDecimalDigitsSpinner;

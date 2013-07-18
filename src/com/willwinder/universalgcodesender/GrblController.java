@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
@@ -46,17 +48,18 @@ public class GrblController extends AbstractController {
     private String grblState;
     private Point3d machineLocation;
     private Point3d workLocation;
+    private double maxZLocation;
     
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private int pollingRate = 200;
     
     protected GrblController(GrblCommunicator comm) {
         super(comm);
         
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
+        this.maxZLocation = -1;
     }
     
     public GrblController() {
@@ -106,10 +109,7 @@ public class GrblController extends AbstractController {
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
             this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
-            if (this.positionMode != null) {
-                // Start sending '?' commands.
-                this.beginPollingPosition();
-            }
+            this.beginPollingPosition();
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                     "Grbl version = {0}{1}", new Object[]{this.grblVersion, this.grblVersionLetter});
@@ -218,9 +218,18 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getReturnToHomeCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
-                this.queueStringForComm(command);
+            double max = 4;
+            if (this.maxZLocation != -1) {
+                max = this.maxZLocation;
+            }
+            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, max);
+            if (!commands.isEmpty()) {
+                Iterator<String> iter = commands.iterator();
+                // Perform the homing commands
+                while(iter.hasNext()){
+                    String command = iter.next();
+                    this.queueStringForComm(command);
+                }
                 return;
             }
         }
@@ -331,15 +340,18 @@ public class GrblController extends AbstractController {
             }
         };
         
-        return new Timer(pollingRate, actionListener);
+        return new Timer(this.getStatusUpdateRate(), actionListener);
     }
     /**
      * Begin issuing GRBL status request commands.
      */
     private void beginPollingPosition() {
-        if (this.positionPollTimer.isRunning() == false) {
-            this.outstandingPolls = 0;
-            this.positionPollTimer.start();
+        // Start sending '?' commands if supported and enabled.
+        if (this.positionMode != null && this.getStatusUpdatesEnabled()) {
+            if (this.positionPollTimer.isRunning() == false) {
+                this.outstandingPolls = 0;
+                this.positionPollTimer.start();
+            }
         }
     }
 
@@ -358,9 +370,30 @@ public class GrblController extends AbstractController {
             this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
             this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
             this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
+            if ( this.machineLocation.z > this.maxZLocation) {
+                this.maxZLocation = this.machineLocation.z;
+            }
          
             this.dispatchStatusString(this.grblState, this.machineLocation, this.workLocation);
         }
+    }
+    
+    @Override
+    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+        if (enabled) {
+            beginPollingPosition();
+        } else {
+            stopPollingPosition();
+        }
+    }
+    
+    @Override
+    protected void statusUpdatesRateValueChanged(int rate) {
+        this.stopPollingPosition();
+        this.positionPollTimer = this.createPositionPollTimer();
+        
+        // This will start the timer up again if it is supported and enabled.
+        this.beginPollingPosition();
     }
 }
     

@@ -120,6 +120,19 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
         return (this.activeStringList.size() > 0);
     }
     
+    // Helper for determining if commands should be throttled.
+    private boolean allowMoreCommands() {
+        System.out.println("Single step mode = " + this.singleStepModeEnabled);
+        if (this.singleStepModeEnabled) {
+            if (this.areActiveCommands()) {
+                System.out.println("Allow more commands = false");
+                return false;
+            }
+        }
+        System.out.println("Allow more commands = true");
+        return true;
+    }
+    
     /**
      * Streams anything in the command buffer to the comm port.
      */
@@ -140,8 +153,7 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
         // AND We are NOT in single step mode.
         // OR  We are in single command mode and there are no active commands.
         while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())
-                && (!this.singleStepModeEnabled
-                    || (this.singleStepModeEnabled && !areActiveCommands()))){
+                && allowMoreCommands()) {
             String commandString = this.commandBuffer.pop();
             this.activeStringList.add(commandString);
             this.sentBufferSize += commandString.length();
@@ -153,6 +165,8 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
             command.setSent(true);
             dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
         }
+        
+        System.out.println("Number active commands: " + this.activeStringList.size());
     }
     
     @Override

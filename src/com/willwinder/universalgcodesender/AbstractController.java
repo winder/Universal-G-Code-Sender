@@ -105,6 +105,12 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      */
     abstract public void issueSoftReset() throws Exception;
     
+    /**
+     * Listener event for status update values;
+     */
+    abstract protected void statusUpdatesEnabledValueChanged(boolean enabled);
+    abstract protected void statusUpdatesRateValueChanged(int rate);
+    
     // These abstract objects are initialized in concrete class.
     protected AbstractCommunicator comm;
     protected GcodeCommandCreator commandCreator;
@@ -115,6 +121,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     private int truncateDecimalLength = 40;
     private boolean singleStepMode = false;
     private boolean removeAllWhitespace = true;
+    private boolean statusUpdatesEnabled = true;
+    private int statusUpdateRate = 200;
     
     // State
     private Boolean commOpen = false;
@@ -202,6 +210,28 @@ public abstract class AbstractController implements SerialCommunicatorListener {
 
     public boolean getRemoveAllWhitespace() {
         return this.removeAllWhitespace;
+    }
+    
+    public void setStatusUpdatesEnabled(boolean enabled) {
+        if (this.statusUpdatesEnabled != enabled) {
+            this.statusUpdatesEnabled = enabled;
+            statusUpdatesEnabledValueChanged(enabled);
+        }
+    }
+    
+    public boolean getStatusUpdatesEnabled() {
+        return this.statusUpdatesEnabled;
+    }
+    
+    public void setStatusUpdateRate(int rate) {
+        if (this.statusUpdateRate != rate) {
+            this.statusUpdateRate = rate;
+            statusUpdatesRateValueChanged(rate);
+        }
+    }
+    
+    public int getStatusUpdateRate() {
+        return this.statusUpdateRate;
     }
     
     public Boolean openCommPort(String port, int portRate) throws Exception {
