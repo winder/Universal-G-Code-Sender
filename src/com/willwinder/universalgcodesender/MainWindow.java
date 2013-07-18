@@ -996,11 +996,19 @@ implements KeyListener, ControllerListener {
                 double value = SettingsFactory.getOverrideSpeedValue();
                 this.controller.setSpeedOverride(value);
             }
-            this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
-            this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
-            this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
-            this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
-            this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+            
+            try {
+                this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
+                this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
+                this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
+                this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
+                this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+            } catch (Exception ex) {
+                this.displayErrorDialog("There was a problem setting one or more of these controller features: "
+                        + "\nmax command length, truncate decimal length, single step mode,"
+                        + "\nstatus updates enabled, status update rate."
+                        + "\nFailed with exception: " + ex.getMessage());
+            }
             
             // Register comm listeners
             this.controller.addListener(this);

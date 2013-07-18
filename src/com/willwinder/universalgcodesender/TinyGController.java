@@ -44,12 +44,12 @@ public class TinyGController extends AbstractController {
     
     @Override
     protected void closeCommBeforeEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     protected void closeCommAfterEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
