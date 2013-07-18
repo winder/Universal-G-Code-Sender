@@ -132,4 +132,14 @@ public class TinyGController extends AbstractController {
     protected void isReadyToStreamFileEvent() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected void statusUpdatesRateValueChanged(int rate) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
