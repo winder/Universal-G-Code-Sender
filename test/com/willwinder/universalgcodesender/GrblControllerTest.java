@@ -285,9 +285,9 @@ public class GrblControllerTest {
         assertEquals(expResult, result);
         assertEquals(1, mgc.numQueueStringForCommCalls);
         assertEquals(1, mgc.numStreamCommandsCalls);
-        
+    
         // Wrap up streaming and make sure isStreaming switches back.
-        GcodeCommand command = new GcodeCommand("G0 X1");
+        GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
         try {
@@ -318,7 +318,7 @@ public class GrblControllerTest {
         assertEquals(expResult, result);
 
         // Test 2.
-        // Result when stream has begin but not completed.
+        // Result when stream has begun but not completed.
         instance.appendGcodeCommand("G0 X1");
         try {
             instance.openCommPort("blah", 123);
@@ -348,7 +348,7 @@ public class GrblControllerTest {
 
         // Test 3.
         // Wrap up the send and check the duration.
-        GcodeCommand command = new GcodeCommand("G0 X1");
+        GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
         try {
@@ -455,7 +455,7 @@ public class GrblControllerTest {
         // Complete 15 of them.
         try {
             for (int i=0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
+                GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
                 command.setSent(true);
                 command.setResponse("ok");
                 instance.commandComplete(command);
@@ -543,11 +543,14 @@ public class GrblControllerTest {
         
         // Test 4. Can't send during active command.
         instance.queueStringForComm("blah");
+        boolean exceptionFired = false;
         try {
             instance.isReadyToStreamFile();
         } catch (Exception e) {
+            exceptionFired = true;
             assertEquals("Cannot stream while there are active commands (controller).", e.getMessage());
         }
+        assertTrue(exceptionFired);
     }
 
     /**
@@ -606,7 +609,7 @@ public class GrblControllerTest {
         assertEquals(1, mgc.numQueueStringForCommCalls);
         assertEquals(true, check);
         // Wrap up test 2.
-        GcodeCommand command = new GcodeCommand("G0 X1");
+        GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
         instance.commandSent(command);
@@ -614,7 +617,7 @@ public class GrblControllerTest {
         
         // Test 3. Stream some commands and make sure they get sent.
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.appendGcodeCommand("G0X" + i);
         }
         try {
             instance.beginStreaming();
@@ -625,7 +628,7 @@ public class GrblControllerTest {
         assertEquals(31, mgc.numQueueStringForCommCalls);
         // Wrap up test 3.
         for (int i=0; i < 30; i++) {
-            command.setCommand("G0 X" + i);
+            command.setCommand("G0X" + i);
             instance.commandSent(command);
             instance.commandComplete(command);
         }
@@ -637,14 +640,13 @@ public class GrblControllerTest {
             // Start the stream.
             instance.beginStreaming();
         } catch (Exception ex) {
-            System.out.println("Remaining rows: " + instance.rowsRemaining());
             ex.printStackTrace();
             fail("Unexpected exception in GrblController: " + ex.getMessage());
         }
         assertEquals(32, mgc.numQueueStringForCommCalls);
-        assertEquals("G0 X1 Y1 Z1 F1000.0", mgc.queuedString.trim());
+        assertEquals("G0X1Y1Z1F1000.0", mgc.queuedString.trim());
         // Wrap up test 4.
-        command.setCommand("G0 X1 Y1 Z1 F1000.0");
+        command.setCommand("G0X1Y1Z1F1000.0");
         instance.commandSent(command);
         instance.commandComplete(command);
 
@@ -719,7 +721,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
         instance.rawResponseListener("Grbl 0.7");
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.appendGcodeCommand("G0X" + i);
         }
         try {
             instance.openCommPort("blah", 123);

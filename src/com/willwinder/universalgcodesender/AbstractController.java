@@ -583,7 +583,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             }
         } else {
             Logger.getLogger(GrblController.class.getName()).log(Level.WARNING, 
-                    "Detected skipped command during command complete.");
+                    "Detected skipped command during command complete: '"
+                    + command.toString() + "'");
 
             if (this.isStreamingFile()) {
                 this.numCommandsSkipped++;

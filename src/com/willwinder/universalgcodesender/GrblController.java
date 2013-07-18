@@ -370,7 +370,8 @@ public class GrblController extends AbstractController {
             this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
             this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
             this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
-            if ( this.machineLocation.z > this.maxZLocation) {
+            if ( (this.machineLocation != null) && 
+                    (this.machineLocation.z > this.maxZLocation)) {
                 this.maxZLocation = this.machineLocation.z;
             }
          
