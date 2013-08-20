@@ -47,6 +47,14 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     abstract protected void closeCommAfterEvent();
     
     /**
+     * Called after comm opening allowing device specific behavior.
+     * @throws IOException 
+     */
+    protected void openCommAfterEvent() throws IOException {
+    	// Empty default implementation. 
+    }
+    
+    /**
      * Called before and after a send cancel allowing device specific behavior.
      */
     abstract protected void cancelSendBeforeEvent();
@@ -246,6 +254,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             this.messageForConsole(
                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
+        
+        this.openCommAfterEvent();
         
         return this.commOpen;
     }
