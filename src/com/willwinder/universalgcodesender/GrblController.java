@@ -158,6 +158,11 @@ public class GrblController extends AbstractController {
     }
     
     @Override
+    protected void openCommAfterEvent() throws IOException {
+        this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
+    }
+
+    @Override
     protected void isReadyToStreamFileEvent() throws Exception {
         if (this.isReady == false) {
             throw new Exception("Grbl has not finished booting.");
