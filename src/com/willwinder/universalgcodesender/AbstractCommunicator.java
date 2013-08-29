@@ -38,6 +38,7 @@ import java.util.TooManyListenersException;
 public abstract class AbstractCommunicator{
     public static String DEFAULT_TERMINATOR = "\r\n";
     private String lineTerminator;
+    protected Connection conn;
 
     // Callback interfaces
     ArrayList<SerialCommunicatorListener> commandSentListeners;
@@ -45,6 +46,7 @@ public abstract class AbstractCommunicator{
     ArrayList<SerialCommunicatorListener> commConsoleListeners;
     ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     ArrayList<SerialCommunicatorListener> commRawResponseListener;
+    private final ArrayList<Connection>   connections;
 
     public AbstractCommunicator() {
         this.lineTerminator = DEFAULT_TERMINATOR;
@@ -54,17 +56,43 @@ public abstract class AbstractCommunicator{
         this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
         this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
         this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
+
+        //instanciate all known connection drivers
+        this.connections = new ArrayList<Connection>();
+        this.connections.add(new SerialConnection());
     }
     
     /* ****************** */
     /** Serial Layer API. */
     /* ****************** */
     
-    abstract public boolean openCommPort(String name, int baud) throws 
-            NoSuchPortException,               PortInUseException, 
-            UnsupportedCommOperationException, IOException, 
-            TooManyListenersException,         Exception;
-    abstract public void closeCommPort();
+    //do common operations (related to the connection, that is shared by all communicators)
+    protected boolean openCommPort(String name, int baud) throws Exception {
+        Connection conn = null;
+        //choose port
+        for(Connection candidate: connections) {
+            if(candidate.equals(name)) {
+                conn = candidate;
+                break;
+            }
+        }
+        
+        if(conn==null) {
+            throw new Exception("No driver for port: "+name);
+        }
+        //open it
+        conn.openPort(name, baud);
+        //inject link
+        conn.setCommunicator(this);
+        return true;
+    }
+
+
+    //do common things (related to the connection, that is shared by all communicators)
+    protected void closeCommPort() {
+        conn.closePort();
+    }
+    
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);

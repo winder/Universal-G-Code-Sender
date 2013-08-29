@@ -63,7 +63,7 @@ public class GrblController extends AbstractController {
     }
     
     public GrblController() {
-        this(new GrblCommunicator(new SerialConnection()));
+        this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
     
     /***********************

@@ -177,8 +177,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.listeners = new ArrayList<ControllerListener>();
     }
     
-    public AbstractController() {
-        this(new GrblCommunicator(new SerialConnection()));
+    @Deprecated public AbstractController() {
+        this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
     
     /**

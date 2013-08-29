@@ -36,7 +36,6 @@ import java.util.TooManyListenersException;
  * @author wwinder
  */
 public class GrblCommunicator extends AbstractCommunicator {// extends AbstractSerialCommunicator {
-    Connection conn;
     
     // Command streaming variables
     private Boolean sendPaused = false;
@@ -46,10 +45,8 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     
     private Boolean singleStepModeEnabled = false;
     
-    public GrblCommunicator(Connection c) {
+    public GrblCommunicator() {
         this.setLineTerminator("\r\n");
-        this.conn = c;
-        this.conn.setCommunicator(this);
     }
     
     /**
@@ -59,12 +56,10 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     protected GrblCommunicator(
             LinkedList<String> cb, LinkedList<String> asl, Connection c) {
         // Base constructor.
-        this(c);
+        this();
+        //TODO-f4grx-DONE: Mock connection
+        this.conn = c;
         
-        
-        //TODO: Mock connection
-        //this.in = in;
-        //this.out = out;
         this.commandBuffer = cb;
         this.activeStringList = asl;
     }
@@ -218,21 +213,20 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
 
     @Override
     public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
-        boolean ret = conn.openCommPort(name, baud);
+        boolean ret = super.openCommPort(name, baud);
         
         if (ret) {
             this.commandBuffer = new LinkedList<String>();
             this.activeStringList = new LinkedList<String>();
             this.sentBufferSize = 0;
         }
-        
         return ret;
     }
 
     @Override
     public void closeCommPort() {
         this.cancelSend();
-        conn.closeCommPort();
+        super.closeCommPort();
         
         this.sendPaused = false;
         this.commandBuffer = null;

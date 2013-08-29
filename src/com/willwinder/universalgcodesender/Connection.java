@@ -33,17 +33,23 @@ import java.util.TooManyListenersException;
  *
  * @author wwinder
  */
-public interface Connection {
-    abstract public boolean openCommPort(String name, int baud) 
+public abstract class Connection {
+    protected AbstractCommunicator comm;
+
+    public void setCommunicator(AbstractCommunicator ac) {
+        comm = ac;
+    }
+
+    abstract public boolean supports(String portname);
+    
+    abstract public boolean openPort(String name, int baud) 
             throws NoSuchPortException, PortInUseException, 
             UnsupportedCommOperationException, IOException, 
             TooManyListenersException, Exception;
     
-    abstract public void closeCommPort();
+    abstract public void closePort();
         
     abstract public void sendByteImmediately(byte b) throws IOException;
-    
-    abstract public void setCommunicator(AbstractCommunicator ac);
     
     abstract public void sendStringToComm(String command);
 }

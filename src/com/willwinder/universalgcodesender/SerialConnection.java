@@ -24,17 +24,13 @@ package com.willwinder.universalgcodesender;
 
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
 import gnu.io.SerialPort;
 import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
-import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -42,8 +38,8 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-public class SerialConnection implements SerialPortEventListener, Connection{
-    private String lineTerminator;
+public class SerialConnection extends Connection implements SerialPortEventListener {
+    @Deprecated private String lineTerminator;
     private AbstractCommunicator abstractComm;
     // General variables
     private CommPort commPort;
@@ -59,26 +55,18 @@ public class SerialConnection implements SerialPortEventListener, Connection{
         lineTerminator = terminator;
     }
     
-    @Override
-    public void setCommunicator(AbstractCommunicator ac) {
-        this.abstractComm = ac;
-    }
-    
-    public void setLineTerminator(String lt) {
+    @Deprecated public void setLineTerminator(String lt) {
         this.lineTerminator = lt;
     }
     
-    public String getLineTerminator() {
+    @Deprecated public String getLineTerminator() {
         return this.lineTerminator;
     }
-    // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
+    // Must create /var/lock on OSX, fixed in more current RXTX (supposedly):
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
     @Override
-    synchronized public boolean openCommPort(String name, int baud) 
-            throws NoSuchPortException, PortInUseException, 
-            UnsupportedCommOperationException, IOException, 
-            TooManyListenersException, Exception {
+    synchronized public boolean openPort(String name, int baud) throws Exception {
         
         this.inputBuffer = new StringBuilder();
         
@@ -108,7 +96,7 @@ public class SerialConnection implements SerialPortEventListener, Connection{
     }
         
     @Override
-    public void closeCommPort() {
+    public void closePort() {
         // Stop listening before anything, we're done here.
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
@@ -194,5 +182,10 @@ public class SerialConnection implements SerialPortEventListener, Connection{
                 System.exit(-1);
             }
         }
+    }
+
+    @Override
+    public boolean supports(String portname) {
+        return !portname.toLowerCase().startsWith("tcp://");
     }
 }

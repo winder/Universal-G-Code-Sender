@@ -39,7 +39,7 @@ public class TinyGController extends AbstractController {
     }
     
     public TinyGController() {
-        this(new TinyGCommunicator(new SerialConnection()));
+        this(new TinyGCommunicator()); //f4grx: connection created at opencomm() time
     }
     
     @Override
