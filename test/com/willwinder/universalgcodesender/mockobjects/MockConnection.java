@@ -50,12 +50,12 @@ public class MockConnection implements Connection {
     }
     
     @Override
-    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+    public boolean openPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
         return true;
     }
 
     @Override
-    public void closeCommPort() {
+    public void closePort() {
     }
 
     @Override

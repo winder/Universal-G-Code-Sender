@@ -39,31 +39,29 @@ import java.util.TooManyListenersException;
  * @author wwinder
  */
 public class TinyGCommunicator extends AbstractCommunicator {
-    Connection conn;
     
     // Command streaming variables
+    //F4GRX: shall we move that to the abstract communicator?
     private Boolean sendPaused = false;
-    private LinkedList<String> commandBuffer;     // All commands in a file
+    private LinkedList<String> commandBuffer;     // All commands in a file 
     private LinkedList<String> activeStringList;  // Currently running commands
     private int sentBufferSize = 0;
     
     
-    TinyGCommunicator(Connection c) {
+    TinyGCommunicator() {
         this.setLineTerminator("\r\n");
-        this.conn = c;
     }
     
     /**
      * This constructor is for dependency injection so a mock serial device can
      * act as GRBL.
      */
-    protected TinyGCommunicator(final InputStream in, final OutputStream out,
-            LinkedList<String> cb, LinkedList<String> asl) {
+    protected TinyGCommunicator(LinkedList<String> cb, LinkedList<String> asl, Connection c) {
         // Base constructor.
-        this(new SerialConnection());
+        this();
+        //f4grx: mock connection too
+        this.conn = c;
         
-        //this.in = in;
-        //this.out = out;
         this.commandBuffer = cb;
         this.activeStringList = asl;
     }
@@ -186,21 +184,21 @@ public class TinyGCommunicator extends AbstractCommunicator {
 
     @Override
     public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
-        boolean ret = conn.openCommPort(name, baud);
-        
+        //do common things before specific things
+        boolean ret = super.openCommPort(name, baud);
+        //f4grx: isnt that common to all communicators we can think of?
         if (ret) {
             this.commandBuffer = new LinkedList<String>();
             this.activeStringList = new LinkedList<String>();
             this.sentBufferSize = 0;
         }
-        
         return ret;
     }
 
     @Override
     public void closeCommPort() {
         this.cancelSend();
-        conn.closeCommPort();
+        super.closeCommPort();
 
         this.sendPaused = false;
         this.commandBuffer = null;
