@@ -1,5 +1,5 @@
 /*
- * An Abstract communicator which implements basic serial commands.
+ * A serial connection object implementing the connection API.
  */
 
 /*
@@ -42,20 +42,35 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-public abstract class AbstractSerialCommunicator extends AbstractCommunicator implements SerialPortEventListener{
-    /***************************
-     * Additional API Commands. These ones internal to the class.
-     ***************************
-     **/
-    abstract protected void commPortOpenedEvent();
-    abstract protected void commPortClosedEvent();
-    abstract protected void responseMessage(String response);
+public class SerialConnection implements SerialPortEventListener, Connection{
+    private String lineTerminator;
+    private AbstractCommunicator abstractComm;
     // General variables
     private CommPort commPort;
     protected InputStream in;   // protected for unit testing.
     protected OutputStream out; // protected for unit testing.
     private StringBuilder inputBuffer = null;
 
+    public SerialConnection() {
+        this("\r\n");
+    }
+    
+    public SerialConnection(String terminator) {
+        lineTerminator = terminator;
+    }
+    
+    @Override
+    public void setCommunicator(AbstractCommunicator ac) {
+        this.abstractComm = ac;
+    }
+    
+    public void setLineTerminator(String lt) {
+        this.lineTerminator = lt;
+    }
+    
+    public String getLineTerminator() {
+        return this.lineTerminator;
+    }
     // Must create /var/lock on OSX, fixed in more current RXTX (supposidly):
     // $ sudo mkdir /var/lock
     // $ sudo chmod 777 /var/lock
@@ -88,9 +103,6 @@ public abstract class AbstractSerialCommunicator extends AbstractCommunicator im
 
             returnCode = true;
         }
-
-        // Hook for implementing class.
-        commPortOpenedEvent();
         
         return returnCode;
     }
@@ -100,8 +112,6 @@ public abstract class AbstractSerialCommunicator extends AbstractCommunicator im
         // Stop listening before anything, we're done here.
         SerialPort serialPort = (SerialPort) this.commPort;
         serialPort.removeEventListener();
-
-        this.cancelSend();
         
         try {
             in.close();
@@ -109,7 +119,7 @@ public abstract class AbstractSerialCommunicator extends AbstractCommunicator im
             in = null;
             out = null;
         } catch (IOException ex) {
-            Logger.getLogger(GrblCommunicator.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(SerialConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         this.inputBuffer = null;
@@ -125,10 +135,8 @@ public abstract class AbstractSerialCommunicator extends AbstractCommunicator im
      * the comm port.
      * @param command   Command to be sent to serial device.
      */
-    protected void sendStringToComm(String command) {
-        // Command already has a newline attached.
-        this.sendMessageToConsoleListener(">>> " + command);
-        
+    @Override
+    public void sendStringToComm(String command) {
         // Send command to the serial port.
         PrintStream printStream = new PrintStream(this.out);
         printStream.print(command);
@@ -165,14 +173,14 @@ public abstract class AbstractSerialCommunicator extends AbstractCommunicator im
                     inputBuffer.append(new String(readBuffer, 0, availableBytes));
                                         
                     // Check for line terminator and split out command(s).
-                    if (inputBuffer.toString().contains(this.getLineTerminator())) {
+                    if (inputBuffer.toString().contains(abstractComm.getLineTerminator())) {
                         // Split with the -1 option will give an empty string at
                         // the end if there is a terminator there as well.
-                        String []commands = inputBuffer.toString().split(getLineTerminator(), -1);
+                        String []commands = inputBuffer.toString().split(abstractComm.getLineTerminator(), -1);
 
                         for (int i=0; i < commands.length; i++) {
                             if ((i+1) < commands.length) {
-                                responseMessage(commands[i]);
+                                abstractComm.responseMessage(commands[i]);
                             } else {
                                 inputBuffer = new StringBuilder().append(commands[i]);
                             }

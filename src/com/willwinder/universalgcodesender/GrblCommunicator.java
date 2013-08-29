@@ -24,14 +24,20 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.UnsupportedCommOperationException;
 import java.io.*;
 import java.util.LinkedList;
+import java.util.TooManyListenersException;
 
 /**
  *
  * @author wwinder
  */
-public class GrblCommunicator extends AbstractSerialCommunicator {
+public class GrblCommunicator extends AbstractCommunicator {// extends AbstractSerialCommunicator {
+    Connection conn;
+    
     // Command streaming variables
     private Boolean sendPaused = false;
     private LinkedList<String> commandBuffer;     // All commands in a file
@@ -40,40 +46,27 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
     
     private Boolean singleStepModeEnabled = false;
     
-    public GrblCommunicator() {
+    public GrblCommunicator(Connection c) {
         this.setLineTerminator("\r\n");
+        this.conn = c;
+        this.conn.setCommunicator(this);
     }
     
     /**
      * This constructor is for dependency injection so a mock serial device can
      * act as GRBL.
      */
-    protected GrblCommunicator(final InputStream in, final OutputStream out,
-            LinkedList<String> cb, LinkedList<String> asl) {
+    protected GrblCommunicator(
+            LinkedList<String> cb, LinkedList<String> asl, Connection c) {
         // Base constructor.
-        this();
+        this(c);
         
-        this.in = in;
-        this.out = out;
+        
+        //TODO: Mock connection
+        //this.in = in;
+        //this.out = out;
         this.commandBuffer = cb;
         this.activeStringList = asl;
-    }
-    
-    /**
-     * API Implementation.
-     */
-    @Override
-    protected void commPortOpenedEvent() {
-        this.commandBuffer = new LinkedList<String>();
-        this.activeStringList = new LinkedList<String>();
-        this.sentBufferSize = 0;
-    }
-    
-    @Override
-    protected void commPortClosedEvent() {
-        this.sendPaused = false;
-        this.commandBuffer = null;
-        this.activeStringList = null;
     }
     
     @Override
@@ -159,7 +152,10 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
             this.sentBufferSize += commandString.length();
             
             // Newlines are embedded when they get queued so just send it.
-            this.sendStringToComm(commandString);
+        
+            // Command already has a newline attached.
+            this.sendMessageToConsoleListener(">>> " + commandString);
+            conn.sendStringToComm(commandString);
             
             GcodeCommand command = new GcodeCommand(commandString);
             command.setSent(true);
@@ -218,5 +214,33 @@ public class GrblCommunicator extends AbstractSerialCommunicator {
                 this.streamCommands();
             }
         }
+    }
+
+    @Override
+    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+        boolean ret = conn.openCommPort(name, baud);
+        
+        if (ret) {
+            this.commandBuffer = new LinkedList<String>();
+            this.activeStringList = new LinkedList<String>();
+            this.sentBufferSize = 0;
+        }
+        
+        return ret;
+    }
+
+    @Override
+    public void closeCommPort() {
+        this.cancelSend();
+        conn.closeCommPort();
+        
+        this.sendPaused = false;
+        this.commandBuffer = null;
+        this.activeStringList = null;
+    }
+
+    @Override
+    public void sendByteImmediately(byte b) throws IOException {
+        conn.sendByteImmediately(b);
     }
 }

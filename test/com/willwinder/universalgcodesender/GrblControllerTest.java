@@ -219,10 +219,8 @@ public class GrblControllerTest {
             fail("Unexpected exception from GrblController: " + e.getMessage());
         }
         
-        // Noop if called while controller doesn't have real_time mode enabled.
-        instance.issueSoftReset();
-        // Did not send reset command to communicator or issue reset.
-        assertEquals(0x0, mgc.sentByte);
+        // Automatic soft reset
+        assertEquals(24, mgc.sentByte);
         assertEquals(0, mgc.numSoftResetCalls);
 
         // Enable real time mode by sending correct GRBL version:

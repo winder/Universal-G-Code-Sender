@@ -39,7 +39,7 @@ public class TinyGController extends AbstractController {
     }
     
     public TinyGController() {
-        this(new TinyGCommunicator());
+        this(new TinyGCommunicator(new SerialConnection()));
     }
     
     @Override

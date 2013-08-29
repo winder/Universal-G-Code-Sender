@@ -63,7 +63,7 @@ public class GrblController extends AbstractController {
     }
     
     public GrblController() {
-        this(new GrblCommunicator());
+        this(new GrblCommunicator(new SerialConnection()));
     }
     
     /***********************

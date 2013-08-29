@@ -178,7 +178,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
     
     public AbstractController() {
-        this(new GrblCommunicator());
+        this(new GrblCommunicator(new SerialConnection()));
     }
     
     /**
@@ -251,12 +251,12 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.commOpen = this.comm.openCommPort(port, portRate);
         
         if (this.commOpen) {
+            this.openCommAfterEvent();
+
             this.messageForConsole(
                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
-        
-        this.openCommAfterEvent();
-        
+                
         return this.commOpen;
     }
     

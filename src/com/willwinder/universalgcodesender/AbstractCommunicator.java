@@ -75,6 +75,7 @@ public abstract class AbstractCommunicator{
     abstract public void resumeSend();
     abstract public void cancelSend();
     abstract public void softReset();
+    abstract protected void responseMessage(String response);
     
     /** Getters & Setters. */
     void setLineTerminator(String terminator) {

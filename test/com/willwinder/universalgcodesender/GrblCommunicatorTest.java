@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class GrblCommunicatorTest {
     @Test
     public void testSetLineTerminator() {
         System.out.println("setLineTerminator");
-        GrblCommunicator instance = new GrblCommunicator();
+        GrblCommunicator instance = new GrblCommunicator(new MockConnection());
         String defaultTerminator = AbstractCommunicator.DEFAULT_TERMINATOR;
         
         // Initial value.
@@ -93,7 +94,8 @@ public class GrblCommunicatorTest {
         
         System.out.println("queueStringForComm");
         String input = "someCommand";
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         
         try {
             instance.queueStringForComm(input);
@@ -111,7 +113,9 @@ public class GrblCommunicatorTest {
             
             input = "someCommand\n";
             cb = new LinkedList<String>();
-            instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+            mc = new MockConnection(mg.in, mg.out);
+            instance = new GrblCommunicator(cb, asl, mc);
+
             
             instance.queueStringForComm(input);
             // Test that instance doesn't add superfluous newlines.
@@ -146,7 +150,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testSendByteImmediately() {
         System.out.println("sendByteImmediately");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
 
         // Ctrl-C is a common byte to send immediately.
         byte b = 0x18;
@@ -188,7 +193,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testAreActiveCommands() {
         System.out.println("areActiveCommands");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         
         boolean expResult = false;
         boolean result = instance.areActiveCommands();
@@ -219,7 +225,8 @@ public class GrblCommunicatorTest {
         }
         
         // Tell the instance that we have made data available.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(mg.out.toString());
         
         expResult = false;
         result = instance.areActiveCommands();
@@ -232,7 +239,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testStreamCommands() {
         System.out.println("streamCommands");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String thirtyNineCharString = "thirty-nine character command here.....";
 
         boolean result;
@@ -278,7 +286,8 @@ public class GrblCommunicatorTest {
         }
         
         // Tell the instance that we have made data available.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
 
         instance.streamCommands();
         // Make sure the queued command was sent.
@@ -287,7 +296,8 @@ public class GrblCommunicatorTest {
 
         
         // Tell the instance that we have made data available.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
         
         // Wrap up.
         try {
@@ -299,7 +309,8 @@ public class GrblCommunicatorTest {
         }
         
         // Tell the instance that we have made data available.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
 
         expResult = false;
         result = instance.areActiveCommands();
@@ -312,7 +323,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testPauseSendAndResumeSend() {
         System.out.println("pauseSend");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -343,7 +355,8 @@ public class GrblCommunicatorTest {
             fail("Mock object threw an exception: " + e.getMessage());
         }
         // Process 'ok' messages.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
         
         // Make sure we don't stream anymore.
         instance.streamCommands();
@@ -367,7 +380,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testCancelSend() {
         System.out.println("cancelSend");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -413,7 +427,8 @@ public class GrblCommunicatorTest {
             fail("Mock object threw an exception: " + e.getMessage());
         }
         // Process 'ok' messages.
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
 
         // Make sure canceled commands are not sent.
         instance.streamCommands();
@@ -428,7 +443,8 @@ public class GrblCommunicatorTest {
     @Test
     public void testSoftReset() {
         System.out.println("softReset");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String twentyCharString = "twenty characters...";
         String grblReceiveString;
         String arr[];
@@ -453,13 +469,16 @@ public class GrblCommunicatorTest {
     @Test
     public void testSerialEvent() {
         System.out.println("serialEvent");
-        GrblCommunicator instance = new GrblCommunicator(mg.in, mg.out, cb, asl);
-        instance.serialEvent(null);
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
         
         // serialEvent is tested in other commands, except for being called
         // when there isn't actually any data available. who would do such a
         // thing?!?!
-        instance.serialEvent(null);
+        //instance.serialEvent(null);
+        instance.responseMessage(null);
         
         // Check with MockGrbl to verify that nothing was sent to it.
         String output = mg.readStringFromGrblBuffer();

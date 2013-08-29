@@ -23,16 +23,24 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import gnu.io.NoSuchPortException;
+import gnu.io.PortInUseException;
+import gnu.io.SerialPortEvent;
 import gnu.io.SerialPortEventListener;
+import gnu.io.UnsupportedCommOperationException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
+import java.util.TooManyListenersException;
 
 /**
  *
  * @author wwinder
  */
-public class TinyGCommunicator extends AbstractSerialCommunicator implements SerialPortEventListener {
+public class TinyGCommunicator extends AbstractCommunicator {
+    Connection conn;
+    
     // Command streaming variables
     private Boolean sendPaused = false;
     private LinkedList<String> commandBuffer;     // All commands in a file
@@ -40,8 +48,9 @@ public class TinyGCommunicator extends AbstractSerialCommunicator implements Ser
     private int sentBufferSize = 0;
     
     
-    TinyGCommunicator() {
+    TinyGCommunicator(Connection c) {
         this.setLineTerminator("\r\n");
+        this.conn = c;
     }
     
     /**
@@ -51,29 +60,15 @@ public class TinyGCommunicator extends AbstractSerialCommunicator implements Ser
     protected TinyGCommunicator(final InputStream in, final OutputStream out,
             LinkedList<String> cb, LinkedList<String> asl) {
         // Base constructor.
-        this();
+        this(new SerialConnection());
         
-        this.in = in;
-        this.out = out;
+        //this.in = in;
+        //this.out = out;
         this.commandBuffer = cb;
         this.activeStringList = asl;
     }
     
     // TODO: Override openCommPort and use socket flow control?
-    
-    @Override
-    protected void commPortOpenedEvent() {
-        this.commandBuffer = new LinkedList<String>();
-        this.activeStringList = new LinkedList<String>();
-        this.sentBufferSize = 0;
-    }
-    
-    @Override
-    protected void commPortClosedEvent() {
-        this.sendPaused = false;
-        this.commandBuffer = null;
-        this.activeStringList = null;
-    }
 
     @Override
     public void setSingleStepMode(boolean enable) {
@@ -155,7 +150,7 @@ public class TinyGCommunicator extends AbstractSerialCommunicator implements Ser
             this.sentBufferSize += commandString.length();
             
             // Newlines are embedded when they get queued so just send it.
-            this.sendStringToComm(commandString);
+            conn.sendStringToComm(commandString);
             
             TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
             command.setSent(true);
@@ -187,5 +182,33 @@ public class TinyGCommunicator extends AbstractSerialCommunicator implements Ser
         this.activeStringList.clear();
         this.sentBufferSize = 0;
         */
+    }
+
+    @Override
+    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+        boolean ret = conn.openCommPort(name, baud);
+        
+        if (ret) {
+            this.commandBuffer = new LinkedList<String>();
+            this.activeStringList = new LinkedList<String>();
+            this.sentBufferSize = 0;
+        }
+        
+        return ret;
+    }
+
+    @Override
+    public void closeCommPort() {
+        this.cancelSend();
+        conn.closeCommPort();
+
+        this.sendPaused = false;
+        this.commandBuffer = null;
+        this.activeStringList = null;
+    }
+
+    @Override
+    public void sendByteImmediately(byte b) throws IOException {
+        conn.sendByteImmediately(b);
     }
 }

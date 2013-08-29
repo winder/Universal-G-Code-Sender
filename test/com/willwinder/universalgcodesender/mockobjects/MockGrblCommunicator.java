@@ -75,7 +75,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
     
     public MockGrblCommunicator() {
-        
+        super(new MockConnection());
     }   
 
     @Override
