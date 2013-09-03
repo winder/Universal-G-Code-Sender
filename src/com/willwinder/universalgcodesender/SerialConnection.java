@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -176,8 +177,7 @@ public class SerialConnection extends Connection implements SerialPortEventListe
                     }
                 }                
             }
-            catch ( IOException e )
-            {
+            catch ( IOException e ) {
                 e.printStackTrace();
                 System.exit(-1);
             }
@@ -186,6 +186,13 @@ public class SerialConnection extends Connection implements SerialPortEventListe
 
     @Override
     public boolean supports(String portname) {
-        return !portname.toLowerCase().startsWith("tcp://");
+        List<CommPortIdentifier> ports = CommUtils.getSerialPortList();
+        for (CommPortIdentifier cpi: ports) {
+            if (cpi.getName().equals(portname)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

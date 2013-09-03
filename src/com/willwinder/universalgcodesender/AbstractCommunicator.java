@@ -24,18 +24,14 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.TooManyListenersException;
 
 /**
  *
  * @author wwinder
  */
-public abstract class AbstractCommunicator{
+public abstract class AbstractCommunicator {
     public static String DEFAULT_TERMINATOR = "\r\n";
     private String lineTerminator;
     protected Connection conn;
@@ -59,40 +55,16 @@ public abstract class AbstractCommunicator{
 
         //instanciate all known connection drivers
         this.connections = new ArrayList<Connection>();
-        this.connections.add(new SerialConnection());
-    }
-    
-    /* ****************** */
-    /** Serial Layer API. */
-    /* ****************** */
-    
-    //do common operations (related to the connection, that is shared by all communicators)
-    protected boolean openCommPort(String name, int baud) throws Exception {
-        Connection conn = null;
-        //choose port
-        for(Connection candidate: connections) {
-            if(candidate.equals(name)) {
-                conn = candidate;
-                break;
-            }
-        }
-        
-        if(conn==null) {
-            throw new Exception("No driver for port: "+name);
-        }
-        //open it
-        conn.openPort(name, baud);
-        //inject link
-        conn.setCommunicator(this);
-        return true;
+        this.addConnectionType(new SerialConnection());
     }
 
-
-    //do common things (related to the connection, that is shared by all communicators)
-    protected void closeCommPort() {
-        conn.closePort();
+    final public void addConnectionType(Connection conn) {
+        this.connections.add(conn);
     }
     
+    /*********************/
+    /* Serial Layer API. */
+    /*********************/
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
@@ -103,7 +75,34 @@ public abstract class AbstractCommunicator{
     abstract public void resumeSend();
     abstract public void cancelSend();
     abstract public void softReset();
-    abstract protected void responseMessage(String response);
+    abstract public void responseMessage(String response);
+    
+    //do common operations (related to the connection, that is shared by all communicators)
+    protected boolean openCommPort(String name, int baud) throws Exception {
+        //choose port
+        for(Connection candidate: connections) {
+            if(candidate.supports(name)) {
+                conn = candidate;
+                conn.setCommunicator(this);
+                break;
+            }
+        }
+        
+        if(conn==null) {
+            throw new Exception("No driver for port: "+name);
+        }
+        
+        //open it
+        conn.openPort(name, baud);
+
+        return true;
+    }
+
+
+    //do common things (related to the connection, that is shared by all communicators)
+    protected void closeCommPort() {
+        conn.closePort();
+    }
     
     /** Getters & Setters. */
     void setLineTerminator(String terminator) {

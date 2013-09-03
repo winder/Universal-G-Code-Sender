@@ -75,7 +75,9 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
     
     public MockGrblCommunicator() {
-        super(new MockConnection());
+        super();
+        this.conn = new MockConnection();
+        this.conn.setCommunicator(this);
     }   
 
     @Override

@@ -21,8 +21,11 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.AbstractCommunicator;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +55,10 @@ public class GrblCommunicatorTest {
     @Test
     public void testSetLineTerminator() {
         System.out.println("setLineTerminator");
-        GrblCommunicator instance = new GrblCommunicator(new MockConnection());
+        GrblCommunicator instance = new GrblCommunicator();
+        
+        //((AbstractCommunicator)instance).addConnectionType(conn);
+        
         String defaultTerminator = AbstractCommunicator.DEFAULT_TERMINATOR;
         
         // Initial value.
@@ -216,18 +222,10 @@ public class GrblCommunicatorTest {
         result = instance.areActiveCommands();
         assertEquals(expResult, result);
         
-        // Wrap it up.
-        try {
-            mg.addOkFromGrbl();
-            mg.addOkFromGrbl();
-        } catch (IOException e) {
-            fail ("IOException in mock object: " + e.getMessage());
-        }
-        
-        // Tell the instance that we have made data available.
-        //instance.serialEvent(null);
-        instance.responseMessage(mg.out.toString());
-        
+        // Send result to communicator.
+        instance.responseMessage("ok");
+        instance.responseMessage("ok");
+                
         expResult = false;
         result = instance.areActiveCommands();
         assertEquals(expResult, result);
@@ -250,7 +248,7 @@ public class GrblCommunicatorTest {
         LinkedList<GcodeCommand> l = new LinkedList<GcodeCommand>();
         l.add(new GcodeCommand("12characters"));
         assertEquals(13, CommUtils.getSizeOfBuffer(l));
-        
+
         // Make sure GrblUtils hasn't updated RX buffer size.
         assertEquals(123, GrblUtils.GRBL_RX_BUFFER_SIZE);
 
@@ -279,38 +277,19 @@ public class GrblCommunicatorTest {
                         output);
         
         // Make room for the next command.
-        try {
-            mg.addOkFromGrbl();
-        } catch (IOException e) {
-            fail ("IOException in mock object: " + e.getMessage());
-        }
+        mc.sendResponse("ok");
         
-        // Tell the instance that we have made data available.
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-
+        // Send it.
         instance.streamCommands();
+        
         // Make sure the queued command was sent.
         output = mg.readStringFromGrblBuffer();
         assertEquals(thirtyNineCharString+"\n", output);
-
-        
-        // Tell the instance that we have made data available.
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-        
+  
         // Wrap up.
-        try {
-            mg.addOkFromGrbl();
-            mg.addOkFromGrbl();
-            mg.addOkFromGrbl();
-        } catch (IOException e) {
-            fail ("IOException in mock object: " + e.getMessage());
-        }
-        
-        // Tell the instance that we have made data available.
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
+        mc.sendResponse("ok");
+        mc.sendResponse("ok");
+        mc.sendResponse("ok");
 
         expResult = false;
         result = instance.areActiveCommands();
@@ -346,18 +325,11 @@ public class GrblCommunicatorTest {
         expectedInt = GrblUtils.GRBL_RX_BUFFER_SIZE / (twentyCharString.length()+1);
         assertEquals(expectedInt, arr.length);
 
-        
-        try {
-            for (int i=0; i <arr.length; i++) {
-                mg.addOkFromGrbl();
-            }
-        } catch (IOException e) {
-            fail("Mock object threw an exception: " + e.getMessage());
-        }
         // Process 'ok' messages.
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-        
+        for (int i=0; i <arr.length; i++) {
+            mc.sendResponse("ok");
+        }
+
         // Make sure we don't stream anymore.
         instance.streamCommands();
         grblReceiveString = mg.readStringFromGrblBuffer();
@@ -419,17 +391,10 @@ public class GrblCommunicatorTest {
         assertEquals(expectedInt, arr.length);
 
         // Wrap up the active commands.
-        try {
-            for (int i=0; i <arr.length; i++) {
-                mg.addOkFromGrbl();
-            }
-        } catch (IOException e) {
-            fail("Mock object threw an exception: " + e.getMessage());
+        for (int i=0; i <arr.length; i++) {
+            mc.sendResponse("ok");
         }
-        // Process 'ok' messages.
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-
+            
         // Make sure canceled commands are not sent.
         instance.streamCommands();
         grblReceiveString = mg.readStringFromGrblBuffer();
@@ -461,28 +426,5 @@ public class GrblCommunicatorTest {
         // Verify that there are several active commands.
         expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());
-    }
-    
-    /**
-     * Test of serialEvent method, of class GrblCommunicator.
-     */
-    @Test
-    public void testSerialEvent() {
-        System.out.println("serialEvent");
-        MockConnection mc = new MockConnection(mg.in, mg.out);
-        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-        
-        // serialEvent is tested in other commands, except for being called
-        // when there isn't actually any data available. who would do such a
-        // thing?!?!
-        //instance.serialEvent(null);
-        instance.responseMessage(null);
-        
-        // Check with MockGrbl to verify that nothing was sent to it.
-        String output = mg.readStringFromGrblBuffer();
-
-        assertEquals("", output);
     }
 }

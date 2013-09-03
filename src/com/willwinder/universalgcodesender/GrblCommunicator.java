@@ -59,6 +59,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         this();
         //TODO-f4grx-DONE: Mock connection
         this.conn = c;
+        this.conn.setCommunicator(this);
         
         this.commandBuffer = cb;
         this.activeStringList = asl;
@@ -187,10 +188,11 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     }
 
     /** 
-     * Processes message from GRBL.
+     * Processes message from GRBL. This should only be called from the
+     * connection object.
      */
     @Override
-    protected void responseMessage(String response) {
+    public void responseMessage(String response) {
         // GrblCommunicator no longer knows what to do with responses.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
@@ -209,6 +211,8 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
                 this.streamCommands();
             }
         }
+        
+        System.out.println("Active commands: " + this.activeStringList.size());
     }
 
     @Override

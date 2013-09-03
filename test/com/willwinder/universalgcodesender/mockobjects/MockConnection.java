@@ -31,13 +31,16 @@ import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.TooManyListenersException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author wwinder
  */
-public class MockConnection implements Connection {
+public class MockConnection extends Connection {
     protected InputStream in;   // protected for unit testing.
     protected OutputStream out; // protected for unit testing.
 
@@ -47,6 +50,10 @@ public class MockConnection implements Connection {
     public MockConnection(final InputStream in, final OutputStream out) {
         this.in = in;
         this.out = out;
+    }
+    
+    public void sendResponse(String str) {
+        this.comm.responseMessage(str);
     }
     
     @Override
@@ -64,11 +71,16 @@ public class MockConnection implements Connection {
     }
 
     @Override
-    public void setCommunicator(AbstractCommunicator ac) {
+    public void sendStringToComm(String command) {
+        try {
+            this.out.write(command.getBytes(Charset.defaultCharset().name()));
+        } catch (IOException ex) {
+            Logger.getLogger(MockConnection.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
-    public void sendStringToComm(String command) {
+    public boolean supports(String portname) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
 }

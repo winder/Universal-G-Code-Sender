@@ -25,12 +25,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;
-import gnu.io.SerialPortEvent;
-import gnu.io.SerialPortEventListener;
 import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
 
@@ -82,7 +78,7 @@ public class TinyGCommunicator extends AbstractCommunicator {
      * Processes message from GRBL.
      */
     @Override
-    protected void responseMessage(String response) {
+    public void responseMessage(String response) {
         // GrblCommunicator no longer knows what to do with responses.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
