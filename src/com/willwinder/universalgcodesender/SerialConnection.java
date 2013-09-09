@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  */
 public class SerialConnection extends Connection implements SerialPortEventListener {
     @Deprecated private String lineTerminator;
-    private AbstractCommunicator abstractComm;
+
     // General variables
     private CommPort commPort;
     protected InputStream in;   // protected for unit testing.
@@ -160,16 +160,16 @@ public class SerialConnection extends Connection implements SerialPortEventListe
                     // Read from serial port
                     in.read(readBuffer, 0, availableBytes);
                     inputBuffer.append(new String(readBuffer, 0, availableBytes));
-                                        
+
                     // Check for line terminator and split out command(s).
-                    if (inputBuffer.toString().contains(abstractComm.getLineTerminator())) {
+                    if (inputBuffer.toString().contains(comm.getLineTerminator())) {
                         // Split with the -1 option will give an empty string at
                         // the end if there is a terminator there as well.
-                        String []commands = inputBuffer.toString().split(abstractComm.getLineTerminator(), -1);
+                        String []commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
 
                         for (int i=0; i < commands.length; i++) {
                             if ((i+1) < commands.length) {
-                                abstractComm.responseMessage(commands[i]);
+                                comm.responseMessage(commands[i]);
                             } else {
                                 inputBuffer = new StringBuilder().append(commands[i]);
                             }

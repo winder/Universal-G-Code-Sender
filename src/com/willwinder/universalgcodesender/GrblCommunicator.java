@@ -211,8 +211,6 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
                 this.streamCommands();
             }
         }
-        
-        System.out.println("Active commands: " + this.activeStringList.size());
     }
 
     @Override
