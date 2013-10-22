@@ -1375,6 +1375,8 @@ implements KeyListener, ControllerListener {
             }
         });
         
+        mw.initFileChooser();
+        
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -1393,16 +1395,27 @@ implements KeyListener, ControllerListener {
             }
         });
     }
+    
+    /**
+     * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
+     */
+    private void initFileChooser() {
+        //Setup the file filter for gcode files. Append any new extension by , "EXTENSION"
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files", "cnc", "nc", "ngc", "tap", "txt", "gcode");
+        
+        // Setup file browser with the last path used.
+        this.fileChooser = new JFileChooser(SettingsFactory.getLastPath()); 
+        this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        this.fileChooser.setFileHidingEnabled(true);
+        this.fileChooser.setFileFilter(filter);
+        this.fileChooser.setAcceptAllFileFilterUsed(true);
+    }
         
     private void initProgram() {
         this.loadPortSelector();
         this.checkScrollWindow();
         this.loadFirmwareSelector();
         this.setTitle("Universal GcodeSender (Version " + VERSION + ")");
-        
-        // Setup file browser.
-        this.fileChooser = new JFileChooser(); 
-        this.fileChooser.setFileFilter(new GcodeFileTypeFilter());
         
         // Command History
         this.manualCommandHistory = new ArrayList<String>();
