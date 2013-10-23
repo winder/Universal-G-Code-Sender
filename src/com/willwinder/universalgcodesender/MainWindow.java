@@ -1400,15 +1400,16 @@ implements KeyListener, ControllerListener {
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */
     private void initFileChooser() {
-        //Setup the file filter for gcode files. Append any new extension by , "EXTENSION"
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("GCode Files", "cnc", "nc", "ngc", "tap", "txt", "gcode");
+        //Setup the file filter for gcode files.
+        GcodeFileTypeFilter filter = new GcodeFileTypeFilter();
         
         // Setup file browser with the last path used.
         this.fileChooser = new JFileChooser(SettingsFactory.getLastPath()); 
         this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         this.fileChooser.setFileHidingEnabled(true);
-        this.fileChooser.setFileFilter(filter);
+        this.fileChooser.addChoosableFileFilter(filter);
         this.fileChooser.setAcceptAllFileFilterUsed(true);
+        this.fileChooser.setFileFilter(filter);
     }
         
     private void initProgram() {
