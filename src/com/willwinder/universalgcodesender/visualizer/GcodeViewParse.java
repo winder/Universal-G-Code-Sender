@@ -112,10 +112,11 @@ public class GcodeViewParse {
         Point3d center = new Point3d(0.0, 0.0, 0.0);
         Point3d last = new Point3d(0.0, 0.0, 0.0);
         double parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ, parsedK;
+        double parsedR;
         int gCode, mCode;
         int lastGCode = -1;
         Matcher matcher;
-
+        
         for(String s : gcode)
         {       
             // Parse out gcode values
@@ -127,7 +128,8 @@ public class GcodeViewParse {
             parsedI = parseCoord(sarr, 'I');
             parsedJ = parseCoord(sarr, 'J');
             parsedK = parseCoord(sarr, 'K');
-
+            parsedR = parseCoord(sarr, 'R');
+            
             // At this point next == last
             if(!Double.isNaN(parsedX)) {
                 if (!this.absoluteMode) {
@@ -188,7 +190,7 @@ public class GcodeViewParse {
             gCode = -1;
             while (matcher.find()) {
                 gCode = Integer.parseInt(matcher.group(1));
-                handleGCode(gCode, last, center, next);
+                handleGCode(gCode, last, center, next, parsedR);
             }
             
             // Check multiple matches on one line in case of state commands:
@@ -202,7 +204,7 @@ public class GcodeViewParse {
             // If there isn't a new code, use the last code.
             if (gCode == -1 && mCode == -1 && lastGCode != -1) {
                 gCode = lastGCode;
-                handleGCode(gCode, last, center, next);
+                handleGCode(gCode, last, center, next, parsedR);
             }
             
             // Save the last commands.
@@ -215,7 +217,7 @@ public class GcodeViewParse {
         return lines;
     }
     
-    private void handleGCode(int code, final Point3d start, final Point3d center, final Point3d end) {
+    private void handleGCode(int code, final Point3d start, final Point3d center, final Point3d end, final double R) {
         LineSegment ls;
         switch (code) {
             case 0:
@@ -242,9 +244,47 @@ public class GcodeViewParse {
                     clockwise = false;
                 }
 
+                double radius = 0;
+
+                // If R was specified and IJK were not, convert R to IJK
+                if (R != 0 && center.x == 0 && center.y == 0) {
+                    radius = R;
+                    
+                    // This math is copied from GRBL in gcode.c
+                    double x = end.x - start.x;
+                    double y = end.y - start.y;
+
+                    double h_x2_div_d = 4 * R*R - x*x - y*y;
+                    if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
+                    h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
+
+                    if (clockwise == false) {
+                        h_x2_div_d = -h_x2_div_d;
+                    }
+                    
+                    // Special message from gcoder to software for which radius
+                    // should be used.
+                    if (R < 0) {
+                        h_x2_div_d = -h_x2_div_d;
+                        radius = -R;
+                    }
+                    
+                    double offsetX = 0.5*(x-(y*h_x2_div_d));
+                    double offsetY = 0.5*(y+(x*h_x2_div_d));
+                    
+                    if (!absoluteIJK) {
+                        center.x = start.x + offsetX;
+                        center.y = start.y + offsetY;
+                    } else {
+                        center.x = offsetX;
+                        center.y = offsetY;
+                    }
+
+                }
+                
                 // draw the arc itself.
                 //addArcSegmentsReplicatorG(start, end, center, clockwise);
-                addArcSegmentsBDring(start, end, center, clockwise);
+                addArcSegmentsBDring(start, end, center, clockwise, radius);
                 currentLine++;
                 break;
                 
@@ -308,7 +348,7 @@ public class GcodeViewParse {
         return angle;
     }
     
-    private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw) {
+    private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw, double R) {
         int numPoints = arcResolution;
         double radius;
         Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
@@ -316,9 +356,15 @@ public class GcodeViewParse {
         double sweep;
         double angle;
 
-        //use pythag theorum...to get the radius
-        radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
-
+        
+        if (R != 0) {
+            // If radius was specified, use it.
+            radius = R;
+        } else {
+            // otherwise use pythag theorum to get the radius
+            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
+        }
+        
         double startAngle = getAngle(center, p1);
         double endAngle = getAngle(center, p2);
 
