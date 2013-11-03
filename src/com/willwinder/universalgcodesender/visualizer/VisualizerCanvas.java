@@ -26,20 +26,18 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
-import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
-import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
+import java.util.List;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL.*;
 import javax.media.opengl.GL2;
@@ -51,9 +49,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
-import javax.vecmath.Point2f;
 import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
  
 /**
  *
@@ -74,7 +70,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     // Gcode file data
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
-    private ArrayList<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
+    private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
     private int lastCommandNumber = 0;
 
@@ -172,7 +168,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
 
         // Parse random gcode file and generate something to draw.
-        generateObject();
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
@@ -410,7 +405,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         try {
 
         GcodeViewParse gcvp = new GcodeViewParse();
-        ArrayList<String> linesInFile;
+        List<String> linesInFile;
         linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
         gcodeLineList = gcvp.toObj(linesInFile);
         

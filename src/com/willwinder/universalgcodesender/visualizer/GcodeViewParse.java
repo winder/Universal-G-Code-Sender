@@ -26,32 +26,36 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
 
 
 public class GcodeViewParse {
-    private static boolean debugVals = false;
+    // Configurable values
+    // TODO: ....could this be dynamic or user selectable?
+    private int arcResolution = 5;
+
+    // false = incremental; true = absolute
+    boolean absoluteMode = true;
+    static boolean absoluteIJK = false;
+
+    // Parsed object
     private Point3d min;
     private Point3d max;
-    private ArrayList<LineSegment> lines;
+    private List<LineSegment> lines;
     
+    // Parsing state.
     private Point3d lastPoint;
+    private int currentLine = 0;    // for assigning line numbers to segments.
     
     private Pattern gPattern = null;
     private Pattern mPattern = null;
     
     private static String gCommand = "[Gg]0*(\\d+)";
     private static String mCommand = "[Mm]0*(\\d+)";
-    
-    // false = incremental; true = absolute
-    boolean absoluteMode = true;
-    static boolean absoluteIJK = false;
-    
-    // For assigning numbers to line segment corresponding to the current line.
-    private int currentLine = 0;
-    
+        
     public GcodeViewParse()
     {
         min = new Point3d();
@@ -100,7 +104,7 @@ public class GcodeViewParse {
         }
     }
     
-    public ArrayList<LineSegment> toObj(ArrayList<String> gcode)
+    public List<LineSegment> toObj(List<String> gcode)
     {
         double speed = 2; //DEFAULTS to 2
 
@@ -113,7 +117,7 @@ public class GcodeViewParse {
         Matcher matcher;
 
         for(String s : gcode)
-        {            
+        {       
             // Parse out gcode values
             String[] sarr = s.split(" ");
             parsedX = parseCoord(sarr, 'X');
@@ -305,7 +309,7 @@ public class GcodeViewParse {
     }
     
     private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw) {
-        int numPoints = 15;  // TODO: ....could this be dynamic or user selectable?		
+        int numPoints = arcResolution;
         double radius;
         Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
         Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);

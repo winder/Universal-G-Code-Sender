@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 import javax.vecmath.Point3d;
 
@@ -38,13 +39,17 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class VisualizerWindow extends javax.swing.JFrame implements ControllerListener {
+public class VisualizerWindow extends javax.swing.JFrame 
+implements ControllerListener, WindowListener {
 
     private static String TITLE = "G-Code Visualizer";  // window's title
     private static final int CANVAS_WIDTH = 640;  // width of the drawable
     private static final int CANVAS_HEIGHT = 480; // height of the drawable
-    private static final int FPS = 60; // animator's target frames per second
-
+    private static final int FPS = 20; // animator's target frames per second
+    
+    // OpenGL Control
+    FPSAnimator animator;
+    
     // Interactive members.
     private Point3d machineCoordinate;
     private Point3d workCoordinate;
@@ -62,31 +67,15 @@ public class VisualizerWindow extends javax.swing.JFrame implements ControllerLi
         canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
 
         // Create a animator that drives canvas' display() at the specified FPS.
-        final FPSAnimator animator = new FPSAnimator(canvas, FPS, true);
+        this.animator = new FPSAnimator(canvas, FPS, true);
 
         // Create the top-level container
         final JFrame frame = this; // Swing's JFrame or AWT's Frame
         frame.getContentPane().add(canvas);
         
         // Manage pausing and resuming the animator when it doesn't need to run.
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // Use a dedicate thread to run the stop() to ensure that the
-                // animator stops before program exits.
-                new Thread() {
-                    @Override
-                    public void run() {
-                        if (animator.isStarted()){ animator.pause(); }
-                    }
-                }.start();
-            }
-            
-            @Override
-            public void windowActivated(WindowEvent e) {
-                if (animator.isPaused()) { animator.resume(); }
-            }
-        });
+        frame.addWindowListener(this);
+        
         frame.setTitle(TITLE);
         frame.pack();
         frame.setVisible(true);
@@ -140,6 +129,52 @@ public class VisualizerWindow extends javax.swing.JFrame implements ControllerLi
 
     @Override
     public void messageForConsole(String msg, Boolean verbose) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    
+    // Window Listener Events.
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        // Use a dedicate thread to run the stop() to ensure that the
+        // animator stops before program exits.
+        new Thread() {
+            @Override
+            public void run() {
+                if (animator.isStarted()){ animator.pause(); }
+            }
+        }.start();
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+        if (animator.isPaused()) { animator.resume(); }
+    }
+        
+
+    @Override
+    public void windowOpened(WindowEvent we) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowClosed(WindowEvent we) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowIconified(WindowEvent we) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent we) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent we) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 }
