@@ -24,8 +24,6 @@
 
 package com.willwinder.universalgcodesender.listeners;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-
 /**
  *
  * @author wwinder
@@ -34,8 +32,8 @@ public interface SerialCommunicatorListener {
     //void capabilitiesListener(CommUtils.Capabilities capability);
     void rawResponseListener(String response);
     
-    void commandSent(GcodeCommand command);
-    void commandComplete(GcodeCommand command) throws Exception;
+    void commandSent(String command);
     void messageForConsole(String msg);
     void verboseMessageForConsole(String msg);
+    void errorMessageForConsole(String msg);
 }

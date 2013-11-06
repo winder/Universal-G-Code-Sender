@@ -437,6 +437,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 if (processed.equals("")) {
                     this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
                     command.setResponse("<skipped by application>");
+                    command.setSkipped(true);
                     // Need to queue the command first so that listeners don't
                     // see a random command complete without notice.
                     this.commandQueued(command);
@@ -554,7 +555,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
     
     @Override
-    public void commandSent(GcodeCommand command) {
+    public void commandSent(String command) {
         if (this.isStreamingFile()) {
             this.numCommandsSent++;
         }
@@ -562,23 +563,37 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         GcodeCommand c = this.outgoingQueue.remove();
         c.setSent(true);
         
+        if (c.getCommandString() != command) {
+            this.errorMessageForConsole("Command <"+c.getCommandString()+
+                    "> does not equal expected command <"+command+">");
+        }
+        
         this.awaitingResponseQueue.add(c);
         
         dispatchCommandSent(c);
     }
     
-    @Override
-    public void commandComplete(GcodeCommand command) throws Exception {
+    /**
+     * Notify controller that the next command has completed with response.
+     */
+    public void commandComplete(String response) throws Exception {
+        GcodeCommand command = this.awaitingResponseQueue.peek();
+        if (command == null) {
+            command = new GcodeCommand("");
+        }
+        command.setResponse(response);
+        this.commandComplete(command);
+    }
+    
+    /**
+     * Internal command complete has extra handling for skipped command case.
+     */
+    private void commandComplete(GcodeCommand command) throws Exception {
         GcodeCommand c = command;
-        String received = command.getCommandString().trim();
-        String expected = "none";
-        try {
-            expected = this.awaitingResponseQueue.peek().getCommandString().trim();
-        } catch (NullPointerException e) { }
-        
+
         // If the command wasn't sent, it was skipped and should be ignored
         // from the remaining queues.
-        if (expected.equals(received)) {
+        if (!command.isSkipped()) {
             if (this.awaitingResponseQueue.size() == 0) {
                 throw new Exception("Attempting to completing a command that "
                         + "doesn't exist: <" + command.toString() + ">");
@@ -631,6 +646,12 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     public void verboseMessageForConsole(String msg) {
         dispatchConsoleMessage(msg, Boolean.TRUE);
     }
+    
+    @Override
+    public void errorMessageForConsole(String msg) {
+        dispatchConsoleMessage("[Error] " + msg, Boolean.TRUE);
+    }
+
 
     @Override
     public void rawResponseListener(String response) {

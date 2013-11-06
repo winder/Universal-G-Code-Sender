@@ -140,7 +140,7 @@ public class SerialConnection extends Connection implements SerialPortEventListe
         out.write(b);
     }
     
-        /**
+    /**
      * Reads data from the serial port. RXTX SerialPortEventListener method.
      */
     @Override
@@ -166,10 +166,11 @@ public class SerialConnection extends Connection implements SerialPortEventListe
                         // Split with the -1 option will give an empty string at
                         // the end if there is a terminator there as well.
                         String []commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
-
                         for (int i=0; i < commands.length; i++) {
+                            // Make sure this isn't the last command.
                             if ((i+1) < commands.length) {
                                 comm.responseMessage(commands[i]);
+                            // Append last command to input buffer because it didn't have a terminator.
                             } else {
                                 inputBuffer = new StringBuilder().append(commands[i]);
                             }

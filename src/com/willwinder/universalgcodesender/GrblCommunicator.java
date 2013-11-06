@@ -153,9 +153,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
             this.sendMessageToConsoleListener(">>> " + commandString);
             conn.sendStringToComm(commandString);
             
-            GcodeCommand command = new GcodeCommand(commandString);
-            command.setSent(true);
-            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
+            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString);
         }
         
         System.out.println("Number active commands: " + this.activeStringList.size());
@@ -193,20 +191,15 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
      */
     @Override
     public void responseMessage(String response) {
-        // GrblCommunicator no longer knows what to do with responses.
+        // Send this information back up to the Controller.
         dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
 
-        // Keep the data flow going for now.
+        // Keep the data flow going in case of an "ok/error".
         if (GcodeCommand.isOkErrorResponse(response)) {
             // Pop the front of the active list.
             String commandString = this.activeStringList.pop();
             this.sentBufferSize -= commandString.length();
             
-            GcodeCommand command = new GcodeCommand(commandString);
-            command.setResponse(response);
-
-            dispatchListenerEvents(COMMAND_COMPLETE, this.commandCompleteListeners, command);
-
             if (this.sendPaused == false) {
                 this.streamCommands();
             }

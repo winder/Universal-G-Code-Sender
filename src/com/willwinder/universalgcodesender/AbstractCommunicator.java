@@ -199,13 +199,8 @@ public abstract class AbstractCommunicator {
     static protected void sendEventToListener(int event, SerialCommunicatorListener scl, 
                                             String string, GcodeCommand command) {
         switch(event) {
-            case COMMAND_COMPLETE:
-                try {
-                scl.commandComplete(command);
-                } catch (Exception e) {}
-                break;
             case COMMAND_SENT:
-                scl.commandSent(command);
+                scl.commandSent(string);
                 break;
             case CONSOLE_MESSAGE:
                 scl.messageForConsole(string);

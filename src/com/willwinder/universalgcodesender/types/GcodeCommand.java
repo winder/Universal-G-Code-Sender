@@ -40,6 +40,7 @@ public class GcodeCommand {
     private Boolean isOk = false;
     private Boolean isError = false;
     private Integer commandNum = -1;
+    private Boolean isSkipped = false;
     
     public GcodeCommand(String command) {
         this(command, -1);
@@ -67,6 +68,10 @@ public class GcodeCommand {
     
     public void setSent(Boolean sent) {
         this.sent = sent;
+    }
+    
+    public void setSkipped(Boolean skipped) {
+        this.isSkipped = skipped;
     }
     
     /** Getters. */
@@ -97,6 +102,10 @@ public class GcodeCommand {
     
     public Boolean isError() {
         return this.isError;
+    }
+    
+    public Boolean isSkipped() {
+        return this.isSkipped;
     }
 
     public Boolean parseResponse() {

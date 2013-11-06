@@ -54,7 +54,7 @@ public class GrblController extends AbstractController {
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
     
-    protected GrblController(GrblCommunicator comm) {
+    protected GrblController(AbstractCommunicator comm) {
         super(comm);
         
         this.commandCreator = new GcodeCommandCreator();
@@ -94,7 +94,15 @@ public class GrblController extends AbstractController {
         }
         */
         
-        if (GcodeCommand.isOkErrorResponse(response)) {
+        if (GcodeCommand.isOkErrorResponse(response)) {            
+            try {
+                this.commandComplete(response);
+            } catch (Exception e) {
+                this.errorMessageForConsole("Error while processing response <"
+                        + response + ">:");
+                this.errorMessageForConsole(e.getMessage());
+            }
+            
             this.messageForConsole(response + "\n");
         }
         
