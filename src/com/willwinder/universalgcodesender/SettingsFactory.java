@@ -52,6 +52,7 @@ class SettingsFactory {
     private static boolean removeAllWhitespace;
     private static boolean statusUpdatesEnabled;
     private static int statusUpdateRate;
+    private static boolean displayStateColor;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -92,6 +93,7 @@ class SettingsFactory {
                 SettingsFactory.removeAllWhitespace = Boolean.valueOf(settings.getProperty("removeAllWhitespace", "true"));
                 SettingsFactory.statusUpdatesEnabled = Boolean.valueOf(settings.getProperty("statusUpdatesEnabled", "true"));
                 SettingsFactory.statusUpdateRate = Integer.valueOf(settings.getProperty("statusUpdateRate", "200"));
+                SettingsFactory.displayStateColor = Boolean.valueOf(settings.getProperty("displayStateColor", "true"));
 
             } catch (Exception e) {
                 logger.warning("Can't load settings file!");
@@ -126,6 +128,7 @@ class SettingsFactory {
                 settings.put("removeAllWhitespace", removeAllWhitespace+"");
                 settings.put("statusUpdatesEnabled", statusUpdatesEnabled+"");
                 settings.put("statusUpdateRate", statusUpdateRate+"");
+                settings.put("displayStateColor", displayStateColor+"");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -157,6 +160,7 @@ class SettingsFactory {
         SettingsFactory.removeAllWhitespace = true;
         SettingsFactory.statusUpdatesEnabled = true;
         SettingsFactory.statusUpdateRate = 200;
+        SettingsFactory.displayStateColor = true;
     }
 
     public static void setLastPath(String fileName) {
@@ -285,5 +289,13 @@ class SettingsFactory {
     
     public static int getStatusUpdateRate() {
         return statusUpdateRate;
+    }
+    
+    public static void setDisplayStateColor(boolean enabled) {
+        displayStateColor = enabled;
+    }
+    
+    public static boolean getDisplayStateColor() {
+        return displayStateColor;
     }
 }

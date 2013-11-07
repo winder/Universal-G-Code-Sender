@@ -1123,11 +1123,13 @@
         <Component class="javax.swing.JLabel" name="activeStateLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value="Active State:"/>
+            <Property name="opaque" type="boolean" value="true"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="activeStateValueLabel">
           <Properties>
             <Property name="text" type="java.lang.String" value=" "/>
+            <Property name="opaque" type="boolean" value="true"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="machinePosition">

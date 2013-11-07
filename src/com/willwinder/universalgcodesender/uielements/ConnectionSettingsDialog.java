@@ -84,6 +84,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         return Integer.parseInt(this.statusPollRateSpinner.getValue().toString());
     }
     
+    public boolean getDisplayStateColor() {
+        return this.displayStateColor.isSelected();
+    }
+    
     /**
      * Setters for all the values.
      */
@@ -119,6 +123,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.statusPollRateSpinner.setValue(milliseconds);
     }
     
+    public void setStateColorDisplayEnabled(boolean enabled) {
+        this.displayStateColor.setSelected(enabled);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -144,6 +152,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         sendStatusPolls = new javax.swing.JCheckBox();
         statusPollingRate = new javax.swing.JLabel();
         statusPollRateSpinner = new javax.swing.JSpinner();
+        displayStateColor = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -195,12 +204,14 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         statusPollRateSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
 
+        displayStateColor.setText("Enable state color display");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(6, 6, 6)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -210,6 +221,17 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(closeWithSave)
                         .addGap(24, 24, 24))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(38, 38, 38)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(removeAllWhitespaceCheckBox)
+                                    .addComponent(singleStepModeCheckBox)
+                                    .addComponent(overrideSpeedCheckBox)
+                                    .addComponent(sendStatusPolls)))
+                            .addComponent(titleLabel))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -228,18 +250,11 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                                 .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(statusPollingRate)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(38, 38, 38)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(sendStatusPolls)
-                                    .addComponent(removeAllWhitespaceCheckBox)
-                                    .addComponent(singleStepModeCheckBox)
-                                    .addComponent(overrideSpeedCheckBox)))
-                            .addComponent(titleLabel))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(44, 44, 44)
+                .addComponent(displayStateColor)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -270,7 +285,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(statusPollingRate)
                     .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(displayStateColor)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -311,6 +328,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeWithSave;
     private javax.swing.JButton closeWithoutSave;
+    private javax.swing.JCheckBox displayStateColor;
     private javax.swing.JButton helpButton;
     private javax.swing.JLabel maxCommandLengthLabel;
     private javax.swing.JSpinner maxCommandLengthSpinner;

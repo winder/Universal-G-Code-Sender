@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
+import java.awt.Color;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -719,8 +720,10 @@ implements KeyListener, ControllerListener {
         jPanel5.setPreferredSize(new java.awt.Dimension(247, 160));
 
         activeStateLabel.setText("Active State:");
+        activeStateLabel.setOpaque(true);
 
         activeStateValueLabel.setText(" ");
+        activeStateValueLabel.setOpaque(true);
 
         machinePosition.setText("Machine Position:");
 
@@ -1139,6 +1142,7 @@ implements KeyListener, ControllerListener {
         }
     }//GEN-LAST:event_softResetMachineControlActionPerformed
 
+    // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
         
@@ -1151,6 +1155,7 @@ implements KeyListener, ControllerListener {
         gcsd.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
         gcsd.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
         gcsd.setStatusUpdatesRate(SettingsFactory.getStatusUpdateRate());
+        gcsd.setStateColorDisplayEnabled(SettingsFactory.getDisplayStateColor());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1162,6 +1167,7 @@ implements KeyListener, ControllerListener {
             SettingsFactory.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
             SettingsFactory.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
             SettingsFactory.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
+            SettingsFactory.setDisplayStateColor(gcsd.getDisplayStateColor());
             
             if (this.controller != null) {
                 if (gcsd.getSpeedOverrideEnabled()) {
@@ -1186,6 +1192,7 @@ implements KeyListener, ControllerListener {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 gcodeFile = fileChooser.getSelectedFile();
+                loadFile(gcodeFile);
                 Integer numRows = Utils.processFile(gcodeFile);
 
                 // Reset send context.
@@ -1515,6 +1522,27 @@ implements KeyListener, ControllerListener {
         }
     }
     
+    private void setStatusColorForState(String state) {
+        if (SettingsFactory.getDisplayStateColor()) {
+            java.awt.Color color = null; // default to a transparent background.
+            if (state.equals("Alarm")) {
+                color = Color.RED;
+            } else if (state.equals("Hold")) {
+                color = Color.YELLOW;
+            } else if (state.equals("Queue")) {
+                color = Color.YELLOW;
+            } else if (state.equals("Run")) {
+                color = Color.GREEN;
+            }
+
+            this.activeStateLabel.setBackground(color);
+            this.activeStateValueLabel.setBackground(color);
+        } else {
+            this.activeStateLabel.setBackground(null);
+            this.activeStateValueLabel.setBackground(null);
+        }
+    }
+    
     private void updateControlsForState(ControlState state) {
         
         switch (state) {
@@ -1673,6 +1701,17 @@ implements KeyListener, ControllerListener {
         }
     }
     
+    private void loadFile(java.io.File file) throws FileNotFoundException, IOException {
+        Integer numRows = Utils.processFile(file);
+
+        // Reset send context.
+        this.resetSentRowLabels(numRows);
+
+        if (this.vw != null) {
+            vw.setGcodeFile(file.getAbsolutePath());
+        }
+    }
+    
     private void checkScrollWindow() {
         // Console output.
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
@@ -1823,6 +1862,7 @@ implements KeyListener, ControllerListener {
     @Override
     public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
         this.activeStateValueLabel.setText( state );
+        this.setStatusColorForState( state );
         
         if (machineCoord != null) {
             this.machinePositionXValueLabel.setText( formatter.format(machineCoord.x) + "" );
