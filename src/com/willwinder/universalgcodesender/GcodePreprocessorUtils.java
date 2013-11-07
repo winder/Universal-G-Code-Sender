@@ -178,15 +178,18 @@ public class GcodePreprocessorUtils {
                         
             // If the last character was numeric (readNumeric is true) and this
             // character is a letter or whitespace, then we hit a boundary.
-            if (readNumeric && c != '.' && !Character.isDigit(c)) {
+            if (readNumeric && !Character.isDigit(c) && c != '.') {
                 readNumeric = false; // reset flag.
+                
                 l.add(sb.toString());
+                sb = new StringBuilder();
+                
                 if (Character.isLetter(c)) {
-                    sb = new StringBuilder(c);
+                    sb.append(c);
                 }
             }
 
-            else if (Character.isDigit(c)) {
+            else if (Character.isDigit(c) || c == '.' || c == '-') {
                 sb.append(c);
                 readNumeric = true;
             }
@@ -197,7 +200,9 @@ public class GcodePreprocessorUtils {
         }
         
         // Add final one
-        l.add(sb.toString());
+        if (sb.length() > 0) {
+            l.add(sb.toString());
+        }
         
         return l;
     }
