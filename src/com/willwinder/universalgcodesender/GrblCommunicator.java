@@ -111,14 +111,11 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     
     // Helper for determining if commands should be throttled.
     private boolean allowMoreCommands() {
-        System.out.println("Single step mode = " + this.singleStepModeEnabled);
         if (this.singleStepModeEnabled) {
             if (this.areActiveCommands()) {
-                System.out.println("Allow more commands = false");
                 return false;
             }
         }
-        System.out.println("Allow more commands = true");
         return true;
     }
     
@@ -155,8 +152,6 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
             
             dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString);
         }
-        
-        System.out.println("Number active commands: " + this.activeStringList.size());
     }
     
     @Override
