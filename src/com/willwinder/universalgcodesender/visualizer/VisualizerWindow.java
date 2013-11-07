@@ -109,7 +109,8 @@ implements ControllerListener, WindowListener {
 
     @Override
     public void commandQueued(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        // TODO: When canned cycles are handled in the controller I'll need to
+        //       update the visualizer to use commands sniffed from this queue.
     }
 
     @Override
@@ -132,6 +133,10 @@ implements ControllerListener, WindowListener {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
     
+    @Override
+    public void postProcessData(int numRows) {
+        // Visualizer doesn't care.
+    }
     
     // Window Listener Events.
 

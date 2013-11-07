@@ -25,10 +25,9 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
+import com.willwinder.universalgcodesender.GcodePreprocessorUtils;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
 
 
@@ -49,22 +48,13 @@ public class GcodeViewParse {
     // Parsing state.
     private Point3d lastPoint;
     private int currentLine = 0;    // for assigning line numbers to segments.
-    
-    private Pattern gPattern = null;
-    private Pattern mPattern = null;
-    
-    private static String gCommand = "[Gg]0*(\\d+)";
-    private static String mCommand = "[Mm]0*(\\d+)";
-        
+            
     public GcodeViewParse()
     {
         min = new Point3d();
         max = new Point3d();
         lastPoint = new Point3d();
         lines = new ArrayList<LineSegment>();
-
-        this.gPattern = Pattern.compile(gCommand);
-        this.mPattern = Pattern.compile(mCommand);
     }
 
     public Point3d getMinimumExtremes()
@@ -115,20 +105,20 @@ public class GcodeViewParse {
         double parsedR;
         int gCode, mCode;
         int lastGCode = -1;
-        Matcher matcher;
-        
+        List<Integer> l;
+
         for(String s : gcode)
         {       
             // Parse out gcode values
-            String[] sarr = s.split(" ");
-            parsedX = parseCoord(sarr, 'X');
-            parsedY = parseCoord(sarr, 'Y');
-            parsedZ = parseCoord(sarr, 'Z');
-            parsedF = parseCoord(sarr, 'F');
-            parsedI = parseCoord(sarr, 'I');
-            parsedJ = parseCoord(sarr, 'J');
-            parsedK = parseCoord(sarr, 'K');
-            parsedR = parseCoord(sarr, 'R');
+            List<String> sarr = GcodePreprocessorUtils.splitCommand(s);
+            parsedX = GcodePreprocessorUtils.parseCoord(sarr, 'X');
+            parsedY = GcodePreprocessorUtils.parseCoord(sarr, 'Y');
+            parsedZ = GcodePreprocessorUtils.parseCoord(sarr, 'Z');
+            parsedF = GcodePreprocessorUtils.parseCoord(sarr, 'F');
+            parsedI = GcodePreprocessorUtils.parseCoord(sarr, 'I');
+            parsedJ = GcodePreprocessorUtils.parseCoord(sarr, 'J');
+            parsedK = GcodePreprocessorUtils.parseCoord(sarr, 'K');
+            parsedR = GcodePreprocessorUtils.parseCoord(sarr, 'R');
             
             // At this point next == last
             if(!Double.isNaN(parsedX)) {
@@ -186,18 +176,18 @@ public class GcodeViewParse {
             testExtremes(next);
             
             // Check multiple matches on one line in case of state commands:
-            matcher = this.gPattern.matcher(s);
+            l = GcodePreprocessorUtils.parseGCodes(s);
             gCode = -1;
-            while (matcher.find()) {
-                gCode = Integer.parseInt(matcher.group(1));
+            for (Integer i : l) {
+                gCode = i;
                 handleGCode(gCode, last, center, next, parsedR);
             }
             
             // Check multiple matches on one line in case of state commands:
-            matcher = this.mPattern.matcher(s);
+            l = GcodePreprocessorUtils.parseMCodes(s);
             mCode = -1;
-            while (matcher.find()) {
-                mCode = Integer.parseInt(matcher.group(1));
+            for (Integer i : l) {
+                mCode = i;
                 handleMCode(mCode, last, center, next);
             }
            
@@ -214,6 +204,7 @@ public class GcodeViewParse {
             
             last.set(next);
         }
+
         return lines;
     }
     
@@ -286,6 +277,12 @@ public class GcodeViewParse {
                 //addArcSegmentsReplicatorG(start, end, center, clockwise);
                 addArcSegmentsBDring(start, end, center, clockwise, radius);
                 currentLine++;
+                break;
+                
+            case 20:
+                break;
+                
+            case 21:
                 break;
                 
             case 90:
@@ -514,26 +511,4 @@ public class GcodeViewParse {
         ls.setIsArc(true);
         lines.add(ls);
     }
-    
-    private double parseCoord(String[] sarr, char c)
-    {
-        for(String t : sarr)
-        {
-            if(t.matches("\\s*[" + c + "]\\s*-*[\\d|\\.]+"))
-            {
-                //System.out.println("te : " + t);
-                return Double.parseDouble(t.substring(1,t.length()));
-            }
-        }
-        return Double.NaN;
-    }
-    
-    private int getGCode(String str) {
-        Matcher matcher = this.gPattern.matcher(str);
-
-        if (matcher.find()) {
-            return Integer.parseInt(matcher.group(1));
-        }
-        return -1;
-    }    
 }

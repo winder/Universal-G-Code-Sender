@@ -23,8 +23,11 @@
 package com.willwinder.universalgcodesender;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -125,5 +128,92 @@ public class GcodePreprocessorUtils {
     
     static protected String removeAllWhitespace(String command) {
         return command.replaceAll("\\s","");
+    }
+    
+    static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
+    static public List<Integer> parseGCodes(String command) {
+        Matcher matcher = gPattern.matcher(command);
+        List<Integer> codes = new ArrayList<Integer>();
+        
+        while (matcher.find()) {
+            codes.add(Integer.parseInt(matcher.group(1)));
+        }
+        
+        return codes;
+    }
+
+    static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
+    static public List<Integer> parseMCodes(String command) {
+        Matcher matcher = gPattern.matcher(command);
+        List<Integer> codes = new ArrayList<Integer>();
+        
+        while (matcher.find()) {
+            codes.add(Integer.parseInt(matcher.group(1)));
+        }
+        
+        return codes;
+    }
+
+    static Point3d updatePointWithCommand(String command, Point3d initial) {
+        Point3d newPoint = new Point3d(initial);
+        String[] sarr = command.split(" ");
+        
+
+        
+        
+        return newPoint;
+    }
+    
+    /**
+     * Splits a gcode command by each word/argument, doesn't care about spaces.
+     * This command is about 2.4x slower than splitting on spaces.
+     */
+    static public List<String> splitCommand(String command) {
+        List<String> l = new ArrayList<String>();
+        boolean readNumeric = false;
+        StringBuilder sb = new StringBuilder();
+        
+        for (int i = 0; i < command.length(); i++){
+            char c = command.charAt(i);
+                        
+            // If the last character was numeric (readNumeric is true) and this
+            // character is a letter or whitespace, then we hit a boundary.
+            if (readNumeric && c != '.' && !Character.isDigit(c)) {
+                readNumeric = false; // reset flag.
+                l.add(sb.toString());
+                if (Character.isLetter(c)) {
+                    sb = new StringBuilder(c);
+                }
+            }
+
+            else if (Character.isDigit(c)) {
+                sb.append(c);
+                readNumeric = true;
+            }
+            
+            else if (Character.isLetter(c)) {
+                sb.append(c);
+            }
+        }
+        
+        // Add final one
+        l.add(sb.toString());
+        
+        return l;
+    }
+    
+    // TODO: Replace everything that uses this with a loop that loops through
+    //       the string and creates a hash with all the values.
+    static public double parseCoord(List<String> sarr, char c)
+    {
+        char address = Character.toUpperCase(c);
+        for(String t : sarr)
+        {
+            if (Character.toUpperCase(t.charAt(0)) == address)
+            {
+                return Double.parseDouble(t.substring(1));
+            }
+        }
+        return Double.NaN;
     }
 }
