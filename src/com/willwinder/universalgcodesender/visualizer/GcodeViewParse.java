@@ -256,15 +256,18 @@ public class GcodeViewParse {
                 }
                 
                 // Generate points along the arc
-                List<Point3d> points = generatePointsAlongArcBDring(start, end, arcCenter, clockwise, radius);
+                List<Point3d> points = 
+                        GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, end, arcCenter, clockwise, radius, arcResolution);
                 
                 // Create line segments from points.
-                Point3d lineStart = null;
-                for (Point3d lineNext : points) {
-                    if (lineStart != null) {
-                        this.queueArcLine(lineStart, lineNext);
+                Point3d startPoint = null;
+                for (Point3d nextPoint : points) {
+                    this.testExtremes(nextPoint);
+                    if (startPoint != null) {
+                        this.queueArcLine(startPoint, nextPoint);
                     }
-                    lineStart = lineNext;
+                    startPoint = nextPoint;
                 }
                 
                 currentLine++;
@@ -299,82 +302,6 @@ public class GcodeViewParse {
             case 91:
                 break;
         }
-    }
-    
-    /**
-     * Minimal arc segment call which computes other starting values as needed.
-     */
-    private List<Point3d> generatePointsAlongArcBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw, double R) {
-        double radius;
-        int numPoints = arcResolution;
-        
-        if (R != 0) {
-            // If radius was specified, use it.
-            radius = R;
-        } else {
-            // otherwise use pythag theorum to get the radius
-            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
-        }
-        
-        double startAngle = GcodePreprocessorUtils.getAngle(center, p1);
-        double endAngle = GcodePreprocessorUtils.getAngle(center, p2);
-        
-        return generatePointsAlongArcBDring(p1, p2, center, isCw, radius, startAngle, endAngle, numPoints);
-    }
-
-    private List<Point3d> generatePointsAlongArcBDring(final Point3d p1, final Point3d p2, 
-            final Point3d center, boolean isCw, double radius, 
-            double startAngle, double endAngle, int numPoints) {
-
-        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
-        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
-        double sweep;
-        double angle;
-        List<Point3d> segments = new ArrayList<Point3d>();
-        
-        segments.add(lineStart);
-        
-        // if it ends at 0 it really should end at 360
-        if (endAngle == 0) {
-                endAngle = Math.PI * 2;
-        }
-
-        if (!isCw && endAngle < startAngle) {
-            sweep = ((Math.PI * 2 - startAngle) + endAngle);
-        } else if (isCw && endAngle > startAngle) {
-            sweep = ((Math.PI * 2 - endAngle) + startAngle);
-        } else {
-            sweep = Math.abs(endAngle - startAngle);
-        }
-        
-        double zIncrement = (p2.z - p1.z) / numPoints;
-        for(int i=0; i<numPoints; i++)
-        {
-            if (isCw) {
-                angle = (startAngle - i * sweep/numPoints);
-            } else {
-                angle = (startAngle + i * sweep/numPoints);
-            }
-
-            if (angle >= Math.PI * 2) {
-                angle = angle - Math.PI * 2;
-            }
-
-            lineEnd.x = Math.cos(angle) * radius + center.x;
-            lineEnd.y = Math.sin(angle) * radius + center.y;
-            lineEnd.z += zIncrement;
-
-            this.testExtremes(lineEnd);
-            
-            //this.queueArcLine(lineStart, lineEnd);
-            segments.add(new Point3d(lineEnd));
-            //lineStart = new Point3d(lineEnd);
-        }
-        
-        //this.queueArcLine(lineEnd, p2);
-        segments.add(new Point3d(p2));
-        
-        return segments;
     }
 
     // This one doesn't work right.
