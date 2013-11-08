@@ -41,6 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -95,21 +96,23 @@ implements KeyListener, ControllerListener {
         jPanel2 = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
-        sentRowsLabel = new javax.swing.JLabel();
-        sentRowsValueLabel = new javax.swing.JLabel();
-        rowsLabel = new javax.swing.JLabel();
-        rowsValueLabel = new javax.swing.JLabel();
-        durationLabel = new javax.swing.JLabel();
-        durationValueLabel = new javax.swing.JLabel();
         cancelButton = new javax.swing.JButton();
-        remainingRowsValueLabel = new javax.swing.JLabel();
-        remainingRowsLabel = new javax.swing.JLabel();
-        remainingTimeLabel = new javax.swing.JLabel();
-        remainingTimeValueLabel = new javax.swing.JLabel();
         visualizeButton = new javax.swing.JButton();
         browseButton = new javax.swing.JButton();
         fileTextField = new javax.swing.JTextField();
         fileLabel = new javax.swing.JLabel();
+        saveButton = new javax.swing.JButton();
+        jPanel8 = new javax.swing.JPanel();
+        remainingTimeValueLabel = new javax.swing.JLabel();
+        sentRowsValueLabel = new javax.swing.JLabel();
+        remainingRowsLabel = new javax.swing.JLabel();
+        rowsValueLabel = new javax.swing.JLabel();
+        remainingTimeLabel = new javax.swing.JLabel();
+        durationValueLabel = new javax.swing.JLabel();
+        durationLabel = new javax.swing.JLabel();
+        remainingRowsValueLabel = new javax.swing.JLabel();
+        sentRowsLabel = new javax.swing.JLabel();
+        rowsLabel = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
         resetCoordinatesButton = new javax.swing.JButton();
         returnToZeroButton = new javax.swing.JButton();
@@ -218,7 +221,7 @@ implements KeyListener, ControllerListener {
                     .add(commandTextField)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(commandLabel)
-                        .add(0, 328, Short.MAX_VALUE)))
+                        .add(0, 329, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -228,7 +231,7 @@ implements KeyListener, ControllerListener {
                 .add(commandLabel)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(150, Short.MAX_VALUE))
+                .addContainerGap(169, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Commands", jPanel1);
@@ -251,27 +254,6 @@ implements KeyListener, ControllerListener {
             }
         });
 
-        sentRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        sentRowsLabel.setText("Sent Rows:");
-        sentRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        sentRowsLabel.setMaximumSize(null);
-        sentRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        sentRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        sentRowsValueLabel.setText("0");
-
-        rowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        rowsLabel.setText("Rows In File:");
-        rowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        rowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        rowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        rowsValueLabel.setText("0");
-
-        durationLabel.setText("Duration:");
-
-        durationValueLabel.setText("00:00:00");
-
         cancelButton.setText("Cancel");
         cancelButton.setEnabled(false);
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
@@ -280,20 +262,8 @@ implements KeyListener, ControllerListener {
             }
         });
 
-        remainingRowsValueLabel.setText("0");
-
-        remainingRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        remainingRowsLabel.setText("Remaining Rows:");
-        remainingRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        remainingRowsLabel.setMaximumSize(null);
-        remainingRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        remainingRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        remainingTimeLabel.setText("Estimated Time Remaining:");
-
-        remainingTimeValueLabel.setText("--:--:--");
-
         visualizeButton.setText("Visualize");
+        visualizeButton.setEnabled(false);
         visualizeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 visualizeButtonActionPerformed(evt);
@@ -311,47 +281,134 @@ implements KeyListener, ControllerListener {
 
         fileLabel.setText("File");
 
+        saveButton.setText("Save");
+        saveButton.setEnabled(false);
+        saveButton.setMaximumSize(new java.awt.Dimension(88, 29));
+        saveButton.setMinimumSize(new java.awt.Dimension(88, 29));
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveButtonActionPerformed(evt);
+            }
+        });
+
+        remainingTimeValueLabel.setText("--:--:--");
+
+        sentRowsValueLabel.setText("0");
+
+        remainingRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        remainingRowsLabel.setText("Remaining Rows:");
+        remainingRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        remainingRowsLabel.setMaximumSize(null);
+        remainingRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
+        remainingRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
+
+        rowsValueLabel.setText("0");
+
+        remainingTimeLabel.setText("Estimated Time Remaining:");
+
+        durationValueLabel.setText("00:00:00");
+
+        durationLabel.setText("Duration:");
+
+        remainingRowsValueLabel.setText("0");
+
+        sentRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        sentRowsLabel.setText("Sent Rows:");
+        sentRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        sentRowsLabel.setMaximumSize(null);
+        sentRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
+        sentRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
+
+        rowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        rowsLabel.setText("Rows In File:");
+        rowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        rowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
+        rowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
+
+        org.jdesktop.layout.GroupLayout jPanel8Layout = new org.jdesktop.layout.GroupLayout(jPanel8);
+        jPanel8.setLayout(jPanel8Layout);
+        jPanel8Layout.setHorizontalGroup(
+            jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingTimeLabel)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, durationLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(durationValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(remainingRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(remainingTimeValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+        jPanel8Layout.setVerticalGroup(
+            jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel8Layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jPanel8Layout.createSequentialGroup()
+                        .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(remainingRowsValueLabel))
+                    .add(jPanel8Layout.createSequentialGroup()
+                        .add(rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(remainingTimeLabel)
+                    .add(remainingTimeValueLabel))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(durationValueLabel)
+                    .add(durationLabel))
+                .addContainerGap())
+        );
+
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(6, 6, 6)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingTimeLabel)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, durationLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(durationValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(remainingRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(remainingTimeValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(8, 8, 8)
-                        .add(fileLabel)))
-                .add(0, 0, Short.MAX_VALUE))
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
-                .add(2, 2, 2)
-                .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(cancelButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(visualizeButton)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(browseButton)
-                .add(8, 8, 8))
-            .add(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(fileTextField)
                 .addContainerGap())
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .add(2, 2, 2)
+                        .add(sendButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 68, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(pauseButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 95, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(cancelButton)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(visualizeButton))
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel2Layout.createSequentialGroup()
+                                .add(8, 8, 8)
+                                .add(fileLabel))
+                            .add(jPanel2Layout.createSequentialGroup()
+                                .addContainerGap()
+                                .add(jPanel8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .add(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .add(6, 6, 6)
+                        .add(saveButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(browseButton))
+                .add(8, 8, 8))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -367,29 +424,13 @@ implements KeyListener, ControllerListener {
                         .add(pauseButton)
                         .add(cancelButton)
                         .add(visualizeButton)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(remainingRowsValueLabel))
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(remainingTimeLabel)
-                    .add(remainingTimeValueLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(durationValueLabel)
-                    .add(durationLabel))
-                .addContainerGap(9, Short.MAX_VALUE))
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .add(saveButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(0, 99, Short.MAX_VALUE))
+                    .add(jPanel8, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         controlContextTabbedPane.addTab("File Mode", jPanel2);
@@ -598,7 +639,7 @@ implements KeyListener, ControllerListener {
                         .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 10, Short.MAX_VALUE)
                 .add(jPanel7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -623,7 +664,7 @@ implements KeyListener, ControllerListener {
                         .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(helpButtonMachineControl)
                             .add(requestStateInformation))))
-                .addContainerGap(31, Short.MAX_VALUE))
+                .addContainerGap(50, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Machine Control", jPanel4);
@@ -894,7 +935,7 @@ implements KeyListener, ControllerListener {
                         .add(scrollWindowCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(showVerboseOutputCheckBox)
-                        .addContainerGap(102, Short.MAX_VALUE))
+                        .addContainerGap(103, Short.MAX_VALUE))
                     .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
             .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
@@ -908,13 +949,13 @@ implements KeyListener, ControllerListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(layout.createSequentialGroup()
-                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 264, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
                             .add(showVerboseOutputCheckBox))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 176, Short.MAX_VALUE))
+                .add(jTabbedPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 174, Short.MAX_VALUE))
         );
 
         pack();
@@ -994,28 +1035,7 @@ implements KeyListener, ControllerListener {
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
             this.controller = FirmwareUtils.getControllerFor(firmware);
 
-            // Apply SettingsFactory settings to controller.
-            if (SettingsFactory.isOverrideSpeedSelected()) {
-                double value = SettingsFactory.getOverrideSpeedValue();
-                this.controller.setSpeedOverride(value);
-            }
-            
-            try {
-                this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
-                this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
-                this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
-                this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
-                this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
-                this.controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
-                this.controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
-                this.controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
-            } catch (Exception ex) {
-                this.displayErrorDialog("There was a problem setting one or more of these controller features: "
-                        + "\nmax command length, truncate decimal length, single step mode,"
-                        + "\nremove all whitespace, convert arcs to lines, status updates enabled,"
-                        + "\nstatus update rate."
-                        + "\nFailed with exception: " + ex.getMessage());
-            }
+            this.applySettingsToController();
             
             // Register comm listeners
             this.controller.addListener(this);
@@ -1209,6 +1229,8 @@ implements KeyListener, ControllerListener {
                 // Reset send context.
                 this.resetSentRowLabels(numRows);
 
+                updateControlsForState(ControlState.FILE_SELECTED);
+                        
                 if (this.vw != null) {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
@@ -1339,6 +1361,35 @@ implements KeyListener, ControllerListener {
                 this.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
+
+    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        int returnVal = fileChooser.showSaveDialog(this);
+                //fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                File newFile = fileChooser.getSelectedFile();
+                boolean deleteController = false;
+                if (this.controller == null) {
+                    deleteController = true;
+                    String firmware = this.firmwareComboBox.getSelectedItem().toString();
+                    this.controller = FirmwareUtils.getControllerFor(firmware);
+                    this.applySettingsToController();
+                }
+                this.controller.appendGcodeFile(this.gcodeFile);
+                this.controller.preprocessAndSaveToFile(newFile);
+                if (deleteController) {
+                    this.controller = null;
+                }
+            } catch (FileNotFoundException ex) {
+                this.displayErrorDialog("Problem opening file: " + ex.getMessage());
+            } catch (IOException e) {
+                this.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
+                this.displayErrorDialog("Exception occurred during save: " + e.getMessage());
+            }
+        }    
+    }//GEN-LAST:event_saveButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1557,6 +1608,10 @@ implements KeyListener, ControllerListener {
     private void updateControlsForState(ControlState state) {
         
         switch (state) {
+            case FILE_SELECTED:
+                this.saveButton.setEnabled(true);
+                this.visualizeButton.setEnabled(true);
+                break;
             case COMM_DISCONNECTED:
                 this.updateConnectionControls(false);
                 this.updateManualControls(false);
@@ -1720,6 +1775,31 @@ implements KeyListener, ControllerListener {
 
         if (this.vw != null) {
             vw.setGcodeFile(file.getAbsolutePath());
+        }
+    }
+    
+    private void applySettingsToController() {
+        // Apply SettingsFactory settings to controller.
+        if (SettingsFactory.isOverrideSpeedSelected()) {
+            double value = SettingsFactory.getOverrideSpeedValue();
+            this.controller.setSpeedOverride(value);
+        }
+
+        try {
+            this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
+            this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
+            this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
+            this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
+            this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+            this.controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
+            this.controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
+            this.controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
+        } catch (Exception ex) {
+            this.displayErrorDialog("There was a problem setting one or more of these controller features: "
+                    + "\nmax command length, truncate decimal length, single step mode,"
+                    + "\nremove all whitespace, convert arcs to lines, status updates enabled,"
+                    + "\nstatus update rate."
+                    + "\nFailed with exception: " + ex.getMessage());
         }
     }
     
@@ -1915,6 +1995,7 @@ implements KeyListener, ControllerListener {
         COMM_IDLE,
         COMM_SENDING,
         COMM_SENDING_PAUSED,
+        FILE_SELECTED,
     };
         
     // Static utilities
@@ -1957,6 +2038,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -1985,6 +2067,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JButton returnToZeroButton;
     private javax.swing.JLabel rowsLabel;
     private javax.swing.JLabel rowsValueLabel;
+    private javax.swing.JButton saveButton;
     private javax.swing.JCheckBox scrollWindowCheckBox;
     private javax.swing.JButton sendButton;
     private javax.swing.JLabel sentRowsLabel;

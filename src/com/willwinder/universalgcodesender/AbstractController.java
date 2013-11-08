@@ -25,8 +25,13 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -138,7 +143,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     
     // State
     private Boolean commOpen = false;
-    
+    private Boolean saveToFileMode = false;
+
     // Parser state
     private Boolean absoluteMode = true;
     private Boolean metric = true;
@@ -151,6 +157,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     private long streamStart = 0;
     private long streamStop = 0;
     private File gcodeFile;
+    private PrintWriter outputFileWriter;
     
     // This metadata needs to be cached instead of inferred from queue's because
     // in case of a cancel the queues will be cleared.
@@ -168,9 +175,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     
     // Listeners
     private ArrayList<ControllerListener> listeners;
-    
-    
-    
+        
     /**
      * Dependency injection constructor to allow a mock communicator.
      */
@@ -453,11 +458,22 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
+    public void preprocessAndSaveToFile(File f) throws Exception {
+        this.saveToFileMode = true;
+        this.outputFileWriter = new PrintWriter(f, "UTF-8");
+        beginStreaming();
+        this.outputFileWriter.close();
+        this.saveToFileMode = false;
+    }
+    
     /**
      * Send all queued commands to comm port.
      */
     public void beginStreaming() throws Exception {
-        this.isReadyToStreamFile();
+        // Throw caution to the wind when saving to a file.
+        if (!this.saveToFileMode) {
+            this.isReadyToStreamFile();
+        }
         
         if (this.prepQueue.size() == 0) {
             throw new Exception("There are no commands queued for streaming.");
@@ -491,7 +507,12 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 for (String s : processed) {
                     command = new GcodeCommand(s.trim());
                     command.setCommandNumber(numCommands++);
-                    queueCommandForComm(command);
+                    
+                    if (this.saveToFileMode) {
+                        this.outputFileWriter.println(command.getCommandString());
+                    } else {
+                        queueCommandForComm(command);
+                    }
                 }
             }
             
@@ -620,10 +641,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 switch (i) {
                     case 0:
                     case 1:
-                        if (l.size() > 1) {
-                            System.out.println("**** ERROR, too many GCodes for"
-                                    + " this command type ***");
-                        }
                         this.startPoint = 
                             GcodePreprocessorUtils.updatePointWithCommand(
                             newCommand, this.startPoint, this.absoluteMode);
@@ -635,10 +652,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                         boolean clockwise = true;
                         if (i == 3) {
                             clockwise = false;
-                        }
-                        if (l.size() > 1) {
-                            System.out.println("**** ERROR, too many GCodes for"
-                                    + " this command type ***");
                         }
                         
                         List<String> args = 
@@ -757,7 +770,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                                         sb.append(df.format(p.z-start.x));
                                     }
                                 }
-                                System.out.println("New G1 command: " + sb.toString());
+
                                 arr[index++] = sb.toString();
                             }
                         }
