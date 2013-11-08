@@ -53,6 +53,8 @@ class SettingsFactory {
     private static boolean statusUpdatesEnabled;
     private static int statusUpdateRate;
     private static boolean displayStateColor;
+    private static boolean convertArcsToLines;
+    private static double smallArcThreshold;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -94,6 +96,10 @@ class SettingsFactory {
                 SettingsFactory.statusUpdatesEnabled = Boolean.valueOf(settings.getProperty("statusUpdatesEnabled", "true"));
                 SettingsFactory.statusUpdateRate = Integer.valueOf(settings.getProperty("statusUpdateRate", "200"));
                 SettingsFactory.displayStateColor = Boolean.valueOf(settings.getProperty("displayStateColor", "true"));
+                SettingsFactory.convertArcsToLines = Boolean.valueOf(settings.getProperty("convertArcsToLines", "false"));
+                SettingsFactory.smallArcThreshold = Double.valueOf(settings.getProperty("smallArcThreshold", "2.0"));
+
+                
 
             } catch (Exception e) {
                 logger.warning("Can't load settings file!");
@@ -129,6 +135,8 @@ class SettingsFactory {
                 settings.put("statusUpdatesEnabled", statusUpdatesEnabled+"");
                 settings.put("statusUpdateRate", statusUpdateRate+"");
                 settings.put("displayStateColor", displayStateColor+"");
+                settings.put("convertArcsToLines", convertArcsToLines+"");
+                settings.put("smallArcThreshold", smallArcThreshold+"");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -161,6 +169,8 @@ class SettingsFactory {
         SettingsFactory.statusUpdatesEnabled = true;
         SettingsFactory.statusUpdateRate = 200;
         SettingsFactory.displayStateColor = true;
+        SettingsFactory.convertArcsToLines = false;
+        SettingsFactory.smallArcThreshold = 2.0;
     }
 
     public static void setLastPath(String fileName) {
@@ -297,5 +307,21 @@ class SettingsFactory {
     
     public static boolean getDisplayStateColor() {
         return displayStateColor;
+    }
+    
+    public static void setConvertArcsToLines(boolean enabled) {
+        convertArcsToLines = enabled;
+    }
+    
+    public static boolean getConvertArcsToLines() {
+        return convertArcsToLines;
+    }
+    
+    public static void setSmallArcThreshold(double threshold) {
+        smallArcThreshold = threshold;
+    }
+    
+    public static double getSmallArcThreshold() {
+        return smallArcThreshold;
     }
 }

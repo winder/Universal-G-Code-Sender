@@ -30,10 +30,39 @@ import javax.vecmath.Point3d;
  */
 public interface ControllerListener {
     void fileStreamComplete(String filename, boolean success);
+    
+    /**
+     * A command has been added to the output queue.
+     */
     void commandQueued(GcodeCommand command);
+    
+    /**
+     * A command has successfully been sent to the controller.
+     */
     void commandSent(GcodeCommand command);
+    
+    /**
+     * A command has been processed by the the controller.
+     */
     void commandComplete(GcodeCommand command);
+    
+    /**
+     * A comment has been processed.
+     */
     void commandComment(String comment);
+    
+    /**
+     * A console message from the controller.
+     */
     void messageForConsole(String msg, Boolean verbose);
+    
+    /**
+     * Controller status information.
+     */
     void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
+    
+    /**
+     * Data gathered while preprocessing commands for queue.
+     */
+    void postProcessData(int numRows);
 }

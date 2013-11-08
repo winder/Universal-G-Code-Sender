@@ -104,7 +104,7 @@ public class GcodeViewParse {
         Point3d next = new Point3d();
         Point3d center = new Point3d(0.0, 0.0, 0.0);
         Point3d last = new Point3d(0.0, 0.0, 0.0);
-        double parsedX, parsedY, parsedZ, parsedF, parsedI, parsedJ, parsedK;
+        double parsedF;
         double parsedR;
         int gCode, mCode;
         int lastGCode = -1;
@@ -118,65 +118,22 @@ public class GcodeViewParse {
             
             // Parse out gcode values
             List<String> sarr = GcodePreprocessorUtils.splitCommand(command);
-            parsedX = GcodePreprocessorUtils.parseCoord(sarr, 'X');
-            parsedY = GcodePreprocessorUtils.parseCoord(sarr, 'Y');
-            parsedZ = GcodePreprocessorUtils.parseCoord(sarr, 'Z');
             parsedF = GcodePreprocessorUtils.parseCoord(sarr, 'F');
-            parsedI = GcodePreprocessorUtils.parseCoord(sarr, 'I');
-            parsedJ = GcodePreprocessorUtils.parseCoord(sarr, 'J');
-            parsedK = GcodePreprocessorUtils.parseCoord(sarr, 'K');
             parsedR = GcodePreprocessorUtils.parseCoord(sarr, 'R');
             
-            // At this point next == last
-            if(!Double.isNaN(parsedX)) {
-                if (!this.absoluteMode) {
-                    parsedX += last.x;
-                }
-                next.x = parsedX;
-            }
-            if(!Double.isNaN(parsedY)) {
-                if (!this.absoluteMode) {
-                    parsedY += last.y;
-                }
-                next.y = parsedY;
-            }
-            if(!Double.isNaN(parsedZ)) {
-                if (!this.absoluteMode) {
-                    parsedZ += last.z;
-                }
-                next.z = parsedZ;
-            }
+            next = GcodePreprocessorUtils.updatePointWithCommand(
+                    sarr, last, this.absoluteMode);
             
+            // Centerpoint in case of arc
+            center =
+                    GcodePreprocessorUtils.updateCenterWithCommand(
+                    sarr, last, absoluteIJK);
+
+            // Feed
             if(!Double.isNaN(parsedF)) {
                 speed = parsedF;
             }
                       
-            // Centerpoint in case of arc
-            center.set(0.0, 0.0, 0.0);
-            if (!Double.isNaN(parsedI)) {
-                if (!absoluteIJK) {
-                    center.x = last.x + parsedI;
-                } else {
-                    center.x = parsedI;
-                }
-            }
-
-            if (!Double.isNaN(parsedJ)) {
-                if (!absoluteIJK) {
-                    center.y = last.y + parsedJ;
-                } else {
-                    center.y = parsedJ;
-                }
-            }
-
-            if (!Double.isNaN(parsedK)) {
-                if (!absoluteIJK) {
-                    center.z = last.z + parsedK;
-                } else {
-                    center.z = parsedK;
-                }
-            }
-            
             // Save any updated bounaries.
             testExtremes(next);
             

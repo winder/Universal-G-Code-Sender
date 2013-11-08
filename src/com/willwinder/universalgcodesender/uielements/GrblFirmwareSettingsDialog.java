@@ -383,4 +383,9 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public void postProcessData(int numRows) {
+        //throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

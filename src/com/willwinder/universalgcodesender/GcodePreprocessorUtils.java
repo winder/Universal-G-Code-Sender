@@ -160,13 +160,13 @@ public class GcodePreprocessorUtils {
      */
     static public Point3d updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
         List<String> l = GcodePreprocessorUtils.splitCommand(command);
-        return updatePointWithCommand(l, command, initial, absoluteMode);
+        return updatePointWithCommand(l, initial, absoluteMode);
     }
     
     /**
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
-    static public Point3d updatePointWithCommand(List<String> commandArgs, String command, Point3d initial, boolean absoluteMode) {
+    static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
     
         Point3d newPoint = new Point3d(initial.x, initial.y, initial.z);
 
@@ -199,6 +199,42 @@ public class GcodePreprocessorUtils {
         return newPoint;
     }
     
+    static public Point3d updateCenterWithCommand(String command, Point3d initial, boolean absoluteMode) {
+        List<String> l = GcodePreprocessorUtils.splitCommand(command);
+        return updateCenterWithCommand(l, initial, absoluteMode);
+    }
+    
+    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
+        Point3d newPoint = new Point3d();
+
+        double i = parseCoord(commandArgs, 'I');
+        double j = parseCoord(commandArgs, 'J');
+        double k = parseCoord(commandArgs, 'K');
+            
+        if (absoluteMode) {
+            if (!Double.isNaN(i)) {
+                newPoint.x = i;
+            }
+            if (!Double.isNaN(j)) {
+                newPoint.y = j;
+            }
+            if (!Double.isNaN(k)) {
+                newPoint.z = k;
+            }
+        } else {
+            if (!Double.isNaN(i)) {
+                newPoint.x = initial.x + i;
+            }
+            if (!Double.isNaN(j)) {
+                newPoint.y = initial.y + j;
+            }
+            if (!Double.isNaN(k)) {
+                newPoint.z = initial.z + k;
+            }
+        }
+
+        return newPoint;
+    }
     /**
      * Splits a gcode command by each word/argument, doesn't care about spaces.
      * This command is about the same speed as the string.split(" ") command,

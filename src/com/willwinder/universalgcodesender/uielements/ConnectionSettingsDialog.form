@@ -42,7 +42,6 @@
                                   <Component id="removeAllWhitespaceCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="singleStepModeCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="overrideSpeedCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="sendStatusPolls" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
@@ -66,19 +65,33 @@
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="truncateDecimalDigitsLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="statusPollRateSpinner" min="-2" pref="59" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Component id="statusPollingRate" min="-2" max="-2" attributes="0"/>
-                          </Group>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                   </Group>
               </Group>
           </Group>
-          <Group type="102" alignment="0" attributes="0">
-              <EmptySpace min="-2" pref="44" max="-2" attributes="0"/>
-              <Component id="displayStateColor" min="-2" max="-2" attributes="0"/>
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="statusPollRateSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="statusPollingRate" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="38" pref="38" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="sendStatusPolls" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="displayStateColor" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="convertArcsToLinesCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="smallArcThresholdSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="smallArcThresholdLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -118,6 +131,13 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="displayStateColor" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="convertArcsToLinesCheckBox" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="smallArcThresholdLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="smallArcThresholdSpinner" alignment="2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="closeWithSave" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -233,6 +253,23 @@
     <Component class="javax.swing.JCheckBox" name="displayStateColor">
       <Properties>
         <Property name="text" type="java.lang.String" value="Enable state color display"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="convertArcsToLinesCheckBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Convert arcs to lines"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="smallArcThresholdLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Small arc threshold (mm)"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="smallArcThresholdSpinner">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="2.0" minimum="0.0" numberType="java.lang.Double" stepSize="0.1" type="number"/>
+        </Property>
       </Properties>
     </Component>
   </SubComponents>

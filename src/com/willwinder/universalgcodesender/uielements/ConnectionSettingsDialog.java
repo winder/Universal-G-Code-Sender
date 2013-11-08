@@ -75,7 +75,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public boolean getRemoveAllWhitespace() {
         return this.removeAllWhitespaceCheckBox.isSelected();
     }
-    
+
     public boolean getStatusUpdatesEnabled() {
         return this.sendStatusPolls.isSelected();
     }
@@ -87,6 +87,15 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public boolean getDisplayStateColor() {
         return this.displayStateColor.isSelected();
     }
+    
+    public boolean getConvertArcsToLines() {
+        return this.convertArcsToLinesCheckBox.isSelected();
+    }
+    
+    public double getSmallArcThreshold() {
+        return (Double)this.smallArcThresholdSpinner.getValue();
+    }
+    
     
     /**
      * Setters for all the values.
@@ -127,6 +136,14 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.displayStateColor.setSelected(enabled);
     }
     
+    public void setConvertArcsToLines(boolean enabled) {
+        this.convertArcsToLinesCheckBox.setSelected(enabled);
+    }
+    
+    public void setSmallArcThreshold(double threshold) {
+        this.smallArcThresholdSpinner.setValue(threshold);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -153,6 +170,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         statusPollingRate = new javax.swing.JLabel();
         statusPollRateSpinner = new javax.swing.JSpinner();
         displayStateColor = new javax.swing.JCheckBox();
+        convertArcsToLinesCheckBox = new javax.swing.JCheckBox();
+        smallArcThresholdLabel = new javax.swing.JLabel();
+        smallArcThresholdSpinner = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -206,6 +226,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         displayStateColor.setText("Enable state color display");
 
+        convertArcsToLinesCheckBox.setText("Convert arcs to lines");
+
+        smallArcThresholdLabel.setText("Small arc threshold (mm)");
+
+        smallArcThresholdSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(2.0d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -228,8 +254,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(removeAllWhitespaceCheckBox)
                                     .addComponent(singleStepModeCheckBox)
-                                    .addComponent(overrideSpeedCheckBox)
-                                    .addComponent(sendStatusPolls)))
+                                    .addComponent(overrideSpeedCheckBox)))
                             .addComponent(titleLabel))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
@@ -245,15 +270,25 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(truncateDecimalDigitsSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(truncateDecimalDigitsLabel))
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(statusPollingRate)))
+                                .addComponent(truncateDecimalDigitsLabel)))
                         .addGap(0, 0, Short.MAX_VALUE))))
             .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addComponent(displayStateColor)
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(statusPollingRate))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(sendStatusPolls)
+                            .addComponent(displayStateColor)
+                            .addComponent(convertArcsToLinesCheckBox)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(smallArcThresholdLabel)))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -287,6 +322,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(displayStateColor)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(convertArcsToLinesCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(smallArcThresholdLabel)
+                    .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
@@ -317,7 +358,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 "\n\nEnable single step mode: Turns on single step mode, this is very slow." +
                 "\n\nRemove all whitespace: Removes the usually unnecessary whitespace in gcode commands." +
                 "\n\nEnable status updates: Turns on status polling for firmware if supported." +
-                "\n\nStatus update rate: The rate in milliseconds that status requests are sent at.";
+                "\n\nStatus update rate: The rate in milliseconds that status requests are sent at." +
+                "\n\nState color display: Based on state highlights the controller state red/orange/yellow." +
+                "\n\nConvert arcs to lines: Converts small arc commands (G2/G3) to a series of G1 commands." +
+                "\n\nSmall arc threshold: The arc length below which will be converted into G1 commands.";
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 
@@ -328,6 +372,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton closeWithSave;
     private javax.swing.JButton closeWithoutSave;
+    private javax.swing.JCheckBox convertArcsToLinesCheckBox;
     private javax.swing.JCheckBox displayStateColor;
     private javax.swing.JButton helpButton;
     private javax.swing.JLabel maxCommandLengthLabel;
@@ -338,6 +383,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox removeAllWhitespaceCheckBox;
     private javax.swing.JCheckBox sendStatusPolls;
     private javax.swing.JCheckBox singleStepModeCheckBox;
+    private javax.swing.JLabel smallArcThresholdLabel;
+    private javax.swing.JSpinner smallArcThresholdSpinner;
     private javax.swing.JSpinner statusPollRateSpinner;
     private javax.swing.JLabel statusPollingRate;
     private javax.swing.JLabel titleLabel;

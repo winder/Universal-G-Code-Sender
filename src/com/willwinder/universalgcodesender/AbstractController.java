@@ -27,10 +27,10 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 import javax.vecmath.Point3d;
 
 /**
@@ -131,9 +131,19 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     private boolean removeAllWhitespace = true;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
+    private boolean convertArcsToLines = false;
+    private double smallArcThreshold = 1.0;
+    // Not configurable outside, but maybe it should be.
+    private double arcLineLength = 0.3;
     
     // State
     private Boolean commOpen = false;
+    
+    // Parser state
+    private Boolean absoluteMode = true;
+    private Boolean metric = true;
+    private int previousGCode = -1;
+    private Point3d startPoint = null;
     
     // Added value
     private Boolean isStreaming = false;
@@ -150,7 +160,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     private int numCommandsCompleted = 0;
     
     // Structures for organizing all streaming commands.
-    private LinkedList<GcodeCommand> commandQueue;          // preparing for send
+    private LinkedList<GcodeCommand> prepQueue;             // preparing for send
     private LinkedList<GcodeCommand> outgoingQueue;         // waiting to be sent
     private LinkedList<GcodeCommand> awaitingResponseQueue; // waiting for response
     private LinkedList<GcodeCommand> completedCommandList;  // received response
@@ -168,7 +178,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.comm = comm;
         this.comm.setListenAll(this);
         
-        this.commandQueue = new LinkedList<GcodeCommand>();
+        this.prepQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
         this.awaitingResponseQueue = new LinkedList<GcodeCommand>();
         this.completedCommandList = new LinkedList<GcodeCommand>();
@@ -218,6 +228,30 @@ public abstract class AbstractController implements SerialCommunicatorListener {
 
     public boolean getRemoveAllWhitespace() {
         return this.removeAllWhitespace;
+    }
+
+    public void setConvertArcsToLines(boolean enabled) {
+        this.convertArcsToLines = enabled;
+    }
+
+    public boolean getConvertArcsToLines() {
+        return this.convertArcsToLines;
+    }
+    
+    public void setSmallArcThreshold(double length) {
+        this.smallArcThreshold = length;
+    }
+    
+    public double getSmallArcThreshold() {
+        return this.smallArcThreshold;
+    }
+    
+    public void setArcLineLength(double length) {
+        this.arcLineLength = length;
+    }
+    
+    public double getArcLineLength() {
+        return this.arcLineLength;
     }
     
     public void setStatusUpdatesEnabled(boolean enabled) {
@@ -343,10 +377,32 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.sendStringToComm(command.getCommandString());
     }
     
+    /**
+     * Accepts a command floating between the prepQueue and adds it to the next
+     * stage.
+     */
     private void queueCommandForComm(GcodeCommand command) throws Exception {
-        this.outgoingQueue.add(command);
-        this.commandQueued(command);
-        this.sendStringToComm(command.getCommandString());
+        // Don't send zero length commands.
+        if (command.getCommandString().equals("")) {
+            this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
+            command.setResponse("<skipped by application>");
+            command.setSkipped(true);
+            // Need to queue the command first so that listeners don't
+            // see a random command complete without notice.
+            this.commandQueued(command);
+            this.commandComplete(command);
+            // For the listeners...
+            dispatchCommandSent(command);
+        } else if (command.getCommandString().length() > this.maxCommandLength) {
+            throw new Exception("Command #" + command.getCommandNumber()
+                    + " too long: (" + command.getCommandString().length()
+                    + " > " + maxCommandLength + ") "
+                    + command.getCommandString());
+        } else {
+            this.outgoingQueue.add(command);
+            this.commandQueued(command);
+            this.sendStringToComm(command.getCommandString());
+        }
     }
     
     /**
@@ -380,7 +436,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      */
     public void appendGcodeCommand(String commandString) {
         GcodeCommand command = this.commandCreator.createCommand(commandString);
-        this.commandQueue.add(command);
+        this.prepQueue.add(command);
     }
     
     /**
@@ -403,7 +459,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     public void beginStreaming() throws Exception {
         this.isReadyToStreamFile();
         
-        if (this.commandQueue.size() == 0) {
+        if (this.prepQueue.size() == 0) {
             throw new Exception("There are no commands queued for streaming.");
         }
         
@@ -416,42 +472,31 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.isStreaming = true;
         this.streamStop = 0;
         this.streamStart = System.currentTimeMillis();
-        this.numCommands = this.commandQueue.size();
+        this.numCommands = 0;
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
         this.numCommandsCompleted = 0;
+        this.startPoint = new Point3d(); // reset parser state.
 
         try {
             // Send all queued commands and wait for a response.
             GcodeCommand command;
-            String processed;
-            while (this.commandQueue.size() > 0) {
-                command = this.commandQueue.remove();
+            String[] processed;
+            while (this.prepQueue.size() > 0) {
+                command = this.prepQueue.remove();
                 
                 // TODO: Expand this to handle canned cycles (Issue#49)
                 processed = this.preprocessCommand(command.getCommandString());
-                processed = processed.trim();
-                command.setCommand(processed);
-
-                // Don't send zero length commands.
-                if (processed.equals("")) {
-                    this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
-                    command.setResponse("<skipped by application>");
-                    command.setSkipped(true);
-                    // Need to queue the command first so that listeners don't
-                    // see a random command complete without notice.
-                    this.commandQueued(command);
-                    this.commandComplete(command);
-                    // For the listeners...
-                    dispatchCommandSent(command);
-                } else if (processed.length() > this.maxCommandLength) {
-                    throw new Exception("Command #" + command.getCommandNumber()
-                            + " too long: (" + processed.length() + " > "
-                            + maxCommandLength + ") "+ processed);
-                } else {
+                
+                for (String s : processed) {
+                    command = new GcodeCommand(s.trim());
+                    command.setCommandNumber(numCommands++);
                     queueCommandForComm(command);
                 }
             }
+            
+            // Inform the GUI of the postprocessed number of commands.
+            this.dispatchPostProcessData(numCommands);
         } catch(Exception e) {
             e.printStackTrace();
             this.isStreaming = false;
@@ -483,7 +528,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         // send is in progress while the next queue is being built. In which
         // case a cancel would only be expected to cancel the current action
         // to make way for the queued commands.
-        //this.commandQueue.clear();
+        //this.prepQueue.clear();
         
         this.outgoingQueue.clear();
         this.completedCommandList.clear();
@@ -495,7 +540,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
     
     private void flushSendQueues() {
-        this.commandQueue.clear();
+        this.prepQueue.clear();
         this.outgoingQueue.clear();
         this.awaitingResponseQueue.clear();
         this.completedCommandList.clear();
@@ -503,7 +548,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
 
     private void printStateOfQueues() {
-        System.out.println("command queue size = " + this.commandQueue.size());
+        System.out.println("command queue size = " + this.prepQueue.size());
         System.out.println("outgoing queue size = " + this.outgoingQueue.size());
         System.out.println("awaiting response queue size = " + this.awaitingResponseQueue.size());
         System.out.println("completed command list size = " + this.completedCommandList.size());
@@ -525,8 +570,14 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         dispatchStreamComplete(filename, success);        
     }
 
+    private String[] preprocessGcodeCommand(String command) {
+        
+
+        return null;
+    }
+    
     // No longer a listener event
-    private String preprocessCommand(String command) {
+    private String[] preprocessCommand(String command) {
         String newCommand = command;
 
         // Remove comments from command.
@@ -549,9 +600,195 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         if (this.removeAllWhitespace) {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
         }
+        
+        String[] arr = {newCommand};
+        
+        // If this is enabled we need to keep track of some extra state data:
+        // 1. Current units (inch/mm)
+        // 2. Absolute/Referential mode
+        // 3. Previous command, in case this one is implicit
+        // 4. End point of the previous commands.
+        if (this.convertArcsToLines) { // || this.expandCannedCycles) {
+            List<Integer> l = GcodePreprocessorUtils.parseGCodes(newCommand);
+            
+            // Add here so that there isn't a special case for previous gcodes.
+            if (l.isEmpty() && this.previousGCode != -1) {
+                l.add(this.previousGCode);
+            }
+            
+            for (Integer i : l) {
+                switch (i) {
+                    case 0:
+                    case 1:
+                        if (l.size() > 1) {
+                            System.out.println("**** ERROR, too many GCodes for"
+                                    + " this command type ***");
+                        }
+                        this.startPoint = 
+                            GcodePreprocessorUtils.updatePointWithCommand(
+                            newCommand, this.startPoint, this.absoluteMode);
+                        break;
+                        
+                    // Arc command.
+                    case 2:
+                    case 3:
+                        boolean clockwise = true;
+                        if (i == 3) {
+                            clockwise = false;
+                        }
+                        if (l.size() > 1) {
+                            System.out.println("**** ERROR, too many GCodes for"
+                                    + " this command type ***");
+                        }
+                        
+                        List<String> args = 
+                                GcodePreprocessorUtils.splitCommand(newCommand);
+                        
+                        Point3d nextPoint =
+                            GcodePreprocessorUtils.updatePointWithCommand( args,
+                            this.startPoint, this.absoluteMode);
+
+                        Point3d center = 
+                                GcodePreprocessorUtils.updateCenterWithCommand(
+                                args, this.startPoint, false);
+
+                        double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
+                        
+                        // If radius was specified and IJK were not, convert R to IJK
+                        if (!Double.isNaN(radius) && center.x == 0 && center.y == 0) {
+                            center = GcodePreprocessorUtils.convertRToCenter(
+                                    this.startPoint, nextPoint, radius, false,
+                                    clockwise);
+                        }
+                        
+                        // Calculate radius if necessary.
+                        if (Double.isNaN(radius)) {
+                            radius = Math.sqrt(Math.pow(this.startPoint.x - center.x, 2.0) + Math.pow(this.startPoint.y - center.y, 2.0));
+                        }
+
+                        /*
+                        use GcodePreProcessorUtils.getAngle(point1, point2) multiplied by the radius to decide
+                        whether or not its worth chopping the arc into segments.GcodePreProcessorUtils
+                                
+                        then refactor the arc function out of GcodeViewParse until there are pieces which can be
+                        used for this AND the visualizer.
+                         
+                        Note: Be sure to convert from absolute to relative mode if needed!!
+                        */
+                        /*
+                         * Regrettably lots of code below is copy/pasted from the
+                         * first half of the arc calculation, because the sweep
+                         * distance is an interim calculation.
+                         */
+
+                        // Calculate angles from center.
+                        double startAngle = GcodePreprocessorUtils.getAngle(center, this.startPoint);
+                        double endAngle = GcodePreprocessorUtils.getAngle(center, nextPoint);
+
+                        // Fix semantics, if the angle ends at 0 it really should end at 360.
+                        if (endAngle == 0) {
+                                endAngle = Math.PI * 2;
+                        }
+
+                        // Calculate distance along arc.
+                        double sweep;
+                        if (!clockwise && endAngle < startAngle) {
+                            sweep = ((Math.PI * 2 - startAngle) + endAngle);
+                        } else if (clockwise && endAngle > startAngle) {
+                            sweep = ((Math.PI * 2 - endAngle) + startAngle);
+                        } else {
+                            sweep = Math.abs(endAngle - startAngle);
+                        }
+                        
+                        double distance = sweep * radius;
+                        if (this.metric == false) {
+                            distance *= 25.4;
+                        }
+                        
+                        // If the arc is small enough, generate a few points and add them to an array...
+                        if (distance < this.smallArcThreshold) {
+                            int numLines = (new Double(distance / arcLineLength)).intValue();
+                            List<Point3d> points =
+                                    GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                                    this.startPoint, nextPoint, center, clockwise, radius,
+                                    startAngle, endAngle, sweep, numLines);
+                            
+                            // Create the commands...
+                            arr = new String[points.size()];
+                            int index = 0;
+                            StringBuilder sb;
+                            Point3d start = new Point3d(this.startPoint);
+                            
+                            sb = new StringBuilder("#.");
+                            for (index = 0; index < truncateDecimalLength; index++) {
+                                sb.append("#");
+                            }
+                            DecimalFormat df = new DecimalFormat(sb.toString());
+                            index = 0;
+                            
+                            for (Point3d p : points) {
+                                sb = new StringBuilder();
+                                sb.append("G1");
+                                
+                                if (this.absoluteMode) {
+                                    if (!Double.isNaN(p.x)) {
+                                        sb.append("X");
+                                        sb.append(df.format(p.x));
+                                    }
+                                    if (!Double.isNaN(p.y)) {
+                                        sb.append("Y");
+                                        sb.append(df.format(p.y));
+                                    }
+                                    if (!Double.isNaN(p.z)) {
+                                        sb.append("Z");
+                                        sb.append(df.format(p.z));
+                                    }
+                                } else { // calculate offsets.
+                                    if (!Double.isNaN(p.x)) {
+                                        sb.append("X");
+                                        sb.append(df.format(p.x-start.x));
+                                    }
+                                    if (!Double.isNaN(p.y)) {
+                                        sb.append("Y");
+                                        sb.append(df.format(p.y-start.x));
+                                    }
+                                    if (!Double.isNaN(p.z)) {
+                                        sb.append("Z");
+                                        sb.append(df.format(p.z-start.x));
+                                    }
+                                }
+                                System.out.println("New G1 command: " + sb.toString());
+                                arr[index++] = sb.toString();
+                            }
+                        }
+                        
+                        // Save off this point in case the next command is an
+                        // arc too.
+                        this.startPoint = nextPoint;
+                        break;
+
+                    case 20:
+                        //inch
+                        this.metric = false;
+                        break;
+                    case 21:
+                        //mm
+                        this.metric = true;
+                        break;
+                        
+                    case 90:
+                        this.absoluteMode = true;
+                        break;
+                    case 91:
+                        this.absoluteMode = false;
+                        break;
+                }
+                this.previousGCode = i;
+            }
+        }
 
         // Return the post processed command.
-        return newCommand;
+        return arr;
     }
     
     @Override
@@ -617,7 +854,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         if (this.isStreamingFile() &&
                 this.awaitingResponseQueue.size() == 0 &&
                 this.outgoingQueue.size() == 0 &&
-                this.commandQueue.size() == 0) {
+                this.prepQueue.size() == 0) {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
                 streamName = this.gcodeFile.getName();
@@ -661,7 +898,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.listeners.add(cl);
     }
 
-    //  void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
     protected void dispatchStatusString(String state, Point3d machine, Point3d work) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -670,7 +906,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void messageForConsole(String msg, Boolean verbose);
     protected void dispatchConsoleMessage(String message, Boolean verbose) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -679,7 +914,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void fileStreamComplete(String filename, boolean success);
     protected void dispatchStreamComplete(String filename, Boolean success) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -688,7 +922,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void commandComplete(GcodeCommand command);
     protected void dispatchCommandQueued(GcodeCommand command) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -697,7 +930,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void commandSent(GcodeCommand command);
     protected void dispatchCommandSent(GcodeCommand command) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -706,7 +938,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void commandComplete(GcodeCommand command);
     protected void dispatchCommandComplete(GcodeCommand command) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
@@ -715,11 +946,18 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    //  void commandComment(String comment);
     protected void dispatchCommandCommment(String comment) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.commandComment(comment);
+            }
+        }
+    }
+    
+    protected void dispatchPostProcessData(int numRows) {
+        if (listeners != null) {
+            for (ControllerListener c : listeners) {
+                c.postProcessData(numRows);
             }
         }
     }

@@ -1006,10 +1006,14 @@ implements KeyListener, ControllerListener {
                 this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
                 this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
                 this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+                this.controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
+                this.controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
+                this.controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
             } catch (Exception ex) {
                 this.displayErrorDialog("There was a problem setting one or more of these controller features: "
                         + "\nmax command length, truncate decimal length, single step mode,"
-                        + "\nstatus updates enabled, status update rate."
+                        + "\nremove all whitespace, convert arcs to lines, status updates enabled,"
+                        + "\nstatus update rate."
                         + "\nFailed with exception: " + ex.getMessage());
             }
             
@@ -1156,6 +1160,8 @@ implements KeyListener, ControllerListener {
         gcsd.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
         gcsd.setStatusUpdatesRate(SettingsFactory.getStatusUpdateRate());
         gcsd.setStateColorDisplayEnabled(SettingsFactory.getDisplayStateColor());
+        gcsd.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
+        gcsd.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1168,6 +1174,8 @@ implements KeyListener, ControllerListener {
             SettingsFactory.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
             SettingsFactory.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
             SettingsFactory.setDisplayStateColor(gcsd.getDisplayStateColor());
+            SettingsFactory.setConvertArcsToLines(gcsd.getConvertArcsToLines());
+            SettingsFactory.setSmallArcThreshold(gcsd.getSmallArcThreshold());
             
             if (this.controller != null) {
                 if (gcsd.getSpeedOverrideEnabled()) {
@@ -1182,6 +1190,9 @@ implements KeyListener, ControllerListener {
                 this.controller.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
                 this.controller.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
                 this.controller.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
+                this.controller.setConvertArcsToLines(gcsd.getConvertArcsToLines());
+                this.controller.setSmallArcThreshold(gcsd.getSmallArcThreshold())
+                        ;
             }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
@@ -1798,9 +1809,6 @@ implements KeyListener, ControllerListener {
     
     @Override
     public void commandQueued(GcodeCommand command) {
-        final int row = command.getCommandNumber();
-        final GcodeCommand sentCommand = command;
-
         this.commandTable.addRow(command);
     }
      
@@ -1875,6 +1883,11 @@ implements KeyListener, ControllerListener {
             this.workPositionYValueLabel.setText( formatter.format(workCoord.y) + "" );
             this.workPositionZValueLabel.setText( formatter.format(workCoord.z) + "" );
         }
+    }
+    
+    @Override
+    public void postProcessData(int numRows) {
+        resetSentRowLabels(numRows);
     }
     
     // My Variables
