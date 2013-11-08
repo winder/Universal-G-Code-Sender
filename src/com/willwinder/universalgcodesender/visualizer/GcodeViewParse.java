@@ -48,7 +48,10 @@ public class GcodeViewParse {
     // Parsing state.
     private Point3d lastPoint;
     private int currentLine = 0;    // for assigning line numbers to segments.
-            
+      
+    // Debug
+    private boolean debug = true;
+    
     public GcodeViewParse()
     {
         min = new Point3d();
@@ -107,10 +110,14 @@ public class GcodeViewParse {
         int lastGCode = -1;
         List<Integer> l;
 
+        long startTime = System.currentTimeMillis();
+        
         for(String s : gcode)
         {       
+            String command = GcodePreprocessorUtils.removeComment(s);
+            
             // Parse out gcode values
-            List<String> sarr = GcodePreprocessorUtils.splitCommand(s);
+            List<String> sarr = GcodePreprocessorUtils.splitCommand(command);
             parsedX = GcodePreprocessorUtils.parseCoord(sarr, 'X');
             parsedY = GcodePreprocessorUtils.parseCoord(sarr, 'Y');
             parsedZ = GcodePreprocessorUtils.parseCoord(sarr, 'Z');
@@ -140,12 +147,10 @@ public class GcodeViewParse {
                 next.z = parsedZ;
             }
             
-            
             if(!Double.isNaN(parsedF)) {
                 speed = parsedF;
             }
                       
-                        
             // Centerpoint in case of arc
             center.set(0.0, 0.0, 0.0);
             if (!Double.isNaN(parsedI)) {
@@ -176,7 +181,7 @@ public class GcodeViewParse {
             testExtremes(next);
             
             // Check multiple matches on one line in case of state commands:
-            l = GcodePreprocessorUtils.parseGCodes(s);
+            l = GcodePreprocessorUtils.parseGCodes(command);
             gCode = -1;
             for (Integer i : l) {
                 gCode = i;
@@ -184,7 +189,7 @@ public class GcodeViewParse {
             }
             
             // Check multiple matches on one line in case of state commands:
-            l = GcodePreprocessorUtils.parseMCodes(s);
+            l = GcodePreprocessorUtils.parseMCodes(command);
             mCode = -1;
             for (Integer i : l) {
                 mCode = i;
@@ -203,6 +208,11 @@ public class GcodeViewParse {
             }
             
             last.set(next);
+        }
+        
+        if (this.debug) {
+            long endTime = System.currentTimeMillis();
+            System.out.println("Duration = " + (endTime - startTime) + "ms");
         }
 
         return lines;
@@ -236,46 +246,27 @@ public class GcodeViewParse {
                 }
 
                 double radius = 0;
-
+                Point3d arcCenter = center;
+                
                 // If R was specified and IJK were not, convert R to IJK
                 if (R != 0 && center.x == 0 && center.y == 0) {
                     radius = R;
-                    
-                    // This math is copied from GRBL in gcode.c
-                    double x = end.x - start.x;
-                    double y = end.y - start.y;
-
-                    double h_x2_div_d = 4 * R*R - x*x - y*y;
-                    if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
-                    h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
-
-                    if (clockwise == false) {
-                        h_x2_div_d = -h_x2_div_d;
-                    }
-                    
-                    // Special message from gcoder to software for which radius
-                    // should be used.
-                    if (R < 0) {
-                        h_x2_div_d = -h_x2_div_d;
-                        radius = -R;
-                    }
-                    
-                    double offsetX = 0.5*(x-(y*h_x2_div_d));
-                    double offsetY = 0.5*(y+(x*h_x2_div_d));
-                    
-                    if (!absoluteIJK) {
-                        center.x = start.x + offsetX;
-                        center.y = start.y + offsetY;
-                    } else {
-                        center.x = offsetX;
-                        center.y = offsetY;
-                    }
-
+                    arcCenter = GcodePreprocessorUtils.convertRToCenter(
+                            start, end, R, absoluteIJK, clockwise);
                 }
                 
-                // draw the arc itself.
-                //addArcSegmentsReplicatorG(start, end, center, clockwise);
-                addArcSegmentsBDring(start, end, center, clockwise, radius);
+                // Generate points along the arc
+                List<Point3d> points = generatePointsAlongArcBDring(start, end, arcCenter, clockwise, radius);
+                
+                // Create line segments from points.
+                Point3d lineStart = null;
+                for (Point3d lineNext : points) {
+                    if (lineStart != null) {
+                        this.queueArcLine(lineStart, lineNext);
+                    }
+                    lineStart = lineNext;
+                }
+                
                 currentLine++;
                 break;
                 
@@ -310,49 +301,12 @@ public class GcodeViewParse {
         }
     }
     
-    
-    /** Return the angle when going from p1 to p2.
+    /**
+     * Minimal arc segment call which computes other starting values as needed.
      */
-    private double getAngle(final Point3d p1, final Point3d p2) {
-        double deltaX = p2.x - p1.x;
-        double deltaY = p2.y - p1.y;
-
-        double angle = 0.0;
-
-        if (deltaX != 0) {			// prevent div by 0
-            // it helps to know what quadrant you are in
-            if (deltaX > 0 && deltaY >= 0) {  // 0 - 90
-                angle = Math.atan(deltaY/deltaX);
-            } else if (deltaX < 0 && deltaY >= 0) { // 90 to 180
-                angle = Math.PI - Math.abs(Math.atan(deltaY/deltaX));
-            } else if (deltaX < 0 && deltaY < 0) { // 180 - 270
-                angle = Math.PI + Math.abs(Math.atan(deltaY/deltaX));
-            } else if (deltaX > 0 && deltaY < 0) { // 270 - 360
-                angle = Math.PI * 2 - Math.abs(Math.atan(deltaY/deltaX));
-            }
-        }
-        else {
-            // 90 deg
-            if (deltaY > 0) {
-                angle = Math.PI / 2.0;
-            }
-            // 270 deg
-            else {
-                angle = Math.PI * 3.0 / 2.0;
-            }
-        }
-      
-        return angle;
-    }
-    
-    private void addArcSegmentsBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw, double R) {
-        int numPoints = arcResolution;
+    private List<Point3d> generatePointsAlongArcBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw, double R) {
         double radius;
-        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
-        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
-        double sweep;
-        double angle;
-
+        int numPoints = arcResolution;
         
         if (R != 0) {
             // If radius was specified, use it.
@@ -362,9 +316,24 @@ public class GcodeViewParse {
             radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
         }
         
-        double startAngle = getAngle(center, p1);
-        double endAngle = getAngle(center, p2);
+        double startAngle = GcodePreprocessorUtils.getAngle(center, p1);
+        double endAngle = GcodePreprocessorUtils.getAngle(center, p2);
+        
+        return generatePointsAlongArcBDring(p1, p2, center, isCw, radius, startAngle, endAngle, numPoints);
+    }
 
+    private List<Point3d> generatePointsAlongArcBDring(final Point3d p1, final Point3d p2, 
+            final Point3d center, boolean isCw, double radius, 
+            double startAngle, double endAngle, int numPoints) {
+
+        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
+        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
+        double sweep;
+        double angle;
+        List<Point3d> segments = new ArrayList<Point3d>();
+        
+        segments.add(lineStart);
+        
         // if it ends at 0 it really should end at 360
         if (endAngle == 0) {
                 endAngle = Math.PI * 2;
@@ -397,13 +366,15 @@ public class GcodeViewParse {
 
             this.testExtremes(lineEnd);
             
-            this.queueArcLine(lineStart, lineEnd);
-
-            lineStart.set(lineEnd);
+            //this.queueArcLine(lineStart, lineEnd);
+            segments.add(new Point3d(lineEnd));
+            //lineStart = new Point3d(lineEnd);
         }
         
-        this.queueArcLine(lineEnd, p2);
-        //this.queuePoint(lineStart, p2);
+        //this.queueArcLine(lineEnd, p2);
+        segments.add(new Point3d(p2));
+        
+        return segments;
     }
 
     // This one doesn't work right.

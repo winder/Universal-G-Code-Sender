@@ -60,7 +60,7 @@ public class GcodePreprocessorUtils {
     /**
      * Removes any comments within parentheses or beginning with a semi-colon.
      */
-    static protected String removeComment(String command) {
+    static public String removeComment(String command) {
         String newCommand = command;
 
         // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
@@ -126,6 +126,7 @@ public class GcodePreprocessorUtils {
         return sb.toString();
     }
     
+    
     static protected String removeAllWhitespace(String command) {
         return command.replaceAll("\\s","");
     }
@@ -154,19 +155,54 @@ public class GcodePreprocessorUtils {
         return codes;
     }
 
-    static Point3d updatePointWithCommand(String command, Point3d initial) {
-        Point3d newPoint = new Point3d(initial);
-        String[] sarr = command.split(" ");
-        
+    /**
+     * Update a point given the arguments of a command.
+     */
+    static public Point3d updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
+        List<String> l = GcodePreprocessorUtils.splitCommand(command);
+        return updatePointWithCommand(l, command, initial, absoluteMode);
+    }
+    
+    /**
+     * Update a point given the arguments of a command, using a pre-parsed list.
+     */
+    static public Point3d updatePointWithCommand(List<String> commandArgs, String command, Point3d initial, boolean absoluteMode) {
+    
+        Point3d newPoint = new Point3d(initial.x, initial.y, initial.z);
 
-        
-        
+        double x = parseCoord(commandArgs, 'X');
+        double y = parseCoord(commandArgs, 'Y');
+        double z = parseCoord(commandArgs, 'Z');
+            
+        if (absoluteMode) {
+            if (!Double.isNaN(x)) {
+                newPoint.x = x;
+            }
+            if (!Double.isNaN(y)) {
+                newPoint.y = y;
+            }
+            if (!Double.isNaN(z)) {
+                newPoint.z = z;
+            }
+        } else {
+            if (!Double.isNaN(x)) {
+                newPoint.x += x;
+            }
+            if (!Double.isNaN(y)) {
+                newPoint.y += y;
+            }
+            if (!Double.isNaN(z)) {
+                newPoint.z += z;
+            }
+        }
+
         return newPoint;
     }
     
     /**
      * Splits a gcode command by each word/argument, doesn't care about spaces.
-     * This command is about 2.4x slower than splitting on spaces.
+     * This command is about the same speed as the string.split(" ") command,
+     * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
         List<String> l = new ArrayList<String>();
@@ -209,16 +245,95 @@ public class GcodePreprocessorUtils {
     
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
-    static public double parseCoord(List<String> sarr, char c)
+    static public double parseCoord(List<String> argList, char c)
     {
         char address = Character.toUpperCase(c);
-        for(String t : sarr)
+        for(String t : argList)
         {
-            if (Character.toUpperCase(t.charAt(0)) == address)
+            if (t.length() > 0 && Character.toUpperCase(t.charAt(0)) == address)
             {
                 return Double.parseDouble(t.substring(1));
             }
         }
         return Double.NaN;
     }
+    
+    static public List<String> convertArcsToLines(Point3d start, Point3d end) {
+        List<String> l = new ArrayList<String>();
+        
+        return l;
+    }
+    
+    static public Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise) {
+        double R = radius;
+        Point3d center = new Point3d();
+        
+        // This math is copied from GRBL in gcode.c
+        double x = end.x - start.x;
+        double y = end.y - start.y;
+
+        double h_x2_div_d = 4 * R*R - x*x - y*y;
+        if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
+        h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
+
+        if (clockwise == false) {
+            h_x2_div_d = -h_x2_div_d;
+        }
+
+        // Special message from gcoder to software for which radius
+        // should be used.
+        if (R < 0) {
+            h_x2_div_d = -h_x2_div_d;
+            radius = -radius;
+        }
+
+        double offsetX = 0.5*(x-(y*h_x2_div_d));
+        double offsetY = 0.5*(y+(x*h_x2_div_d));
+
+        if (!absoluteIJK) {
+            center.x = start.x + offsetX;
+            center.y = start.y + offsetY;
+        } else {
+            center.x = offsetX;
+            center.y = offsetY;
+        }
+
+        return center;
+    }
+    
+    /** 
+     * Return the angle in radians when going from start to end.
+     */
+    static public double getAngle(final Point3d start, final Point3d end) {
+        double deltaX = end.x - start.x;
+        double deltaY = end.y - start.y;
+
+        double angle = 0.0;
+
+        if (deltaX != 0) { // prevent div by 0
+            // it helps to know what quadrant you are in
+            if (deltaX > 0 && deltaY >= 0) {  // 0 - 90
+                angle = Math.atan(deltaY/deltaX);
+            } else if (deltaX < 0 && deltaY >= 0) { // 90 to 180
+                angle = Math.PI - Math.abs(Math.atan(deltaY/deltaX));
+            } else if (deltaX < 0 && deltaY < 0) { // 180 - 270
+                angle = Math.PI + Math.abs(Math.atan(deltaY/deltaX));
+            } else if (deltaX > 0 && deltaY < 0) { // 270 - 360
+                angle = Math.PI * 2 - Math.abs(Math.atan(deltaY/deltaX));
+            }
+        }
+        else {
+            // 90 deg
+            if (deltaY > 0) {
+                angle = Math.PI / 2.0;
+            }
+            // 270 deg
+            else {
+                angle = Math.PI * 3.0 / 2.0;
+            }
+        }
+      
+        return angle;
+    }
+    
 }
