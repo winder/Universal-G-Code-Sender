@@ -49,9 +49,11 @@ Changelog
 * - truncate and round long decimals to configurable length.
 * - enforce max command length.
 * - remove whitespaces.
-* Added a single-step mode.
-* Added a colored status indicator.
+* - expand small arcs to G1 commands.
+* New option to save preprocessed gcode file to a file.
 * Visualizer Support for radius arcs (phlatboyz sketchup plugin gcode now displays correctly)
+* New single-step mode.
+* New a colored status indicator.
 
 1.0.5 -> 1.0.6
 * 3D gcode visualizer!
