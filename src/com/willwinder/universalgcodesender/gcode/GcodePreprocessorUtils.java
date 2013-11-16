@@ -250,6 +250,47 @@ public class GcodePreprocessorUtils {
 
         return newPoint;
     }
+        
+    static public String generateG1FromPoints(final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
+        DecimalFormat df = formatter;
+        if (df == null) {
+            df = new DecimalFormat("#.####");
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("G1");
+
+        if (absoluteMode) {
+            if (!Double.isNaN(end.x)) {
+                sb.append("X");
+                sb.append(df.format(end.x));
+            }
+            if (!Double.isNaN(end.y)) {
+                sb.append("Y");
+                sb.append(df.format(end.y));
+            }
+            if (!Double.isNaN(end.z)) {
+                sb.append("Z");
+                sb.append(df.format(end.z));
+            }
+        } else { // calculate offsets.
+            if (!Double.isNaN(end.x)) {
+                sb.append("X");
+                sb.append(df.format(end.x-start.x));
+            }
+            if (!Double.isNaN(end.y)) {
+                sb.append("Y");
+                sb.append(df.format(end.y-start.x));
+            }
+            if (!Double.isNaN(end.z)) {
+                sb.append("Z");
+                sb.append(df.format(end.z-start.x));
+            }
+        }
+        
+        return sb.toString();
+    }
+    
     /**
      * Splits a gcode command by each word/argument, doesn't care about spaces.
      * This command is about the same speed as the string.split(" ") command,
@@ -335,6 +376,7 @@ public class GcodePreprocessorUtils {
         // should be used.
         if (R < 0) {
             h_x2_div_d = -h_x2_div_d;
+            // TODO: Places that use this need to run ABS on radius.
             radius = -radius;
         }
 

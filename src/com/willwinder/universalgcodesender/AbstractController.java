@@ -29,12 +29,8 @@ import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -646,13 +642,15 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                     return arr;
                 }
                 
-                // Create the commands...
-                arr = new String[psl.size()];
-
-                int index = 0;
+                int index;
                 StringBuilder sb;
                 Point3d start = new Point3d(this.startPoint);
 
+                // Create the commands...
+                arr = new String[psl.size()];
+
+
+                // Setup decimal formatter.
                 sb = new StringBuilder("#.");
                 for (index = 0; index < truncateDecimalLength; index++) {
                     sb.append("#");
@@ -663,42 +661,10 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 // Create an array of new commands out of the of the segments in psl.
                 // Don't add them to the gcode parser since it is who expanded them.
                 for (PointSegment segment : psl) {
-                    Point3d p = segment.point();
-                    
-                    sb = new StringBuilder();
-                    sb.append("G1");
-
-                    if (this.absoluteMode) {
-                        if (!Double.isNaN(p.x)) {
-                            sb.append("X");
-                            sb.append(df.format(p.x));
-                        }
-                        if (!Double.isNaN(p.y)) {
-                            sb.append("Y");
-                            sb.append(df.format(p.y));
-                        }
-                        if (!Double.isNaN(p.z)) {
-                            sb.append("Z");
-                            sb.append(df.format(p.z));
-                        }
-                    } else { // calculate offsets.
-                        if (!Double.isNaN(p.x)) {
-                            sb.append("X");
-                            sb.append(df.format(p.x-start.x));
-                        }
-                        if (!Double.isNaN(p.y)) {
-                            sb.append("Y");
-                            sb.append(df.format(p.y-start.x));
-                        }
-                        if (!Double.isNaN(p.z)) {
-                            sb.append("Z");
-                            sb.append(df.format(p.z-start.x));
-                        }
-                    }
-                    
+                    Point3d end = segment.point();
+                    arr[index++] = GcodePreprocessorUtils.generateG1FromPoints(
+                            start, end, this.absoluteMode, df);
                     start = segment.point();
-
-                    arr[index++] = sb.toString();
                 }
             }
         }
@@ -716,7 +682,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         GcodeCommand c = this.outgoingQueue.remove();
         c.setSent(true);
         
-        if (c.getCommandString() != command) {
+        if (!c.getCommandString().equals(command)) {
             this.errorMessageForConsole("Command <"+c.getCommandString()+
                     "> does not equal expected command <"+command+">");
         }
