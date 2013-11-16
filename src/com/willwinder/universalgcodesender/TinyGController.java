@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
 

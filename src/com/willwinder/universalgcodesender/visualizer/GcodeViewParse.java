@@ -25,7 +25,9 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import com.willwinder.universalgcodesender.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.ArrayList;
 import java.util.List;
 import javax.vecmath.Point3d;
@@ -97,273 +99,54 @@ public class GcodeViewParse {
         }
     }
     
-    public List<LineSegment> toObj(List<String> gcode)
-    {
-        double speed = 2; //DEFAULTS to 2
-
-        Point3d next = new Point3d();
-        Point3d center = new Point3d(0.0, 0.0, 0.0);
-        Point3d last = new Point3d(0.0, 0.0, 0.0);
-        double parsedF;
-        double parsedR;
-        int gCode, mCode;
-        int lastGCode = -1;
-        List<Integer> l;
-
-        long startTime = System.currentTimeMillis();
-        
-        for(String s : gcode)
-        {       
-            String command = GcodePreprocessorUtils.removeComment(s);
-            
-            // Parse out gcode values
-            List<String> sarr = GcodePreprocessorUtils.splitCommand(command);
-            parsedF = GcodePreprocessorUtils.parseCoord(sarr, 'F');
-            parsedR = GcodePreprocessorUtils.parseCoord(sarr, 'R');
-            
-            next = GcodePreprocessorUtils.updatePointWithCommand(
-                    sarr, last, this.absoluteMode);
-            
-            // Centerpoint in case of arc
-            center =
-                    GcodePreprocessorUtils.updateCenterWithCommand(
-                    sarr, last, absoluteIJK);
-
-            // Feed
-            if(!Double.isNaN(parsedF)) {
-                speed = parsedF;
-            }
-                      
-            // Save any updated bounaries.
-            testExtremes(next);
-            
-            // Check multiple matches on one line in case of state commands:
-            l = GcodePreprocessorUtils.parseGCodes(command);
-            gCode = -1;
-            for (Integer i : l) {
-                gCode = i;
-                handleGCode(gCode, last, center, next, parsedR);
-            }
-            
-            // Check multiple matches on one line in case of state commands:
-            l = GcodePreprocessorUtils.parseMCodes(command);
-            mCode = -1;
-            for (Integer i : l) {
-                mCode = i;
-                handleMCode(mCode, last, center, next);
-            }
-           
-            // If there isn't a new code, use the last code.
-            if (gCode == -1 && mCode == -1 && lastGCode != -1) {
-                gCode = lastGCode;
-                handleGCode(gCode, last, center, next, parsedR);
-            }
-            
-            // Save the last commands.
-            if (gCode != -1) {
-                lastGCode = gCode;
-            }
-            
-            last.set(next);
+    public List<LineSegment> toObjRedux(List<String> gcode) {
+        GcodeParser gp = new GcodeParser();
+        for (String s : gcode) {
+            gp.addCommand(s);
         }
         
-        if (this.debug) {
-            long endTime = System.currentTimeMillis();
-            System.out.println("Duration = " + (endTime - startTime) + "ms");
-        }
-
-        return lines;
-    }
-    
-    private void handleGCode(int code, final Point3d start, final Point3d center, final Point3d end, final double R) {
+        List<PointSegment> psl = gp.getPointSegmentList();
+        
+        //List<LineSegment> lsl = new ArrayList<LineSegment>();
+        
+        Point3d start = null;
+        Point3d end = null;
         LineSegment ls;
-        switch (code) {
-            case 0:
-                ls = new LineSegment(start, end, currentLine++);
-                ls.setIsFastTraverse(true);
-                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
-                    ls.setIsZMovement(true);
-                }
-                this.queueLine(ls);
-                break;
+        int num = 0;
+        for (PointSegment ps : psl) {
+            end = ps.point();
 
-            case 1:
-                ls = new LineSegment(start, end, currentLine++);
-                if ((start.x == end.x) && (start.y == end.y) && (start.z != end.z)) {
-                    ls.setIsZMovement(true);
-                }                ls.isFastTraverse();
-                this.queueLine(ls);
-                break;
-            
-            case 2:
-            case 3:
-                boolean clockwise = true;
-                if (code == 3) {
-                    clockwise = false;
-                }
-
-                double radius = 0;
-                Point3d arcCenter = center;
-                
-                // If R was specified and IJK were not, convert R to IJK
-                if (R != 0 && center.x == 0 && center.y == 0) {
-                    radius = R;
-                    arcCenter = GcodePreprocessorUtils.convertRToCenter(
-                            start, end, R, absoluteIJK, clockwise);
-                }
-                
-                // Generate points along the arc
-                List<Point3d> points = 
+            // start is null for the first iteration.
+            if (start != null) {
+                // Expand arc for graphics.
+                if (ps.isArc()) {
+                    List<Point3d> points = 
                         GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, arcCenter, clockwise, radius, arcResolution);
-                
-                // Create line segments from points.
-                Point3d startPoint = null;
-                for (Point3d nextPoint : points) {
-                    this.testExtremes(nextPoint);
-                    if (startPoint != null) {
-                        this.queueArcLine(startPoint, nextPoint);
+                        start, end, ps.center(), ps.isClockwise(), ps.getRadius(), arcResolution);
+                    // Create line segments from points.
+                    Point3d startPoint = start;
+                    for (Point3d nextPoint : points) {
+                        ls = new LineSegment(startPoint, nextPoint, num);
+                        ls.setIsArc(ps.isArc());
+                        ls.setIsFastTraverse(ps.isFastTraverse());
+                        ls.setIsZMovement(ps.isZMovement());
+                        this.testExtremes(nextPoint);
+                        lines.add(ls);
+                        startPoint = nextPoint;
                     }
-                    startPoint = nextPoint;
-                }
-                
-                currentLine++;
-                break;
-                
-            case 20:
-                break;
-                
-            case 21:
-                break;
-                
-            case 90:
-                absoluteMode = true;
-                break;
-            case 91:
-                absoluteMode = false;
-                break;
-        }
-    }
-    
-    private void handleMCode(int code, final Point3d start, final Point3d center, final Point3d endpoint) {
-        switch (code) {
-            case 0:
-            case 1:
-                break;
-            case 2:
-            case 3:
-                break;
-                
-            case 90:
-                break;
-            case 91:
-                break;
-        }
-    }
-
-    // This one doesn't work right.
-    private void addArcSegmentsReplicatorG(final Point3d start, final Point3d endpoint, final Point3d center, boolean clockwise) {
-        // System.out.println("Arc from " + current.toString() + " to " +
-        // endpoint.toString() + " with center " + center);
-        Point3d current = new Point3d(start.x, start.y, start.z);
-        
-        // angle variables.
-        double angleA;
-        double angleB;
-        double angle;
-        double radius;
-        double length;
-
-        // delta variables.
-        double aX;
-        double aY;
-        double bX;
-        double bY;
-
-        // figure out our deltas
-        aX = start.x - center.x;
-        aY = start.y - center.y;
-        bX = endpoint.x - center.x;
-        bY = endpoint.y - center.y;
-
-        // Clockwise
-        if (clockwise) {
-                angleA = Math.atan2(bY, bX);
-                angleB = Math.atan2(aY, aX);
-        }
-        // Counterclockwise
-        else {
-                angleA = Math.atan2(aY, aX);
-                angleB = Math.atan2(bY, bX);
-        }
-
-        // Make sure angleB is always greater than angleA
-        // and if not add 2PI so that it is (this also takes
-        // care of the special case of angleA == angleB,
-        // ie we want a complete circle)
-        if (angleB <= angleA) {
-                angleB += 2 * Math.PI;
-        }
-        angle = angleB - angleA;
-        // calculate a couple useful things.
-        radius = Math.sqrt(aX * aX + aY * aY);
-        length = radius * angle;
-
-        // for doing the actual move.
-        int steps;
-        int s;
-        int step;
-
-        // Maximum of either 2.4 times the angle in radians
-        // or the length of the curve divided by the curve section constant
-        //steps = (int) Math.ceil(Math.max(angle * 2.4, length / curveSection));
-        steps = 3;
-        
-        // this is the real draw action.
-        Point3d newPoint = new Point3d();
-        double arcStartZ = start.z;
-        double fraction;
-        for (s = 1; s <= steps; s++) {
-                // Forwards for CCW, backwards for CW
-                if (!clockwise) {
-                    step = s;
+                // Line
                 } else {
-                    step = steps - s;
+                    ls = new LineSegment(start, end, num++);
+                    ls.setIsArc(ps.isArc());
+                    ls.setIsFastTraverse(ps.isFastTraverse());
+                    ls.setIsZMovement(ps.isZMovement());
+                    this.testExtremes(end);
+                    lines.add(ls);
                 }
-
-                fraction = (double) step / steps;
-                // calculate our waypoint.
-                newPoint.x = center.x + radius
-                                * Math.cos(angleA + angle * fraction);
-                newPoint.y = center.y + radius
-                                * Math.sin(angleA + angle * fraction);
-                newPoint.z = arcStartZ + (endpoint.z - arcStartZ) * fraction;
-
-                //System.out.println("    "+newPoint.toString());
-
-                // start the move
-                //setTarget(newPoint);
-                this.queueArcLine(current, newPoint);
-                current = newPoint;
+            }
+            start = end;
         }
-        this.queueArcLine(current, endpoint);
-    }
-    
-    private void queuePoint(final Point3d point) {
-        if (lastPoint != null) {
-            lines.add(new LineSegment(lastPoint, point, currentLine));
-        }
-        //lastPoint = point;
-        lastPoint.set(point);
-    }
-    
-    private void queueLine(LineSegment line) {
-        lines.add(line);
-    }
-    
-    private void queueArcLine(final Point3d start, final Point3d end) {
-        LineSegment ls = new LineSegment(start, end, currentLine);
-        ls.setIsArc(true);
-        lines.add(ls);
+        
+        return lines;
     }
 }

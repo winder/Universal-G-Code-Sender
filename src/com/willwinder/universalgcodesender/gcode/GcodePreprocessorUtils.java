@@ -20,7 +20,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.gcode;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class GcodePreprocessorUtils {
      * In that way all speed values become a ratio of the provided speed 
      * and don't get overridden with just a fixed speed.
      */
-    static protected String overrideSpeed(String command, double speed) {
+    static public String overrideSpeed(String command, double speed) {
         String returnString = command;
         
         // Check if command sets feed speed.
@@ -75,7 +75,7 @@ public class GcodePreprocessorUtils {
     /**
      * Searches for a comment in the input string and returns the first match.
      */
-    static protected String parseComment(String command) {
+    static public String parseComment(String command) {
         String comment = "";
 
         // REGEX: Find any comment, includes the comment characters:
@@ -91,7 +91,7 @@ public class GcodePreprocessorUtils {
         return comment;
     }
     
-    static protected String truncateDecimals(int length, String command) {
+    static public String truncateDecimals(int length, String command) {
         StringBuilder df = new StringBuilder();
         
         // Build up the decimal formatter.
@@ -127,8 +127,21 @@ public class GcodePreprocessorUtils {
     }
     
     
-    static protected String removeAllWhitespace(String command) {
+    static public String removeAllWhitespace(String command) {
         return command.replaceAll("\\s","");
+    }
+    
+    static public List<Integer> parseCodes(List<String> args, char code) {
+        List<Integer> l = new ArrayList<Integer>();
+        char address = Character.toUpperCase(code);
+        
+        for (String s : args) {
+            if (s.length() > 0 && Character.toUpperCase(s.charAt(0)) == address) {
+                l.add(Integer.parseInt(s.substring(1)));
+            }
+        }
+        
+        return l;
     }
     
     static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
@@ -199,19 +212,21 @@ public class GcodePreprocessorUtils {
         return newPoint;
     }
     
-    static public Point3d updateCenterWithCommand(String command, Point3d initial, boolean absoluteMode) {
-        List<String> l = GcodePreprocessorUtils.splitCommand(command);
-        return updateCenterWithCommand(l, initial, absoluteMode);
-    }
-    
-    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
+    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, Point3d nextPoint, boolean absoluteIJKMode, boolean clockwise) {
+        double i      = parseCoord(commandArgs, 'I');
+        double j      = parseCoord(commandArgs, 'J');
+        double k      = parseCoord(commandArgs, 'K');
+        double radius = parseCoord(commandArgs, 'R');
+        
+        if (Double.isNaN(i) && Double.isNaN(j) && Double.isNaN(k)) {
+            return GcodePreprocessorUtils.convertRToCenter(
+                            initial, nextPoint, radius, absoluteIJKMode,
+                            clockwise);
+        }
+
         Point3d newPoint = new Point3d();
 
-        double i = parseCoord(commandArgs, 'I');
-        double j = parseCoord(commandArgs, 'J');
-        double k = parseCoord(commandArgs, 'K');
-            
-        if (absoluteMode) {
+        if (absoluteIJKMode) {
             if (!Double.isNaN(i)) {
                 newPoint.x = i;
             }

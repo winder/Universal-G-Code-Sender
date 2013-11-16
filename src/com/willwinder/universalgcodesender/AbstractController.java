@@ -21,9 +21,13 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
@@ -144,7 +148,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     // State
     private Boolean commOpen = false;
     private Boolean saveToFileMode = false;
-
+    private GcodeParser gcp;
+    
     // Parser state
     private Boolean absoluteMode = true;
     private Boolean metric = true;
@@ -182,6 +187,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     protected AbstractController(AbstractCommunicator comm) {
         this.comm = comm;
         this.comm.setListenAll(this);
+        
+        this.gcp = new GcodeParser();
         
         this.prepQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
@@ -624,179 +631,75 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         
         String[] arr = {newCommand};
         
-        // If this is enabled we need to keep track of some extra state data:
-        // 1. Current units (inch/mm)
-        // 2. Absolute/Referential mode
-        // 3. Previous command, in case this one is implicit
-        // 4. End point of the previous commands.
+        // If this is enabled we need to parse the gcode as we go along.
         if (this.convertArcsToLines) { // || this.expandCannedCycles) {
-            List<Integer> l = GcodePreprocessorUtils.parseGCodes(newCommand);
             
-            // Add here so that there isn't a special case for previous gcodes.
-            if (l.isEmpty() && this.previousGCode != -1) {
-                l.add(this.previousGCode);
+            PointSegment ps = this.gcp.addCommand(newCommand);
+            
+            if (ps == null) {
+                return arr;
             }
             
-            for (Integer i : l) {
-                switch (i) {
-                    case 0:
-                    case 1:
-                        this.startPoint = 
-                            GcodePreprocessorUtils.updatePointWithCommand(
-                            newCommand, this.startPoint, this.absoluteMode);
-                        break;
-                        
-                    // Arc command.
-                    case 2:
-                    case 3:
-                        boolean clockwise = true;
-                        if (i == 3) {
-                            clockwise = false;
-                        }
-                        
-                        List<String> args = 
-                                GcodePreprocessorUtils.splitCommand(newCommand);
-                        
-                        Point3d nextPoint =
-                            GcodePreprocessorUtils.updatePointWithCommand( args,
-                            this.startPoint, this.absoluteMode);
-
-                        Point3d center = 
-                                GcodePreprocessorUtils.updateCenterWithCommand(
-                                args, this.startPoint, false);
-
-                        double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
-                        
-                        // If radius was specified and IJK were not, convert R to IJK
-                        if (!Double.isNaN(radius) && center.x == 0 && center.y == 0) {
-                            center = GcodePreprocessorUtils.convertRToCenter(
-                                    this.startPoint, nextPoint, radius, false,
-                                    clockwise);
-                        }
-                        
-                        // Calculate radius if necessary.
-                        if (Double.isNaN(radius)) {
-                            radius = Math.sqrt(Math.pow(this.startPoint.x - center.x, 2.0) + Math.pow(this.startPoint.y - center.y, 2.0));
-                        }
-
-                        /*
-                        use GcodePreProcessorUtils.getAngle(point1, point2) multiplied by the radius to decide
-                        whether or not its worth chopping the arc into segments.GcodePreProcessorUtils
-                                
-                        then refactor the arc function out of GcodeViewParse until there are pieces which can be
-                        used for this AND the visualizer.
-                         
-                        Note: Be sure to convert from absolute to relative mode if needed!!
-                        */
-                        /*
-                         * Regrettably lots of code below is copy/pasted from the
-                         * first half of the arc calculation, because the sweep
-                         * distance is an interim calculation.
-                         */
-
-                        // Calculate angles from center.
-                        double startAngle = GcodePreprocessorUtils.getAngle(center, this.startPoint);
-                        double endAngle = GcodePreprocessorUtils.getAngle(center, nextPoint);
-
-                        // Fix semantics, if the angle ends at 0 it really should end at 360.
-                        if (endAngle == 0) {
-                                endAngle = Math.PI * 2;
-                        }
-
-                        // Calculate distance along arc.
-                        double sweep;
-                        if (!clockwise && endAngle < startAngle) {
-                            sweep = ((Math.PI * 2 - startAngle) + endAngle);
-                        } else if (clockwise && endAngle > startAngle) {
-                            sweep = ((Math.PI * 2 - endAngle) + startAngle);
-                        } else {
-                            sweep = Math.abs(endAngle - startAngle);
-                        }
-                        
-                        double distance = sweep * radius;
-                        if (this.metric == false) {
-                            distance *= 25.4;
-                        }
-                        
-                        // If the arc is small enough, generate a few points and add them to an array...
-                        if (distance < this.smallArcThreshold) {
-                            int numLines = (new Double(distance / arcLineLength)).intValue();
-                            List<Point3d> points =
-                                    GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                                    this.startPoint, nextPoint, center, clockwise, radius,
-                                    startAngle, endAngle, sweep, numLines);
-                            
-                            // Create the commands...
-                            arr = new String[points.size()];
-                            int index = 0;
-                            StringBuilder sb;
-                            Point3d start = new Point3d(this.startPoint);
-                            
-                            sb = new StringBuilder("#.");
-                            for (index = 0; index < truncateDecimalLength; index++) {
-                                sb.append("#");
-                            }
-                            DecimalFormat df = new DecimalFormat(sb.toString());
-                            index = 0;
-                            
-                            for (Point3d p : points) {
-                                sb = new StringBuilder();
-                                sb.append("G1");
-                                
-                                if (this.absoluteMode) {
-                                    if (!Double.isNaN(p.x)) {
-                                        sb.append("X");
-                                        sb.append(df.format(p.x));
-                                    }
-                                    if (!Double.isNaN(p.y)) {
-                                        sb.append("Y");
-                                        sb.append(df.format(p.y));
-                                    }
-                                    if (!Double.isNaN(p.z)) {
-                                        sb.append("Z");
-                                        sb.append(df.format(p.z));
-                                    }
-                                } else { // calculate offsets.
-                                    if (!Double.isNaN(p.x)) {
-                                        sb.append("X");
-                                        sb.append(df.format(p.x-start.x));
-                                    }
-                                    if (!Double.isNaN(p.y)) {
-                                        sb.append("Y");
-                                        sb.append(df.format(p.y-start.x));
-                                    }
-                                    if (!Double.isNaN(p.z)) {
-                                        sb.append("Z");
-                                        sb.append(df.format(p.z-start.x));
-                                    }
-                                }
-
-                                arr[index++] = sb.toString();
-                            }
-                        }
-                        
-                        // Save off this point in case the next command is an
-                        // arc too.
-                        this.startPoint = nextPoint;
-                        break;
-
-                    case 20:
-                        //inch
-                        this.metric = false;
-                        break;
-                    case 21:
-                        //mm
-                        this.metric = true;
-                        break;
-                        
-                    case 90:
-                        this.absoluteMode = true;
-                        break;
-                    case 91:
-                        this.absoluteMode = false;
-                        break;
+            if (ps.isArc()) {
+                List<PointSegment> psl = this.gcp.expandArcWithParameters(this.smallArcThreshold, 1.27, this.truncateDecimalLength);
+                if (psl == null) {
+                    return arr;
                 }
-                this.previousGCode = i;
+                
+                // Create the commands...
+                arr = new String[psl.size()];
+
+                int index = 0;
+                StringBuilder sb;
+                Point3d start = new Point3d(this.startPoint);
+
+                sb = new StringBuilder("#.");
+                for (index = 0; index < truncateDecimalLength; index++) {
+                    sb.append("#");
+                }
+                DecimalFormat df = new DecimalFormat(sb.toString());
+                index = 0;
+
+                // Create an array of new commands out of the of the segments in psl.
+                // Don't add them to the gcode parser since it is who expanded them.
+                for (PointSegment segment : psl) {
+                    Point3d p = segment.point();
+                    
+                    sb = new StringBuilder();
+                    sb.append("G1");
+
+                    if (this.absoluteMode) {
+                        if (!Double.isNaN(p.x)) {
+                            sb.append("X");
+                            sb.append(df.format(p.x));
+                        }
+                        if (!Double.isNaN(p.y)) {
+                            sb.append("Y");
+                            sb.append(df.format(p.y));
+                        }
+                        if (!Double.isNaN(p.z)) {
+                            sb.append("Z");
+                            sb.append(df.format(p.z));
+                        }
+                    } else { // calculate offsets.
+                        if (!Double.isNaN(p.x)) {
+                            sb.append("X");
+                            sb.append(df.format(p.x-start.x));
+                        }
+                        if (!Double.isNaN(p.y)) {
+                            sb.append("Y");
+                            sb.append(df.format(p.y-start.x));
+                        }
+                        if (!Double.isNaN(p.z)) {
+                            sb.append("Z");
+                            sb.append(df.format(p.z-start.x));
+                        }
+                    }
+                    
+                    start = segment.point();
+
+                    arr[index++] = sb.toString();
+                }
             }
         }
 

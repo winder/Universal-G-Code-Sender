@@ -4,6 +4,9 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -177,4 +180,32 @@ public class GcodePreprocessorUtilsTest {
         result = GcodePreprocessorUtils.removeAllWhitespace(command);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testParseCodes() {
+        System.out.println("parseCodes");
+        
+        // Basic case, find one gcode.
+        List<String> sl = new ArrayList<String>();
+        sl.add("G0");
+        sl.add("X7");
+        sl.add("Y5.235235");
+        List<Integer> l = GcodePreprocessorUtils.parseCodes(sl, 'G');
+        assertEquals(1, l.size());
+        assertEquals(0, l.get(0).intValue());
+        
+        // Find two gcodes.
+        sl.add("G20");
+        l = GcodePreprocessorUtils.parseCodes(sl, 'G');
+        assertEquals(2, l.size());
+        assertEquals(0, l.get(0).intValue());
+        assertEquals(20, l.get(1).intValue());
+        
+        // Find X, mismatched case.
+        sl.add("G20");
+        l = GcodePreprocessorUtils.parseCodes(sl, 'x');
+        assertEquals(1, l.size());
+        assertEquals(7, l.get(0).intValue());
+    }
+    
 }

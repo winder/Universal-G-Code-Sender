@@ -23,7 +23,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.*;
@@ -37,23 +37,23 @@ public class GcodeCommandBuffer {
     private GcodeCommand currentCommand = null;
     private int numCommands = 0;
     
-    GcodeCommandBuffer() {
+    public GcodeCommandBuffer() {
         this.commandQueue = new LinkedList<GcodeCommand>();
     }
     
-    int size() {
+    public int size() {
         return this.commandQueue.size();
     }
 
-    Boolean hasNext() {
+    public Boolean hasNext() {
         return this.commandQueue.size() > 0;
     }
     
-    GcodeCommand currentCommand() {
+    public GcodeCommand currentCommand() {
         return currentCommand;
     }
     
-    GcodeCommand nextCommand() {
+    public GcodeCommand nextCommand() {
         // Leave the "currentCommand" alone if we've exausted the queue.
         if (this.hasNext()) {
             this.currentCommand = this.commandQueue.remove();
@@ -62,7 +62,7 @@ public class GcodeCommandBuffer {
         return this.currentCommand();
     }
     
-    GcodeCommand appendCommandString(String commandString) {
+    public GcodeCommand appendCommandString(String commandString) {
         GcodeCommand command = new GcodeCommand(commandString);
         command.setCommandNumber(this.numCommands++);
         this.commandQueue.add(command);
@@ -75,7 +75,7 @@ public class GcodeCommandBuffer {
         return command;
     }
     
-    void clearBuffer() {
+    public void clearBuffer() {
         this.currentCommand = null;
         this.commandQueue.clear();
     }

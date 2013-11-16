@@ -20,7 +20,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
@@ -42,11 +42,11 @@ public class GcodeCommandCreator {
         this.numCommands = 0;
     }
     
-    int nextCommandNum() {
+    public int nextCommandNum() {
         return this.numCommands;
     }
     
-    GcodeCommand createCommand(String commandString) {
+    public GcodeCommand createCommand(String commandString) {
         GcodeCommand command = new GcodeCommand(commandString);
         command.setCommandNumber(this.numCommands++);
         return command;

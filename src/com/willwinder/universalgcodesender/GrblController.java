@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

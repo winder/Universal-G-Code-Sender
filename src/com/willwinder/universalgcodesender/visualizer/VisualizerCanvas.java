@@ -407,7 +407,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         GcodeViewParse gcvp = new GcodeViewParse();
         List<String> linesInFile;
         linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-        gcodeLineList = gcvp.toObj(linesInFile);
+        gcodeLineList = gcvp.toObjRedux(linesInFile);
         
         this.objectMin = gcvp.getMinimumExtremes();
         this.objectMax = gcvp.getMaximumExtremes();

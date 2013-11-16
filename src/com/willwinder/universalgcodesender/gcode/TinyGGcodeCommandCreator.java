@@ -20,8 +20,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
@@ -31,7 +32,7 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
  */
 public class TinyGGcodeCommandCreator extends GcodeCommandCreator {
     @Override
-    GcodeCommand createCommand(String commandString) {
+    public GcodeCommand createCommand(String commandString) {
         TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
         command.setCommandNumber(this.numCommands++);
         return command;
