@@ -308,6 +308,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        this.settingsTable.editCellAt(-1, -1);
         // Cannot update firmware if the controller is busy.
         if (this.grblController.rowsRemaining() != 0) {
             JOptionPane.showMessageDialog(new JFrame(),
@@ -331,7 +332,6 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
             for (int i=0; i < this.commands.length; i++) {
                 command = this.commands[i];
                 if (command != null) {
-                    System.out.println(command);
                     // If GRBL is feeling especially quick, we may need to keep
                     // setting these guys.
                     this.grblController.setSingleStepMode(true);
