@@ -31,9 +31,9 @@ import java.util.ArrayList;
  * @author wwinder
  */
 public class FirmwareUtils {
-    final private static String GRBL     = "GRBL";
-    final private static String Smoothie = "SmoothieBoard";
-    final private static String TinyG    = "TinyG";
+    final static String GRBL     = "GRBL";
+    final static String Smoothie = "SmoothieBoard";
+    final static String TinyG    = "TinyG";
     
     public static ArrayList<String> getFirmwareList() {
         ArrayList<String> ret = new ArrayList<String>();

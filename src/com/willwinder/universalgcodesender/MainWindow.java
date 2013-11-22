@@ -1035,7 +1035,7 @@ implements KeyListener, ControllerListener {
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
             this.controller = FirmwareUtils.getControllerFor(firmware);
 
-            this.applySettingsToController();
+            MainWindow.applySettingsToController(this.controller);
             
             // Register comm listeners
             this.controller.addListener(this);
@@ -1094,7 +1094,7 @@ implements KeyListener, ControllerListener {
         try {
             this.controller.resetCoordinatesToZero();
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
@@ -1102,7 +1102,7 @@ implements KeyListener, ControllerListener {
         try {
             this.controller.performHomingCycle();
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
@@ -1112,7 +1112,7 @@ implements KeyListener, ControllerListener {
             // The return to home command uses G91 to lift the tool.
             this.G91Mode = true;
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
@@ -1136,7 +1136,7 @@ implements KeyListener, ControllerListener {
         try {
             this.controller.killAlarmLock();
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_killAlarmLockActionPerformed
 
@@ -1144,7 +1144,7 @@ implements KeyListener, ControllerListener {
         try {
             this.controller.toggleCheckMode();
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_toggleCheckModeActionPerformed
 
@@ -1153,7 +1153,7 @@ implements KeyListener, ControllerListener {
             this.controller.viewParserState();
         } catch (Exception ex) {
             ex.printStackTrace();
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_requestStateInformationActionPerformed
 
@@ -1162,7 +1162,7 @@ implements KeyListener, ControllerListener {
             this.controller.issueSoftReset();
         } catch (Exception ex) {
             ex.printStackTrace();
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_softResetMachineControlActionPerformed
 
@@ -1235,9 +1235,9 @@ implements KeyListener, ControllerListener {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
             } catch (FileNotFoundException ex) {
-                this.displayErrorDialog("Problem opening file: " + ex.getMessage());
+                MainWindow.displayErrorDialog("Problem opening file: " + ex.getMessage());
             } catch (IOException e) {
-                this.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
+                MainWindow.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
             }
         } else {
             // Canceled file open.
@@ -1288,7 +1288,7 @@ implements KeyListener, ControllerListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            this.displayErrorDialog("Error while trying to pause/resume");
+            MainWindow.displayErrorDialog("Error while trying to pause/resume");
         }
     }//GEN-LAST:event_pauseButtonActionPerformed
 
@@ -1343,22 +1343,22 @@ implements KeyListener, ControllerListener {
                 timer.stop();
                 this.updateControlsForState(ControlState.COMM_IDLE);
                 e.printStackTrace();
-                this.displayErrorDialog("Error while starting file stream: "+e.getMessage());
+                MainWindow.displayErrorDialog("Error while starting file stream: "+e.getMessage());
             }
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
         try {
             if (this.controller == null) {
-                this.displayErrorDialog("Cannot edit firmware settings until you have connected to the firmware.");
+                MainWindow.displayErrorDialog("Cannot edit firmware settings until you have connected to the firmware.");
             } else if (this.controller instanceof GrblController) {
                     GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, (GrblController)this.controller);
                     gfsd.setVisible(true);
             } else {
-                this.displayErrorDialog("You are not using a GRBL connection.");
+                MainWindow.displayErrorDialog("You are not using a GRBL connection.");
             }
         } catch (Exception ex) {
-                this.displayErrorDialog(ex.getMessage());
+                MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
@@ -1368,25 +1368,17 @@ implements KeyListener, ControllerListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File newFile = fileChooser.getSelectedFile();
-                boolean deleteController = false;
-                if (this.controller == null) {
-                    deleteController = true;
-                    String firmware = this.firmwareComboBox.getSelectedItem().toString();
-                    this.controller = FirmwareUtils.getControllerFor(firmware);
-                    this.applySettingsToController();
-                }
-                this.controller.appendGcodeFile(this.gcodeFile);
-                this.controller.preprocessAndSaveToFile(newFile);
-                if (deleteController) {
-                    this.controller = null;
-                }
+                AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
+                MainWindow.applySettingsToController(control);
+                control.appendGcodeFile(this.gcodeFile);
+                control.preprocessAndSaveToFile(newFile);
             } catch (FileNotFoundException ex) {
-                this.displayErrorDialog("Problem opening file: " + ex.getMessage());
+                MainWindow.displayErrorDialog("Problem opening file: " + ex.getMessage());
             } catch (IOException e) {
-                this.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
+                MainWindow.displayErrorDialog("Unknown IOException while processing file: "+e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
-                this.displayErrorDialog("Exception occurred during save: " + e.getMessage());
+                MainWindow.displayErrorDialog("Exception occurred during save: " + e.getMessage());
             }
         }    
     }//GEN-LAST:event_saveButtonActionPerformed
@@ -1580,7 +1572,7 @@ implements KeyListener, ControllerListener {
             this.controller.queueStringForComm(command.toString());
             G91Mode = true;
         } catch (Exception ex) {
-            this.displayErrorDialog(ex.getMessage());
+            MainWindow.displayErrorDialog(ex.getMessage());
         }
     }
     
@@ -1737,7 +1729,7 @@ implements KeyListener, ControllerListener {
         List<CommPortIdentifier> portList = CommUtils.getSerialPortList();
         
         if (portList.size() < 1) {
-            this.displayErrorDialog("No serial ports found.");
+            MainWindow.displayErrorDialog("No serial ports found.");
         } else {
             // Sort?
             //java.util.Collections.sort(portList);
@@ -1758,7 +1750,7 @@ implements KeyListener, ControllerListener {
         List<String> firmwareList = FirmwareUtils.getFirmwareList();
         
         if (firmwareList.size() < 1) {
-            this.displayErrorDialog("No firmwares found.");
+            MainWindow.displayErrorDialog("No firmwares found.");
         } else {
             java.util.Iterator<String> iter = firmwareList.iterator();
             while ( iter.hasNext() ) {
@@ -1778,24 +1770,24 @@ implements KeyListener, ControllerListener {
         }
     }
     
-    private void applySettingsToController() {
+    private static void applySettingsToController(AbstractController controller) {
         // Apply SettingsFactory settings to controller.
         if (SettingsFactory.isOverrideSpeedSelected()) {
             double value = SettingsFactory.getOverrideSpeedValue();
-            this.controller.setSpeedOverride(value);
+            controller.setSpeedOverride(value);
         }
 
         try {
-            this.controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
-            this.controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
-            this.controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
-            this.controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
-            this.controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
-            this.controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
-            this.controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
-            this.controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
+            controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
+            controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
+            controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
+            controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
+            controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
+            controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
+            controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
+            controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
         } catch (Exception ex) {
-            this.displayErrorDialog("There was a problem setting one or more of these controller features: "
+            MainWindow.displayErrorDialog("There was a problem setting one or more of these controller features: "
                     + "\nmax command length, truncate decimal length, single step mode,"
                     + "\nremove all whitespace, convert arcs to lines, status updates enabled,"
                     + "\nstatus update rate."
@@ -1845,14 +1837,14 @@ implements KeyListener, ControllerListener {
             connected = controller.openCommPort(port, portRate);
 
         } catch (PortInUseException e) {
-            this.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage()+
+            MainWindow.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage()+
                     "\n\nMac and Linux users, if this port is not in use please create a" +
                     "\ndirectory named \"/var/lock\" with the following commands:" +
                     "\n     sudo mkdir /var/lock" +
                     "\n     sudo chmod 777 /var/lock");
         }catch (Exception e) {
             e.printStackTrace();
-            this.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage());
+            MainWindow.displayErrorDialog("Error opening connection ("+ e.getClass().getName() + "): "+e.getMessage());
         }
         return connected;
     }
@@ -1865,7 +1857,7 @@ implements KeyListener, ControllerListener {
         this.commandTable.clear();
     }
         
-    private void displayErrorDialog(String errorMessage) {
+    private static void displayErrorDialog(String errorMessage) {
         JOptionPane.showMessageDialog(new JFrame(), errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
     
