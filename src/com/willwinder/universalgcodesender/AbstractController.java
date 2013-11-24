@@ -409,11 +409,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             this.commandComplete(command);
             // For the listeners...
             dispatchCommandSent(command);
-        } else if (command.getCommandString().length() > this.maxCommandLength) {
-            throw new Exception("Command #" + command.getCommandNumber()
-                    + " too long: (" + command.getCommandString().length()
-                    + " > " + maxCommandLength + ") "
-                    + command.getCommandString());
         } else {
             this.outgoingQueue.add(command);
             this.commandQueued(command);
@@ -450,16 +445,32 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     /**
      * Appends command string to a queue awaiting to be sent.
      */
-    public void appendGcodeCommand(String commandString) {
-        GcodeCommand command = this.commandCreator.createCommand(commandString);
-        this.prepQueue.add(command);
+    public void appendGcodeCommand(String commandString) throws Exception{
+        GcodeCommand command; // = this.commandCreator.createCommand(commandString);
+        
+        // TODO: Expand this to handle canned cycles (Issue#49)
+        String[] processed = this.preprocessCommand(commandString);
+
+        for (String s : processed) {
+            command = new GcodeCommand(s.trim());
+            command.setCommandNumber(numCommands++);
+            
+            if (command.getCommandString().length() > this.maxCommandLength) {
+                throw new Exception("Command #" + command.getCommandNumber()
+                        + " too long: ('" + command.getCommandString().length()
+                        + "' > " + maxCommandLength + ") "
+                        + command.getCommandString());
+            }
+            
+            this.prepQueue.add(command);
+        }        
     }
     
     /**
      * Appends file of commands to a queue awaiting to be sent. Exception is
      * thrown on file IO errors.
      */
-    public void appendGcodeFile(File file) throws IOException {
+    public void appendGcodeFile(File file) throws IOException, Exception {
         this.gcodeFile = file;
         ArrayList<String> linesInFile = 
                 VisualizerUtils.readFiletoArrayList(this.gcodeFile.getAbsolutePath());
@@ -508,22 +519,12 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         try {
             // Send all queued commands and wait for a response.
             GcodeCommand command;
-            String[] processed;
             while (this.prepQueue.size() > 0) {
                 command = this.prepQueue.remove();
-                
-                // TODO: Expand this to handle canned cycles (Issue#49)
-                processed = this.preprocessCommand(command.getCommandString());
-                
-                for (String s : processed) {
-                    command = new GcodeCommand(s.trim());
-                    command.setCommandNumber(numCommands++);
-                    
-                    if (this.saveToFileMode) {
-                        this.outputFileWriter.println(command.getCommandString());
-                    } else {
-                        queueCommandForComm(command);
-                    }
+                if (this.saveToFileMode) {
+                    this.outputFileWriter.println(command.getCommandString());
+                } else {
+                    queueCommandForComm(command);
                 }
             }
             
@@ -610,6 +611,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     
     // No longer a listener event
     private String[] preprocessCommand(String command) {
+        String[] arr;
         String newCommand = command;
 
         // Remove comments from command.
@@ -633,11 +635,18 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
         }
         
-        String[] arr = {newCommand};
+        newCommand = newCommand.trim();
+        if (newCommand.length() != 0) {
+            arr = new String[]{newCommand};
+        } else {
+            arr = new String[]{};
+        }
         
         // If this is enabled we need to parse the gcode as we go along.
         if (this.convertArcsToLines) { // || this.expandCannedCycles) {
-            
+            // Save off the start of the arc for later.
+            Point3d start = new Point3d(this.gcp.getCurrentPoint());
+
             PointSegment ps = this.gcp.addCommand(newCommand);
             
             if (ps == null) {
@@ -656,7 +665,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 
                 int index;
                 StringBuilder sb;
-                Point3d start = new Point3d(this.startPoint);
 
                 // Create the commands...
                 arr = new String[psl.size()];
