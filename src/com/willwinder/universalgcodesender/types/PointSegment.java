@@ -31,12 +31,13 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class PointSegment {
+final public class PointSegment {
     private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
     private Point3d point;
     
     // Line properties
+    private boolean isMetric = true;
     private boolean isZMovement = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
@@ -51,6 +52,22 @@ public class PointSegment {
     
     public PointSegment() {
         this.lineNumber = -1;
+    }
+    
+    public PointSegment(PointSegment ps) {
+        this(ps.point(), ps.getLineNumber());
+    
+        this.setToolHead(ps.toolhead);
+        this.setSpeed(ps.speed);
+        this.setIsMetric(ps.isMetric);
+        this.setIsZMovement(ps.isZMovement);
+        this.setIsFastTraverse(ps.isFastTraverse);
+
+        if (ps.isArc) {
+            this.setArcCenter(ps.center());
+            this.setRadius(ps.getRadius());
+            this.setIsClockwise(ps.isClockwise());
+        }
     }
     
     public PointSegment(final Point3d b, final int num)
@@ -116,6 +133,14 @@ public class PointSegment {
     
     public boolean isZMovement() {
         return isZMovement;
+    }
+    
+    public void setIsMetric(final boolean isMetric) {
+        this.isMetric = isMetric;
+    }
+    
+    public boolean isMetric() {
+        return isMetric;
     }
     
     public void setIsArc(final boolean isA) {
@@ -190,5 +215,19 @@ public class PointSegment {
             return this.arcProperties.radius;
         }
         return 0;
+    }
+    
+    public void convertToMetric() {
+        if (this.isMetric) {
+            return;
+        }
+        System.out.println("SCALING");
+        this.isMetric = true;
+        this.point.scale(25.4);
+
+        if (this.isArc && this.arcProperties != null) {
+            this.arcProperties.center.scale(25.4);
+            this.arcProperties.radius *= 25.4;
+        }
     }
 }

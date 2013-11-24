@@ -1316,21 +1316,21 @@ implements KeyListener, ControllerListener {
         try {
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
-                this.controller.isReadyToStreamFile();
+            this.controller.isReadyToStreamFile();
 
-                this.updateControlsForState(ControlState.COMM_SENDING);
-                if (G91Mode) {
-                    this.controller.appendGcodeCommand("G90");
-                }
-
-                this.controller.appendGcodeFile(this.gcodeFile);
-                this.controller.beginStreaming();
-            } catch (Exception e) {
-                timer.stop();
-                this.updateControlsForState(ControlState.COMM_IDLE);
-                e.printStackTrace();
-                MainWindow.displayErrorDialog("Error while starting file stream: "+e.getMessage());
+            this.updateControlsForState(ControlState.COMM_SENDING);
+            if (G91Mode) {
+                this.controller.appendGcodeCommand("G90");
             }
+
+            this.controller.appendGcodeFile(this.gcodeFile);
+            this.controller.beginStreaming();
+        } catch (Exception e) {
+            timer.stop();
+            this.updateControlsForState(ControlState.COMM_IDLE);
+            e.printStackTrace();
+            MainWindow.displayErrorDialog("Error while starting file stream: "+e.getMessage());
+        }
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed

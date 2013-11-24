@@ -105,16 +105,22 @@ public class GcodeViewParse {
             gp.addCommand(s);
         }
         
+        return getLinesFromParser(gp);
+    }
+    
+    private List<LineSegment> getLinesFromParser(GcodeParser gp) {
         List<PointSegment> psl = gp.getPointSegmentList();
-        
-        //List<LineSegment> lsl = new ArrayList<LineSegment>();
         
         Point3d start = null;
         Point3d end = null;
         LineSegment ls;
         int num = 0;
-        for (PointSegment ps : psl) {
+        for (PointSegment segment : psl) {
+            PointSegment ps = segment;
+            ps.convertToMetric();
+            
             end = ps.point();
+            
 
             // start is null for the first iteration.
             if (start != null) {

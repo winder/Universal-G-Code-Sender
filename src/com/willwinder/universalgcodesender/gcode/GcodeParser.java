@@ -85,6 +85,13 @@ public class GcodeParser {
     }
     
     /**
+     * Gets the point at the end of the list.
+     */
+    public Point3d getCurrentPoint() {
+        return currentPoint;
+    }
+    
+    /**
      * Expands the last point in the list if it is an arc according to the
      * provided parameters.
      */
@@ -181,9 +188,8 @@ public class GcodeParser {
         // skip first element.
         Iterator<Point3d> psi = points.listIterator(1);
         while (psi.hasNext()) {
-            temp = new PointSegment();
-            temp.setPoint(psi.next());
-            temp.setLineNumber(commandNumber++);
+            temp = new PointSegment(psi.next(), commandNumber++);
+            temp.setIsMetric(lastSegment.isMetric());
 
             // Add new points.
             this.points.add(temp);
@@ -201,18 +207,18 @@ public class GcodeParser {
     }
 
     private PointSegment processCommand(List<String> args) {
-        List<Integer> gCodes, mCodes;
+        List<Integer> gCodes;
         PointSegment ps = null;
         
         // handle M codes.
-        mCodes = GcodePreprocessorUtils.parseCodes(args, 'M');
+        //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
         //handleMCode(for each codes);
         
         // handle G codes.
         gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
         // If there was no command, add the implicit one to the party.
-        if (!mCodes.isEmpty() && gCodes.isEmpty() && lastGcodeCommand != -1) {
+        if (gCodes.isEmpty() && lastGcodeCommand != -1) {
             gCodes.add(lastGcodeCommand);
         }
         
@@ -224,21 +230,16 @@ public class GcodeParser {
     }
     
     private PointSegment handleGCode(int code, List<String> args) {
+        System.out.println("GCODE: " + code);
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
             args, this.currentPoint, this.isAbsoluteMode);
 
-        // Don't duplicate points. This can happen when trying to use an
-        // implicit gcode command when the actual command is an m code.
-        if (nextPoint.equals(this.currentPoint)) {
-            return null;
-        }
-
         switch (code) {
             case 0:
             case 1:
-                ps = new PointSegment();
+                ps = new PointSegment(nextPoint, commandNumber++);
                 
                 boolean zOnly = false;
                                 
@@ -248,9 +249,8 @@ public class GcodeParser {
                     (this.currentPoint.z != nextPoint.z)) {
                     zOnly = true;
                 }
-                 
-                ps.setPoint(nextPoint);
-                ps.setLineNumber(commandNumber++);
+                
+                ps.setIsMetric(this.isMetric);
                 ps.setIsZMovement(zOnly);
                 ps.setIsFastTraverse(code == 0);
                 this.points.add(ps);
@@ -262,7 +262,7 @@ public class GcodeParser {
             // Arc command.
             case 2:
             case 3:
-                ps = new PointSegment();
+                ps = new PointSegment(nextPoint, commandNumber++);
                 
                 boolean clockwise = true;
                 if (code == 3) {
@@ -282,7 +282,7 @@ public class GcodeParser {
                             + Math.pow(this.currentPoint.y - center.y, 2.0));
                 }
                 
-                ps.setPoint(nextPoint);
+                ps.setIsMetric(this.isMetric);
                 ps.setArcCenter(center);
                 ps.setIsArc(true);
                 ps.setRadius(radius);
@@ -295,6 +295,7 @@ public class GcodeParser {
 
             case 20:
                 //inch
+                System.out.println("Is METRIC IS FALSE");
                 this.isMetric = false;
                 break;
             case 21:
