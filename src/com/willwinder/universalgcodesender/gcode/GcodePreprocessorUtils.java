@@ -63,11 +63,11 @@ public class GcodePreprocessorUtils {
     static public String removeComment(String command) {
         String newCommand = command;
 
-        // Remove any comments within ( parentheses ) with regex "\([^\(]*\)"
+        // Remove any comments within ( parentheses ) using regex "\([^\(]*\)"
         newCommand = newCommand.replaceAll("\\([^\\(]*\\)", "");
 
-        // Remove any comment beginning with ';' with regex "\;[^\\(]*"
-        newCommand = newCommand.replaceAll("\\;[^\\\\(]*", "");
+        // Remove any comment beginning with ';' using regex ";.*"
+        newCommand = newCommand.replaceAll(";.*", "");
 
         return newCommand.trim();
     }
@@ -82,7 +82,7 @@ public class GcodePreprocessorUtils {
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
         
-        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*");
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*");
         Matcher matcher = pattern.matcher(command);
         if (matcher.find()){
             comment = matcher.group(0);
