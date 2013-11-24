@@ -95,7 +95,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public double getSmallArcThreshold() {
         return (Double)this.smallArcThresholdSpinner.getValue();
     }
-    
+
+    public double getSmallArcSegmentLength() {
+        return (Double)this.smallArcSegmentLengthSpinner.getValue();
+    }
     
     /**
      * Setters for all the values.
@@ -144,6 +147,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.smallArcThresholdSpinner.setValue(threshold);
     }
     
+    public void setSmallArcSegmentLengthSpinner(double threshold) {
+        this.smallArcSegmentLengthSpinner.setValue(threshold);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -173,6 +180,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         convertArcsToLinesCheckBox = new javax.swing.JCheckBox();
         smallArcThresholdLabel = new javax.swing.JLabel();
         smallArcThresholdSpinner = new javax.swing.JSpinner();
+        smallArcSegmentLengthLabel = new javax.swing.JLabel();
+        smallArcSegmentLengthSpinner = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -232,6 +241,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         smallArcThresholdSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(2.0d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
 
+        smallArcSegmentLengthLabel.setText("Small arc segment length (mm)");
+
+        smallArcSegmentLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.3d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -288,7 +301,11 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(smallArcThresholdLabel)))
+                        .addComponent(smallArcThresholdLabel))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(smallArcSegmentLengthLabel)))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -328,6 +345,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(smallArcThresholdLabel)
                     .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(smallArcSegmentLengthLabel)
+                    .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
@@ -361,7 +382,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 "\n\nStatus update rate: The rate in milliseconds that status requests are sent at." +
                 "\n\nState color display: Based on state highlights the controller state red/orange/yellow." +
                 "\n\nConvert arcs to lines: Converts small arc commands (G2/G3) to a series of G1 commands." +
-                "\n\nSmall arc threshold: The arc length below which will be converted into G1 commands.";
+                "\n\nSmall arc threshold: The arc length (in mm) below which will be converted into G1 commands." +
+                "\n\nSmall arc segment length: The length (in mm) of segments in an expanded arc.";
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 
@@ -383,6 +405,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox removeAllWhitespaceCheckBox;
     private javax.swing.JCheckBox sendStatusPolls;
     private javax.swing.JCheckBox singleStepModeCheckBox;
+    private javax.swing.JLabel smallArcSegmentLengthLabel;
+    private javax.swing.JSpinner smallArcSegmentLengthSpinner;
     private javax.swing.JLabel smallArcThresholdLabel;
     private javax.swing.JSpinner smallArcThresholdSpinner;
     private javax.swing.JSpinner statusPollRateSpinner;

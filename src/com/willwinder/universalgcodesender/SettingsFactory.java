@@ -55,6 +55,7 @@ class SettingsFactory {
     private static boolean displayStateColor;
     private static boolean convertArcsToLines;
     private static double smallArcThreshold;
+    private static double smallArcSegmentLength;
     
     static {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
@@ -98,9 +99,7 @@ class SettingsFactory {
                 SettingsFactory.displayStateColor = Boolean.valueOf(settings.getProperty("displayStateColor", "true"));
                 SettingsFactory.convertArcsToLines = Boolean.valueOf(settings.getProperty("convertArcsToLines", "false"));
                 SettingsFactory.smallArcThreshold = Double.valueOf(settings.getProperty("smallArcThreshold", "2.0"));
-
-                
-
+                SettingsFactory.smallArcSegmentLength = Double.valueOf(settings.getProperty("smallArcSegmentLength", "1.3"));
             } catch (Exception e) {
                 logger.warning("Can't load settings file!");
                 loadDefaults2();
@@ -137,6 +136,7 @@ class SettingsFactory {
                 settings.put("displayStateColor", displayStateColor+"");
                 settings.put("convertArcsToLines", convertArcsToLines+"");
                 settings.put("smallArcThreshold", smallArcThreshold+"");
+                settings.put("smallArcSegmentLength", smallArcSegmentLength+"");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -171,6 +171,7 @@ class SettingsFactory {
         SettingsFactory.displayStateColor = true;
         SettingsFactory.convertArcsToLines = false;
         SettingsFactory.smallArcThreshold = 2.0;
+        SettingsFactory.smallArcSegmentLength = 1.3;
     }
 
     public static void setLastPath(String fileName) {
@@ -323,5 +324,13 @@ class SettingsFactory {
     
     public static double getSmallArcThreshold() {
         return smallArcThreshold;
+    }
+    
+    public static void setSmallArcSegmentLength(double length) {
+        smallArcSegmentLength = length;
+    }
+
+    public static double getSmallArcSegmentLength() {
+        return smallArcSegmentLength;
     }
 }

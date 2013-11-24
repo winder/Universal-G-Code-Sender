@@ -100,8 +100,7 @@ public class GrblController extends AbstractController {
                 this.commandComplete(response);
             } catch (Exception e) {
                 this.errorMessageForConsole("Error while processing response <"
-                        + response + ">:");
-                this.errorMessageForConsole(e.getMessage());
+                        + response + ">: " + e.getMessage());
             }
             
             this.messageForConsole(response + "\n");

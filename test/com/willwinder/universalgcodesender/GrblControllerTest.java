@@ -852,7 +852,7 @@ public class GrblControllerTest {
             hitException = true;
             System.out.println("Exception: " + ex.getMessage());
             assert(ex.getMessage().startsWith(
-                    "Attempting to completing a command that doesn't exist: <"));
+                    "Attempting to complete a command that doesn't exist: <"));
         }
         assertEquals(true, hitException);
         

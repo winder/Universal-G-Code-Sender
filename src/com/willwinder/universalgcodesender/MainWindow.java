@@ -49,8 +49,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -1182,6 +1180,7 @@ implements KeyListener, ControllerListener {
         gcsd.setStateColorDisplayEnabled(SettingsFactory.getDisplayStateColor());
         gcsd.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
         gcsd.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
+        gcsd.setSmallArcSegmentLengthSpinner(SettingsFactory.getSmallArcSegmentLength());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1196,23 +1195,10 @@ implements KeyListener, ControllerListener {
             SettingsFactory.setDisplayStateColor(gcsd.getDisplayStateColor());
             SettingsFactory.setConvertArcsToLines(gcsd.getConvertArcsToLines());
             SettingsFactory.setSmallArcThreshold(gcsd.getSmallArcThreshold());
+            SettingsFactory.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
             
             if (this.controller != null) {
-                if (gcsd.getSpeedOverrideEnabled()) {
-                    this.controller.setSpeedOverride(gcsd.getSpeedOverridePercent());
-                } else {
-                    this.controller.setSpeedOverride(-1);
-                }
-                
-                this.controller.setMaxCommandLength(gcsd.getMaxCommandLength());
-                this.controller.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
-                this.controller.setSingleStepMode(gcsd.getSingleStepModeEnabled());
-                this.controller.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
-                this.controller.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
-                this.controller.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
-                this.controller.setConvertArcsToLines(gcsd.getConvertArcsToLines());
-                this.controller.setSmallArcThreshold(gcsd.getSmallArcThreshold())
-                        ;
+                MainWindow.applySettingsToController(this.controller);
             }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
@@ -1611,6 +1597,7 @@ implements KeyListener, ControllerListener {
                 this.updateFileControls(false);
                 this.resetSentRowLabels(0);
                 this.updateControlsStopSending();
+                this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
                 this.updateConnectionControls(true);
@@ -1775,6 +1762,8 @@ implements KeyListener, ControllerListener {
         if (SettingsFactory.isOverrideSpeedSelected()) {
             double value = SettingsFactory.getOverrideSpeedValue();
             controller.setSpeedOverride(value);
+        } else {
+            controller.setSpeedOverride(-1);
         }
 
         try {
@@ -1786,6 +1775,7 @@ implements KeyListener, ControllerListener {
             controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
             controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
             controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
+            controller.setSmallArcSegmentLength(SettingsFactory.getSmallArcSegmentLength());
         } catch (Exception ex) {
             MainWindow.displayErrorDialog("There was a problem setting one or more of these controller features: "
                     + "\nmax command length, truncate decimal length, single step mode,"

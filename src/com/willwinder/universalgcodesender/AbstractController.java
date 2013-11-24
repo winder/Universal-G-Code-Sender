@@ -139,7 +139,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     private boolean convertArcsToLines = false;
     private double smallArcThreshold = 1.0;
     // Not configurable outside, but maybe it should be.
-    private double arcLineLength = 0.3;
+    private double smallArcSegmentLength = 0.3;
     
     // State
     private Boolean commOpen = false;
@@ -254,12 +254,20 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         return this.smallArcThreshold;
     }
     
+    public void setSmallArcSegmentLength(double length) {
+        this.smallArcSegmentLength = length;
+    }
+    
+    public double getSmallArcSegmentLength() {
+        return this.smallArcSegmentLength;
+    }
+    
     public void setArcLineLength(double length) {
-        this.arcLineLength = length;
+        this.smallArcSegmentLength = length;
     }
     
     public double getArcLineLength() {
-        return this.arcLineLength;
+        return this.smallArcSegmentLength;
     }
     
     public void setStatusUpdatesEnabled(boolean enabled) {
@@ -637,7 +645,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             }
             
             if (ps.isArc()) {
-                List<PointSegment> psl = this.gcp.expandArcWithParameters(this.smallArcThreshold, 1.27, this.truncateDecimalLength);
+                List<PointSegment> psl = this.gcp.expandArcWithParameters(
+                        this.smallArcThreshold,
+                        this.smallArcSegmentLength,
+                        this.truncateDecimalLength);
+                
                 if (psl == null) {
                     return arr;
                 }
@@ -685,6 +697,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         if (!c.getCommandString().equals(command)) {
             this.errorMessageForConsole("Command <"+c.getCommandString()+
                     "> does not equal expected command <"+command+">");
+            try{
+                throw new Exception();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         
         this.awaitingResponseQueue.add(c);
@@ -714,7 +731,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         // from the remaining queues.
         if (!command.isSkipped()) {
             if (this.awaitingResponseQueue.size() == 0) {
-                throw new Exception("Attempting to completing a command that "
+                throw new Exception("Attempting to complete a command that "
                         + "doesn't exist: <" + command.toString() + ">");
             }
             

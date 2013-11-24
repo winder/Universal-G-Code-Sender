@@ -91,6 +91,11 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="smallArcThresholdLabel" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="smallArcSegmentLengthSpinner" min="-2" pref="59" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="smallArcSegmentLengthLabel" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
           </Group>
@@ -137,6 +142,11 @@
               <Group type="103" groupAlignment="2" attributes="0">
                   <Component id="smallArcThresholdLabel" alignment="2" min="-2" max="-2" attributes="0"/>
                   <Component id="smallArcThresholdSpinner" alignment="2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="2" attributes="0">
+                  <Component id="smallArcSegmentLengthLabel" alignment="2" min="-2" max="-2" attributes="0"/>
+                  <Component id="smallArcSegmentLengthSpinner" alignment="2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -269,6 +279,18 @@
       <Properties>
         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
           <SpinnerModel initial="2.0" minimum="0.0" numberType="java.lang.Double" stepSize="0.1" type="number"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="smallArcSegmentLengthLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Small arc segment length (mm)"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="smallArcSegmentLengthSpinner">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.3" minimum="0.0" numberType="java.lang.Double" stepSize="0.1" type="number"/>
         </Property>
       </Properties>
     </Component>

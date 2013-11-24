@@ -45,10 +45,6 @@ public class GcodeParser {
     // The gcode.
     List<PointSegment> points;
     
-    // Temporary
-    double smallArcThreshold = 2.0;
-    double arcLineLength = 0.3;
-    
     public GcodeParser() {
         this.reset();
     }
@@ -79,10 +75,7 @@ public class GcodeParser {
         }
         return processCommand(args);
     }
-    
-    public PointSegment getLastSegment() {
-        return this.points.get(this.points.size()-1);
-    }
+
     /**
      * Warning, this should only be used when modifying live gcode, such as when
      * expanding an arc or canned cycle into line segments.
@@ -91,7 +84,11 @@ public class GcodeParser {
         this.lastGcodeCommand = num;
     }
     
-    public List<PointSegment> expandArcWithParameters(double minLengthMM, double arcTolerance, int roundTo) {
+    /**
+     * Expands the last point in the list if it is an arc according to the
+     * provided parameters.
+     */
+    public List<PointSegment> expandArcWithParameters(double minLengthMM, double segmentLengthMM, int roundTo) {
         PointSegment startSegment = this.points.get(this.points.size() - 2);
         PointSegment lastSegment = this.points.get(this.points.size() - 1);
 
@@ -157,15 +154,9 @@ public class GcodeParser {
             }
 
             // mm_per_arc_segment calculation isn't working
-            double mm_per_arc_segment = Math.sqrt(4*arcTolerance*(2*radiusInMM-arcTolerance));
-            //if (radius*2 < arcTolerance) {
-            //    System.out.println("SMALL RADIUS, segment size = " + mm_per_arc_segment);
-            //    mm_per_arc_segment = 0.3;
-            //} else {
-            //    System.out.println("segment size = " + mm_per_arc_segment);
-            //}
-
-            mm_per_arc_segment = 0.125;
+            //double mm_per_arc_segment = Math.sqrt(4*arcTolerance*(2*radiusInMM-arcTolerance));
+            
+            double mm_per_arc_segment = segmentLengthMM;
             int numPoints = (int)Math.ceil(distance/mm_per_arc_segment);
 
             points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
@@ -210,22 +201,22 @@ public class GcodeParser {
     }
 
     private PointSegment processCommand(List<String> args) {
-        List<Integer> codes;
+        List<Integer> gCodes, mCodes;
         PointSegment ps = null;
         
         // handle M codes.
-        //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
+        mCodes = GcodePreprocessorUtils.parseCodes(args, 'M');
         //handleMCode(for each codes);
         
         // handle G codes.
-        codes = GcodePreprocessorUtils.parseCodes(args, 'G');
+        gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
         // If there was no command, add the implicit one to the party.
-        if (codes.isEmpty() && lastGcodeCommand != -1) {
-            codes.add(lastGcodeCommand);
+        if (!mCodes.isEmpty() && gCodes.isEmpty() && lastGcodeCommand != -1) {
+            gCodes.add(lastGcodeCommand);
         }
         
-        for (Integer i : codes) {
+        for (Integer i : gCodes) {
             ps = handleGCode(i, args);
         }
         

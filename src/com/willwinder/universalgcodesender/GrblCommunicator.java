@@ -150,7 +150,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
             this.sendMessageToConsoleListener(">>> " + commandString);
             conn.sendStringToComm(commandString);
             
-            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString);
+            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
         }
     }
     
