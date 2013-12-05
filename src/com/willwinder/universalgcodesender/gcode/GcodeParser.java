@@ -114,11 +114,11 @@ public class GcodeParser {
         //
         // Start expansion.
         //
-        List<Point3d> points;
+        List<Point3d> expandedPoints;
         boolean withoutThreshhold = false;
         
         if (withoutThreshhold) {
-            points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
+            expandedPoints = GcodePreprocessorUtils.generatePointsAlongArcBDring(
                                 start, end, center, clockwise, radius, 20);
         }
         else {
@@ -166,13 +166,13 @@ public class GcodeParser {
             double mm_per_arc_segment = segmentLengthMM;
             int numPoints = (int)Math.ceil(distance/mm_per_arc_segment);
 
-            points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
+            expandedPoints = GcodePreprocessorUtils.generatePointsAlongArcBDring(
                             start, end, center, clockwise, radius, 
                             startAngle, endAngle, sweep, numPoints);
         }
         
         // Validate output of expansion.
-        if (points == null) {
+        if (expandedPoints == null) {
             return null;
         }
         
@@ -186,7 +186,7 @@ public class GcodeParser {
         // Create line segments from points.
         PointSegment temp;
         // skip first element.
-        Iterator<Point3d> psi = points.listIterator(1);
+        Iterator<Point3d> psi = expandedPoints.listIterator(1);
         while (psi.hasNext()) {
             temp = new PointSegment(psi.next(), commandNumber++);
             temp.setIsMetric(lastSegment.isMetric());
