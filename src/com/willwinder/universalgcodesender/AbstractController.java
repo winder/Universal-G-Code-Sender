@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -84,39 +85,53 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     /**
      * Performs homing cycle, throw an exception if not supported.
      */
-    abstract public void performHomingCycle() throws Exception;
+    public void performHomingCycle() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.homing"));
+    }
     
     /**
      * Returns machine to home location, throw an exception if not supported.
      */
-    abstract public void returnToHome() throws Exception;
+    public void returnToHome() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.gohome"));
+    }
         
     /**
      * Reset machine coordinates to zero at the current location.
      */
-    abstract public void resetCoordinatesToZero() throws Exception;
+    public void resetCoordinatesToZero() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.reset"));
+    }
     
     /**
      * Disable alarm mode and put device into idle state, throw an exception 
      * if not supported.
      */
-    abstract public void killAlarmLock() throws Exception;
+    public void killAlarmLock() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.killalarm"));
+    }
     
     /**
      * Toggles check mode on or off, throw an exception if not supported.
      */
-    abstract public void toggleCheckMode() throws Exception;
+    public void toggleCheckMode() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.checkmode"));
+    }
     
     /**
      * Request parser state, either print it here or expect it in the response
      * handler. Throw an exception if not supported.
      */
-    abstract public void viewParserState() throws Exception;
+    public void viewParserState() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.parserstate"));
+    }
     
     /**
      * Execute a soft reset, throw an exception if not supported.
      */
-    abstract public void issueSoftReset() throws Exception;
+    public void issueSoftReset() throws Exception {
+        throw new Exception(Localization.getString("controller.exception.softreset"));
+    }
     
     /**
      * Listener event for status update values;

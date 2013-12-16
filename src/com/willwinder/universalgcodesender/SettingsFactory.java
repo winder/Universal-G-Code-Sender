@@ -19,6 +19,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -61,11 +62,11 @@ class SettingsFactory {
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
             SETTINGS_FILE = new File(System.getProperty("user.home")+"/Library/Preferences/","UniversalGcodeSender.properties");
         }
-        logger.info("Settings file location: " + SETTINGS_FILE);
+        logger.info(Localization.getString("settings.log.location") + ": " + SETTINGS_FILE);
     }
 
     public static void loadSettings() {
-        logger.info("Load settings");
+        logger.info(Localization.getString("settings.log.loading"));
         try {
             settings.load(new FileInputStream(SETTINGS_FILE));
             
@@ -82,7 +83,7 @@ class SettingsFactory {
                 SettingsFactory.overrideSpeedValue = Double.valueOf(settings.getProperty("overrideSpeed.value", "60"));
             } catch (Exception e) {
                 e.printStackTrace();
-                logger.warning("Can't load settings use defaults!");
+                logger.warning(Localization.getString("settings.log.error"));
                 loadDefaults();
             } 
             
@@ -101,18 +102,18 @@ class SettingsFactory {
                 SettingsFactory.smallArcThreshold = Double.valueOf(settings.getProperty("smallArcThreshold", "2.0"));
                 SettingsFactory.smallArcSegmentLength = Double.valueOf(settings.getProperty("smallArcSegmentLength", "1.3"));
             } catch (Exception e) {
-                logger.warning("Can't load settings file!");
+                logger.warning(Localization.getString("settings.log.error"));
                 loadDefaults2();
             }
         } catch (Exception e) {
-            logger.warning("Can't load settings file!");
+            logger.warning(Localization.getString("settings.log.error"));
             loadDefaults();
             loadDefaults2();
         }
     }
 
     public static void saveSettings() {
-        logger.info("Save settings");
+        logger.info(Localization.getString("settings.log.saving"));
         try {
             try {
                 settings.put("firmwareVersion", firmwareVersion);
@@ -144,7 +145,7 @@ class SettingsFactory {
             settings.store(new FileOutputStream(SETTINGS_FILE), "");
         } catch (Exception e) {
             e.printStackTrace();
-            logger.warning("Can't save settings!");
+            logger.warning(Localization.getString("settings.log.saveerror"));
         }
     }
     

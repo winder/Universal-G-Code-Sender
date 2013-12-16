@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -37,9 +38,31 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public ConnectionSettingsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        initLocalization();
         
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         saveChanges = false;
+    }
+    
+    private void initLocalization() {
+        titleLabel.setText(Localization.getString("sender.header"));
+
+        overrideSpeedCheckBox.setText(Localization.getString("sender.speed.override"));
+        overrideSpeedPercentLabel.setText(Localization.getString("sender.speed.percent"));
+        maxCommandLengthLabel.setText(Localization.getString("sender.command.length"));
+        truncateDecimalDigitsLabel.setText(Localization.getString("sender.truncate"));
+        singleStepModeCheckBox.setText(Localization.getString("sender.singlestep"));
+        removeAllWhitespaceCheckBox.setText(Localization.getString("sender.whitespace"));
+        sendStatusPolls.setText(Localization.getString("sender.status"));
+        statusPollingRate.setText(Localization.getString("sender.status.rate"));
+        displayStateColor.setText(Localization.getString("sender.state"));
+        this.convertArcsToLinesCheckBox.setText(Localization.getString("sender.arcs"));
+        smallArcSegmentLengthLabel.setText(Localization.getString("sender.arcs.length"));
+        smallArcThresholdLabel.setText(Localization.getString("sender.arcs.threshold"));
+        
+        closeWithSave.setText(Localization.getString("save.close"));
+        closeWithoutSave.setText(Localization.getString("close"));
+        helpButton.setText(Localization.getString("help"));
     }
     
     /**
@@ -371,23 +394,24 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_closeWithSaveActionPerformed
 
     private void helpButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonActionPerformed
-        String message =
-                "Enable speed override: Enables or disables speed overriding." +
-                "\n\nSpeed override percent: Factor that speeds will be scaled by." +
-                "\n\nMax command length: Maximum length of a command before an error is triggered." +
-                "\n\nTruncate decimal digits: Number of fractional digits that will be sent to firmware." +
-                "\n\nEnable single step mode: Turns on single step mode, this is very slow." +
-                "\n\nRemove all whitespace: Removes the usually unnecessary whitespace in gcode commands." +
-                "\n\nEnable status updates: Turns on status polling for firmware if supported." +
-                "\n\nStatus update rate: The rate in milliseconds that status requests are sent at." +
-                "\n\nState color display: Based on state highlights the controller state red/orange/yellow." +
-                "\n\nConvert arcs to lines: Converts small arc commands (G2/G3) to a series of G1 commands." +
-                "\n\nSmall arc threshold: The arc length (in mm) below which will be converted into G1 commands." +
-                "\n\nSmall arc segment length: The length (in mm) of segments in an expanded arc.";
+        StringBuilder message = new StringBuilder()
+                .append(Localization.getString("sender.help.speed.override")).append("\n\n")
+                .append(Localization.getString("sender.help.speed.percent")).append("\n\n")
+                .append(Localization.getString("sender.help.command.length")).append("\n\n")
+                .append(Localization.getString("sender.help.truncate")).append("\n\n")
+                .append(Localization.getString("sender.help.singlestep")).append("\n\n")
+                .append(Localization.getString("sender.help.whitespace")).append("\n\n")
+                .append(Localization.getString("sender.help.status")).append("\n\n")
+                .append(Localization.getString("sender.help.status.rate")).append("\n\n")
+                .append(Localization.getString("sender.help.state")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs.threshold")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs.length"));
+                
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 
-                "GRBL Connection Setting Help",
+                Localization.getString("sender.help.dialog.title"),
                 JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonActionPerformed
 

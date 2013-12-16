@@ -22,6 +22,7 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
@@ -32,6 +33,9 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.vecmath.Point3d;
 
 /**
@@ -73,7 +77,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     public GrblFirmwareSettingsDialog(java.awt.Frame parent, boolean modal, GrblController gcl) throws Exception {
         super(parent, modal);
         initComponents();
-
+        initLocalization();
         if (gcl == null) {
             throw new Exception("There is no controller. Are you connected?");
         }
@@ -210,7 +214,17 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         
         this.commands[row] = command;
     }
-        
+      
+    private void initLocalization() {
+        closeButton.setText(Localization.getString("close"));
+        saveButton.setText(Localization.getString("save"));
+        TableColumnModel tcm = settingsTable.getTableHeader().getColumnModel();
+        tcm.getColumn(0).setHeaderValue(Localization.getString("setting"));
+        tcm.getColumn(1).setHeaderValue(Localization.getString("value"));
+        tcm.getColumn(2).setHeaderValue(Localization.getString("description"));
+        settingsTable.getTableHeader().repaint();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

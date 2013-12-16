@@ -230,7 +230,6 @@ public class GcodeParser {
     }
     
     private PointSegment handleGCode(int code, List<String> args) {
-        System.out.println("GCODE: " + code);
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
@@ -295,7 +294,6 @@ public class GcodeParser {
 
             case 20:
                 //inch
-                System.out.println("Is METRIC IS FALSE");
                 this.isMetric = false;
                 break;
             case 21:

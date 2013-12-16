@@ -22,6 +22,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -99,8 +100,8 @@ public class GrblController extends AbstractController {
             try {
                 this.commandComplete(response);
             } catch (Exception e) {
-                this.errorMessageForConsole("Error while processing response <"
-                        + response + ">: " + e.getMessage());
+                this.errorMessageForConsole(Localization.getString("controller.error.response")
+                        + " <" + response + ">: " + e.getMessage());
             }
             
             this.messageForConsole(response + "\n");
@@ -120,9 +121,9 @@ public class GrblController extends AbstractController {
             this.beginPollingPosition();
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "Grbl version = {0}{1}", new Object[]{this.grblVersion, this.grblVersionLetter});
+                    "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "Real time mode = {0}", this.realTimeCapable);
+                    "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.realTimeCapable});
         }
         
         else if (GrblUtils.isGrblStatusString(response)) {
@@ -173,7 +174,7 @@ public class GrblController extends AbstractController {
     @Override
     protected void isReadyToStreamFileEvent() throws Exception {
         if (this.isReady == false) {
-            throw new Exception("Grbl has not finished booting.");
+            throw new Exception(Localization.getString("controller.exception.booting"));
         }
     }
     
@@ -213,7 +214,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported homing method for " + this.getGrblVersion());
+        // Throw exception
+        super.performHomingCycle();
     }
     
     @Override
@@ -225,7 +227,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported coordinate reset method for " + this.getGrblVersion());
+        // Throw exception
+        super.resetCoordinatesToZero();
     }
     
     @Override
@@ -246,7 +249,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported homing method for " + this.getGrblVersion());
+        // Throw exception
+        super.returnToHome();
     }
     
     @Override
@@ -258,7 +262,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported kill alarm lock method for " + this.getGrblVersion());
+        // Throw exception
+        super.killAlarmLock();
     }
 
     @Override
@@ -270,7 +275,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported toggle check mode method for " + this.getGrblVersion());
+        // Throw exception
+        super.toggleCheckMode();
     }
 
     @Override
@@ -282,7 +288,8 @@ public class GrblController extends AbstractController {
                 return;
             }
         }
-        throw new Exception("No supported view parser state method for " + this.getGrblVersion());
+        // Throw exception
+        super.viewParserState();
     }
     
     /**
@@ -313,12 +320,12 @@ public class GrblController extends AbstractController {
             }
             
             if (this.grblVersion <= 0.0 && this.grblVersionLetter == null) {
-                str.append("<unknown>");
+                str.append("<" + Localization.getString("unknown") + ">");
             }
             
             return str.toString();
         }
-        return "<not connected>";
+        return "<" + Localization.getString("controller.log.notconnected") + ">";
     }
 
     /**
@@ -345,7 +352,8 @@ public class GrblController extends AbstractController {
                                 }
                             }
                         } catch (IOException ex) {
-                            messageForConsole("IOException while sending status command: " + ex.getMessage() + "\n");
+                            messageForConsole(Localization.getString("controller.exception.sendingstatus")
+                                    + ": " + ex.getMessage() + "\n");
                         }
                     }
                 });
@@ -410,4 +418,3 @@ public class GrblController extends AbstractController {
         this.beginPollingPosition();
     }
 }
-    

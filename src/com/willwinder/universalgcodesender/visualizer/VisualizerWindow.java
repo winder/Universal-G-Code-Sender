@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.util.FPSAnimator;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
@@ -42,7 +43,7 @@ import javax.vecmath.Point3d;
 public class VisualizerWindow extends javax.swing.JFrame 
 implements ControllerListener, WindowListener {
 
-    private static String TITLE = "G-Code Visualizer";  // window's title
+    private static String TITLE = Localization.getString("visualizer.title");  // window's title
     private static final int CANVAS_WIDTH = 640;  // width of the drawable
     private static final int CANVAS_HEIGHT = 480; // height of the drawable
     private static final int FPS = 20; // animator's target frames per second

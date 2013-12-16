@@ -308,7 +308,7 @@
         </one-jar>
         <echo>Bundling: OneJAR is done.</echo>
 
-        <!-- static files and scripts -->
+        <!-- static files, scripts, localization -->
         <echo>Release Build: Copying in support files.</echo>
         <copy todir="${release.dir}/${standalone.jar.name}/"
                file="${basedir}/release_files/README.txt"/>

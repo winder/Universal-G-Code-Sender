@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.IOException;
@@ -89,7 +90,7 @@ public abstract class AbstractCommunicator {
         }
         
         if(conn==null) {
-            throw new Exception("No driver for port: "+name);
+            throw new Exception(Localization.getString("communicator.exception.port") + ": "+name);
         }
         
         //open it

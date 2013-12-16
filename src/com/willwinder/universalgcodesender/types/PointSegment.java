@@ -221,7 +221,7 @@ final public class PointSegment {
         if (this.isMetric) {
             return;
         }
-        System.out.println("SCALING");
+
         this.isMetric = true;
         this.point.scale(25.4);
 

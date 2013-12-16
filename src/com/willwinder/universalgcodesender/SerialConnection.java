@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import gnu.io.CommPort;
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
@@ -76,7 +77,7 @@ public class SerialConnection extends Connection implements SerialPortEventListe
         CommPortIdentifier portIdentifier = CommPortIdentifier.getPortIdentifier(name);
            
         if (portIdentifier.isCurrentlyOwned()) {
-            throw new Exception("This port is already owned by another process.");
+            throw new Exception(Localization.getString("connection.exception.inuse"));
         } else {
             this.commPort = portIdentifier.open(this.getClass().getName(), 2000);
 

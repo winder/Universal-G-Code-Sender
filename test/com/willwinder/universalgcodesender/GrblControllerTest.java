@@ -177,7 +177,7 @@ public class GrblControllerTest {
             instance.performHomingCycle();
         } catch (Exception e) {
             hitIt = true;
-            assert(e.getMessage().startsWith("No supported homing method for Grbl 0.7"));
+            assert(e.getMessage().startsWith("No supported homing method for this version."));
         }
         assertEquals(true, hitIt);
         
@@ -203,7 +203,7 @@ public class GrblControllerTest {
      * Test of issueSoftReset method, of class GrblController.
      */
     @Test
-    public void testIssueSoftReset() throws IOException {
+    public void testIssueSoftReset() throws IOException, Exception {
         System.out.println("issueSoftReset");
         GrblController instance = new GrblController(mgc);
         
@@ -251,7 +251,7 @@ public class GrblControllerTest {
      * Test of isStreamingFile method, of class GrblController.
      */
     @Test
-    public void testIsStreamingFile() {
+    public void testIsStreamingFile() throws Exception {
         System.out.println("isStreamingFile");
         GrblController instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
@@ -304,7 +304,7 @@ public class GrblControllerTest {
      * Test of getSendDuration method, of class GrblController.
      */
     @Test
-    public void testGetSendDuration() {
+    public void testGetSendDuration() throws Exception {
         System.out.println("getSendDuration");
         GrblController instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
@@ -381,7 +381,7 @@ public class GrblControllerTest {
      * Test of rowsInSend method, of class GrblController.
      */
     @Test
-    public void testRowsAsteriskMethods() {
+    public void testRowsAsteriskMethods() throws Exception {
         System.out.println("rowsInSend / rowsSent / rowsRemaining");
         GrblController instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
@@ -699,7 +699,7 @@ public class GrblControllerTest {
      * Test of numCancelSendCalls method, of class GrblController.
      */
     @Test
-    public void testCancelSend() {
+    public void testCancelSend() throws Exception {
         System.out.println("cancelSend");
         GrblController instance = new GrblController(mgc);
         

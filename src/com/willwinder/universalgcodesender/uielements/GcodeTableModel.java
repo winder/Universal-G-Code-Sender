@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -41,7 +42,10 @@ public class GcodeTableModel extends DefaultTableModel {
 
             },
             new String [] {
-                "Command", "Sent", "Done", "Response"
+                Localization.getString("gcodeTable.command"),
+                Localization.getString("gcodeTable.sent"),
+                Localization.getString("gcodeTable.done"),
+                Localization.getString("gcodeTable.response")
             }
         );
     }      
