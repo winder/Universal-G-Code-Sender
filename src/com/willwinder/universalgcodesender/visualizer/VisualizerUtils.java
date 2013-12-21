@@ -145,5 +145,21 @@ public class VisualizerUtils {
         }
         return ret;
     }
+
+    /**
+     * Determine the ratio of mouse movement to model movement for panning operations on a single axis.
+     * @param objectMin The lowest value on the axis from the model's size.
+     * @param objectMax The highest point on the axis from the model's size.
+     * @param movementRange The length of the axis in the window displaying the model.
+     * @return the ratio of the model size to the display size on that axis.
+     */
+    static double getRelativeMovementMultiplier(double objectMin, double objectMax, int movementRange) {
+        if (movementRange == 0)
+            return 0;
+
+        double objectAxis = Math.abs(objectMax - objectMin);
+
+        return objectAxis / (double)movementRange;
+    }
     
 }
