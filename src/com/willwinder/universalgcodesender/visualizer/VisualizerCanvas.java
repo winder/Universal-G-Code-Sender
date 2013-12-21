@@ -30,10 +30,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -50,14 +47,15 @@ import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
 import javax.vecmath.Point3d;
- 
+import javax.vecmath.Vector3d;
+
 /**
  *
  * @author wwinder
  * 
  */
 @SuppressWarnings("serial")
-public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener {
+public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
     static boolean ortho = true;
     static double orthoRotation = -45;
     static boolean forceOldStyle = false;
@@ -81,9 +79,25 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private Point3d center, eye;
     private Point3d objectMin, objectMax;
     private double maxSide;
-    private double scaleFactor;
     private double aspectRatio;
     private int xSize, ySize;
+
+    // Scaling
+    private double scaleFactor;
+    private double scaleFactorBase;
+    private double zoomMultiplier = 1;
+    private boolean invertZoom = false; // TODO: Make configurable
+    // const values until added to settings
+    private final double minZoomMultiplier = 1;
+    private final double maxZoomMultiplier = 20;
+    private final double zoomIncrement = 0.2;
+
+    // Movement
+    private int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
+    private double panMultiplierX = 1;
+    private double panMultiplierY = 1;
+    private Vector3d translationVectorH;
+    private Vector3d translationVectorV;
 
     // Mouse rotation data
     Point last;
@@ -110,6 +124,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
        this.addGLEventListener(this);
        this.addKeyListener(this);
        this.addMouseMotionListener(this);
+       this.addMouseWheelListener(this);
 
        this.eye = new Point3d(0, 0, 1.5);
        this.center = new Point3d(0, 0, 0);
@@ -117,7 +132,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
        this.workCoord = new Point3d(0, 0, 0);
        this.machineCoord = new Point3d(0, 0, 0);
        
-       this.rotation = new Point3d(0.0, 0.0, 0.0);
+       this.rotation = new Point3d(0.0, -30.0, 0.0);
+       if (ortho) {
+           setVerticalTranslationVector();
+           setHorizontalTranslationVector();
+       }
     }
     
     /**
@@ -193,8 +212,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (height == 0){ height = 1; }  // prevent divide by zero
         this.aspectRatio = (float)width / height;
 
-        this.scaleFactor = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-        
+        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+        this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);
+        this.panMultiplierY = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.y, this.objectMax.y, this.ySize);
+
         // Set the view port (display area) to cover the entire window
         gl.glViewport(0, 0, width, height);
     }
@@ -212,20 +234,17 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         // Scale the model so that it will fit on the window.
         gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
         
-                // Rotate prior to translating so that rotation happens from middle of
+        // Rotate prior to translating so that rotation happens from middle of
         // object.
         if (ortho) {
-            // Default rotation
-            gl.glRotated(-30, 1.0, 0.0, 0.0);
-            
             // Manual rotation
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+        } else {
+            // Shift model to center of window.
+            gl.glTranslated(-this.center.x, -this.center.y, 0);
         }
-        
-        // Shift model to center of window.
-        gl.glTranslated(-this.center.x, -this.center.y, 0);
- 
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         // Draw model
@@ -363,7 +382,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
         final GL2 gl = drawable.getGL().getGL2();
-        
+
         if (ortho) {
             gl.glDisable(GL_DEPTH_TEST);
             //gl.glDisable(GL_LIGHTING);
@@ -425,8 +444,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
         
-        this.scaleFactor = 1.0/this.maxSide;
-        this.scaleFactor = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);        
+        this.scaleFactorBase = 1.0/this.maxSide;
+        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
         this.isDrawable = true;
         
@@ -611,6 +631,25 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             case KeyEvent.VK_RIGHT:
                 this.eye.x+=DELTA_SIZE;
                 break;
+            case KeyEvent.VK_MINUS:
+                if (ke.isControlDown())
+                    this.zoomOut(1);
+                break;
+            case KeyEvent.VK_0:
+                if (ke.isControlDown()) {
+                    this.zoomMultiplier = 1;
+                    this.scaleFactor = this.scaleFactorBase;
+                }
+                break;
+            case KeyEvent.VK_ESCAPE:
+                this.zoomMultiplier = 1;
+                this.scaleFactor = this.scaleFactorBase;
+                this.eye.x = 0;
+                this.eye.y = 0;
+                this.eye.z = 1.5;
+                this.rotation.x = 0;
+                this.rotation.y = -30;
+                this.rotation.z = 0;
         }
         
         switch(ke.getKeyChar()) {
@@ -620,7 +659,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             case ';':
                 this.eye.z-=DELTA_SIZE;
                 break;
-                
             case 'w':
                 this.center.y+=DELTA_SIZE;
                 break;
@@ -638,6 +676,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 break;
             case 'f':
                 this.center.z-=DELTA_SIZE;
+                break;
+            case '+':
+                if (ke.isControlDown())
+                    this.zoomIn(1);
                 break;
         }
         
@@ -657,17 +699,103 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     @Override
     public void mouseDragged(MouseEvent me) {
         this.current = me.getPoint();
-        
-        this.rotation.x += (this.current.x - this.last.x) / 2.0;
-        this.rotation.y += (this.current.y - this.last.y) / 2.0;
-        
+
+        int dx = this.current.x - this.last.x;
+        int dy = this.current.y - this.last.y;
+
+        if (me.isShiftDown() || me.getModifiers() == this.panMouseButton) {
+            if (ortho) {
+                // Treat dx and dy as vectors relative to the rotation angle.
+                this.eye.x -= ((dx * this.translationVectorH.x * this.panMultiplierX) + (dy * this.translationVectorV.x * panMultiplierY));
+                this.eye.y += ((dy * this.translationVectorV.y * panMultiplierY) - (dx * this.translationVectorH.y * this.panMultiplierX));
+                this.eye.z -= ((dx * this.translationVectorH.z * this.panMultiplierX) + (dy * this.translationVectorV.z * panMultiplierY));
+            } else {
+                this.eye.x += dx;
+                this.eye.y += dy;
+            }
+        } else {
+            this.rotation.x += dx / 2.0;
+            this.rotation.y -= dy / 2.0;
+            if (ortho) {
+                setHorizontalTranslationVector();
+                setVerticalTranslationVector();
+            }
+        }
         // Now that the motion has been accumulated, reset last.
         this.last = this.current;
+    }
+
+    private void setHorizontalTranslationVector() {
+        double x = Math.cos(Math.toRadians(this.rotation.x));
+        double xz = Math.sin(Math.toRadians(this.rotation.x));
+
+        double y = xz * Math.sin(Math.toRadians(this.rotation.y));
+        double yz = xz * Math.cos(Math.toRadians(this.rotation.y));
+
+        translationVectorH = new Vector3d(x, y, yz);
+        translationVectorH.normalize();
+    }
+
+    private void setVerticalTranslationVector(){
+        double y = Math.cos(Math.toRadians(this.rotation.y));
+        double yz = Math.sin(Math.toRadians(this.rotation.y));
+
+        translationVectorV = new Vector3d(0, y, yz);
+        translationVectorV.normalize();
     }
 
     @Override
     public void mouseMoved(MouseEvent me) {
         // Keep last location up to date so that we're ready to start dragging.
         last = me.getPoint();
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        int delta = e.getWheelRotation();
+        if (delta == 0)
+            return;
+
+        if (delta > 0) {
+            if (this.invertZoom)
+                zoomOut(delta);
+            else
+                zoomIn(delta);
+        } else if (delta < 0) {
+            if (this.invertZoom)
+                zoomIn(delta * -1);
+            else
+                zoomOut(delta * -1);
+        }
+    }
+
+    private void zoomOut(int increments) {
+        if (ortho) {
+            if (this.zoomMultiplier <= this.minZoomMultiplier)
+                return;
+
+            this.zoomMultiplier -= increments * zoomIncrement;
+            if (this.zoomMultiplier < this.minZoomMultiplier)
+                this.zoomMultiplier = this.minZoomMultiplier;
+
+            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+        } else {
+            this.eye.z += increments;
+        }
+    }
+
+    private void zoomIn(int increments) {
+        if (ortho) {
+            if (this.zoomMultiplier >= this.maxZoomMultiplier)
+                return;
+
+            this.zoomMultiplier += increments * zoomIncrement;
+            if (this.zoomMultiplier > this.maxZoomMultiplier)
+                this.zoomMultiplier = this.maxZoomMultiplier;
+
+            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+        } else {
+            this.eye.z -= increments;
+        }
     }
 }
