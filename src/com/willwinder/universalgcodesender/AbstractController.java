@@ -130,6 +130,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Execute a soft reset, throw an exception if not supported.
      */
     public void issueSoftReset() throws Exception {
+        flushSendQueues();
+        softReset();
+    }
+
+    protected void softReset() throws Exception {
         throw new Exception(Localization.getString("controller.exception.softreset"));
     }
     

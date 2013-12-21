@@ -125,7 +125,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void issueSoftReset() throws Exception {
+    public void softReset() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
