@@ -24,9 +24,8 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.types.PointSegment;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+
+import java.util.*;
 import javax.vecmath.Point3d;
 
 /**
@@ -38,7 +37,7 @@ public class GcodeParser {
     private boolean isMetric = true;
     private boolean isAbsoluteMode = true;
     private boolean isAbsoluteIJKMode = false;
-    private int lastGcodeCommand = -1;
+    private String lastGcodeCommand = "";
     private Point3d currentPoint = null;
     private int commandNumber = 0;
     
@@ -80,7 +79,7 @@ public class GcodeParser {
      * Warning, this should only be used when modifying live gcode, such as when
      * expanding an arc or canned cycle into line segments.
      */
-    private void setLastGcodeCommand(int num) {
+    private void setLastGcodeCommand(String num) {
         this.lastGcodeCommand = num;
     }
     
@@ -207,7 +206,7 @@ public class GcodeParser {
     }
 
     private PointSegment processCommand(List<String> args) {
-        List<Integer> gCodes;
+        List<String> gCodes;
         PointSegment ps = null;
         
         // handle M codes.
@@ -218,94 +217,113 @@ public class GcodeParser {
         gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
         // If there was no command, add the implicit one to the party.
-        if (gCodes.isEmpty() && lastGcodeCommand != -1) {
+        if (gCodes.isEmpty() && lastGcodeCommand != null && !lastGcodeCommand.isEmpty()) {
             gCodes.add(lastGcodeCommand);
         }
         
-        for (Integer i : gCodes) {
+        for (String i : gCodes) {
             ps = handleGCode(i, args);
         }
         
         return ps;
     }
-    
-    private PointSegment handleGCode(int code, List<String> args) {
+
+    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse) {
+        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+
+        boolean zOnly = false;
+
+        // Check for z-only
+        if ((this.currentPoint.x == nextPoint.x) &&
+                (this.currentPoint.y == nextPoint.y) &&
+                (this.currentPoint.z != nextPoint.z)) {
+            zOnly = true;
+        }
+
+        ps.setIsMetric(this.isMetric);
+        ps.setIsZMovement(zOnly);
+        ps.setIsFastTraverse(fastTraverse);
+        this.points.add(ps);
+
+        // Save off the endpoint.
+        this.currentPoint = nextPoint;
+        return ps;
+    }
+
+    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args) {
+        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+
+        Point3d center =
+                GcodePreprocessorUtils.updateCenterWithCommand(
+                        args, this.currentPoint, nextPoint, this.isAbsoluteIJKMode, clockwise);
+
+        double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
+
+        // Calculate radius if necessary.
+        if (Double.isNaN(radius)) {
+            radius = Math.sqrt(
+                    Math.pow(this.currentPoint.x - center.x, 2.0)
+                            + Math.pow(this.currentPoint.y - center.y, 2.0));
+        }
+
+        ps.setIsMetric(this.isMetric);
+        ps.setArcCenter(center);
+        ps.setIsArc(true);
+        ps.setRadius(radius);
+        ps.setIsClockwise(clockwise);
+        this.points.add(ps);
+
+        // Save off the endpoint.
+        this.currentPoint = nextPoint;
+        return ps;
+    }
+
+    private PointSegment handleGCode(String code, List<String> args) {
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
             args, this.currentPoint, this.isAbsoluteMode);
 
+        if (code.length() > 1 && code.startsWith("0"))
+            code = code.substring(1);
+
         switch (code) {
-            case 0:
-            case 1:
-                ps = new PointSegment(nextPoint, commandNumber++);
-                
-                boolean zOnly = false;
-                                
-                // Check for z-only
-                if ((this.currentPoint.x == nextPoint.x) &&
-                    (this.currentPoint.y == nextPoint.y) &&
-                    (this.currentPoint.z != nextPoint.z)) {
-                    zOnly = true;
-                }
-                
-                ps.setIsMetric(this.isMetric);
-                ps.setIsZMovement(zOnly);
-                ps.setIsFastTraverse(code == 0);
-                this.points.add(ps);
-                
-                // Save off the endpoint.
-                this.currentPoint = nextPoint;
+            case "0":
+                ps = addLinearPointSegment(nextPoint, true);
+                break;
+            case "1":
+                ps = addLinearPointSegment(nextPoint, false);
                 break;
 
             // Arc command.
-            case 2:
-            case 3:
-                ps = new PointSegment(nextPoint, commandNumber++);
-                
-                boolean clockwise = true;
-                if (code == 3) {
-                    clockwise = false;
-                }
-
-                Point3d center = 
-                        GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, this.currentPoint, nextPoint, this.isAbsoluteIJKMode, clockwise);
-
-                double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
-
-                // Calculate radius if necessary.
-                if (Double.isNaN(radius)) {
-                    radius = Math.sqrt(
-                            Math.pow(this.currentPoint.x - center.x, 2.0) 
-                            + Math.pow(this.currentPoint.y - center.y, 2.0));
-                }
-                
-                ps.setIsMetric(this.isMetric);
-                ps.setArcCenter(center);
-                ps.setIsArc(true);
-                ps.setRadius(radius);
-                ps.setIsClockwise(clockwise);
-                this.points.add(ps);
-
-                // Save off the endpoint.
-                this.currentPoint = nextPoint;
+            case "2":
+                ps = addArcPointSegment(nextPoint, true, args);
+                break;
+            case "3":
+                ps = addArcPointSegment(nextPoint, false, args);
                 break;
 
-            case 20:
+            case "20":
                 //inch
                 this.isMetric = false;
                 break;
-            case 21:
+            case "21":
                 //mm
                 this.isMetric = true;
                 break;
 
-            case 90:
+            case "90":
                 this.isAbsoluteMode = true;
                 break;
-            case 91:
+            case "90.1":
+                this.isAbsoluteIJKMode = true;
+                break;
+
+            case "91":
                 this.isAbsoluteMode = false;
+                break;
+            case "91.1":
+                this.isAbsoluteIJKMode = false;
                 break;
         }
         this.lastGcodeCommand = code;
