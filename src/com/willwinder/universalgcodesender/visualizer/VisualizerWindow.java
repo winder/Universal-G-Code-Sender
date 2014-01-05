@@ -92,7 +92,23 @@ implements ControllerListener, WindowListener {
         this.completedCommandNumber = num;
         this.canvas.setCurrentCommandNumber(num);
     }
-    
+
+    public double getMinArcLength() {
+        return this.canvas.getMinArcLength();
+    }
+
+    public void setMinArcLength(double minArcLength) {
+        this.canvas.setMinArcLength(minArcLength);
+    }
+
+    public double getArcLength() {
+        return  this.canvas.getArcLength();
+    }
+
+    public void setArcLength(double arcLength) {
+        this.canvas.setArcLength(arcLength);
+    }
+
     @Override
     public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
         machineCoordinate = machineCoord;

@@ -1039,6 +1039,8 @@ implements KeyListener, ControllerListener {
             this.controller.addListener(this);
             if (vw != null) {
                 this.controller.addListener(vw);
+                vw.setMinArcLength(this.controller.getSmallArcThreshold());
+                vw.setArcLength(this.controller.getSmallArcSegmentLength());
             }
             
             Boolean ret = openCommConnection();
@@ -1200,6 +1202,11 @@ implements KeyListener, ControllerListener {
             if (this.controller != null) {
                 MainWindow.applySettingsToController(this.controller);
             }
+
+            if (this.vw != null) {
+                vw.setMinArcLength(gcsd.getSmallArcThreshold());
+                vw.setArcLength(gcsd.getSmallArcSegmentLength());
+            }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
 
@@ -1237,6 +1244,8 @@ implements KeyListener, ControllerListener {
         // Create new object if it is null.
         if (this.vw == null) {
             this.vw = new VisualizerWindow();
+            vw.setMinArcLength(SettingsFactory.getSmallArcThreshold());
+            vw.setArcLength(SettingsFactory.getSmallArcSegmentLength());
             if (this.fileTextField.getText().length() > 1) {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
