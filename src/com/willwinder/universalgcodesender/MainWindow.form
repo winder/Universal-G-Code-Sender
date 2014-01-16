@@ -994,7 +994,7 @@
         <Component class="javax.swing.JButton" name="refreshButton">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/com/willwinder/universalgcodesender/images/refresh.gif"/>
+              <Image iconType="3" name="/resources/refresh.gif"/>
             </Property>
           </Properties>
           <Events>
