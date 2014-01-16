@@ -296,7 +296,7 @@ public class GrblController extends AbstractController {
      * If it is supported, a soft reset real-time command will be issued.
      */
     @Override
-    public void issueSoftReset() throws IOException {
+    public void softReset() throws IOException {
         if (this.isCommOpen() && this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
