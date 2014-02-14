@@ -130,6 +130,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Execute a soft reset, throw an exception if not supported.
      */
     public void issueSoftReset() throws Exception {
+        flushSendQueues();
+        softReset();
+    }
+
+    protected void softReset() throws Exception {
         throw new Exception(Localization.getString("controller.exception.softreset"));
     }
     
@@ -535,6 +540,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             // Send all queued commands and wait for a response.
             GcodeCommand command;
             while (this.prepQueue.size() > 0) {
+                numCommands++;
                 command = this.prepQueue.remove();
                 if (this.saveToFileMode) {
                     this.outputFileWriter.println(command.getCommandString());

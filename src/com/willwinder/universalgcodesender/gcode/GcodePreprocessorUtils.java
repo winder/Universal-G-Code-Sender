@@ -131,13 +131,13 @@ public class GcodePreprocessorUtils {
         return command.replaceAll("\\s","");
     }
     
-    static public List<Integer> parseCodes(List<String> args, char code) {
-        List<Integer> l = new ArrayList<Integer>();
+    static public List<String> parseCodes(List<String> args, char code) {
+        List<String> l = new ArrayList<String>();
         char address = Character.toUpperCase(code);
         
         for (String s : args) {
             if (s.length() > 0 && Character.toUpperCase(s.charAt(0)) == address) {
-                l.add(Integer.parseInt(s.substring(1)));
+                l.add(s.substring(1));
             }
         }
         
