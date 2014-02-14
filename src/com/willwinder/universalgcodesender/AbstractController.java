@@ -547,6 +547,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 } else {
                     queueCommandForComm(command);
                 }
+                this.numCommands++;
             }
             
             // Inform the GUI of the postprocessed number of commands.
