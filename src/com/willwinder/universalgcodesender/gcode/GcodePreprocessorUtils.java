@@ -180,13 +180,21 @@ public class GcodePreprocessorUtils {
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
     static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
-    
-        Point3d newPoint = new Point3d(initial.x, initial.y, initial.z);
 
         double x = parseCoord(commandArgs, 'X');
         double y = parseCoord(commandArgs, 'Y');
         double z = parseCoord(commandArgs, 'Z');
-            
+
+        return updatePointWithCommand(initial, x, y, z, absoluteMode);
+    }
+
+    /**
+     * Update a point given the new coordinates.
+     */
+    static public Point3d updatePointWithCommand(Point3d initial, double x, double y, double z, boolean absoluteMode) {
+
+        Point3d newPoint = new Point3d(initial.x, initial.y, initial.z);
+
         if (absoluteMode) {
             if (!Double.isNaN(x)) {
                 newPoint.x = x;
@@ -224,31 +232,8 @@ public class GcodePreprocessorUtils {
                             clockwise);
         }
 
-        Point3d newPoint = new Point3d();
+        return updatePointWithCommand(initial, i, j, k, absoluteIJKMode);
 
-        if (absoluteIJKMode) {
-            if (!Double.isNaN(i)) {
-                newPoint.x = i;
-            }
-            if (!Double.isNaN(j)) {
-                newPoint.y = j;
-            }
-            if (!Double.isNaN(k)) {
-                newPoint.z = k;
-            }
-        } else {
-            if (!Double.isNaN(i)) {
-                newPoint.x = initial.x + i;
-            }
-            if (!Double.isNaN(j)) {
-                newPoint.y = initial.y + j;
-            }
-            if (!Double.isNaN(k)) {
-                newPoint.z = initial.z + k;
-            }
-        }
-
-        return newPoint;
     }
         
     static public String generateG1FromPoints(final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
@@ -393,7 +378,7 @@ public class GcodePreprocessorUtils {
 
         return center;
     }
-    
+
     /** 
      * Return the angle in radians when going from start to end.
      */
@@ -428,38 +413,66 @@ public class GcodePreprocessorUtils {
       
         return angle;
     }
-        
+
+    static public double calculateSweep(double startAngle, double endAngle, boolean isCw) {
+        double sweep;
+
+        // Full circle
+        if (startAngle == endAngle) {
+            sweep = (Math.PI * 2);
+            // Arcs
+        } else {
+            // Account for full circles and end angles of 0/360
+            if (endAngle == 0) {
+                endAngle = Math.PI * 2;
+            }
+            // Calculate distance along arc.
+            if (!isCw && endAngle < startAngle) {
+                sweep = ((Math.PI * 2 - startAngle) + endAngle);
+            } else if (isCw && endAngle > startAngle) {
+                sweep = ((Math.PI * 2 - endAngle) + startAngle);
+            } else {
+                sweep = Math.abs(endAngle - startAngle);
+            }
+        }
+
+        return sweep;
+    }
+
     /**
      * Generates the points along an arc including the start and end points.
      */
-    static public List<Point3d> generatePointsAlongArcBDring(final Point3d p1, final Point3d p2, final Point3d center, boolean isCw, double R, int arcResolution) {
+    static public List<Point3d> generatePointsAlongArcBDring(final Point3d start, final Point3d end, final Point3d center, boolean clockwise, double R, double minArcLength, double arcSegmentLength) {
         double radius = R;
-        double sweep;
 
         // Calculate radius if necessary.
         if (radius == 0) {
-            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
-        }
-        
-        // Calculate angles from center.
-        double startAngle = GcodePreprocessorUtils.getAngle(center, p1);
-        double endAngle = GcodePreprocessorUtils.getAngle(center, p2);
-                
-        // Fix semantics, if the angle ends at 0 it really should end at 360.
-        if (endAngle == 0) {
-                endAngle = Math.PI * 2;
+            radius = Math.sqrt(Math.pow(start.x - center.x, 2.0) + Math.pow(end.y - center.y, 2.0));
         }
 
-        // Calculate distance along arc.
-        if (!isCw && endAngle < startAngle) {
-            sweep = ((Math.PI * 2 - startAngle) + endAngle);
-        } else if (isCw && endAngle > startAngle) {
-            sweep = ((Math.PI * 2 - endAngle) + startAngle);
-        } else {
-            sweep = Math.abs(endAngle - startAngle);
+        double startAngle = GcodePreprocessorUtils.getAngle(center, start);
+        double endAngle = GcodePreprocessorUtils.getAngle(center, end);
+        double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
+
+        // Convert units.
+        double arcLength = sweep * radius;
+
+        // If this arc doesn't meet the minimum threshold, don't expand.
+        if (minArcLength > 0 && arcLength < minArcLength) {
+            return null;
         }
-        
-        return GcodePreprocessorUtils.generatePointsAlongArcBDring(p1, p2, center, isCw, radius, startAngle, endAngle, sweep, arcResolution);
+
+        int numPoints = 20;
+
+        if (arcSegmentLength <= 0 && minArcLength > 0) {
+            arcSegmentLength = (sweep * radius) / minArcLength;
+        }
+
+        if (arcSegmentLength > 0) {
+            numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
+        }
+
+        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints);
     }
 
     /**
@@ -467,12 +480,17 @@ public class GcodePreprocessorUtils {
      */
     static public List<Point3d> generatePointsAlongArcBDring(final Point3d p1,
             final Point3d p2, final Point3d center, boolean isCw, double radius, 
-            double startAngle, double endAngle, double sweep, int numPoints) {
+            double startAngle, double sweep, int numPoints) {
 
         Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
         List<Point3d> segments = new ArrayList<Point3d>();
         double angle;
-                
+
+        // Calculate radius if necessary.
+        if (radius == 0) {
+            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
+        }
+
         double zIncrement = (p2.z - p1.z) / numPoints;
         for(int i=0; i<numPoints; i++)
         {

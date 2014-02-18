@@ -25,6 +25,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 /**
  *
@@ -42,7 +44,12 @@ public class TinyGController extends AbstractController {
     public TinyGController() {
         this(new TinyGCommunicator()); //f4grx: connection created at opencomm() time
     }
-    
+
+    @Override
+    public long getJobLengthEstimate(Collection<String> jobLines) {
+        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     @Override
     protected void closeCommBeforeEvent() {
         //throw new UnsupportedOperationException("Not supported yet.");

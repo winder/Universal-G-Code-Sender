@@ -23,12 +23,12 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
@@ -43,7 +43,8 @@ public class GrblController extends AbstractController {
     private double grblVersion = 0.0;        // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter = null; // The c in 'Grbl 0.8c'
     private Boolean isReady = false;         // Not ready until version is received.
-    
+    private GrblSettingsListener settings;
+
     // Grbl status members.
     private GrblUtils.Capabilities positionMode = null;
     private Boolean realTimeCapable = false;
@@ -62,12 +63,19 @@ public class GrblController extends AbstractController {
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
         this.maxZLocation = -1;
+        this.settings = new GrblSettingsListener(this);
     }
     
     public GrblController() {
         this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
-    
+
+    @Override
+    public long getJobLengthEstimate(Collection<String> jobLines) {
+        GrblSimulator simulator = new GrblSimulator(settings.getSettings());
+        return simulator.estimateRunLength(jobLines);
+    }
+
     /***********************
      * API Implementation.
      ***********************

@@ -30,13 +30,13 @@ import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
+
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.SynchronousQueue;
 import javax.vecmath.Point3d;
 
 /**
@@ -149,17 +149,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     protected GcodeCommandCreator commandCreator;
     
     // Outside influence
-    private double speedOverride = -1;
-    private int maxCommandLength = 50;
-    private int truncateDecimalLength = 40;
-    private boolean singleStepMode = false;
-    private boolean removeAllWhitespace = true;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-    private boolean convertArcsToLines = false;
-    private double smallArcThreshold = 1.0;
-    // Not configurable outside, but maybe it should be.
-    private double smallArcSegmentLength = 0.3;
     
     // State
     private Boolean commOpen = false;
@@ -168,21 +159,19 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     
     // Parser state
     private Boolean absoluteMode = true;
-    private Boolean metric = true;
-    private int previousGCode = -1;
-    private Point3d startPoint = null;
     
     // Added value
     private Boolean isStreaming = false;
     private Boolean paused = false;
     private long streamStart = 0;
     private long streamStop = 0;
-    private File gcodeFile;
     private PrintWriter outputFileWriter;
+    private File gcodeFile;
     
     // This metadata needs to be cached instead of inferred from queue's because
     // in case of a cancel the queues will be cleared.
-    private int numCommands = 0;
+    private int numCommandsProcessed = 0;
+    private int numCommandsStreamed = 0;
     private int numCommandsSent = 0;
     private int numCommandsSkipped = 0;
     private int numCommandsCompleted = 0;
@@ -205,7 +194,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.comm.setListenAll(this);
         
         this.gcp = new GcodeParser();
-        
+
         this.prepQueue = new LinkedList<GcodeCommand>();
         this.outgoingQueue = new LinkedList<GcodeCommand>();
         this.awaitingResponseQueue = new LinkedList<GcodeCommand>();
@@ -223,23 +212,23 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Overrides the feed rate in gcode commands. Disable by setting to -1.
      */
     public void setSpeedOverride(double override) {
-        this.speedOverride = override;
+        this.gcp.setSpeedOverride(override);
     }
     
     public double getSpeedOverride() {
-        return this.speedOverride;
+        return this.gcp.getSpeedOverride();
     }
 
     public void setMaxCommandLength(int length) {
-        this.maxCommandLength = length;
+        this.commandCreator.setMaxCommandLength(length);
     }
     
     public int getMaxCommandLength() {
-        return this.maxCommandLength;
+        return this.commandCreator.getMaxCommandLength();
     }
     
     public void setTruncateDecimalLength(int length) {
-        this.truncateDecimalLength = length;
+        this.gcp.setTruncateDecimalLength(length);
     }
     
     public void setSingleStepMode(boolean enabled) {
@@ -251,43 +240,43 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
     
     public void setRemoveAllWhitespace(boolean enabled) {
-        this.removeAllWhitespace = enabled;
+        this.gcp.setRemoveAllWhitespace(enabled);
     }
 
     public boolean getRemoveAllWhitespace() {
-        return this.removeAllWhitespace;
+        return this.gcp.getRemoveAllWhitespace();
     }
 
     public void setConvertArcsToLines(boolean enabled) {
-        this.convertArcsToLines = enabled;
+        this.gcp.setConvertArcsToLines(enabled);
     }
 
     public boolean getConvertArcsToLines() {
-        return this.convertArcsToLines;
+        return this.gcp.getConvertArcsToLines();
     }
     
     public void setSmallArcThreshold(double length) {
-        this.smallArcThreshold = length;
+        this.gcp.setSmallArcThreshold(length);
     }
     
     public double getSmallArcThreshold() {
-        return this.smallArcThreshold;
+        return this.gcp.getSmallArcThreshold();
     }
     
     public void setSmallArcSegmentLength(double length) {
-        this.smallArcSegmentLength = length;
+        this.gcp.setSmallArcSegmentLength(length);
     }
     
     public double getSmallArcSegmentLength() {
-        return this.smallArcSegmentLength;
+        return this.gcp.getSmallArcSegmentLength();
     }
     
     public void setArcLineLength(double length) {
-        this.smallArcSegmentLength = length;
+        this.gcp.setSmallArcSegmentLength(length);
     }
     
     public double getArcLineLength() {
-        return this.smallArcSegmentLength;
+        return this.gcp.getSmallArcSegmentLength();
     }
     
     public void setStatusUpdatesEnabled(boolean enabled) {
@@ -388,9 +377,13 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             return System.currentTimeMillis() - this.streamStart;
         }
     }
-    
+
+    public int rowsInQueue() {
+        return this.prepQueue.size();
+    }
+
     public int rowsInSend() {
-        return this.numCommands;
+        return this.numCommandsStreamed;
     }
     
     public int rowsSent() {
@@ -398,7 +391,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     }
     
     public int rowsRemaining() {
-        return this.numCommands - this.numCommandsCompleted - this.numCommandsSkipped;
+        return this.numCommandsStreamed - this.numCommandsCompleted - this.numCommandsSkipped;
     }
     
     /**
@@ -430,6 +423,9 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             // For the listeners...
             dispatchCommandSent(command);
         } else {
+            // Special case for the first command because it is usually updated by completed commands looking back.
+            if (this.outgoingQueue.size() == 0 && command.hasComment())
+                dispatchCommandCommment(command.getComment());
             this.outgoingQueue.add(command);
             this.commandQueued(command);
             this.sendStringToComm(command.getCommandString());
@@ -465,42 +461,30 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     /**
      * Appends command string to a queue awaiting to be sent.
      */
-    public void appendGcodeCommand(String commandString) throws Exception{
-        GcodeCommand command; // = this.commandCreator.createCommand(commandString);
+    public void preprocessAndAppendGcodeCommand(String commandString) throws Exception{
         
         // TODO: Expand this to handle canned cycles (Issue#49)
-        String[] processed = this.preprocessCommand(commandString);
+        List<String> processed = gcp.preprocessCommand(commandString);
 
         for (String s : processed) {
-            command = new GcodeCommand(s.trim());
-            command.setCommandNumber(numCommands++);
-            
-            if (command.getCommandString().length() > this.maxCommandLength) {
-                throw new Exception("Command #" + command.getCommandNumber()
-                        + " too long: ('" + command.getCommandString().length()
-                        + "' > " + maxCommandLength + ") "
-                        + command.getCommandString());
-            }
-            
+            GcodeCommand command = this.commandCreator.createCommand(commandString);
             this.prepQueue.add(command);
         }        
     }
-    
-    /**
-     * Appends file of commands to a queue awaiting to be sent. Exception is
-     * thrown on file IO errors.
-     */
-    public void appendGcodeFile(File file) throws IOException, Exception {
-        this.gcodeFile = file;
-        ArrayList<String> linesInFile = 
-                VisualizerUtils.readFiletoArrayList(this.gcodeFile.getAbsolutePath());
 
-        for (String line : linesInFile) {
-            this.appendGcodeCommand(line);
+    public void appendGcodeCommands(Iterable<String> commandStrings) throws Exception{
+        for (String s : commandStrings) {
+            GcodeCommand command = this.commandCreator.createCommand(s);
+            this.prepQueue.add(command);
         }
     }
-    
-    public void preprocessAndSaveToFile(File f) throws Exception {
+
+    public void appendGcodeCommands(Iterable<String> commandStrings, File fromFile) throws Exception {
+        this.gcodeFile = fromFile;
+        appendGcodeCommands(commandStrings);
+    }
+
+    public void saveToFile(File f) throws Exception {
         this.saveToFileMode = true;
         this.outputFileWriter = new PrintWriter(f, "UTF-8");
         beginStreaming();
@@ -512,6 +496,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Send all queued commands to comm port.
      */
     public void beginStreaming() throws Exception {
+
         // Throw caution to the wind when saving to a file.
         if (!this.saveToFileMode) {
             this.isReadyToStreamFile();
@@ -530,28 +515,26 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         this.isStreaming = true;
         this.streamStop = 0;
         this.streamStart = System.currentTimeMillis();
-        this.numCommands = 0;
+        this.numCommandsStreamed = 0;
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
         this.numCommandsCompleted = 0;
-        this.startPoint = new Point3d(); // reset parser state.
 
         try {
             // Send all queued commands and wait for a response.
             GcodeCommand command;
             while (this.prepQueue.size() > 0) {
-                numCommands++;
+                numCommandsStreamed++;
                 command = this.prepQueue.remove();
                 if (this.saveToFileMode) {
                     this.outputFileWriter.println(command.getCommandString());
                 } else {
                     queueCommandForComm(command);
                 }
-                this.numCommands++;
             }
             
             // Inform the GUI of the postprocessed number of commands.
-            this.dispatchPostProcessData(numCommands);
+            this.dispatchPostProcessData(numCommandsStreamed);
         } catch(Exception e) {
             e.printStackTrace();
             this.isStreaming = false;
@@ -625,94 +608,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         dispatchStreamComplete(filename, success);        
     }
 
-    private String[] preprocessGcodeCommand(String command) {
-        
-
-        return null;
-    }
-    
-    // No longer a listener event
-    private String[] preprocessCommand(String command) {
-        String[] arr;
-        String newCommand = command;
-
-        // Remove comments from command.
-        newCommand = GcodePreprocessorUtils.removeComment(newCommand);
-
-        // Check for comment if length changed while preprocessing.
-        if (command.length() != newCommand.length()) {
-            dispatchCommandCommment(GcodePreprocessorUtils.parseComment(command));
-        }
-        
-        // Override feed speed
-        if (this.speedOverride > 0) {
-            newCommand = GcodePreprocessorUtils.overrideSpeed(newCommand, this.speedOverride);
-        }
-        
-        if (this.truncateDecimalLength > 0) {
-            newCommand = GcodePreprocessorUtils.truncateDecimals(this.truncateDecimalLength, newCommand);
-        }
-        
-        if (this.removeAllWhitespace) {
-            newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
-        }
-        
-        newCommand = newCommand.trim();
-        if (newCommand.length() != 0) {
-            arr = new String[]{newCommand};
-        } else {
-            arr = new String[]{};
-        }
-        
-        // If this is enabled we need to parse the gcode as we go along.
-        if (this.convertArcsToLines) { // || this.expandCannedCycles) {
-            // Save off the start of the arc for later.
-            Point3d start = new Point3d(this.gcp.getCurrentPoint());
-
-            PointSegment ps = this.gcp.addCommand(newCommand);
-            
-            if (ps == null) {
-                return arr;
-            }
-            
-            if (ps.isArc()) {
-                List<PointSegment> psl = this.gcp.expandArcWithParameters(
-                        this.smallArcThreshold,
-                        this.smallArcSegmentLength,
-                        this.truncateDecimalLength);
-                
-                if (psl == null) {
-                    return arr;
-                }
-                
-                int index;
-                StringBuilder sb;
-
-                // Create the commands...
-                arr = new String[psl.size()];
-
-
-                // Setup decimal formatter.
-                sb = new StringBuilder("#.");
-                for (index = 0; index < truncateDecimalLength; index++) {
-                    sb.append("#");
-                }
-                DecimalFormat df = new DecimalFormat(sb.toString());
-                index = 0;
-
-                // Create an array of new commands out of the of the segments in psl.
-                // Don't add them to the gcode parser since it is who expanded them.
-                for (PointSegment segment : psl) {
-                    Point3d end = segment.point();
-                    arr[index++] = GcodePreprocessorUtils.generateG1FromPoints(
-                            start, end, this.absoluteMode, df);
-                    start = segment.point();
-                }
-            }
-        }
-
-        // Return the post processed command.
-        return arr;
+    public List<String> preprocess(List<String> lines) {
+        return gcp.preprocessCommands(lines);
     }
     
     @Override
@@ -733,7 +630,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
                 e.printStackTrace();
             }
         }
-        
+
         this.awaitingResponseQueue.add(c);
         
         dispatchCommandSent(c);
@@ -770,6 +667,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             this.completedCommandList.add(c);
             
             if (this.isStreamingFile()) {
+                // Peek to see if the currently processing command has a comment.
+                GcodeCommand next = this.awaitingResponseQueue.peek();
+                if (next != null && next.hasComment()) {
+                    dispatchCommandCommment(next.getComment());
+                }
                 this.numCommandsCompleted++;
             }
         } else {
@@ -787,14 +689,9 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
                 streamName = this.gcodeFile.getName();
-            } 
-            
-            boolean status = true;
-            if (this.rowsRemaining() != 0) {
-                status = false;
             }
             
-            boolean isSuccess = (this.numCommands == (this.numCommandsSent + this.numCommandsSkipped));
+            boolean isSuccess = (this.numCommandsStreamed == (this.numCommandsCompleted + this.numCommandsSkipped));
             this.fileStreamComplete(streamName, isSuccess);
         }
     }
@@ -890,4 +787,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             }
         }
     }
+
+    public abstract long getJobLengthEstimate(Collection<String> jobLines);
 }

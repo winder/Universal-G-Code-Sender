@@ -24,6 +24,9 @@
 package com.willwinder.universalgcodesender;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.List;
 
 /**
  *
@@ -59,22 +62,10 @@ public class Utils {
     // Processes input file.
     // This could theoretically scan it for errors, but GcodeSender just counts
     // how many lines are in it.
-    public static int processFile(File file) throws FileNotFoundException, IOException {
-        Integer numRows = 0;
-        InputStream is = new BufferedInputStream(new FileInputStream(file));
-
-        byte[] c = new byte[1024];
-
-        int readChars;
-        while ((readChars = is.read(c)) != -1) {
-            for (int i = 0; i < readChars; ++i) {
-                if (c[i] == '\n')
-                    ++numRows;
-            }
-        }
-
-        is.close();
-
-        return numRows;
+    public static List<String> processFile(File file) throws FileNotFoundException, IOException {
+        FileReader fileReader = new FileReader(file);
+        Charset encoding = Charset.forName(fileReader.getEncoding());
+        fileReader.close();
+        return Files.readAllLines(file.toPath(), encoding);
     }
 }

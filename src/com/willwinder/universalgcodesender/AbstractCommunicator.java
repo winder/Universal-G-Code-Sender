@@ -55,8 +55,11 @@ public abstract class AbstractCommunicator {
         this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
 
         //instanciate all known connection drivers
+        //TODO: Scan the classpath for classes extending Connection,
+        //      and instantiate them dynamically.
         this.connections = new ArrayList<Connection>();
         this.addConnectionType(new SerialConnection());
+        this.addConnectionType(new StdIOConnection("grbl_sim.exe"));
     }
 
     final public void addConnectionType(Connection conn) {

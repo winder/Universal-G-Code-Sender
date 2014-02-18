@@ -81,6 +81,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private double maxSide;
     private double aspectRatio;
     private int xSize, ySize;
+    private double minArcLength;
+    private double arcLength;
 
     // Scaling
     private double scaleFactor;
@@ -89,7 +91,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private boolean invertZoom = false; // TODO: Make configurable
     // const values until added to settings
     private final double minZoomMultiplier = 1;
-    private final double maxZoomMultiplier = 20;
+    private final double maxZoomMultiplier = 30;
     private final double zoomIncrement = 0.2;
 
     // Movement
@@ -426,7 +428,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         GcodeViewParse gcvp = new GcodeViewParse();
         List<String> linesInFile;
         linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-        gcodeLineList = gcvp.toObjRedux(linesInFile);
+        gcodeLineList = gcvp.toObjRedux(linesInFile, this.minArcLength, this.arcLength);
         
         this.objectMin = gcvp.getMinimumExtremes();
         this.objectMax = gcvp.getMaximumExtremes();
@@ -796,6 +798,32 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
         } else {
             this.eye.z -= increments;
+        }
+    }
+
+    public double getMinArcLength() {
+        return minArcLength;
+    }
+
+    public void setMinArcLength(double minArcLength) {
+        if (this.minArcLength != minArcLength) {
+            this.minArcLength = minArcLength;
+            if (this.gcodeFile != null) {
+                this.setGcodeFile(this.gcodeFile);
+            }
+        }
+    }
+
+    public double getArcLength() {
+        return arcLength;
+    }
+
+    public void setArcLength(double arcLength) {
+        if (this.arcLength != arcLength) {
+            this.arcLength = arcLength;
+            if (this.gcodeFile != null) {
+                this.setGcodeFile(this.gcodeFile);
+            }
         }
     }
 }

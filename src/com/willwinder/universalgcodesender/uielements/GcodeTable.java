@@ -34,6 +34,7 @@ import javax.swing.table.TableColumn;
  */
 public class GcodeTable extends JTable {
     private boolean autoWindowScroll = false;
+    private int offset = 0;
     
     private static int COL_INDEX_COMMAND  = 0;
     private static int COL_INDEX_SENT     = 1;
@@ -70,6 +71,7 @@ public class GcodeTable extends JTable {
         while (getModel().getRowCount()>0){
             ((GcodeTableModel)this.getModel()).removeRow(0);
         }
+        this.offset = 0;
     }
     
     /**
@@ -83,7 +85,7 @@ public class GcodeTable extends JTable {
             command.isDone(),
             command.getResponse()});
         
-        scrollTable(command.getCommandNumber());
+        scrollTable(this.getRowCount());
     }
     
     /**
@@ -92,13 +94,13 @@ public class GcodeTable extends JTable {
     public void updateRow(final GcodeCommand command) {
 
         String commandString = command.getCommandString();
-        int row = command.getCommandNumber();
+        int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
         if (commandString != getModel().getValueAt(row, COL_INDEX_COMMAND)) {
-            // Change cell color?
+            System.out.printf("Row mismatch [%s] does not match row %d [%s].]n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
         }
-        
+
         getModel().setValueAt(command.isSent(),      row, COL_INDEX_SENT);
         getModel().setValueAt(command.isDone(),      row, COL_INDEX_DONE);
         getModel().setValueAt(command.getResponse(), row, COL_INDEX_RESPONSE);
@@ -144,5 +146,13 @@ public class GcodeTable extends JTable {
     private void scrollToVisible(int rowIndex) {
         getSelectionModel().setSelectionInterval(rowIndex, rowIndex);
         scrollRectToVisible(new Rectangle(getCellRect(rowIndex, 0, true)));
+    }
+
+    public void setOffset() {
+        setOffset(this.getRowCount());
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 }
