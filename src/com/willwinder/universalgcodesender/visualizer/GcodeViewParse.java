@@ -34,9 +34,6 @@ import javax.vecmath.Point3d;
 
 
 public class GcodeViewParse {
-    // Configurable values
-    // TODO: ....could this be dynamic or user selectable?
-    private int arcResolution = 5;
 
     // false = incremental; true = absolute
     boolean absoluteMode = true;
@@ -99,16 +96,16 @@ public class GcodeViewParse {
         }
     }
     
-    public List<LineSegment> toObjRedux(List<String> gcode) {
+    public List<LineSegment> toObjRedux(List<String> gcode, double minArcLength, double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
         for (String s : gcode) {
             gp.addCommand(s);
         }
         
-        return getLinesFromParser(gp);
+        return getLinesFromParser(gp, minArcLength, arcSegmentLength);
     }
     
-    private List<LineSegment> getLinesFromParser(GcodeParser gp) {
+    private List<LineSegment> getLinesFromParser(GcodeParser gp, double minArcLength, double arcSegmentLength) {
         List<PointSegment> psl = gp.getPointSegmentList();
         
         Point3d start = null;
@@ -126,9 +123,9 @@ public class GcodeViewParse {
             if (start != null) {
                 // Expand arc for graphics.
                 if (ps.isArc()) {
-                    List<Point3d> points = 
+                    List<Point3d> points =
                         GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, ps.center(), ps.isClockwise(), ps.getRadius(), arcResolution);
+                        start, end, ps.center(), ps.isClockwise(), ps.getRadius(), minArcLength, arcSegmentLength);
                     // Create line segments from points.
                     Point3d startPoint = start;
                     for (Point3d nextPoint : points) {

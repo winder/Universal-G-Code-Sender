@@ -27,6 +27,8 @@
 
 package com.willwinder.universalgcodesender.types;
 
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+
 /**
  *
  * @author wwinder
@@ -41,7 +43,10 @@ public class GcodeCommand {
     private Boolean isError = false;
     private Integer commandNum = -1;
     private Boolean isSkipped = false;
-    
+    private boolean isComment = false;
+    private boolean hasComment = false;
+    private String comment;
+
     public GcodeCommand(String command) {
         this(command, -1);
     }
@@ -49,6 +54,13 @@ public class GcodeCommand {
     public GcodeCommand(String command, int num) {
         this.command = command;
         this.commandNum = num;
+        this.comment = GcodePreprocessorUtils.parseComment(command);
+        this.hasComment = (this.comment.length() > 0);
+        if (this.hasComment) {
+            String strippedCommand = GcodePreprocessorUtils.removeComment(command);
+            if (strippedCommand.trim().length() == 0)
+                this.isComment = true;
+        }
     }
     
     /** Setters. */
@@ -106,6 +118,18 @@ public class GcodeCommand {
     
     public Boolean isSkipped() {
         return this.isSkipped;
+    }
+
+    public boolean isComment() {
+        return this.isComment;
+    }
+
+    public boolean hasComment() {
+        return this.hasComment;
+    }
+
+    public String getComment() {
+        return this.comment;
     }
 
     public Boolean parseResponse() {

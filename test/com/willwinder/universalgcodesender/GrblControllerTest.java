@@ -272,7 +272,7 @@ public class GrblControllerTest {
         result = instance.isStreamingFile();
         assertEquals(expResult, result);
         
-        instance.appendGcodeCommand("G0 X1");
+        instance.preprocessAndAppendGcodeCommand("G0 X1");
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
@@ -317,7 +317,7 @@ public class GrblControllerTest {
 
         // Test 2.
         // Result when stream has begun but not completed.
-        instance.appendGcodeCommand("G0 X1");
+        instance.preprocessAndAppendGcodeCommand("G0 X1");
         try {
             instance.openCommPort("blah", 123);
             instance.beginStreaming();
@@ -403,7 +403,7 @@ public class GrblControllerTest {
         
         // Add 30 commands.
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0 X" + i);
         }
         
         try {
@@ -552,11 +552,11 @@ public class GrblControllerTest {
     }
 
     /**
-     * Test of appendGcodeCommand method, of class GrblController.
+     * Test of preprocessAndAppendGcodeCommand method, of class GrblController.
      */
     @Test
     public void testAppendGcodeCommand() {
-        System.out.println("appendGcodeCommand");
+        System.out.println("preprocessAndAppendGcodeCommand");
         // This is fully tested by other tests.
     }
 
@@ -592,7 +592,7 @@ public class GrblControllerTest {
         }
         
         // Test 2. Command already streaming.
-        instance.appendGcodeCommand("G0 X1");
+        instance.preprocessAndAppendGcodeCommand("G0 X1");
         Boolean check = false;
         try {
             // Start the stream.
@@ -615,7 +615,7 @@ public class GrblControllerTest {
         
         // Test 3. Stream some commands and make sure they get sent.
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0X" + i);
         }
         try {
             instance.beginStreaming();
@@ -633,7 +633,7 @@ public class GrblControllerTest {
 
         // Test 4. Commands being sent are properly preprocessed.
         instance.setSpeedOverride(1000.0);
-        instance.appendGcodeCommand("G0 X1 Y1 Z1 F100");
+        instance.preprocessAndAppendGcodeCommand("G0 X1 Y1 Z1 F100");
         try {
             // Start the stream.
             instance.beginStreaming();
@@ -719,7 +719,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0X" + i);
         }
         try {
             instance.openCommPort("blah", 123);
@@ -737,7 +737,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0 X" + i);
         }
         try {
             instance.beginStreaming();
@@ -752,7 +752,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0 X" + i);
         }
         try {
             instance.beginStreaming();
@@ -784,7 +784,7 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
         for (int i=0; i < 30; i++) {
-            instance.appendGcodeCommand("G0 X" + i);
+            instance.preprocessAndAppendGcodeCommand("G0 X" + i);
         }
         try {
             instance.beginStreaming();

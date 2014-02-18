@@ -192,11 +192,13 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         // Keep the data flow going in case of an "ok/error".
         if (GcodeCommand.isOkErrorResponse(response)) {
             // Pop the front of the active list.
-            String commandString = this.activeStringList.pop();
-            this.sentBufferSize -= commandString.length();
-            
-            if (this.sendPaused == false) {
-                this.streamCommands();
+            if (this.activeStringList != null && this.activeStringList.size() > 0) {
+                String commandString = this.activeStringList.pop();
+                this.sentBufferSize -= commandString.length();
+
+                if (this.sendPaused == false) {
+                    this.streamCommands();
+                }
             }
         }
     }

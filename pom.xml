@@ -4,7 +4,7 @@
 
 	<groupId>com.willwinder.universalgcodesender</groupId>
 	<artifactId>UGS</artifactId>
-	<version>1.6</version>
+	<version>1.7</version>
 
 	<packaging>jar</packaging>
 
@@ -58,12 +58,17 @@
 		<sourceDirectory>src/</sourceDirectory>
 
 		<resources>
-			<resource>
-				<directory>src/com/willwinder/universalgcodesender/images</directory>
-        <includes>
-          <include>refresh.gif</include>
-        </includes>
-			</resource>
+            <resource>
+                <directory>src/com/willwinder/universalgcodesender/i18n</directory>
+                <targetPath>com/willwinder/universalgcodesender/i18n</targetPath>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/resources</directory>
+                <targetPath>resources</targetPath>
+            </resource>
 		</resources>
 
 		<testResources>
@@ -90,11 +95,12 @@
             </configuration>
       </plugin>
       <plugin>
+          <version>2.3.2</version>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -108,6 +114,7 @@
 				</configuration>
 			</plugin>
       <plugin>
+          <version>2.3.1</version>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
@@ -131,55 +138,12 @@
                         <!-- ========== -->
                         <!-- == RXTX == -->
                         <!-- ========== -->
-                        <binlib>
-                          <os>mac</os>
-                          <fileSet>
-                              <directory>${project.basedir}/lib/natives/mac</directory>
-                              <includes>
-                                  <include>*.*</include>
-                              </includes>
-                          </fileSet>
-                        </binlib>
-                        <binlib>
-                          <os>linux</os>
-                          <arch>32</arch>
-                          <fileSet>
-                              <directory>${project.basedir}/lib/natives/linux32</directory>
-                              <includes>
-                                  <include>*.*</include>
-                              </includes>
-                          </fileSet>
-                        </binlib>
-                        <binlib>
-                          <os>linux</os>
-                          <arch>64</arch>
-                          <fileSet>
-                              <directory>${project.basedir}/lib/natives/linux64</directory>
-                              <includes>
-                                  <include>*.*</include>
-                              </includes>
-                          </fileSet>
-                        </binlib>
-                        <binlib>
-                          <os>windows</os>
-                          <arch>64</arch>
-                          <fileSet>
-                              <directory>${project.basedir}/lib/natives/win64</directory>
-                              <includes>
-                                  <include>*.*</include>
-                              </includes>
-                          </fileSet>
-                        </binlib>
-                        <binlib>
-                          <os>windows</os>
-                          <arch>32</arch>
-                          <fileSet>
-                              <directory>${project.basedir}/lib/natives/win32</directory>
-                              <includes>
-                                  <include>*.*</include>
-                              </includes>
-                          </fileSet>
-                        </binlib>
+                              <binlib>
+                                  <directory>${project.basedir}/lib/natives/windows64</directory>
+                                  <includes>
+                                      <include>*.*</include>
+                                  </includes>
+                              </binlib>
                       </binlibs>
                       <!-- Optional, default is false -->
                       <attachToBuild>true</attachToBuild>
