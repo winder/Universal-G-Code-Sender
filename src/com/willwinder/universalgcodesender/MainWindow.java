@@ -2000,16 +2000,25 @@ implements KeyListener, ControllerListener {
 
     // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
-        if (!verbose || this.showVerboseOutputCheckBox.isSelected()) {
-            String verboseS = "[" + Localization.getString("verbose") + "]";
-            this.consoleTextArea.append((verbose ? verboseS : "") + msg);
-            
-            if (this.consoleTextArea.isVisible() &&
-                    this.scrollWindowCheckBox.isEnabled()) {
-                this.consoleTextArea.setCaretPosition(this.consoleTextArea.getDocument().getLength());
+    public void messageForConsole(final String msg, final Boolean verbose) {
+        final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
+        final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
+        final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+                    String verboseS = "[" + Localization.getString("verbose") + "]";
+                    consoleTextArea.append((verbose ? verboseS : "") + msg);
+
+                    if (consoleTextArea.isVisible() &&
+                            scrollWindowCheckBox.isEnabled()) {
+                        consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
+                    }
+                }
             }
-        }
+        });
     }
     
     @Override
