@@ -1794,9 +1794,8 @@ implements KeyListener, ControllerListener {
         commPortComboBox.removeAllItems();
         
         List<CommPortIdentifier> portList = CommUtils.getSerialPortList();
-        List<String> pseudoPortList = CommUtils.getStdIOConnections();
 
-        if (portList.size() < 1 && pseudoPortList.size() < 1) {
+        if (portList.size() < 1) {
             MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
         } else {
             // Sort?
@@ -1807,10 +1806,6 @@ implements KeyListener, ControllerListener {
             while ( portIter.hasNext() ) {
                 CommPortIdentifier portIdentifier = portIter.next();
                 commPortComboBox.addItem(portIdentifier.getName());
-            }
-
-            for (String pName : pseudoPortList) {
-                commPortComboBox.addItem(pName);
             }
 
             commPortComboBox.setSelectedIndex(0);
