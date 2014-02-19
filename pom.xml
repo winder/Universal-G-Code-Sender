@@ -4,7 +4,7 @@
 
 	<groupId>com.willwinder.universalgcodesender</groupId>
 	<artifactId>UGS</artifactId>
-	<version>1.6</version>
+	<version>1.7</version>
 
 	<packaging>jar</packaging>
 
@@ -64,6 +64,13 @@
           <include>refresh.gif</include>
         </includes>
 			</resource>
+            <resource>
+                <targetPath>target/classes/com/willwinder/universalgcodesender/il8n</targetPath>
+                <directory>src/com/willwinder/universalgcodesender/il8n</directory>
+                <includes>
+                    <include>MessagesBundle.*</include>
+                </includes>
+            </resource>
 		</resources>
 
 		<testResources>

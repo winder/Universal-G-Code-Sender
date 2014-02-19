@@ -113,62 +113,11 @@ public class GcodeParser {
         //
         // Start expansion.
         //
-        List<Point3d> expandedPoints;
-        boolean withoutThreshhold = false;
-        
-        if (withoutThreshhold) {
-            expandedPoints = GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                                start, end, center, clockwise, radius, 20);
-        }
-        else {
-            // Calculate radius if necessary.
-            if (radius == 0) {
-                radius = Math.sqrt(Math.pow(start.x - center.x, 2.0) + Math.pow(start.y - center.y, 2.0));
-            }
+        List<Point3d> expandedPoints =
+                GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, end, center, clockwise, radius,
+                        minLengthMM, segmentLengthMM);
 
-            // Calculate angles from center.
-            double startAngle = GcodePreprocessorUtils.getAngle(center, start);
-            double endAngle = GcodePreprocessorUtils.getAngle(center, end);
-
-
-            // Fix semantics, if the angle ends at 0 it really should end at 360.
-            if (endAngle == 0) {
-                    endAngle = Math.PI * 2;
-            }
-
-            // Calculate distance along arc.
-            double sweep;
-            if (!clockwise && endAngle < startAngle) {
-                sweep = ((Math.PI * 2 - startAngle) + endAngle);
-            } else if (clockwise && endAngle > startAngle) {
-                sweep = ((Math.PI * 2 - endAngle) + startAngle);
-            } else {
-                sweep = Math.abs(endAngle - startAngle);
-            }
-
-            // Convert units.
-            double distance = sweep * radius;
-            double radiusInMM = radius;
-            if (this.isMetric == false) {
-                distance *= 25.4;
-                radiusInMM *= 25.4;
-            }
-
-            // If this arc doesn't meet the minimum threshold, don't expand.
-            if (distance > minLengthMM) {
-                return null;
-            }
-
-            // mm_per_arc_segment calculation isn't working
-            //double mm_per_arc_segment = Math.sqrt(4*arcTolerance*(2*radiusInMM-arcTolerance));
-            
-            double mm_per_arc_segment = segmentLengthMM;
-            int numPoints = (int)Math.ceil(distance/mm_per_arc_segment);
-
-            expandedPoints = GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                            start, end, center, clockwise, radius, 
-                            startAngle, endAngle, sweep, numPoints);
-        }
         
         // Validate output of expansion.
         if (expandedPoints == null) {

@@ -190,22 +190,22 @@ public class GcodePreprocessorUtilsTest {
         sl.add("G0");
         sl.add("X7");
         sl.add("Y5.235235");
-        List<Integer> l = GcodePreprocessorUtils.parseCodes(sl, 'G');
+        List<String> l = GcodePreprocessorUtils.parseCodes(sl, 'G');
         assertEquals(1, l.size());
-        assertEquals(0, l.get(0).intValue());
+        assertEquals(0, l.get(0));
         
         // Find two gcodes.
         sl.add("G20");
         l = GcodePreprocessorUtils.parseCodes(sl, 'G');
         assertEquals(2, l.size());
-        assertEquals(0, l.get(0).intValue());
-        assertEquals(20, l.get(1).intValue());
+        assertEquals(0, l.get(0));
+        assertEquals(20, l.get(1));
         
         // Find X, mismatched case.
         sl.add("G20");
         l = GcodePreprocessorUtils.parseCodes(sl, 'x');
         assertEquals(1, l.size());
-        assertEquals(7, l.get(0).intValue());
+        assertEquals(7, l.get(0));
     }
     
 }
