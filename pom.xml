@@ -58,16 +58,18 @@
 		<sourceDirectory>src/</sourceDirectory>
 
 		<resources>
+			<resource>
+				<directory>src/com/willwinder/universalgcodesender/images</directory>
+        <includes>
+          <include>refresh.gif</include>
+        </includes>
+			</resource>
             <resource>
+                <targetPath>target/classes/com/willwinder/universalgcodesender/i18n</targetPath>
                 <directory>src/com/willwinder/universalgcodesender/i18n</directory>
-                <targetPath>com/willwinder/universalgcodesender/i18n</targetPath>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <directory>src/resources</directory>
-                <targetPath>resources</targetPath>
+                <includes>
+                    <include>MessagesBundle.*</include>
+                </includes>
             </resource>
 		</resources>
 

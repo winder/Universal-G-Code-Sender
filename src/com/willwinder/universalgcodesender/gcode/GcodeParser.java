@@ -175,7 +175,6 @@ public class GcodeParser {
                 GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, end, center, clockwise, radius,
                         smallArcThreshold, smallArcSegmentLength);
-
         
         // Validate output of expansion.
         if (expandedPoints == null) {

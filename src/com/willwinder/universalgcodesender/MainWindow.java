@@ -1042,6 +1042,8 @@ implements KeyListener, ControllerListener {
             this.controller.addListener(this);
             if (vw != null) {
                 this.controller.addListener(vw);
+                vw.setMinArcLength(this.controller.getSmallArcThreshold());
+                vw.setArcLength(this.controller.getSmallArcSegmentLength());
             }
             
             Boolean ret = openCommConnection();
@@ -1214,6 +1216,11 @@ implements KeyListener, ControllerListener {
             if (this.controller != null) {
                 MainWindow.applySettingsToController(this.controller);
             }
+
+            if (this.vw != null) {
+                vw.setMinArcLength(gcsd.getSmallArcThreshold());
+                vw.setArcLength(gcsd.getSmallArcSegmentLength());
+            }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
 
@@ -1245,6 +1252,8 @@ implements KeyListener, ControllerListener {
         // Create new object if it is null.
         if (this.vw == null) {
             this.vw = new VisualizerWindow();
+            vw.setMinArcLength(SettingsFactory.getSmallArcThreshold());
+            vw.setArcLength(SettingsFactory.getSmallArcSegmentLength());
             if (this.fileTextField.getText().length() > 1) {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
@@ -2049,16 +2058,25 @@ implements KeyListener, ControllerListener {
 
     // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
-        if (!verbose || this.showVerboseOutputCheckBox.isSelected()) {
-            String verboseS = "[" + Localization.getString("verbose") + "]";
-            this.consoleTextArea.append((verbose ? verboseS : "") + msg);
-            
-            if (this.consoleTextArea.isVisible() &&
-                    this.scrollWindowCheckBox.isEnabled()) {
-                this.consoleTextArea.setCaretPosition(this.consoleTextArea.getDocument().getLength());
+    public void messageForConsole(final String msg, final Boolean verbose) {
+        final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
+        final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
+        final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+                    String verboseS = "[" + Localization.getString("verbose") + "]";
+                    consoleTextArea.append((verbose ? verboseS : "") + msg);
+
+                    if (consoleTextArea.isVisible() &&
+                            scrollWindowCheckBox.isEnabled()) {
+                        consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
+                    }
+                }
             }
-        }
+        });
     }
     
     @Override
