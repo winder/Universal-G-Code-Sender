@@ -1833,7 +1833,7 @@ implements KeyListener, ControllerListener {
         Charset cs = Charset.forName(fr.getEncoding());
         fr.close();
         List<String> lines = Files.readAllLines(file.toPath(), cs);
-        if (this.controller != null)  {
+        if (this.controller != null && this.controller.isCommOpen())  {
             this.processedCommandLines = this.controller.preprocess(lines);
             this.jobEstimate = -1L;
             this.resetSentRowLabels(this.processedCommandLines.size());
