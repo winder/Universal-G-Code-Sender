@@ -59,7 +59,6 @@ public abstract class AbstractCommunicator {
         //      and instantiate them dynamically.
         this.connections = new ArrayList<Connection>();
         this.addConnectionType(new SerialConnection());
-        this.addConnectionType(new StdIOConnection("grbl_sim.exe"));
     }
 
     final public void addConnectionType(Connection conn) {
