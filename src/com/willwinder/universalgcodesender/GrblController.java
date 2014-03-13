@@ -72,8 +72,10 @@ public class GrblController extends AbstractController {
 
     @Override
     public long getJobLengthEstimate(Collection<String> jobLines) {
-        GrblSimulator simulator = new GrblSimulator(settings.getSettings());
-        return simulator.estimateRunLength(jobLines);
+        // Pending update to support cross-platform and multiple GRBL versions.
+        return 0;
+        //GrblSimulator simulator = new GrblSimulator(settings.getSettings());
+        //return simulator.estimateRunLength(jobLines);
     }
 
     /***********************

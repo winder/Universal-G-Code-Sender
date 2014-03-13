@@ -1307,7 +1307,12 @@ implements KeyListener, ControllerListener {
 
                         long elapsedTime = controller.getSendDuration();
                         durationValueLabel.setText(Utils.formattedMillis(elapsedTime));
-                        remainingTimeValueLabel.setText(Utils.formattedMillis(jobEstimate - elapsedTime));
+                        long estimate = jobEstimate;
+                        if (estimate <= 0) {
+                            long timePerRow = elapsedTime / sent;
+                            estimate = timePerRow * controller.rowsInSend();
+                        }
+                        remainingTimeValueLabel.setText(Utils.formattedMillis(estimate - elapsedTime));
                     }
                 });
 
