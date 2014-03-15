@@ -467,7 +467,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         List<String> processed = gcp.preprocessCommand(commandString);
 
         for (String s : processed) {
-            GcodeCommand command = this.commandCreator.createCommand(commandString);
+            GcodeCommand command = this.commandCreator.createCommand(s);
             this.prepQueue.add(command);
         }        
     }

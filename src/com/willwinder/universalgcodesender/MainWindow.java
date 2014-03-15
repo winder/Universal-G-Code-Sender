@@ -1863,6 +1863,7 @@ implements KeyListener, ControllerListener {
 
         } else {
             this.resetSentRowLabels(lines.size());
+            updateControlsForState(ControlState.FILE_SELECTED);
         }
 
         if (this.vw != null) {

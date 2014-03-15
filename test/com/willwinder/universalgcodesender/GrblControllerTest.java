@@ -633,6 +633,7 @@ public class GrblControllerTest {
 
         // Test 4. Commands being sent are properly preprocessed.
         instance.setSpeedOverride(1000.0);
+        instance.setRemoveAllWhitespace(true);
         instance.preprocessAndAppendGcodeCommand("G0 X1 Y1 Z1 F100");
         try {
             // Start the stream.

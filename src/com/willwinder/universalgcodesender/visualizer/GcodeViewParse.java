@@ -96,18 +96,20 @@ public class GcodeViewParse {
         }
     }
     
-    public List<LineSegment> toObjRedux(List<String> gcode, double minArcLength, double arcSegmentLength) {
+    public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
         for (String s : gcode) {
             gp.addCommand(s);
         }
         
-        return getLinesFromParser(gp, minArcLength, arcSegmentLength);
+        return getLinesFromParser(gp, arcSegmentLength);
     }
     
-    private List<LineSegment> getLinesFromParser(GcodeParser gp, double minArcLength, double arcSegmentLength) {
+    private List<LineSegment> getLinesFromParser(GcodeParser gp, double arcSegmentLength) {
         List<PointSegment> psl = gp.getPointSegmentList();
-        
+        // For a line segment list ALL arcs must be converted to lines.
+        double minArcLength = 0;
+
         Point3d start = null;
         Point3d end = null;
         LineSegment ls;
@@ -117,7 +119,6 @@ public class GcodeViewParse {
             ps.convertToMetric();
             
             end = ps.point();
-            
 
             // start is null for the first iteration.
             if (start != null) {
@@ -127,15 +128,17 @@ public class GcodeViewParse {
                         GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, end, ps.center(), ps.isClockwise(), ps.getRadius(), minArcLength, arcSegmentLength);
                     // Create line segments from points.
-                    Point3d startPoint = start;
-                    for (Point3d nextPoint : points) {
-                        ls = new LineSegment(startPoint, nextPoint, num);
-                        ls.setIsArc(ps.isArc());
-                        ls.setIsFastTraverse(ps.isFastTraverse());
-                        ls.setIsZMovement(ps.isZMovement());
-                        this.testExtremes(nextPoint);
-                        lines.add(ls);
-                        startPoint = nextPoint;
+                    if (points != null) {
+                        Point3d startPoint = start;
+                        for (Point3d nextPoint : points) {
+                            ls = new LineSegment(startPoint, nextPoint, num);
+                            ls.setIsArc(ps.isArc());
+                            ls.setIsFastTraverse(ps.isFastTraverse());
+                            ls.setIsZMovement(ps.isZMovement());
+                            this.testExtremes(nextPoint);
+                            lines.add(ls);
+                            startPoint = nextPoint;
+                        }
                     }
                 // Line
                 } else {
