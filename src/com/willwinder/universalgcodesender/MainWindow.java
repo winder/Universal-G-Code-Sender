@@ -1466,6 +1466,7 @@ implements KeyListener, ControllerListener {
                 break;
         }
 
+        this.stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, stepSizeValue));
         this.stepSizeSpinner.setValue(stepSizeValue);
     }//GEN-LAST:event_stepSizePrecisionSliderStateChanged
 
