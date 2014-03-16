@@ -53,8 +53,10 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Hashtable;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
@@ -121,6 +123,7 @@ implements KeyListener, ControllerListener {
         keyboardMovementPanel = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
         arrowMovementEnabled = new javax.swing.JCheckBox();
+        stepSizeLabel = new javax.swing.JLabel();
         movementButtonPanel = new javax.swing.JPanel();
         zMinusButton = new javax.swing.JButton();
         yMinusButton = new javax.swing.JButton();
@@ -128,7 +131,7 @@ implements KeyListener, ControllerListener {
         xMinusButton = new javax.swing.JButton();
         zPlusButton = new javax.swing.JButton();
         yPlusButton = new javax.swing.JButton();
-        stepSizeLabel = new javax.swing.JLabel();
+        stepSizePrecisionSlider = new javax.swing.JSlider();
         performHomingCycleButton = new javax.swing.JButton();
         killAlarmLock = new javax.swing.JButton();
         toggleCheckMode = new javax.swing.JButton();
@@ -463,6 +466,9 @@ implements KeyListener, ControllerListener {
         arrowMovementEnabled.setText("Enable Keyboard Movement");
         arrowMovementEnabled.setEnabled(false);
 
+        stepSizeLabel.setText("Step size:");
+        stepSizeLabel.setEnabled(false);
+
         zMinusButton.setText("Z-");
         zMinusButton.setEnabled(false);
         zMinusButton.addActionListener(new java.awt.event.ActionListener() {
@@ -543,20 +549,37 @@ implements KeyListener, ControllerListener {
                     .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
-        stepSizeLabel.setText("Step size:");
-        stepSizeLabel.setEnabled(false);
+        stepSizePrecisionSlider.setMajorTickSpacing(10);
+        stepSizePrecisionSlider.setMaximum(5);
+        stepSizePrecisionSlider.setMinimum(1);
+        stepSizePrecisionSlider.setMinorTickSpacing(1);
+        stepSizePrecisionSlider.setPaintLabels(true);
+        stepSizePrecisionSlider.setPaintTicks(true);
+        stepSizePrecisionSlider.setSnapToTicks(true);
+        stepSizePrecisionSlider.setValue(2);
+        stepSizePrecisionSlider.setEnabled(false);
+        stepSizePrecisionSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                stepSizePrecisionSliderStateChanged(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
         keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
         keyboardMovementPanelLayout.setHorizontalGroup(
             keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(arrowMovementEnabled)
             .add(keyboardMovementPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(stepSizeLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(arrowMovementEnabled)
+                    .add(keyboardMovementPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(stepSizeLabel)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, stepSizePrecisionSlider, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .add(114, 114, 114))
         );
         keyboardMovementPanelLayout.setVerticalGroup(
             keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -566,12 +589,24 @@ implements KeyListener, ControllerListener {
                 .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(stepSizeLabel)
                     .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(stepSizePrecisionSlider, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(27, 27, 27)
                 .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
 
         keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
+        Hashtable stepSizePrecisionSliderLabelTable = new Hashtable();
+        stepSizePrecisionSliderLabelTable.put(new Integer(1), new JLabel("0.1"));
+        stepSizePrecisionSliderLabelTable.put(new Integer(2), new JLabel("1"));
+        stepSizePrecisionSliderLabelTable.put(new Integer(3), new JLabel("10"));
+        stepSizePrecisionSliderLabelTable.put(new Integer(4), new JLabel("50"));
+        stepSizePrecisionSliderLabelTable.put(new Integer(5), new JLabel("100"));
+        stepSizePrecisionSlider.setLabelTable(stepSizePrecisionSliderLabelTable);
+
+        stepSizePrecisionSlider.setPaintLabels(true);
 
         performHomingCycleButton.setText("$H");
         performHomingCycleButton.setEnabled(false);
@@ -640,16 +675,15 @@ implements KeyListener, ControllerListener {
                         .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 66, Short.MAX_VALUE)
-                .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 74, Short.MAX_VALUE)
+                .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 224, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         machineControlPanelLayout.setVerticalGroup(
             machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(machineControlPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(machineControlPanelLayout.createSequentialGroup()
                         .add(resetCoordinatesButton)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -664,8 +698,11 @@ implements KeyListener, ControllerListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(helpButtonMachineControl)
-                            .add(requestStateInformation))))
-                .addContainerGap(50, Short.MAX_VALUE))
+                            .add(requestStateInformation))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(machineControlPanelLayout.createSequentialGroup()
+                        .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
@@ -752,7 +789,7 @@ implements KeyListener, ControllerListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -893,7 +930,7 @@ implements KeyListener, ControllerListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
@@ -1403,6 +1440,36 @@ implements KeyListener, ControllerListener {
         }    
     }//GEN-LAST:event_saveButtonActionPerformed
 
+    private void stepSizePrecisionSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizePrecisionSliderStateChanged
+        int stepSizePrecisionValue = this.stepSizePrecisionSlider.getValue();
+        double stepSizeValue = 1;
+
+        switch (stepSizePrecisionValue) {
+            case 1:
+                stepSizeValue = 0.1;
+                break;
+
+            case 2:
+                stepSizeValue = 1;
+                break;
+
+            case 3:
+                stepSizeValue = 10;
+                break;
+
+            case 4:
+                stepSizeValue = 50;
+                break;
+
+            case 5:
+                stepSizeValue = 100;
+                break;
+        }
+
+        this.stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, stepSizeValue));
+        this.stepSizeSpinner.setValue(stepSizeValue);
+    }//GEN-LAST:event_stepSizePrecisionSliderStateChanged
+
     /**
      * @param args the command line arguments
      */
@@ -1723,6 +1790,7 @@ implements KeyListener, ControllerListener {
         this.zPlusButton.setEnabled(enabled);
         this.stepSizeLabel.setEnabled(enabled);
         this.stepSizeSpinner.setEnabled(enabled);
+        this.stepSizePrecisionSlider.setEnabled(enabled);
     }
     
     private void updateWorkflowControls(boolean enabled) {
@@ -2209,6 +2277,7 @@ implements KeyListener, ControllerListener {
     private javax.swing.JButton softResetMachineControl;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JLabel stepSizeLabel;
+    private javax.swing.JSlider stepSizePrecisionSlider;
     private javax.swing.JSpinner stepSizeSpinner;
     private javax.swing.JButton toggleCheckMode;
     private javax.swing.JButton visualizeButton;
