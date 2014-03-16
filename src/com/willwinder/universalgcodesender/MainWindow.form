@@ -52,6 +52,7 @@
   <SyntheticProperties>
     <SyntheticProperty name="menuBar" type="java.lang.String" value="mainMenuBar"/>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
@@ -610,8 +611,8 @@
                               <Component id="toggleCheckMode" min="-2" pref="49" max="-2" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="66" max="32767" attributes="0"/>
-                      <Component id="keyboardMovementPanel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="74" max="32767" attributes="0"/>
+                      <Component id="keyboardMovementPanel" min="-2" pref="224" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -620,9 +621,8 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="keyboardMovementPanel" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
                               <Component id="resetCoordinatesButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="returnToZeroButton" min="-2" max="-2" attributes="0"/>
@@ -639,9 +639,13 @@
                                   <Component id="helpButtonMachineControl" alignment="3" min="-2" max="-2" attributes="0"/>
                                   <Component id="requestStateInformation" alignment="3" min="-2" max="-2" attributes="0"/>
                               </Group>
+                              <EmptySpace max="32767" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="keyboardMovementPanel" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="32767" attributes="0"/>
                           </Group>
                       </Group>
-                      <EmptySpace pref="50" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -670,14 +674,22 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="arrowMovementEnabled" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                              <Component id="movementButtonPanel" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="arrowMovementEnabled" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Component id="stepSizeLabel" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="-2" attributes="0"/>
+                                  <Group type="103" groupAlignment="0" attributes="0">
+                                      <Component id="stepSizePrecisionSlider" alignment="1" pref="0" max="32767" attributes="0"/>
+                                      <Component id="stepSizeSpinner" min="-2" pref="70" max="-2" attributes="0"/>
+                                  </Group>
+                              </Group>
+                          </Group>
+                          <EmptySpace min="-2" pref="114" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="movementButtonPanel" min="-2" max="-2" attributes="0"/>
                   </Group>
                 </DimensionLayout>
                 <DimensionLayout dim="1">
@@ -689,7 +701,9 @@
                               <Component id="stepSizeLabel" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
                               <Component id="stepSizeSpinner" linkSize="1" alignment="3" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
+                          <Component id="stepSizePrecisionSlider" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
                           <Component id="movementButtonPanel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
@@ -711,6 +725,12 @@
                 <Component class="javax.swing.JCheckBox" name="arrowMovementEnabled">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Enable Keyboard Movement"/>
+                    <Property name="enabled" type="boolean" value="false"/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JLabel" name="stepSizeLabel">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Step size:"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                 </Component>
@@ -812,11 +832,24 @@
                     </Component>
                   </SubComponents>
                 </Container>
-                <Component class="javax.swing.JLabel" name="stepSizeLabel">
+                <Component class="javax.swing.JSlider" name="stepSizePrecisionSlider">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="Step size:"/>
+                    <Property name="majorTickSpacing" type="int" value="10"/>
+                    <Property name="maximum" type="int" value="5"/>
+                    <Property name="minimum" type="int" value="1"/>
+                    <Property name="minorTickSpacing" type="int" value="1"/>
+                    <Property name="paintLabels" type="boolean" value="true"/>
+                    <Property name="paintTicks" type="boolean" value="true"/>
+                    <Property name="snapToTicks" type="boolean" value="true"/>
+                    <Property name="value" type="int" value="2"/>
                     <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="stepSizePrecisionSliderStateChanged"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="Hashtable stepSizePrecisionSliderLabelTable = new Hashtable();&#xa;stepSizePrecisionSliderLabelTable.put(new Integer(1), new JLabel(&quot;0.1&quot;));&#xa;stepSizePrecisionSliderLabelTable.put(new Integer(2), new JLabel(&quot;1&quot;));&#xa;stepSizePrecisionSliderLabelTable.put(new Integer(3), new JLabel(&quot;10&quot;));&#xa;stepSizePrecisionSliderLabelTable.put(new Integer(4), new JLabel(&quot;50&quot;));&#xa;stepSizePrecisionSliderLabelTable.put(new Integer(5), new JLabel(&quot;100&quot;));&#xa;stepSizePrecisionSlider.setLabelTable(stepSizePrecisionSliderLabelTable);&#xa;&#xa;stepSizePrecisionSlider.setPaintLabels(true);"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -949,7 +982,7 @@
                       <Component id="firmwareLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="firmwareComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="19" max="32767" attributes="0"/>
+                  <EmptySpace pref="23" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1168,7 +1201,7 @@
                           </Group>
                       </Group>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace pref="10" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
