@@ -26,7 +26,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
@@ -65,9 +67,18 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class MainWindow extends javax.swing.JFrame 
-implements KeyListener, ControllerListener {
+implements KeyListener, ControllerListener, MainWindowAPI {
     private static String VERSION = "1.0.7 (Pre-release Nov 8, 2013)";
-
+    private List<ControlStateListener> controlStateListenerList = new ArrayList<>();
+    private PendantUI pendantUI;
+    
+    @Override
+	public void registerControlStateListener(ControlStateListener controlStateListener){
+    	if(!controlStateListenerList.contains(controlStateListener)){
+    		controlStateListenerList.add(controlStateListener);
+    	}
+    }
+    
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
@@ -986,6 +997,12 @@ implements KeyListener, ControllerListener {
         this.manualCommandHistory.add(str);
         this.commandNum = -1;
     }//GEN-LAST:event_commandTextFieldActionPerformed
+    
+    @Override
+	public void sendGcodeCommand(String commandText){
+        this.commandTextField.setText(commandText);
+        commandTextFieldActionPerformed(new ActionEvent(commandTextField, 1, "sendCommand"));
+    }
 
     // TODO: Find out how to make these key* functions actions like the above.
     // TODO: Create custom text area that will do all this stuff without
@@ -1457,6 +1474,8 @@ implements KeyListener, ControllerListener {
         });
         
         mw.initFileChooser();
+        mw.pendantUI = new PendantUI(mw);
+        mw.pendantUI.start();
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -1473,6 +1492,10 @@ implements KeyListener, ControllerListener {
                 SettingsFactory.setVerboseOutput(mw.showVerboseOutputCheckBox.isSelected());
                 SettingsFactory.setFirmware(mw.firmwareComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings();
+                
+                if(mw.pendantUI!=null){
+                	mw.pendantUI.stop();
+                }
             }
         });
     }
@@ -1557,7 +1580,7 @@ implements KeyListener, ControllerListener {
      * 
      * Direction is specified by the direction param being positive or negative.
      */
-    private void adjustManualLocation(int dirX, int dirY, int dirZ) {
+    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize) {
         
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
@@ -1565,7 +1588,7 @@ implements KeyListener, ControllerListener {
         }
 
         // Format step size from spinner.
-        String stepSize = formatter.format(this.getStepSize());
+        String formattedStepSize = formatter.format(stepSize);
 
         // Build G91 command.
         StringBuilder command = new StringBuilder("G91 G0 ");
@@ -1575,19 +1598,19 @@ implements KeyListener, ControllerListener {
             if (dirX < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         } if (dirY != 0) {
             command.append(" Y");
             if (dirY < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         } if (dirZ != 0) {
             command.append(" Z");
             if (dirZ < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         }
 
         try {
@@ -1596,6 +1619,16 @@ implements KeyListener, ControllerListener {
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
+    }
+    
+    /**
+     * Sends a G91 command in some combination of x, y, and z directions with a
+     * step size of stepDirection.
+     * 
+     * Direction is specified by the direction param being positive or negative.
+     */
+    public void adjustManualLocation(int dirX, int dirY, int dirZ) {
+    	adjustManualLocation(dirX, dirY, dirZ, this.getStepSize());
     }
     
     private void setStatusColorForState(String state) {
@@ -1663,6 +1696,10 @@ implements KeyListener, ControllerListener {
                 break;
             default:
                 
+        }
+        
+        for(ControlStateListener controlStateListener: controlStateListenerList){
+        	controlStateListener.updateControlsForState(state);
         }
     }
     
@@ -2124,7 +2161,7 @@ implements KeyListener, ControllerListener {
     // Duration timer
     private Timer timer;
     
-    private enum ControlState {
+    public enum ControlState {
         COMM_DISCONNECTED,
         COMM_IDLE,
         COMM_SENDING,
