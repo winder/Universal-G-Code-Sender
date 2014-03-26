@@ -56,7 +56,7 @@ Changelog
 * Visualizer navigation controls - pan and soom with the mouse wheel. (michmerr)
 * Visualizer Support for radius arcs (phlatboyz sketchup plugin gcode now displays correctly)
 * New single-step mode.
-* New a colored status indicator.
+* New colored status indicator.
 * [Many bugfixes, thanks to UGS contributors](https://github.com/winder/Universal-G-Code-Sender/graphs/contributors)
 
 1.0.5 -> 1.0.6
