@@ -15,9 +15,9 @@ commands:
 
 Downloads
 ---------
-[1.0.7](http://bit.ly/1dNrLAy)
+[1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
-[1.0.6](http://bit.ly/16q7obd)
+[1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
 <br />
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
