@@ -53,7 +53,7 @@ Changelog
 * - remove whitespaces.
 * - expand small arcs to G1 commands.
 * New option to save preprocessed gcode file to a file.
-* Visualizer navigation controls - pan and soom with the mouse wheel. (michmerr)
+* Visualizer navigation controls - pan and zoom with the mouse wheel. (michmerr)
 * Visualizer Support for radius arcs (phlatboyz sketchup plugin gcode now displays correctly)
 * New single-step mode.
 * New colored status indicator.
