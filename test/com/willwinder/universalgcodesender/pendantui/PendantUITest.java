@@ -1,26 +1,31 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collection;
 
 import org.junit.Test;
 
+import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.MainWindow.ControlState;
 import com.willwinder.universalgcodesender.MainWindowAPI;
+import com.willwinder.universalgcodesender.Settings;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
-import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 
 public class PendantUITest {
 	private MockMainWindow mainWindow = new MockMainWindow();
 	private PendantUI pendantUI = new PendantUI(mainWindow);
+	private MockUGSController controller = new MockUGSController();
+	
 	
 	public class MockMainWindow implements MainWindowAPI{
 		
@@ -48,8 +53,86 @@ public class PendantUITest {
 			this.stepSize = stepSize;
 			System.out.println("dirX: "+dirX+" dirY: "+dirY+" dirZ: "+dirZ+" stepSize: "+stepSize);
 		}
+
+		public Settings settings = new Settings();
+		
+		@Override
+		public Settings getSettings() {
+			return settings;
+		}
+
+		@Override
+		public AbstractController getController() {
+			return controller;
+		}
 	}
 	
+	public class MockUGSController extends AbstractController{
+		@Override
+		protected void statusUpdatesRateValueChanged(int rate) {
+		}
+		
+		@Override
+		protected void statusUpdatesEnabledValueChanged(boolean enabled) {
+		}
+		
+		@Override
+		protected void resumeStreamingEvent() throws IOException {
+		}
+		
+		@Override
+		protected void rawResponseHandler(String response) {
+		}
+		
+		@Override
+		protected void pauseStreamingEvent() throws IOException {
+		}
+		
+		@Override
+		protected void isReadyToStreamFileEvent() throws Exception {
+		}
+		
+		@Override
+		public long getJobLengthEstimate(Collection<String> jobLines) {
+			return 0;
+		}
+		
+		@Override
+		protected void closeCommBeforeEvent() {
+		}
+		
+		@Override
+		protected void closeCommAfterEvent() {
+		}
+		
+		@Override
+		protected void cancelSendBeforeEvent() {
+		}
+		
+		@Override
+		protected void cancelSendAfterEvent() {
+		}
+
+		public boolean performHomingCycle = false;
+		
+		@Override
+		public void performHomingCycle() throws Exception {
+			performHomingCycle = true;
+		}
+
+		public boolean killAlarmLock = false;
+		@Override
+		public void killAlarmLock() throws Exception {
+			killAlarmLock = true;
+		}
+
+		public boolean toggleCheckMode = true;
+		@Override
+		public void toggleCheckMode() throws Exception {
+			toggleCheckMode = true;
+		}
+
+	}
 	@Test
 	public void testPendantUI() {
 		assertSame(mainWindow, pendantUI.getMainWindow());
@@ -69,6 +152,15 @@ public class PendantUITest {
 		String sendGcodeResponse = getResponse(url+"/sendGcode?gCode=MyGcode");
 		assertEquals(ControlState.COMM_IDLE.name(), sendGcodeResponse);
 		assertEquals(mainWindow.commandText, "MyGcode");
+		
+		getResponse(url+"/sendGcode?gCode=$H");
+		assertTrue(controller.performHomingCycle);
+		
+		getResponse(url+"/sendGcode?gCode=$X");
+		assertTrue(controller.killAlarmLock);
+
+		getResponse(url+"/sendGcode?gCode=$C");
+		assertTrue(controller.toggleCheckMode);
 		
 		// test adjust manual location handler
 		String adjustManualLocationResponse = getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
@@ -90,12 +182,14 @@ public class PendantUITest {
 		String configResponse = getResponse(url+"/UGSPendantConfig.json");
 		assertTrue(configResponse.contains("shortCutButtonList"));
 		
-		pendantUI.getConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
+		pendantUI.getMainWindow().getSettings().getPendantConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
 		
-		configResponse = getResponse(url+"/UGSPendantConfig.json");
+		configResponse = getResponse(url+"/config");
 		assertTrue(configResponse.contains("newStepSizeOptionValue"));
 		
 		pendantUI.stop();
+
+		assertTrue(pendantUI.getServer().isStopped());
 	}
 	
 	private String getResponse(String urlStr){
@@ -157,11 +251,6 @@ public class PendantUITest {
 	}
 
 	@Test
-	public void testStop() {
-		// TODO
-	}
-
-	@Test
 	public void testGetPort() {
 		pendantUI.setPort(999);
 		assertEquals(999, pendantUI.getPort());
@@ -191,15 +280,5 @@ public class PendantUITest {
 		pendantUI.updateControlsForState(ControlState.FILE_SELECTED);
 		assertTrue(pendantUI.isManualControlEnabled());
 		
-	}
-
-	@Test
-	public void testManualControlEnabledCheckHandler(){
-		// TODO
-	}
-	
-	@Test
-	public void testSendGcodeHandler(){
-		// TODO 
 	}
 }

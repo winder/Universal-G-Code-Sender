@@ -1,18 +1,14 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -32,16 +28,10 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.willwinder.universalgcodesender.MainWindow.ControlState;
 import com.willwinder.universalgcodesender.MainWindowAPI;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.ShortCutButton;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -49,11 +39,11 @@ import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeO
  *
  */
 public class PendantUI implements ControlStateListener{
+    private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
 	private MainWindowAPI mainWindow;
 	private Server server = null;
 	private int port = 8080;
 	private ControlState controlState = ControlState.COMM_DISCONNECTED;
-	private PendantConfigBean config;
 	
 	public PendantUI(MainWindowAPI mainWindow) {
 		this.mainWindow = mainWindow;
@@ -68,47 +58,12 @@ public class PendantUI implements ControlStateListener{
 		}
 	}
 	
-	public void loadConfig(){
-		Resource configResource = getBaseResource().getResource("UGSPendantConfig.json");
-		
-		if(!configResource.exists()){
-			config = new PendantConfigBean();
-			config.getStepSizeList().add(new StepSizeOption(".1", ".1", false));
-			config.getStepSizeList().add(new StepSizeOption("1", "1", false));
-			config.getStepSizeList().add(new StepSizeOption("5", "5", false));
-			config.getStepSizeList().add(new StepSizeOption("10", "10", true));
-			config.getStepSizeList().add(new StepSizeOption("50", "50", false));
-			
-			config.getShortCutButtonList().add(new ShortCutButton("Begin Homing Cycle","$H"));
-			config.getShortCutButtonList().add(new ShortCutButton("Disable Alarm Lock","$X"));
-			config.getShortCutButtonList().add(new ShortCutButton("Toggle Check Mode","$H"));
-			config.getShortCutButtonList().add(new ShortCutButton("Return to Workpiece 0","G90 G0 X0 Y0 Z0"));
-			
-			try {
-				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				String configJson = gson.toJson(config);
-				FileWriter writer = new FileWriter(configResource.getFile());
-				writer.write(configJson);
-				writer.close();
-				
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		} else {
-			try {
-				config = new Gson().fromJson(new JsonReader(new FileReader(configResource.getFile())), PendantConfigBean.class);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
 	
 	/**
 	 * Launches the local web server.
 	 * @return the url for the pendant interface
 	 */
 	public List<PendantURLBean> start(){
-		loadConfig();
 		server = new Server(port);
 		
 		ResourceHandler resourceHandler = new ResourceHandler();
@@ -136,7 +91,7 @@ public class PendantUI implements ControlStateListener{
         getControlStateContext.setHandler(new GetControlStateHandler());
 
         ContextHandler configContext = new ContextHandler();
-        configContext.setContextPath("/UGSPendantConfig.json");
+        configContext.setContextPath("/config");
         configContext.setBaseResource(getBaseResource());
         configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         configContext.setHandler(new ConfigHandler());
@@ -199,7 +154,25 @@ public class PendantUI implements ControlStateListener{
 			String gCode = baseRequest.getParameter("gCode");
 			
 			if(isManualControlEnabled()){
-				mainWindow.sendGcodeCommand(gCode);
+				try {
+					switch (gCode) {
+					case "$H":
+						mainWindow.getController().performHomingCycle();
+						break;
+					case "$X":
+						mainWindow.getController().killAlarmLock();
+						break;
+					case "$C":
+						mainWindow.getController().toggleCheckMode();
+						break;
+					default:
+						mainWindow.sendGcodeCommand(gCode);
+						break;
+					}
+				} catch (Exception e) {
+		            e.printStackTrace();
+		            logger.warning(Localization.getString("SendGcodeHandler"));
+				}
 			}
 
 			response.getWriter().print(controlState.name());
@@ -220,7 +193,7 @@ public class PendantUI implements ControlStateListener{
 		public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
 			baseRequest.setHandled(true);
 			response.setContentType("application/json");
-			response.getWriter().print(new Gson().toJson(config));
+			response.getWriter().print(new Gson().toJson(mainWindow.getSettings().getPendantConfig()));
 		}
 	}
 
@@ -332,11 +305,7 @@ public class PendantUI implements ControlStateListener{
 		this.server = server;
 	}
 
-	public PendantConfigBean getConfig() {
-		return config;
-	}
-
-	public void setConfig(PendantConfigBean config) {
-		this.config = config;
+	public void setMainWindow(MainWindowAPI mainWindow) {
+		this.mainWindow = mainWindow;
 	}
 }

@@ -23,7 +23,7 @@
 	});
 	
 	$($.ajax({
-        url: "/UGSPendantConfig.json",
+        url: "/config",
         type: "GET",
         success: function(data) {
         	readConfig(data);
@@ -258,6 +258,13 @@
 				</td>
 			</tr>
 		</table>
+		<div id="StandardShortcuts">
+			<hr/>
+			<br>
+			<button class="button shortcutButton" onclick="sendGcode('$H');">Begin Homing Cycle</button>
+			<button class="button shortcutButton" onclick="sendGcode('$X');">Disable Alarm Lock</button>
+			<button class="button shortcutButton" onclick="sendGcode('$C');">Toggle Check Mode</button>
+		</div>
 	</div>
 	<div id="Shortcuts">
 
