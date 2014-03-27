@@ -97,6 +97,12 @@ class SettingsFactory {
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
         	fileWriter.write(gson.toJson(settings, Settings.class));
         	fileWriter.close();
+        	
+        	File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
+        	
+        	if(propertiesFile.exists()){
+        		propertiesFile.delete();
+        	}
          } catch (Exception e) {
             e.printStackTrace();
             logger.warning(Localization.getString("settings.log.saveerror"));
