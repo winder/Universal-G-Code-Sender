@@ -15,11 +15,9 @@ commands:
 
 Downloads
 ---------
-[1.0.6](http://bit.ly/16q7obd)
+[1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
-[1.0.5 32-bit](http://bit.ly/Xz4U1R)
-<br />
-[1.0.5 64-bit](http://bit.ly/SGKfMN)
+[1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
 <br />
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
@@ -41,9 +39,13 @@ Technical details:
 
 Changelog
 ---------
-1.0.6 -> 1.0.7 (Unreleased)
+1.0.7 -> 1.0.8 (Unreleased)
 * (BETA) TinyG support!
-* Many improvements to code architecture to allow future support for multiple firmwares (Marlin, TinyG, Smoothie, etc).
+* Accurate GRBL job estimates. (michmerr)
+* PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
+
+1.0.6 -> 1.0.7
+* Many improvements to code architecture to allow future support for multiple firmwares (TinyG, Marlin, Smoothie, etc).
 * New menu bar! Now new features can be added and existing features are more configurable.
 * Additional on-the-fly gcode command preprocessing:
 * - truncate and round long decimals to configurable length.
@@ -51,9 +53,11 @@ Changelog
 * - remove whitespaces.
 * - expand small arcs to G1 commands.
 * New option to save preprocessed gcode file to a file.
+* Visualizer navigation controls - pan and zoom with the mouse wheel. (michmerr)
 * Visualizer Support for radius arcs (phlatboyz sketchup plugin gcode now displays correctly)
 * New single-step mode.
-* New a colored status indicator.
+* New colored status indicator.
+* [Many bugfixes, thanks to UGS contributors](https://github.com/winder/Universal-G-Code-Sender/graphs/contributors)
 
 1.0.5 -> 1.0.6
 * 3D gcode visualizer!

@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2014 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,9 +37,9 @@ public class FirmwareUtils {
     
     public static ArrayList<String> getFirmwareList() {
         ArrayList<String> ret = new ArrayList<String>();
-        ret.add("GRBL");
-        ret.add("SmoothieBoard");
-        ret.add("TinyG");
+        ret.add(GRBL);
+        //ret.add(Smoothie);
+        //ret.add(TinyG);
         return ret;
     }
     
