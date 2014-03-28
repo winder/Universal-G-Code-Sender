@@ -7,6 +7,20 @@ public class PendantConfigBean {
 	private List<StepSizeOption> stepSizeList = new ArrayList<>();
 	private List<ShortCutButton> shortCutButtonList = new ArrayList<>();
 	
+	{
+		stepSizeList.add(new StepSizeOption(".1", ".1", false));
+		stepSizeList.add(new StepSizeOption("1", "1", false));
+		stepSizeList.add(new StepSizeOption("5", "5", false));
+		stepSizeList.add(new StepSizeOption("10", "10", true));
+		stepSizeList.add(new StepSizeOption("50", "50", false));
+		
+		shortCutButtonList.add(new ShortCutButton("Return to Workpiece 0","G90 G0 X0 Y0 Z0"));
+		shortCutButtonList.add(new ShortCutButton("Start Spindle","M3"));
+		shortCutButtonList.add(new ShortCutButton("Stop Spindle","M5"));
+		shortCutButtonList.add(new ShortCutButton("Coolant On","M7"));
+		shortCutButtonList.add(new ShortCutButton("Coolant Off","M9"));
+	}
+
 	public static class StepSizeOption{
 		private String value;
 		private String label;
