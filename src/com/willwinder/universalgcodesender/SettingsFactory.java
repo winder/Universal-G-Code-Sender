@@ -15,14 +15,19 @@
 
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+    
+    Refactored by Bob Jones 2014
  */
 
 package com.willwinder.universalgcodesender;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -31,307 +36,76 @@ import java.util.logging.Logger;
  * @author moll
  */
 class SettingsFactory {
-    private static File SETTINGS_FILE  = new File(System.getProperty("user.home"),".UniversalGcodeSender.properties");
-    
-    private static Properties settings = new Properties();
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     
-    private static String firmwareVersion = "";
-    private static String fileName = "";
-    private static String port = "";
-    private static String portRate;
-    private static boolean manualModeEnabled;
-    private static double manualModeStepSize;
-    private static boolean scrollWindowEnabled;
-    private static boolean verboseOutputEnabled;
-    // Sender Settings
-    private static boolean overrideSpeedSelected;
-    private static double overrideSpeedValue;
-    private static boolean singleStepMode;
-    private static int maxCommandLength;
-    private static int truncateDecimalLength;
-    private static boolean removeAllWhitespace;
-    private static boolean statusUpdatesEnabled;
-    private static int statusUpdateRate;
-    private static boolean displayStateColor;
-    private static boolean convertArcsToLines;
-    private static double smallArcThreshold;
-    private static double smallArcSegmentLength;
-    
-    static {
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            SETTINGS_FILE = new File(System.getProperty("user.home")+"/Library/Preferences/","UniversalGcodeSender.properties");
-        }
-        logger.info(Localization.getString("settings.log.location") + ": " + SETTINGS_FILE);
+    public static File getSettingsFolder(){
+    	File settingsFolder = new File(System.getProperty("user.home"));
+    	if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+    		settingsFolder = new File(System.getProperty("user.home")+"/Library/Preferences/");
+    	}
+    	return settingsFolder;
     }
-
-    public static void loadSettings() {
+    
+    public static Settings loadSettings() {
+    	// the defaults are now in the settings bean
+    	Settings out = new Settings();
+    	
+    	File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
+    	File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
+    	
         logger.info(Localization.getString("settings.log.loading"));
         try {
-            settings.load(new FileInputStream(SETTINGS_FILE));
-            
-            // V1 Settings - These are settings from the very beginning.
-            try {
-                SettingsFactory.fileName = settings.getProperty("last.dir", System.getProperty("user.home"));
-                SettingsFactory.port = settings.getProperty("port", "");
-                SettingsFactory.portRate = settings.getProperty("port.rate", "9600");
-                SettingsFactory.manualModeEnabled = Boolean.valueOf(settings.getProperty("manualMode.enabled", "false"));
-                SettingsFactory.manualModeStepSize = Double.valueOf(settings.getProperty("manualMode.stepsize", "1"));
-                SettingsFactory.scrollWindowEnabled = Boolean.valueOf(settings.getProperty("scrollWindow.enabled", "true"));
-                SettingsFactory.verboseOutputEnabled = Boolean.valueOf(settings.getProperty("verboseOutput.enabled", "false"));
-                SettingsFactory.overrideSpeedSelected = Boolean.valueOf(settings.getProperty("overrideSpeed.enabled", "false"));
-                SettingsFactory.overrideSpeedValue = Double.valueOf(settings.getProperty("overrideSpeed.value", "60"));
-            } catch (Exception e) {
-                e.printStackTrace();
-                logger.warning(Localization.getString("settings.log.error"));
-                loadDefaults();
-            } 
-            
-            // V1.0.7 Settings - New settings, load separately to avoid
-            //                   overwriting them with loadDefaults.
-            try {
-                SettingsFactory.firmwareVersion = settings.getProperty("firmwareVersion", "GRBL");
-                SettingsFactory.singleStepMode = Boolean.valueOf(settings.getProperty("singleStepMode", "false"));
-                SettingsFactory.maxCommandLength = Integer.valueOf(settings.getProperty("maxCommandLength", "50"));
-                SettingsFactory.truncateDecimalLength = Integer.valueOf(settings.getProperty("truncateDecimalLength", "4"));
-                SettingsFactory.removeAllWhitespace = Boolean.valueOf(settings.getProperty("removeAllWhitespace", "true"));
-                SettingsFactory.statusUpdatesEnabled = Boolean.valueOf(settings.getProperty("statusUpdatesEnabled", "true"));
-                SettingsFactory.statusUpdateRate = Integer.valueOf(settings.getProperty("statusUpdateRate", "200"));
-                SettingsFactory.displayStateColor = Boolean.valueOf(settings.getProperty("displayStateColor", "true"));
-                SettingsFactory.convertArcsToLines = Boolean.valueOf(settings.getProperty("convertArcsToLines", "false"));
-                SettingsFactory.smallArcThreshold = Double.valueOf(settings.getProperty("smallArcThreshold", "2.0"));
-                SettingsFactory.smallArcSegmentLength = Double.valueOf(settings.getProperty("smallArcSegmentLength", "1.3"));
-            } catch (Exception e) {
-                logger.warning(Localization.getString("settings.log.error"));
-                loadDefaults2();
-            }
+	    	if(jsonFile.exists()){
+	            logger.info(Localization.getString("settings.log.location") + ": " + jsonFile);
+	    		out = new Gson().fromJson(new FileReader(jsonFile), Settings.class);
+	    	} else if(propertiesFile.exists()){
+                logger.info(Localization.getString("settings.log.location") + ": " + propertiesFile);
+            	Properties properties = new Properties();
+            	properties.load(new FileInputStream(propertiesFile));
+                out.setFileName(properties.getProperty("last.dir", System.getProperty("user.home")));
+                out.setPort(properties.getProperty("port", ""));
+                out.setPortRate(properties.getProperty("port.rate", "9600"));
+                out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", "false")));
+                out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
+                out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
+                out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", "false")));
+                out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", "false")));
+                out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
+                out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
+                out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", "false")));
+                out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
+                out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
+                out.setRemoveAllWhitespace(Boolean.valueOf(properties.getProperty("removeAllWhitespace", "true")));
+                out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
+                out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
+                out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
+                out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
+                out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
+                out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
+	    	}
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
-            loadDefaults();
-            loadDefaults2();
         }
+        return out;
     }
 
-    public static void saveSettings() {
+    public static void saveSettings(Settings settings) {
         logger.info(Localization.getString("settings.log.saving"));
         try {
-            try {
-                settings.put("firmwareVersion", firmwareVersion);
-                settings.put("last.dir", fileName);
-                settings.put("port", port);
-                settings.put("port.rate", portRate);
-                settings.put("manualMode.enabled", manualModeEnabled+"");
-                settings.put("manualMode.stepsize", manualModeStepSize+"");
-                settings.put("scrollWindow.enabled", scrollWindowEnabled+"");
-                settings.put("verboseOutput.enabled", verboseOutputEnabled+"");
-                settings.put("overrideSpeed.enabled", overrideSpeedSelected+"");
-                settings.put("overrideSpeed.value", overrideSpeedValue+"");
-                
-                // Controller settings
-                settings.put("singleStepMode", singleStepMode+"");
-                settings.put("maxCommandLength", maxCommandLength+"");
-                settings.put("truncateDecimalLength", truncateDecimalLength+"");
-                settings.put("removeAllWhitespace", removeAllWhitespace+"");
-                settings.put("statusUpdatesEnabled", statusUpdatesEnabled+"");
-                settings.put("statusUpdateRate", statusUpdateRate+"");
-                settings.put("displayStateColor", displayStateColor+"");
-                settings.put("convertArcsToLines", convertArcsToLines+"");
-                settings.put("smallArcThreshold", smallArcThreshold+"");
-                settings.put("smallArcSegmentLength", smallArcSegmentLength+"");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            settings.store(new FileOutputStream(SETTINGS_FILE), "");
-        } catch (Exception e) {
+         	File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
+        	FileWriter fileWriter = new FileWriter(jsonFile);
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        	fileWriter.write(gson.toJson(settings, Settings.class));
+        	fileWriter.close();
+        	
+        	File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
+        	
+        	if(propertiesFile.exists()){
+        		propertiesFile.delete();
+        	}
+         } catch (Exception e) {
             e.printStackTrace();
             logger.warning(Localization.getString("settings.log.saveerror"));
         }
-    }
-    
-    private static void loadDefaults() {
-        SettingsFactory.fileName = System.getProperty("user.home");
-        SettingsFactory.port = "";
-        SettingsFactory.portRate = "9600";
-        SettingsFactory.manualModeEnabled = false;
-        SettingsFactory.manualModeStepSize = 1;
-        SettingsFactory.scrollWindowEnabled = true;
-        SettingsFactory.verboseOutputEnabled = false;
-        SettingsFactory.overrideSpeedSelected = false;
-        SettingsFactory.overrideSpeedValue = 60;
-    }
-    
-    private static void loadDefaults2() {
-        SettingsFactory.firmwareVersion = "GRBL";
-        SettingsFactory.singleStepMode = false;
-        SettingsFactory.maxCommandLength = 50;
-        SettingsFactory.truncateDecimalLength = 4;
-        SettingsFactory.removeAllWhitespace = true;
-        SettingsFactory.statusUpdatesEnabled = true;
-        SettingsFactory.statusUpdateRate = 200;
-        SettingsFactory.displayStateColor = true;
-        SettingsFactory.convertArcsToLines = false;
-        SettingsFactory.smallArcThreshold = 2.0;
-        SettingsFactory.smallArcSegmentLength = 1.3;
-    }
-
-    public static void setLastPath(String fileName) {
-        SettingsFactory.fileName = fileName;
-    }
-    
-    public static String getLastPath() {
-        return fileName;
-    }
-
-    static void setPort(String port) {
-        SettingsFactory.port = port;
-    }
-
-    public static String getPort() {
-        return port;
-    }
-    
-    public static void setPortRate(String rate) {
-        SettingsFactory.portRate = rate;
-    }
-
-    public static String getPortRate() {
-        return portRate;
-    }
-
-    public static void setManualControllesEnabled(boolean enabled) {
-        SettingsFactory.manualModeEnabled = enabled;
-    }
-    
-    public static boolean getManualControllesEnabled() {
-        return manualModeEnabled;
-    }
-
-    public static void setStepSize(double stepSize) {
-        SettingsFactory.manualModeStepSize = stepSize;
-    }
-    
-    public static double getStepSize() {
-        return manualModeStepSize;
-    }
-
-    public static void setScrollWindow(boolean selected) {
-        SettingsFactory.scrollWindowEnabled = selected;
-    }
-     
-    public static boolean isScrollWindow() {
-        return scrollWindowEnabled;
-    }
-    
-    public static void setVerboseOutput(boolean selected) {
-        SettingsFactory.verboseOutputEnabled = selected;
-    }
-
-    public static boolean isVerboseOutput() {
-        return verboseOutputEnabled;
-    }
-   
-    public static void setOverrideSpeedSelected(boolean selected) {
-        SettingsFactory.overrideSpeedSelected = selected;
-    }
-
-    public static boolean isOverrideSpeedSelected() {
-        return overrideSpeedSelected;
-    }
-    
-    public static void setOverrideSpeedValue(double value) {
-        SettingsFactory.overrideSpeedValue = value;
-    }
-    
-    public static double getOverrideSpeedValue() {
-        return overrideSpeedValue;
-    }
-
-    public static void setFirmware(String value) {
-        firmwareVersion = value;
-    }
-    
-    public static String getFirmware() {
-        return firmwareVersion;
-    }
-    
-    public static void setSingleStepMode(boolean enabled) {
-        singleStepMode = enabled;
-    }
-    
-    public static boolean getSingleStepMode() {
-        return singleStepMode;
-    }
-    
-    public static void setMaxCommandLength(int length) {
-        maxCommandLength = length;
-    }
-    
-    public static int getMaxCommandLength() {
-        return maxCommandLength;
-    }
-    
-    public static void setTruncateDecimalLength(int length) {
-        truncateDecimalLength = length;
-    }
-    
-    public static int getTruncateDecimalLength() {
-        return truncateDecimalLength;
-    }
-    
-    public static void setRemoveAllWhitespace(boolean enabled) {
-        removeAllWhitespace = enabled;
-    }
-    
-    public static boolean getRemoveAllWhitespace() {
-        return removeAllWhitespace;
-    }
-    
-    public static void setStatusUpdatesEnabled(boolean enabled) {
-        statusUpdatesEnabled = enabled;         
-    }
-    
-    public static boolean getStatusUpdatesEnabled() {
-        return statusUpdatesEnabled;
-    }
-    
-    public static void setStatusUpdateRate(int rate) {
-        statusUpdateRate = rate;
-    }
-    
-    public static int getStatusUpdateRate() {
-        return statusUpdateRate;
-    }
-    
-    public static void setDisplayStateColor(boolean enabled) {
-        displayStateColor = enabled;
-    }
-    
-    public static boolean getDisplayStateColor() {
-        return displayStateColor;
-    }
-    
-    public static void setConvertArcsToLines(boolean enabled) {
-        convertArcsToLines = enabled;
-    }
-    
-    public static boolean getConvertArcsToLines() {
-        return convertArcsToLines;
-    }
-    
-    public static void setSmallArcThreshold(double threshold) {
-        smallArcThreshold = threshold;
-    }
-    
-    public static double getSmallArcThreshold() {
-        return smallArcThreshold;
-    }
-    
-    public static void setSmallArcSegmentLength(double length) {
-        smallArcSegmentLength = length;
-    }
-
-    public static double getSmallArcSegmentLength() {
-        return smallArcSegmentLength;
     }
 }

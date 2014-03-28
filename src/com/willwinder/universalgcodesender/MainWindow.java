@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2014 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
@@ -65,9 +67,19 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class MainWindow extends javax.swing.JFrame 
-implements KeyListener, ControllerListener {
+implements KeyListener, ControllerListener, MainWindowAPI {
     private static String VERSION = "1.0.7 (Pre-release Nov 8, 2013)";
-
+    private List<ControlStateListener> controlStateListenerList = new ArrayList<>();
+    private PendantUI pendantUI;
+    private Settings settings;
+    
+    @Override
+	public void registerControlStateListener(ControlStateListener controlStateListener){
+    	if(!controlStateListenerList.contains(controlStateListener)){
+    		controlStateListenerList.add(controlStateListener);
+    	}
+    }
+    
     /** Creates new form MainWindow */
     public MainWindow() {
         initComponents();
@@ -752,7 +764,7 @@ implements KeyListener, ControllerListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(38, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -804,52 +816,54 @@ implements KeyListener, ControllerListener {
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(statusPanelLayout.createSequentialGroup()
-                .add(14, 14, 14)
+                .addContainerGap()
                 .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(statusPanelLayout.createSequentialGroup()
-                        .add(activeStateLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(activeStateValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .add(statusPanelLayout.createSequentialGroup()
                         .add(latestCommentLabel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(latestCommentValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .add(statusPanelLayout.createSequentialGroup()
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(workPositionLabel)
                             .add(statusPanelLayout.createSequentialGroup()
-                                .add(17, 17, 17)
-                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(workPositionZLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(workPositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(workPositionYLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(workPositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(workPositionXLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(workPositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(machinePosition)
+                                .add(activeStateLabel)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(activeStateValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(statusPanelLayout.createSequentialGroup()
-                                .add(17, 17, 17)
-                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(workPositionLabel)
                                     .add(statusPanelLayout.createSequentialGroup()
-                                        .add(machinePositionZLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(machinePositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .add(17, 17, 17)
+                                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(workPositionZLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(workPositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(workPositionYLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(workPositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(workPositionXLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(workPositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(machinePosition)
                                     .add(statusPanelLayout.createSequentialGroup()
-                                        .add(machinePositionYLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(machinePositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(machinePositionXLabel)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(machinePositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                                        .add(17, 17, 17)
+                                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(machinePositionZLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(machinePositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(machinePositionYLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(machinePositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(statusPanelLayout.createSequentialGroup()
+                                                .add(machinePositionXLabel)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(machinePositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))))
                         .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -893,7 +907,7 @@ implements KeyListener, ControllerListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
@@ -986,6 +1000,12 @@ implements KeyListener, ControllerListener {
         this.manualCommandHistory.add(str);
         this.commandNum = -1;
     }//GEN-LAST:event_commandTextFieldActionPerformed
+    
+    @Override
+	public void sendGcodeCommand(String commandText){
+        this.commandTextField.setText(commandText);
+        commandTextFieldActionPerformed(new ActionEvent(commandTextField, 1, "sendCommand"));
+    }
 
     // TODO: Find out how to make these key* functions actions like the above.
     // TODO: Create custom text area that will do all this stuff without
@@ -1036,7 +1056,7 @@ implements KeyListener, ControllerListener {
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
             this.controller = FirmwareUtils.getControllerFor(firmware);
 
-            MainWindow.applySettingsToController(this.controller);
+            applySettingsToController(this.controller);
             
             // Register comm listeners
             this.controller.addListener(this);
@@ -1185,36 +1205,36 @@ implements KeyListener, ControllerListener {
         ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
         
         // Set initial values.
-        gcsd.setSpeedOverrideEnabled(SettingsFactory.isOverrideSpeedSelected());
-        gcsd.setSpeedOverridePercent((int) SettingsFactory.getOverrideSpeedValue());
-        gcsd.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
-        gcsd.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
-        gcsd.setSingleStepModeEnabled(SettingsFactory.getSingleStepMode());
-        gcsd.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
-        gcsd.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
-        gcsd.setStatusUpdatesRate(SettingsFactory.getStatusUpdateRate());
-        gcsd.setStateColorDisplayEnabled(SettingsFactory.getDisplayStateColor());
-        gcsd.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
-        gcsd.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
-        gcsd.setSmallArcSegmentLengthSpinner(SettingsFactory.getSmallArcSegmentLength());
+        gcsd.setSpeedOverrideEnabled(settings.isOverrideSpeedSelected());
+        gcsd.setSpeedOverridePercent((int) settings.getOverrideSpeedValue());
+        gcsd.setMaxCommandLength(settings.getMaxCommandLength());
+        gcsd.setTruncateDecimalLength(settings.getTruncateDecimalLength());
+        gcsd.setSingleStepModeEnabled(settings.isSingleStepMode());
+        gcsd.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+        gcsd.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
+        gcsd.setStatusUpdatesRate(settings.getStatusUpdateRate());
+        gcsd.setStateColorDisplayEnabled(settings.isDisplayStateColor());
+        gcsd.setConvertArcsToLines(settings.isConvertArcsToLines());
+        gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
+        gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
-            SettingsFactory.setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
-            SettingsFactory.setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
-            SettingsFactory.setMaxCommandLength(gcsd.getMaxCommandLength());
-            SettingsFactory.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
-            SettingsFactory.setSingleStepMode(gcsd.getSingleStepModeEnabled());
-            SettingsFactory.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
-            SettingsFactory.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
-            SettingsFactory.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
-            SettingsFactory.setDisplayStateColor(gcsd.getDisplayStateColor());
-            SettingsFactory.setConvertArcsToLines(gcsd.getConvertArcsToLines());
-            SettingsFactory.setSmallArcThreshold(gcsd.getSmallArcThreshold());
-            SettingsFactory.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
+            settings.setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
+            settings.setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
+            settings.setMaxCommandLength(gcsd.getMaxCommandLength());
+            settings.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
+            settings.setSingleStepMode(gcsd.getSingleStepModeEnabled());
+            settings.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
+            settings.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
+            settings.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
+            settings.setDisplayStateColor(gcsd.getDisplayStateColor());
+            settings.setConvertArcsToLines(gcsd.getConvertArcsToLines());
+            settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
+            settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
             
             if (this.controller != null) {
-                MainWindow.applySettingsToController(this.controller);
+                applySettingsToController(this.controller);
             }
 
             if (this.vw != null) {
@@ -1252,8 +1272,8 @@ implements KeyListener, ControllerListener {
         // Create new object if it is null.
         if (this.vw == null) {
             this.vw = new VisualizerWindow();
-            vw.setMinArcLength(SettingsFactory.getSmallArcThreshold());
-            vw.setArcLength(SettingsFactory.getSmallArcSegmentLength());
+            vw.setMinArcLength(settings.getSmallArcThreshold());
+            vw.setArcLength(settings.getSmallArcSegmentLength());
             if (this.fileTextField.getText().length() > 1) {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
@@ -1386,7 +1406,7 @@ implements KeyListener, ControllerListener {
             try {
                 File newFile = fileChooser.getSelectedFile();
                 AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
-                MainWindow.applySettingsToController(control);
+                applySettingsToController(control);
                 control.appendGcodeCommands(this.processedCommandLines, this.gcodeFile);
                 control.saveToFile(newFile);
             } catch (FileNotFoundException ex) {
@@ -1431,21 +1451,22 @@ implements KeyListener, ControllerListener {
         }
         //</editor-fold>
         
-        /* Load the stored settings or generate defaults */
-        SettingsFactory.loadSettings();
-
-        /* Create the form */
+         /* Create the form */
         final MainWindow mw = new MainWindow();
-        
+
+        /* Load the stored settings or generate defaults */
+        mw.settings = SettingsFactory.loadSettings();
+
+
         /* Apply the settings to the MainWindow bofore showing it */
-        mw.arrowMovementEnabled.setSelected(SettingsFactory.getManualControllesEnabled());
-        mw.stepSizeSpinner.setValue(SettingsFactory.getStepSize());
-        mw.fileChooser = new JFileChooser(SettingsFactory.getLastPath());
-        mw.commPortComboBox.setSelectedItem(SettingsFactory.getPort());
-        mw.baudrateSelectionComboBox.setSelectedItem(SettingsFactory.getPortRate());
-        mw.scrollWindowCheckBox.setSelected(SettingsFactory.isScrollWindow());
-        mw.showVerboseOutputCheckBox.setSelected(SettingsFactory.isVerboseOutput());
-        mw.firmwareComboBox.setSelectedItem(SettingsFactory.getFirmware());
+        mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
+        mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
+        mw.fileChooser = new JFileChooser(mw.settings.getFileName());
+        mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
+        mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
+        mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
+        mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
+        mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
         
         /* Display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1457,22 +1478,28 @@ implements KeyListener, ControllerListener {
         });
         
         mw.initFileChooser();
+        mw.pendantUI = new PendantUI(mw);
+        mw.pendantUI.start();
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 if (mw.fileChooser.getSelectedFile() != null ) {
-                    SettingsFactory.setLastPath(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                    mw.settings.setFileName(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                SettingsFactory.setStepSize(mw.getStepSize());
-                SettingsFactory.setManualControllesEnabled(mw.arrowMovementEnabled.isSelected());
-                SettingsFactory.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                SettingsFactory.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
-                SettingsFactory.setScrollWindow(mw.scrollWindowCheckBox.isSelected());
-                SettingsFactory.setVerboseOutput(mw.showVerboseOutputCheckBox.isSelected());
-                SettingsFactory.setFirmware(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings();
+                mw.settings.setManualModeStepSize(mw.getStepSize());
+                mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
+                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
+                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
+                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
+                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
+                SettingsFactory.saveSettings(mw.settings);
+                
+                if(mw.pendantUI!=null){
+                	mw.pendantUI.stop();
+                }
             }
         });
     }
@@ -1485,7 +1512,7 @@ implements KeyListener, ControllerListener {
         GcodeFileTypeFilter filter = new GcodeFileTypeFilter();
         
         // Setup file browser with the last path used.
-        this.fileChooser = new JFileChooser(SettingsFactory.getLastPath()); 
+        this.fileChooser = new JFileChooser(settings.getFileName()); 
         this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         this.fileChooser.setFileHidingEnabled(true);
         this.fileChooser.addChoosableFileFilter(filter);
@@ -1557,7 +1584,7 @@ implements KeyListener, ControllerListener {
      * 
      * Direction is specified by the direction param being positive or negative.
      */
-    private void adjustManualLocation(int dirX, int dirY, int dirZ) {
+    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize) {
         
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
@@ -1565,7 +1592,7 @@ implements KeyListener, ControllerListener {
         }
 
         // Format step size from spinner.
-        String stepSize = formatter.format(this.getStepSize());
+        String formattedStepSize = formatter.format(stepSize);
 
         // Build G91 command.
         StringBuilder command = new StringBuilder("G91 G0 ");
@@ -1575,19 +1602,19 @@ implements KeyListener, ControllerListener {
             if (dirX < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         } if (dirY != 0) {
             command.append(" Y");
             if (dirY < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         } if (dirZ != 0) {
             command.append(" Z");
             if (dirZ < 0) {
                 command.append('-');
             }
-            command.append(stepSize);
+            command.append(formattedStepSize);
         }
 
         try {
@@ -1598,8 +1625,18 @@ implements KeyListener, ControllerListener {
         }
     }
     
+    /**
+     * Sends a G91 command in some combination of x, y, and z directions with a
+     * step size of stepDirection.
+     * 
+     * Direction is specified by the direction param being positive or negative.
+     */
+    public void adjustManualLocation(int dirX, int dirY, int dirZ) {
+    	adjustManualLocation(dirX, dirY, dirZ, this.getStepSize());
+    }
+    
     private void setStatusColorForState(String state) {
-        if (SettingsFactory.getDisplayStateColor()) {
+        if (settings.isDisplayStateColor()) {
             java.awt.Color color = null; // default to a transparent background.
             if (state.equals(Localization.getString("mainWindow.status.alarm"))) {
                 color = Color.RED;
@@ -1663,6 +1700,10 @@ implements KeyListener, ControllerListener {
                 break;
             default:
                 
+        }
+        
+        for(ControlStateListener controlStateListener: controlStateListenerList){
+        	controlStateListener.updateControlsForState(state);
         }
     }
     
@@ -1871,25 +1912,25 @@ implements KeyListener, ControllerListener {
         }
     }
 
-    private static void applySettingsToController(AbstractController controller) {
-        // Apply SettingsFactory settings to controller.
-        if (SettingsFactory.isOverrideSpeedSelected()) {
-            double value = SettingsFactory.getOverrideSpeedValue();
+    private void applySettingsToController(AbstractController controller) {
+        // Apply settings settings to controller.
+        if (settings.isOverrideSpeedSelected()) {
+            double value = settings.getOverrideSpeedValue();
             controller.setSpeedOverride(value);
         } else {
             controller.setSpeedOverride(-1);
         }
 
         try {
-            controller.setMaxCommandLength(SettingsFactory.getMaxCommandLength());
-            controller.setTruncateDecimalLength(SettingsFactory.getTruncateDecimalLength());
-            controller.setSingleStepMode(SettingsFactory.getSingleStepMode());
-            controller.setStatusUpdatesEnabled(SettingsFactory.getStatusUpdatesEnabled());
-            controller.setStatusUpdateRate(SettingsFactory.getStatusUpdateRate());
-            controller.setRemoveAllWhitespace(SettingsFactory.getRemoveAllWhitespace());
-            controller.setConvertArcsToLines(SettingsFactory.getConvertArcsToLines());
-            controller.setSmallArcThreshold(SettingsFactory.getSmallArcThreshold());
-            controller.setSmallArcSegmentLength(SettingsFactory.getSmallArcSegmentLength());
+            controller.setMaxCommandLength(settings.getMaxCommandLength());
+            controller.setTruncateDecimalLength(settings.getTruncateDecimalLength());
+            controller.setSingleStepMode(settings.isSingleStepMode());
+            controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
+            controller.setStatusUpdateRate(settings.getStatusUpdateRate());
+            controller.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+            controller.setConvertArcsToLines(settings.isConvertArcsToLines());
+            controller.setSmallArcThreshold(settings.getSmallArcThreshold());
+            controller.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
         } catch (Exception ex) {
 
             StringBuilder message = new StringBuilder()
@@ -2124,7 +2165,7 @@ implements KeyListener, ControllerListener {
     // Duration timer
     private Timer timer;
     
-    private enum ControlState {
+    public enum ControlState {
         COMM_DISCONNECTED,
         COMM_IDLE,
         COMM_SENDING,
@@ -2226,4 +2267,12 @@ implements KeyListener, ControllerListener {
     private javax.swing.JButton zMinusButton;
     private javax.swing.JButton zPlusButton;
     // End of variables declaration//GEN-END:variables
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public AbstractController getController() {
+		return controller;
+	}
 }
