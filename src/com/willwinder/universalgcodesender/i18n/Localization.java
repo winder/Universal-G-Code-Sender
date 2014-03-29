@@ -24,7 +24,10 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
 /**
@@ -34,12 +37,18 @@ import java.util.ResourceBundle;
 public class Localization {
     private static ResourceBundle bundle = null;
     
-    public static void initialize(String language, String region) {
-        Locale locale = new Locale(language, region);
-        bundle = ResourceBundle.getBundle("com.willwinder.universalgcodesender.i18n.MessagesBundle", locale);
+    public static void initialize(String language, String region) throws IOException {
+        try {
+            Locale locale = new Locale(language, region);
+            bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
+	} catch (Exception e) {
+            InputStream is = Localization.class.getClassLoader()
+                    .getResourceAsStream("resources/MessagesBundle_en_US.properties");
+            bundle = new PropertyResourceBundle(is);
+	}
     }
     
-    public static String getString(String id) {
+    public static String getString(String id) throws IOException {
         if (bundle == null) {
             Localization.initialize("en", "US");
         }
