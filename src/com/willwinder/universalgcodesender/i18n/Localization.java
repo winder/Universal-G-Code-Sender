@@ -42,6 +42,7 @@ public class Localization {
     public static String getString(String id) {
         if (bundle == null) {
             Localization.initialize("en", "US");
+            Localization.initialize("de", "DE");
         }
         
         return bundle.getString(id);
