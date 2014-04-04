@@ -1090,6 +1090,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 vw.setMinArcLength(this.controller.getSmallArcThreshold());
                 vw.setArcLength(this.controller.getSmallArcSegmentLength());
             }
+            if (pendantUI != null) {
+                this.controller.addListener(pendantUI);
+            }
             
             Boolean ret = openCommConnection();
 
@@ -1467,6 +1470,10 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 	    this.pendantUI.start();
 	    this.startPendantServerButton.setEnabled(false);
 	    this.stopPendantServerButton.setEnabled(true);
+            
+            if (this.controller != null) {
+                this.controller.addListener(pendantUI);
+            }
         }//GEN-LAST:event_startPendantServerButtonActionPerformed
 
         private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
