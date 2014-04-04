@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.vecmath.Point3d;
 
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
@@ -28,26 +29,25 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
-import com.willwinder.universalgcodesender.MainWindow.ControlState;
 import com.willwinder.universalgcodesender.MainWindowAPI;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
  * @author bobj
  *
  */
-public class PendantUI implements ControlStateListener{
+public class PendantUI implements ControllerListener{
     private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
 	private MainWindowAPI mainWindow;
 	private Server server = null;
 	private int port = 8080;
-	private ControlState controlState = ControlState.COMM_DISCONNECTED;
+	private SystemStateBean systemState = new SystemStateBean();
 	
 	public PendantUI(MainWindowAPI mainWindow) {
 		this.mainWindow = mainWindow;
-		mainWindow.registerControlStateListener(this);
 	}
 
 	public Resource getBaseResource(){
@@ -84,11 +84,11 @@ public class PendantUI implements ControlStateListener{
         adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
 
-		ContextHandler getControlStateContext = new ContextHandler();
-        getControlStateContext.setContextPath("/getControlState");
-        getControlStateContext.setBaseResource(getBaseResource());
-        getControlStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        getControlStateContext.setHandler(new GetControlStateHandler());
+		ContextHandler getSystemStateContext = new ContextHandler();
+        getSystemStateContext.setContextPath("/getSystemState");
+        getSystemStateContext.setBaseResource(getBaseResource());
+        getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+        getSystemStateContext.setHandler(new GetSystemStateHandler());
 
         ContextHandler configContext = new ContextHandler();
         configContext.setContextPath("/config");
@@ -98,7 +98,7 @@ public class PendantUI implements ControlStateListener{
         configContext.setInitParameter("cacheControl", "max-age=0, public");
         
         HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getControlStateContext, resourceHandler, new DefaultHandler()});
+		handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
 		
         server.setHandler(handlers);
 
@@ -165,6 +165,15 @@ public class PendantUI implements ControlStateListener{
 					case "$C":
 						mainWindow.getController().toggleCheckMode();
 						break;
+					case "SEND_FILE":
+						mainWindow.sendButtonActionPerformed();
+						break;
+					case "PAUSE_RESUME_FILE":
+						mainWindow.pauseButtonActionPerformed();
+						break;
+					case "CANCEL_FILE":
+						mainWindow.cancelButtonActionPerformed();
+						break;
 					default:
 						mainWindow.sendGcodeCommand(gCode);
 						break;
@@ -175,16 +184,21 @@ public class PendantUI implements ControlStateListener{
 				}
 			}
 
-			response.getWriter().print(controlState.name());
+			response.getWriter().print(getSystemStateJson());
 		}
 	}
 	
-	public class GetControlStateHandler extends AbstractHandler{
+	public class GetSystemStateHandler extends AbstractHandler{
 		@Override
 		public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
 			baseRequest.setHandled(true);
-			response.getWriter().print(controlState.name());
+			mainWindow.updateSystemState(systemState);
+			response.getWriter().print(getSystemStateJson());
 		}
+	}
+	
+	public String getSystemStateJson(){
+		return new Gson().toJson(systemState);
 	}
 	
 	
@@ -211,7 +225,7 @@ public class PendantUI implements ControlStateListener{
 				mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize);
 			}
 
-			response.getWriter().print(controlState.name());
+			response.getWriter().print(systemState.getControlState().name());
 		}
 	}
 	
@@ -236,27 +250,7 @@ public class PendantUI implements ControlStateListener{
 		return out;
 	}
 	
-	@Override
-	public void updateControlsForState(ControlState state) {
-		controlState = state;
-		
-//	        switch (state) {
-//	        case FILE_SELECTED:
-//	            break;
-//	        case COMM_DISCONNECTED:
-//	        	manualControlEnabled = false;
-//	            break;
-//	        case COMM_IDLE:
-//	        	manualControlEnabled = true;
-//	            break;
-//	        case COMM_SENDING:
-//	        	manualControlEnabled = false;
-//	            break;
-//	        case COMM_SENDING_PAUSED:
-//	            break;
-//	        default:
-//	    }
-	}
+	
 
 	public void stop(){
 		try {
@@ -277,7 +271,7 @@ public class PendantUI implements ControlStateListener{
 	}
 
 	public boolean isManualControlEnabled() {
-        switch (controlState) {
+        switch (systemState.getControlState()) {
         case COMM_DISCONNECTED:
         	return false;
         case COMM_IDLE:
@@ -287,10 +281,6 @@ public class PendantUI implements ControlStateListener{
         default:
         	return true;
         }
-	}
-
-	public ControlState getControlState() {
-		return controlState;
 	}
 
 	public MainWindowAPI getMainWindow() {
@@ -307,5 +297,47 @@ public class PendantUI implements ControlStateListener{
 
 	public void setMainWindow(MainWindowAPI mainWindow) {
 		this.mainWindow = mainWindow;
+	}
+
+	@Override
+	public void fileStreamComplete(String filename, boolean success) {
+	}
+
+	@Override
+	public void commandQueued(GcodeCommand command) {
+	}
+
+	@Override
+	public void commandSent(GcodeCommand command) {
+	}
+
+	@Override
+	public void commandComplete(GcodeCommand command) {
+	}
+
+	@Override
+	public void commandComment(String comment) {
+	}
+
+	@Override
+	public void messageForConsole(String msg, Boolean verbose) {
+	}
+
+	@Override
+	public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void postProcessData(int numRows) {
+	}
+
+	public SystemStateBean getSystemState() {
+		return systemState;
+	}
+
+	public void setSystemState(SystemStateBean systemState) {
+		this.systemState = systemState;
 	}
 }

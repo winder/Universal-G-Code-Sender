@@ -3,7 +3,7 @@
 <head>
 	<meta name="viewport" content="width=min-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
 	<meta charset="utf-8">
-	<title>Universal Gcode Sender Pendant</title>
+	<title>Universal GcodeSender Pendant</title>
 	<link href="css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
 	<script src="js/jquery-1.10.2.js"></script>
 	<script src="js/jquery-ui-1.10.4.custom.min.js"></script>
@@ -41,7 +41,7 @@
 		});
 		config.shortCutButtonList.forEach( function (arrayItem){
 			$('#Shortcuts').append($('<button>', { 
-				class: "button shortcutButton",
+				class: "button manualControlButton shortcutButton",
 				disabled: true,
 		        text : arrayItem.label
 		    }).click(function(){
@@ -55,17 +55,59 @@
 	
 	function poll() {
         $.ajax({
-            url: "/getControlState",
+            url: "/getSystemState",
             type: "GET",
             success: function(data) {
-            	updateControlState(data);
+            	updateSystemState(data);
             },
-            dataType: "text"
+            dataType: "json"
     	});
 	}
 	
 	setInterval(poll, 500);
 	
+	function updateSystemState(systemState){
+		$("#activeState").text(systemState.activeState);
+		$("#workX").text(systemState.workX);
+		$("#workY").text(systemState.workY);
+		$("#workZ").text(systemState.workZ);
+		
+		$("#machineX").text(systemState.machineX);
+		$("#machineY").text(systemState.machineY);
+		$("#machineZ").text(systemState.machineZ);
+		
+		$("#rowsInFile").text(systemState.rowsInFile);
+		$("#sentRows").text(systemState.sentRows);
+		$("#remainingRows").text(systemState.remainingRows);
+		$("#estimatedTimeRemaining").text(systemState.estimatedTimeRemaining);
+		$("#duration").text(systemState.duration);
+		
+		$("#sendFileButton").text(systemState.sendButtonText);
+		if(systemState.sendButtonEnabled){
+			$("#sendFileButton").button({ disabled: false });
+		} else {
+			$("#sendFileButton").button({ disabled: true });
+		}
+		$("#pauseResumeButton").text(systemState.pauseResumeButtonText);
+		if(systemState.pauseResumeButtonEnabled){
+			$("#pauseResumeButton").button({ disabled: false });
+		} else {
+			$("#pauseResumeButton").button({ disabled: true });
+		}
+		$("#cancelButton").text(systemState.cancelButtonText);
+		if(systemState.cancelButtonEnabled){
+			$("#cancelButton").button({ disabled: false });
+		} else {
+			$("#cancelButton").button({ disabled: true });
+		}
+
+    	updateControlState(systemState.controlState);
+	}
+	
+	function pauseResumeSending(){
+		
+	}
+
 	function updateControlState(state){
 		$("#controlState").text(state);
 		
@@ -92,9 +134,9 @@
 		
 		if(value != currentValue){
 			if(value==true){
-				$( ".button" ).button({ disabled: false });
+				$( ".manualControlButton" ).button({ disabled: false });
 			} else {
-				$( ".button" ).button({ disabled: true });
+				$( ".manualControlButton" ).button({ disabled: true });
 			}
 		}
 	}
@@ -105,9 +147,9 @@
 	            url: "/sendGcode?gCode="+encodeURIComponent(arrayItem),
 	            type: "GET",
 	            success: function(data) {
-	            	updateControlState(data);
+	            	updateSystemState(data);
 	            },
-	            dataType: "text"
+	            dataType: "json"
 	    	});
 		});
     	signalButtonPress();
@@ -176,7 +218,10 @@
 		height: 50px;
 		width: 100%;
 	}
-	
+	.button {
+		height: 50px;
+		width: 100%;
+	}
 	#header {
 		width: 240px;
 	}
@@ -211,13 +256,16 @@
 	.fakewindowcontain .ui-widget-overlay {
 		position: absolute;
 	}
+	#machineStatusTable {
+		width: 100%;
+	}
 	</style>
 </head>
 <body>
 <table id="headerTable">
 	<tr>
 		<th>
-			Universal Gcode Sender Pendant
+			Universal GcodeSender Pendant
 		</th>
 	</tr>
 </table>
@@ -229,27 +277,72 @@
 
 <div id="tabs">
 	<ul>
-		<li><a href="#MachineControls">Machine Control</a></li>
+		<li><a href="#MachineControls">Control</a></li>
+		<li><a href="#MachineStatus">Status</a></li>
 		<li><a href="#Shortcuts">Shortcuts</a></li>
 	</ul>
+	<div id="MachineStatus">
+		<div><b>File:</b>&nbsp;&nbsp;<label id="fileName"></label></div>
+		<div><b>Last Comment:</b>&nbsp;&nbsp;<label id="lastComment"></label></div>
+		<div><b>Active State:</b>&nbsp;&nbsp;<label id="activeState"></label></div>
+		<br />
+		<table id="machineStatusTable">
+			<tr>
+				<th>Work Position:</th>
+				<th>Machine Position:</th>
+			</tr>
+			<tr>
+				<td align="center">
+					<table>
+						<tr><th align="right">X:</th><td id="workX" align="left"></td></tr>
+						<tr><th align="right">Y:</th><td id="workY" align="left"></td></tr>
+						<tr><th align="right">Z:</th><td id="workZ" align="left"></td></tr>
+					</table>
+				</td>
+				<td align="center">
+					<table>
+						<tr><th align="right">X:</th><td id="machineX" align="left"></td></tr>
+						<tr><th align="right">Y:</th><td id="machineY" align="left"></td></tr>
+						<tr><th align="right">Z:</th><td id="machineZ" align="left"></td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<table>
+						<tr><th align="right">Time Remaining:</th><td id="estimatedTimeRemaining" align="left"></td></tr>
+						<tr><th align="right">Duration:</th><td id="duration" align="left"></td></tr>
+						<tr><th align="right">Rows In File:</th><td id="rowsInFile" align="left"></td></tr>
+						<tr><th align="right">Sent Rows:</th><td id="sentRows" align="left"></td></tr>
+						<tr><th align="right">RemainingRows:</th><td id="remainingRows" align="left"></td></tr>
+					</table>
+				</td>
+			</tr>
+		</table>		
+		<hr />
+		<br />
+		<button class="button" id="sendFileButton" onclick="sendGcode('SEND_FILE');">Send</button>
+		<button class="button" id="pauseResumeButton" onclick="sendGcode('PAUSE_RESUME_FILE');">Pause</button>
+		<button class="button" id="cancelButton" onclick="sendGcode('CANCEL_FILE');">Cancel</button>
+	</div>
 	<div id="MachineControls">
 		<table>
 			<tr>
 				<td></td>
-				<td><button class="button jogButton" id="buttonPositiveY" onclick="adjustManualLocation(0, 1, 0);">+Y</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveY" onclick="adjustManualLocation(0, 1, 0);">+Y</button></td>
 				<td></td>
-				<td><button class="button jogButton" id="buttonPositiveZ" onclick="adjustManualLocation(0, 0, 1);">+Z</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveZ" onclick="adjustManualLocation(0, 0, 1);">+Z</button></td>
 			</tr>
 			<tr>
-				<td><button class="button jogButton" id="buttonPositiveX" onclick="adjustManualLocation(1, 0, 0);">+X</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveX" onclick="adjustManualLocation(1, 0, 0);">+X</button></td>
 				<td></td>
-				<td><button class="button jogButton" id="buttonNegativeX" onclick="adjustManualLocation(-1, 0, 0);">-X</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeX" onclick="adjustManualLocation(-1, 0, 0);">-X</button></td>
 			</tr>
 			<tr>
 				<td></td>
-				<td><button class="button jogButton" id="buttonNegativeY" onclick="adjustManualLocation(0, -1, 0);">-Y</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeY" onclick="adjustManualLocation(0, -1, 0);">-Y</button></td>
 				<td></td>
-				<td><button class="button jogButton" id="buttonNegativeZ" onclick="adjustManualLocation(0, 0, -1);">-Z</button></td>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeZ" onclick="adjustManualLocation(0, 0, -1);">-Z</button></td>
 			</tr>
 			<tr>
 				<th colspan="2" align="right">Step Size</th>
@@ -261,9 +354,9 @@
 		<div id="StandardShortcuts">
 			<hr/>
 			<br>
-			<button class="button shortcutButton" onclick="sendGcode('$H');">Begin Homing Cycle</button>
-			<button class="button shortcutButton" onclick="sendGcode('$X');">Disable Alarm Lock</button>
-			<button class="button shortcutButton" onclick="sendGcode('$C');">Toggle Check Mode</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$H');">Begin Homing Cycle</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$X');">Disable Alarm Lock</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$C');">Toggle Check Mode</button>
 		</div>
 	</div>
 	<div id="Shortcuts">

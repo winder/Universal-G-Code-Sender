@@ -1,16 +1,22 @@
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 
 public interface MainWindowAPI {
 
-	public abstract void registerControlStateListener(ControlStateListener controlStateListener);
+	public void updateSystemState(SystemStateBean systemStateBean);
 
-	public abstract void sendGcodeCommand(String commandText);
+	public void sendGcodeCommand(String commandText);
 
-	public abstract void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize);
+	public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize);
 	
 	public Settings getSettings();
 	
 	public AbstractController getController();
+	
+	public void sendButtonActionPerformed();
+	
+	public void pauseButtonActionPerformed();
+	
+	public void cancelButtonActionPerformed();
 }
