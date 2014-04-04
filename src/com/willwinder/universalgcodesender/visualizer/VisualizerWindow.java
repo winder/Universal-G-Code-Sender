@@ -29,6 +29,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.WindowSettings;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -61,11 +62,14 @@ implements ControllerListener, WindowListener {
     /**
      * Creates new form Visualizer
      */
-    public VisualizerWindow() {
+    public VisualizerWindow(WindowSettings ws) {
 
+        this.setPreferredSize(new Dimension(ws.width, ws.height));
+        this.setLocation(ws.xLocation, ws.yLocation);
         // Create the OpenGL rendering canvas
         this.canvas = new VisualizerCanvas();
-        canvas.setPreferredSize(new Dimension(CANVAS_WIDTH, CANVAS_HEIGHT));
+        canvas.setPreferredSize(new Dimension(ws.width, ws.height));
+        canvas.setLocation(ws.xLocation, ws.yLocation);
 
         // Create a animator that drives canvas' display() at the specified FPS.
         this.animator = new FPSAnimator(canvas, FPS, true);
