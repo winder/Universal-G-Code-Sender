@@ -12,29 +12,24 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.MainWindow.ControlState;
 import com.willwinder.universalgcodesender.MainWindowAPI;
 import com.willwinder.universalgcodesender.Settings;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 
 public class PendantUITest {
 	private MockMainWindow mainWindow = new MockMainWindow();
 	private PendantUI pendantUI = new PendantUI(mainWindow);
 	private MockUGSController controller = new MockUGSController();
-	
+	private SystemStateBean systemState = new SystemStateBean();
 	
 	public class MockMainWindow implements MainWindowAPI{
 		
-		public ControlStateListener controlStateListener;
-		@Override
-		public void registerControlStateListener(ControlStateListener controlStateListener) {
-			this.controlStateListener = controlStateListener;
-		}
-
 		public String commandText;
 		@Override
 		public void sendGcodeCommand(String commandText) {
@@ -64,6 +59,35 @@ public class PendantUITest {
 		@Override
 		public AbstractController getController() {
 			return controller;
+		}
+
+		@Override
+		public void updateSystemState(SystemStateBean systemStateBean) {
+
+		}
+
+		public boolean sendButtonActionPerformed = false;
+		
+		@Override
+		public void sendButtonActionPerformed() {
+			sendButtonActionPerformed = true;
+			System.out.println("sendButtonActionPerformed");
+		}
+
+		public boolean pauseButtonActionPerformed = false;
+		
+		@Override
+		public void pauseButtonActionPerformed() {
+			pauseButtonActionPerformed = true;
+			System.out.println("pauseButtonActionPerformed");
+		}
+
+		public boolean cancelButtonActionPerformed = false;
+		
+		@Override
+		public void cancelButtonActionPerformed() {
+			cancelButtonActionPerformed = true;
+			System.out.println("cancelButtonActionPerformed");
 		}
 	}
 	
@@ -133,6 +157,11 @@ public class PendantUITest {
 		}
 
 	}
+	
+	@Before
+	public void setup(){
+		pendantUI.setSystemState(systemState);
+	}
 	@Test
 	public void testPendantUI() {
 		assertSame(mainWindow, pendantUI.getMainWindow());
@@ -142,15 +171,14 @@ public class PendantUITest {
 	public void testStart() {
 		String url = pendantUI.start().get(0).getUrlString();
 		
-		pendantUI.updateControlsForState(ControlState.COMM_IDLE);
+		systemState.setControlState(ControlState.COMM_IDLE);
 		
 		// test resource handler
 		String indexPage = getResponse(url);
 		assertTrue(indexPage.contains("$(function()"));
 		
 		// test sendGcode Handler
-		String sendGcodeResponse = getResponse(url+"/sendGcode?gCode=MyGcode");
-		assertEquals(ControlState.COMM_IDLE.name(), sendGcodeResponse);
+		getResponse(url+"/sendGcode?gCode=MyGcode");
 		assertEquals(mainWindow.commandText, "MyGcode");
 		
 		getResponse(url+"/sendGcode?gCode=$H");
@@ -162,6 +190,15 @@ public class PendantUITest {
 		getResponse(url+"/sendGcode?gCode=$C");
 		assertTrue(controller.toggleCheckMode);
 		
+		getResponse(url+"/sendGcode?gCode=SEND_FILE");
+		assertTrue(mainWindow.sendButtonActionPerformed);
+
+		getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
+		assertTrue(mainWindow.pauseButtonActionPerformed);
+
+		getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
+		assertTrue(mainWindow.cancelButtonActionPerformed);
+
 		// test adjust manual location handler
 		String adjustManualLocationResponse = getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
 		assertEquals(ControlState.COMM_IDLE.name(), adjustManualLocationResponse);
@@ -170,16 +207,16 @@ public class PendantUITest {
 		assertEquals(3,mainWindow.dirZ);
 		assertEquals(4.0,mainWindow.stepSize,0);
 		
-		// test get control state handler
-		String getControlStateResponse = getResponse(url+"/getControlState");
-		assertEquals(ControlState.COMM_IDLE.name(), getControlStateResponse);
+		// test get system state handler
+		SystemStateBean systemStateTest = new Gson().fromJson(getResponse(url+"/getSystemState"), SystemStateBean.class);
+		assertEquals(ControlState.COMM_IDLE, systemStateTest.getControlState());
 		
-		pendantUI.updateControlsForState(ControlState.COMM_SENDING);
-		getControlStateResponse = getResponse(url+"/getControlState");
-		assertEquals(ControlState.COMM_SENDING.name(), getControlStateResponse);
+		systemState.setControlState(ControlState.COMM_SENDING);
+		systemStateTest = new Gson().fromJson(getResponse(url+"/getSystemState"), SystemStateBean.class);
+		assertEquals(ControlState.COMM_SENDING, systemStateTest.getControlState());
 		
 		// test config handler
-		String configResponse = getResponse(url+"/UGSPendantConfig.json");
+		String configResponse = getResponse(url+"/config");
 		assertTrue(configResponse.contains("shortCutButtonList"));
 		
 		pendantUI.getMainWindow().getSettings().getPendantConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
@@ -219,38 +256,6 @@ public class PendantUITest {
 	}
 
 	@Test
-	public void testUpdateControlsForState() {
-		assertEquals(ControlState.COMM_DISCONNECTED, pendantUI.getControlState());
-		assertFalse(pendantUI.isManualControlEnabled());
-		
-		pendantUI.updateControlsForState(ControlState.FILE_SELECTED);
-		
-		assertEquals(ControlState.FILE_SELECTED, pendantUI.getControlState());
-		assertTrue(pendantUI.isManualControlEnabled());
-
-		pendantUI.updateControlsForState(ControlState.COMM_DISCONNECTED);
-		
-		assertEquals(ControlState.COMM_DISCONNECTED, pendantUI.getControlState());
-		assertFalse(pendantUI.isManualControlEnabled());
-
-		pendantUI.updateControlsForState(ControlState.COMM_SENDING);
-		
-		assertEquals(ControlState.COMM_SENDING, pendantUI.getControlState());
-		assertFalse(pendantUI.isManualControlEnabled());
-
-		pendantUI.updateControlsForState(ControlState.COMM_SENDING_PAUSED);
-		
-		assertEquals(ControlState.COMM_SENDING_PAUSED, pendantUI.getControlState());
-		assertTrue(pendantUI.isManualControlEnabled());
-
-		pendantUI.updateControlsForState(ControlState.COMM_IDLE);
-		
-		assertEquals(ControlState.COMM_IDLE, pendantUI.getControlState());
-		assertTrue(pendantUI.isManualControlEnabled());
-
-	}
-
-	@Test
 	public void testGetPort() {
 		pendantUI.setPort(999);
 		assertEquals(999, pendantUI.getPort());
@@ -265,20 +270,32 @@ public class PendantUITest {
 	@Test
 	public void testIsManualControlEnabled() {
 		
-		pendantUI.updateControlsForState(ControlState.COMM_DISCONNECTED);
+		systemState.setControlState(ControlState.COMM_DISCONNECTED);
 		assertFalse(pendantUI.isManualControlEnabled());
 
-		pendantUI.updateControlsForState(ControlState.COMM_IDLE);
+		systemState.setControlState(ControlState.COMM_IDLE);
 		assertTrue(pendantUI.isManualControlEnabled());
 		
-		pendantUI.updateControlsForState(ControlState.COMM_SENDING);
+		systemState.setControlState(ControlState.COMM_SENDING);
 		assertFalse(pendantUI.isManualControlEnabled());
 		
-		pendantUI.updateControlsForState(ControlState.COMM_SENDING_PAUSED);
+		systemState.setControlState(ControlState.COMM_SENDING_PAUSED);
 		assertTrue(pendantUI.isManualControlEnabled());
 		
-		pendantUI.updateControlsForState(ControlState.FILE_SELECTED);
+		systemState.setControlState(ControlState.FILE_SELECTED);
 		assertTrue(pendantUI.isManualControlEnabled());
+		
+	}
+	
+	@Test
+	public void testSystemStateSetFileName(){
+		String fileSeparator = System.getProperty("file.separator");
+
+		String testFileName = fileSeparator+"folder1"+fileSeparator+"folder2"+fileSeparator+"fileName.nc";
+		
+		systemState.setFileName(testFileName);
+		
+		assertEquals("fileName.nc", systemState.getFileName());
 		
 	}
 }

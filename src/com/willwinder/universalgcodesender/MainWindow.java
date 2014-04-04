@@ -26,9 +26,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
+import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
@@ -69,16 +69,8 @@ import javax.vecmath.Point3d;
 public class MainWindow extends javax.swing.JFrame 
 implements KeyListener, ControllerListener, MainWindowAPI {
     private static String VERSION = "1.0.8";
-    private List<ControlStateListener> controlStateListenerList = new ArrayList<>();
     private PendantUI pendantUI;
     private Settings settings;
-    
-    @Override
-	public void registerControlStateListener(ControlStateListener controlStateListener){
-    	if(!controlStateListenerList.contains(controlStateListener)){
-    		controlStateListenerList.add(controlStateListener);
-    	}
-    }
     
     /** Creates new form MainWindow */
     public MainWindow() {
@@ -1325,13 +1317,19 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         });
     }//GEN-LAST:event_visualizeButtonActionPerformed
 
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+    @Override
+    public void cancelButtonActionPerformed() {
         this.controller.cancelSend();
 
         this.updateControlsForState(ControlState.COMM_IDLE);
+    }
+    
+    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+        cancelButtonActionPerformed();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
+    @Override
+    public void pauseButtonActionPerformed() {
         // Note: Cannot cancel a send while paused because there are commands
         //       in the GRBL buffer which can't be un-sent.
         try {
@@ -1352,10 +1350,14 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             e.printStackTrace();
             MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.pauseResume"));
         }
+    }
+    
+    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
+    	pauseButtonActionPerformed();
     }//GEN-LAST:event_pauseButtonActionPerformed
 
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-
+    @Override
+    public void sendButtonActionPerformed(){
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -1415,6 +1417,10 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             MainWindow.displayErrorDialog(
                     Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
+    }
+    
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+    	sendButtonActionPerformed();
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
@@ -1700,6 +1706,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }
     }
     
+    private ControlState lastControlState = ControlState.COMM_DISCONNECTED;
+    
     private void updateControlsForState(ControlState state) {
         
         switch (state) {
@@ -1746,9 +1754,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 
         }
         
-        for(ControlStateListener controlStateListener: controlStateListenerList){
-        	controlStateListener.updateControlsForState(state);
-        }
+        lastControlState = state;
     }
     
     /**
@@ -2324,5 +2330,30 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
 	public AbstractController getController() {
 		return controller;
+	}
+
+	@Override
+	public void updateSystemState(SystemStateBean systemStateBean) {
+		systemStateBean.setFileName(fileTextField.getText());
+		systemStateBean.setLatestComment(latestCommentValueLabel.getText());
+		systemStateBean.setActiveState(activeStateValueLabel.getText());
+		systemStateBean.setControlState(lastControlState);
+		systemStateBean.setDuration(durationValueLabel.getText());
+		systemStateBean.setEstimatedTimeRemaining(remainingTimeValueLabel.getText());
+		systemStateBean.setMachineX(machinePositionXValueLabel.getText());
+		systemStateBean.setMachineY(machinePositionYValueLabel.getText());
+		systemStateBean.setMachineZ(machinePositionZValueLabel.getText());
+		systemStateBean.setRemainingRows(remainingRowsValueLabel.getText());
+		systemStateBean.setRowsInFile(rowsValueLabel.getText());
+		systemStateBean.setSentRows(sentRowsValueLabel.getText());
+		systemStateBean.setWorkX(workPositionXValueLabel.getText());
+		systemStateBean.setWorkY(workPositionYValueLabel.getText());
+		systemStateBean.setWorkZ(workPositionZValueLabel.getText());
+		systemStateBean.setSendButtonText(sendButton.getText());
+		systemStateBean.setSendButtonEnabled(sendButton.isEnabled());
+		systemStateBean.setPauseResumeButtonEnabled(pauseButton.isEnabled());
+		systemStateBean.setPauseResumeButtonText(pauseButton.getText());
+		systemStateBean.setCancelButtonText(cancelButton.getText());
+		systemStateBean.setCancelButtonEnabled(cancelButton.isEnabled());
 	}
 }
