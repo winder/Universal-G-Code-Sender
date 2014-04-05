@@ -9,7 +9,7 @@ target/*
 /target/
 .metadata
 tar.gz
-.DS_Store
 .classpath
 .project
 .settings
+/*.log

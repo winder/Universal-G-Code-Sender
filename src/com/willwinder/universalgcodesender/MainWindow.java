@@ -1149,12 +1149,17 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
-    private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
+    @Override
+    public  void resetCoordinatesButtonActionPerformed(){
         try {
             this.controller.resetCoordinatesToZero();
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
+    }
+    
+    private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
+    	resetCoordinatesButtonActionPerformed();
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
@@ -1165,7 +1170,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
-    private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
+    @Override
+    public void returnToZeroButtonActionPerformed(){
         try {
             this.controller.returnToHome();
             // The return to home command uses G91 to lift the tool.
@@ -1173,6 +1179,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
+    }
+    private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
+    	returnToZeroButtonActionPerformed();
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
     private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
