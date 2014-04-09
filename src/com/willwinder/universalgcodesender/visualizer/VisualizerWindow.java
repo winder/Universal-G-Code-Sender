@@ -62,6 +62,10 @@ implements ControllerListener, WindowListener {
     /**
      * Creates new form Visualizer
      */
+    public VisualizerWindow() {
+        this(new WindowSettings(0,0,640,480));
+    }
+    
     public VisualizerWindow(WindowSettings ws) {
 
         this.setPreferredSize(new Dimension(ws.width, ws.height));
