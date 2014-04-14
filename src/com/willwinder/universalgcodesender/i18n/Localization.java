@@ -33,17 +33,16 @@ import java.util.ResourceBundle;
  */
 public class Localization {
     private static ResourceBundle bundle = null;
-    
+
     public static void initialize(String language, String region) {
         Locale locale = new Locale(language, region);
-        bundle = ResourceBundle.getBundle("com.willwinder.universalgcodesender.i18n.MessagesBundle", locale);
+        bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
     }
     
     public static String getString(String id) {
         if (bundle == null) {
             Localization.initialize("en", "US");
         }
-        
         return bundle.getString(id);
     }
 }
