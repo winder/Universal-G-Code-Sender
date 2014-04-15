@@ -153,21 +153,33 @@ public class PendantUI implements ControllerListener{
 			baseRequest.setHandled(true);
 			String gCode = baseRequest.getParameter("gCode");
 			
-			if(isManualControlEnabled()){
-				try {
+			try {
+				if(isManualControlEnabled()){
+						switch (gCode) {
+						case "$H":
+							mainWindow.getController().performHomingCycle();
+							break;
+						case "$X":
+							mainWindow.getController().killAlarmLock();
+							break;
+						case "$C":
+							mainWindow.getController().toggleCheckMode();
+							break;
+						case "RESET_ZERO":
+							mainWindow.resetCoordinatesButtonActionPerformed();
+							break;
+						case "RETURN_TO_ZERO":
+							mainWindow.returnToZeroButtonActionPerformed();
+							break;
+						case "SEND_FILE":
+							mainWindow.sendButtonActionPerformed();
+							break;
+						default:
+							mainWindow.sendGcodeCommand(gCode);
+							break;
+						}
+				} else {
 					switch (gCode) {
-					case "$H":
-						mainWindow.getController().performHomingCycle();
-						break;
-					case "$X":
-						mainWindow.getController().killAlarmLock();
-						break;
-					case "$C":
-						mainWindow.getController().toggleCheckMode();
-						break;
-					case "SEND_FILE":
-						mainWindow.sendButtonActionPerformed();
-						break;
 					case "PAUSE_RESUME_FILE":
 						mainWindow.pauseButtonActionPerformed();
 						break;
@@ -175,13 +187,13 @@ public class PendantUI implements ControllerListener{
 						mainWindow.cancelButtonActionPerformed();
 						break;
 					default:
-						mainWindow.sendGcodeCommand(gCode);
 						break;
 					}
-				} catch (Exception e) {
-		            e.printStackTrace();
-		            logger.warning(Localization.getString("SendGcodeHandler"));
+					
 				}
+			} catch (Exception e) {
+	            e.printStackTrace();
+	            logger.warning(Localization.getString("SendGcodeHandler"));
 			}
 
 			response.getWriter().print(getSystemStateJson());

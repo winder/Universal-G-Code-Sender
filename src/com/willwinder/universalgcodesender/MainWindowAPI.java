@@ -19,4 +19,8 @@ public interface MainWindowAPI {
 	public void pauseButtonActionPerformed();
 	
 	public void cancelButtonActionPerformed();
+	
+	public void returnToZeroButtonActionPerformed();
+	
+	public  void resetCoordinatesButtonActionPerformed();
 }

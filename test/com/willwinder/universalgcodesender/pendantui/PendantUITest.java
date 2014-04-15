@@ -89,6 +89,22 @@ public class PendantUITest {
 			cancelButtonActionPerformed = true;
 			System.out.println("cancelButtonActionPerformed");
 		}
+
+		public boolean returnToZeroButtonActionPerformed = false;
+		
+		@Override
+		public void returnToZeroButtonActionPerformed() {
+			returnToZeroButtonActionPerformed = true;
+			System.out.println("returnToZeroButtonActionPerformed");
+		}
+
+		public boolean resetCoordinatesButtonActionPerformed = false;
+		
+		@Override
+		public void resetCoordinatesButtonActionPerformed() {
+			resetCoordinatesButtonActionPerformed = true;
+			System.out.println("resetCoordinatesButtonActionPerformed");
+		}
 	}
 	
 	public class MockUGSController extends AbstractController{
