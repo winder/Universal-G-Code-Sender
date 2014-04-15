@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="us">
 <head>
-	<meta name="viewport" content="width=min-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+	<meta name="viewport" content="initial-scale=1, maximum-scale=5, user-scalable=yes" />
 	<meta charset="utf-8">
 	<title>Universal GcodeSender Pendant</title>
 	<link href="css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
@@ -45,10 +45,11 @@
 				disabled: true,
 		        text : arrayItem.label
 		    }).click(function(){
-		    	sendGcode(arrayItem.gCodeCommandList);
+		    	sendGcodeCommandList(arrayItem.gCodeCommandList);
 		    }));
 		});
-		
+		$( ".shortcutButton" ).button();
+
 	}
 	
 	$(poll());
@@ -67,6 +68,8 @@
 	setInterval(poll, 500);
 	
 	function updateSystemState(systemState){
+		$("#fileName").text(systemState.fileName);
+		$("#latestComment").text(systemState.latestComment);
 		$("#activeState").text(systemState.activeState);
 		$("#workX").text(systemState.workX);
 		$("#workY").text(systemState.workY);
@@ -104,15 +107,12 @@
     	updateControlState(systemState.controlState);
 	}
 	
-	function pauseResumeSending(){
-		
-	}
-
 	function updateControlState(state){
 		$("#controlState").text(state);
 		
         switch (state) {
 	        case "FILE_SELECTED":
+	        	manualcontrolEnabled(true);
 	            break;
 	        case "COMM_DISCONNECTED":
 	        	manualcontrolEnabled(false);
@@ -130,27 +130,28 @@
 	}
 	
 	function manualcontrolEnabled(value){
-		var currentValue = !$( ".button" ).button("option", "disabled");
-		
-		if(value != currentValue){
-			if(value==true){
+		if(value==true){
 				$( ".manualControlButton" ).button({ disabled: false });
 			} else {
 				$( ".manualControlButton" ).button({ disabled: true });
 			}
-		}
 	}
 	
-	function sendGcode(commandList){
+	function sendGcodeCommand(command){
+	    $.ajax({
+            url: "/sendGcode?gCode="+encodeURIComponent(command),
+            type: "GET",
+            success: function(data) {
+            	updateSystemState(data);
+            	signalButtonPress();
+            },
+            dataType: "json"
+    	});
+	}
+	
+	function sendGcodeCommandList(commandList){
 		commandList.forEach(function (arrayItem){
-		    $.ajax({
-	            url: "/sendGcode?gCode="+encodeURIComponent(arrayItem),
-	            type: "GET",
-	            success: function(data) {
-	            	updateSystemState(data);
-	            },
-	            dataType: "json"
-	    	});
+			sendGcodeCommand(arrayItem);
 		});
     	signalButtonPress();
 	}
@@ -321,9 +322,9 @@
 		</table>		
 		<hr />
 		<br />
-		<button class="button" id="sendFileButton" onclick="sendGcode('SEND_FILE');">Send</button>
-		<button class="button" id="pauseResumeButton" onclick="sendGcode('PAUSE_RESUME_FILE');">Pause</button>
-		<button class="button" id="cancelButton" onclick="sendGcode('CANCEL_FILE');">Cancel</button>
+		<button class="button" id="sendFileButton" onclick="sendGcodeCommand('SEND_FILE');">Send</button>
+		<button class="button" id="pauseResumeButton" onclick="sendGcodeCommand('PAUSE_RESUME_FILE');">Pause</button>
+		<button class="button" id="cancelButton" onclick="sendGcodeCommand('CANCEL_FILE');">Cancel</button>
 	</div>
 	<div id="MachineControls">
 		<table>
@@ -334,9 +335,9 @@
 				<td><button class="button manualControlButton jogButton" id="buttonPositiveZ" onclick="adjustManualLocation(0, 0, 1);">+Z</button></td>
 			</tr>
 			<tr>
-				<td><button class="button manualControlButton jogButton" id="buttonPositiveX" onclick="adjustManualLocation(1, 0, 0);">+X</button></td>
-				<td></td>
 				<td><button class="button manualControlButton jogButton" id="buttonNegativeX" onclick="adjustManualLocation(-1, 0, 0);">-X</button></td>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveX" onclick="adjustManualLocation(1, 0, 0);">+X</button></td>
 			</tr>
 			<tr>
 				<td></td>
@@ -354,9 +355,11 @@
 		<div id="StandardShortcuts">
 			<hr/>
 			<br>
-			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$H');">Begin Homing Cycle</button>
-			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$X');">Disable Alarm Lock</button>
-			<button class="button manualControlButton shortcutButton" onclick="sendGcode('$C');">Toggle Check Mode</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('RESET_ZERO');">Reset Zero</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('RETURN_TO_ZERO');">Return to Zero</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$H');">Begin Homing Cycle</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$X');">Disable Alarm Lock</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$C');">Toggle Check Mode</button>
 		</div>
 	</div>
 	<div id="Shortcuts">
