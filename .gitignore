@@ -4,3 +4,12 @@
 /release/
 .DS_Store
 test_files/grbl_*.hex.txt
+target/
+target/*
+/target/
+.metadata
+tar.gz
+.classpath
+.project
+.settings
+/*.log

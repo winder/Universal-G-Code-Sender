@@ -78,6 +78,8 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         super(parent, modal);
         initComponents();
         initLocalization();
+        setLocationRelativeTo(parent);
+
         if (gcl == null) {
             throw new Exception("There is no controller. Are you connected?");
         }

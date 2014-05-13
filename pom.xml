@@ -17,9 +17,11 @@
 	</properties>
 
 	<dependencies>
-	  <!-- ===================== -->
-	  <!-- == My dependencies == -->
-	  <!-- ===================== -->
+	<dependency>
+		<groupId>net.glxn</groupId>
+		<artifactId>qrgen</artifactId>
+		<version>1.3</version>
+	</dependency>
      <dependency>
        <groupId>org.jogamp.gluegen</groupId>
        <artifactId>gluegen-rt-main</artifactId>
@@ -49,6 +51,26 @@
       <artifactId>swing-layout</artifactId>
       <version>1.0.3</version>
     </dependency>
+    <dependency>
+    	<groupId>javax.servlet</groupId>
+    	<artifactId>javax.servlet-api</artifactId>
+    	<version>3.1.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.eclipse.jetty</groupId>
+    	<artifactId>jetty-server</artifactId>
+    	<version>8.0.1.v20110908</version>
+    </dependency>
+    <dependency>
+    	<groupId>com.google.code.gson</groupId>
+    	<artifactId>gson</artifactId>
+    	<version>2.2.4</version>
+    </dependency>
+    <dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-lang3</artifactId>
+	  <version>3.3.1</version>
+    </dependency>
 	</dependencies>
 
 	<build>
@@ -65,8 +87,8 @@
         </includes>
 			</resource>
             <resource>
-                <targetPath>target/classes/com/willwinder/universalgcodesender/i18n</targetPath>
-                <directory>src/com/willwinder/universalgcodesender/i18n</directory>
+                <targetPath>target/classes/com/willwinder/universalgcodesender/il8n</targetPath>
+                <directory>src/com/willwinder/universalgcodesender/il8n</directory>
                 <includes>
                     <include>MessagesBundle.*</include>
                 </includes>
@@ -97,12 +119,11 @@
             </configuration>
       </plugin>
       <plugin>
-          <version>2.3.2</version>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.6</source>
+					<target>1.6</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -116,7 +137,6 @@
 				</configuration>
 			</plugin>
       <plugin>
-          <version>2.3.1</version>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <configuration>
@@ -128,7 +148,7 @@
           </configuration>
       </plugin>
       <plugin>
-          <groupId>org.dstovall</groupId>
+          <groupId>com.jolira</groupId>
           <artifactId>onejar-maven-plugin</artifactId>
           <version>1.4.4</version>
           <executions>
@@ -140,12 +160,55 @@
                         <!-- ========== -->
                         <!-- == RXTX == -->
                         <!-- ========== -->
-                              <binlib>
-                                  <directory>${project.basedir}/lib/natives/windows64</directory>
-                                  <includes>
-                                      <include>*.*</include>
-                                  </includes>
-                              </binlib>
+                        <binlib>
+                          <os>mac</os>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/mac</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>linux</os>
+                          <arch>32</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/linux32</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>linux</os>
+                          <arch>64</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/linux64</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>windows</os>
+                          <arch>64</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/win64</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
+                        <binlib>
+                          <os>windows</os>
+                          <arch>32</arch>
+                          <fileSet>
+                              <directory>${project.basedir}/lib/natives/win32</directory>
+                              <includes>
+                                  <include>*.*</include>
+                              </includes>
+                          </fileSet>
+                        </binlib>
                       </binlibs>
                       <!-- Optional, default is false -->
                       <attachToBuild>true</attachToBuild>

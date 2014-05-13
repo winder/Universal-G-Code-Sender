@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GcodePreprocessorUtils {
+
     /**
      * Searches the command string for an 'f' and replaces the speed value 
      * between the 'f' and the next space with a percentage of that speed.
@@ -101,7 +103,8 @@ public class GcodePreprocessorUtils {
         for (int i=0; i < length; i++) {
             df.append('#');
         }
-        DecimalFormat formatter = new DecimalFormat(df.toString());
+        
+        DecimalFormat formatter = new DecimalFormat(df.toString(), Localization.dfs);
         
         // Build up the regular expression.
         df = new StringBuilder();

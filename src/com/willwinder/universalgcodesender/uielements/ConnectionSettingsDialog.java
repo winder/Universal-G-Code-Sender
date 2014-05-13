@@ -39,7 +39,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         initLocalization();
-        
+        setLocationRelativeTo(parent);
+
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         saveChanges = false;
     }

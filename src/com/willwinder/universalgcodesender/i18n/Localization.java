@@ -24,6 +24,7 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -32,6 +33,9 @@ import java.util.ResourceBundle;
  * @author wwinder
  */
 public class Localization {
+    public final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+    static {dfs.setDecimalSeparator('.');}
+
     private static ResourceBundle bundle = null;
 
     public static void initialize(String language, String region) {

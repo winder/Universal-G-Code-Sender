@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta name="viewport" content="initial-scale=1, maximum-scale=5, user-scalable=yes" />
+	<meta charset="utf-8">
+	<title>Universal GcodeSender Pendant</title>
+	<link href="css/smoothness/jquery-ui-1.10.4.custom.css" rel="stylesheet">
+	<script src="js/jquery-1.10.2.js"></script>
+	<script src="js/jquery-ui-1.10.4.custom.min.js"></script>
+	<script>
+	$(function() {
+		$( ".button" ).button();
+		$( "#tabs" ).tabs();
+		// Hover states on the static widgets
+		$( "#dialog-link, #icons li" ).hover(
+			function() {
+				$( this ).addClass( "ui-state-hover" );
+			},
+			function() {
+				$( this ).removeClass( "ui-state-hover" );
+			}
+		);
+	});
+	
+	$($.ajax({
+        url: "/config",
+        type: "GET",
+        success: function(data) {
+        	readConfig(data);
+        },
+        dataType: "json"
+	}));
+	
+	function readConfig(config){
+		config.stepSizeList.forEach( function (arrayItem){
+			$('#stepSize').append($('<option>', { 
+		        value: arrayItem.value,
+		        text : arrayItem.label,
+		        selected: arrayItem.selected
+		    }));
+		});
+		config.shortCutButtonList.forEach( function (arrayItem){
+			$('#Shortcuts').append($('<button>', { 
+				class: "button manualControlButton shortcutButton",
+				disabled: true,
+		        text : arrayItem.label
+		    }).click(function(){
+		    	sendGcodeCommandList(arrayItem.gCodeCommandList);
+		    }));
+		});
+		$( ".shortcutButton" ).button();
+
+	}
+	
+	$(poll());
+	
+	function poll() {
+        $.ajax({
+            url: "/getSystemState",
+            type: "GET",
+            success: function(data) {
+            	updateSystemState(data);
+            },
+            dataType: "json"
+    	});
+	}
+	
+	setInterval(poll, 500);
+	
+	function updateSystemState(systemState){
+		$("#fileName").text(systemState.fileName);
+		$("#latestComment").text(systemState.latestComment);
+		$("#activeState").text(systemState.activeState);
+		$("#workX").text(systemState.workX);
+		$("#workY").text(systemState.workY);
+		$("#workZ").text(systemState.workZ);
+		
+		$("#machineX").text(systemState.machineX);
+		$("#machineY").text(systemState.machineY);
+		$("#machineZ").text(systemState.machineZ);
+		
+		$("#rowsInFile").text(systemState.rowsInFile);
+		$("#sentRows").text(systemState.sentRows);
+		$("#remainingRows").text(systemState.remainingRows);
+		$("#estimatedTimeRemaining").text(systemState.estimatedTimeRemaining);
+		$("#duration").text(systemState.duration);
+		
+		$("#sendFileButton").text(systemState.sendButtonText);
+		if(systemState.sendButtonEnabled){
+			$("#sendFileButton").button({ disabled: false });
+		} else {
+			$("#sendFileButton").button({ disabled: true });
+		}
+		$("#pauseResumeButton").text(systemState.pauseResumeButtonText);
+		if(systemState.pauseResumeButtonEnabled){
+			$("#pauseResumeButton").button({ disabled: false });
+		} else {
+			$("#pauseResumeButton").button({ disabled: true });
+		}
+		$("#cancelButton").text(systemState.cancelButtonText);
+		if(systemState.cancelButtonEnabled){
+			$("#cancelButton").button({ disabled: false });
+		} else {
+			$("#cancelButton").button({ disabled: true });
+		}
+
+    	updateControlState(systemState.controlState);
+	}
+	
+	function updateControlState(state){
+		$("#controlState").text(state);
+		
+        switch (state) {
+	        case "FILE_SELECTED":
+	        	manualcontrolEnabled(true);
+	            break;
+	        case "COMM_DISCONNECTED":
+	        	manualcontrolEnabled(false);
+	            break;
+	        case "COMM_IDLE":
+	        	manualcontrolEnabled(true);
+	            break;
+	        case "COMM_SENDING":
+	        	manualcontrolEnabled(false);
+	            break;
+	        case "COMM_SENDING_PAUSED":
+	            break;
+	        default:
+	    }
+	}
+	
+	function manualcontrolEnabled(value){
+		if(value==true){
+				$( ".manualControlButton" ).button({ disabled: false });
+			} else {
+				$( ".manualControlButton" ).button({ disabled: true });
+			}
+	}
+	
+	function sendGcodeCommand(command){
+	    $.ajax({
+            url: "/sendGcode?gCode="+encodeURIComponent(command),
+            type: "GET",
+            success: function(data) {
+            	updateSystemState(data);
+            	signalButtonPress();
+            },
+            dataType: "json"
+    	});
+	}
+	
+	function sendGcodeCommandList(commandList){
+		commandList.forEach(function (arrayItem){
+			sendGcodeCommand(arrayItem);
+		});
+    	signalButtonPress();
+	}
+	
+	function adjustManualLocation(dirX, dirY, dirZ) {
+	    // Don't send empty commands.
+	    if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
+	        return;
+	    }
+
+	    // Format step size from spinner.
+	    stepSize = $('#stepSize :selected').text();
+
+	    $.ajax({
+            url: "/adjustManualLocation?dirX="+dirX+"&dirY="+dirY+"&dirZ="+dirZ+"&stepSize="+stepSize,
+            type: "GET",
+            success: function(data) {
+            	signalButtonPress();
+            	updateControlState(data);
+            },
+            dataType: "text"
+    	});
+	}
+	
+	function signalButtonPress(){
+		if ("vibrate" in navigator) {
+        	navigator.vibrate(300);
+		} else if ("vibrate" in notification) {
+        	navigator.notification.vibrate(300);
+		}
+	}
+	</script>
+	<style>
+	html{
+	width: 300px;
+	height: 500px;
+	}
+	body{
+		font: 62.5% "Trebuchet MS", sans-serif;
+		margin: 10px;
+		width: 250px;
+	}
+	.demoHeaders {
+		margin-top: 2em;
+	}
+	#tabs {
+		width: 100%;
+	}
+	#headerTable {
+		width: 250px;
+		margin: 0px;
+		padding: 0px;
+		font-family: 'Trebuchet MS', sans-serif;
+		font-size: 15px;
+		font-style: normal;
+		font-variant: normal;
+		font-weight: bold;
+		margin-bottom: -15px;
+	}
+	.jogButton {
+		height: 50px;
+		width: 50px;
+	}
+	.shortcutButton {
+		height: 50px;
+		width: 100%;
+	}
+	.button {
+		height: 50px;
+		width: 100%;
+	}
+	#header {
+		width: 240px;
+	}
+	#dialog-link {
+		padding: .4em 1em .4em 20px;
+		text-decoration: none;
+		position: relative;
+	}
+	#dialog-link span.ui-icon {
+		margin: 0 5px 0 0;
+		position: absolute;
+		left: .2em;
+		top: 50%;
+		margin-top: -8px;
+	}
+	#icons {
+		margin: 0;
+		padding: 0;
+	}
+	#icons li {
+		margin: 2px;
+		position: relative;
+		padding: 4px 0;
+		cursor: pointer;
+		float: left;
+		list-style: none;
+	}
+	#icons span.ui-icon {
+		float: left;
+		margin: 0 4px;
+	}
+	.fakewindowcontain .ui-widget-overlay {
+		position: absolute;
+	}
+	#machineStatusTable {
+		width: 100%;
+	}
+	</style>
+</head>
+<body>
+<table id="headerTable">
+	<tr>
+		<th>
+			Universal GcodeSender Pendant
+		</th>
+	</tr>
+</table>
+<div class="ui-widget">
+	<div id="header" class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;">
+		<p><strong>Control State:&nbsp;&nbsp;</strong><label id="controlState">COMM_DISCONNECTED</label></p>
+	</div>
+</div>
+
+<div id="tabs">
+	<ul>
+		<li><a href="#MachineControls">Control</a></li>
+		<li><a href="#MachineStatus">Status</a></li>
+		<li><a href="#Shortcuts">Shortcuts</a></li>
+	</ul>
+	<div id="MachineStatus">
+		<div><b>File:</b>&nbsp;&nbsp;<label id="fileName"></label></div>
+		<div><b>Last Comment:</b>&nbsp;&nbsp;<label id="lastComment"></label></div>
+		<div><b>Active State:</b>&nbsp;&nbsp;<label id="activeState"></label></div>
+		<br />
+		<table id="machineStatusTable">
+			<tr>
+				<th>Work Position:</th>
+				<th>Machine Position:</th>
+			</tr>
+			<tr>
+				<td align="center">
+					<table>
+						<tr><th align="right">X:</th><td id="workX" align="left"></td></tr>
+						<tr><th align="right">Y:</th><td id="workY" align="left"></td></tr>
+						<tr><th align="right">Z:</th><td id="workZ" align="left"></td></tr>
+					</table>
+				</td>
+				<td align="center">
+					<table>
+						<tr><th align="right">X:</th><td id="machineX" align="left"></td></tr>
+						<tr><th align="right">Y:</th><td id="machineY" align="left"></td></tr>
+						<tr><th align="right">Z:</th><td id="machineZ" align="left"></td></tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<table>
+						<tr><th align="right">Time Remaining:</th><td id="estimatedTimeRemaining" align="left"></td></tr>
+						<tr><th align="right">Duration:</th><td id="duration" align="left"></td></tr>
+						<tr><th align="right">Rows In File:</th><td id="rowsInFile" align="left"></td></tr>
+						<tr><th align="right">Sent Rows:</th><td id="sentRows" align="left"></td></tr>
+						<tr><th align="right">RemainingRows:</th><td id="remainingRows" align="left"></td></tr>
+					</table>
+				</td>
+			</tr>
+		</table>		
+		<hr />
+		<br />
+		<button class="button" id="sendFileButton" onclick="sendGcodeCommand('SEND_FILE');">Send</button>
+		<button class="button" id="pauseResumeButton" onclick="sendGcodeCommand('PAUSE_RESUME_FILE');">Pause</button>
+		<button class="button" id="cancelButton" onclick="sendGcodeCommand('CANCEL_FILE');">Cancel</button>
+	</div>
+	<div id="MachineControls">
+		<table>
+			<tr>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveY" onclick="adjustManualLocation(0, 1, 0);">+Y</button></td>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveZ" onclick="adjustManualLocation(0, 0, 1);">+Z</button></td>
+			</tr>
+			<tr>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeX" onclick="adjustManualLocation(-1, 0, 0);">-X</button></td>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonPositiveX" onclick="adjustManualLocation(1, 0, 0);">+X</button></td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeY" onclick="adjustManualLocation(0, -1, 0);">-Y</button></td>
+				<td></td>
+				<td><button class="button manualControlButton jogButton" id="buttonNegativeZ" onclick="adjustManualLocation(0, 0, -1);">-Z</button></td>
+			</tr>
+			<tr>
+				<th colspan="2" align="right">Step Size</th>
+				<td colspan="2">
+					<select id="stepSize" size="1"></select>
+				</td>
+			</tr>
+		</table>
+		<div id="StandardShortcuts">
+			<hr/>
+			<br>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('RESET_ZERO');">Reset Zero</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('RETURN_TO_ZERO');">Return to Zero</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$H');">Begin Homing Cycle</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$X');">Disable Alarm Lock</button>
+			<button class="button manualControlButton shortcutButton" onclick="sendGcodeCommand('$C');">Toggle Check Mode</button>
+		</div>
+	</div>
+	<div id="Shortcuts">
+
+	</div>
+</div>
+
+</body>
+
+
+</html>
