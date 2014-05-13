@@ -2316,9 +2316,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     };
         
     // Static utilities
-    private final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
-    static {dfs.setDecimalSeparator('.');}
-    private static NumberFormat formatter = new DecimalFormat("#.###", dfs);
+    private static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
 
     // Generated variables.
         // Variables declaration - do not modify//GEN-BEGIN:variables
