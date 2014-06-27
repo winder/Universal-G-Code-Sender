@@ -52,7 +52,7 @@ public class GrblUtils {
     /**
      * Gcode Commands
      */
-    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 X0 Y0 Z0";
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
