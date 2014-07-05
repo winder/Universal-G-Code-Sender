@@ -50,6 +50,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
@@ -1151,6 +1153,97 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.adjustManualLocation(0, 0, -1);
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
+
+    private void increaseStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        double stepSize = this.getStepSize();
+        BigDecimal bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+        if (stepSize >= 1) {
+            stepSize++;
+        } else if (stepSize >= 0.1) {
+            stepSize = stepSize + 0.1;
+        } else if (stepSize >= 0.01) {
+            stepSize = stepSize + 0.01;
+        } else {
+            stepSize = 0.01;
+        }
+        bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+        this.stepSizeSpinner.setValue(stepSize);
+    }                                            
+
+    private void decreaseStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        double stepSize = this.getStepSize();
+        BigDecimal bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+        if (stepSize > 1) {            
+            stepSize--;
+        } else if (stepSize > 0.1) {
+            stepSize = stepSize - 0.1;
+        } else if (stepSize > 0.01) {
+            stepSize = stepSize - 0.01;
+        }
+        bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+        this.stepSizeSpinner.setValue(stepSize);
+    }                                            
+    
+    private void divideStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        double stepSize = this.getStepSize();
+        BigDecimal bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+/*
+        if (stepSize > 100) {            
+            stepSize = 100;
+        } else if (stepSize > 10) {
+            stepSize = 10;
+        } else if (stepSize > 1) {
+            stepSize = 1;
+        
+        } else if (stepSize > 0.1) {
+            stepSize = 0.1;
+        }
+  */
+        stepSize = stepSize / 10;
+
+        if (stepSize < 0.001) {            
+            stepSize = 0.001;
+        }
+
+        
+        this.stepSizeSpinner.setValue(stepSize);
+    }                                            
+
+    private void multiplyStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
+        double stepSize = this.getStepSize();
+        BigDecimal bd = new BigDecimal(stepSize).setScale(2, RoundingMode.HALF_EVEN);
+        stepSize = bd.doubleValue();
+
+        /*
+        if (stepSize < 0.001) {            
+            stepSize = 0.001;
+        } else if (stepSize < 0.01) {            
+            stepSize = 0.01;
+        
+        } else if (stepSize < 0.1) {            
+            stepSize = 0.1;
+        
+        } else if (stepSize < 1) {            
+            stepSize = 1;
+        
+        } else if (stepSize < 10) {            
+            stepSize = 10;
+        }
+        */
+        stepSize = stepSize * 10;
+
+        if (stepSize > 100) {            
+            stepSize = 100;
+        }
+
+        this.stepSizeSpinner.setValue(stepSize);
+    }                                            
+    
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
@@ -1652,18 +1745,22 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                             xPlusButton.isEnabled()) {
                         switch (e.getKeyCode()) {
                             case KeyEvent.VK_RIGHT:
+                            case KeyEvent.VK_KP_RIGHT:
                                 xPlusButtonActionPerformed(null);
                                 e.consume();
                                 return true;
                             case KeyEvent.VK_LEFT:
+                            case KeyEvent.VK_KP_LEFT:
                                 xMinusButtonActionPerformed(null);
                                 e.consume();
                                 return true;
                             case KeyEvent.VK_UP:
+                            case KeyEvent.VK_KP_UP:
                                 yPlusButtonActionPerformed(null);
                                 e.consume();
                                 return true;
                             case KeyEvent.VK_DOWN:
+                            case KeyEvent.VK_KP_DOWN:
                                 yMinusButtonActionPerformed(null);
                                 e.consume();
                                 return true;
@@ -1673,6 +1770,26 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                                 return true;
                             case KeyEvent.VK_PAGE_DOWN:
                                 zMinusButtonActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_ADD:
+                                increaseStepActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_SUBTRACT:
+                                decreaseStepActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_DIVIDE:
+                                divideStepActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_MULTIPLY:
+                                multiplyStepActionPerformed(null);
+                                e.consume();
+                                return true;
+                            case KeyEvent.VK_NUMPAD0:
+                                resetCoordinatesButtonActionPerformed(null);
                                 e.consume();
                                 return true;
                         }
