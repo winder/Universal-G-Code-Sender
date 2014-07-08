@@ -54,6 +54,10 @@ public class GrblUtils {
      */
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
+
+    public static final String GCODE_RESET_X_COORDINATE_TO_ZERO_V8 = "G92 X0";
+    public static final String GCODE_RESET_Y_COORDINATE_TO_ZERO_V8 = "G92 Y0";
+    public static final String GCODE_RESET_Z_COORDINATE_TO_ZERO_V8 = "G92 Z0";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
     //public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
@@ -143,6 +147,58 @@ public class GrblUtils {
             return "";
         }
     }
+
+    static protected String getResetXCoordToZeroCommand(final double version, final String letter) {
+        if (version >= 0.9) {
+            return "";
+        }
+        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+            // TODO: Is G10 available in 0.8c?
+            // No it is not -> error: Unsupported statement
+            return GrblUtils.GCODE_RESET_X_COORDINATE_TO_ZERO_V8;
+        }
+        else if (version >= 0.8) {
+            return "";
+        }
+        else {
+            return "";
+        }
+    }
+
+    static protected String getResetYCoordToZeroCommand(final double version, final String letter) {
+        if (version >= 0.9) {
+            return "";
+        }
+        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+            // TODO: Is G10 available in 0.8c?
+            // No it is not -> error: Unsupported statement
+            return GrblUtils.GCODE_RESET_Y_COORDINATE_TO_ZERO_V8;
+        }
+        else if (version >= 0.8) {
+            return "";
+        }
+        else {
+            return "";
+        }
+    }
+
+    static protected String getResetZCoordToZeroCommand(final double version, final String letter) {
+        if (version >= 0.9) {
+            return "";
+        }
+        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+            // TODO: Is G10 available in 0.8c?
+            // No it is not -> error: Unsupported statement
+            return GrblUtils.GCODE_RESET_Z_COORDINATE_TO_ZERO_V8;
+        }
+        else if (version >= 0.8) {
+            return "";
+        }
+        else {
+            return "";
+        }
+    }
+
     
     static protected String getReturnToHomeCommand(final double version, final String letter) {
         if ((version >= 0.8 && (letter != null) && letter.equals("c"))
