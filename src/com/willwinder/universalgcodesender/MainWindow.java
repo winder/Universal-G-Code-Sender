@@ -1335,13 +1335,13 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 .append(Localization.getString("mainWindow.alarmLock")).append("\n")
                 .append(Localization.getString("mainWindow.checkMode")).append("\n")
                 .append(Localization.getString("mainWindow.getState")).append("\n")
-                .append("Keyboard Control:").append("\n")
-                .append("X: Arrow Left/Right; KeyPad Left/Right; Numpad: 4/6").append("\n")
-                .append("Y: Arrow Up/Down; KeyPad Up/Down; Numpad: 8/2").append("\n")
-                .append("Z: Page Up/Down; KeyPad Page Up/Down; Numpad: 9/3").append("\n")
-                .append("In-/Descrease Steps: KeyPad +/-").append("\n")
-                .append("Change Steps: KeyPad DIVIDE/MULTIPLY").append("\n")
-                .append("Reset Zero: KeyPad Insert; Numpad: 0").append("\n")
+                .append(Localization.getString("mainWindow.helpKeyboard")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyX")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyY")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyPlusMinus")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyDivMul")).append("\n")
+                .append(Localization.getString("mainWindow.helpKeyZero")).append("\n")
                 ;
         
         JOptionPane.showMessageDialog(new JFrame(), 
