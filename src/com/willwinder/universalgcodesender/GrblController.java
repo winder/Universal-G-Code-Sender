@@ -242,6 +242,43 @@ public class GrblController extends AbstractController {
     }
     
     @Override
+    public void resetXCoordinateToZero() throws Exception {
+        if (this.isCommOpen()) {
+            String command = GrblUtils.getResetXCoordToZeroCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        // Throw exception
+        super.resetCoordinatesToZero();
+    }
+     
+    @Override
+    public void resetYCoordinateToZero() throws Exception {
+        if (this.isCommOpen()) {
+            String command = GrblUtils.getResetYCoordToZeroCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        // Throw exception
+        super.resetCoordinatesToZero();
+    }
+    public void resetZCoordinateToZero() throws Exception {
+        if (this.isCommOpen()) {
+            String command = GrblUtils.getResetZCoordToZeroCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.queueStringForComm(command);
+                return;
+            }
+        }
+        // Throw exception
+        super.resetCoordinatesToZero();
+    }
+    
+    @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
             double max = 4;
