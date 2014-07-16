@@ -21,6 +21,12 @@ public interface MainWindowAPI {
 	public void cancelButtonActionPerformed();
 	
 	public void returnToZeroButtonActionPerformed();
-	
+        
 	public  void resetCoordinatesButtonActionPerformed();
+        
+        public  void resetXCoordinateButtonActionPerformed();
+        
+        public  void resetYCoordinateButtonActionPerformed();
+        
+        public  void resetZCoordinateButtonActionPerformed();
 }

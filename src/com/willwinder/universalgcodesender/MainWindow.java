@@ -1271,28 +1271,28 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }
     }
 
-  //  @Override
+    @Override
     public  void resetXCoordinateButtonActionPerformed(){
         try {
-            this.controller.resetXCoordinateToZero();
+            this.controller.resetCoordinateToZero('X');
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
     }
 
-//    @Override
+    @Override
     public  void resetYCoordinateButtonActionPerformed(){
         try {
-            this.controller.resetYCoordinateToZero();
+            this.controller.resetCoordinateToZero('Y');
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
     }
 
-//    @Override
+    @Override
     public  void resetZCoordinateButtonActionPerformed(){
         try {
-            this.controller.resetZCoordinateToZero();
+            this.controller.resetCoordinateToZero('Z');
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
