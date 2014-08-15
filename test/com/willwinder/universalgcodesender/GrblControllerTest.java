@@ -382,7 +382,7 @@ public class GrblControllerTest {
      */
     @Test
     public void testRowsAsteriskMethods() throws Exception {
-        System.out.println("rowsInSend / rowsSent / rowsRemaining");
+        System.out.println("testRowsAsteriskMethods");
         GrblController instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
 

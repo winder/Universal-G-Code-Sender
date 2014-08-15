@@ -631,11 +631,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         if (!c.getCommandString().equals(command)) {
             this.errorMessageForConsole("Command <"+c.getCommandString()+
                     "> does not equal expected command <"+command+">");
-            try{
-                throw new Exception();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         this.awaitingResponseQueue.add(c);
