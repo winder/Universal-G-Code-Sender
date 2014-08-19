@@ -1056,15 +1056,27 @@
               </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="customGcodeText2">
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customGcodeText2ActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="customGcodeText3">
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customGcodeText3ActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="customGcodeText4">
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customGcodeText4ActionPerformed"/>
+              </Events>
             </Component>
             <Component class="javax.swing.JTextField" name="customGcodeText5">
               <Properties>
                 <Property name="toolTipText" type="java.lang.String" value=""/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customGcodeText5ActionPerformed"/>
+              </Events>
             </Component>
           </SubComponents>
         </Container>

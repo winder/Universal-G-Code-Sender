@@ -725,7 +725,30 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             }
         });
 
+        customGcodeText2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText2ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText3ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText4ActionPerformed(evt);
+            }
+        });
+
         customGcodeText5.setToolTipText("");
+        customGcodeText5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText5ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout machineControlPanelLayout = new org.jdesktop.layout.GroupLayout(machineControlPanel);
         machineControlPanel.setLayout(machineControlPanelLayout);
@@ -1789,6 +1812,22 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         resetCoordinatesButtonActionPerformed();
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
+
+    private void customGcodeText2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText2ActionPerformed
+        this.settings.setCustomGcode2(this.customGcodeText2.getText());
+    }//GEN-LAST:event_customGcodeText2ActionPerformed
+
+    private void customGcodeText3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText3ActionPerformed
+        this.settings.setCustomGcode3(this.customGcodeText3.getText());
+    }//GEN-LAST:event_customGcodeText3ActionPerformed
+
+    private void customGcodeText4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText4ActionPerformed
+        this.settings.setCustomGcode4(this.customGcodeText4.getText());
+    }//GEN-LAST:event_customGcodeText4ActionPerformed
+
+    private void customGcodeText5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText5ActionPerformed
+        this.settings.setCustomGcode5(this.customGcodeText5.getText());
+    }//GEN-LAST:event_customGcodeText5ActionPerformed
 
     private void executeCustomGcode(String str)
     {
