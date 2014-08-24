@@ -64,51 +64,51 @@ public class PendantUI implements ControllerListener{
 	 * @return the url for the pendant interface
 	 */
 	public List<PendantURLBean> start(){
-		server = new Server(port);
-		
-		ResourceHandler resourceHandler = new ResourceHandler();
-		resourceHandler.setDirectoriesListed(false);
-		resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-		resourceHandler.setBaseResource(getBaseResource());
-        resourceHandler.setDirectoriesListed(true);
-        
-		ContextHandler sendGcodeContext = new ContextHandler();
-        sendGcodeContext.setContextPath("/sendGcode");
-        sendGcodeContext.setBaseResource(getBaseResource());
-        sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        sendGcodeContext.setHandler(new SendGcodeHandler());
+            server = new Server(port);
 
-		ContextHandler adjustManualLocationContext = new ContextHandler();
-        adjustManualLocationContext.setContextPath("/adjustManualLocation");
-        adjustManualLocationContext.setBaseResource(getBaseResource());
-        adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
+            ResourceHandler resourceHandler = new ResourceHandler();
+            resourceHandler.setDirectoriesListed(false);
+            resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
+            resourceHandler.setBaseResource(getBaseResource());
+            resourceHandler.setDirectoriesListed(true);
 
-		ContextHandler getSystemStateContext = new ContextHandler();
-        getSystemStateContext.setContextPath("/getSystemState");
-        getSystemStateContext.setBaseResource(getBaseResource());
-        getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        getSystemStateContext.setHandler(new GetSystemStateHandler());
+            ContextHandler sendGcodeContext = new ContextHandler();
+            sendGcodeContext.setContextPath("/sendGcode");
+            sendGcodeContext.setBaseResource(getBaseResource());
+            sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            sendGcodeContext.setHandler(new SendGcodeHandler());
 
-        ContextHandler configContext = new ContextHandler();
-        configContext.setContextPath("/config");
-        configContext.setBaseResource(getBaseResource());
-        configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        configContext.setHandler(new ConfigHandler());
-        configContext.setInitParameter("cacheControl", "max-age=0, public");
-        
-        HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
-		
-        server.setHandler(handlers);
+            ContextHandler adjustManualLocationContext = new ContextHandler();
+            adjustManualLocationContext.setContextPath("/adjustManualLocation");
+            adjustManualLocationContext.setBaseResource(getBaseResource());
+            adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
 
-		try {
-			server.start();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		return getUrlList();
+            ContextHandler getSystemStateContext = new ContextHandler();
+            getSystemStateContext.setContextPath("/getSystemState");
+            getSystemStateContext.setBaseResource(getBaseResource());
+            getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            getSystemStateContext.setHandler(new GetSystemStateHandler());
+
+            ContextHandler configContext = new ContextHandler();
+            configContext.setContextPath("/config");
+            configContext.setBaseResource(getBaseResource());
+            configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            configContext.setHandler(new ConfigHandler());
+            configContext.setInitParameter("cacheControl", "max-age=0, public");
+
+            HandlerList handlers = new HandlerList();
+            handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
+
+            server.setHandler(handlers);
+
+            try {
+                    server.start();
+            } catch (Exception e) {
+                    throw new RuntimeException(e);
+            }
+
+            return getUrlList();
 	}
 	
 	/**
