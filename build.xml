@@ -33,7 +33,7 @@
             </main>
             <fileset dir="${basedir}/src/" includes="resources/**" />
             <lib>
-                <fileset file="${dist.jar.dir}/lib/*.*">
+                <fileset file="${basedir}/lib/*.*">
                     <!-- Switch to native jars when JOGL fixes One-Jar bug. -->
                     <exclude name="*-natives-*" />
                 </fileset>
