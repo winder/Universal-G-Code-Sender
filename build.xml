@@ -21,6 +21,39 @@
     
     <import file="one-jar-ant-task.xml" />
 
+    <target name="-pre-init">
+       <!--
+       <property name="project.name" value="My Library" />
+       <property name="version.num" value="1.4.1" />
+       -->
+       <tstamp>
+          <format property="NOW" pattern="yyyy-MM-dd HH:mm:ss z" />
+       </tstamp>
+     
+        <propertyfile file="${resources.dir}/build.properties">
+          <entry key="Build-Date" value="${NOW}" />
+        </propertyfile>
+       <manifest file="UGS_MANIFEST.MF">
+          <attribute name="Build-Date" value="${NOW}" />
+          <!--<attribute name="Bundle-Revision" value="${svna.version}" />-->
+          <!--
+          <attribute name="Bundle-Name" value="${project.name}" />           
+          <attribute name="Bundle-Version" value="${version.num}" />
+          <attribute name="Implementation-Title" value="${project.name}" />
+          <attribute name="Implementation-Version" value="${version.num}" />
+          <attribute name="Implementation-URL" value="http://www.example.com" />
+          -->
+       </manifest>
+    </target>
+
+    <target depends="init,compile,-pre-jar,-do-jar,-post-jar" description="Build JAR." name="jar">
+
+    </target>
+
+    <target name="-post-jar">
+      <delete file="UGS_MANIFEST.MF"/>
+    </target>
+
     <!-- One-Jar release to be manually edited. -->
     <target name="onejar-build-release" depends="jar"
             description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
@@ -28,10 +61,11 @@
 
         <echo>Release Build: OneJAR is preparing ${standalone.jar.name}.jar</echo>
         <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}.jar" manifest="onejar.mf" update="true">
-            <main>
-                <fileset dir="${build.classes.dir}/" />
-            </main>
+            <!-- Use my jar file, which has the build timestamp. -->
+            <main jar="${dist.jar.dir}/*.jar" />
+
             <fileset dir="${basedir}/src/" includes="resources/**" />
+            <fileset dir="${basedir}/" includes="build.properties" />
             <lib>
                 <fileset file="${basedir}/lib/*.*">
                     <!-- Switch to native jars when JOGL fixes One-Jar bug. -->
@@ -62,6 +96,7 @@
             basedir="${release.dir}/${standalone.jar.name}" update="true" />
         
         <echo>Release Build: Cleaning up temporary files</echo>
+        <delete dir="${dist.jar.dir}" />
         <delete dir="${release.dir}/${standalone.jar.name}" />
         <delete file="${dist.jar.dir}/${standalone.jar.name}.jar" />
     </target>

@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
+import com.willwinder.universalgcodesender.Version;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import java.awt.Color;
@@ -73,7 +74,7 @@ import javax.vecmath.Point3d;
  */
 public class MainWindow extends javax.swing.JFrame 
 implements KeyListener, ControllerListener, MainWindowAPI {
-    private static String VERSION = "1.0.8";
+    private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
     private PendantUI pendantUI;
     private Settings settings;
     
