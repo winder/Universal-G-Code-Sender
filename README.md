@@ -16,6 +16,7 @@ commands:
 Downloads
 ---------
 [1.0.8 nightly build](https://winder.ci.cloudbees.com/job/UGS/lastSuccessfulBuild/artifact/release/UniversalGcodeSender.zip) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
+<br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
 [1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
