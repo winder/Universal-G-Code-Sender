@@ -224,13 +224,25 @@ public class PendantUITest {
 
             getResponse(url+"/sendGcode?gCode=SEND_FILE");
             assertTrue(mainWindow.sendButtonActionPerformed);
-/* TODO: Why are these failing?
+
+            // Disabled when idle
+            getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
+            assertFalse(mainWindow.pauseButtonActionPerformed);
+
+            // Disabled when idle
+            getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
+            assertFalse(mainWindow.cancelButtonActionPerformed);
+
+            systemState.setControlState(ControlState.COMM_SENDING);
+
             getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
             assertTrue(mainWindow.pauseButtonActionPerformed);
 
             getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
             assertTrue(mainWindow.cancelButtonActionPerformed);
-*/
+
+            systemState.setControlState(ControlState.COMM_IDLE);
+
             // test adjust manual location handler
             String adjustManualLocationResponse = getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
             assertEquals(ControlState.COMM_IDLE.name(), adjustManualLocationResponse);
@@ -247,6 +259,7 @@ public class PendantUITest {
             systemStateTest = new Gson().fromJson(getResponse(url+"/getSystemState"), SystemStateBean.class);
             assertEquals(ControlState.COMM_SENDING, systemStateTest.getControlState());
 
+            
             // test config handler
             String configResponse = getResponse(url+"/config");
             assertTrue(configResponse.contains("shortCutButtonList"));
