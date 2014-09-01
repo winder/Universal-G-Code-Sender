@@ -162,7 +162,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         customGcodeText3 = new javax.swing.JTextField();
         customGcodeText4 = new javax.swing.JTextField();
         customGcodeText5 = new javax.swing.JTextField();
-        jLabel1 = new javax.swing.JLabel();
+        macroInstructions = new javax.swing.JLabel();
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -819,7 +819,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             }
         });
 
-        jLabel1.setText("<html>Each box can contain a series of GCode commands seperated by ';'.<br />\nTo execute the command, click the 'C' button to the left of the text.</html>");
+        macroInstructions.setText("asgasg");
 
         org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
         macroPanel.setLayout(macroPanelLayout);
@@ -849,7 +849,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(customGcodeText5))
                     .add(macroPanelLayout.createSequentialGroup()
-                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(macroInstructions)
                         .add(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -857,7 +857,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(macroPanelLayout.createSequentialGroup()
                 .add(8, 8, 8)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(macroInstructions)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(customGcodeButton1)
@@ -878,7 +878,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(customGcodeButton5)
                     .add(customGcodeText5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(69, Short.MAX_VALUE))
+                .addContainerGap(76, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Macros", macroPanel);
@@ -2391,6 +2391,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
+        this.macroInstructions.setText(Localization.getString("mainWindow.swing.macroInstructions")+"yep");
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
@@ -2799,7 +2800,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
@@ -2819,6 +2819,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
+    private javax.swing.JLabel macroInstructions;
     private javax.swing.JPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JPanel movementButtonPanel;

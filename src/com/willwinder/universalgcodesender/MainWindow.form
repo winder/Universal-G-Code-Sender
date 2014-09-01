@@ -1005,7 +1005,7 @@
                               <Component id="customGcodeText5" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <Component id="macroInstructions" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
@@ -1017,7 +1017,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="8" max="-2" attributes="0"/>
-                      <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                      <Component id="macroInstructions" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="customGcodeButton1" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1043,7 +1043,7 @@
                           <Component id="customGcodeButton5" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="customGcodeText5" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="69" max="32767" attributes="0"/>
+                      <EmptySpace pref="76" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -1125,9 +1125,9 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="customGcodeText5ActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JLabel" name="jLabel1">
+            <Component class="javax.swing.JLabel" name="macroInstructions">
               <Properties>
-                <Property name="text" type="java.lang.String" value="&lt;html&gt;Each box can contain a series of GCode commands seperated by &apos;;&apos;.&lt;br /&gt;&#xa;To execute the command, click the &apos;C&apos; button to the left of the text.&lt;/html&gt;"/>
+                <Property name="text" type="java.lang.String" value="asgasg"/>
               </Properties>
             </Component>
           </SubComponents>
