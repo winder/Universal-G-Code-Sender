@@ -364,10 +364,10 @@ public class GrblUtilsTest {
         version = 0.9;
         
         result = GrblUtils.getResetCoordToZeroCommand('X', version, letter);
-        assertEquals("G10 P0 L20 G92 X0", result);
+        assertEquals("G10 P0 L20 X0", result);
         result = GrblUtils.getResetCoordToZeroCommand('Y', version, letter);
-        assertEquals("G10 P0 L20 G92 Y0", result);
+        assertEquals("G10 P0 L20 Y0", result);
         result = GrblUtils.getResetCoordToZeroCommand('Z', version, letter);
-        assertEquals("G10 P0 L20 G92 Z0", result);
+        assertEquals("G10 P0 L20 Z0", result);
     }
 }
