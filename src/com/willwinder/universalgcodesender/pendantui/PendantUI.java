@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.MainWindowAPI;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.net.URL;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -52,7 +53,8 @@ public class PendantUI implements ControllerListener{
 
 	public Resource getBaseResource(){
 		try {
-			return Resource.newResource("./pendantUI");
+                        URL res = getClass().getResource("/resources/pendantUI");
+                        return Resource.newResource(res);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
