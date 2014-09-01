@@ -82,6 +82,11 @@ class SettingsFactory {
                 out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
                 out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
                 out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
+                out.setCustomGcode1(properties.getProperty("customGcode1", "G0 X0 Y0;"));
+                out.setCustomGcode2(properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
+                out.setCustomGcode3(properties.getProperty("customGcode3", ""));
+                out.setCustomGcode4(properties.getProperty("customGcode4", ""));
+                out.setCustomGcode5(properties.getProperty("customGcode5", ""));
 	    	}
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
