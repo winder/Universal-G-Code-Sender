@@ -1024,8 +1024,9 @@ public class GrblControllerTest {
         // Test 1. Check that polling works. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
         try {
+            
             // Enough time for a few polling callsthe next poll to be sent.
-            Thread.sleep(300);
+            Thread.sleep(600);
         } catch (InterruptedException ex) {
             fail("Unexpected exception while testing rawResponseListener: " +ex.getMessage());
         }
