@@ -98,16 +98,16 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
-        scrollWindowCheckBox = new javax.swing.JCheckBox();
         bottomTabbedPane = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
+        commandTextField = new javax.swing.JTextField();
+        scrollWindowCheckBox = new javax.swing.JCheckBox();
+        showVerboseOutputCheckBox = new javax.swing.JCheckBox();
         jScrollPane1 = new javax.swing.JScrollPane();
         commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
-        commandsPanel = new javax.swing.JPanel();
-        commandLabel = new javax.swing.JLabel();
-        commandTextField = new javax.swing.JTextField();
         fileModePanel = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
@@ -172,7 +172,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         portLabel = new javax.swing.JLabel();
         firmwareLabel = new javax.swing.JLabel();
         firmwareComboBox = new javax.swing.JComboBox();
-        showVerboseOutputCheckBox = new javax.swing.JCheckBox();
         statusPanel = new javax.swing.JPanel();
         activeStateLabel = new javax.swing.JLabel();
         activeStateValueLabel = new javax.swing.JLabel();
@@ -210,14 +209,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 520));
 
-        scrollWindowCheckBox.setSelected(true);
-        scrollWindowCheckBox.setText("Scroll output window");
-        scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                scrollWindowCheckBoxActionPerformed(evt);
-            }
-        });
-
         bottomTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         bottomTabbedPane.setMinimumSize(new java.awt.Dimension(0, 0));
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
@@ -228,7 +219,49 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
         jScrollPane2.setViewportView(consoleTextArea);
 
-        bottomTabbedPane.addTab("Console", jScrollPane2);
+        commandTextField.setToolTipText("Enter G Code commands here.");
+        commandTextField.setEnabled(false);
+        commandTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commandTextFieldActionPerformed(evt);
+            }
+        });
+
+        scrollWindowCheckBox.setSelected(true);
+        scrollWindowCheckBox.setText("Scroll output window");
+        scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                scrollWindowCheckBoxActionPerformed(evt);
+            }
+        });
+
+        showVerboseOutputCheckBox.setText("Show verbose output");
+
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
+            .add(commandTextField)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(scrollWindowCheckBox)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(showVerboseOutputCheckBox)
+                .add(0, 0, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 214, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(scrollWindowCheckBox)
+                    .add(showVerboseOutputCheckBox)))
+        );
+
+        bottomTabbedPane.addTab("Console", jPanel1);
 
         commandTable.setModel(new com.willwinder.universalgcodesender.uielements.GcodeTableModel());
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
@@ -239,40 +272,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
-
-        commandLabel.setText("Command");
-
-        commandTextField.setEnabled(false);
-        commandTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandTextFieldActionPerformed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout commandsPanelLayout = new org.jdesktop.layout.GroupLayout(commandsPanel);
-        commandsPanel.setLayout(commandsPanelLayout);
-        commandsPanelLayout.setHorizontalGroup(
-            commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(commandsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(commandTextField)
-                    .add(commandsPanelLayout.createSequentialGroup()
-                        .add(commandLabel)
-                        .add(0, 595, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        commandsPanelLayout.setVerticalGroup(
-            commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(commandsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(commandLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(143, Short.MAX_VALUE))
-        );
-
-        controlContextTabbedPane.addTab("Commands", commandsPanel);
 
         fileModePanel.setMinimumSize(new java.awt.Dimension(389, 150));
 
@@ -466,7 +465,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 .add(fileModePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(fileModePanelLayout.createSequentialGroup()
                         .add(saveButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 99, Short.MAX_VALUE))
+                        .add(0, 153, Short.MAX_VALUE))
                     .add(fileRunPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -559,7 +558,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -720,7 +719,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             .add(machineControlPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(0, 80, Short.MAX_VALUE))
+                .add(0, 96, Short.MAX_VALUE))
             .add(machineControlPanelLayout.createSequentialGroup()
                 .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(resetCoordinatesButton)
@@ -878,7 +877,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(customGcodeButton5)
                     .add(customGcodeText5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(76, Short.MAX_VALUE))
+                .addContainerGap(91, Short.MAX_VALUE))
         );
 
         controlContextTabbedPane.addTab("Macros", macroPanel);
@@ -965,10 +964,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
-
-        showVerboseOutputCheckBox.setText("Show verbose output");
 
         statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine status"));
         statusPanel.setMinimumSize(new java.awt.Dimension(247, 160));
@@ -1108,7 +1105,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(17, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
@@ -1167,30 +1164,19 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                     .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(scrollWindowCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(showVerboseOutputCheckBox)
-                        .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(layout.createSequentialGroup()
                         .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 144, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(statusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(layout.createSequentialGroup()
-                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(scrollWindowCheckBox)
-                            .add(showVerboseOutputCheckBox))))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
         );
@@ -2353,13 +2339,11 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.baudLabel.setText(Localization.getString("mainWindow.swing.baudLabel"));
         this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
         this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
-        this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 Localization.getString("mainWindow.swing.connectionPanel")));
-        this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.commands"));
-        this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.fileMode"));
-        this.controlContextTabbedPane.setTitleAt(2, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
-        this.controlContextTabbedPane.setTitleAt(3, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
+        this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.fileMode"));
+        this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
+        this.controlContextTabbedPane.setTitleAt(2, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
         this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileLabel.setText(Localization.getString("mainWindow.swing.fileLabel"));
         this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
@@ -2771,10 +2755,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
     private javax.swing.JComboBox commPortComboBox;
-    private javax.swing.JLabel commandLabel;
     private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
     private javax.swing.JTextField commandTextField;
-    private javax.swing.JPanel commandsPanel;
     private javax.swing.JPanel connectionPanel;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
@@ -2803,6 +2785,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;

@@ -56,8 +56,13 @@ public class GcodeCommandCreator {
     }
     
     public GcodeCommand createCommand(String commandString) throws Exception {
-
-
+        // trim long comments
+        if(commandString.length() > this.maxCommandLength &&
+           commandString.startsWith(";"))
+        {
+            commandString = commandString.substring(0, this.maxCommandLength-1);
+        }
+        
         if (commandString.length() > this.maxCommandLength) {
             throw new Exception(
                     String.format("Command #%d too long: (%d > %d) '%s'",
