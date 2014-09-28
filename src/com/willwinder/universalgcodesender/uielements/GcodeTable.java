@@ -78,9 +78,14 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void addRow(final GcodeCommand command) {
-
+        String commandString = command.getCommandString();
+        if (command.isComment())
+            commandString = "; " + command.getComment();
+        else if (command.hasComment())
+            commandString += "; " + command.getComment();
+            
         ((GcodeTableModel)this.getModel()).addRow(new Object[]{
-            command.getCommandString(),
+            commandString,
             command.isSent(),
             command.isDone(),
             command.getResponse()});

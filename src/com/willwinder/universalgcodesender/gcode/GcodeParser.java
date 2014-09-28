@@ -389,8 +389,6 @@ public class GcodeParser {
             result.add(command);
         }
 
-
-
         return result;
     }
 

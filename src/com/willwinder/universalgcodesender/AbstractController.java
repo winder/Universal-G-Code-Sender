@@ -418,10 +418,18 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * stage.
      */
     private void queueCommandForComm(GcodeCommand command) throws Exception {
+        // Special case for the first command because it is usually updated by completed commands looking back.
+        if (this.outgoingQueue.size() == 0 && command.hasComment())
+            dispatchCommandCommment(command.getComment());
+
         // Don't send zero length commands.
         if (command.getCommandString().equals("")) {
             this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
-            command.setResponse("<skipped by application>");
+
+            if (command.hasComment())
+                command.setResponse("<comment skipped by application>");
+            else
+                command.setResponse("<skipped by application>");
             command.setSkipped(true);
             // Need to queue the command first so that listeners don't
             // see a random command complete without notice.
@@ -430,9 +438,6 @@ public abstract class AbstractController implements SerialCommunicatorListener {
             // For the listeners...
             dispatchCommandSent(command);
         } else {
-            // Special case for the first command because it is usually updated by completed commands looking back.
-            if (this.outgoingQueue.size() == 0 && command.hasComment())
-                dispatchCommandCommment(command.getComment());
             this.outgoingQueue.add(command);
             this.commandQueued(command);
             this.sendStringToComm(command.getCommandString());
