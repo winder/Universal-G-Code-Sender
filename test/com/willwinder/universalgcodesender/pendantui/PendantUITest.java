@@ -23,10 +23,10 @@ import com.willwinder.universalgcodesender.Settings;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 
 public class PendantUITest {
-	private MockMainWindow mainWindow = new MockMainWindow();
-	private PendantUI pendantUI = new PendantUI(mainWindow);
-	private MockUGSController controller = new MockUGSController();
-	private SystemStateBean systemState = new SystemStateBean();
+	private final MockMainWindow mainWindow = new MockMainWindow();
+	private final PendantUI pendantUI = new PendantUI(mainWindow);
+	private final MockUGSController controller = new MockUGSController();
+	private final SystemStateBean systemState = new SystemStateBean();
 	
 	public class MockMainWindow implements MainWindowAPI{
 		
@@ -280,12 +280,12 @@ public class PendantUITest {
             try {
                 URL url = new URL(urlStr);
                 URLConnection conn = url.openConnection();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    out.append(line);
-                 }
-                 reader.close();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        out.append(line);
+                    }
+                }
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }				

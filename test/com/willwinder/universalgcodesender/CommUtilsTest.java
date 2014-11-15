@@ -56,7 +56,7 @@ public class CommUtilsTest {
         Boolean expResult;
         Boolean result;
 
-        List<GcodeCommand> list = new LinkedList<GcodeCommand>();
+        List<GcodeCommand> list = new LinkedList<>();
         list.add(new GcodeCommand("twenty characters...", 0));
         list.add(new GcodeCommand("twenty characters...", 1));
         list.add(new GcodeCommand("twenty characters...", 2));
@@ -90,7 +90,7 @@ public class CommUtilsTest {
     @Test
     public void testGetSizeOfBuffer() {
         System.out.println("getSizeOfBuffer");
-        List<GcodeCommand> list = new LinkedList<GcodeCommand>();
+        List<GcodeCommand> list = new LinkedList<>();
         list.add(new GcodeCommand("twenty characters...", 0));
         list.add(new GcodeCommand("twenty characters...", 1));
         list.add(new GcodeCommand("twenty characters...", 2));

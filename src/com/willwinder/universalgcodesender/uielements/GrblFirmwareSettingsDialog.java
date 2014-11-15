@@ -33,9 +33,7 @@ import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.vecmath.Point3d;
 
 /**
@@ -52,14 +50,14 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     private String[] commands = null;
     
-    private static int COL_INDEX_SETTING     = 0;
-    private static int COL_INDEX_VALUE       = 1;
-    private static int COL_INDEX_DESCRIPTION = 2;
+    private static final int COL_INDEX_SETTING     = 0;
+    private static final int COL_INDEX_VALUE       = 1;
+    private static final int COL_INDEX_DESCRIPTION = 2;
     
     
-    private static String settingNumRegex = "\\$(\\d*)";
-    private static String settingValueRegex = "\\=(\\d*\\.?\\d*)";
-    private static String commentRegex = "\\(.*\\)";
+    private static final String settingNumRegex = "\\$(\\d*)";
+    private static final String settingValueRegex = "\\=(\\d*\\.?\\d*)";
+    private static final String commentRegex = "\\(.*\\)";
     
     private Pattern settingNumPattern;
     private Pattern settingValuePattern;

@@ -36,10 +36,10 @@ public class GcodeTable extends JTable {
     private boolean autoWindowScroll = false;
     private int offset = 0;
     
-    private static int COL_INDEX_COMMAND  = 0;
-    private static int COL_INDEX_SENT     = 1;
-    private static int COL_INDEX_DONE     = 2;
-    private static int COL_INDEX_RESPONSE = 3;
+    final private static int COL_INDEX_COMMAND  = 0;
+    final private static int COL_INDEX_SENT     = 1;
+    final private static int COL_INDEX_DONE     = 2;
+    final private static int COL_INDEX_RESPONSE = 3;
     
     public GcodeTable() {
         getTableHeader().setReorderingAllowed(false);

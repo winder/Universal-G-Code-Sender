@@ -140,7 +140,7 @@ public class GcodePreprocessorUtils {
     }
     
     static public List<String> parseCodes(List<String> args, char code) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         char address = Character.toUpperCase(code);
         
         for (String s : args) {
@@ -155,7 +155,7 @@ public class GcodePreprocessorUtils {
     static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
     static public List<Integer> parseGCodes(String command) {
         Matcher matcher = gPattern.matcher(command);
-        List<Integer> codes = new ArrayList<Integer>();
+        List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
             codes.add(Integer.parseInt(matcher.group(1)));
@@ -167,7 +167,7 @@ public class GcodePreprocessorUtils {
     static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
     static public List<Integer> parseMCodes(String command) {
         Matcher matcher = gPattern.matcher(command);
-        List<Integer> codes = new ArrayList<Integer>();
+        List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
             codes.add(Integer.parseInt(matcher.group(1)));
@@ -290,7 +290,7 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
         
@@ -344,7 +344,7 @@ public class GcodePreprocessorUtils {
     }
     
     static public List<String> convertArcsToLines(Point3d start, Point3d end) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         
         return l;
     }
@@ -491,7 +491,7 @@ public class GcodePreprocessorUtils {
             double startAngle, double sweep, int numPoints) {
 
         Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
-        List<Point3d> segments = new ArrayList<Point3d>();
+        List<Point3d> segments = new ArrayList<>();
         double angle;
 
         // Calculate radius if necessary.

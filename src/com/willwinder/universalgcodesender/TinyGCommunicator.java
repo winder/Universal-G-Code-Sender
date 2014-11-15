@@ -184,8 +184,8 @@ public class TinyGCommunicator extends AbstractCommunicator {
         boolean ret = super.openCommPort(name, baud);
         //f4grx: isnt that common to all communicators we can think of?
         if (ret) {
-            this.commandBuffer = new LinkedList<String>();
-            this.activeStringList = new LinkedList<String>();
+            this.commandBuffer = new LinkedList<>();
+            this.activeStringList = new LinkedList<>();
             this.sentBufferSize = 0;
         }
         return ret;

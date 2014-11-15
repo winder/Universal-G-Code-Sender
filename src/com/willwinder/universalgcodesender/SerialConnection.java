@@ -128,9 +128,9 @@ public class SerialConnection extends Connection implements SerialPortEventListe
     @Override
     public void sendStringToComm(String command) {
         // Send command to the serial port.
-        PrintStream printStream = new PrintStream(this.out);
-        printStream.print(command);
-        printStream.close(); 
+        try (PrintStream printStream = new PrintStream(this.out)) {
+            printStream.print(command);
+        } 
     }
         
     /**

@@ -29,6 +29,7 @@ import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -56,10 +57,10 @@ class SettingsFactory {
         logger.info(Localization.getString("settings.log.loading"));
         try {
 	    	if(jsonFile.exists()){
-	            logger.info(Localization.getString("settings.log.location") + ": " + jsonFile);
+	            logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), jsonFile});
 	    		out = new Gson().fromJson(new FileReader(jsonFile), Settings.class);
 	    	} else if(propertiesFile.exists()){
-                logger.info(Localization.getString("settings.log.location") + ": " + propertiesFile);
+                logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), propertiesFile});
             	Properties properties = new Properties();
             	properties.load(new FileInputStream(propertiesFile));
                 out.setFileName(properties.getProperty("last.dir", System.getProperty("user.home")));
@@ -97,17 +98,17 @@ class SettingsFactory {
     public static void saveSettings(Settings settings) {
         logger.info(Localization.getString("settings.log.saving"));
         try {
-         	File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
-        	FileWriter fileWriter = new FileWriter(jsonFile);
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        	fileWriter.write(gson.toJson(settings, Settings.class));
-        	fileWriter.close();
+            File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
+            try (FileWriter fileWriter = new FileWriter(jsonFile)) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                fileWriter.write(gson.toJson(settings, Settings.class));
+            }
         	
-        	File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
-        	
-        	if(propertiesFile.exists()){
-        		propertiesFile.delete();
-        	}
+            File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
+
+            if(propertiesFile.exists()){
+                    propertiesFile.delete();
+            }
          } catch (Exception e) {
             e.printStackTrace();
             logger.warning(Localization.getString("settings.log.saveerror"));

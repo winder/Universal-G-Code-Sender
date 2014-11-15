@@ -37,12 +37,7 @@ public class TinyGGcodeCommand extends GcodeCommand {
     }
     
     public static Boolean isOkErrorResponse(String response) {
-        if (response.contains("{")) {
-            // for now just return true, but try to catch errors still
-            return true;
-        }
-        
-        return false;
+        return response.contains("{");
     }
     
     static String convertCommandToJson(String command) {

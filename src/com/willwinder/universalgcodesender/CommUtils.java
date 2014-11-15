@@ -44,7 +44,7 @@ public class CommUtils {
         java.util.Enumeration<CommPortIdentifier> portEnum = 
                 CommPortIdentifier.getPortIdentifiers();
         java.util.List<CommPortIdentifier> returnList =
-                new java.util.ArrayList<CommPortIdentifier>();
+                new java.util.ArrayList<>();
         
         while ( portEnum.hasMoreElements() ) 
         {

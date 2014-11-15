@@ -1,7 +1,5 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import javax.vecmath.Point3d;
-
 import com.willwinder.universalgcodesender.MainWindow.ControlState;
 
 public class SystemStateBean {

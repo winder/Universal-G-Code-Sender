@@ -343,7 +343,7 @@ public class GrblController extends AbstractController {
             }
             
             if (this.grblVersion <= 0.0 && this.grblVersionLetter == null) {
-                str.append("<" + Localization.getString("unknown") + ">");
+                str.append("<").append(Localization.getString("unknown")).append(">");
             }
             
             return str.toString();

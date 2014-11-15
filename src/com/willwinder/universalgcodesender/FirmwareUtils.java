@@ -36,7 +36,7 @@ public class FirmwareUtils {
     final static String TinyG    = "TinyG";
     
     public static ArrayList<String> getFirmwareList() {
-        ArrayList<String> ret = new ArrayList<String>();
+        ArrayList<String> ret = new ArrayList<>();
         ret.add(GRBL);
         //ret.add(Smoothie);
         //ret.add(TinyG);

@@ -72,9 +72,9 @@ public class SerialWriter implements Runnable {
                 
                 // Send it out
                 if (s.length() > 0) {
-                    PrintStream printStream = new PrintStream(this.out);
-                    printStream.print(s);
-                    printStream.close();    
+                    try (PrintStream printStream = new PrintStream(this.out)) {
+                        printStream.print(s);
+                    }    
                 }
                 
                 // Sleep

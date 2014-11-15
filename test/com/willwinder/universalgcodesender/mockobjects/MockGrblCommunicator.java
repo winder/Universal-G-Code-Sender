@@ -23,7 +23,6 @@
 
 package com.willwinder.universalgcodesender.mockobjects;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import gnu.io.NoSuchPortException;
 import gnu.io.PortInUseException;

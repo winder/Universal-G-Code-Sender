@@ -48,16 +48,16 @@ public abstract class AbstractCommunicator {
     public AbstractCommunicator() {
         this.lineTerminator = DEFAULT_TERMINATOR;
         
-        this.commandSentListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
-        this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
-        this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
+        this.commandSentListeners        = new ArrayList<>();
+        this.commandCompleteListeners    = new ArrayList<>();
+        this.commConsoleListeners        = new ArrayList<>();
+        this.commVerboseConsoleListeners = new ArrayList<>();
+        this.commRawResponseListener     = new ArrayList<>();
 
         //instanciate all known connection drivers
         //TODO: Scan the classpath for classes extending Connection,
         //      and instantiate them dynamically.
-        this.connections = new ArrayList<Connection>();
+        this.connections = new ArrayList<>();
         this.addConnectionType(new SerialConnection());
     }
 

@@ -26,7 +26,6 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import java.awt.Font;
 import java.awt.Point;

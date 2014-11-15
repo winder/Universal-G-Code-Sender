@@ -21,7 +21,7 @@ public class GrblSettingsListener implements ControllerListener {
     public boolean sending = false;
     private Object refreshLock = new Object();
 
-    public final List<String> settings = new ArrayList<String>();
+    public final List<String> settings = new ArrayList<>();
 
     private AbstractController controller;
 
@@ -45,7 +45,7 @@ public class GrblSettingsListener implements ControllerListener {
     public void refreshSettings() {
         try {
             this.sending = true;
-            boolean ready = false;
+            boolean ready;
             do {
                 try {
                     this.controller.isReadyToStreamFile();

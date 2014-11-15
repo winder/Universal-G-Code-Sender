@@ -109,7 +109,7 @@ public class GcodeParser {
     // Resets the current state.
     final public void reset() {
         this.currentPoint = new Point3d();
-        this.points = new ArrayList<PointSegment>();
+        this.points = new ArrayList<>();
         // The unspoken home location.
         this.points.add(new PointSegment(this.currentPoint, -1));
     }
@@ -186,7 +186,7 @@ public class GcodeParser {
         commandNumber--;        
                 
         // Initialize return value
-        List<PointSegment> psl = new ArrayList<PointSegment>();
+        List<PointSegment> psl = new ArrayList<>();
 
         // Create line segments from points.
         PointSegment temp;
@@ -415,7 +415,7 @@ public class GcodeParser {
         StringBuilder sb;
 
         // Create the commands...
-        result = new ArrayList<String>(psl.size());
+        result = new ArrayList<>(psl.size());
 
 
         // Setup decimal formatter.

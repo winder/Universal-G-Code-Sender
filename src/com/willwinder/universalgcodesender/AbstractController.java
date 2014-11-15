@@ -23,20 +23,13 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.PointSegment;
-import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.SynchronousQueue;
 import javax.vecmath.Point3d;
 
 /**
@@ -202,13 +195,13 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         
         this.gcp = new GcodeParser();
 
-        this.prepQueue = new LinkedList<GcodeCommand>();
-        this.outgoingQueue = new LinkedList<GcodeCommand>();
-        this.awaitingResponseQueue = new LinkedList<GcodeCommand>();
-        this.completedCommandList = new LinkedList<GcodeCommand>();
-        this.errorCommandList = new LinkedList<GcodeCommand>();
+        this.prepQueue = new LinkedList<>();
+        this.outgoingQueue = new LinkedList<>();
+        this.awaitingResponseQueue = new LinkedList<>();
+        this.completedCommandList = new LinkedList<>();
+        this.errorCommandList = new LinkedList<>();
         
-        this.listeners = new ArrayList<ControllerListener>();
+        this.listeners = new ArrayList<>();
     }
     
     @Deprecated public AbstractController() {

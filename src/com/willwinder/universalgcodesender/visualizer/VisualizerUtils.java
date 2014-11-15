@@ -99,9 +99,8 @@ public class VisualizerUtils {
 
     /** Constructor to setup the GUI for this Component */
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
-        ArrayList<String> vect = null;
+        ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        vect = new ArrayList<String>();
         FileInputStream fstream = new FileInputStream(gCodeFile);
         DataInputStream dis = new DataInputStream(fstream);
         BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));

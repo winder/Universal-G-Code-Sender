@@ -208,8 +208,8 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         boolean ret = super.openCommPort(name, baud);
         
         if (ret) {
-            this.commandBuffer = new LinkedList<String>();
-            this.activeStringList = new LinkedList<String>();
+            this.commandBuffer = new LinkedList<>();
+            this.activeStringList = new LinkedList<>();
             this.sentBufferSize = 0;
         }
         return ret;

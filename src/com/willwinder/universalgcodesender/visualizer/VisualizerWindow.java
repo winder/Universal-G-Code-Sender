@@ -31,7 +31,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
@@ -45,8 +44,6 @@ public class VisualizerWindow extends javax.swing.JFrame
 implements ControllerListener, WindowListener {
 
     private static String TITLE = Localization.getString("visualizer.title");  // window's title
-    private static final int CANVAS_WIDTH = 640;  // width of the drawable
-    private static final int CANVAS_HEIGHT = 480; // height of the drawable
     private static final int FPS = 20; // animator's target frames per second
     
     // OpenGL Control

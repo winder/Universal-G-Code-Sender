@@ -63,9 +63,10 @@ public class Utils {
     // This could theoretically scan it for errors, but GcodeSender just counts
     // how many lines are in it.
     public static List<String> processFile(File file) throws FileNotFoundException, IOException {
-        FileReader fileReader = new FileReader(file);
-        Charset encoding = Charset.forName(fileReader.getEncoding());
-        fileReader.close();
+        Charset encoding;
+        try (FileReader fileReader = new FileReader(file)) {
+            encoding = Charset.forName(fileReader.getEncoding());
+        }
         return Files.readAllLines(file.toPath(), encoding);
     }
 }

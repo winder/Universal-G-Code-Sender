@@ -178,7 +178,7 @@ public class GrblUtils {
     }
     
     static protected ArrayList<String> getReturnToHomeCommands(final double version, final String letter, final double maxZOffset) {
-        ArrayList<String> commands = new ArrayList<String>();    
+        ArrayList<String> commands = new ArrayList<>();    
         if ((version >= 0.8 && (letter != null) && letter.equals("c"))
                 || version >= 0.9) {
             commands.add(GrblUtils.GCODE_RETURN_TO_MAX_Z_LOCATION_V8C + maxZOffset);

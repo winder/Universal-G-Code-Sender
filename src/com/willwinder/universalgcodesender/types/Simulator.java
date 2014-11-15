@@ -2,7 +2,6 @@ package com.willwinder.universalgcodesender.types;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
