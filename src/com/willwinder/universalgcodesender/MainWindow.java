@@ -2650,7 +2650,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         remainingRowsValueLabel.setText("" + controller.rowsInQueue());
 
         this.updateControlsForState(ControlState.COMM_IDLE);
-        final String durationLabelCopy = this.durationLabel.getText();
+        final String durationLabelCopy = this.durationValueLabel.getText();
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 JOptionPane.showMessageDialog(new JFrame(),
