@@ -71,6 +71,11 @@ public class GcodePreprocessorUtils {
         // Remove any comment beginning with ';' using regex ";.*"
         newCommand = newCommand.replaceAll(";.*", "");
 
+        // Don't send these to the controller.
+        if (newCommand.endsWith("%")) {
+            newCommand = newCommand.substring(0, newCommand.length()-1);
+        }
+        
         return newCommand.trim();
     }
     
@@ -84,7 +89,7 @@ public class GcodePreprocessorUtils {
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
         
-        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*");
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
         Matcher matcher = pattern.matcher(command);
         if (matcher.find()){
             comment = matcher.group(0);
