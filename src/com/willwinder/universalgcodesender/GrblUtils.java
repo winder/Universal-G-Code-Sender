@@ -61,7 +61,7 @@ public class GrblUtils {
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
     //public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G90 G28 X0 Y0";
-    public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8C = "G90 G0 Z";
+    public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8C = "G21 G90 G0 Z";
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";

@@ -1457,6 +1457,10 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             this.controller.returnToHome();
             // The return to home command uses G91 to lift the tool.
             this.G91Mode = true;
+            // Also sets the units to mm.
+            if (this.inchRadioButton.isSelected()) {
+                this.inDefaultUnits = false;
+            }
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
