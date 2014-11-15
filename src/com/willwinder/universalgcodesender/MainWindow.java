@@ -2632,9 +2632,11 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.commandTable.clear();
     }
         
-    private static void displayErrorDialog(String errorMessage) {
-        JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
-                Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
+    private static void displayErrorDialog(final String errorMessage) {
+        java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+            JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
+                    Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
+        }});
     }
     
     /** SerialCommunicatorListener implementation.
@@ -2648,11 +2650,13 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         remainingRowsValueLabel.setText("" + controller.rowsInQueue());
 
         this.updateControlsForState(ControlState.COMM_IDLE);
-
+        final String durationLabelCopy = this.durationLabel.getText();
         if (success) {
-            JOptionPane.showMessageDialog(new JFrame(),
-                    Localization.getString("mainWindow.ui.jobComplete") + " " + this.durationValueLabel.getText(),
-                    Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                JOptionPane.showMessageDialog(new JFrame(),
+                        Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
+                        Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+            }});
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
