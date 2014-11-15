@@ -103,7 +103,7 @@ public class GcodeTable extends JTable {
         
         // Check for modified command string
         if (commandString != getModel().getValueAt(row, COL_INDEX_COMMAND)) {
-            System.out.printf("Row mismatch [%s] does not match row %d [%s].]n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
+            System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
         }
 
         getModel().setValueAt(command.isSent(),      row, COL_INDEX_SENT);

@@ -35,7 +35,6 @@ import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.Version;
 import gnu.io.CommPortIdentifier;
 import gnu.io.PortInUseException;
 import java.awt.Color;
@@ -57,7 +56,6 @@ import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +72,7 @@ import javax.vecmath.Point3d;
  */
 public class MainWindow extends javax.swing.JFrame 
 implements KeyListener, ControllerListener, MainWindowAPI {
-    private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
+    final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
     private PendantUI pendantUI;
     private Settings settings;
     
@@ -98,6 +96,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+        jogUnitsGroup = new javax.swing.ButtonGroup();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         bottomTabbedPane = new javax.swing.JTabbedPane();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -142,6 +141,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         zPlusButton = new javax.swing.JButton();
         yPlusButton = new javax.swing.JButton();
         stepSizeLabel = new javax.swing.JLabel();
+        inchRadioButton = new javax.swing.JRadioButton();
+        mmRadioButton = new javax.swing.JRadioButton();
         performHomingCycleButton = new javax.swing.JButton();
         killAlarmLock = new javax.swing.JButton();
         toggleCheckMode = new javax.swing.JButton();
@@ -583,17 +584,40 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         stepSizeLabel.setText("Step size:");
         stepSizeLabel.setEnabled(false);
 
+        jogUnitsGroup.add(inchRadioButton);
+        inchRadioButton.setText("inch");
+        inchRadioButton.setEnabled(false);
+        inchRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inchRadioButtonActionPerformed(evt);
+            }
+        });
+
+        jogUnitsGroup.add(mmRadioButton);
+        mmRadioButton.setText("millimeters");
+        mmRadioButton.setEnabled(false);
+        mmRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mmRadioButtonActionPerformed(evt);
+            }
+        });
+
         org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
         keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
         keyboardMovementPanelLayout.setHorizontalGroup(
             keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(arrowMovementEnabled)
+            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
             .add(keyboardMovementPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(stepSizeLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(keyboardMovementPanelLayout.createSequentialGroup()
+                        .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(inchRadioButton)
+                            .add(stepSizeLabel))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(mmRadioButton)))
         );
         keyboardMovementPanelLayout.setVerticalGroup(
             keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -604,8 +628,12 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                     .add(stepSizeLabel)
                     .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(inchRadioButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(mmRadioButton)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
@@ -1862,6 +1890,14 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.settings.setCustomGcode5(this.customGcodeText5.getText());
     }//GEN-LAST:event_customGcodeText5ActionPerformed
 
+    private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
+        this.inDefaultUnits = false;
+    }//GEN-LAST:event_inchRadioButtonActionPerformed
+
+    private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
+        this.inDefaultUnits = false;
+    }//GEN-LAST:event_mmRadioButtonActionPerformed
+
     private void executeCustomGcode(String str)
     {
         str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
@@ -1927,6 +1963,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         /* Apply the settings to the MainWindow bofore showing it */
         mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
         mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
+        boolean unitsAreMM = mw.settings.getDefaultUnits() == "mm";
+        mw.mmRadioButton.setSelected(unitsAreMM);
+        mw.inchRadioButton.setSelected(!unitsAreMM);
         mw.fileChooser = new JFileChooser(mw.settings.getFileName());
         mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
@@ -1979,6 +2018,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                     mw.settings.setFileName(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
+                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
                 mw.settings.setManualModeStepSize(mw.getStepSize());
                 mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
                 mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
@@ -2125,7 +2165,18 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         String formattedStepSize = formatter.format(stepSize);
 
         // Build G91 command.
-        StringBuilder command = new StringBuilder("G91 G0 ");
+        StringBuilder command = new StringBuilder();
+        
+        // Set jog command to the preferred units.
+        if (!this.inDefaultUnits) {
+            if (this.inchRadioButton.isSelected())
+                command.append("G20 ");
+            else
+                command.append("G21 ");
+            this.inDefaultUnits = true;
+        }
+        
+        command.append("G91 G0 ");
         
         if (dirX != 0) {
             command.append(" X");
@@ -2296,6 +2347,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.zPlusButton.setEnabled(enabled);
         this.stepSizeLabel.setEnabled(enabled);
         this.stepSizeSpinner.setEnabled(enabled);
+        this.inchRadioButton.setEnabled(enabled);
+        this.mmRadioButton.setEnabled(enabled);
     }
     
     private void updateWorkflowControls(boolean enabled) {
@@ -2391,7 +2444,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
-        this.macroInstructions.setText(Localization.getString("mainWindow.swing.macroInstructions")+"yep");
+        this.macroInstructions.setText(Localization.getString("mainWindow.swing.macroInstructions"));
+        this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
+        this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
@@ -2629,6 +2684,14 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     
     @Override
     public void commandComplete(final GcodeCommand command) {
+        String gcodeString = command.getCommandString().toLowerCase();
+        
+        // Check if the units were changed away from the default.
+        if ((this.inchRadioButton.isSelected() && gcodeString.contains("g21")) ||
+            (this.mmRadioButton.isSelected() && gcodeString.contains("g20"))) {
+            this.inDefaultUnits = false;
+        }
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -2741,7 +2804,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private int sentRows = 0;
     private long jobEstimate = 0L;
     private boolean G91Mode = false;
-
+    private boolean inDefaultUnits = false;
     // Other windows
     VisualizerWindow vw = null;
     
@@ -2800,12 +2863,14 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
+    private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
     private javax.swing.JButton killAlarmLock;
     private javax.swing.JLabel latestCommentLabel;
@@ -2822,6 +2887,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JLabel macroInstructions;
     private javax.swing.JPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
+    private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
     private javax.swing.JButton opencloseButton;
     private javax.swing.JButton pauseButton;

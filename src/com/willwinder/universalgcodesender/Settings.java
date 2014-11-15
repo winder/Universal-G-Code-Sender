@@ -27,7 +27,7 @@ public class Settings {
     private boolean convertArcsToLines = false;
     private double smallArcThreshold = 2.0;
     private double smallArcSegmentLength = 1.3;
-    
+    private String defaultUnits = "mm";
     private String customGcode1 = "G91 X0 Y0;";
     private String customGcode2 = "";
     private String customGcode3 = "";
@@ -223,6 +223,13 @@ public class Settings {
 		this.pendantConfig = pendantConfig;
 	}
         
+        public String getDefaultUnits() {
+            return defaultUnits;
+        }
+        
+        public void setDefaultUnits(String units) {
+            defaultUnits = units;
+        }
         
         public String getCustomGcode1() {
 		return customGcode1;
