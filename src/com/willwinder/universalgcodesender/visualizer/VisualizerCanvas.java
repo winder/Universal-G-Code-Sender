@@ -26,13 +26,16 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
+import com.willwinder.universalgcodesender.uielements.Overlay;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
 import java.util.List;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL.*;
@@ -59,6 +62,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     static double orthoRotation = -45;
     static boolean forceOldStyle = false;
     static boolean debugCoordinates = false; // turn on coordinate debug output
+    
+    final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
     private Point3d machineCoord;
@@ -117,6 +122,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private boolean vertexArrayDirty = false;
     
     private FPSCounter fpsCounter;
+    private Overlay overlay;
+    private String dimensionsLabel;
     
     /**
      * Constructor.
@@ -186,6 +193,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     @Override
     public void init(GLAutoDrawable drawable) {
         this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay.setColor(127, 127, 127, 100);
+        this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
@@ -260,6 +270,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         gl.glPopMatrix();
         
         this.fpsCounter.draw();
+        this.overlay.draw(this.dimensionsLabel);
         //this(drawable, new Font("SansSerif", Font.BOLD, 12));
         
         update();
@@ -450,6 +461,12 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
         this.isDrawable = true;
+        
+        double objectWidth = this.objectMax.x-this.objectMin.x;
+        double objectHeight = this.objectMax.y-this.objectMin.y;
+        this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
+                + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+                + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
         
         // Now that the object is known, fill the buffers.
         this.createVertexBuffers();
