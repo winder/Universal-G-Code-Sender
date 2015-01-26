@@ -206,6 +206,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         smallArcThresholdSpinner = new javax.swing.JSpinner();
         smallArcSegmentLengthLabel = new javax.swing.JLabel();
         smallArcSegmentLengthSpinner = new javax.swing.JSpinner();
+        languageBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -269,6 +270,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         smallArcSegmentLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.3d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
 
+        languageBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -329,8 +332,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(smallArcSegmentLengthLabel)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(smallArcSegmentLengthLabel))
+                    .addComponent(languageBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -373,7 +377,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(smallArcSegmentLengthLabel)
                     .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(languageBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -422,6 +428,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox convertArcsToLinesCheckBox;
     private javax.swing.JCheckBox displayStateColor;
     private javax.swing.JButton helpButton;
+    private javax.swing.JComboBox languageBox;
     private javax.swing.JLabel maxCommandLengthLabel;
     private javax.swing.JSpinner maxCommandLengthSpinner;
     private javax.swing.JCheckBox overrideSpeedCheckBox;
