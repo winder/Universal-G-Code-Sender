@@ -78,6 +78,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     
     /** Creates new form MainWindow */
     public MainWindow() {
+        settings = SettingsFactory.loadSettings();
+        
         initComponents();
         initProgram();
     }
@@ -1482,6 +1484,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         gcsd.setConvertArcsToLines(settings.isConvertArcsToLines());
         gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
         gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
+        gcsd.setselectedLanguage(settings.getLanguage());
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1497,6 +1500,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             settings.setConvertArcsToLines(gcsd.getConvertArcsToLines());
             settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
             settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
+            settings.setLanguage(gcsd.getLanguage());
             
             if (this.controller != null) {
                 applySettingsToController(this.controller);
@@ -1957,10 +1961,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         
          /* Create the form */
         final MainWindow mw = new MainWindow();
-
-        /* Load the stored settings or generate defaults */
-        mw.settings = SettingsFactory.loadSettings();
-        
         
         Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -2056,6 +2056,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }
         
     private void initProgram() {
+        Localization.initialize(this.settings.getLanguage());
         this.setLocalLabels();
         this.loadPortSelector();
         this.checkScrollWindow();

@@ -21,7 +21,11 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
+import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import java.util.Vector;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -38,6 +42,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public ConnectionSettingsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        languageBox.removeAllItems();
+        Vector<Language> al = AvailableLanguages.getAvailableLanguages();
+        for (Language language : al) {
+            languageBox.addItem(language);
+        }
+     
         initLocalization();
         setLocationRelativeTo(parent);
 
@@ -124,6 +134,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         return (Double)this.smallArcSegmentLengthSpinner.getValue();
     }
     
+    public String getLanguage() {
+        return ((Language)languageBox.getSelectedItem()).getLanguage() + "_" + ((Language)languageBox.getSelectedItem()).getRegion();
+    }
+    
     /**
      * Setters for all the values.
      */
@@ -175,6 +189,11 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.smallArcSegmentLengthSpinner.setValue(threshold);
     }
     
+    public void setselectedLanguage(String language){
+        Language l = AvailableLanguages.getLanguageByString(language);
+        this.languageBox.setSelectedItem(l);
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -206,6 +225,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         smallArcThresholdSpinner = new javax.swing.JSpinner();
         smallArcSegmentLengthLabel = new javax.swing.JLabel();
         smallArcSegmentLengthSpinner = new javax.swing.JSpinner();
+        languageBox = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -269,6 +289,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         smallArcSegmentLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.3d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
 
+        languageBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -329,8 +351,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(smallArcSegmentLengthLabel)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addComponent(smallArcSegmentLengthLabel))
+                    .addComponent(languageBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -373,7 +396,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(smallArcSegmentLengthLabel)
                     .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(languageBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -422,6 +447,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     private javax.swing.JCheckBox convertArcsToLinesCheckBox;
     private javax.swing.JCheckBox displayStateColor;
     private javax.swing.JButton helpButton;
+    private javax.swing.JComboBox languageBox;
     private javax.swing.JLabel maxCommandLengthLabel;
     private javax.swing.JSpinner maxCommandLengthSpinner;
     private javax.swing.JCheckBox overrideSpeedCheckBox;
