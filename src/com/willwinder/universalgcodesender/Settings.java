@@ -33,6 +33,7 @@ public class Settings {
     private String customGcode3 = "";
     private String customGcode4 = "";
     private String customGcode5 = "";
+    private String language = "en_US";
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
 
@@ -271,4 +272,11 @@ public class Settings {
 		this.customGcode5 = gcode;
 	}
 
+        public String getLanguage() {
+            return this.language;
+        }
+        
+        public void setLanguage (String language) {
+            this.language = language;
+        }
 }

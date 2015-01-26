@@ -21,7 +21,11 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
+import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import java.util.Vector;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -38,6 +42,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public ConnectionSettingsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        languageBox.removeAllItems();
+        Vector<Language> al = AvailableLanguages.getAvailableLanguages();
+        for (Language language : al) {
+            languageBox.addItem(language);
+        }
+     
         initLocalization();
         setLocationRelativeTo(parent);
 
@@ -124,6 +134,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         return (Double)this.smallArcSegmentLengthSpinner.getValue();
     }
     
+    public String getLanguage() {
+        return ((Language)languageBox.getSelectedItem()).getLanguage() + "_" + ((Language)languageBox.getSelectedItem()).getRegion();
+    }
+    
     /**
      * Setters for all the values.
      */
@@ -173,6 +187,11 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     
     public void setSmallArcSegmentLengthSpinner(double threshold) {
         this.smallArcSegmentLengthSpinner.setValue(threshold);
+    }
+    
+    public void setselectedLanguage(String language){
+        Language l = AvailableLanguages.getLanguageByString(language);
+        this.languageBox.setSelectedItem(l);
     }
     
     /**

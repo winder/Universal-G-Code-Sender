@@ -88,6 +88,7 @@ class SettingsFactory {
                 out.setCustomGcode3(properties.getProperty("customGcode3", ""));
                 out.setCustomGcode4(properties.getProperty("customGcode4", ""));
                 out.setCustomGcode5(properties.getProperty("customGcode5", ""));
+                out.setLanguage(properties.getProperty("language", "en_US"));
 	    	}
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
