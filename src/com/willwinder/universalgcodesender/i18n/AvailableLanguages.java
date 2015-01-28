@@ -17,6 +17,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("en", "US", "English"));
         availableLanguages.add(new Language("de", "DE", "German"));
         availableLanguages.add(new Language("es", "ES", "Spanish"));
+        availableLanguages.add(new Language("af", "ZA", "Afrikaans"));
     }
 
     public static Vector<Language> getAvailableLanguages() {
