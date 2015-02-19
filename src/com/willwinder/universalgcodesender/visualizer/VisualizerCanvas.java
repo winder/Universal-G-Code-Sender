@@ -238,6 +238,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void display(GLAutoDrawable drawable) {
+        if (gcodeLineList.size() == 0) return;
+
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
@@ -338,7 +340,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     /**
      * Render the GCode object.
      */
-    private void renderModel(GLAutoDrawable drawable) {
+    private void renderModel(GLAutoDrawable drawable) {       
         GL2 gl = drawable.getGL().getGL2();
         
         // Batch mode if available 
@@ -443,6 +445,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.objectMin = gcvp.getMinimumExtremes();
         this.objectMax = gcvp.getMaximumExtremes();
 
+        if (gcodeLineList.size() == 0) {
+            return;
+        }
+        
         // Grab the line number off the last line.
         this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
         
