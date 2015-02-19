@@ -23,16 +23,35 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.List;
 
 /**
  *
  * @author wwinder
  */
-public class Utils {    
+public class Utils {
+    public enum Units {
+        MM,
+        INCH,
+        UNKNOWN
+    };
+    
+    public enum ControlState {
+        COMM_DISCONNECTED,
+        COMM_IDLE,
+        COMM_SENDING,
+        COMM_SENDING_PAUSED,
+        FILE_SELECTED,
+    };
+    
+    public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
+
     public static String timeSince(long from){
         long elapsedTime = millisSince(from);
         return Utils.formattedMillis(elapsedTime);  

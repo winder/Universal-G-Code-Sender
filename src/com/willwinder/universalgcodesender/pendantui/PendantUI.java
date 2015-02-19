@@ -30,6 +30,8 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.MainWindowAPI;
+import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -168,13 +170,13 @@ public class PendantUI implements ControllerListener{
 							mainWindow.getController().toggleCheckMode();
 							break;
 						case "RESET_ZERO":
-							mainWindow.resetCoordinatesButtonActionPerformed();
+							mainWindow.resetCoordinatesToZero();
 							break;
 						case "RETURN_TO_ZERO":
-							mainWindow.returnToZeroButtonActionPerformed();
+							mainWindow.returnToZero();
 							break;
 						case "SEND_FILE":
-							mainWindow.sendButtonActionPerformed();
+							mainWindow.send();
 							break;
 						default:
 							mainWindow.sendGcodeCommand(gCode);
@@ -183,10 +185,10 @@ public class PendantUI implements ControllerListener{
 				} else {
 					switch (gCode) {
 					case "PAUSE_RESUME_FILE":
-						mainWindow.pauseButtonActionPerformed();
+						mainWindow.pauseResume();
 						break;
 					case "CANCEL_FILE":
-						mainWindow.cancelButtonActionPerformed();
+						mainWindow.cancel();
 						break;
 					default:
 						break;
@@ -236,7 +238,11 @@ public class PendantUI implements ControllerListener{
 				int dirZ = parseInt(baseRequest.getParameter("dirZ"));
 				double stepSize = parseDouble(baseRequest.getParameter("stepSize"));
 				
-				mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize);
+                                try {
+                                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, Units.UNKNOWN);
+                                } catch (Exception e) {
+                                    logger.warning(e.getMessage());
+                                }
 			}
 
 			response.getWriter().print(systemState.getControlState().name());
