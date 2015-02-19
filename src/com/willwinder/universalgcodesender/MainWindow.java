@@ -2142,13 +2142,13 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }
 
     private double getStepSize() {
-        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(2, RoundingMode.HALF_EVEN);
+        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
         return bd.doubleValue();
         //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
 
     private void setStepSize(double val) {
-        BigDecimal bd = new BigDecimal(val).setScale(2, RoundingMode.HALF_EVEN);
+        BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
         val = bd.doubleValue();
         this.stepSizeSpinner.setValue(val);
     }
