@@ -490,7 +490,7 @@ public class GcodePreprocessorUtils {
             final Point3d p2, final Point3d center, boolean isCw, double radius, 
             double startAngle, double sweep, int numPoints) {
 
-        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
+        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
         List<Point3d> segments = new ArrayList<>();
         double angle;
 
@@ -512,15 +512,15 @@ public class GcodePreprocessorUtils {
                 angle = angle - Math.PI * 2;
             }
 
-            lineEnd.x = Math.cos(angle) * radius + center.x;
-            lineEnd.y = Math.sin(angle) * radius + center.y;
-            lineEnd.z += zIncrement;
+            lineStart.x = Math.cos(angle) * radius + center.x;
+            lineStart.y = Math.sin(angle) * radius + center.y;
+            lineStart.z += zIncrement;
             
-            segments.add(new Point3d(lineEnd));
+            segments.add(new Point3d(lineStart));
         }
         
         segments.add(new Point3d(p2));
-        
+
         return segments;
     }
 }
