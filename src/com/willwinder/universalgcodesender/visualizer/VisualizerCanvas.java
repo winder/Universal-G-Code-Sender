@@ -238,8 +238,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void display(GLAutoDrawable drawable) {
-        if (gcodeLineList.size() == 0) return;
-
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
@@ -271,9 +269,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         gl.glPopMatrix();
         
-        this.fpsCounter.draw();
-        this.overlay.draw(this.dimensionsLabel);
-        //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        if (isDrawable) {
+            this.fpsCounter.draw();
+            this.overlay.draw(this.dimensionsLabel);
+            //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        }
         
         update();
     }
