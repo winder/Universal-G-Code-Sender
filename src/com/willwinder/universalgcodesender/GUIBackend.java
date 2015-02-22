@@ -8,6 +8,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.Utils.ControlState;
 import com.willwinder.universalgcodesender.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -37,7 +38,8 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     Point3d machineCoord = null;
     Point3d workCoord = null;
     String state;
-    Collection<ControllerListener> listeners = new ArrayList<>();
+    Collection<ControllerListener> controllerListeners = new ArrayList<>();
+    Collection<ControlStateListener> controlStateListeners = new ArrayList<>();
 
     // Machine state
     Units units = Units.UNKNOWN;
@@ -60,8 +62,12 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
 
     boolean G91Mode = false;
     
+    public void addControlStateListener(ControlStateListener listener) {
+        controlStateListeners.add(listener);
+    }
+    
     public void addControllerListener(ControllerListener listener) {
-        listeners.add(listener);
+        controllerListeners.add(listener);
         if (this.controller != null) {
             this.controller.addListener(listener);
         }
@@ -75,11 +81,14 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
 
         applySettingsToController(settings, this.controller);
 
-        for (ControllerListener l : listeners) {
+        this.controller.addListener(this);
+        for (ControllerListener l : controllerListeners) {
             this.controller.addListener(l);
         }
         
-        Boolean ret = openCommConnection(port, baudRate);
+        if (openCommConnection(port, baudRate)) {
+            this.setControlState(ControlState.COMM_IDLE);
+        }
     }
 
     @Override
@@ -91,7 +100,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     public void disconnect() {
         this.controller.closeCommPort();
         this.controller = null;
-        this.controlState = ControlState.COMM_DISCONNECTED;
+        this.setControlState(ControlState.COMM_DISCONNECTED);
     }
 
     @Override
@@ -209,6 +218,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
         this.gcodeFile = file;
         try {
             this.initializedProcessedLines();
+            this.setControlState(this.controlState); // just send the signal.
         } catch (FileNotFoundException ex) {
             logger.log(Level.INFO, "File not found exception.", ex);
             throw new Exception(Localization.getString("mainWindow.error.openingFile") +": " + ex.getMessage());
@@ -233,7 +243,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.controlState = ControlState.COMM_SENDING;
+            this.setControlState(ControlState.COMM_SENDING);
 
             // Mark the position in the table where the commands will begin.
             //commandTable.setOffset();
@@ -247,7 +257,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
         } catch (Exception e) {
-            this.controlState = ControlState.COMM_IDLE;
+            this.setControlState(ControlState.COMM_IDLE);
             e.printStackTrace();
             throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
@@ -297,11 +307,11 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
             switch(controlState) {
                 case COMM_SENDING:
                     this.controller.pauseStreaming();
-                    this.controlState = ControlState.COMM_SENDING_PAUSED;
+                    this.setControlState(ControlState.COMM_SENDING_PAUSED);
                     return;
                 case COMM_SENDING_PAUSED:
                     this.controller.resumeStreaming();
-                    this.controlState = ControlState.COMM_SENDING;
+                    this.setControlState(ControlState.COMM_SENDING);
                     return;
                 default:
                     throw new Exception();
@@ -344,13 +354,14 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     
     @Override
     public boolean canSend() {
+        System.out.println("Can send: " + ((this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null)));
         return (this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null);
     }
     
     @Override
     public void cancel() throws Exception {
         this.controller.cancelSend();
-        this.controlState = ControlState.COMM_IDLE;
+        this.setControlState(ControlState.COMM_IDLE);
     }
 
     @Override
@@ -406,8 +417,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        this.controlState = ControlState.COMM_IDLE;
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.setControlState(ControlState.COMM_IDLE);
     }
 
     @Override
@@ -507,9 +517,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     private boolean openCommConnection(String port, int baudRate) throws Exception {
         boolean connected = false;
         try {
-             
             connected = controller.openCommPort(port, baudRate);
-            this.controlState = ControlState.COMM_IDLE;
         } catch (PortInUseException e) {
             //Localization.getString("")
             StringBuilder message = new StringBuilder()
@@ -552,6 +560,14 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
                 });
                 estimateThread.start();
             }
+        }
+    }
+    
+    private void setControlState(ControlState newState) {
+        this.controlState = newState;
+        for (ControlStateListener l : controlStateListeners) {
+            System.out.println("Sending control state change.");
+            l.ControlStateChanged(newState);
         }
     }
 }

@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import gnu.io.CommPortIdentifier;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -71,7 +72,7 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class MainWindow extends javax.swing.JFrame 
-implements KeyListener, ControllerListener {
+implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
@@ -100,6 +101,7 @@ implements KeyListener, ControllerListener {
         initComponents();
         initProgram();
         backend.addControllerListener(this);
+        backend.addControlStateListener(this);
     }
     
     /**
@@ -1434,7 +1436,6 @@ implements KeyListener, ControllerListener {
             
             try {
                 this.backend.connect(firmware, port, baudRate);
-                this.updateControls();
                 
                 if (this.backend.getFile() != null) {
                     try {
@@ -1454,7 +1455,6 @@ implements KeyListener, ControllerListener {
             }
         } else {
             this.backend.disconnect();
-            this.updateControls();
         }
     }//GEN-LAST:event_opencloseButtonActionPerformed
 
@@ -1583,7 +1583,6 @@ implements KeyListener, ControllerListener {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
                 backend.setFile(gcodeFile);
-                this.updateControls();
                 if (this.vw != null) {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
@@ -1641,7 +1640,6 @@ implements KeyListener, ControllerListener {
     public void cancelButtonActionPerformed() {
         try {
             backend.cancel();
-            this.updateControls();
         } catch (Exception e) {
             MainWindow.displayErrorDialog(e.getMessage());
         }
@@ -1654,7 +1652,6 @@ implements KeyListener, ControllerListener {
     public void pauseButtonActionPerformed() {
         try {
             this.backend.pauseResume();
-            this.updateControls();
         } catch (Exception e) {
             MainWindow.displayErrorDialog(e.getMessage());
         }
@@ -1697,7 +1694,6 @@ implements KeyListener, ControllerListener {
             logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
             MainWindow.displayErrorDialog(e.getMessage());
         }
-        this.updateControls();
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
@@ -2123,6 +2119,7 @@ implements KeyListener, ControllerListener {
     }
     
     private void updateControls() {
+        System.out.println("Updating controls for: " + backend.getControlState());
         this.cancelButton.setEnabled(backend.canCancel());
         this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
         this.pauseButton.setText(backend.getPauseResumeText());
@@ -2390,7 +2387,6 @@ implements KeyListener, ControllerListener {
         final String durationLabelCopy = this.durationValueLabel.getText();
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                updateControls();
                 JOptionPane.showMessageDialog(new JFrame(),
                         Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
@@ -2398,7 +2394,6 @@ implements KeyListener, ControllerListener {
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
-        this.updateControls();
     }
     
     @Override
@@ -2486,6 +2481,12 @@ implements KeyListener, ControllerListener {
     
     @Override
     public void postProcessData(int numRows) {
+    }
+    
+    
+    @Override
+    public void ControlStateChanged(Utils.ControlState newState) {
+        this.updateControls();
     }
 
     // Generated variables.
@@ -2601,4 +2602,5 @@ implements KeyListener, ControllerListener {
     private javax.swing.JButton zMinusButton;
     private javax.swing.JButton zPlusButton;
     // End of variables declaration//GEN-END:variables
+
 }
