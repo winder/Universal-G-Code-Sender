@@ -47,7 +47,6 @@ public class Utils {
         COMM_IDLE,
         COMM_SENDING,
         COMM_SENDING_PAUSED,
-        FILE_SELECTED,
     };
     
     public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);

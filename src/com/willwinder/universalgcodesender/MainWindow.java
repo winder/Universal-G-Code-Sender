@@ -78,11 +78,10 @@ implements KeyListener, ControllerListener {
     private PendantUI pendantUI;
     private Settings settings;
     
-    GUIBackend backend = new GUIBackend();
+    GUIBackend backend;
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
-    private java.io.File gcodeFile;
 
     // TODO: Move command history box into a self contained object.
     private int commandNum = -1;
@@ -95,10 +94,12 @@ implements KeyListener, ControllerListener {
     private Timer timer;
     
     /** Creates new form MainWindow */
-    public MainWindow() {
-        settings = SettingsFactory.loadSettings();
+    public MainWindow(GUIBackend backend) {
+        this.backend = backend;
+        this.settings = SettingsFactory.loadSettings();
         initComponents();
         initProgram();
+        backend.addControllerListener(this);
     }
     
     /**
@@ -130,7 +131,8 @@ implements KeyListener, ControllerListener {
         //</editor-fold>
         
          /* Create the form */
-        final MainWindow mw = new MainWindow();
+        GUIBackend backend = new GUIBackend();
+        final MainWindow mw = new MainWindow(backend);
         
         Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -1434,14 +1436,14 @@ implements KeyListener, ControllerListener {
                 this.backend.connect(firmware, port, baudRate);
                 this.updateControls();
                 
-                if (this.gcodeFile != null) {
+                if (this.backend.getFile() != null) {
                     try {
-                        this.backend.setFile(this.gcodeFile);
+                        this.backend.setFile(this.backend.getFile());
                     } catch (Exception e) {
                         MainWindow.displayErrorDialog(e.getMessage());
                     }
                     if (this.vw != null) {
-                        vw.setGcodeFile(this.gcodeFile.getAbsolutePath());
+                        vw.setGcodeFile(this.backend.getFile().getAbsolutePath());
                     }
 
                 }
@@ -1563,7 +1565,6 @@ implements KeyListener, ControllerListener {
             
             try {
                 backend.applySettings(settings);
-                backend.addControllerListener(this);
             } catch (Exception e) {
                 MainWindow.displayErrorDialog(e.getMessage());
             }
@@ -1580,7 +1581,7 @@ implements KeyListener, ControllerListener {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
-                gcodeFile = fileChooser.getSelectedFile();
+                File gcodeFile = fileChooser.getSelectedFile();
                 backend.setFile(gcodeFile);
                 this.updateControls();
                 if (this.vw != null) {
@@ -1724,12 +1725,12 @@ implements KeyListener, ControllerListener {
                 backend.applySettingsToController(settings, control);
                 
                 // Read file.
-                FileReader fr = new FileReader(this.gcodeFile);
+                FileReader fr = new FileReader(this.backend.getFile());
                 Charset cs = Charset.forName(fr.getEncoding());
                 fr.close();
-                Collection<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
+                Collection<String> lines = Files.readAllLines(this.backend.getFile().toPath(), cs);
                 lines = control.preprocess(lines);
-                control.appendGcodeCommands(lines, this.gcodeFile);
+                control.appendGcodeCommands(lines, this.backend.getFile());
                 control.saveToFile(newFile);
             } catch (FileNotFoundException ex) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
@@ -1881,35 +1882,35 @@ implements KeyListener, ControllerListener {
         }
     }
     
-    private void adjustManualLocation(int x, int y, int z, double stepSize, Units units) {
+    private void adjustManualLocation(int x, int y, int z) {
         try {
-            this.backend.adjustManualLocation(0, 1, 0, this.getStepSize(), getSelectedUnits());
+            this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
         } catch (Exception e) {
             MainWindow.displayErrorDialog(e.getMessage());
         }
     }
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
-        this.adjustManualLocation(0, 1, 0, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(0, 1, 0);
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
-        this.adjustManualLocation(0, 0, 1, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(0, 0, 1);
     }//GEN-LAST:event_zPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
-        this.adjustManualLocation(-1, 0, 0, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(-1, 0, 0);
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
     private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
-        this.adjustManualLocation(1, 0, 0, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(1, 0, 0);
     }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
-        this.adjustManualLocation(0, -1, 0, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(0, -1, 0);
     }//GEN-LAST:event_yMinusButtonActionPerformed
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
-        this.adjustManualLocation(0, 0, -1, this.getStepSize(), getSelectedUnits());
+        this.adjustManualLocation(0, 0, -1);
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
@@ -2123,38 +2124,32 @@ implements KeyListener, ControllerListener {
     
     private void updateControls() {
         this.cancelButton.setEnabled(backend.canCancel());
-        this.pauseButton.setEnabled(backend.canPause());
+        this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
         this.pauseButton.setText(backend.getPauseResumeText());
+        this.sendButton.setEnabled(backend.canSend());
         
-        switch (backend.getControlState()) {
-            case FILE_SELECTED:
+        boolean hasFile = backend.getFile() != null;
+        if (hasFile) {
                 this.saveButton.setEnabled(true);
                 this.visualizeButton.setEnabled(true);
-                this.updateFileControls(backend.isConnected());
-                break;
+                this.fileTextField.setEnabled(false);
+        }
+        
+        switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
-                this.updateConnectionControls(false);
+                this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
                 this.updateCustomGcodeControls(false);
-                this.updateFileControls(false);
-                this.updateControlsStopSending();
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
-                this.updateConnectionControls(true);
+                this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
                 this.updateCustomGcodeControls(true);
-                this.updateControlsStopSending();
                 break;
             case COMM_SENDING:
-                // Command tab
-                this.commandTextField.setEnabled(false);
-
-                // File tab
-                this.sendButton.setEnabled(false);
-
                 // Workflow tab
                 this.updateWorkflowControls(false);
                 this.updateCustomGcodeControls(false);
@@ -2163,6 +2158,7 @@ implements KeyListener, ControllerListener {
         
                 break;
             case COMM_SENDING_PAUSED:
+
                 break;
             default:
                 
@@ -2172,7 +2168,7 @@ implements KeyListener, ControllerListener {
     /**
      * Enable/disable connection frame based on connection state.
      */
-    private void updateConnectionControls(boolean isOpen) {
+    private void updateConnectionControlsStateOpen(boolean isOpen) {
 
         this.commPortComboBox.setEnabled(!isOpen);
         this.baudrateSelectionComboBox.setEnabled(!isOpen);
@@ -2184,32 +2180,6 @@ implements KeyListener, ControllerListener {
         } else {
             this.opencloseButton.setText(Localization.getString("open"));
         }
-    }
-    
-    /**
-     * Enable/disable file frame based on connection state.
-     */
-    private void updateFileControls(boolean enabled) {
-        this.sendButton.setEnabled(enabled && this.gcodeFile != null);
-        //browse always enabled.
-        //this.browseButton.setEnabled(enabled);
-        this.fileTextField.setEnabled(enabled);
-
-        if (!enabled) {
-            updateControlsStopSending();
-        }
-    }
-    
-    private void updateControlsStopSending() {
-        if (this.timer != null && this.timer.isRunning()) {
-            // Stop the timer
-            this.timer.stop();
-        }
-        
-        // In case transitioning from file sending or file send paused.
-        this.pauseButton.setText(Localization.getString("mainWindow.ui.pauseButton"));
-        this.pauseButton.setEnabled(false);
-        this.cancelButton.setEnabled(false);
     }
     
     /**
@@ -2428,6 +2398,7 @@ implements KeyListener, ControllerListener {
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
+        this.updateControls();
     }
     
     @Override

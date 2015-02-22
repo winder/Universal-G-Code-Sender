@@ -7,6 +7,7 @@ import java.io.File;
 public interface MainWindowAPI {
         // Config options
         public void setFile(File file) throws Exception;
+        public File getFile();
         public void applySettings(Settings settings) throws Exception;
 
         // Control options
@@ -33,6 +34,7 @@ public interface MainWindowAPI {
         public boolean isPaused();
         public boolean canPause();
 	public boolean canCancel();
+        public boolean canSend();
         public ControlState getControlState();
         
         // Send status

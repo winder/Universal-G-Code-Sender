@@ -209,7 +209,6 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
         this.gcodeFile = file;
         try {
             this.initializedProcessedLines();
-            controlState = ControlState.FILE_SELECTED;
         } catch (FileNotFoundException ex) {
             logger.log(Level.INFO, "File not found exception.", ex);
             throw new Exception(Localization.getString("mainWindow.error.openingFile") +": " + ex.getMessage());
@@ -217,6 +216,11 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
             logger.log(Level.INFO, "IO Exception.", e);
             throw new Exception(Localization.getString("mainWindow.error.processingFile") +": " + e.getMessage());
         }    
+    }
+    
+    @Override
+    public File getFile() {
+        return this.gcodeFile;
     }
     
     @Override
@@ -336,6 +340,11 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
         // Note: Cannot cancel a send while paused because there are commands
         //       in the GRBL buffer which can't be un-sent.
         return this.controlState == ControlState.COMM_SENDING;
+    }
+    
+    @Override
+    public boolean canSend() {
+        return (this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null);
     }
     
     @Override
