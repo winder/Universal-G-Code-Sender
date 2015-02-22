@@ -248,8 +248,9 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
             // Mark the position in the table where the commands will begin.
             //commandTable.setOffset();
 
-            if (G91Mode) {
+            if (this.G91Mode) {
                 this.controller.preprocessAndAppendGcodeCommand("G90");
+                this.G91Mode = false;
             }
 
             this.controller.appendGcodeCommands(processedCommandLines, this.gcodeFile);
@@ -354,7 +355,6 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     
     @Override
     public boolean canSend() {
-        System.out.println("Can send: " + ((this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null)));
         return (this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null);
     }
     
@@ -434,9 +434,9 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
 
         // Check for unit changes.
         if (gcodeString.contains("g21")) {
-            this.units = Units.INCH;
-        } else if (gcodeString.contains("g20")) {
             this.units = Units.MM;
+        } else if (gcodeString.contains("g20")) {
+            this.units = Units.INCH;
         }
     }
 
@@ -566,7 +566,7 @@ public class GUIBackend implements MainWindowAPI, ControllerListener {
     private void setControlState(ControlState newState) {
         this.controlState = newState;
         for (ControlStateListener l : controlStateListeners) {
-            System.out.println("Sending control state change.");
+            logger.info("Sending control state change.");
             l.ControlStateChanged(newState);
         }
     }

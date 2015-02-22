@@ -2119,7 +2119,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }
     
     private void updateControls() {
-        System.out.println("Updating controls for: " + backend.getControlState());
         this.cancelButton.setEnabled(backend.canCancel());
         this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
         this.pauseButton.setText(backend.getPauseResumeText());
