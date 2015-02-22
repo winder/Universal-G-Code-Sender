@@ -166,19 +166,19 @@ public class FPSCounter {
     }
 
     if (fpsText != null) {
-      renderer.beginRendering(drawable.getWidth(), drawable.getHeight());
+      renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
       // Figure out the location at which to draw the text
       int x = 0;
       int y = 0;
       switch (textLocation) {
         case UPPER_LEFT:
           x = fpsOffset;
-          y = drawable.getHeight() - fpsHeight - fpsOffset;
+          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
           break;
 
         case UPPER_RIGHT:
-          x = drawable.getWidth() - fpsWidth - fpsOffset;
-          y = drawable.getHeight() - fpsHeight - fpsOffset;
+          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
+          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
           break;
 
         case LOWER_LEFT:
@@ -187,7 +187,7 @@ public class FPSCounter {
           break;
 
         case LOWER_RIGHT:
-          x = drawable.getWidth() - fpsWidth - fpsOffset;
+          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
           y = fpsOffset;
           break;
       }

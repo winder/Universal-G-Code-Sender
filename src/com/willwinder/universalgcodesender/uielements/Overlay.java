@@ -146,7 +146,7 @@ public class Overlay {
   public void draw(String text) {
     text = text.trim();
     if (text != null || text != "") {
-      renderer.beginRendering(drawable.getWidth(), drawable.getHeight());
+      renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
       
       Rectangle2D bounds = renderer.getBounds(text);
       width = (int) bounds.getWidth();
@@ -159,12 +159,12 @@ public class Overlay {
       switch (textLocation) {
         case UPPER_LEFT:
           x = offset;
-          y = drawable.getHeight() - height - offset;
+          y = drawable.getSurfaceHeight() - height - offset;
           break;
 
         case UPPER_RIGHT:
-          x = drawable.getWidth() - width - offset;
-          y = drawable.getHeight() - height - offset;
+          x = drawable.getSurfaceWidth() - width - offset;
+          y = drawable.getSurfaceHeight() - height - offset;
           break;
 
         case LOWER_LEFT:
@@ -173,7 +173,7 @@ public class Overlay {
           break;
 
         case LOWER_RIGHT:
-          x = drawable.getWidth() - width - offset;
+          x = drawable.getSurfaceWidth() - width - offset;
           y = offset;
           break;
       }
