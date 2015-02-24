@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,7 +24,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import gnu.io.CommPortIdentifier;
+import jssc.SerialPortList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -38,6 +38,16 @@ public class CommUtils {
     /** 
      * Generates a list of available serial ports.
      */
+    static protected String[] getSerialPortList() {
+        /*
+        int type = CommPortIdentifier.PORT_SERIAL;
+        */
+
+        return SerialPortList.getPortNames();
+    }
+
+    /*
+    // RXTX Version
     static protected java.util.List<CommPortIdentifier> getSerialPortList() {
         int type = CommPortIdentifier.PORT_SERIAL;
         
@@ -55,6 +65,7 @@ public class CommUtils {
         }
         return returnList;
     }
+    */
     
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.

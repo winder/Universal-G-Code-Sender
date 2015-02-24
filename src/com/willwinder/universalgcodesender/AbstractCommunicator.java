@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -58,7 +58,7 @@ public abstract class AbstractCommunicator {
         //TODO: Scan the classpath for classes extending Connection,
         //      and instantiate them dynamically.
         this.connections = new ArrayList<>();
-        this.addConnectionType(new SerialConnection());
+        this.addConnectionType(new JSSCConnection());
     }
 
     final public void addConnectionType(Connection conn) {
@@ -71,7 +71,7 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
-    abstract public void sendByteImmediately(byte b) throws IOException;
+    abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public boolean areActiveCommands();
     abstract public void streamCommands();
     abstract public void pauseSend();
@@ -103,7 +103,7 @@ public abstract class AbstractCommunicator {
 
 
     //do common things (related to the connection, that is shared by all communicators)
-    protected void closeCommPort() {
+    protected void closeCommPort() throws Exception {
         conn.closePort();
     }
     

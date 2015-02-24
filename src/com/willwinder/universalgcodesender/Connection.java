@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,11 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
-import java.util.TooManyListenersException;
 
 /**
  *
@@ -42,14 +38,11 @@ public abstract class Connection {
 
     abstract public boolean supports(String portname);
     
-    abstract public boolean openPort(String name, int baud) 
-            throws NoSuchPortException, PortInUseException, 
-            UnsupportedCommOperationException, IOException, 
-            TooManyListenersException, Exception;
+    abstract public boolean openPort(String name, int baud) throws Exception;
     
-    abstract public void closePort();
+    abstract public void closePort() throws Exception;
         
-    abstract public void sendByteImmediately(byte b) throws IOException;
+    abstract public void sendByteImmediately(byte b) throws Exception;
     
-    abstract public void sendStringToComm(String command);
+    abstract public void sendStringToComm(String command) throws Exception;
 }

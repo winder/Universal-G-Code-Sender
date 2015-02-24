@@ -2,7 +2,7 @@
  * GRBL Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -152,14 +151,14 @@ public class GrblController extends AbstractController {
         }
     }
     @Override
-    protected void pauseStreamingEvent() throws IOException {
+    protected void pauseStreamingEvent() throws Exception {
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         }
     }
     
     @Override
-    protected void resumeStreamingEvent() throws IOException {
+    protected void resumeStreamingEvent() throws Exception {
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         }
@@ -177,7 +176,7 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void openCommAfterEvent() throws IOException {
+    protected void openCommAfterEvent() throws Exception {
         this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
     }
 
@@ -319,7 +318,7 @@ public class GrblController extends AbstractController {
      * If it is supported, a soft reset real-time command will be issued.
      */
     @Override
-    public void softReset() throws IOException {
+    public void softReset() throws Exception {
         if (this.isCommOpen() && this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
@@ -374,7 +373,7 @@ public class GrblController extends AbstractController {
                                     outstandingPolls = 0;
                                 }
                             }
-                        } catch (IOException ex) {
+                        } catch (Exception ex) {
                             messageForConsole(Localization.getString("controller.exception.sendingstatus")
                                     + ": " + ex.getMessage() + "\n");
                         }

@@ -2,7 +2,7 @@
  * Abstract Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -49,7 +49,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
      * Called after comm opening allowing device specific behavior.
      * @throws IOException 
      */
-    protected void openCommAfterEvent() throws IOException {
+    protected void openCommAfterEvent() throws Exception {
     	// Empty default implementation. 
     }
     
@@ -62,8 +62,8 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     /**
      * Called before the comm is paused and before it is resumed. 
      */
-    abstract protected void pauseStreamingEvent() throws IOException;
-    abstract protected void resumeStreamingEvent() throws IOException;
+    abstract protected void pauseStreamingEvent() throws Exception;
+    abstract protected void resumeStreamingEvent() throws Exception;
     
     /**
      * Called prior to streaming commands, throw an exception if not ready.
@@ -319,7 +319,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         return this.commOpen;
     }
     
-    public Boolean closeCommPort() {
+    public Boolean closeCommPort() throws Exception {
         // Already closed.
         if (this.commOpen == false) {
             return true;
@@ -548,14 +548,14 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         }
     }
     
-    public void pauseStreaming() throws IOException {
+    public void pauseStreaming() throws Exception {
         this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
         pauseStreamingEvent();
         this.paused = true;
         this.comm.pauseSend();
     }
     
-    public void resumeStreaming() throws IOException {
+    public void resumeStreaming() throws Exception {
         this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
         resumeStreamingEvent();
         this.paused = false;

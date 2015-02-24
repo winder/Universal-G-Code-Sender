@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2014 Will Winder
+    Copywrite 2012-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -35,8 +35,6 @@ import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import gnu.io.CommPortIdentifier;
-import gnu.io.PortInUseException;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -2458,19 +2456,16 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private void loadPortSelector() {
         commPortComboBox.removeAllItems();
         
-        List<CommPortIdentifier> portList = CommUtils.getSerialPortList();
+        String[] portList = CommUtils.getSerialPortList();
 
-        if (portList.size() < 1) {
+        if (portList.length < 1) {
             MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
         } else {
             // Sort?
             //java.util.Collections.sort(portList);
 
-            java.util.Iterator<CommPortIdentifier> portIter = portList.iterator();
-
-            while ( portIter.hasNext() ) {
-                CommPortIdentifier portIdentifier = portIter.next();
-                commPortComboBox.addItem(portIdentifier.getName());
+            for (String port : portList) {
+                commPortComboBox.addItem(port);
             }
 
             commPortComboBox.setSelectedIndex(0);
@@ -2600,7 +2595,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
              
             connected = controller.openCommPort(port, portRate);
 
-        } catch (PortInUseException e) {
+        } /* catch (PortInUseException e) {
             
             
             //Localization.getString("")
@@ -2616,7 +2611,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                     .append("\n     sudo mkdir /var/lock")
                     .append("\n     sudo chmod 777 /var/lock");
             MainWindow.displayErrorDialog(message.toString());
-        }catch (Exception e) {
+        }*/ catch (Exception e) {
             e.printStackTrace();
             MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.connection")
                     + " ("+ e.getClass().getName() + "): "+e.getMessage());
@@ -2625,8 +2620,16 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }
     
     private void closeCommConnection() {
-        this.controller.closeCommPort();
-        this.controller = null;
+        try {
+            this.controller.closeCommPort();
+        } catch (Exception e) {
+            // TODO: Localize
+            MainWindow.displayErrorDialog("Error while closing port "
+                    + " ("+ e.getClass().getName() + "): "+e.getMessage());
+
+        } finally {
+            this.controller = null;
+        }
     }
     
     void clearTable() {

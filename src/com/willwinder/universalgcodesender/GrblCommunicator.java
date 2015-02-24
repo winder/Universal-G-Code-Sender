@@ -24,12 +24,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
-import java.io.*;
 import java.util.LinkedList;
-import java.util.TooManyListenersException;
 
 /**
  *
@@ -148,9 +143,15 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         
             // Command already has a newline attached.
             this.sendMessageToConsoleListener(">>> " + commandString);
-            conn.sendStringToComm(commandString);
             
-            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
+            try {
+                conn.sendStringToComm(commandString);
+
+                dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
     }
     
@@ -204,7 +205,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     }
 
     @Override
-    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+    public boolean openCommPort(String name, int baud) throws Exception {
         boolean ret = super.openCommPort(name, baud);
         
         if (ret) {
@@ -216,7 +217,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     }
 
     @Override
-    public void closeCommPort() {
+    public void closeCommPort() throws Exception {
         this.cancelSend();
         super.closeCommPort();
         
@@ -226,7 +227,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     }
 
     @Override
-    public void sendByteImmediately(byte b) throws IOException {
+    public void sendByteImmediately(byte b) throws Exception {
         conn.sendByteImmediately(b);
     }
 }

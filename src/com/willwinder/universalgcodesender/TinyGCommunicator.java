@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,9 +23,6 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.TooManyListenersException;
@@ -143,12 +140,17 @@ public class TinyGCommunicator extends AbstractCommunicator {
             this.activeStringList.add(commandString);
             this.sentBufferSize += commandString.length();
             
-            // Newlines are embedded when they get queued so just send it.
-            conn.sendStringToComm(commandString);
-            
-            TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
-            command.setSent(true);
-            dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
+            try {
+                // Newlines are embedded when they get queued so just send it.
+                conn.sendStringToComm(commandString);
+
+                TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
+                command.setSent(true);
+                dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(-1);
+            }
         }
     }
     
@@ -179,7 +181,7 @@ public class TinyGCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+    public boolean openCommPort(String name, int baud) throws IOException, Exception {
         //do common things before specific things
         boolean ret = super.openCommPort(name, baud);
         //f4grx: isnt that common to all communicators we can think of?
@@ -192,7 +194,7 @@ public class TinyGCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public void closeCommPort() {
+    public void closeCommPort() throws Exception {
         this.cancelSend();
         super.closeCommPort();
 
@@ -202,7 +204,7 @@ public class TinyGCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public void sendByteImmediately(byte b) throws IOException {
+    public void sendByteImmediately(byte b) throws Exception {
         conn.sendByteImmediately(b);
     }
 }
