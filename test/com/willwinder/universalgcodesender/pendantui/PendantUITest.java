@@ -126,7 +126,7 @@ public class PendantUITest {
             }
 
             @Override
-            public void disconnect() {
+            public void disconnect() throws Exception {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
@@ -222,6 +222,16 @@ public class PendantUITest {
 
             @Override
             public void requestParserState() throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public File getFile() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean canSend() {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 	}
@@ -431,8 +441,8 @@ public class PendantUITest {
             systemState.setControlState(ControlState.COMM_SENDING_PAUSED);
             assertTrue(pendantUI.isManualControlEnabled());
 
-            systemState.setControlState(ControlState.FILE_SELECTED);
-            assertTrue(pendantUI.isManualControlEnabled());
+            //systemState.setControlState(ControlState.FILE_SELECTED);
+            //assertTrue(pendantUI.isManualControlEnabled());
 
 	}
 	

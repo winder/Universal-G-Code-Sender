@@ -140,18 +140,19 @@ public class GrblControllerTest {
         // Make sure comm is closed
         assertEquals(false, instance.isCommOpen());
         
-        // Test closing while already closed.
-        Boolean result = instance.closeCommPort();
-        assertEquals(true, result);
-        assertEquals(false, instance.isCommOpen());
-        
-        // Test closed after opening thenc losing.
+        Boolean result = false;
         try {
+            // Test closing while already closed.
+            result = instance.closeCommPort();
+            assertEquals(true, result);
+            assertEquals(false, instance.isCommOpen());
+
+            // Test closed after opening thenc losing.
             instance.openCommPort("blah", 1234);
+            result = instance.closeCommPort();
         } catch (Exception e) {
             fail("Unexpected exception from GrblController: " + e.getMessage());
         }
-        result = instance.closeCommPort();
         assertEquals(true, result);
         assertEquals(false, instance.isCommOpen());
     }
