@@ -1,6 +1,6 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import com.willwinder.universalgcodesender.MainWindow.ControlState;
+import com.willwinder.universalgcodesender.Utils.ControlState;
 
 public class SystemStateBean {
 	private ControlState controlState = ControlState.COMM_DISCONNECTED;

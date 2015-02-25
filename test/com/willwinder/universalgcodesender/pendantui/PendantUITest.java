@@ -17,10 +17,12 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.MainWindow.ControlState;
+import com.willwinder.universalgcodesender.Utils.ControlState;
 import com.willwinder.universalgcodesender.MainWindowAPI;
 import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.Utils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
+import java.io.File;
 
 public class PendantUITest {
 	private final MockMainWindow mainWindow = new MockMainWindow();
@@ -39,14 +41,16 @@ public class PendantUITest {
 
             public int dirX, dirY, dirZ; 
             public double stepSize;
+            public Units units;
 
             @Override
-            public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize) {
+            public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) {
                 this.dirX = dirX;
                 this.dirY = dirY;
                 this.dirZ = dirZ;
+                this.units = units;
                 this.stepSize = stepSize;
-                System.out.println("dirX: "+dirX+" dirY: "+dirY+" dirZ: "+dirZ+" stepSize: "+stepSize);
+                System.out.println("dirX: "+dirX+" dirY: "+dirY+" dirZ: "+dirZ+" stepSize: "+stepSize+" units: "+units);
             }
 
             public Settings settings = new Settings();
@@ -69,7 +73,7 @@ public class PendantUITest {
             public boolean sendButtonActionPerformed = false;
 
             @Override
-            public void sendButtonActionPerformed() {
+            public void send() {
                 sendButtonActionPerformed = true;
                 System.out.println("sendButtonActionPerformed");
             }
@@ -77,7 +81,7 @@ public class PendantUITest {
             public boolean pauseButtonActionPerformed = false;
 
             @Override
-            public void pauseButtonActionPerformed() {
+            public void pauseResume() {
                 pauseButtonActionPerformed = true;
                 System.out.println("pauseButtonActionPerformed");
             }
@@ -85,7 +89,7 @@ public class PendantUITest {
             public boolean cancelButtonActionPerformed = false;
 
             @Override
-            public void cancelButtonActionPerformed() {
+            public void cancel() {
                 cancelButtonActionPerformed = true;
                 System.out.println("cancelButtonActionPerformed");
             }
@@ -93,7 +97,7 @@ public class PendantUITest {
             public boolean returnToZeroButtonActionPerformed = false;
 
             @Override
-            public void returnToZeroButtonActionPerformed() {
+            public void returnToZero() {
                 returnToZeroButtonActionPerformed = true;
                 System.out.println("returnToZeroButtonActionPerformed");
             }
@@ -101,23 +105,123 @@ public class PendantUITest {
             public boolean resetCoordinatesButtonActionPerformed = false;
 
             @Override
-            public void resetCoordinatesButtonActionPerformed() {
+            public void resetCoordinatesToZero() {
                 resetCoordinatesButtonActionPerformed = true;
                 System.out.println("resetCoordinatesButtonActionPerformed");
             }
 
             @Override
-            public void resetXCoordinateButtonActionPerformed() {
+            public void resetCoordinateToZero(char coord) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
             @Override
-            public void resetYCoordinateButtonActionPerformed() {
+            public void connect(String firmware, String port, int baudRate) throws Exception {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
             @Override
-            public void resetZCoordinateButtonActionPerformed() {
+            public boolean isConnected() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void disconnect() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void applySettings(Settings settings) throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public ControlState getControlState() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public String getPauseResumeText() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean isPaused() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean canCancel() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void setFile(File file) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public long getSendDuration() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public long getSendRemainingDuration() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void applySettingsToController(Settings settings, AbstractController controller) throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean isSending() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public boolean canPause() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public long getNumRows() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public long getNumSentRows() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public long getNumRemainingRows() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void killAlarmLock() throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void performHomingCycle() throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void toggleCheckMode() throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void issueSoftReset() throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void requestParserState() throws Exception {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 	}

@@ -28,13 +28,14 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
+import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -53,10 +54,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -69,17 +71,145 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class MainWindow extends javax.swing.JFrame 
-implements KeyListener, ControllerListener, MainWindowAPI {
+implements KeyListener, ControllerListener, ControlStateListener {
+    private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
+
     final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
     private PendantUI pendantUI;
     private Settings settings;
     
+    GUIBackend backend;
+    
+    // My Variables
+    private javax.swing.JFileChooser fileChooser;
+
+    // TODO: Move command history box into a self contained object.
+    private int commandNum = -1;
+    private List<String> manualCommandHistory;
+
+    // Other windows
+    VisualizerWindow vw = null;
+    
+    // Duration timer
+    private Timer timer;
+    
     /** Creates new form MainWindow */
-    public MainWindow() {
-        settings = SettingsFactory.loadSettings();
-        
+    public MainWindow(GUIBackend backend) {
+        this.backend = backend;
+        this.settings = SettingsFactory.loadSettings();
         initComponents();
         initProgram();
+        backend.addControllerListener(this);
+        backend.addControlStateListener(this);
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        
+        /* Set the Nimbus look and feel */
+        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         */
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (ClassNotFoundException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (InstantiationException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        }
+        //</editor-fold>
+        
+         /* Create the form */
+        GUIBackend backend = new GUIBackend();
+        final MainWindow mw = new MainWindow(backend);
+        
+        Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+
+        /* Apply the settings to the MainWindow bofore showing it */
+        mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
+        mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
+        boolean unitsAreMM = mw.settings.getDefaultUnits().equals("mm");
+        mw.mmRadioButton.setSelected(unitsAreMM);
+        mw.inchRadioButton.setSelected(!unitsAreMM);
+        mw.fileChooser = new JFileChooser(mw.settings.getFileName());
+        mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
+        mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
+        mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
+        mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
+        mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
+        mw.customGcodeText1.setText(mw.settings.getCustomGcode1());
+        mw.customGcodeText2.setText(mw.settings.getCustomGcode2());
+        mw.customGcodeText3.setText(mw.settings.getCustomGcode3());
+        mw.customGcodeText4.setText(mw.settings.getCustomGcode4());
+        mw.customGcodeText5.setText(mw.settings.getCustomGcode5());
+        mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
+        mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
+//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
+        
+        mw.addComponentListener(new ComponentListener() {
+            @Override
+            public void componentResized(ComponentEvent ce) {
+                mw.settings.getMainWindowSettings().height = ce.getComponent().getSize().height;
+                mw.settings.getMainWindowSettings().width = ce.getComponent().getSize().width;
+            }
+
+            @Override
+            public void componentMoved(ComponentEvent ce) {
+                mw.settings.getMainWindowSettings().xLocation = ce.getComponent().getLocation().x;
+                mw.settings.getMainWindowSettings().yLocation = ce.getComponent().getLocation().y;
+            }
+
+            @Override
+            public void componentShown(ComponentEvent ce) {}
+            @Override
+            public void componentHidden(ComponentEvent ce) {}
+        });
+
+        /* Display the form */
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                mw.setVisible(true);
+            }
+        });
+        
+        mw.initFileChooser();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (mw.fileChooser.getSelectedFile() != null ) {
+                    mw.settings.setFileName(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                }
+                
+                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
+                mw.settings.setManualModeStepSize(mw.getStepSize());
+                mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
+                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
+                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
+                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
+                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
+                SettingsFactory.saveSettings(mw.settings);
+                
+                if(mw.pendantUI!=null){
+                	mw.pendantUI.stop();
+                }
+            }
+        });
     }
 
     /** This method is called from within the constructor to
@@ -1240,7 +1370,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             @Override
             public void run() {
                 try {
-                    controller.queueStringForComm(str);
+                    backend.sendGcodeCommand(str);
                 } catch (Exception ex) {
                     displayErrorDialog(ex.getMessage());
                 }
@@ -1250,12 +1380,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.manualCommandHistory.add(str);
         this.commandNum = -1;
     }//GEN-LAST:event_commandTextFieldActionPerformed
-    
-    @Override
-	public void sendGcodeCommand(String commandText){
-        this.commandTextField.setText(commandText);
-        commandTextFieldActionPerformed(new ActionEvent(commandTextField, 1, "sendCommand"));
-    }
 
     // TODO: Find out how to make these key* functions actions like the above.
     // TODO: Create custom text area that will do all this stuff without
@@ -1302,44 +1426,38 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase("open") ) {
-            // Hook the view up to the model
+            this.clearTable();
+            this.sentRowsValueLabel.setText("0");
+
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
-            this.controller = FirmwareUtils.getControllerFor(firmware);
-
-            applySettingsToController(this.controller);
+            String port = commPortComboBox.getSelectedItem().toString();
+            int baudRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
             
-            // Register comm listeners
-            this.controller.addListener(this);
-            if (vw != null) {
-                this.controller.addListener(vw);
-                vw.setMinArcLength(this.controller.getSmallArcThreshold());
-                vw.setArcLength(this.controller.getSmallArcSegmentLength());
-            }
-            if (pendantUI != null) {
-                this.controller.addListener(pendantUI);
-            }
-            
-            Boolean ret = openCommConnection();
-
-            if (ret) {
-                this.updateControlsForState(ControlState.COMM_IDLE);
-                if (this.gcodeFile != null) {
+            try {
+                this.backend.connect(firmware, port, baudRate);
+                
+                if (this.backend.getFile() != null) {
                     try {
-                        loadFile(this.gcodeFile);
-                    } catch (FileNotFoundException ex) {
-                        MainWindow.displayErrorDialog(Localization.getString(
-                                "mainWindow.error.openingFile") +": " + ex.getMessage());
-                    } catch (IOException e) {
-                        MainWindow.displayErrorDialog(Localization.getString(
-                                "mainWindow.error.processingFile") +": " + e.getMessage());
+                        this.backend.setFile(this.backend.getFile());
+                    } catch (Exception e) {
+                        MainWindow.displayErrorDialog(e.getMessage());
                     }
+                    if (this.vw != null) {
+                        vw.setGcodeFile(this.backend.getFile().getAbsolutePath());
+                    }
+
                 }
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
+            } catch (Exception e) {
+                MainWindow.displayErrorDialog(e.getMessage());
             }
         } else {
-            this.closeCommConnection();
-            this.updateControlsForState(ControlState.COMM_DISCONNECTED);
+            try {
+                this.backend.disconnect();
+            } catch (Exception e) {
+                MainWindow.displayErrorDialog(e.getMessage());
+            }
         }
     }//GEN-LAST:event_opencloseButtonActionPerformed
 
@@ -1412,59 +1530,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
         this.setStepSize(stepSize);
     }                                            
-    
-    @Override
-    public  void resetCoordinatesButtonActionPerformed(){
-        try {
-            this.controller.resetCoordinatesToZero();
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
 
-    @Override
-    public  void resetXCoordinateButtonActionPerformed(){
-        try {
-            this.controller.resetCoordinateToZero('X');
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
-
-    @Override
-    public  void resetYCoordinateButtonActionPerformed(){
-        try {
-            this.controller.resetCoordinateToZero('Y');
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
-
-    @Override
-    public  void resetZCoordinateButtonActionPerformed(){
-        try {
-            this.controller.resetCoordinateToZero('Z');
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
-
-                                                
-
-    @Override
-    public void returnToZeroButtonActionPerformed(){
-        try {
-            this.controller.returnToHome();
-            // The return to home command uses G91 to lift the tool.
-            this.G91Mode = true;
-            // Also sets the units to mm.
-            if (this.inchRadioButton.isSelected()) {
-                this.inDefaultUnits = false;
-            }
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
@@ -1500,8 +1566,10 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
             settings.setLanguage(gcsd.getLanguage());
             
-            if (this.controller != null) {
-                applySettingsToController(this.controller);
+            try {
+                backend.applySettings(settings);
+            } catch (Exception e) {
+                MainWindow.displayErrorDialog(e.getMessage());
             }
 
             if (this.vw != null) {
@@ -1516,19 +1584,13 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
-                gcodeFile = fileChooser.getSelectedFile();
-                loadFile(gcodeFile);
-                        
+                File gcodeFile = fileChooser.getSelectedFile();
+                backend.setFile(gcodeFile);
                 if (this.vw != null) {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
-            } catch (FileNotFoundException ex) {
-                MainWindow.displayErrorDialog(Localization.getString(
-                        "mainWindow.error.openingFile") +": " + ex.getMessage());
-            } catch (IOException e) {
-                MainWindow.displayErrorDialog(Localization.getString(
-                        "mainWindow.error.processingFile") +": " + e.getMessage());
-
+            } catch (Exception ex) {
+                MainWindow.displayErrorDialog(ex.getMessage());
             }
         } else {
             // Canceled file open.
@@ -1542,23 +1604,23 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             
             final MainWindow mw = this;
             vw.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent ce) {
-                mw.settings.getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
-                mw.settings.getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
-            }
+                @Override
+                public void componentResized(ComponentEvent ce) {
+                    mw.settings.getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
+                    mw.settings.getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
+                }
 
-            @Override
-            public void componentMoved(ComponentEvent ce) {
-                mw.settings.getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                mw.settings.getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
-            }
+                @Override
+                public void componentMoved(ComponentEvent ce) {
+                    mw.settings.getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
+                    mw.settings.getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
+                }
 
-            @Override
-            public void componentShown(ComponentEvent ce) {}
-            @Override
-            public void componentHidden(ComponentEvent ce) {}
-        });
+                @Override
+                public void componentShown(ComponentEvent ce) {}
+                @Override
+                public void componentHidden(ComponentEvent ce) {}
+            });
 
             vw.setMinArcLength(settings.getSmallArcThreshold());
             vw.setArcLength(settings.getSmallArcSegmentLength());
@@ -1566,9 +1628,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 vw.setGcodeFile(this.fileTextField.getText());
             }
             // Add listener
-            if (this.controller != null) {
-                this.controller.addListener(vw);
-            }
+            this.backend.addControllerListener(vw);
         }
 
         // Display the form
@@ -1580,66 +1640,40 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         });
     }//GEN-LAST:event_visualizeButtonActionPerformed
 
-    @Override
     public void cancelButtonActionPerformed() {
-        this.controller.cancelSend();
-
-        this.updateControlsForState(ControlState.COMM_IDLE);
+        try {
+            backend.cancel();
+        } catch (Exception e) {
+            MainWindow.displayErrorDialog(e.getMessage());
+        }
     }
     
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         cancelButtonActionPerformed();
     }//GEN-LAST:event_cancelButtonActionPerformed
 
-    @Override
     public void pauseButtonActionPerformed() {
-        // Note: Cannot cancel a send while paused because there are commands
-        //       in the GRBL buffer which can't be un-sent.
         try {
-            String pause = Localization.getString("mainWindow.ui.pauseButton");
-            String resume = Localization.getString("mainWindow.ui.resumeButton");
-            
-            if (this.pauseButton.getText().equalsIgnoreCase(pause)) {
-                this.controller.pauseStreaming();
-                this.pauseButton.setText(resume);
-                this.cancelButton.setEnabled(false);
-            }
-            else if (this.pauseButton.getText().equalsIgnoreCase(resume)) {
-                this.controller.resumeStreaming();
-                this.pauseButton.setText(pause);
-                this.cancelButton.setEnabled(true);
-            }
+            this.backend.pauseResume();
         } catch (Exception e) {
-            e.printStackTrace();
-            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.pauseResume"));
+            MainWindow.displayErrorDialog(e.getMessage());
         }
     }
     
     private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
     	pauseButtonActionPerformed();
     }//GEN-LAST:event_pauseButtonActionPerformed
-
-    @Override
-    public void sendButtonActionPerformed(){
+    
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+    	// Timer for updating duration labels.
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        int sent = controller.rowsSent();
-
-                        // Early exit condition.
-                        if (sent == 0) { return; }
-
-                        long elapsedTime = controller.getSendDuration();
-                        durationValueLabel.setText(Utils.formattedMillis(elapsedTime));
-                        long estimate = jobEstimate;
-                        if (estimate <= 0) {
-                            long timePerRow = elapsedTime / sent;
-                            estimate = timePerRow * controller.rowsInSend();
-                        }
-                        remainingTimeValueLabel.setText(Utils.formattedMillis(estimate - elapsedTime));
+                        durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
+                        remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
                     }
                 });
 
@@ -1655,43 +1689,22 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         //       the rowsValueLabel that was just reset.
 
         try {
-            // This will throw an exception and prevent that other stuff from
-            // happening (clearing the table before its ready for clearing.
-            this.controller.isReadyToStreamFile();
-
-            this.updateControlsForState(ControlState.COMM_SENDING);
-
-            // Mark the position in the table where the commands will begin.
-            //commandTable.setOffset();
-
-            if (G91Mode) {
-                this.controller.preprocessAndAppendGcodeCommand("G90");
-            }
-
-            this.controller.appendGcodeCommands(processedCommandLines, this.gcodeFile);
-
-            this.resetSentRowLabels(this.controller.rowsInQueue());
+            this.backend.send();
+            this.resetSentRowLabels(backend.getNumRows());
             timer.start();
-            this.controller.beginStreaming();
         } catch (Exception e) {
             timer.stop();
-            this.updateControlsForState(ControlState.COMM_IDLE);
-            e.printStackTrace();
-            MainWindow.displayErrorDialog(
-                    Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
+            logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
+            MainWindow.displayErrorDialog(e.getMessage());
         }
-    }
-    
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-    	sendButtonActionPerformed();
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
         try {
-            if (this.controller == null) {
+            if (this.backend.isConnected()) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
-            } else if (this.controller instanceof GrblController) {
-                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, (GrblController)this.controller);
+            } else if (this.backend.getController() instanceof GrblController) {
+                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, (GrblController)this.backend.getController());
                     gfsd.setVisible(true);
             } else {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
@@ -1708,8 +1721,15 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             try {
                 File newFile = fileChooser.getSelectedFile();
                 AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
-                applySettingsToController(control);
-                control.appendGcodeCommands(this.processedCommandLines, this.gcodeFile);
+                backend.applySettingsToController(settings, control);
+                
+                // Read file.
+                FileReader fr = new FileReader(this.backend.getFile());
+                Charset cs = Charset.forName(fr.getEncoding());
+                fr.close();
+                Collection<String> lines = Files.readAllLines(this.backend.getFile().toPath(), cs);
+                lines = control.preprocess(lines);
+                control.appendGcodeCommands(lines, this.backend.getFile());
                 control.saveToFile(newFile);
             } catch (FileNotFoundException ex) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
@@ -1718,7 +1738,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.processingFile")
                         + ": "+e.getMessage());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, "Exception in saveButtonActionPerformed.", e);
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.duringSave") +
                         ": " + e.getMessage());
             }
@@ -1726,14 +1746,11 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }//GEN-LAST:event_saveButtonActionPerformed
 
         private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
-	    this.pendantUI = new PendantUI(this);
+	    this.pendantUI = new PendantUI(backend);
 	    this.pendantUI.start();
 	    this.startPendantServerButton.setEnabled(false);
 	    this.stopPendantServerButton.setEnabled(true);
-            
-            if (this.controller != null) {
-                this.controller.addListener(pendantUI);
-            }
+            this.backend.addControllerListener(pendantUI);
         }//GEN-LAST:event_startPendantServerButtonActionPerformed
 
         private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
@@ -1767,31 +1784,41 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }//GEN-LAST:event_customGcodeButton4ActionPerformed
 
     private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
-        resetZCoordinateButtonActionPerformed();
+        try {
+            this.backend.resetCoordinateToZero('Z');
+        } catch (Exception ex) {
+            MainWindow.displayErrorDialog(ex.getMessage());
+        }
     }//GEN-LAST:event_resetZCoordinateButtonActionPerformed
 
     private void resetYCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetYCoordinateButtonActionPerformed
-        resetYCoordinateButtonActionPerformed();
+        try {
+            this.backend.resetCoordinateToZero('Y');
+        } catch (Exception ex) {
+            MainWindow.displayErrorDialog(ex.getMessage());
+        }
     }//GEN-LAST:event_resetYCoordinateButtonActionPerformed
 
     private void resetXCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetXCoordinateButtonActionPerformed
-        resetXCoordinateButtonActionPerformed();
+        try {
+            this.backend.resetCoordinateToZero('X');
+        } catch (Exception ex) {
+            MainWindow.displayErrorDialog(ex.getMessage());
+        }
     }//GEN-LAST:event_resetXCoordinateButtonActionPerformed
 
     private void requestStateInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestStateInformationActionPerformed
         try {
-            this.controller.viewParserState();
+            this.backend.requestParserState();
         } catch (Exception ex) {
-            ex.printStackTrace();
             MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_requestStateInformationActionPerformed
 
     private void softResetMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_softResetMachineControlActionPerformed
         try {
-            this.controller.issueSoftReset();
+            this.backend.issueSoftReset();
         } catch (Exception ex) {
-            ex.printStackTrace();
             MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_softResetMachineControlActionPerformed
@@ -1822,7 +1849,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
     private void toggleCheckModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleCheckModeActionPerformed
         try {
-            this.controller.toggleCheckMode();
+            this.backend.toggleCheckMode();
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
@@ -1830,7 +1857,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
     private void killAlarmLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killAlarmLockActionPerformed
         try {
-            this.controller.killAlarmLock();
+            this.backend.killAlarmLock();
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
@@ -1838,12 +1865,29 @@ implements KeyListener, ControllerListener, MainWindowAPI {
 
     private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
         try {
-            this.controller.performHomingCycle();
+            this.backend.performHomingCycle();
         } catch (Exception ex) {
             MainWindow.displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
+    private Utils.Units getSelectedUnits() {
+        if (this.inchRadioButton.isSelected()) {
+            return Units.INCH;
+        } if (this.mmRadioButton.isSelected()) {
+            return Units.MM;
+        } else {
+            return Units.UNKNOWN;
+        }
+    }
+    
+    private void adjustManualLocation(int x, int y, int z) {
+        try {
+            this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
+        } catch (Exception e) {
+            MainWindow.displayErrorDialog(e.getMessage());
+        }
+    }
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
         this.adjustManualLocation(0, 1, 0);
     }//GEN-LAST:event_yPlusButtonActionPerformed
@@ -1873,11 +1917,20 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
     private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
-        returnToZeroButtonActionPerformed();
+        try {
+            backend.returnToZero();
+        } catch (Exception ex) {
+            MainWindow.displayErrorDialog(ex.getMessage());
+        }
+
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
-        resetCoordinatesButtonActionPerformed();
+        try {
+            this.backend.resetCoordinatesToZero();
+        } catch (Exception ex) {
+            MainWindow.displayErrorDialog(ex.getMessage());
+        }
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
     private void customGcodeText2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText2ActionPerformed
@@ -1897,11 +1950,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     }//GEN-LAST:event_customGcodeText5ActionPerformed
 
     private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
-        this.inDefaultUnits = false;
     }//GEN-LAST:event_inchRadioButtonActionPerformed
 
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
-        this.inDefaultUnits = false;
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
     private void executeCustomGcode(String str)
@@ -1914,7 +1965,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 try {
                     for (String cmd : parts)
                     {
-                        controller.queueStringForComm(cmd);
+                        backend.sendGcodeCommand(cmd);
                     }
                 } catch (Exception ex) {
                     displayErrorDialog(ex.getMessage());
@@ -1927,114 +1978,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             this.manualCommandHistory.add(cmd);
             this.commandNum = -1;
         }
-    }
-    
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-        
-         /* Create the form */
-        final MainWindow mw = new MainWindow();
-        
-        Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
-        /* Apply the settings to the MainWindow bofore showing it */
-        mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
-        mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
-        boolean unitsAreMM = mw.settings.getDefaultUnits() == "mm";
-        mw.mmRadioButton.setSelected(unitsAreMM);
-        mw.inchRadioButton.setSelected(!unitsAreMM);
-        mw.fileChooser = new JFileChooser(mw.settings.getFileName());
-        mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
-        mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
-        mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
-        mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
-        mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
-        mw.customGcodeText1.setText(mw.settings.getCustomGcode1());
-        mw.customGcodeText2.setText(mw.settings.getCustomGcode2());
-        mw.customGcodeText3.setText(mw.settings.getCustomGcode3());
-        mw.customGcodeText4.setText(mw.settings.getCustomGcode4());
-        mw.customGcodeText5.setText(mw.settings.getCustomGcode5());
-        mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
-        mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
-//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
-        
-        mw.addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent ce) {
-                mw.settings.getMainWindowSettings().height = ce.getComponent().getSize().height;
-                mw.settings.getMainWindowSettings().width = ce.getComponent().getSize().width;
-            }
-
-            @Override
-            public void componentMoved(ComponentEvent ce) {
-                mw.settings.getMainWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                mw.settings.getMainWindowSettings().yLocation = ce.getComponent().getLocation().y;
-            }
-
-            @Override
-            public void componentShown(ComponentEvent ce) {}
-            @Override
-            public void componentHidden(ComponentEvent ce) {}
-        });
-
-        /* Display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                mw.setVisible(true);
-            }
-        });
-        
-        mw.initFileChooser();
-        
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setFileName(mw.fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
-                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
-                mw.settings.setManualModeStepSize(mw.getStepSize());
-                mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
-                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
-                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings(mw.settings);
-                
-                if(mw.pendantUI!=null){
-                	mw.pendantUI.stop();
-                }
-            }
-        });
     }
     
     /**
@@ -2055,6 +1998,12 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         
     private void initProgram() {
         Localization.initialize(this.settings.getLanguage());
+        try {
+            backend.applySettings(settings);
+        } catch (Exception e) {
+            MainWindow.displayErrorDialog(e.getMessage());
+        }
+        
         this.setLocalLabels();
         this.loadPortSelector();
         this.checkScrollWindow();
@@ -2063,7 +2012,7 @@ implements KeyListener, ControllerListener, MainWindowAPI {
                 + Localization.getString("version") + " " + VERSION + ")");
         
         // Command History
-        this.manualCommandHistory = new ArrayList<String>();
+        this.manualCommandHistory = new ArrayList<>();
         this.commandTextField.addKeyListener(this);
         
         // Add keyboard listener for manual controls.
@@ -2150,74 +2099,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         val = bd.doubleValue();
         this.stepSizeSpinner.setValue(val);
     }
-
-    /**
-     * Sends a G91 command in some combination of x, y, and z directions with a
-     * step size of stepDirection.
-     * 
-     * Direction is specified by the direction param being positive or negative.
-     */
-    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize) {
-        
-        // Don't send empty commands.
-        if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
-            return;
-        }
-
-        // Format step size from spinner.
-        String formattedStepSize = formatter.format(stepSize);
-
-        // Build G91 command.
-        StringBuilder command = new StringBuilder();
-        
-        // Set jog command to the preferred units.
-        if (!this.inDefaultUnits) {
-            if (this.inchRadioButton.isSelected())
-                command.append("G20 ");
-            else
-                command.append("G21 ");
-            this.inDefaultUnits = true;
-        }
-        
-        command.append("G91 G0 ");
-        
-        if (dirX != 0) {
-            command.append(" X");
-            if (dirX < 0) {
-                command.append('-');
-            }
-            command.append(formattedStepSize);
-        } if (dirY != 0) {
-            command.append(" Y");
-            if (dirY < 0) {
-                command.append('-');
-            }
-            command.append(formattedStepSize);
-        } if (dirZ != 0) {
-            command.append(" Z");
-            if (dirZ < 0) {
-                command.append('-');
-            }
-            command.append(formattedStepSize);
-        }
-
-        try {
-            this.controller.queueStringForComm(command.toString());
-            G91Mode = true;
-        } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
-        }
-    }
-    
-    /**
-     * Sends a G91 command in some combination of x, y, and z directions with a
-     * step size of stepDirection.
-     * 
-     * Direction is specified by the direction param being positive or negative.
-     */
-    public void adjustManualLocation(int dirX, int dirY, int dirZ) {
-    	adjustManualLocation(dirX, dirY, dirZ, this.getStepSize());
-    }
     
     private void setStatusColorForState(String state) {
         if (settings.isDisplayStateColor()) {
@@ -2240,42 +2121,34 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }
     }
     
-    private ControlState lastControlState = ControlState.COMM_DISCONNECTED;
-    
-    private void updateControlsForState(ControlState state) {
+    private void updateControls() {
+        this.cancelButton.setEnabled(backend.canCancel());
+        this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
+        this.pauseButton.setText(backend.getPauseResumeText());
+        this.sendButton.setEnabled(backend.canSend());
         
-        switch (state) {
-            case FILE_SELECTED:
+        boolean hasFile = backend.getFile() != null;
+        if (hasFile) {
                 this.saveButton.setEnabled(true);
                 this.visualizeButton.setEnabled(true);
-                this.updateFileControls(this.controller != null && this.controller.isCommOpen());
-                break;
+                this.fileTextField.setEnabled(false);
+        }
+        
+        switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
-                this.updateConnectionControls(false);
+                this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
                 this.updateCustomGcodeControls(false);
-                this.updateFileControls(false);
-                this.updateControlsStopSending();
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
-                this.updateConnectionControls(true);
+                this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
                 this.updateCustomGcodeControls(true);
-                this.updateControlsStopSending();
                 break;
             case COMM_SENDING:
-                // Command tab
-                this.commandTextField.setEnabled(false);
-
-                // File tab
-                this.sendButton.setEnabled(false);
-                this.pauseButton.setEnabled(true);
-                this.cancelButton.setEnabled(true);
-                this.pauseButton.setText(Localization.getString("mainWindow.ui.pauseButton"));
-
                 // Workflow tab
                 this.updateWorkflowControls(false);
                 this.updateCustomGcodeControls(false);
@@ -2284,19 +2157,17 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         
                 break;
             case COMM_SENDING_PAUSED:
-                this.pauseButton.setText(Localization.getString("mainWindow.ui.resumeButton"));
+
                 break;
             default:
                 
         }
-        
-        lastControlState = state;
     }
     
     /**
      * Enable/disable connection frame based on connection state.
      */
-    private void updateConnectionControls(boolean isOpen) {
+    private void updateConnectionControlsStateOpen(boolean isOpen) {
 
         this.commPortComboBox.setEnabled(!isOpen);
         this.baudrateSelectionComboBox.setEnabled(!isOpen);
@@ -2308,32 +2179,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         } else {
             this.opencloseButton.setText(Localization.getString("open"));
         }
-    }
-    
-    /**
-     * Enable/disable file frame based on connection state.
-     */
-    private void updateFileControls(boolean enabled) {
-        this.sendButton.setEnabled(enabled && this.gcodeFile != null);
-        //browse always enabled.
-        //this.browseButton.setEnabled(enabled);
-        this.fileTextField.setEnabled(enabled);
-
-        if (!enabled) {
-            updateControlsStopSending();
-        }
-    }
-    
-    private void updateControlsStopSending() {
-        if (this.timer != null && this.timer.isRunning()) {
-            // Stop the timer
-            this.timer.stop();
-        }
-        
-        // In case transitioning from file sending or file send paused.
-        this.pauseButton.setText(Localization.getString("mainWindow.ui.pauseButton"));
-        this.pauseButton.setEnabled(false);
-        this.cancelButton.setEnabled(false);
     }
     
     /**
@@ -2383,18 +2228,18 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private void resetTimerLabels() {
         // Reset labels
         this.durationValueLabel.setText("00:00:00");
-        if (this.jobEstimate < 0) {
+        if (this.backend.getSendDuration() < 0) {
             this.remainingTimeValueLabel.setText("estimating...");
-        } else if (this.jobEstimate == 0) {
+        } else if (this.backend.getSendDuration() == 0) {
             this.remainingTimeValueLabel.setText("--:--:--");
         } else {
-            this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.jobEstimate));
+            this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
         }
     }
 
-    private void resetSentRowLabels(Integer numRows) {
+    private void resetSentRowLabels(long numRows) {
         // Reset labels
-        String totalRows =  numRows.toString();
+        String totalRows =  String.valueOf(numRows);
         resetTimerLabels();
         this.sentRowsValueLabel.setText("0");
         this.remainingRowsValueLabel.setText(totalRows);
@@ -2486,74 +2331,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }
     }
     
-    private void loadFile(java.io.File file) throws FileNotFoundException, IOException {
-        this.jobEstimate = 0L;
-        this.gcodeFile = file;
-        FileReader fr = new FileReader(file);
-        Charset cs = Charset.forName(fr.getEncoding());
-        fr.close();
-        List<String> lines = Files.readAllLines(file.toPath(), cs);
-        if (this.controller != null && this.controller.isCommOpen())  {
-            this.processedCommandLines = this.controller.preprocess(lines);
-            this.jobEstimate = -1L;
-            this.resetSentRowLabels(this.processedCommandLines.size());
-            Thread estimateThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    jobEstimate = controller.getJobLengthEstimate(processedCommandLines);
-                    resetSentRowLabels(processedCommandLines.size());
-                    updateControlsForState(ControlState.FILE_SELECTED);
-                }
-            });
-            estimateThread.start();
-
-        } else {
-            this.resetSentRowLabels(lines.size());
-            updateControlsForState(ControlState.FILE_SELECTED);
-        }
-
-        if (this.vw != null) {
-            vw.setGcodeFile(file.getAbsolutePath());
-        }
-    }
-
-    private void applySettingsToController(AbstractController controller) {
-        // Apply settings settings to controller.
-        if (settings.isOverrideSpeedSelected()) {
-            double value = settings.getOverrideSpeedValue();
-            controller.setSpeedOverride(value);
-        } else {
-            controller.setSpeedOverride(-1);
-        }
-
-        try {
-            controller.setMaxCommandLength(settings.getMaxCommandLength());
-            controller.setTruncateDecimalLength(settings.getTruncateDecimalLength());
-            controller.setSingleStepMode(settings.isSingleStepMode());
-            controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
-            controller.setStatusUpdateRate(settings.getStatusUpdateRate());
-            controller.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-            controller.setConvertArcsToLines(settings.isConvertArcsToLines());
-            controller.setSmallArcThreshold(settings.getSmallArcThreshold());
-            controller.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
-        } catch (Exception ex) {
-
-            StringBuilder message = new StringBuilder()
-                    .append(Localization.getString("mainWindow.error.firmwareSetting"))
-                    .append(": \n    ")
-                    .append(Localization.getString("firmware.feature.maxCommandLength")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.truncateDecimal")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.singleStep")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.removeWhitespace")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.linesToArc")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.statusUpdates")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.statusUpdateRate"));
-            
-            MainWindow.displayErrorDialog(message
-                    + "\n\n" + ex.getMessage());
-        }
-    }
-    
     private void checkScrollWindow() {
         // Console output.
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
@@ -2582,55 +2359,6 @@ implements KeyListener, ControllerListener, MainWindowAPI {
             return "wtfbbq";
         */
     }
-
-    private boolean openCommConnection() {
-        boolean connected = false;
-        try {
-            this.clearTable();
-            this.sentRowsValueLabel.setText("0");
-            this.sentRows = 0;
-
-            String port = commPortComboBox.getSelectedItem().toString();
-            int portRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
-             
-            connected = controller.openCommPort(port, portRate);
-
-        } /* catch (PortInUseException e) {
-            
-            
-            //Localization.getString("")
-            StringBuilder message = new StringBuilder()
-                    .append(Localization.getString("mainWindow.error.rxtx"))
-                    .append("(")
-                    .append(e.getClass().getName())
-                    .append("): ")
-                    .append(e.getMessage()).append("\n\n")
-            
-                    .append(Localization.getString("mainWindow.error.rxtxMac1"))
-                    .append(String.format(Localization.getString("mainWindow.error.rxtxMac2"), "\"/var/lock\""))
-                    .append("\n     sudo mkdir /var/lock")
-                    .append("\n     sudo chmod 777 /var/lock");
-            MainWindow.displayErrorDialog(message.toString());
-        }*/ catch (Exception e) {
-            e.printStackTrace();
-            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.connection")
-                    + " ("+ e.getClass().getName() + "): "+e.getMessage());
-        }
-        return connected;
-    }
-    
-    private void closeCommConnection() {
-        try {
-            this.controller.closeCommPort();
-        } catch (Exception e) {
-            // TODO: Localize
-            MainWindow.displayErrorDialog("Error while closing port "
-                    + " ("+ e.getClass().getName() + "): "+e.getMessage());
-
-        } finally {
-            this.controller = null;
-        }
-    }
     
     void clearTable() {
         this.commandTable.clear();
@@ -2643,7 +2371,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         }});
     }
     
-    /** SerialCommunicatorListener implementation.
+    /** 
+     * SerialCommunicatorListener implementation.
      */
     
     @Override
@@ -2651,9 +2380,8 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         // Stop the timer
         this.timer.stop();
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
-        remainingRowsValueLabel.setText("" + controller.rowsInQueue());
+        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
 
-        this.updateControlsForState(ControlState.COMM_IDLE);
         final String durationLabelCopy = this.durationValueLabel.getText();
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
@@ -2673,16 +2401,11 @@ implements KeyListener, ControllerListener, MainWindowAPI {
      
     @Override
     public void commandSent(final GcodeCommand command) {
-        if (this.controller.isStreamingFile()) {
-            // Update # rows sent label
-            this.sentRows++;
-        }
-
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 //sentRowsValueLabel.setText(""+sentRows);
-                sentRowsValueLabel.setText(""+controller.rowsSent());
+                sentRowsValueLabel.setText(""+backend.getNumSentRows());
                 
                 // sent
                 commandTable.updateRow(command);
@@ -2698,26 +2421,16 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     public void commandComplete(final GcodeCommand command) {
         String gcodeString = command.getCommandString().toLowerCase();
         
-        // Check if the units were changed away from the default.
-        if ((this.inchRadioButton.isSelected() && gcodeString.contains("g21")) ||
-            (this.mmRadioButton.isSelected() && gcodeString.contains("g20"))) {
-            this.inDefaultUnits = false;
-        }
-        
+        // update gui
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 commandTable.updateRow(command);
-
-                if (controller.isStreamingFile()) {
-                    // decrement remaining rows
-                    int remaining = Integer.parseInt(remainingRowsValueLabel.getText());
-                    if (remaining > 0) {
-                        remaining--;
-                        remainingRowsValueLabel.setText("" + remaining);
-                    }
+                remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                
+                if (backend.isSending()) {
                     if (vw != null) {
-                        vw.setCompletedCommandNumber(controller.rowsSent());
+                        vw.setCompletedCommandNumber((int)backend.getNumSentRows());
                     }
                 }
             }});
@@ -2726,9 +2439,9 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
     public void messageForConsole(final String msg, final Boolean verbose) {
-        final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
-        final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
-        final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+        //final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
+        //final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
+        //final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
 
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -2752,87 +2465,27 @@ implements KeyListener, ControllerListener, MainWindowAPI {
         this.setStatusColorForState( state );
         
         if (machineCoord != null) {
-            this.machinePositionXValueLabel.setText( formatter.format(machineCoord.x) + "" );
-            this.machinePositionYValueLabel.setText( formatter.format(machineCoord.y) + "" );
-            this.machinePositionZValueLabel.setText( formatter.format(machineCoord.z) + "" );
+            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + "" );
+            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + "" );
+            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + "" );
         }
         
         if (workCoord != null) {
-            this.workPositionXValueLabel.setText( formatter.format(workCoord.x) + "" );
-            this.workPositionYValueLabel.setText( formatter.format(workCoord.y) + "" );
-            this.workPositionZValueLabel.setText( formatter.format(workCoord.z) + "" );
+            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + "" );
+            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + "" );
+            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + "" );
         }
     }
     
     @Override
     public void postProcessData(int numRows) {
     }
-
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public AbstractController getController() {
-        return controller;
-    }
-
+    
+    
     @Override
-    public void updateSystemState(SystemStateBean systemStateBean) {
-        systemStateBean.setFileName(fileTextField.getText());
-        systemStateBean.setLatestComment(latestCommentValueLabel.getText());
-        systemStateBean.setActiveState(activeStateValueLabel.getText());
-        systemStateBean.setControlState(lastControlState);
-        systemStateBean.setDuration(durationValueLabel.getText());
-        systemStateBean.setEstimatedTimeRemaining(remainingTimeValueLabel.getText());
-        systemStateBean.setMachineX(machinePositionXValueLabel.getText());
-        systemStateBean.setMachineY(machinePositionYValueLabel.getText());
-        systemStateBean.setMachineZ(machinePositionZValueLabel.getText());
-        systemStateBean.setRemainingRows(remainingRowsValueLabel.getText());
-        systemStateBean.setRowsInFile(rowsValueLabel.getText());
-        systemStateBean.setSentRows(sentRowsValueLabel.getText());
-        systemStateBean.setWorkX(workPositionXValueLabel.getText());
-        systemStateBean.setWorkY(workPositionYValueLabel.getText());
-        systemStateBean.setWorkZ(workPositionZValueLabel.getText());
-        systemStateBean.setSendButtonText(sendButton.getText());
-        systemStateBean.setSendButtonEnabled(sendButton.isEnabled());
-        systemStateBean.setPauseResumeButtonEnabled(pauseButton.isEnabled());
-        systemStateBean.setPauseResumeButtonText(pauseButton.getText());
-        systemStateBean.setCancelButtonText(cancelButton.getText());
-        systemStateBean.setCancelButtonEnabled(cancelButton.isEnabled());
+    public void ControlStateChanged(Utils.ControlState newState) {
+        this.updateControls();
     }
-    
-    // My Variables
-    private javax.swing.JFileChooser fileChooser;
-    private java.io.File gcodeFile;
-    private List<String> processedCommandLines;
-
-    // TODO: Move command history box into a self contained object.
-    // This is for the command history box.
-    private int commandNum = -1;
-    private List<String> manualCommandHistory;
-    
-    private AbstractController controller;
-    
-    private int sentRows = 0;
-    private long jobEstimate = 0L;
-    private boolean G91Mode = false;
-    private boolean inDefaultUnits = false;
-    // Other windows
-    VisualizerWindow vw = null;
-    
-    // Duration timer
-    private Timer timer;
-
-    public enum ControlState {
-        COMM_DISCONNECTED,
-        COMM_IDLE,
-        COMM_SENDING,
-        COMM_SENDING_PAUSED,
-        FILE_SELECTED,
-    };
-        
-    // Static utilities
-    private static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
 
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2947,4 +2600,5 @@ implements KeyListener, ControllerListener, MainWindowAPI {
     private javax.swing.JButton zMinusButton;
     private javax.swing.JButton zPlusButton;
     // End of variables declaration//GEN-END:variables
+
 }

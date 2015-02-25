@@ -613,7 +613,7 @@ public abstract class AbstractController implements SerialCommunicatorListener {
         dispatchStreamComplete(filename, success);        
     }
 
-    public List<String> preprocess(List<String> lines) {
+    public Collection<String> preprocess(Collection<String> lines) {
         return gcp.preprocessCommands(lines);
     }
     
