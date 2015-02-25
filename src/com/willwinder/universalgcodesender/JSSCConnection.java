@@ -113,9 +113,14 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
      */
     @Override
     public void serialEvent(SerialPortEvent evt) {
+        if (inputBuffer == null) {
+            inputBuffer = new StringBuilder();
+        }
+        
         try {
             byte[] buf = this.serialPort.readBytes();
             if (buf.length > 0) {
+                inputBuffer.append(new String(buf, 0, buf.length));
                 // Check for line terminator and split out command(s).
                 if (inputBuffer.toString().contains(comm.getLineTerminator())) {
                     // Split with the -1 option will give an empty string at
