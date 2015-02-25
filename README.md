@@ -15,8 +15,9 @@ commands:
 
 Downloads
 ---------
-[1.0.8 nightly build](http://bit.ly/1vIcB9E) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)[![Built by](http://cloudbees.prod.acquia-sites.com/sites/default/files/styles/large/public/Button-Built-on-CB-1.png?itok=3Tnkun-C)](https://winder.ci.cloudbees.com/job/UGS/)
+[2.0 nightly build](http://bit.ly/1vIcB9E) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)[![Built by](http://cloudbees.prod.acquia-sites.com/sites/default/files/styles/large/public/Button-Built-on-CB-1.png?itok=3Tnkun-C)](https://winder.ci.cloudbees.com/job/UGS/)
 <br />
+[1.0.8](http://bit.ly/1BSKon6)
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
 [1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
@@ -30,21 +31,21 @@ Downloads
 ![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_advanced_machine_control.png "Advanced GRBL control buttons.")
 
 Technical details:
-* RXTX for serial communication.
+* JSSC for serial communication (RXTX was used up through v1.0.8)
 * JogAmp for OpenGL.
 * Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
-* Developed with NetBeans 7.2.1 or later.
-* For development you will need to install RXTX.
+* Developed with NetBeans 8.0.2 or later.
 * To build a release using Netbeans open the 'Files' pane and right click build.xml,
   then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
   will contain the .zip file.
 
 Changelog
 ---------
-1.0.7 -> 1.0.8 (Unreleased)
-* (BETA) TinyG support!
-* Accurate GRBL job estimates. (michmerr)
+1.0.8 -> 2.0
+
+1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
+* Many bugfixes and stability improvements.
 
 1.0.6 -> 1.0.7
 * Many improvements to code architecture to allow future support for multiple firmwares (TinyG, Marlin, Smoothie, etc).
