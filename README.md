@@ -45,6 +45,7 @@ Changelog
 
 1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
+* Translations: German, Spanish, Italian, Afrikaans
 * Many bugfixes and stability improvements.
 
 1.0.6 -> 1.0.7
