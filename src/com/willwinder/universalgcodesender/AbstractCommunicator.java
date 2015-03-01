@@ -22,6 +22,9 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.Connection;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.JSSCConnection;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -43,7 +46,6 @@ public abstract class AbstractCommunicator {
     ArrayList<SerialCommunicatorListener> commConsoleListeners;
     ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     ArrayList<SerialCommunicatorListener> commRawResponseListener;
-    private final ArrayList<Connection>   connections;
 
     public AbstractCommunicator() {
         this.lineTerminator = DEFAULT_TERMINATOR;
@@ -53,16 +55,6 @@ public abstract class AbstractCommunicator {
         this.commConsoleListeners        = new ArrayList<>();
         this.commVerboseConsoleListeners = new ArrayList<>();
         this.commRawResponseListener     = new ArrayList<>();
-
-        //instanciate all known connection drivers
-        //TODO: Scan the classpath for classes extending Connection,
-        //      and instantiate them dynamically.
-        this.connections = new ArrayList<>();
-        this.addConnectionType(new JSSCConnection());
-    }
-
-    final public void addConnectionType(Connection conn) {
-        this.connections.add(conn);
     }
     
     /*********************/
@@ -82,13 +74,9 @@ public abstract class AbstractCommunicator {
     
     //do common operations (related to the connection, that is shared by all communicators)
     protected boolean openCommPort(String name, int baud) throws Exception {
-        //choose port
-        for(Connection candidate: connections) {
-            if(candidate.supports(name)) {
-                conn = candidate;
-                conn.setCommunicator(this);
-                break;
-            }
+        conn = ConnectionFactory.getConnectionFor(name, baud);
+        if (conn != null) {
+            conn.setCommunicator(this);
         }
         
         if(conn==null) {
@@ -108,7 +96,7 @@ public abstract class AbstractCommunicator {
     }
     
     /** Getters & Setters. */
-    void setLineTerminator(String terminator) {
+    public void setLineTerminator(String terminator) {
         if (terminator == null || terminator.length() < 1) {
             this.lineTerminator = DEFAULT_TERMINATOR;
         } else {
@@ -116,7 +104,7 @@ public abstract class AbstractCommunicator {
         }
     }
     
-    String getLineTerminator() {
+    public String getLineTerminator() {
         return this.lineTerminator;
     }
     

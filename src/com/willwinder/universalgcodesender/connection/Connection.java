@@ -21,8 +21,9 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.connection;
 
+import com.willwinder.universalgcodesender.AbstractCommunicator;
 import java.io.IOException;
 
 /**
@@ -36,7 +37,9 @@ public abstract class Connection {
         comm = ac;
     }
 
-    abstract public boolean supports(String portname);
+    // Implement this as static in the connection class. Use static function in
+    // ConnectionFactory.
+    //abstract public boolean supports(String portname);
     
     abstract public boolean openPort(String name, int baud) throws Exception;
     

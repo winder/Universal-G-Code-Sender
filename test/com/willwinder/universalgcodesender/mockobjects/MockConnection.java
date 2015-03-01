@@ -23,7 +23,7 @@
 
 package com.willwinder.universalgcodesender.mockobjects;
 
-import com.willwinder.universalgcodesender.Connection;
+import com.willwinder.universalgcodesender.connection.Connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

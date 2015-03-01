@@ -20,11 +20,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.connection;
 
 import jssc.SerialPort;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortEvent;
+import jssc.SerialPortException;
 
 /**
  *
@@ -143,19 +144,24 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
         }
     }
 
-    @Override
-    public boolean supports(String portname) {
-        return true;
-        /*
-        List<CommPortIdentifier> ports = CommUtils.getSerialPortList();
-        for (CommPortIdentifier cpi: ports) {
-            if (cpi.getName().equals(portname)) {
-                return true;
+    public static boolean supports(String portname, int baud) {
+        SerialPort serialPort = new SerialPort(portname);
+        try {
+            serialPort.openPort();
+            serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
+            serialPort.closePort();
+            return true;
+        } catch (SerialPortException e) {
+            return false;
+        } finally {
+            if (serialPort.isOpened()) {
+                try {
+                    serialPort.closePort();
+                } catch (SerialPortException e) {
+                    // noop
+                }
             }
         }
-
-        return false;
-        */
-    }
+    }        
 }
 
