@@ -75,7 +75,6 @@ public class MockConnection extends Connection {
         }
     }
 
-    @Override
     public boolean supports(String portname) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
