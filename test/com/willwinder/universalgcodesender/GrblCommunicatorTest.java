@@ -161,7 +161,7 @@ public class GrblCommunicatorTest {
         
         try {
             instance.sendByteImmediately(b);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail("sendByteImmediately threw an exception: " + e.getMessage());
         }
 
@@ -177,7 +177,7 @@ public class GrblCommunicatorTest {
             instance.sendByteImmediately((byte)0x19);
             instance.sendByteImmediately((byte)0x20);
             instance.sendByteImmediately((byte)0x21);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail("sendByteImmediately threw an exception: " + e.getMessage());
         }
 
