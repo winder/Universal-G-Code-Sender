@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
@@ -35,7 +36,7 @@ import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.Utils.Units;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.model.ControlStateListener;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -1437,16 +1438,11 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 this.backend.connect(firmware, port, baudRate);
                 
                 if (this.backend.getFile() != null) {
-                    try {
-                        this.backend.setFile(this.backend.getFile());
-                    } catch (Exception e) {
-                        MainWindow.displayErrorDialog(e.getMessage());
-                    }
                     if (this.vw != null) {
                         vw.setGcodeFile(this.backend.getFile().getAbsolutePath());
                     }
-
                 }
+                
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
             } catch (Exception e) {

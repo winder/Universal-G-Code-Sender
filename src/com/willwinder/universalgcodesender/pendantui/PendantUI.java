@@ -29,7 +29,7 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
-import com.willwinder.universalgcodesender.MainWindowAPI;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -44,12 +44,12 @@ import java.net.URL;
  */
 public class PendantUI implements ControllerListener{
     private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
-	private MainWindowAPI mainWindow;
+	private BackendAPI mainWindow;
 	private Server server = null;
 	private int port = 8080;
 	private SystemStateBean systemState = new SystemStateBean();
 	
-	public PendantUI(MainWindowAPI mainWindow) {
+	public PendantUI(BackendAPI mainWindow) {
 		this.mainWindow = mainWindow;
 	}
 
@@ -303,7 +303,7 @@ public class PendantUI implements ControllerListener{
         }
 	}
 
-	public MainWindowAPI getMainWindow() {
+	public BackendAPI getMainWindow() {
 		return mainWindow;
 	}
 
@@ -315,7 +315,7 @@ public class PendantUI implements ControllerListener{
 		this.server = server;
 	}
 
-	public void setMainWindow(MainWindowAPI mainWindow) {
+	public void setMainWindow(BackendAPI mainWindow) {
 		this.mainWindow = mainWindow;
 	}
 

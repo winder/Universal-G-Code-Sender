@@ -11,6 +11,7 @@ Class-Path: lib/jssc.jar
             lib/jogl-all-natives-linux-armv6.jar
             lib/jogl-all-natives-linux-i586.jar 
             lib/jogl-all-natives-macosx-universal.jar
+            lib/gluegen.jar
             lib/gluegen-rt.jar 
             lib/gluegen-rt-natives-windows-i586.jar
             lib/gluegen-rt-natives-linux-amd64.jar

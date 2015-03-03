@@ -1,14 +1,30 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.willwinder.universalgcodesender;
+    Copywrite 2015 Will Winder
 
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.universalgcodesender.model;
+
+import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.FirmwareUtils;
+import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.Utils.ControlState;
 import com.willwinder.universalgcodesender.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -27,9 +43,9 @@ import javax.vecmath.Point3d;
 
 /**
  *
- * @author will
+ * @author wwinder
  */
-public class GUIBackend implements MainWindowAPI, ControllerListener {
+public class GUIBackend implements BackendAPI, BackendAPIReadOnly, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     
     private AbstractController controller = null;
