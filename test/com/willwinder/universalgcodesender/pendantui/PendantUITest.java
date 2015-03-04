@@ -17,10 +17,11 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.Utils.ControlState;
+import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.Settings;
-import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.ControlStateListener;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 import java.io.File;
 
@@ -30,7 +31,7 @@ public class PendantUITest {
 	private final MockUGSController controller = new MockUGSController();
 	private final SystemStateBean systemState = new SystemStateBean();
 	
-	public class MockMainWindow implements BackendAPI{
+	public class MockMainWindow implements BackendAPI {
 		
             public String commandText;
             @Override
@@ -232,6 +233,11 @@ public class PendantUITest {
 
             @Override
             public boolean canSend() {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void addControlStateListener(ControlStateListener listener) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 	}

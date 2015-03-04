@@ -35,8 +35,9 @@ import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.model.ControlStateEvent;
 import com.willwinder.universalgcodesender.model.ControlStateListener;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -1867,7 +1868,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         }
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
-    private Utils.Units getSelectedUnits() {
+    private Units getSelectedUnits() {
         if (this.inchRadioButton.isSelected()) {
             return Units.INCH;
         } if (this.mmRadioButton.isSelected()) {
@@ -2479,8 +2480,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     
     @Override
-    public void ControlStateChanged(Utils.ControlState newState) {
-        this.updateControls();
+    public void ControlStateEvent(ControlStateEvent evt) {
+        if (evt.getEventType() == ControlStateEvent.event.STATE_CHANGED) {
+            this.updateControls();
+        }
     }
 
     // Generated variables.

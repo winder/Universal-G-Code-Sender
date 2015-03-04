@@ -18,12 +18,10 @@
  */
 package com.willwinder.universalgcodesender.model;
 
-import com.willwinder.universalgcodesender.Utils.ControlState;
-
 /**
  *
  * @author wwinder
  */
 public interface ControlStateListener {
-    public void ControlStateChanged(ControlState newState);
+    public void ControlStateEvent(ControlStateEvent evt);
 }

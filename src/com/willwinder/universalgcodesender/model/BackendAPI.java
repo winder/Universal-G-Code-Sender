@@ -25,21 +25,19 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.Settings;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.Utils.ControlState;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.io.File;
 
-public interface BackendAPI {
+public interface BackendAPI extends BackendAPIReadOnly {
         // Config options
         public void setFile(File file) throws Exception;
-        public File getFile();
         public void applySettings(Settings settings) throws Exception;
 
         // Control options
         public void connect(String firmware, String port, int baudRate) throws Exception;
         public void disconnect() throws Exception;
         public void sendGcodeCommand(String commandText) throws Exception;
-	public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Utils.Units units) throws Exception;
+	public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception;
 	public void send() throws Exception;
 	public void pauseResume() throws Exception;
 	public void cancel() throws Exception;
@@ -52,30 +50,8 @@ public interface BackendAPI {
         public void toggleCheckMode() throws Exception;
         public void issueSoftReset() throws Exception;
         public void requestParserState() throws Exception;
-        
-        // Controller status
-        public boolean isConnected();
-        public boolean isSending();
-        public boolean isPaused();
-        public boolean canPause();
-	public boolean canCancel();
-        public boolean canSend();
-        public ControlState getControlState();
-        
-        // Send status
-        public long getNumRows();
-        public long getNumSentRows();
-        public long getNumRemainingRows();
-
-        public long getSendDuration();
-        public long getSendRemainingDuration();
-        public String getPauseResumeText();
-        
-        // Bulk status getter.
-	public void updateSystemState(SystemStateBean systemStateBean);	
-        
+               
 	// Shouldn't be needed often.
-	public Settings getSettings();
 	public AbstractController getController();
         public void applySettingsToController(Settings settings, AbstractController controller) throws Exception;
 }

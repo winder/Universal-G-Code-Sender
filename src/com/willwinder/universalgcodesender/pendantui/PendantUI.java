@@ -30,12 +30,12 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.net.URL;
+import java.util.logging.Level;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -196,8 +196,8 @@ public class PendantUI implements ControllerListener{
 					
 				}
 			} catch (Exception e) {
-	            e.printStackTrace();
-	            logger.warning(Localization.getString("SendGcodeHandler"));
+                            logger.log(Level.WARNING, "Exception in pendant.", e);
+                            logger.warning(Localization.getString("SendGcodeHandler"));
 			}
 
 			response.getWriter().print(getSystemStateJson());

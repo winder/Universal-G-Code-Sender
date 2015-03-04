@@ -22,8 +22,8 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.FirmwareUtils;
 import com.willwinder.universalgcodesender.Settings;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.Utils.ControlState;
-import com.willwinder.universalgcodesender.Utils.Units;
+import com.willwinder.universalgcodesender.model.Utils.ControlState;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
@@ -45,7 +45,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, BackendAPIReadOnly, ControllerListener {
+public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     
     private AbstractController controller = null;
@@ -77,6 +77,7 @@ public class GUIBackend implements BackendAPI, BackendAPIReadOnly, ControllerLis
 
     boolean G91Mode = false;
     
+    @Override
     public void addControlStateListener(ControlStateListener listener) {
         controlStateListeners.add(listener);
     }
@@ -582,7 +583,7 @@ public class GUIBackend implements BackendAPI, BackendAPIReadOnly, ControllerLis
         this.controlState = newState;
         for (ControlStateListener l : controlStateListeners) {
             logger.info("Sending control state change.");
-            l.ControlStateChanged(newState);
+            l.ControlStateEvent(new ControlStateEvent(newState));
         }
     }
 }

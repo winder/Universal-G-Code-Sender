@@ -36,19 +36,7 @@ import java.util.List;
  * @author wwinder
  */
 public class Utils {
-    public enum Units {
-        MM,
-        INCH,
-        UNKNOWN
-    };
-    
-    public enum ControlState {
-        COMM_DISCONNECTED,
-        COMM_IDLE,
-        COMM_SENDING,
-        COMM_SENDING_PAUSED,
-    };
-    
+
     public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
 
     public static String timeSince(long from){
