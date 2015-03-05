@@ -20,6 +20,7 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.model.ControlStateListener;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
@@ -238,6 +239,11 @@ public class PendantUITest {
 
             @Override
             public void addControlStateListener(ControlStateListener listener) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+
+            @Override
+            public void addControllerListener(ControllerListener listener) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 	}

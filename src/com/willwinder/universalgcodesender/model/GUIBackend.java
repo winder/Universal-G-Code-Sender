@@ -82,6 +82,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         controlStateListeners.add(listener);
     }
     
+    @Override
     public void addControllerListener(ControllerListener listener) {
         controllerListeners.add(listener);
         if (this.controller != null) {
@@ -103,7 +104,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
         
         if (openCommConnection(port, baudRate)) {
-            this.setControlState(ControlState.COMM_IDLE);
+            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
         }
     }
 
@@ -116,7 +117,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void disconnect() throws Exception {
         this.controller.closeCommPort();
         this.controller = null;
-        this.setControlState(ControlState.COMM_DISCONNECTED);
+        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_DISCONNECTED));
     }
 
     @Override
@@ -234,7 +235,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         this.gcodeFile = file;
         try {
             this.initializedProcessedLines();
-            this.setControlState(this.controlState); // just send the signal.
+            this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
         } catch (FileNotFoundException ex) {
             logger.log(Level.INFO, "File not found exception.", ex);
             throw new Exception(Localization.getString("mainWindow.error.openingFile") +": " + ex.getMessage());
@@ -259,7 +260,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.setControlState(ControlState.COMM_SENDING);
+            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
+
 
             // Mark the position in the table where the commands will begin.
             //commandTable.setOffset();
@@ -274,7 +276,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
         } catch (Exception e) {
-            this.setControlState(ControlState.COMM_IDLE);
+            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
             e.printStackTrace();
             throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
@@ -324,11 +326,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             switch(controlState) {
                 case COMM_SENDING:
                     this.controller.pauseStreaming();
-                    this.setControlState(ControlState.COMM_SENDING_PAUSED);
+                    this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING_PAUSED));
                     return;
                 case COMM_SENDING_PAUSED:
                     this.controller.resumeStreaming();
-                    this.setControlState(ControlState.COMM_SENDING);
+                    this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
                     return;
                 default:
                     throw new Exception();
@@ -377,7 +379,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void cancel() throws Exception {
         this.controller.cancelSend();
-        this.setControlState(ControlState.COMM_IDLE);
+        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
     }
 
     @Override
@@ -433,7 +435,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        this.setControlState(ControlState.COMM_IDLE);
+        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
     }
 
     @Override
@@ -579,11 +581,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
     
-    private void setControlState(ControlState newState) {
-        this.controlState = newState;
+    private void sendControlStateEvent(ControlStateEvent event) {
         for (ControlStateListener l : controlStateListeners) {
             logger.info("Sending control state change.");
-            l.ControlStateEvent(new ControlStateEvent(newState));
+            l.ControlStateEvent(event);
         }
     }
 }

@@ -38,7 +38,7 @@ public class CommUtils {
     /** 
      * Generates a list of available serial ports.
      */
-    static protected String[] getSerialPortList() {
+    static public String[] getSerialPortList() {
         /*
         int type = CommPortIdentifier.PORT_SERIAL;
         */
@@ -70,7 +70,7 @@ public class CommUtils {
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
-    static protected Boolean checkRoomInBuffer(int sentBuffer, String nextCommand) {
+    static public Boolean checkRoomInBuffer(int sentBuffer, String nextCommand) {
         if (nextCommand == null ) {
             return false;
         }
@@ -82,7 +82,7 @@ public class CommUtils {
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
-    static protected Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
+    static public Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
         String command = nextCommand.getCommandString();
         int characters = getSizeOfBuffer(list);
         // TODO: Carefully trace the newlines in commands and make sure
@@ -99,7 +99,7 @@ public class CommUtils {
      * Synchronized because this list is frequently modified through events,
      * especially at the beginning of a file transfer.
      */
-    static synchronized protected int getSizeOfBuffer(List<GcodeCommand> list) {
+    static synchronized public int getSizeOfBuffer(List<GcodeCommand> list) {
         int characters = 0;
         GcodeCommand command;
         // Number of characters in list.

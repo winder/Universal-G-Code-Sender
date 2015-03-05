@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  *
  * @author moll
  */
-class SettingsFactory {
+public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     
     public static File getSettingsFolder(){

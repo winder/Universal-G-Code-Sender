@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.Settings;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import java.io.File;
@@ -34,7 +35,8 @@ import java.io.File;
  */
 public interface BackendAPIReadOnly {
     public void addControlStateListener(ControlStateListener listener);
-            
+    public void addControllerListener(ControllerListener listener);
+    
     // Config options
     public File getFile();
 

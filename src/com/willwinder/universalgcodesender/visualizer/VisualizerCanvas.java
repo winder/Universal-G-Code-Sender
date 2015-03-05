@@ -175,6 +175,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.isDrawable = false;
         this.currentCommandNumber = 0;
         this.lastCommandNumber = 0;
+        
+        generateObject();
     }
     
     public void setWorkCoordinate(Point3d p) {
@@ -222,6 +224,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         logger.log(Level.INFO, "Reshaping OpenGL context.");
+        if (!isDrawable) return;
         
         this.xSize = width;
         this.ySize = height;
@@ -636,6 +639,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         this.lineColorBuffer = null;
         this.lineVertexBuffer = null;
+        this.gcodeLineList = null;
         this.isDrawable = false;
         this.numberOfVertices = 0;
     }

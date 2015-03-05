@@ -10,11 +10,11 @@ public class Version {
 
     private static boolean initialized = false;
     
-    static String getVersion() {
+    static public String getVersion() {
         return VERSION;
     }
     
-    synchronized static String getTimestamp() {
+    synchronized public static String getTimestamp() {
         if (!initialized) {
             initialize();
         }

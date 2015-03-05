@@ -23,8 +23,16 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.CommUtils;
+import com.willwinder.universalgcodesender.FirmwareUtils;
+import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.SettingsFactory;
+import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.Version;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -78,9 +86,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
     final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
     private PendantUI pendantUI;
-    private Settings settings;
+    public Settings settings;
     
-    GUIBackend backend;
+    BackendAPI backend;
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
@@ -96,13 +104,59 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private Timer timer;
     
     /** Creates new form MainWindow */
-    public MainWindow(GUIBackend backend) {
+    public MainWindow(BackendAPI backend) {
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
         initComponents();
         initProgram();
         backend.addControllerListener(this);
         backend.addControlStateListener(this);
+        
+        arrowMovementEnabled.setSelected(settings.isManualModeEnabled());
+        stepSizeSpinner.setValue(settings.getManualModeStepSize());
+        boolean unitsAreMM = settings.getDefaultUnits().equals("mm");
+        mmRadioButton.setSelected(unitsAreMM);
+        inchRadioButton.setSelected(!unitsAreMM);
+        fileChooser = new JFileChooser(settings.getFileName());
+        commPortComboBox.setSelectedItem(settings.getPort());
+        baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
+        scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
+        showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
+        firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
+        customGcodeText1.setText(settings.getCustomGcode1());
+        customGcodeText2.setText(settings.getCustomGcode2());
+        customGcodeText3.setText(settings.getCustomGcode3());
+        customGcodeText4.setText(settings.getCustomGcode4());
+        customGcodeText5.setText(settings.getCustomGcode5());
+        setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
+        setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
+//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
+
+        
+        initFileChooser();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (fileChooser.getSelectedFile() != null ) {
+                    settings.setFileName(fileChooser.getSelectedFile().getAbsolutePath());
+                }
+                
+                settings.setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
+                settings.setManualModeStepSize(getStepSize());
+                settings.setManualModeEnabled(arrowMovementEnabled.isSelected());
+                settings.setPort(commPortComboBox.getSelectedItem().toString());
+                settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
+                settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
+                settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+                settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+                SettingsFactory.saveSettings(settings);
+                
+                if(pendantUI!=null){
+                    pendantUI.stop();
+                }
+            }
+        });
     }
     
     /**
@@ -692,7 +746,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -880,7 +934,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             .add(machineControlPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(0, 80, Short.MAX_VALUE))
+                .add(0, 0, Short.MAX_VALUE))
             .add(machineControlPanelLayout.createSequentialGroup()
                 .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(resetCoordinatesButton)
@@ -1125,7 +1179,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1268,7 +1322,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(6, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
@@ -1981,16 +2035,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */
     private void initFileChooser() {
-        //Setup the file filter for gcode files.
-        GcodeFileTypeFilter filter = new GcodeFileTypeFilter();
-        
-        // Setup file browser with the last path used.
-        this.fileChooser = new JFileChooser(settings.getFileName()); 
-        this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        this.fileChooser.setFileHidingEnabled(true);
-        this.fileChooser.addChoosableFileFilter(filter);
-        this.fileChooser.setAcceptAllFileFilterUsed(true);
-        this.fileChooser.setFileFilter(filter);
+        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getFileName()); 
     }
         
     private void initProgram() {
@@ -2481,8 +2526,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     @Override
     public void ControlStateEvent(ControlStateEvent evt) {
-        if (evt.getEventType() == ControlStateEvent.event.STATE_CHANGED) {
-            this.updateControls();
+        switch (evt.getEventType()) {
+            case STATE_CHANGED:
+            case FILE_CHANGED:
+                this.updateControls();
         }
     }
 
