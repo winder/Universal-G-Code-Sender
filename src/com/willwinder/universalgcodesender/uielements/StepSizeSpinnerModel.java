@@ -84,6 +84,8 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getNextValue() {
+        return this.getNextStepSize();
+        /*
         Double num;
         this.setStepSize(getNextStepSize());
 
@@ -95,6 +97,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
+        */
     }
 
     /**
@@ -109,6 +112,8 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getPreviousValue() {
+        return this.getPreviousStepSize();
+        /*
         Double num;
         this.setStepSize(getPreviousStepSize());
 
@@ -120,5 +125,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
+                */
     }
 }

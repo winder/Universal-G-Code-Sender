@@ -105,6 +105,14 @@
         <delete dir="${release.dir}" />
     </target>
 
+    <target name="platform" depends="jar">
+      <ant dir="UGSPlatform" target="build-zip" />
+    </target>
+
+    <target name="run-platform" depends="jar">
+      <ant dir="UGSPlatform" target="run" />
+    </target>
+
     <!--
 
     There exist several targets which are by default empty and which can be 
