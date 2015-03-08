@@ -92,6 +92,12 @@
                 <package>jogamp.graph.font.typecast.tt.engine</package>
                 <package>jogamp.graph.geom.plane</package>
                 <package>jogamp.nativetag.common.linux.amd64</package>
+                <package>jogamp.nativetag.common.linux.armv6</package>
+                <package>jogamp.nativetag.common.linux.armv6hf</package>
+                <package>jogamp.nativetag.common.linux.i586</package>
+                <package>jogamp.nativetag.common.macosx.universal</package>
+                <package>jogamp.nativetag.common.windows.amd64</package>
+                <package>jogamp.nativetag.common.windows.i586</package>
                 <package>jogamp.nativewindow</package>
                 <package>jogamp.nativewindow.awt</package>
                 <package>jogamp.nativewindow.jawt</package>
@@ -148,16 +154,40 @@
                 <package>net.highteq.nativetaglet</package>
             </public-packages>
             <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-windows-amd64.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-windows-amd64.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/jogl-all.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jogl-all.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-linux-armv6.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-linux-armv6.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/vecmath.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-macosx-universal.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-macosx-universal.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-linux-i586.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-linux-i586.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-windows-i586.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-windows-i586.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/gluegen.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/gluegen.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gluegen-rt-natives-linux-armv6hf.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gluegen-rt-natives-linux-armv6hf.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/gluegen-rt-natives-linux-amd64.jar</runtime-relative-path>

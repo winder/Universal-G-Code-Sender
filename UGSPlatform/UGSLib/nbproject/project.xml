@@ -45,8 +45,8 @@
                 <package>javax.vecmath</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/Universal G-Code Sender.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/Universal G-Code Sender.jar</binary-origin>
+              <runtime-relative-path>ext/ugs/Universal G-Code Sender.jar</runtime-relative-path>
+              <binary-origin>release/modules/ext/ugs/Universal G-Code Sender.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
