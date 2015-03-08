@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.WindowSettings;
@@ -48,11 +48,11 @@ public class Settings {
 		this.firmwareVersion = firmwareVersion;
 	}
 
-	public String getFileName() {
+	public String getLastOpenedFilename() {
 		return fileName;
 	}
 
-	public void setFileName(String fileName) {
+	public void setLastOpenedFilename(String fileName) {
 		this.fileName = fileName;
 	}
 

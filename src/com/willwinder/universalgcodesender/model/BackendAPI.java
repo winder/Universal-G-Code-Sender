@@ -23,7 +23,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.io.File;

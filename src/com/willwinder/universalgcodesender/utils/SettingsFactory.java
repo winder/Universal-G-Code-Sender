@@ -19,7 +19,7 @@
     Refactored by Bob Jones 2014
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,7 +63,7 @@ public class SettingsFactory {
                 logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), propertiesFile});
             	Properties properties = new Properties();
             	properties.load(new FileInputStream(propertiesFile));
-                out.setFileName(properties.getProperty("last.dir", System.getProperty("user.home")));
+                out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty("user.home")));
                 out.setPort(properties.getProperty("port", ""));
                 out.setPortRate(properties.getProperty("port.rate", "9600"));
                 out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", "false")));

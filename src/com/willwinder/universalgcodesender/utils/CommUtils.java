@@ -21,8 +21,9 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import jssc.SerialPortList;
 import java.util.Iterator;

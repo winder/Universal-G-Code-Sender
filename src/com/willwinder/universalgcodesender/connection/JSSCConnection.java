@@ -58,7 +58,6 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
     // $ sudo chmod 777 /var/lock
     @Override
     synchronized public boolean openPort(String name, int baud) throws Exception {
-        
         this.inputBuffer = new StringBuilder();
         
         boolean returnCode;
@@ -117,7 +116,7 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
         if (inputBuffer == null) {
             inputBuffer = new StringBuilder();
         }
-        
+
         try {
             byte[] buf = this.serialPort.readBytes();
             if (buf != null && buf.length > 0) {

@@ -18,14 +18,15 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.FirmwareUtils;
-import com.willwinder.universalgcodesender.Settings;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.File;
@@ -79,11 +80,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void addControlStateListener(ControlStateListener listener) {
+        logger.log(Level.INFO, "Adding control state listener.");
         controlStateListeners.add(listener);
     }
     
     @Override
     public void addControllerListener(ControllerListener listener) {
+        logger.log(Level.INFO, "Adding controller listener.");
         controllerListeners.add(listener);
         if (this.controller != null) {
             this.controller.addListener(listener);
@@ -94,8 +97,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     //////////////////
     @Override
     public void connect(String firmware, String port, int baudRate) throws Exception {
+        logger.log(Level.INFO, "Connecting to " + firmware + " on port " + port);
         this.controller = FirmwareUtils.getControllerFor(firmware);
-
         applySettingsToController(settings, this.controller);
 
         this.controller.addListener(this);
@@ -110,11 +113,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public boolean isConnected() {
-        return this.controlState != ControlState.COMM_DISCONNECTED;
+        boolean isConnected = this.controlState != ControlState.COMM_DISCONNECTED;
+        logger.log(Level.INFO, "Is connected: " + isConnected);
+        return isConnected;
     }
     
     @Override
     public void disconnect() throws Exception {
+        logger.log(Level.INFO, "Disconnecting.");
         this.controller.closeCommPort();
         this.controller = null;
         this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_DISCONNECTED));
@@ -122,6 +128,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void applySettings(Settings settings) throws Exception {
+        logger.log(Level.INFO, "Applying settings.");
         this.settings = settings;
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
@@ -130,6 +137,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
+        logger.log(Level.INFO, "Getting system state 'updateSystemState'");
         systemStateBean.setFileName(gcodeFile.getAbsolutePath());
         systemStateBean.setLatestComment(lastComment);
         systemStateBean.setActiveState(activeState);
@@ -155,6 +163,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
+        logger.log(Level.INFO, "Sending gcode command: " + commandText);
         controller.queueStringForComm(commandText);
     }
 
@@ -166,6 +175,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      */
     @Override
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
+        logger.log(Level.INFO, "Adjusting manual location.");
         
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
@@ -217,21 +227,25 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public Settings getSettings() {
+        logger.log(Level.INFO, "Getting settings.");
         return this.settings;
     }
 
     @Override
     public ControlState getControlState() {
+        logger.log(Level.INFO, "Getting control state.");
         return this.controlState;
     }
     
     @Override
     public AbstractController getController() {
+        logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
 
     @Override
     public void setFile(File file) throws Exception {
+        logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
         try {
             this.initializedProcessedLines();
@@ -247,11 +261,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public File getFile() {
+        logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
     
     @Override
     public void send() throws Exception {
+        logger.log(Level.INFO, "Sending gcode file.");
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
 
@@ -284,11 +300,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public long getNumRows() {
+        logger.log(Level.INFO, "Getting number of rows.");
         return this.controller.rowsInSend();
     }
     
     @Override
     public long getNumSentRows() {
+        logger.log(Level.INFO, "Getting number of sent rows.");
         return this.controller.rowsSent();
     }
 
@@ -322,6 +340,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void pauseResume() throws Exception {
+        logger.log(Level.INFO, "Pause/Resume");
         try {
             switch(controlState) {
                 case COMM_SENDING:
@@ -582,6 +601,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
     
     private void sendControlStateEvent(ControlStateEvent event) {
+        if (event.getEventType() == ControlStateEvent.event.STATE_CHANGED) {
+            this.controlState = event.getState();
+        }
+        
         for (ControlStateListener l : controlStateListeners) {
             logger.info("Sending control state change.");
             l.ControlStateEvent(event);

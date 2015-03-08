@@ -23,19 +23,19 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender.model;
+package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.CommUtils;
-import com.willwinder.universalgcodesender.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.GrblController;
-import com.willwinder.universalgcodesender.Settings;
-import com.willwinder.universalgcodesender.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.Version;
+import com.willwinder.universalgcodesender.utils.Version;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
@@ -44,7 +44,11 @@ import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.model.ControlStateListener;
+import com.willwinder.universalgcodesender.model.ControlStateEvent;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -117,7 +121,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         boolean unitsAreMM = settings.getDefaultUnits().equals("mm");
         mmRadioButton.setSelected(unitsAreMM);
         inchRadioButton.setSelected(!unitsAreMM);
-        fileChooser = new JFileChooser(settings.getFileName());
+        fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());
         baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
         scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
@@ -139,7 +143,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 if (fileChooser.getSelectedFile() != null ) {
-                    settings.setFileName(fileChooser.getSelectedFile().getAbsolutePath());
+                    settings.setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
                 settings.setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
@@ -199,7 +203,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         boolean unitsAreMM = mw.settings.getDefaultUnits().equals("mm");
         mw.mmRadioButton.setSelected(unitsAreMM);
         mw.inchRadioButton.setSelected(!unitsAreMM);
-        mw.fileChooser = new JFileChooser(mw.settings.getFileName());
+        mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
         mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
         mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
@@ -248,7 +252,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setFileName(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                    mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
                 mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
@@ -2035,7 +2039,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */
     private void initFileChooser() {
-        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getFileName()); 
+        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename()); 
     }
         
     private void initProgram() {

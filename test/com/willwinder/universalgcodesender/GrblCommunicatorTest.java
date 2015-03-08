@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;

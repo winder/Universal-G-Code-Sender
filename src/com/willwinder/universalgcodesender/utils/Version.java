@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

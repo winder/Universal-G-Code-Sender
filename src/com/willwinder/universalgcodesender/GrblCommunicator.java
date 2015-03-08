@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.LinkedList;

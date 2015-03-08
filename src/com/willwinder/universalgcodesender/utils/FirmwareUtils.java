@@ -22,8 +22,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender;
+package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.TinyGController;
 import java.util.ArrayList;
 
 /**
