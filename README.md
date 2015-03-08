@@ -18,6 +18,7 @@ Downloads
 [2.0 nightly build](http://bit.ly/1vIcB9E) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)[![Built by](http://cloudbees.prod.acquia-sites.com/sites/default/files/styles/large/public/Button-Built-on-CB-1.png?itok=3Tnkun-C)](https://winder.ci.cloudbees.com/job/UGS/)
 <br />
 [1.0.8](http://bit.ly/1BSKon6)
+<br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
 [1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
