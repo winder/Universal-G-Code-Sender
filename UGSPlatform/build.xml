@@ -4,5 +4,6 @@
 <!-- If you delete this file and reopen the project it will be recreated. -->
 <project name="UGSPlatform" basedir=".">
     <description>Builds the module suite UGSPlatform.</description>
+
     <import file="nbproject/build-impl.xml"/>
 </project>
