@@ -77,7 +77,6 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         settings = CentralLookup.getDefault().lookup(Settings.class);
 
         backend.addControlStateListener(this);
-        backend.applySettings(settings);
         loadFirmwareSelector();
     }
     
@@ -103,6 +102,9 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         if (portList.length < 1) {
             //MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             System.out.println("NO SERIAL PORTS!!!");
+            NotifyDescriptor nd = new NotifyDescriptor.Message(Localization.getString("mainWindow.error.noSerialPort"), NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(nd);
+
         } else {
             // Sort?
             //java.util.Collections.sort(portList);
@@ -242,6 +244,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
             int baudRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
             
             try {
+                this.backend.applySettings(settings);
                 this.backend.connect(firmware, port, baudRate);
             } catch (Exception e) {
                 NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
