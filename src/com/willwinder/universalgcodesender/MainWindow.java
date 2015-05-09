@@ -2167,6 +2167,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 color = Color.YELLOW;
             } else if (state.equals(Localization.getString("mainWindow.status.run"))) {
                 color = Color.GREEN;
+            } else {
+                color = Color.WHITE;
             }
 
             this.activeStateLabel.setBackground(color);
