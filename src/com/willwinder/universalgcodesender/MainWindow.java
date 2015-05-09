@@ -1729,6 +1729,16 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     public void run() {
                         durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
                         remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
+                        
+                        //sentRowsValueLabel.setText(""+sentRows);
+                        sentRowsValueLabel.setText(""+backend.getNumSentRows());
+                        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+
+                        if (backend.isSending()) {
+                            if (vw != null) {
+                                vw.setCompletedCommandNumber((int)backend.getNumSentRows());
+                            }
+                        }
                     }
                 });
 
@@ -2450,9 +2460,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                //sentRowsValueLabel.setText(""+sentRows);
-                sentRowsValueLabel.setText(""+backend.getNumSentRows());
-                
                 // sent
                 commandTable.updateRow(command);
             }});
@@ -2472,13 +2479,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 commandTable.updateRow(command);
-                remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-                
-                if (backend.isSending()) {
-                    if (vw != null) {
-                        vw.setCompletedCommandNumber((int)backend.getNumSentRows());
-                    }
-                }
             }});
     }
 
