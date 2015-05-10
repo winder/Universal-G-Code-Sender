@@ -31,7 +31,7 @@ public final class Start implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         try {
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-            if (backend.isSending()) {
+            if (backend.isPaused()) {
                 backend.pauseResume();
             } else {
                 backend.send();

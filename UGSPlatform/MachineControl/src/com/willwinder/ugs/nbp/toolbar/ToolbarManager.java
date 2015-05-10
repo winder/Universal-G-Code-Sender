@@ -48,18 +48,13 @@ public final class ToolbarManager implements Runnable, ControlStateListener {
     
     @Override
     public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        if (cse.getEventType() == ControlStateEvent.event.FILE_CHANGED) {
-            // This uses some magic XML files Standard.xml and FileOpened.xml
-            // along with the layers.xml file to toggle whether the toolbar is
-            // displayed or not.
-            if (!ToolbarPool.getDefault().getConfiguration().equals("FileOpened")) {
-                ToolbarPool.getDefault().setConfiguration("FileOpened");
-            }        
-        }
-        
+        if (!ToolbarPool.getDefault().getConfiguration().equals("FileOpened")) {
+            ToolbarPool.getDefault().setConfiguration("FileOpened");
+        }        
+
         Component[] components = ToolbarPool.getDefault().findToolbar("StartPauseStop").getComponents();
 
-        setPlayEnabled(components, backend.canSend());
+        setPlayEnabled(components, backend.canSend() || backend.isPaused());
         setPauseEnabled(components, backend.canPause());
         setStopEnabled(components, backend.canCancel());
     }
