@@ -1485,7 +1485,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }
     
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
-        if( this.opencloseButton.getText().equalsIgnoreCase("open") ) {
+        if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
             this.clearTable();
             this.sentRowsValueLabel.setText("0");
 
