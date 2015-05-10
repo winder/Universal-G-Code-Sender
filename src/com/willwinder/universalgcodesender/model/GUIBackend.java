@@ -247,16 +247,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void setFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
-        try {
-            this.initializedProcessedLines();
-            this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
-        } catch (FileNotFoundException ex) {
-            logger.log(Level.INFO, "File not found exception.", ex);
-            throw new Exception(Localization.getString("mainWindow.error.openingFile") +": " + ex.getMessage());
-        } catch (IOException e) {
-            logger.log(Level.INFO, "IO Exception.", e);
-            throw new Exception(Localization.getString("mainWindow.error.processingFile") +": " + e.getMessage());
-        }    
+        this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
     @Override
@@ -275,6 +266,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
+
+            this.initializeProcessedLines();
 
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
 
@@ -578,7 +571,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     Collection<String> processedCommandLines = null;
-    private void initializedProcessedLines() throws FileNotFoundException, IOException {
+    private void initializeProcessedLines() throws FileNotFoundException, IOException {
         if (this.gcodeFile != null) {
             Charset cs;
             try (FileReader fr = new FileReader(this.gcodeFile)) {
