@@ -14,3 +14,13 @@ tar.gz
 .project
 .settings
 /*.log
+/UGSPlatform/nbproject/private/
+/UGSPlatform/UGSLib/build/
+/UGSPlatform/jssc/build/
+/UGSPlatform/CentralLookup/build/
+/UGSPlatform/build/
+/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/build/
+/UGSPlatform/MachineControl/build/
+/UGSPlatform/MachineControl/nbproject/private/
+/UGSPlatform/CentralLookup/nbproject/private/
+/UGSPlatform/Options/nbproject/private/
