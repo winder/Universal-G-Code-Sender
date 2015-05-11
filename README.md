@@ -15,7 +15,7 @@ commands:
 
 Downloads
 ---------
-<b>2.0 Nightly builds</b> [UGS Platform](http://bit.ly/18xC2UQ) / [classic GUI](http://bit.ly/1vIcB9E) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
+<b>2.0 Nightly builds</b> [UGS Platform](bit.ly/1KYjrPY) / [classic GUI](http://bit.ly/1vIcB9E) - Nightly build test status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
 <br />
 [1.0.8](http://bit.ly/1BSKon6)
 <br />
