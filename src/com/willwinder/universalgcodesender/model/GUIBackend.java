@@ -137,7 +137,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
-        logger.log(Level.INFO, "Getting system state 'updateSystemState'");
+        //logger.log(Level.INFO, "Getting system state 'updateSystemState'");
         systemStateBean.setFileName(gcodeFile.getAbsolutePath());
         systemStateBean.setLatestComment(lastComment);
         systemStateBean.setActiveState(activeState);
@@ -163,7 +163,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        logger.log(Level.INFO, "Sending gcode command: " + commandText);
+        //logger.log(Level.INFO, "Sending gcode command: " + commandText);
         controller.queueStringForComm(commandText);
     }
 
@@ -175,7 +175,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      */
     @Override
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
-        logger.log(Level.INFO, "Adjusting manual location.");
+        //logger.log(Level.INFO, "Adjusting manual location.");
         
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
@@ -227,32 +227,32 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public Settings getSettings() {
-        logger.log(Level.INFO, "Getting settings.");
+        //logger.log(Level.INFO, "Getting settings.");
         return this.settings;
     }
 
     @Override
     public ControlState getControlState() {
-        logger.log(Level.INFO, "Getting control state.");
+        //logger.log(Level.INFO, "Getting control state.");
         return this.controlState;
     }
     
     @Override
     public AbstractController getController() {
-        logger.log(Level.INFO, "Getting controller");
+        //logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
 
     @Override
     public void setFile(File file) throws Exception {
-        logger.log(Level.INFO, "Setting gcode file.");
+        //logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
         this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
     @Override
     public File getFile() {
-        logger.log(Level.INFO, "Getting gcode file.");
+        //logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
     
@@ -293,13 +293,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public long getNumRows() {
-        logger.log(Level.INFO, "Getting number of rows.");
+        //logger.log(Level.INFO, "Getting number of rows.");
         return this.controller.rowsInSend();
     }
     
     @Override
     public long getNumSentRows() {
-        logger.log(Level.INFO, "Getting number of sent rows.");
+        //logger.log(Level.INFO, "Getting number of sent rows.");
         return this.controller.rowsSent();
     }
 
