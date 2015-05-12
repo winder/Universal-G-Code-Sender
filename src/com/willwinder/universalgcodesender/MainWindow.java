@@ -2474,7 +2474,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     @Override
     public void commandComplete(final GcodeCommand command) {
-        String gcodeString = command.getCommandString().toLowerCase();
+        //String gcodeString = command.getCommandString().toLowerCase();
         
         // update gui
         java.awt.EventQueue.invokeLater(new Runnable() {
