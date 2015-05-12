@@ -125,6 +125,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         commPortComboBox.setSelectedItem(settings.getPort());
         baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
         scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
+        checkScrollWindow();
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
         firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
         customGcodeText1.setText(settings.getCustomGcode1());
@@ -2499,7 +2500,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     consoleTextArea.append((verbose ? verboseS : "") + msg);
 
                     if (consoleTextArea.isVisible() &&
-                            scrollWindowCheckBox.isEnabled()) {
+                            scrollWindowCheckBox.isSelected()) {
                         consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
                     }
                 }
