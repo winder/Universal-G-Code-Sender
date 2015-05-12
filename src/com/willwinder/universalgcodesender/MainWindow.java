@@ -1766,7 +1766,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
         try {
-            if (this.backend.isConnected()) {
+            if (!this.backend.isConnected()) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             } else if (this.backend.getController() instanceof GrblController) {
                     GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, (GrblController)this.backend.getController());
