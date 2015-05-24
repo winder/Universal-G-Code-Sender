@@ -45,6 +45,7 @@ public final class ConsoleOptionsPanelController extends OptionsPanelController 
         changed = false;
     }
 
+    @Override
     public void applyChanges() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -89,13 +90,4 @@ public final class ConsoleOptionsPanelController extends OptionsPanelController 
         }
         return panel;
     }
-
-    void changed() {
-        if (!changed) {
-            changed = true;
-            pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
-        }
-        pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
-    }
-
 }
