@@ -4,6 +4,5 @@
 <filesystem>
     <folder name="Toolbars">
         <file name="Standard.xml" url="Standard.xml"/>
-        <file name="FileOpened.xml" url="FileOpened.xml"/>
     </folder>
 </filesystem>
