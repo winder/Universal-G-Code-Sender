@@ -2443,6 +2443,15 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         final String durationLabelCopy = this.durationValueLabel.getText();
         if (success) {
+            // spin until there are no active commands before alerting job success
+            while (backend.getController().areActiveCommands()) {
+              try {
+                Thread.sleep(100);
+              } catch (InterruptedException e) {
+                // thread has been interrupted externally
+              }
+            }
+
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 JOptionPane.showMessageDialog(new JFrame(),
                         Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,

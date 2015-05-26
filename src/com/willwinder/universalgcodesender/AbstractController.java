@@ -300,7 +300,11 @@ public abstract class AbstractController implements SerialCommunicatorListener {
     public int getStatusUpdateRate() {
         return this.statusUpdateRate;
     }
-    
+
+    public boolean areActiveCommands() {
+      return this.awaitingResponseQueue.size() > 0;
+    }
+
     public Boolean openCommPort(String port, int portRate) throws Exception {
         if (this.commOpen) {
             throw new Exception("Comm port is already open.");
