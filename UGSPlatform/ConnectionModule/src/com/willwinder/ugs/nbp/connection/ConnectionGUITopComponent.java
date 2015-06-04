@@ -172,8 +172,8 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
     private void initComponents() {
 
         connectionPanel = new javax.swing.JPanel();
-        commPortComboBox = new javax.swing.JComboBox<String>();
-        baudrateSelectionComboBox = new javax.swing.JComboBox<String>();
+        commPortComboBox = new PortComboBox();
+        baudrateSelectionComboBox = new BaudComboBox();
         opencloseButton = new javax.swing.JButton();
         refreshButton = new javax.swing.JButton();
         baudLabel = new javax.swing.JLabel();
@@ -193,8 +193,6 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
             }
         });
 
-        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
-        baudrateSelectionComboBox.setSelectedIndex(2);
         baudrateSelectionComboBox.setToolTipText(org.openide.util.NbBundle.getMessage(ConnectionGUITopComponent.class, "ConnectionGUITopComponent.baudrateSelectionComboBox.toolTipText")); // NOI18N
         baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -339,6 +337,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         //cp = CentralLookup.getDefault().lookup(ConnectionProperty.class);
         //cp.addPropertyChangeListener(this);
 
+        /*
         commPortComboBox.removeAllItems();
         initializePorts();
         
@@ -374,18 +373,10 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
                 }
             }
         });
+                */
         initializing = false;
     }
 
-    public static void setCombo(JComboBox combo, String value) {
-        for (int i = 0; i < combo.getItemCount(); i++) {
-            if (combo.getItemAt(i).equals(value)) {
-                combo.setSelectedIndex(i);
-                return;
-            }
-        }
-    }
-    
     @Override
     public void componentClosed() {
         //CentralLookup.getDefault().lookup(ConnectionProperty.class).removePropertyChangeListener(this);
