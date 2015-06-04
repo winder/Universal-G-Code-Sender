@@ -18,27 +18,17 @@
  */
 package com.willwinder.ugs.nbp.connection;
 
-import static com.willwinder.ugs.nbp.connection.ConnectionGUITopComponent.setCombo;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
-import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JPopupMenu;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
-import org.openide.util.NbPreferences;
 import org.openide.util.actions.Presenter;
 import org.openide.windows.TopComponent;
 
@@ -76,108 +66,31 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
 
         JLabel portLabel;
         JLabel baudLabel;
-        JComboBox<String> portComboBox;
-        JComboBox<String> baudComboBox;
+        PortComboBox portComboBox;
+        BaudComboBox baudComboBox;
         
         private boolean initializing = true;
         
         MyToolbarPresenter() {
-            initializing = true;
-            
             initComponents();
+
+            setInitializing(true);
+
             backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
-            portComboBox.removeAllItems();
-            baudComboBox.removeAllItems();
-            
-            final JComboBox baudCombo = baudComboBox;
-            final JComboBox portCombo = portComboBox;
-
-            // Add serial ports
-            String[] portList = CommUtils.getSerialPortList();
-            if (portList.length < 1) {
-                //MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
-            } else {
-                for (String port : portList) {
-                    portComboBox.addItem(port);
-                }
-
-                portComboBox.setSelectedIndex(0);
-            }
-
-            // Add baud rates
-            baudComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
-            baudComboBox.setSelectedIndex(6);
-            
-            final Preferences pref = NbPreferences.forModule(ConnectionProperty.class);
-        
-            String baud = pref.get("baud", "115200");
-            System.out.println("Initial baud = " + baud);
-            setCombo(baudCombo, baud);
-            setCombo(portCombo, pref.get("address", ""));
-            
-            if (! pref.get("address", "").equals(portComboBox.getSelectedItem())) {
-                NbPreferences.forModule(ConnectionProperty.class).put("address", portComboBox.getSelectedItem().toString());
-            }
-
-            portComboBox.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    portChangeEvent(evt);
-                }
-            });
-            
-            baudComboBox.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    baudChangeEvent(evt);
-                }
-            });
-            
-            pref.addPreferenceChangeListener(new PreferenceChangeListener() {
-                @Override
-                public void preferenceChange(PreferenceChangeEvent evt) {
-                    JComboBox combo = null;
-                    if (evt.getKey().equals("address")) {
-                        combo = portCombo;
-                    } else if (evt.getKey().equals("baud")) {
-                        combo = baudCombo;
-                    }
-
-                    if (combo == null) return;
-
-
-                    initializing = true;
-                    try {
-                        setCombo(combo, evt.getNewValue());
-                    } finally {
-                        initializing = false;
-                    }
-                }
-            });
-
-            initializing = false;
+            setInitializing(false);
         }
         
-        private void portChangeEvent(ActionEvent evt) {
-            if (initializing) return;
-            Object port = this.portComboBox.getSelectedItem();
-            if (port != null)
-                NbPreferences.forModule(ConnectionProperty.class).put("address", port.toString());
-
-        }
-        private void baudChangeEvent(ActionEvent evt) {
-            if (initializing) return;
-            Object baud = this.baudComboBox.getSelectedItem();
-            if (baud != null)
-                NbPreferences.forModule(ConnectionProperty.class).put("baud", baud.toString());
+        private void setInitializing(Boolean initializing) {
+            this.portComboBox.setInitializing(initializing);
+            this.baudComboBox.setInitializing(initializing);
         }
         
         private void initComponents() {
             portLabel = new javax.swing.JLabel();
             baudLabel = new javax.swing.JLabel();
-            portComboBox = new javax.swing.JComboBox<>();
-            baudComboBox = new javax.swing.JComboBox<>();
+            portComboBox = new PortComboBox();
+            baudComboBox = new BaudComboBox();
 
             portComboBox.setEditable(true);
             baudComboBox.setEditable(true);
@@ -217,5 +130,4 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
         }
 
     }
-    
 }
