@@ -165,6 +165,7 @@ public class GrblUtils {
         }
     }
     
+    @Deprecated
     static protected String getReturnToHomeCommand(final double version, final String letter) {
         if ((version >= 0.8 && (letter != null) && letter.equals("c"))
                 || version >= 0.9) {
