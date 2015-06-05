@@ -74,7 +74,6 @@
                 <package>javax.media.opengl.glu</package>
                 <package>javax.media.opengl.glu.gl2</package>
                 <package>javax.media.opengl.glu.gl2es1</package>
-                <package>javax.vecmath</package>
                 <package>jogamp.common</package>
                 <package>jogamp.common.jvm</package>
                 <package>jogamp.common.os</package>
@@ -164,10 +163,6 @@
             <class-path-extension>
                 <runtime-relative-path>ext/gluegen-rt-natives-linux-armv6.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/gluegen-rt-natives-linux-armv6.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/vecmath.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/gluegen-rt-natives-macosx-universal.jar</runtime-relative-path>
