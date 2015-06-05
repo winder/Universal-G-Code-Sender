@@ -186,6 +186,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         this.lastCommandNumber = 0;
         
         generateObject();
+        
+        logger.log(Level.INFO, "Done setting gcode file.");
     }
     
     public void setWorkCoordinate(Point3d p) {
@@ -223,6 +225,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
         gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+        gl.glLoadIdentity();
     }
 
     /**
@@ -233,23 +236,27 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         logger.log(Level.INFO, "Reshaping OpenGL context.");
-        if (!isDrawable) return;
-        
         this.xSize = width;
         this.ySize = height;
 
+        if (!isDrawable) return;
+
         GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
 
-        if (height == 0){ height = 1; }  // prevent divide by zero
-        this.aspectRatio = (float)width / height;
+        initObjectVariables();
+        // Set the view port (display area) to cover the entire window
+        //gl.glViewport(0, 0, width, height);
+    }
+
+    void initObjectVariables() {
+        if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
+
+        this.aspectRatio = (float)this.xSize / this.ySize;
 
         this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
         this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);
         this.panMultiplierY = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.y, this.objectMax.y, this.ySize);
-
-        // Set the view port (display area) to cover the entire window
-        //gl.glViewport(0, 0, width, height);
     }
 
     /**
@@ -454,52 +461,51 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      */
     private void generateObject()
     {
+        isDrawable = false;
         if (this.gcodeFile == null){ return; }
         
         try {
 
-        GcodeViewParse gcvp = new GcodeViewParse();
-        List<String> linesInFile;
-        linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-        gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
-        
-        this.objectMin = gcvp.getMinimumExtremes();
-        this.objectMax = gcvp.getMaximumExtremes();
+            GcodeViewParse gcvp = new GcodeViewParse();
+            List<String> linesInFile;
+            linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+            gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
 
-        if (gcodeLineList.size() == 0) {
-            return;
-        }
-        
-        // Grab the line number off the last line.
-        this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
-        
-        System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
-        System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
-        System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
-        
-        this.center = VisualizerUtils.findCenter(objectMin, objectMax);
-        System.out.println("Center = " + center.toString());
-        System.out.println("Num Line Segments :" + gcodeLineList.size());
+            this.objectMin = gcvp.getMinimumExtremes();
+            this.objectMax = gcvp.getMaximumExtremes();
 
-        this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
-        
-        this.scaleFactorBase = 1.0/this.maxSide;
-        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+            if (gcodeLineList.size() == 0) {
+                return;
+            }
 
-        this.isDrawable = true;
-        
-        double objectWidth = this.objectMax.x-this.objectMin.x;
-        double objectHeight = this.objectMax.y-this.objectMin.y;
-        this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
-                + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
-                + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
-        
-        // Now that the object is known, fill the buffers.
-        this.createVertexBuffers();
-        this.colorArrayDirty = true;
-        this.vertexArrayDirty = true;
-        
+            // Grab the line number off the last line.
+            this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
+
+            System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
+            System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
+            System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
+
+            this.center = VisualizerUtils.findCenter(objectMin, objectMax);
+            System.out.println("Center = " + center.toString());
+            System.out.println("Num Line Segments :" + gcodeLineList.size());
+
+            this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
+
+            this.scaleFactorBase = 1.0/this.maxSide;
+            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+
+            double objectWidth = this.objectMax.x-this.objectMin.x;
+            double objectHeight = this.objectMax.y-this.objectMin.y;
+            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
+                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+                    + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
+
+            // Now that the object is known, fill the buffers.
+            this.isDrawable = true;
+            this.initObjectVariables();
+
+            this.createVertexBuffers();
         } catch (IOException e) {
             System.out.println("Error opening file: " + e.getLocalizedMessage());
         }
@@ -562,6 +568,9 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
                     lineVertexData[vertIndex++] = (float)p2.z;
                 }
             }
+            
+            this.colorArrayDirty = true;
+            this.vertexArrayDirty = true;
         }
     }
     
@@ -604,6 +613,9 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         }
         
         if (lineColorBuffer == null) {
+            if (this.lineColorData == null) {
+                this.createVertexBuffers();
+            }
             lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
         }
         
