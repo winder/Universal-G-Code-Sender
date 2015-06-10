@@ -76,6 +76,7 @@ import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
@@ -1763,6 +1764,37 @@ implements KeyListener, ControllerListener, ControlStateListener {
             logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
             MainWindow.displayErrorDialog(e.getMessage());
         }
+        
+        /*
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+            
+            boolean error = false;
+            String errorMessage = "";
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                try {
+                    backend.send();
+                    resetSentRowLabels(backend.getNumRows());
+                    timer.start();
+                } catch (Exception e) {
+                    timer.stop();
+                    logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
+                    error = true;
+                    errorMessage = e.getMessage();
+                    //MainWindow.displayErrorDialog(e.getMessage());
+                }
+                return true;
+            }
+
+            // Can safely update the GUI from this method.
+            protected void done() {
+                if (error)
+                    MainWindow.displayErrorDialog(errorMessage);
+            }
+        };
+
+        worker.execute();
+        */
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
