@@ -171,20 +171,30 @@ public abstract class AbstractCommunicator {
     /**
      * A bunch of methods to dispatch listener events with various arguments.
      */
-    static protected void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, String message) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, message, null);
+    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final String message) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (sclList != null) {
+                    for (SerialCommunicatorListener s : sclList) {
+                        sendEventToListener(event, s, message, null);
+                    }
+                }
             }
-        }
+        });
     }
     
-    static protected void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, GcodeCommand command) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, null, command);
+    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final GcodeCommand command) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (sclList != null) {
+                    for (SerialCommunicatorListener s : sclList) {
+                        sendEventToListener(event, s, null, command);
+                    }
+                }
             }
-        }
+        });
     }
 
     static protected void sendEventToListener(int event, SerialCommunicatorListener scl, 

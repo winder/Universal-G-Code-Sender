@@ -410,20 +410,15 @@ public class GrblController extends AbstractController {
     // No longer a listener event
     private void handlePositionString(final String string) {
         if (this.positionMode != null) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    grblState = GrblUtils.getStateFromStatusString(string, positionMode);
-                    machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode);
-                    workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode);
-                    if ( (machineLocation != null) && 
-                            (machineLocation.z > maxZLocation)) {
-                        maxZLocation = machineLocation.z;
-                    }
+            grblState = GrblUtils.getStateFromStatusString(string, positionMode);
+            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode);
+            workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode);
+            if ( (machineLocation != null) && 
+                    (machineLocation.z > maxZLocation)) {
+                maxZLocation = machineLocation.z;
+            }
 
-                    dispatchStatusString(grblState, machineLocation, workLocation);
-                }
-            });
+            dispatchStatusString(grblState, machineLocation, workLocation);
         }
     }
     

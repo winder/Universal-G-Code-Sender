@@ -137,7 +137,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
-        //logger.log(Level.INFO, "Getting system state 'updateSystemState'");
+        logger.log(Level.INFO, "Getting system state 'updateSystemState'");
         systemStateBean.setFileName(gcodeFile.getAbsolutePath());
         systemStateBean.setLatestComment(lastComment);
         systemStateBean.setActiveState(activeState);
@@ -163,7 +163,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        //logger.log(Level.INFO, "Sending gcode command: " + commandText);
+        logger.log(Level.INFO, "Sending gcode command: " + commandText);
         controller.queueStringForComm(commandText);
     }
 
@@ -175,7 +175,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      */
     @Override
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
-        //logger.log(Level.INFO, "Adjusting manual location.");
+        logger.log(Level.INFO, "Adjusting manual location.");
         
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
@@ -227,37 +227,38 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public Settings getSettings() {
-        //logger.log(Level.INFO, "Getting settings.");
+        logger.log(Level.INFO, "Getting settings.");
         return this.settings;
     }
 
     @Override
     public ControlState getControlState() {
-        //logger.log(Level.INFO, "Getting control state.");
+        logger.log(Level.INFO, "Getting control state.");
         return this.controlState;
     }
     
     @Override
     public AbstractController getController() {
-        //logger.log(Level.INFO, "Getting controller");
+        logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
 
     @Override
     public void setFile(File file) throws Exception {
-        //logger.log(Level.INFO, "Setting gcode file.");
+        logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
+        initializeProcessedLines();
         this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
     @Override
     public File getFile() {
-        //logger.log(Level.INFO, "Getting gcode file.");
+        logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
     
     @Override
-    public void send() throws Exception {
+    synchronized public void send() throws Exception {
         logger.log(Level.INFO, "Sending gcode file.");
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
@@ -267,10 +268,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.initializeProcessedLines();
-
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
-
 
             // Mark the position in the table where the commands will begin.
             //commandTable.setOffset();
@@ -390,8 +388,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void cancel() throws Exception {
-        this.controller.cancelSend();
-        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+        if (this.canCancel()) {
+            this.controller.cancelSend();
+            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+        }
     }
 
     @Override
@@ -548,6 +548,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         boolean connected = false;
         try {
             connected = controller.openCommPort(port, baudRate);
+            
+            this.initializeProcessedLines();
         } /* catch (PortInUseException e) {
             //Localization.getString("")
             StringBuilder message = new StringBuilder()
