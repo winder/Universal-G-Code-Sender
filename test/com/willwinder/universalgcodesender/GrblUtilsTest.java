@@ -63,6 +63,14 @@ public class GrblUtilsTest {
         expResult = 0.8;
         result = GrblUtils.getVersionDouble(response);
         assertEquals(expResult, result, 0.0);
+        
+        
+        response = "CarbideMotion 0.9g";
+        expResult = 0.9;
+        result = GrblUtils.getVersionDouble(response);
+        assertEquals(expResult, result, 0.0);
+
+        
     }
 
     /**
