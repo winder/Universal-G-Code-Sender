@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013-15 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
