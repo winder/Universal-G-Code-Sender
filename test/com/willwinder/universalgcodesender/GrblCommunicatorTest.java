@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,8 +35,8 @@ import org.junit.Test;
  */
 public class GrblCommunicatorTest {
     MockGrbl mg;
-    LinkedList<String> cb;
-    LinkedList<String> asl;
+    LinkedBlockingDeque<String> cb;
+    LinkedBlockingDeque<String> asl;
     
     public GrblCommunicatorTest() {
     }
@@ -43,8 +44,8 @@ public class GrblCommunicatorTest {
     @Before
     public void setUp() {
         this.mg = new MockGrbl();
-        this.cb = new LinkedList<>();
-        this.asl = new LinkedList<>();
+        this.cb = new LinkedBlockingDeque<>();
+        this.asl = new LinkedBlockingDeque<>();
     }
 
     /**
@@ -116,7 +117,7 @@ public class GrblCommunicatorTest {
             assertEquals(3, cb.size());
             
             input = "someCommand\n";
-            cb = new LinkedList<>();
+            cb = new LinkedBlockingDeque<>();
             mc = new MockConnection(mg.in, mg.out);
             instance = new GrblCommunicator(cb, asl, mc);
 

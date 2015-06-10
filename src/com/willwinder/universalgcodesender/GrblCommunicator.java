@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  *
@@ -36,8 +37,8 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
     
     // Command streaming variables
     private Boolean sendPaused = false;
-    private LinkedList<String> commandBuffer;     // All commands in a file
-    private LinkedList<String> activeStringList;  // Currently running commands
+    private LinkedBlockingDeque<String> commandBuffer;     // All commands in a file
+    private LinkedBlockingDeque<String> activeStringList;  // Currently running commands
     private int sentBufferSize = 0;
     
     private Boolean singleStepModeEnabled = false;
@@ -51,7 +52,7 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
      * act as GRBL.
      */
     protected GrblCommunicator(
-            LinkedList<String> cb, LinkedList<String> asl, Connection c) {
+            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl, Connection c) {
         // Base constructor.
         this();
         //TODO-f4grx-DONE: Mock connection
@@ -137,8 +138,10 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         // OR  We are in single command mode and there are no active commands.
         while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())
                 && allowMoreCommands()) {
+
             String commandString = this.commandBuffer.pop();
             this.activeStringList.add(commandString);
+
             this.sentBufferSize += commandString.length();
             
             // Newlines are embedded when they get queued so just send it.
@@ -211,8 +214,8 @@ public class GrblCommunicator extends AbstractCommunicator {// extends AbstractS
         boolean ret = super.openCommPort(name, baud);
         
         if (ret) {
-            this.commandBuffer = new LinkedList<>();
-            this.activeStringList = new LinkedList<>();
+            this.commandBuffer = new LinkedBlockingDeque<>();
+            this.activeStringList = new LinkedBlockingDeque<>();
             this.sentBufferSize = 0;
         }
         return ret;
