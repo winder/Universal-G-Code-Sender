@@ -1813,22 +1813,16 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        //MainWindow.displayErrorDialog("Disabled for refactoring.");
+        
         int returnVal = fileChooser.showSaveDialog(this);
-                //fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File newFile = fileChooser.getSelectedFile();
                 AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
                 backend.applySettingsToController(settings, control);
                 
-                // Read file.
-                FileReader fr = new FileReader(this.backend.getFile());
-                Charset cs = Charset.forName(fr.getEncoding());
-                fr.close();
-                Collection<String> lines = Files.readAllLines(this.backend.getFile().toPath(), cs);
-                lines = control.preprocess(lines);
-                control.appendGcodeCommands(lines, this.backend.getFile());
-                control.saveToFile(newFile);
+                backend.preprocessAndExportToFile(newFile);
             } catch (FileNotFoundException ex) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
                         + ": " + ex.getMessage());
@@ -1840,7 +1834,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.duringSave") +
                         ": " + e.getMessage());
             }
-        }    
+        }
+        
     }//GEN-LAST:event_saveButtonActionPerformed
 
         private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed

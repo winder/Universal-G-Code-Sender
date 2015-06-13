@@ -107,7 +107,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     private void initSettings() throws Exception {
         this.loadingSettings = true;
-        this.grblController.queueStringForComm("$$");
+        this.grblController.sendCommandImmediately("$$");
     }
     
     private void checkDoneSavingSettings() {
@@ -351,7 +351,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                     this.grblController.setSingleStepMode(true);
                     this.grblController.setStatusUpdatesEnabled(false);
 
-                    this.grblController.queueStringForComm(command);
+                    this.grblController.sendCommandImmediately(command);
                     this.commands[i] = null;
                 }
             }

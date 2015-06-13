@@ -24,7 +24,6 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.io.File;
 
@@ -33,6 +32,8 @@ public interface BackendAPI extends BackendAPIReadOnly {
         public void setFile(File file) throws Exception;
         public void applySettings(Settings settings) throws Exception;
 
+        public void preprocessAndExportToFile(File f) throws Exception;
+        
         // Control options
         public void connect(String firmware, String port, int baudRate) throws Exception;
         public void disconnect() throws Exception;

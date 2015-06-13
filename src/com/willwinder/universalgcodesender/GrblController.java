@@ -219,7 +219,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -232,7 +232,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getResetCoordsToZeroCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -245,7 +245,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -266,7 +266,7 @@ public class GrblController extends AbstractController {
                 // Perform the homing commands
                 while(iter.hasNext()){
                     String command = iter.next();
-                    this.queueStringForComm(command);
+                    this.sendCommandImmediately(command);
                 }
                 return;
             }
@@ -280,7 +280,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -293,7 +293,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -306,7 +306,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getViewParserStateCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
