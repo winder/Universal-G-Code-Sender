@@ -24,15 +24,20 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -78,6 +83,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     boolean G91Mode = false;
     
+    public GcodeParser gcp = new GcodeParser();
+    
     @Override
     public void addControlStateListener(ControlStateListener listener) {
         logger.log(Level.INFO, "Adding control state listener.");
@@ -92,9 +99,25 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.controller.addListener(listener);
         }
     }
+    
     //////////////////
     // GUI API
     //////////////////
+    
+    @Override
+    public void preprocessAndExportToFile(File f) throws Exception {
+        try(BufferedReader br = new BufferedReader(new FileReader(this.getFile()))) {
+            try (PrintWriter pw = new PrintWriter(f, "UTF-8")) {
+                for(String line; (line = br.readLine()) != null; ) {
+                    Collection<String> lines = gcp.preprocessCommand(line);
+                    for(String processedLine : lines) {
+                        pw.println(processedLine);
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void connect(String firmware, String port, int baudRate) throws Exception {
         logger.log(Level.INFO, "Connecting to " + firmware + " on port " + port);
@@ -164,7 +187,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
         logger.log(Level.INFO, "Sending gcode command: " + commandText);
-        controller.queueStringForComm(commandText);
+        controller.sendCommandImmediately(commandText);
     }
 
     /**
@@ -270,15 +293,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
 
-            // Mark the position in the table where the commands will begin.
-            //commandTable.setOffset();
-
             if (this.G91Mode) {
-                this.controller.preprocessAndAppendGcodeCommand("G90");
+                List<String> processed = gcp.preprocessCommand("G90");
+                controller.queueCommands(processed);
                 this.G91Mode = false;
             }
 
-            this.controller.appendGcodeCommands(processedCommandLines, this.gcodeFile);
+            this.controller.queueCommands(processedCommandLines);
 
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
@@ -508,21 +529,24 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         // Apply settings settings to controller.
         if (settings.isOverrideSpeedSelected()) {
             double value = settings.getOverrideSpeedValue();
-            controller.setSpeedOverride(value);
+            gcp.setSpeedOverride(value);
         } else {
-            controller.setSpeedOverride(-1);
+            gcp.setSpeedOverride(-1);
         }
 
         try {
-            controller.setMaxCommandLength(settings.getMaxCommandLength());
-            controller.setTruncateDecimalLength(settings.getTruncateDecimalLength());
+            gcp.setTruncateDecimalLength(settings.getTruncateDecimalLength());
+            gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+            gcp.setConvertArcsToLines(settings.isConvertArcsToLines());
+            gcp.setSmallArcThreshold(settings.getSmallArcThreshold());
+            gcp.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
+            
+            controller.getCommandCreator().setMaxCommandLength(settings.getMaxCommandLength());
+            
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());
-            controller.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-            controller.setConvertArcsToLines(settings.isConvertArcsToLines());
-            controller.setSmallArcThreshold(settings.getSmallArcThreshold());
-            controller.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
+
         } catch (Exception ex) {
 
             StringBuilder message = new StringBuilder()
@@ -580,10 +604,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 cs = Charset.forName(fr.getEncoding());
             }
             List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
+            this.processedCommandLines = gcp.preprocessCommands(lines);
 
             if (this.isConnected()) {
-                this.processedCommandLines = this.controller.preprocess(lines);
                 this.estimatedSendDuration = -1L;
+
                 Thread estimateThread = new Thread(new Runnable() {
                     @Override
                     public void run() {

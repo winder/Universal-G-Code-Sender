@@ -56,7 +56,7 @@ public class GrblSettingsListener implements ControllerListener {
 
             } while(!ready);
 
-            controller.queueStringForComm("$$");
+            controller.sendCommandImmediately("$$");
             while (this.sending) {
                 Thread.sleep(10);
             }

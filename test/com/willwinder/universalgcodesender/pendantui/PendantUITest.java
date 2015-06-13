@@ -246,6 +246,11 @@ public class PendantUITest {
             public void addControllerListener(ControllerListener listener) {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
+
+            @Override
+            public void preprocessAndExportToFile(File f) throws Exception {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 	}
 	
 	public class MockUGSController extends AbstractController{
