@@ -270,7 +270,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void setFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
-        initializeProcessedLines();
+        initializeProcessedLines(true);
         this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
@@ -573,7 +573,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         try {
             connected = controller.openCommPort(port, baudRate);
             
-            this.initializeProcessedLines();
+            this.initializeProcessedLines(false);
         } /* catch (PortInUseException e) {
             //Localization.getString("")
             StringBuilder message = new StringBuilder()
@@ -597,14 +597,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     Collection<String> processedCommandLines = null;
-    private void initializeProcessedLines() throws FileNotFoundException, IOException {
+    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, IOException {
         if (this.gcodeFile != null) {
             Charset cs;
             try (FileReader fr = new FileReader(this.gcodeFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
             List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
-            this.processedCommandLines = gcp.preprocessCommands(lines);
+            if (this.processedCommandLines == null || forceReprocess)
+                this.processedCommandLines = gcp.preprocessCommands(lines);
 
             if (this.isConnected()) {
                 this.estimatedSendDuration = -1L;
