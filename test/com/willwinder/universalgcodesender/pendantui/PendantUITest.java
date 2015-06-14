@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -173,7 +174,7 @@ public class PendantUITest {
             }
 
             @Override
-            public void applySettingsToController(Settings settings, AbstractController controller) throws Exception {
+            public void applySettingsToController(Settings settings, IController controller) throws Exception {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
@@ -316,6 +317,11 @@ public class PendantUITest {
             @Override
             public void toggleCheckMode() throws Exception {
                 toggleCheckMode = true;
+            }
+
+            @Override
+            public void currentUnits(Units units) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
 
 	}
