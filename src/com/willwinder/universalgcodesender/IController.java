@@ -5,11 +5,25 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Utils.Units;
+import java.util.Collection;
+
 /**
  *
  * @author will
  */
 public interface IController {
+    /*
+    Observable
+    */
+    public void addListener(ControllerListener cl);
+
+    /*
+    State updates.
+    */
+    public void currentUnits(Units units);
     
     /*
     Actions
@@ -34,6 +48,9 @@ public interface IController {
     
     public void setStatusUpdateRate(int rate);
     public int getStatusUpdateRate();
+    
+    public GcodeCommandCreator getCommandCreator();
+    public long getJobLengthEstimate(Collection<String> jobLines);
     
     /*
     Serial

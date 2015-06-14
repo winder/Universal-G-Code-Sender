@@ -23,6 +23,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
 import java.util.Collection;
@@ -33,6 +34,8 @@ import java.util.Collection;
  */
 public class TinyGController extends AbstractController {
 
+    Units units;
+    
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
         
@@ -148,5 +151,10 @@ public class TinyGController extends AbstractController {
     @Override
     protected void statusUpdatesRateValueChanged(int rate) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void currentUnits(Units units) {
+        this.units = units;
     }
 }
