@@ -49,9 +49,13 @@ public class Localization {
     }
     
     public static String getString(String id) {
-        if (bundle == null) {
-            Localization.initialize("en", "US");
+        try {
+            if (bundle == null) {
+                Localization.initialize("en", "US");
+            }
+            return bundle.getString(id);
+        } catch (Exception e) {
+            return "<" + id + ">";
         }
-        return bundle.getString(id);
     }
 }
