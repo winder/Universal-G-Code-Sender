@@ -22,7 +22,7 @@
 
 package com.willwinder.universalgcodesender.model;
 
-import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.io.File;
@@ -52,7 +52,7 @@ public interface BackendAPI extends BackendAPIReadOnly {
         public void issueSoftReset() throws Exception;
         public void requestParserState() throws Exception;
                
-	// Shouldn't be needed often.
-	public AbstractController getController();
-        public void applySettingsToController(Settings settings, AbstractController controller) throws Exception;
+        // Shouldn't be needed often.
+        public IController getController();
+        public void applySettingsToController(Settings settings, IController controller) throws Exception;
 }
