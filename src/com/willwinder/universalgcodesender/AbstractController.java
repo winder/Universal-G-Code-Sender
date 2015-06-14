@@ -659,6 +659,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Listener management.
      */
+    @Override
     public void addListener(ControllerListener cl) {
         this.listeners.add(cl);
     }
@@ -726,6 +727,4 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             }
         }
     }
-
-    public abstract long getJobLengthEstimate(Collection<String> jobLines);
 }

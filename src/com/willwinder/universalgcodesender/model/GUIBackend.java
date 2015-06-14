@@ -20,11 +20,10 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
-import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -37,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -54,7 +52,7 @@ import javax.vecmath.Point3d;
 public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     
-    private AbstractController controller = null;
+    private IController controller = null;
     private Settings settings = null;
     Point3d machineCoord = null;
     Point3d workCoord = null;
@@ -120,7 +118,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void connect(String firmware, String port, int baudRate) throws Exception {
-        logger.log(Level.INFO, "Connecting to " + firmware + " on port " + port);
+        logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         this.controller = FirmwareUtils.getControllerFor(firmware);
         applySettingsToController(settings, this.controller);
 
@@ -137,7 +135,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public boolean isConnected() {
         boolean isConnected = this.controlState != ControlState.COMM_DISCONNECTED;
-        logger.log(Level.INFO, "Is connected: " + isConnected);
+        logger.log(Level.INFO, "Is connected: {0}", isConnected);
         return isConnected;
     }
     
@@ -186,7 +184,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        logger.log(Level.INFO, "Sending gcode command: " + commandText);
+        logger.log(Level.INFO, "Sending gcode command: {0}", commandText);
         controller.sendCommandImmediately(commandText);
     }
 
@@ -261,7 +259,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
     
     @Override
-    public AbstractController getController() {
+    public IController getController() {
         logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
@@ -484,11 +482,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         String gcodeString = command.getCommandString().toLowerCase();
 
         // Check for unit changes.
+        Units before = this.units;
         if (gcodeString.contains("g21")) {
             this.units = Units.MM;
         } else if (gcodeString.contains("g20")) {
             this.units = Units.INCH;
         }
+            
+        controller.currentUnits(this.units);
     }
 
     @Override
@@ -522,7 +523,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      * @throws java.lang.Exception Exception thrown if controller doesn't support some settings.
      */
     @Override
-    public void applySettingsToController(Settings settings, AbstractController controller) throws Exception {
+    public void applySettingsToController(Settings settings, IController controller) throws Exception {
         if (settings == null) {
             throw new Exception("Programmer error.");
         }
@@ -574,21 +575,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             connected = controller.openCommPort(port, baudRate);
             
             this.initializeProcessedLines(false);
-        } /* catch (PortInUseException e) {
-            //Localization.getString("")
-            StringBuilder message = new StringBuilder()
-                    .append(Localization.getString("mainWindow.error.rxtx"))
-                    .append("(")
-                    .append(e.getClass().getName())
-                    .append("): ")
-                    .append(e.getMessage()).append("\n\n")
-            
-                    .append(Localization.getString("mainWindow.error.rxtxMac1"))
-                    .append(String.format(Localization.getString("mainWindow.error.rxtxMac2"), "\"/var/lock\""))
-                    .append("\n     sudo mkdir /var/lock")
-                    .append("\n     sudo chmod 777 /var/lock");
-            throw new Exception(message.toString());
-        } */ catch (Exception e) {
+        } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
                     + " ("+ e.getClass().getName() + "): "+e.getMessage());

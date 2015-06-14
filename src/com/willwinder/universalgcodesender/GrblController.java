@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -50,7 +51,8 @@ public class GrblController extends AbstractController {
     private String grblState;
     private Point3d machineLocation;
     private Point3d workLocation;
-    private double maxZLocation;
+    private double maxZLocationMM;
+    private Units units;
     
     // Polling state
     private int outstandingPolls = 0;
@@ -61,7 +63,7 @@ public class GrblController extends AbstractController {
         
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
-        this.maxZLocation = -1;
+        this.maxZLocationMM = -1;
         this.settings = new GrblSettingsListener(this);
     }
     
@@ -256,9 +258,13 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            double max = 4;
-            if (this.maxZLocation != -1) {
-                max = this.maxZLocation;
+            double max = 0;
+            if (this.maxZLocationMM != -1) {
+                max = this.maxZLocationMM;
+                if (this.units == Units.INCH) {
+                    System.out.println("Converting max Z to INCH");
+                    max = this.maxZLocationMM / 26.4;
+                }
             }
             ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, max);
             if (!commands.isEmpty()) {
@@ -413,9 +419,17 @@ public class GrblController extends AbstractController {
             grblState = GrblUtils.getStateFromStatusString(string, positionMode);
             machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode);
             workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode);
-            if ( (machineLocation != null) && 
-                    (machineLocation.z > maxZLocation)) {
-                maxZLocation = machineLocation.z;
+            
+            // Save max Z location
+            if (machineLocation != null) {
+                Units u = GrblUtils.getUnitsFromStatusString(string, positionMode);
+                double zLocationMM = machineLocation.z;
+                if (u == Units.INCH)
+                    zLocationMM *= 26.4;
+                
+                if (zLocationMM > this.maxZLocationMM) {
+                    maxZLocationMM = zLocationMM;
+                }
             }
 
             dispatchStatusString(grblState, machineLocation, workLocation);
@@ -438,5 +452,10 @@ public class GrblController extends AbstractController {
         
         // This will start the timer up again if it is supported and enabled.
         this.beginPollingPosition();
+    }
+
+    @Override
+    public void currentUnits(Units units) {
+        this.units = units;
     }
 }
