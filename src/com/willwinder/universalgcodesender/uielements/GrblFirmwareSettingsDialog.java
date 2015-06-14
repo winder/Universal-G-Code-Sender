@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender.uielements;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;
@@ -42,7 +43,7 @@ import javax.vecmath.Point3d;
  */
 public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements ControllerListener {
     // Controller object to fetch settings from.
-    private GrblController grblController;
+    private BackendAPI grblController;
     private TableCellListener tcl;
     private int numberOfSettings = 0;
     //private List<String> commandList;
@@ -72,18 +73,19 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     /**
      * Creates new form GrblFirmwareSettingsDialog
      */
-    public GrblFirmwareSettingsDialog(java.awt.Frame parent, boolean modal, GrblController gcl) throws Exception {
+    public GrblFirmwareSettingsDialog(java.awt.Frame parent, boolean modal, BackendAPI backend) throws Exception {
         super(parent, modal);
         initComponents();
         initLocalization();
         setLocationRelativeTo(parent);
 
-        if (gcl == null) {
+        if (backend == null) {
             throw new Exception("There is no controller. Are you connected?");
         }
         
-        this.grblController = gcl;
-        this.grblController.addListener(this);
+        this.grblController = backend;
+        this.grblController.addControllerListener(this);
+        
         this.loadingSettings = false;
         
         // Compile regular expressions.
@@ -107,7 +109,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     private void initSettings() throws Exception {
         this.loadingSettings = true;
-        this.grblController.sendCommandImmediately("$$");
+        this.grblController.sendGcodeCommand("$$");
     }
     
     private void checkDoneSavingSettings() {
@@ -115,11 +117,12 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         if (this.savingSettings) {
             // If the controller is done sending (we just received the final OK)
             // then reset the original user settings.
-            if (this.grblController.rowsRemaining() == 0) {
+            if (!this.grblController.isSending()) {
+            //if (this.grblController.rowsRemaining() == 0) {
                 // Reset controller to previous settings.
                 //These should not be re-enabled until all ok arrive
-                this.grblController.setSingleStepMode(initialSingleStepMode);
-                this.grblController.setStatusUpdatesEnabled(statusUpdatesEnabled);
+                this.grblController.getController().setSingleStepMode(initialSingleStepMode);
+                this.grblController.getController().setStatusUpdatesEnabled(statusUpdatesEnabled);
                 this.savingSettings = false;
             }
         }
@@ -324,20 +327,19 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         this.settingsTable.editCellAt(-1, -1);
         // Cannot update firmware if the controller is busy.
-        if (this.grblController.rowsRemaining() != 0) {
+        if (this.grblController.isSending()) {
             JOptionPane.showMessageDialog(new JFrame(),
-                "Cannot update firmware while it is busy, there are " +
-                this.grblController.rowsRemaining() + "active commands.",
+                "Cannot update firmware while it is busy.",
                 "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
-        initialSingleStepMode = this.grblController.getSingleStepMode();
-        statusUpdatesEnabled = this.grblController.getStatusUpdatesEnabled();
+        initialSingleStepMode = this.grblController.getController().getSingleStepMode();
+        statusUpdatesEnabled = this.grblController.getController().getStatusUpdatesEnabled();
         
         // Single step mode is required for commands which modify GRBL's EEPROM.
-        this.grblController.setSingleStepMode(true);
-        this.grblController.setStatusUpdatesEnabled(false);
+        this.grblController.getController().setSingleStepMode(true);
+        this.grblController.getController().setStatusUpdatesEnabled(false);
         this.savingSettings = true;
 
         // Search command array for commands and send them.
@@ -348,10 +350,10 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                 if (command != null) {
                     // If GRBL is feeling especially quick, we may need to keep
                     // setting these guys.
-                    this.grblController.setSingleStepMode(true);
-                    this.grblController.setStatusUpdatesEnabled(false);
+                    this.grblController.getController().setSingleStepMode(true);
+                    this.grblController.getController().setStatusUpdatesEnabled(false);
 
-                    this.grblController.sendCommandImmediately(command);
+                    this.grblController.sendGcodeCommand(command);
                     this.commands[i] = null;
                 }
             }
