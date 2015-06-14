@@ -1802,7 +1802,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             if (!this.backend.isConnected()) {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             } else if (this.backend.getController() instanceof GrblController) {
-                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, (GrblController)this.backend.getController());
+                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
                     gfsd.setVisible(true);
             } else {
                 MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
