@@ -33,7 +33,6 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.Version;
-import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
@@ -44,8 +43,6 @@ import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
@@ -62,21 +59,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
@@ -90,6 +82,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
+    static Boolean showNightlyWarning = true;
+    
     private PendantUI pendantUI;
     public Settings settings;
     
@@ -110,6 +104,18 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
+        if (MainWindow.showNightlyWarning && MainWindow.VERSION.contains("nightly")) {
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                String message = 
+                          "This version of Universal Gcode Sender is a nightly build.\n"
+                        + "It contains all of the latest features and improvements, \n"
+                        + "but may also have bugs that still need to be fixed.\n"
+                        + "\n"
+                        + "If you encounter any problems, please report them on github.";
+                JOptionPane.showMessageDialog(new JFrame(), message, 
+                    "", JOptionPane.INFORMATION_MESSAGE);
+        }});
+        }
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
         initComponents();
