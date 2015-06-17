@@ -60,39 +60,41 @@ public class SettingsFactory {
 	            logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), jsonFile});
 	    		out = new Gson().fromJson(new FileReader(jsonFile), Settings.class);
 	    	} else if(propertiesFile.exists()){
-                logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), propertiesFile});
-            	Properties properties = new Properties();
-            	properties.load(new FileInputStream(propertiesFile));
-                out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty("user.home")));
-                out.setPort(properties.getProperty("port", ""));
-                out.setPortRate(properties.getProperty("port.rate", "9600"));
-                out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", "false")));
-                out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
-                out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
-                out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", "false")));
-                out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", "false")));
-                out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
-                out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
-                out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", "false")));
-                out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
-                out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
-                out.setRemoveAllWhitespace(Boolean.valueOf(properties.getProperty("removeAllWhitespace", "true")));
-                out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
-                out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
-                out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
-                out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
-                out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
-                out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
-                out.setCustomGcode1(properties.getProperty("customGcode1", "G0 X0 Y0;"));
-                out.setCustomGcode2(properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
-                out.setCustomGcode3(properties.getProperty("customGcode3", ""));
-                out.setCustomGcode4(properties.getProperty("customGcode4", ""));
-                out.setCustomGcode5(properties.getProperty("customGcode5", ""));
-                out.setLanguage(properties.getProperty("language", "en_US"));
+                    logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), propertiesFile});
+                    Properties properties = new Properties();
+                    properties.load(new FileInputStream(propertiesFile));
+                    out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty("user.home")));
+                    out.setPort(properties.getProperty("port", ""));
+                    out.setPortRate(properties.getProperty("port.rate", "9600"));
+                    out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", "false")));
+                    out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
+                    out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
+                    out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", "false")));
+                    out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", "false")));
+                    out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
+                    out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
+                    out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", "false")));
+                    out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
+                    out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
+                    out.setRemoveAllWhitespace(Boolean.valueOf(properties.getProperty("removeAllWhitespace", "true")));
+                    out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
+                    out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
+                    out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
+                    out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
+                    out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
+                    out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
+                    out.setCustomGcode1(properties.getProperty("customGcode1", "G0 X0 Y0;"));
+                    out.setCustomGcode2(properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
+                    out.setCustomGcode3(properties.getProperty("customGcode3", ""));
+                    out.setCustomGcode4(properties.getProperty("customGcode4", ""));
+                    out.setCustomGcode5(properties.getProperty("customGcode5", ""));
+                    out.setLanguage(properties.getProperty("language", "en_US"));
 	    	}
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
         }
+        
+        if (out == null) return new Settings();
         return out;
     }
 
