@@ -279,7 +279,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
     
     @Override
-    synchronized public void send() throws Exception {
+    public void send() throws Exception {
         logger.log(Level.INFO, "Sending gcode file.");
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
