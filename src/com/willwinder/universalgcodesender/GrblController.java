@@ -86,27 +86,6 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void rawResponseHandler(String response) {
-        /*
-        // Check if was 'ok' or 'error'.
-        if (GcodeCommand.isOkErrorResponse(response)) {
-            
-            // All Ok/Error messages go to console
-            this.sendMessageToConsoleListener(response + "\n");
-
-            // Pop the front of the active list.
-            GcodeCommand command = this.activeCommandList.pop();
-
-            command.setResponse(response);
-
-            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
-                    this.commandCompleteListeners, command);
-
-            if (this.sendPaused == false) {
-                this.streamCommands();
-            }
-        }
-        */
-        
         if (GcodeCommand.isOkErrorResponse(response)) {            
             try {
                 this.commandComplete(response);
@@ -183,7 +162,7 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    protected void isReadyToStreamFileEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() throws Exception {
         if (this.isReady == false) {
             throw new Exception(Localization.getString("controller.exception.booting"));
         }
