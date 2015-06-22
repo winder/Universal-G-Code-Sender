@@ -276,7 +276,7 @@ public class PendantUITest {
             }
 
             @Override
-            protected void isReadyToStreamFileEvent() throws Exception {
+            protected void isReadyToSendCommandsEvent() throws Exception {
             }
 
             @Override

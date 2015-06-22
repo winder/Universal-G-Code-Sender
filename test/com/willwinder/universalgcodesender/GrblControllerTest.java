@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -491,6 +492,8 @@ public class GrblControllerTest {
         System.out.println("queueStringForComm");
         String str = "G0 X0 ";
         GrblController instance = new GrblController(mgc);
+        instance.openCommPort("blah", 123);
+        instance.rawResponseHandler("Grbl 0.8c");
         instance.sendCommandImmediately(str);
         assertEquals(1, mgc.numQueueStringForCommCalls);
         assertEquals(1, mgc.numStreamCommandsCalls);
@@ -671,6 +674,20 @@ public class GrblControllerTest {
 
     }
 
+    private static void wrapUp(GrblController gc, int numCommands) {
+        // wrap up
+        try {
+            GcodeCommand command = new GcodeCommand("blah");
+            command.setSent(true);
+            command.setResponse("ok");
+            for (int i=0; i < numCommands; i++) {
+                gc.commandComplete(command.getCommandString());
+            }
+        } catch (Exception ex) {
+            fail("Unexpected exception testing cancelSend: " + ex.getMessage());
+        }
+    }
+    
     /**
      * Test of numCancelSendCalls method, of class GrblController.
      */
@@ -707,7 +724,8 @@ public class GrblControllerTest {
         // Note: It is hoped that one day cancel will proactively clear out the
         //       in progress commands. But that day is not today.
         assertEquals(30, instance.rowsRemaining());
-
+        //wrapUp(instance, 15);
+        
         // Test 2.2
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
@@ -727,12 +745,12 @@ public class GrblControllerTest {
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
         for (int i=0; i < 30; i++) {
-            instance.queueCommand("G0X" + i);
+            instance.queueCommand("G0X0");
         }
         try {
             instance.beginStreaming();
             for (int i=0; i < 15; i++) {
-                GcodeCommand command = new GcodeCommand("G0 X1");
+                GcodeCommand command = new GcodeCommand("G0X0");
                 command.setSent(true);
                 command.setResponse("ok");
                 instance.commandSent(command.getCommandString());
@@ -744,16 +762,7 @@ public class GrblControllerTest {
         assertEquals(30, instance.rowsInSend());
         assertEquals(30, instance.rowsRemaining());
         // wrap up
-        try {
-            GcodeCommand command = new GcodeCommand("blah");
-            command.setSent(true);
-            command.setResponse("ok");
-            for (int i=0; i < 15; i++) {
-                instance.commandComplete(command.getCommandString());
-            }
-        } catch (Exception ex) {
-            fail("Unexpected exception testing cancelSend: " + ex.getMessage());
-        }
+        wrapUp(instance, 15);
         
         // Test 3.2
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
@@ -851,16 +860,8 @@ public class GrblControllerTest {
         assertEquals(30, instance.rowsInSend());
         assertEquals(15, instance.rowsRemaining());
         // wrap up
-        try {
-            GcodeCommand command = new GcodeCommand("blah");
-            command.setSent(true);
-            command.setResponse("ok");
-            for (int i=0; i < 15; i++) {
-                instance.commandComplete(command.getCommandString());
-            }
-        } catch (Exception ex) {
-            fail("Unexpected exception testing cancelSend: " + ex.getMessage());
-        }
+        wrapUp(instance, 15);
+
         
         // Test 3.2
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
@@ -901,10 +902,8 @@ public class GrblControllerTest {
         boolean hitException = false;
         try {
             instance.commandSent(command.getCommandString());
-        } catch (NoSuchElementException e) {
-            hitException = true;
         } catch (Exception e) {
-            e.printStackTrace();
+            hitException = true;
         }
         assertEquals(true, hitException);
         
@@ -930,11 +929,8 @@ public class GrblControllerTest {
         boolean hitException = false;
         try {
             instance.commandComplete(command.getCommandString());
-        } catch (Exception ex) {
+        } catch (UnexpectedCommand ex) {
             hitException = true;
-            System.out.println("Exception: " + ex.getMessage());
-            assert(ex.getMessage().startsWith(
-                    "Attempting to complete a command that doesn't exist: <"));
         }
         assertEquals(true, hitException);
         

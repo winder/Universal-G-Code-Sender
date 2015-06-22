@@ -36,6 +36,10 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public abstract class AbstractController implements SerialCommunicatorListener, IController {
+    public class UnexpectedCommand extends Exception {
+        
+    }
+    
     /** API Interface. */
     
     /**
@@ -567,7 +571,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     private synchronized void flushQueuedCommands() {
-        this.commands.subList(sentIdx, this.commands.size()).clear();
+        if (this.commands.size() > 0) {
+            this.commands.subList(sentIdx, this.commands.size()).clear();
+            this.outgoingQueueIdx = this.awaitingResponseIdx;
+        }
     }
     // Reset send queue and idx's.
     private void flushSendQueues() {
@@ -647,7 +654,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Notify controller that the next command has completed with response.
      */
-    public void commandComplete(String response) throws Exception {
+    public void commandComplete(String response) throws UnexpectedCommand {
+        if (this.commands.size() == (this.completedCommandIdx + 1)) {
+            throw new UnexpectedCommand();
+        }
+        
         GcodeCommand command = this.commands.get(++this.completedCommandIdx);
 
         while (command.isSkipped() && (this.completedCommandIdx < this.commands.size())) {
@@ -661,7 +672,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Internal command complete has extra handling for skipped command case.
      */
-    private void commandComplete(GcodeCommand command) throws Exception {
+    private void commandComplete(GcodeCommand command) throws UnexpectedCommand {
         GcodeCommand c = command;
         
         // If the command wasn't sent, it was skipped and should be ignored
@@ -670,8 +681,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             this.numCommandsCompleted++;
 
             if (this.completedCommandIdx >= this.outgoingQueueIdx) {
-                throw new Exception("Attempting to complete a command that "
-                        + "doesn't exist: <" + command.toString() + ">");
+                throw new UnexpectedCommand();
+                //throw new Exception("Attempting to complete a command that "
+                //        + "doesn't exist: <" + command.toString() + ">");
             }
             
             // Peek to see if the next one is a comment, and skip skipped commands
