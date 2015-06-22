@@ -139,7 +139,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void isReadyToStreamFileEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() throws Exception {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
