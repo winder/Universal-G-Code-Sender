@@ -50,10 +50,6 @@
 
     </target>
 
-    <target name="-post-jar">
-      <delete file="UGS_MANIFEST.MF"/>
-    </target>
-
     <!-- One-Jar release to be manually edited. -->
     <target name="onejar-build-release" depends="jar"
             description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
@@ -103,6 +99,13 @@
 
     <target name="-post-clean">
         <delete dir="${release.dir}" />
+    </target>
+
+    <target name="-post-jar">
+      <delete file="UGS_MANIFEST.MF"/>
+
+      <copy todir="UGSPlatform/UGSLib/release/modules/ext/ugs/"
+             file="${dist.dir}/${dist.jar}"/>
     </target>
 
     <target name="platform" depends="jar">
