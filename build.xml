@@ -105,7 +105,7 @@
       <delete file="UGS_MANIFEST.MF"/>
 
       <copy todir="UGSPlatform/UGSLib/release/modules/ext/ugs/"
-             file="${dist.dir}/${dist.jar}"/>
+             file="${dist.jar}"/>
     </target>
 
     <target name="platform" depends="jar">
