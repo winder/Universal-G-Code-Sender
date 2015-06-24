@@ -22,7 +22,7 @@ Downloads
 <li>[classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.</li>
 </ul
 <br />
-[1.0.8](http://bit.ly/1BSKon6)
+[1.0.8](http://bit.ly/1BSKon6) - The last stable build before 2.0 work.
 <br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
