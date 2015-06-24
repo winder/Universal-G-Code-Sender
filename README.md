@@ -16,11 +16,11 @@ commands:
 Downloads
 ---------
 <b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
-<ol>
-<li>The nightly code is currently under heavy development. Any feedback or suggestions you might have help!</li>
-<li>[UGS Platform](bit.ly/1KYjrPY) - UGS Platform is the next generation of UGS, a more powerful GUI which uses the backend UGSLib.</li>
+<ul>
+<li>Currently under heavy development, feedback and suggestions are helpful!</li>
+<li>[UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.</li>
 <li>[classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.</li>
-</ol
+</ul
 <br />
 [1.0.8](http://bit.ly/1BSKon6)
 <br />
