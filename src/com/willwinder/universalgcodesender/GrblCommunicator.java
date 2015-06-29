@@ -18,13 +18,32 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  *
  * @author wwinder
  */
 public class GrblCommunicator extends BufferedCommunicator {
+    
+    protected GrblCommunicator() {}
+
+    /**
+     * This constructor is for dependency injection so a mock serial device can
+     * act as GRBL.
+     */
+    protected GrblCommunicator(
+            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl, Connection c) {
+        // Base constructor.
+        //this();
+        //TODO-f4grx-DONE: Mock connection
+        this.conn = c;
+        this.conn.setCommunicator(this);
+        
+        this.setQueuesForTesting(cb, asl);
+    }
 
     @Override
     public int getBufferSize() {

@@ -73,7 +73,7 @@ public class CommUtilsTest {
         
         // This command should just barely fit.
         nextCommand = new GcodeCommand(biggestString.toString(), 5);
-        result = CommUtils.checkRoomInBuffer(list, nextCommand);
+        result = CommUtils.checkRoomInBuffer(list, nextCommand, GrblUtils.GRBL_RX_BUFFER_SIZE);
         expResult = true;
         assertEquals(expResult, result);
         
@@ -81,7 +81,7 @@ public class CommUtilsTest {
         nextCommand = new GcodeCommand(biggestString.toString(), 5);
 
         expResult = false;
-        result = CommUtils.checkRoomInBuffer(list, nextCommand);
+        result = CommUtils.checkRoomInBuffer(list, nextCommand, GrblUtils.GRBL_RX_BUFFER_SIZE);
         assertEquals(expResult, result);
     }
 
