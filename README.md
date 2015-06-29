@@ -20,6 +20,7 @@ Downloads
 * [UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.
 * [classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.
 
+<b>Stable builds</b>
 <br />
 [1.0.8](http://bit.ly/1BSKon6) - The last stable build before 2.0 work.
 <br />
