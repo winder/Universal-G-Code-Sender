@@ -120,7 +120,8 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
         try {
             byte[] buf = this.serialPort.readBytes();
             if (buf != null && buf.length > 0) {
-                inputBuffer.append(new String(buf, 0, buf.length));
+                String s = new String(buf, 0, buf.length);
+                inputBuffer.append(s);
                 // Check for line terminator and split out command(s).
                 if (inputBuffer.toString().contains(comm.getLineTerminator())) {
                     // Split with the -1 option will give an empty string at
