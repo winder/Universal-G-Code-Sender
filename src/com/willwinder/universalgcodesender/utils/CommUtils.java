@@ -23,13 +23,10 @@
 
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import jssc.SerialPortList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -71,26 +68,26 @@ public class CommUtils {
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
-    static public Boolean checkRoomInBuffer(int sentBuffer, String nextCommand) {
+    static public Boolean checkRoomInBuffer(int sentBuffer, String nextCommand, int bufferSize) {
         if (nextCommand == null ) {
             return false;
         }
         
         int characters = sentBuffer + nextCommand.length() + 1;
-        return characters <= GrblUtils.GRBL_RX_BUFFER_SIZE;
+        return characters <= bufferSize;
     }
     
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
-    static public Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand) {
+    static public Boolean checkRoomInBuffer(List<GcodeCommand> list, GcodeCommand nextCommand, int bufferSize) {
         String command = nextCommand.getCommandString();
         int characters = getSizeOfBuffer(list);
         // TODO: Carefully trace the newlines in commands and make sure
         //       the GRBL_RX_BUFFER_SIZE is honored.
         //       For now add a safety character to each command.
         characters += command.length() + 1;
-        return characters <= GrblUtils.GRBL_RX_BUFFER_SIZE;
+        return characters <= bufferSize;
     }
     
     /**

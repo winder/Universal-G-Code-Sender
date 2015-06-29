@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,19 +22,27 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.IOException;
 import java.util.Collection;
+import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
 public class TinyGController extends AbstractController {
-
+    boolean isReady = false;
     Units units;
+    
+    String state = "";
+    Point3d machineLocation = new Point3d();
+    Point3d workLocation = new Point3d();
     
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
@@ -61,6 +69,12 @@ public class TinyGController extends AbstractController {
     protected void closeCommAfterEvent() {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    @Override
+    protected void openCommAfterEvent() throws Exception {
+        byte b = 0x18;
+        this.comm.sendByteImmediately(b);
+    }
 
     @Override
     protected void cancelSendBeforeEvent() {
@@ -82,24 +96,46 @@ public class TinyGController extends AbstractController {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+
     @Override
     protected void rawResponseHandler(String response) {
-        if (TinyGGcodeCommand.isOkErrorResponse(response)) {
+        JsonObject jo;
+        
+        try {
+            jo = TinyGUtils.jsonToObject(response);
+        } catch (Exception e) {
+            // Some TinyG responses aren't JSON, those will end up here.
+            //this.messageForConsole(response + "\n");
+            return;
+        }
+        
+        if (TinyGUtils.isRestartingResponse(jo)) {
+            this.messageForConsole("[restarting] " + response + "\n");
+            this.isReady = false;
+        }
+        else if (TinyGUtils.isReadyResponse(jo)) {
+            //this.messageForConsole("Got version: " + TinyGUtils.getVersion(jo) + "\n");
+            this.messageForConsole("[ready] " + response + "\n");
+            this.isReady = true;
+
+        }
+        else if (TinyGUtils.isStatusResponse(jo)) {
+            TinyGUtils.updateStatus(jo, state, this.machineLocation, this.workLocation);
+            dispatchStatusString(state, this.machineLocation, workLocation);
+        }
+        else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
+            try {
+                this.commandComplete(response);
+            } catch (Exception e) {
+                this.errorMessageForConsole(Localization.getString("controller.error.response")
+                        + " <" + response + ">: " + e.getMessage());
+            }
+
             this.messageForConsole(response + "\n");
         }
-        /*
-        // boot information check?
-        else if (GrblUtils.isGrblVersionString(response)) {
-
-        }
-        // position / status info?
-        else if (GrblUtils.isGrblStatusString(response)) {
-
-        }
-        */
         else {
             // Display any unhandled messages
-            this.messageForConsole(response + "\n");
+            this.messageForConsole("[unhandled message] " + response + "\n");
         }
     }
 
@@ -140,7 +176,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -156,5 +192,103 @@ public class TinyGController extends AbstractController {
     @Override
     public void currentUnits(Units units) {
         this.units = units;
+    }
+    
+    static class TinyGUtils {
+        static JsonParser parser = new JsonParser();
+        
+        private static JsonObject jsonToObject(String response) {            
+            return parser.parse(response).getAsJsonObject();
+        }
+        
+        private static  boolean isTinyGVersion(JsonObject response) {
+            if (response.has("r")) {
+                JsonObject jo = response.getAsJsonObject("r");
+                if (jo.has("fv")) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        private static String getVersion(JsonObject response) {
+            if (response.has("r")) {
+                JsonObject jo = response.getAsJsonObject("r");
+                if (jo.has("fv")) {
+                    return jo.get("fv").getAsString();
+                }
+            }
+            return "";
+        }
+        
+        private static boolean isRestartingResponse(JsonObject response) {
+            if (response.has("r")) {
+                JsonObject jo = response.getAsJsonObject("r");
+                if (jo.has("msg")) {
+                    String msg = jo.get("msg").getAsString();
+                    return msg.equals("Loading configs from EEPROM");
+                }
+            }
+            return false;
+        }
+        
+        private static boolean isReadyResponse(JsonObject response) {
+            if (response.has("r")) {
+                JsonObject jo = response.getAsJsonObject("r");
+                if (jo.has("msg")) {
+                    String msg = jo.get("msg").getAsString();
+                    return msg.equals("SYSTEM READY");
+                }
+            }
+            return false;
+        }
+
+        private static boolean isStatusResponse(JsonObject response) {
+            return response.has("sr");
+        }
+        
+        private static void updateStatus(JsonObject response, String state, Point3d machine, Point3d work) {
+            if (response.has("sr")) {
+                JsonObject jo = response.getAsJsonObject("sr");
+                
+                if (jo.has("posx")) {
+                    machine.x = jo.get("posx").getAsDouble();
+                }
+                if (jo.has("posy")) {
+                    machine.y = jo.get("posy").getAsDouble();
+                }
+                if (jo.has("posz")) {
+                    machine.z = jo.get("posz").getAsDouble();
+                }
+                if (jo.has("stat")) {
+                    state = getStateAsString(jo.get("stat").getAsInt());
+                }
+                
+                work.set(machine);
+            }
+        }
+        
+        private static String getStateAsString(int state) {
+            switch (state) {
+                case 0:
+                    return "initializing";
+                case 1:
+                    return "ready";
+                case 2:
+                    return "shutdown";
+                case 3:
+                    return "stop";
+                case 4:
+                    return "end";
+                case 5:
+                    return "run";
+                case 6:
+                    return "hold";
+                case 9:
+                    return "homing";
+                default:
+                    return "unknown("+state+")";
+            }
+        }
     }
 }

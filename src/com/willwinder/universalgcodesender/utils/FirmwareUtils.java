@@ -42,7 +42,7 @@ public class FirmwareUtils {
         ArrayList<String> ret = new ArrayList<>();
         ret.add(GRBL);
         //ret.add(Smoothie);
-        //ret.add(TinyG);
+        ret.add(TinyG);
         return ret;
     }
     

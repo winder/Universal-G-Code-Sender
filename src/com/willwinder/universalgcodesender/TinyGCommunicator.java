@@ -22,191 +22,27 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.utils.CommUtils;
-import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.TooManyListenersException;
+
 
 /**
  *
  * @author wwinder
  */
-public class TinyGCommunicator extends AbstractCommunicator {
-    
-    // Command streaming variables
-    //F4GRX: shall we move that to the abstract communicator?
-    private Boolean sendPaused = false;
-    private LinkedList<String> commandBuffer;     // All commands in a file 
-    private LinkedList<String> activeStringList;  // Currently running commands
-    private int sentBufferSize = 0;
-    
-    
-    TinyGCommunicator() {
-        this.setLineTerminator("\r\n");
-    }
-    
-    /**
-     * This constructor is for dependency injection so a mock serial device can
-     * act as GRBL.
-     */
-    protected TinyGCommunicator(LinkedList<String> cb, LinkedList<String> asl, Connection c) {
-        // Base constructor.
-        this();
-        //f4grx: mock connection too
-        this.conn = c;
-        
-        this.commandBuffer = cb;
-        this.activeStringList = asl;
-    }
-    
-    // TODO: Override openCommPort and use socket flow control?
+public class TinyGCommunicator extends BufferedCommunicator {
 
     @Override
-    public void setSingleStepMode(boolean enable) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
-    public boolean getSingleStepMode() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    /** 
-     * Processes message from GRBL.
-     */
-    @Override
-    public void responseMessage(String response) {
-        // GrblCommunicator no longer knows what to do with responses.
-        dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
-
-        // Keep the data flow going for now.
-        if (TinyGGcodeCommand.isOkErrorResponse(response)) {
-            // Pop the front of the active list.
-            String commandString = this.activeStringList.pop();
-            this.sentBufferSize -= commandString.length();
-            
-            TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
-            command.setResponse(response);
-
-            dispatchListenerEvents(COMMAND_COMPLETE, this.commandCompleteListeners, command);
-
-            if (this.sendPaused == false) {
-                this.streamCommands();
-            }
-        }
-    }
-    
-    /**
-     * Add command to the command queue outside file mode. This is the only way
-     * to send a command to the comm port without being in file mode.
-     */
-    @Override
-    public void queueStringForComm(final String input) {        
-        String commandString = input;
-        
-        if (! commandString.endsWith("\n")) {
-            commandString += "\n";
-        }
-        
-        // Add command to queue
-        this.commandBuffer.add(commandString);
-    }
-
-
-    @Override
-    public boolean areActiveCommands() {
-        return (this.activeStringList.size() > 0);
-    }
-    
-    /**
-     * Streams anything in the command buffer to the comm port.
-     */
-    @Override
-    public void streamCommands() {
-        if (this.commandBuffer.size() == 0) {
-            // NO-OP
-            return;
-        }
-        
-        if (this.sendPaused) {
-            // Another NO-OP
-            return;
-        }
-        
-        // TODO: Find out rules for TinyG buffer size
-        // Try sending the first command.
-        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek())) {
-            String commandString = this.commandBuffer.pop();
-            this.activeStringList.add(commandString);
-            this.sentBufferSize += commandString.length();
-            
-            try {
-                // Newlines are embedded when they get queued so just send it.
-                conn.sendStringToComm(commandString);
-
-                TinyGGcodeCommand command = new TinyGGcodeCommand(commandString);
-                command.setSent(true);
-                dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, command);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(-1);
-            }
-        }
-    }
-    
-    @Override
-    public void pauseSend() {
-        this.sendPaused = true;
-    }
-    
-    @Override
-    public void resumeSend() {
-        this.sendPaused = false;
-        this.streamCommands();
-    }
-    
-    @Override
-    public void cancelSend() {
-        this.commandBuffer.clear();
-    }
-    
-    @Override
-    public void softReset() {
-        throw new UnsupportedOperationException("Not supported yet.");
-        /*
-        this.commandBuffer.clear();
-        this.activeStringList.clear();
-        this.sentBufferSize = 0;
-        */
+    public int getBufferSize() {
+        return 127;
     }
 
     @Override
-    public boolean openCommPort(String name, int baud) throws IOException, Exception {
-        //do common things before specific things
-        boolean ret = super.openCommPort(name, baud);
-        //f4grx: isnt that common to all communicators we can think of?
-        if (ret) {
-            this.commandBuffer = new LinkedList<>();
-            this.activeStringList = new LinkedList<>();
-            this.sentBufferSize = 0;
-        }
-        return ret;
+    public String getLineTerminator() {
+        return "\n";
     }
 
     @Override
-    public void closeCommPort() throws Exception {
-        this.cancelSend();
-        super.closeCommPort();
-
-        this.sendPaused = false;
-        this.commandBuffer = null;
-        this.activeStringList = null;
-    }
-
-    @Override
-    public void sendByteImmediately(byte b) throws Exception {
-        conn.sendByteImmediately(b);
+    protected boolean processedCommand(String response) {
+        return TinyGGcodeCommand.isOkErrorResponse(response);
     }
 }

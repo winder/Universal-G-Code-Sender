@@ -24,11 +24,9 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
-import com.willwinder.universalgcodesender.connection.JSSCConnection;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -37,7 +35,6 @@ import java.util.ArrayList;
  */
 public abstract class AbstractCommunicator {
     public static String DEFAULT_TERMINATOR = "\r\n";
-    private String lineTerminator;
     protected Connection conn;
 
     // Callback interfaces
@@ -48,8 +45,6 @@ public abstract class AbstractCommunicator {
     ArrayList<SerialCommunicatorListener> commRawResponseListener;
 
     public AbstractCommunicator() {
-        this.lineTerminator = DEFAULT_TERMINATOR;
-        
         this.commandSentListeners        = new ArrayList<>();
         this.commandCompleteListeners    = new ArrayList<>();
         this.commConsoleListeners        = new ArrayList<>();
@@ -96,17 +91,7 @@ public abstract class AbstractCommunicator {
     }
     
     /** Getters & Setters. */
-    public void setLineTerminator(String terminator) {
-        if (terminator == null || terminator.length() < 1) {
-            this.lineTerminator = DEFAULT_TERMINATOR;
-        } else {
-            this.lineTerminator = terminator;
-        }
-    }
-    
-    public String getLineTerminator() {
-        return this.lineTerminator;
-    }
+    abstract public String getLineTerminator();
     
     /* ****************** */
     /** Listener helpers. */
