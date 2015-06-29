@@ -45,24 +45,13 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     //abstract public String getLineTerminator();
     abstract public int getBufferSize();
     
-    public BufferedCommunicator() {
-        //this.setLineTerminator(getLineTerminator());
-    }
-    
-    /**
-     * This constructor is for dependency injection so a mock serial device can
-     * act as GRBL.
-     */
-    protected BufferedCommunicator(
-            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl, Connection c) {
-        // Base constructor.
-        this();
-        //TODO-f4grx-DONE: Mock connection
-        this.conn = c;
-        this.conn.setCommunicator(this);
-        
+    protected void setQueuesForTesting(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl) {
         this.commandBuffer = cb;
         this.activeStringList = asl;
+    }
+    
+    public BufferedCommunicator() {
+        //this.setLineTerminator(getLineTerminator());
     }
     
     @Override

@@ -49,31 +49,6 @@ public class GrblCommunicatorTest {
     }
 
     /**
-     * Test of setLineTerminator method, of class GrblCommunicator.
-     */
-    @Test
-    public void testSetLineTerminator() {
-        System.out.println("setLineTerminator");
-        GrblCommunicator instance = new GrblCommunicator();
-        
-        //((AbstractCommunicator)instance).addConnectionType(conn);
-        
-        String defaultTerminator = AbstractCommunicator.DEFAULT_TERMINATOR;
-        
-        // Initial value.
-        assertEquals(defaultTerminator, instance.getLineTerminator());
-        
-        instance.setLineTerminator("tada");
-        assertEquals("tada", instance.getLineTerminator());
-        
-        instance.setLineTerminator(null);
-        assertEquals(defaultTerminator, instance.getLineTerminator());
-        
-        instance.setLineTerminator("");
-        assertEquals(defaultTerminator, instance.getLineTerminator());
-    }
-
-    /**
      * Test of openCommPort method, of class GrblCommunicator.
      */
     @Test
