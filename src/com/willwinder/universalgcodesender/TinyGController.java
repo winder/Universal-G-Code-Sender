@@ -120,7 +120,11 @@ public class TinyGController extends AbstractController {
 
         }
         else if (TinyGUtils.isStatusResponse(jo)) {
-            TinyGUtils.updateStatus(jo, state, this.machineLocation, this.workLocation);
+            TinyGUtils.StatusResult result = TinyGUtils.updateStatus(jo);
+            state = result.state;
+            machineLocation.set(result.machine);
+            workLocation.set(result.work);
+            
             dispatchStatusString(state, this.machineLocation, workLocation);
         }
         else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
@@ -247,25 +251,33 @@ public class TinyGController extends AbstractController {
             return response.has("sr");
         }
         
-        private static void updateStatus(JsonObject response, String state, Point3d machine, Point3d work) {
+        private static class StatusResult {
+            Point3d machine = new Point3d();
+            Point3d work = new Point3d();
+            String state;
+        }
+        private static StatusResult updateStatus(JsonObject response) {
+            StatusResult result = new StatusResult();
+            
             if (response.has("sr")) {
                 JsonObject jo = response.getAsJsonObject("sr");
                 
                 if (jo.has("posx")) {
-                    machine.x = jo.get("posx").getAsDouble();
+                    result.machine.x = jo.get("posx").getAsDouble();
                 }
                 if (jo.has("posy")) {
-                    machine.y = jo.get("posy").getAsDouble();
+                    result.machine.y = jo.get("posy").getAsDouble();
                 }
                 if (jo.has("posz")) {
-                    machine.z = jo.get("posz").getAsDouble();
+                    result.machine.z = jo.get("posz").getAsDouble();
                 }
                 if (jo.has("stat")) {
-                    state = getStateAsString(jo.get("stat").getAsInt());
+                    result.state = getStateAsString(jo.get("stat").getAsInt());
                 }
                 
-                work.set(machine);
+                result.work.set(result.machine);
             }
+            return result;
         }
         
         private static String getStateAsString(int state) {
