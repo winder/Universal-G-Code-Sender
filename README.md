@@ -16,11 +16,9 @@ commands:
 Downloads
 ---------
 <b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
-<ul>
-<li>Currently under heavy development, feedback and suggestions are helpful!</li>
-<li>[UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.</li>
-<li>[classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.</li>
-</ul
+* Currently under heavy development, feedback and suggestions are helpful!
+* [UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.
+* [classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.
 <br />
 [1.0.8](http://bit.ly/1BSKon6) - The last stable build before 2.0 work.
 <br />
@@ -48,6 +46,8 @@ Technical details:
 Changelog
 ---------
 1.0.8 -> 2.0
+* New serial library: JSSC
+* TinyG support enabled.
 
 1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
