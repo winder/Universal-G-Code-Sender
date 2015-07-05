@@ -26,15 +26,19 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.util.FPSAnimator;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
+import com.willwinder.universalgcodesender.uielements.Overlay;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL.*;
 import javax.media.opengl.GL2;
@@ -56,10 +60,14 @@ import javax.vecmath.Vector3d;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
+    private static final Logger logger = Logger.getLogger(VisualizerCanvas.class.getName());
+    
     static boolean ortho = true;
     static double orthoRotation = -45;
     static boolean forceOldStyle = false;
     static boolean debugCoordinates = false; // turn on coordinate debug output
+    
+    final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
     private Point3d machineCoord;
@@ -118,6 +126,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private boolean vertexArrayDirty = false;
     
     private FPSCounter fpsCounter;
+    private Overlay overlay;
+    private String dimensionsLabel;
     
     /**
      * Constructor.
@@ -165,7 +175,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.isDrawable = false;
         this.currentCommandNumber = 0;
         this.lastCommandNumber = 0;
-
+        
         generateObject();
     }
     
@@ -186,7 +196,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void init(GLAutoDrawable drawable) {
+        logger.log(Level.INFO, "Initializing OpenGL context.");
+
+        generateObject();
+
         this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay.setColor(127, 127, 127, 100);
+        this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
@@ -206,6 +223,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+        logger.log(Level.INFO, "Reshaping OpenGL context.");
+        if (!isDrawable) return;
+        
         this.xSize = width;
         this.ySize = height;
 
@@ -229,6 +249,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void display(GLAutoDrawable drawable) {
+        if (!isDrawable) return;
+        
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
@@ -260,8 +282,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         gl.glPopMatrix();
         
-        this.fpsCounter.draw();
-        //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        if (isDrawable) {
+            this.fpsCounter.draw();
+            this.overlay.draw(this.dimensionsLabel);
+            //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        }
         
         update();
     }
@@ -337,6 +362,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 && gl.isFunctionAvailable( "glBindBuffer" )
                 && gl.isFunctionAvailable( "glBufferData" )
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
+            
             // Initialize OpenGL arrays if required.
             if (this.colorArrayDirty) {
                 this.updateGLColorArray(drawable);
@@ -347,7 +373,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 this.vertexArrayDirty = false;
             }
             gl.glLineWidth(1.0f);
-
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
             gl.glDrawArrays( GL.GL_LINES, 0, numberOfVertices);
@@ -356,6 +381,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         }
         // Traditional OpenGL
         else {
+
             // TODO: By using a GL_LINE_STRIP I can easily use half the number of
             //       verticies. May lose some control over line colors though.
             //gl.glEnable(GL2.GL_LINE_SMOOTH);
@@ -389,12 +415,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             gl.glDisable(GL_DEPTH_TEST);
             //gl.glDisable(GL_LIGHTING);
             gl.glMatrixMode(GL_PROJECTION);
-            gl.glPushMatrix();
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
             gl.glOrtho(-0.51*this.aspectRatio,0.51*this.aspectRatio,-0.51,0.51,-10,10);
             gl.glMatrixMode(GL_MODELVIEW);
-            gl.glPushMatrix();
             gl.glLoadIdentity();
         } else {
             gl.glEnable(GL.GL_DEPTH_TEST);
@@ -433,6 +457,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.objectMin = gcvp.getMinimumExtremes();
         this.objectMax = gcvp.getMaximumExtremes();
 
+        if (gcodeLineList.size() == 0) {
+            return;
+        }
+        
         // Grab the line number off the last line.
         this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
         
@@ -451,6 +479,12 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
         this.isDrawable = true;
+        
+        double objectWidth = this.objectMax.x-this.objectMin.x;
+        double objectHeight = this.objectMax.y-this.objectMin.y;
+        this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
+                + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+                + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
         
         // Now that the object is known, fill the buffers.
         this.createVertexBuffers();
@@ -601,8 +635,13 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void dispose(GLAutoDrawable drawable) { 
+        logger.log(Level.INFO, "Disposing OpenGL context.");
+
         this.lineColorBuffer = null;
         this.lineVertexBuffer = null;
+        this.gcodeLineList = null;
+        this.isDrawable = false;
+        this.numberOfVertices = 0;
     }
 
     /**

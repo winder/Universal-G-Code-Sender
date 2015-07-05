@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.apisupport.project</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/nb-module-project/3">
+            <code-name-base>com.willwinder.ugs.nbp.lib</code-name-base>
+            <suite-component/>
+            <module-dependencies>
+                <dependency>
+                    <code-name-base>joglall</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>jssc</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                </dependency>
+            </module-dependencies>
+            <public-packages>
+                <package>com.google.gson</package>
+                <package>com.google.gson.annotations</package>
+                <package>com.google.gson.internal</package>
+                <package>com.google.gson.internal.bind</package>
+                <package>com.google.gson.reflect</package>
+                <package>com.google.gson.stream</package>
+                <package>com.willwinder.universalgcodesender</package>
+                <package>com.willwinder.universalgcodesender.CLI</package>
+                <package>com.willwinder.universalgcodesender.connection</package>
+                <package>com.willwinder.universalgcodesender.gcode</package>
+                <package>com.willwinder.universalgcodesender.i18n</package>
+                <package>com.willwinder.universalgcodesender.listeners</package>
+                <package>com.willwinder.universalgcodesender.model</package>
+                <package>com.willwinder.universalgcodesender.pendantui</package>
+                <package>com.willwinder.universalgcodesender.types</package>
+                <package>com.willwinder.universalgcodesender.uielements</package>
+                <package>com.willwinder.universalgcodesender.utils</package>
+                <package>com.willwinder.universalgcodesender.visualizer</package>
+                <package>javax.vecmath</package>
+            </public-packages>
+            <class-path-extension>
+              <runtime-relative-path>ext/ugs/Universal G-Code Sender.jar</runtime-relative-path>
+              <binary-origin>release/modules/ext/ugs/Universal G-Code Sender.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/vecmath.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/gson-2.2.4.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/gson-2.2.4.jar</binary-origin>
+            </class-path-extension>
+        </data>
+    </configuration>
+</project>

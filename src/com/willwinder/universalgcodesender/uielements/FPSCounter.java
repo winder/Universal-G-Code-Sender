@@ -62,7 +62,7 @@ public class FPSCounter {
   private int textLocation = LOWER_RIGHT;
   private GLDrawable drawable;
   private TextRenderer renderer;
-  private DecimalFormat format = new DecimalFormat("####.00");
+  final static private DecimalFormat format = new DecimalFormat("####.00");
   private int frameCount;
   private long startTime;
   private String fpsText;
@@ -138,7 +138,7 @@ public class FPSCounter {
       @param r the red component of the new color
       @param g the green component of the new color
       @param b the blue component of the new color
-      @param alpha the alpha component of the new color, 0.0f =
+      @param a the alpha component of the new color, 0.0f =
         completely transparent, 1.0f = completely opaque
       @throws GLException If an OpenGL context is not current when this method is called
   */
@@ -166,19 +166,19 @@ public class FPSCounter {
     }
 
     if (fpsText != null) {
-      renderer.beginRendering(drawable.getWidth(), drawable.getHeight());
+      renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
       // Figure out the location at which to draw the text
       int x = 0;
       int y = 0;
       switch (textLocation) {
         case UPPER_LEFT:
           x = fpsOffset;
-          y = drawable.getHeight() - fpsHeight - fpsOffset;
+          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
           break;
 
         case UPPER_RIGHT:
-          x = drawable.getWidth() - fpsWidth - fpsOffset;
-          y = drawable.getHeight() - fpsHeight - fpsOffset;
+          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
+          y = drawable.getSurfaceHeight() - fpsHeight - fpsOffset;
           break;
 
         case LOWER_LEFT:
@@ -187,7 +187,7 @@ public class FPSCounter {
           break;
 
         case LOWER_RIGHT:
-          x = drawable.getWidth() - fpsWidth - fpsOffset;
+          x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
           y = fpsOffset;
           break;
       }
@@ -199,30 +199,30 @@ public class FPSCounter {
 
   private void recomputeFPSSize(float fps) {
     String fpsText;
-    int fpsMagnitude;
+    int magnitude;
     if (fps >= 10000) {
       fpsText = "10000.00";
-      fpsMagnitude = 5;
+      magnitude = 5;
     } else if (fps >= 1000) {
       fpsText = "1000.00";
-      fpsMagnitude = 4;
+      magnitude = 4;
     } else if (fps >= 100) {
       fpsText = "100.00";
-      fpsMagnitude = 3;
+      magnitude = 3;
     } else if (fps >= 10) {
       fpsText = "10.00";
-      fpsMagnitude = 2;
+      magnitude = 2;
     } else {
       fpsText = "9.00";
-      fpsMagnitude = 1;
+      magnitude = 1;
     }
 
-    if (fpsMagnitude > this.fpsMagnitude) {
+    if (magnitude > this.fpsMagnitude) {
       Rectangle2D bounds = renderer.getBounds("FPS: " + fpsText);
       fpsWidth = (int) bounds.getWidth();
       fpsHeight = (int) bounds.getHeight();
       fpsOffset = (int) (fpsHeight * 0.5f);
-      this.fpsMagnitude = fpsMagnitude;
+      this.fpsMagnitude = magnitude;
     }
   }
 }

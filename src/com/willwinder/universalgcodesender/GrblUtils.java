@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,12 +53,15 @@ public class GrblUtils {
     /**
      * Gcode Commands
      */
-    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 X0 Y0 Z0";
+    public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
+
+    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V9 = "G10 P0 L20 %c0";
+    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V8 = "G92 %c0";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
     //public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
-    public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G90 G28 X0 Y0";
+    public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G90 G0 X0 Y0 Z0";
     public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8C = "G90 G0 Z";
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
@@ -71,7 +75,8 @@ public class GrblUtils {
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
-        return response.startsWith("Grbl ") && (getVersionDouble(response) != -1);
+        Boolean version = response.startsWith("Grbl ") || response.startsWith("CarbideMotion ");
+        return version && (getVersionDouble(response) != -1);
     }
     
     /** 
@@ -143,7 +148,25 @@ public class GrblUtils {
             return "";
         }
     }
+
+    static protected String getResetCoordToZeroCommand(final char coord, final double version, final String letter) {
+        if (version >= 0.9) {
+            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord);
+        }
+        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+            // TODO: Is G10 available in 0.8c?
+            // No it is not -> error: Unsupported statement
+            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V8, coord);
+        }
+        else if (version >= 0.8) {
+            return "";
+        }
+        else {
+            return "";
+        }
+    }
     
+    @Deprecated
     static protected String getReturnToHomeCommand(final double version, final String letter) {
         if ((version >= 0.8 && (letter != null) && letter.equals("c"))
                 || version >= 0.9) {
@@ -158,7 +181,7 @@ public class GrblUtils {
     }
     
     static protected ArrayList<String> getReturnToHomeCommands(final double version, final String letter, final double maxZOffset) {
-        ArrayList<String> commands = new ArrayList<String>();    
+        ArrayList<String> commands = new ArrayList<>();    
         if ((version >= 0.8 && (letter != null) && letter.equals("c"))
                 || version >= 0.9) {
             commands.add(GrblUtils.GCODE_RETURN_TO_MAX_Z_LOCATION_V8C + maxZOffset);
@@ -255,37 +278,38 @@ public class GrblUtils {
         return retValue;
     }
     
-    
-    static protected Point3d getMachinePositionFromStatusString(final String status, final Capabilities version) {
-        Point3d ret = null;
-        String REGEX;
-        
+    static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
+    static protected Units getUnitsFromStatusString(final String status, final Capabilities version) {
         if (version == Capabilities.STATUS_C) {
-            REGEX = "(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)";
-        } else {
-            return null;
+            if (mmPattern.matcher(status).find()) {
+                return Units.MM;
+            } else {
+                return Units.INCH;
+            }
         }
         
-        // Search for a version.
-        return GrblUtils.getPositionFromStatusString(status, REGEX);
+        return Units.UNKNOWN;
     }
-    
-    static protected Point3d getWorkPositionFromStatusString(final String status, final Capabilities version) {
-        Point3d ret = null;
-        String REGEX;
 
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)");
+    static protected Point3d getMachinePositionFromStatusString(final String status, final Capabilities version) {
         if (version == Capabilities.STATUS_C) {
-            REGEX = "(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)";
+            return GrblUtils.getPositionFromStatusString(status, machinePattern);
         } else {
             return null;
         }
-        
-        // Search for a version.
-        return GrblUtils.getPositionFromStatusString(status, REGEX);
     }
     
-    static private Point3d getPositionFromStatusString(final String status, final String regex) {
-        Pattern pattern = Pattern.compile(regex);
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
+    static protected Point3d getWorkPositionFromStatusString(final String status, final Capabilities version) {
+        if (version == Capabilities.STATUS_C) {
+            return GrblUtils.getPositionFromStatusString(status, workPattern);
+        } else {
+            return null;
+        }
+    }
+    
+    static private Point3d getPositionFromStatusString(final String status, final Pattern pattern) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
             return new Point3d( Double.parseDouble(matcher.group(1)),

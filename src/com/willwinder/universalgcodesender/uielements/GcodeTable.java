@@ -36,10 +36,10 @@ public class GcodeTable extends JTable {
     private boolean autoWindowScroll = false;
     private int offset = 0;
     
-    private static int COL_INDEX_COMMAND  = 0;
-    private static int COL_INDEX_SENT     = 1;
-    private static int COL_INDEX_DONE     = 2;
-    private static int COL_INDEX_RESPONSE = 3;
+    final private static int COL_INDEX_COMMAND  = 0;
+    final private static int COL_INDEX_SENT     = 1;
+    final private static int COL_INDEX_DONE     = 2;
+    final private static int COL_INDEX_RESPONSE = 3;
     
     public GcodeTable() {
         getTableHeader().setReorderingAllowed(false);
@@ -78,9 +78,14 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void addRow(final GcodeCommand command) {
-
+        String commandString = command.getCommandString();
+        if (command.isComment())
+            commandString = "; " + command.getComment();
+        else if (command.hasComment())
+            commandString += "; " + command.getComment();
+            
         ((GcodeTableModel)this.getModel()).addRow(new Object[]{
-            command.getCommandString(),
+            commandString,
             command.isSent(),
             command.isDone(),
             command.getResponse()});
@@ -97,8 +102,8 @@ public class GcodeTable extends JTable {
         int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
-        if (commandString != getModel().getValueAt(row, COL_INDEX_COMMAND)) {
-            System.out.printf("Row mismatch [%s] does not match row %d [%s].]n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
+        if (!command.isComment() && commandString != getModel().getValueAt(row, COL_INDEX_COMMAND)) {
+            System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
         }
 
         getModel().setValueAt(command.isSent(),      row, COL_INDEX_SENT);

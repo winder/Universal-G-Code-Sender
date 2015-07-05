@@ -186,7 +186,7 @@ public class GcodePreprocessorUtilsTest {
         System.out.println("parseCodes");
         
         // Basic case, find one gcode.
-        List<String> sl = new ArrayList<String>();
+        List<String> sl = new ArrayList<>();
         sl.add("G0");
         sl.add("X7");
         sl.add("Y5.235235");

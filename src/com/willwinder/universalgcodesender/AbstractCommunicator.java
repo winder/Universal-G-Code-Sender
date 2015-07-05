@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,10 +22,11 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.Connection;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -34,7 +35,6 @@ import java.util.ArrayList;
  */
 public abstract class AbstractCommunicator {
     public static String DEFAULT_TERMINATOR = "\r\n";
-    private String lineTerminator;
     protected Connection conn;
 
     // Callback interfaces
@@ -43,26 +43,13 @@ public abstract class AbstractCommunicator {
     ArrayList<SerialCommunicatorListener> commConsoleListeners;
     ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     ArrayList<SerialCommunicatorListener> commRawResponseListener;
-    private final ArrayList<Connection>   connections;
 
     public AbstractCommunicator() {
-        this.lineTerminator = DEFAULT_TERMINATOR;
-        
-        this.commandSentListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commandCompleteListeners    = new ArrayList<SerialCommunicatorListener>();
-        this.commConsoleListeners        = new ArrayList<SerialCommunicatorListener>();
-        this.commVerboseConsoleListeners = new ArrayList<SerialCommunicatorListener>();
-        this.commRawResponseListener     = new ArrayList<SerialCommunicatorListener>();
-
-        //instanciate all known connection drivers
-        //TODO: Scan the classpath for classes extending Connection,
-        //      and instantiate them dynamically.
-        this.connections = new ArrayList<Connection>();
-        this.addConnectionType(new SerialConnection());
-    }
-
-    final public void addConnectionType(Connection conn) {
-        this.connections.add(conn);
+        this.commandSentListeners        = new ArrayList<>();
+        this.commandCompleteListeners    = new ArrayList<>();
+        this.commConsoleListeners        = new ArrayList<>();
+        this.commVerboseConsoleListeners = new ArrayList<>();
+        this.commRawResponseListener     = new ArrayList<>();
     }
     
     /*********************/
@@ -71,7 +58,7 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
-    abstract public void sendByteImmediately(byte b) throws IOException;
+    abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public boolean areActiveCommands();
     abstract public void streamCommands();
     abstract public void pauseSend();
@@ -82,13 +69,9 @@ public abstract class AbstractCommunicator {
     
     //do common operations (related to the connection, that is shared by all communicators)
     protected boolean openCommPort(String name, int baud) throws Exception {
-        //choose port
-        for(Connection candidate: connections) {
-            if(candidate.supports(name)) {
-                conn = candidate;
-                conn.setCommunicator(this);
-                break;
-            }
+        conn = ConnectionFactory.getConnectionFor(name, baud);
+        if (conn != null) {
+            conn.setCommunicator(this);
         }
         
         if(conn==null) {
@@ -103,22 +86,12 @@ public abstract class AbstractCommunicator {
 
 
     //do common things (related to the connection, that is shared by all communicators)
-    protected void closeCommPort() {
+    protected void closeCommPort() throws Exception {
         conn.closePort();
     }
     
     /** Getters & Setters. */
-    void setLineTerminator(String terminator) {
-        if (terminator == null || terminator.length() < 1) {
-            this.lineTerminator = DEFAULT_TERMINATOR;
-        } else {
-            this.lineTerminator = terminator;
-        }
-    }
-    
-    String getLineTerminator() {
-        return this.lineTerminator;
-    }
+    abstract public String getLineTerminator();
     
     /* ****************** */
     /** Listener helpers. */
@@ -183,20 +156,30 @@ public abstract class AbstractCommunicator {
     /**
      * A bunch of methods to dispatch listener events with various arguments.
      */
-    static protected void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, String message) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, message, null);
+    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final String message) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (sclList != null) {
+                    for (SerialCommunicatorListener s : sclList) {
+                        sendEventToListener(event, s, message, null);
+                    }
+                }
             }
-        }
+        });
     }
     
-    static protected void dispatchListenerEvents(int event, ArrayList<SerialCommunicatorListener> sclList, GcodeCommand command) {
-        if (sclList != null) {
-            for (SerialCommunicatorListener s : sclList) {
-                sendEventToListener(event, s, null, command);
+    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final GcodeCommand command) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                if (sclList != null) {
+                    for (SerialCommunicatorListener s : sclList) {
+                        sendEventToListener(event, s, null, command);
+                    }
+                }
             }
-        }
+        });
     }
 
     static protected void sendEventToListener(int event, SerialCommunicatorListener scl, 

@@ -30,10 +30,10 @@ import javax.swing.table.DefaultTableModel;
  * @author wwinder
  */
 public class GcodeTableModel extends DefaultTableModel {
-    private Class[] types = new Class [] {
+    private final Class[] types = new Class [] {
         java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
     };
-    private boolean[] canEdit = new boolean [] {
+    private final boolean[] canEdit = new boolean [] {
         false, false, false, false
     };
     

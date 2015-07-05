@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,11 +23,7 @@
 
 package com.willwinder.universalgcodesender.mockobjects;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblCommunicator;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
@@ -75,13 +71,13 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
     
     public MockGrblCommunicator() {
-        super();
+        //super();
         this.conn = new MockConnection();
         this.conn.setCommunicator(this);
     }   
 
     @Override
-    public boolean openCommPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+    public boolean openCommPort(String name, int baud) throws Exception {
         this.numOpenCommPortCalls++;
 
         this.portName = name;

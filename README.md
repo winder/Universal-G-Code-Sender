@@ -4,7 +4,7 @@ To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run an included start script.
 
 Note for MAC users:
-You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
+For version 1.0.8 and earlier you may need to create a "/var/lock" directory on OSX to fix a bug in the serial
 library. To do this open the Terminal application and run the following two
 commands:
 <br />
@@ -15,6 +15,15 @@ commands:
 
 Downloads
 ---------
+<b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
+* Currently under heavy development, feedback and suggestions are helpful!
+* [UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.
+* [classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.
+
+<b>Stable builds</b>
+<br />
+[1.0.8](http://bit.ly/1BSKon6) - The last stable build before 2.0 work.
+<br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
 [1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
@@ -28,21 +37,24 @@ Downloads
 ![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_advanced_machine_control.png "Advanced GRBL control buttons.")
 
 Technical details:
-* RXTX for serial communication.
+* JSSC for serial communication (RXTX was used up through v1.0.8)
 * JogAmp for OpenGL.
 * Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
-* Developed with NetBeans 7.2.1 or later.
-* For development you will need to install RXTX.
+* Developed with NetBeans 8.0.2 or later.
 * To build a release using Netbeans open the 'Files' pane and right click build.xml,
   then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
   will contain the .zip file.
 
 Changelog
 ---------
-1.0.7 -> 1.0.8 (Unreleased)
-* (BETA) TinyG support!
-* Accurate GRBL job estimates. (michmerr)
+1.0.8 -> 2.0
+* New serial library: JSSC
+* TinyG support enabled.
+
+1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
+* Translations: German, Spanish, Italian, Afrikaans
+* Many bugfixes and stability improvements.
 
 1.0.6 -> 1.0.7
 * Many improvements to code architecture to allow future support for multiple firmwares (TinyG, Marlin, Smoothie, etc).

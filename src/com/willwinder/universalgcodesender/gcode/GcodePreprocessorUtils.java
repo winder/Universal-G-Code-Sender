@@ -71,6 +71,11 @@ public class GcodePreprocessorUtils {
         // Remove any comment beginning with ';' using regex ";.*"
         newCommand = newCommand.replaceAll(";.*", "");
 
+        // Don't send these to the controller.
+        if (newCommand.endsWith("%")) {
+            newCommand = newCommand.substring(0, newCommand.length()-1);
+        }
+        
         return newCommand.trim();
     }
     
@@ -84,7 +89,7 @@ public class GcodePreprocessorUtils {
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
         
-        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*");
+        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
         Matcher matcher = pattern.matcher(command);
         if (matcher.find()){
             comment = matcher.group(0);
@@ -135,7 +140,7 @@ public class GcodePreprocessorUtils {
     }
     
     static public List<String> parseCodes(List<String> args, char code) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         char address = Character.toUpperCase(code);
         
         for (String s : args) {
@@ -150,7 +155,7 @@ public class GcodePreprocessorUtils {
     static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
     static public List<Integer> parseGCodes(String command) {
         Matcher matcher = gPattern.matcher(command);
-        List<Integer> codes = new ArrayList<Integer>();
+        List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
             codes.add(Integer.parseInt(matcher.group(1)));
@@ -162,7 +167,7 @@ public class GcodePreprocessorUtils {
     static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
     static public List<Integer> parseMCodes(String command) {
         Matcher matcher = gPattern.matcher(command);
-        List<Integer> codes = new ArrayList<Integer>();
+        List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
             codes.add(Integer.parseInt(matcher.group(1)));
@@ -285,7 +290,7 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
         
@@ -339,7 +344,7 @@ public class GcodePreprocessorUtils {
     }
     
     static public List<String> convertArcsToLines(Point3d start, Point3d end) {
-        List<String> l = new ArrayList<String>();
+        List<String> l = new ArrayList<>();
         
         return l;
     }
@@ -485,8 +490,8 @@ public class GcodePreprocessorUtils {
             final Point3d p2, final Point3d center, boolean isCw, double radius, 
             double startAngle, double sweep, int numPoints) {
 
-        Point3d lineEnd = new Point3d(p2.x, p2.y, p2.z);
-        List<Point3d> segments = new ArrayList<Point3d>();
+        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
+        List<Point3d> segments = new ArrayList<>();
         double angle;
 
         // Calculate radius if necessary.
@@ -507,15 +512,15 @@ public class GcodePreprocessorUtils {
                 angle = angle - Math.PI * 2;
             }
 
-            lineEnd.x = Math.cos(angle) * radius + center.x;
-            lineEnd.y = Math.sin(angle) * radius + center.y;
-            lineEnd.z += zIncrement;
+            lineStart.x = Math.cos(angle) * radius + center.x;
+            lineStart.y = Math.sin(angle) * radius + center.y;
+            lineStart.z += zIncrement;
             
-            segments.add(new Point3d(lineEnd));
+            segments.add(new Point3d(lineStart));
         }
         
         segments.add(new Point3d(p2));
-        
+
         return segments;
     }
 }

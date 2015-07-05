@@ -24,13 +24,28 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 /**
  *
  * @author wwinder
  */
 public class GcodeFileTypeFilter extends FileFilter {
-       
+    public static JFileChooser getGcodeFileChooser(String startDir) {
+        //Setup the file filter for gcode files.
+        GcodeFileTypeFilter filter = new GcodeFileTypeFilter();
+        
+        // Setup file browser with the last path used.
+        JFileChooser fileChooser = new JFileChooser(startDir); 
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setFileHidingEnabled(true);
+        fileChooser.addChoosableFileFilter(filter);
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        fileChooser.setFileFilter(filter);
+        
+        return fileChooser;
+    }
+    
     @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
@@ -39,16 +54,13 @@ public class GcodeFileTypeFilter extends FileFilter {
  
         String extension = getExtension(f);
         if (extension != null) {
-            if (extension.equals("cnc") ||
-                extension.equals("nc")  ||
-                extension.equals("ngc") ||
-                extension.equals("tap") ||
-                extension.equals("txt") ||
-                extension.equals("gcode")) {
-                    return true;
-            } else {
-                return false;
-            }
+            return 
+                    extension.equals("cnc") ||
+                    extension.equals("nc")  ||
+                    extension.equals("ngc") ||
+                    extension.equals("tap") ||
+                    extension.equals("txt") ||
+                    extension.equals("gcode");
         }
  
         return false;

@@ -57,8 +57,8 @@ public class GcodeCommand {
         this.comment = GcodePreprocessorUtils.parseComment(command);
         this.hasComment = (this.comment.length() > 0);
         if (this.hasComment) {
-            String strippedCommand = GcodePreprocessorUtils.removeComment(command);
-            if (strippedCommand.trim().length() == 0)
+            this.command = GcodePreprocessorUtils.removeComment(command);
+            if (this.command.trim().length() == 0)
                 this.isComment = true;
         }
     }

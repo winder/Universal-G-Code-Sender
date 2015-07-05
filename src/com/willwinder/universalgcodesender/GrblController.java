@@ -2,7 +2,7 @@
  * GRBL Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,10 +24,10 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +51,8 @@ public class GrblController extends AbstractController {
     private String grblState;
     private Point3d machineLocation;
     private Point3d workLocation;
-    private double maxZLocation;
+    private double maxZLocationMM;
+    private Units units;
     
     // Polling state
     private int outstandingPolls = 0;
@@ -62,7 +63,7 @@ public class GrblController extends AbstractController {
         
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
-        this.maxZLocation = -1;
+        this.maxZLocationMM = -1;
         this.settings = new GrblSettingsListener(this);
     }
     
@@ -85,27 +86,6 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void rawResponseHandler(String response) {
-        /*
-        // Check if was 'ok' or 'error'.
-        if (GcodeCommand.isOkErrorResponse(response)) {
-            
-            // All Ok/Error messages go to console
-            this.sendMessageToConsoleListener(response + "\n");
-
-            // Pop the front of the active list.
-            GcodeCommand command = this.activeCommandList.pop();
-
-            command.setResponse(response);
-
-            ListenerUtils.dispatchListenerEvents(ListenerUtils.COMMAND_COMPLETE, 
-                    this.commandCompleteListeners, command);
-
-            if (this.sendPaused == false) {
-                this.streamCommands();
-            }
-        }
-        */
-        
         if (GcodeCommand.isOkErrorResponse(response)) {            
             try {
                 this.commandComplete(response);
@@ -152,14 +132,14 @@ public class GrblController extends AbstractController {
         }
     }
     @Override
-    protected void pauseStreamingEvent() throws IOException {
+    protected void pauseStreamingEvent() throws Exception {
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         }
     }
     
     @Override
-    protected void resumeStreamingEvent() throws IOException {
+    protected void resumeStreamingEvent() throws Exception {
         if (this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         }
@@ -177,12 +157,12 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void openCommAfterEvent() throws IOException {
+    protected void openCommAfterEvent() throws Exception {
         this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
     }
 
     @Override
-    protected void isReadyToStreamFileEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() throws Exception {
         if (this.isReady == false) {
             throw new Exception(Localization.getString("controller.exception.booting"));
         }
@@ -220,7 +200,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -233,7 +213,20 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getResetCoordsToZeroCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
+                return;
+            }
+        }
+        // Throw exception
+        super.resetCoordinatesToZero();
+    }
+    
+    @Override
+    public void resetCoordinateToZero(final char coord) throws Exception {
+        if (this.isCommOpen()) {
+            String command = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(command)) {
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -244,9 +237,13 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            double max = 4;
-            if (this.maxZLocation != -1) {
-                max = this.maxZLocation;
+            double max = 0;
+            if (this.maxZLocationMM != -1) {
+                max = this.maxZLocationMM;
+                if (this.units == Units.INCH) {
+                    System.out.println("Converting max Z to INCH");
+                    max = this.maxZLocationMM / 26.4;
+                }
             }
             ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, max);
             if (!commands.isEmpty()) {
@@ -254,7 +251,7 @@ public class GrblController extends AbstractController {
                 // Perform the homing commands
                 while(iter.hasNext()){
                     String command = iter.next();
-                    this.queueStringForComm(command);
+                    this.sendCommandImmediately(command);
                 }
                 return;
             }
@@ -268,7 +265,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -281,7 +278,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -294,7 +291,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen()) {
             String command = GrblUtils.getViewParserStateCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(command)) {
-                this.queueStringForComm(command);
+                this.sendCommandImmediately(command);
                 return;
             }
         }
@@ -306,7 +303,7 @@ public class GrblController extends AbstractController {
      * If it is supported, a soft reset real-time command will be issued.
      */
     @Override
-    public void softReset() throws IOException {
+    public void softReset() throws Exception {
         if (this.isCommOpen() && this.realTimeCapable) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
@@ -330,7 +327,7 @@ public class GrblController extends AbstractController {
             }
             
             if (this.grblVersion <= 0.0 && this.grblVersionLetter == null) {
-                str.append("<" + Localization.getString("unknown") + ">");
+                str.append("<").append(Localization.getString("unknown")).append(">");
             }
             
             return str.toString();
@@ -361,7 +358,7 @@ public class GrblController extends AbstractController {
                                     outstandingPolls = 0;
                                 }
                             }
-                        } catch (IOException ex) {
+                        } catch (Exception ex) {
                             messageForConsole(Localization.getString("controller.exception.sendingstatus")
                                     + ": " + ex.getMessage() + "\n");
                         }
@@ -396,17 +393,25 @@ public class GrblController extends AbstractController {
     }
     
     // No longer a listener event
-    private void handlePositionString(String string) {
+    private void handlePositionString(final String string) {
         if (this.positionMode != null) {
-            this.grblState = GrblUtils.getStateFromStatusString(string, this.positionMode);
-            this.machineLocation = GrblUtils.getMachinePositionFromStatusString(string, this.positionMode);
-            this.workLocation = GrblUtils.getWorkPositionFromStatusString(string, this.positionMode);
-            if ( (this.machineLocation != null) && 
-                    (this.machineLocation.z > this.maxZLocation)) {
-                this.maxZLocation = this.machineLocation.z;
+            grblState = GrblUtils.getStateFromStatusString(string, positionMode);
+            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode);
+            workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode);
+            
+            // Save max Z location
+            if (machineLocation != null) {
+                Units u = GrblUtils.getUnitsFromStatusString(string, positionMode);
+                double zLocationMM = machineLocation.z;
+                if (u == Units.INCH)
+                    zLocationMM *= 26.4;
+                
+                if (zLocationMM > this.maxZLocationMM) {
+                    maxZLocationMM = zLocationMM;
+                }
             }
-         
-            this.dispatchStatusString(this.grblState, this.machineLocation, this.workLocation);
+
+            dispatchStatusString(grblState, machineLocation, workLocation);
         }
     }
     
@@ -426,5 +431,10 @@ public class GrblController extends AbstractController {
         
         // This will start the timer up again if it is supported and enabled.
         this.beginPollingPosition();
+    }
+
+    @Override
+    public void currentUnits(Units units) {
+        this.units = units;
     }
 }

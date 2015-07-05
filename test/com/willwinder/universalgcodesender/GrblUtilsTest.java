@@ -63,6 +63,14 @@ public class GrblUtilsTest {
         expResult = 0.8;
         result = GrblUtils.getVersionDouble(response);
         assertEquals(expResult, result, 0.0);
+        
+        
+        response = "CarbideMotion 0.9g";
+        expResult = 0.9;
+        result = GrblUtils.getVersionDouble(response);
+        assertEquals(expResult, result, 0.0);
+
+        
     }
 
     /**
@@ -344,5 +352,30 @@ public class GrblUtilsTest {
         Point3d expResult = new Point3d(1.529, -5.440, -0.000);
         Point3d result = GrblUtils.getWorkPositionFromStatusString(status, version);
         assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetResetCoordCommand() {
+        System.out.println("getResetCoordCommand");
+
+        double version = 0.8;
+        String letter = "c";
+        String result;
+        
+        result = GrblUtils.getResetCoordToZeroCommand('X', version, letter);
+        assertEquals("G92 X0", result);
+        result = GrblUtils.getResetCoordToZeroCommand('Y', version, letter);
+        assertEquals("G92 Y0", result);
+        result = GrblUtils.getResetCoordToZeroCommand('Z', version, letter);
+        assertEquals("G92 Z0", result);
+        
+        version = 0.9;
+        
+        result = GrblUtils.getResetCoordToZeroCommand('X', version, letter);
+        assertEquals("G10 P0 L20 X0", result);
+        result = GrblUtils.getResetCoordToZeroCommand('Y', version, letter);
+        assertEquals("G10 P0 L20 Y0", result);
+        result = GrblUtils.getResetCoordToZeroCommand('Z', version, letter);
+        assertEquals("G10 P0 L20 Z0", result);
     }
 }

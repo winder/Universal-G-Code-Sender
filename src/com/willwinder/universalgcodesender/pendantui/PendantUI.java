@@ -29,10 +29,13 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
-import com.willwinder.universalgcodesender.MainWindowAPI;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.net.URL;
+import java.util.logging.Level;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -41,18 +44,19 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  */
 public class PendantUI implements ControllerListener{
     private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
-	private MainWindowAPI mainWindow;
+	private BackendAPI mainWindow;
 	private Server server = null;
 	private int port = 8080;
 	private SystemStateBean systemState = new SystemStateBean();
 	
-	public PendantUI(MainWindowAPI mainWindow) {
+	public PendantUI(BackendAPI mainWindow) {
 		this.mainWindow = mainWindow;
 	}
 
 	public Resource getBaseResource(){
 		try {
-			return Resource.newResource("./pendantUI");
+                        URL res = getClass().getResource("/resources/pendantUI");
+                        return Resource.newResource(res);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -64,51 +68,51 @@ public class PendantUI implements ControllerListener{
 	 * @return the url for the pendant interface
 	 */
 	public List<PendantURLBean> start(){
-		server = new Server(port);
-		
-		ResourceHandler resourceHandler = new ResourceHandler();
-		resourceHandler.setDirectoriesListed(false);
-		resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-		resourceHandler.setBaseResource(getBaseResource());
-        resourceHandler.setDirectoriesListed(true);
-        
-		ContextHandler sendGcodeContext = new ContextHandler();
-        sendGcodeContext.setContextPath("/sendGcode");
-        sendGcodeContext.setBaseResource(getBaseResource());
-        sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        sendGcodeContext.setHandler(new SendGcodeHandler());
+            server = new Server(port);
 
-		ContextHandler adjustManualLocationContext = new ContextHandler();
-        adjustManualLocationContext.setContextPath("/adjustManualLocation");
-        adjustManualLocationContext.setBaseResource(getBaseResource());
-        adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
+            ResourceHandler resourceHandler = new ResourceHandler();
+            resourceHandler.setDirectoriesListed(false);
+            resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
+            resourceHandler.setBaseResource(getBaseResource());
+            resourceHandler.setDirectoriesListed(true);
 
-		ContextHandler getSystemStateContext = new ContextHandler();
-        getSystemStateContext.setContextPath("/getSystemState");
-        getSystemStateContext.setBaseResource(getBaseResource());
-        getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        getSystemStateContext.setHandler(new GetSystemStateHandler());
+            ContextHandler sendGcodeContext = new ContextHandler();
+            sendGcodeContext.setContextPath("/sendGcode");
+            sendGcodeContext.setBaseResource(getBaseResource());
+            sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            sendGcodeContext.setHandler(new SendGcodeHandler());
 
-        ContextHandler configContext = new ContextHandler();
-        configContext.setContextPath("/config");
-        configContext.setBaseResource(getBaseResource());
-        configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
-        configContext.setHandler(new ConfigHandler());
-        configContext.setInitParameter("cacheControl", "max-age=0, public");
-        
-        HandlerList handlers = new HandlerList();
-		handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
-		
-        server.setHandler(handlers);
+            ContextHandler adjustManualLocationContext = new ContextHandler();
+            adjustManualLocationContext.setContextPath("/adjustManualLocation");
+            adjustManualLocationContext.setBaseResource(getBaseResource());
+            adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
 
-		try {
-			server.start();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		return getUrlList();
+            ContextHandler getSystemStateContext = new ContextHandler();
+            getSystemStateContext.setContextPath("/getSystemState");
+            getSystemStateContext.setBaseResource(getBaseResource());
+            getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            getSystemStateContext.setHandler(new GetSystemStateHandler());
+
+            ContextHandler configContext = new ContextHandler();
+            configContext.setContextPath("/config");
+            configContext.setBaseResource(getBaseResource());
+            configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+            configContext.setHandler(new ConfigHandler());
+            configContext.setInitParameter("cacheControl", "max-age=0, public");
+
+            HandlerList handlers = new HandlerList();
+            handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
+
+            server.setHandler(handlers);
+
+            try {
+                    server.start();
+            } catch (Exception e) {
+                    throw new RuntimeException(e);
+            }
+
+            return getUrlList();
 	}
 	
 	/**
@@ -166,13 +170,13 @@ public class PendantUI implements ControllerListener{
 							mainWindow.getController().toggleCheckMode();
 							break;
 						case "RESET_ZERO":
-							mainWindow.resetCoordinatesButtonActionPerformed();
+							mainWindow.resetCoordinatesToZero();
 							break;
 						case "RETURN_TO_ZERO":
-							mainWindow.returnToZeroButtonActionPerformed();
+							mainWindow.returnToZero();
 							break;
 						case "SEND_FILE":
-							mainWindow.sendButtonActionPerformed();
+							mainWindow.send();
 							break;
 						default:
 							mainWindow.sendGcodeCommand(gCode);
@@ -181,10 +185,10 @@ public class PendantUI implements ControllerListener{
 				} else {
 					switch (gCode) {
 					case "PAUSE_RESUME_FILE":
-						mainWindow.pauseButtonActionPerformed();
+						mainWindow.pauseResume();
 						break;
 					case "CANCEL_FILE":
-						mainWindow.cancelButtonActionPerformed();
+						mainWindow.cancel();
 						break;
 					default:
 						break;
@@ -192,8 +196,8 @@ public class PendantUI implements ControllerListener{
 					
 				}
 			} catch (Exception e) {
-	            e.printStackTrace();
-	            logger.warning(Localization.getString("SendGcodeHandler"));
+                            logger.log(Level.WARNING, "Exception in pendant.", e);
+                            logger.warning(Localization.getString("SendGcodeHandler"));
 			}
 
 			response.getWriter().print(getSystemStateJson());
@@ -234,7 +238,11 @@ public class PendantUI implements ControllerListener{
 				int dirZ = parseInt(baseRequest.getParameter("dirZ"));
 				double stepSize = parseDouble(baseRequest.getParameter("stepSize"));
 				
-				mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize);
+                                try {
+                                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, Units.UNKNOWN);
+                                } catch (Exception e) {
+                                    logger.warning(e.getMessage());
+                                }
 			}
 
 			response.getWriter().print(systemState.getControlState().name());
@@ -295,7 +303,7 @@ public class PendantUI implements ControllerListener{
         }
 	}
 
-	public MainWindowAPI getMainWindow() {
+	public BackendAPI getMainWindow() {
 		return mainWindow;
 	}
 
@@ -307,7 +315,7 @@ public class PendantUI implements ControllerListener{
 		this.server = server;
 	}
 
-	public void setMainWindow(MainWindowAPI mainWindow) {
+	public void setMainWindow(BackendAPI mainWindow) {
 		this.mainWindow = mainWindow;
 	}
 

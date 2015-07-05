@@ -36,7 +36,7 @@ import javax.vecmath.Point3d;
  */
 public class VisualizerUtils {
     
-    enum Color {
+    public enum Color {
         RED, 
         BLUE, 
         PURPLE, 
@@ -50,7 +50,7 @@ public class VisualizerUtils {
     /**
      * Returns the maximum side dimension of a box containing two points.
      */
-    static double findMaxSide(Point3d min, Point3d max) {
+    public static double findMaxSide(Point3d min, Point3d max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         double z = Math.abs(min.z) + Math.abs(max.z);
@@ -60,7 +60,7 @@ public class VisualizerUtils {
     /**
      * Returns the aspect ratio from two points.
      */
-    static double findAspectRatio(Point3d min, Point3d max) {
+    public static double findAspectRatio(Point3d min, Point3d max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         return x / y;
@@ -69,7 +69,7 @@ public class VisualizerUtils {
     /**
      * Returns the center point on a line.
      */
-    static Point3d findCenter(Point3d min, Point3d max) {
+    public static Point3d findCenter(Point3d min, Point3d max) {
         Point3d center = new Point3d();
         center.x = (min.x + max.x) / 2.0;
         center.y = (min.y + max.y) / 2.0;
@@ -80,7 +80,7 @@ public class VisualizerUtils {
     /**
      * Find a factor to scale an object by so that it fits in the window.
      */
-    static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
+    public static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
         final double bufferFactor = 0.9;
         
         if (y == 0 || x == 0 || min == null || max == null) {
@@ -99,9 +99,8 @@ public class VisualizerUtils {
 
     /** Constructor to setup the GUI for this Component */
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
-        ArrayList<String> vect = null;
+        ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        vect = new ArrayList<String>();
         FileInputStream fstream = new FileInputStream(gCodeFile);
         DataInputStream dis = new DataInputStream(fstream);
         BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
@@ -113,7 +112,7 @@ public class VisualizerUtils {
         return vect;
     }
 
-    static byte[] getVertexColor(Color color) {
+    public static byte[] getVertexColor(Color color) {
         byte[] ret;
         switch (color) {
             case RED:
@@ -153,7 +152,7 @@ public class VisualizerUtils {
      * @param movementRange The length of the axis in the window displaying the model.
      * @return the ratio of the model size to the display size on that axis.
      */
-    static double getRelativeMovementMultiplier(double objectMin, double objectMax, int movementRange) {
+    public static double getRelativeMovementMultiplier(double objectMin, double objectMax, int movementRange) {
         if (movementRange == 0)
             return 0;
 

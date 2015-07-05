@@ -84,10 +84,12 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getNextValue() {
+        return this.getNextStepSize();
+        /*
         Double num;
         this.setStepSize(getNextStepSize());
 
-        num = new Double(this.getNumber().doubleValue() + this.getStepSize().doubleValue());
+        num = this.getNumber().doubleValue() + this.getStepSize().doubleValue();
 
         // check upper bound if set
         if ((this.getMaximum() != null) && this.getMaximum().compareTo(num) < 0) {
@@ -95,6 +97,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
+        */
     }
 
     /**
@@ -109,10 +112,12 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getPreviousValue() {
+        return this.getPreviousStepSize();
+        /*
         Double num;
         this.setStepSize(getPreviousStepSize());
 
-        num = new Double(this.getNumber().doubleValue() - this.getStepSize().doubleValue());
+        num = this.getNumber().doubleValue() - this.getStepSize().doubleValue();
 
         // check lower bound if set
         if ((this.getMinimum() != null) && this.getMinimum().compareTo(num) > 0) {
@@ -120,5 +125,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
+                */
     }
 }

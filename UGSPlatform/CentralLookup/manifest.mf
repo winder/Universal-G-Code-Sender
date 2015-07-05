@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: com.willwinder.ugs.nbp.lookup
+OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/lookup/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

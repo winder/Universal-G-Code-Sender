@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder, John Lauer
+    Copywrite 2013-2015 Will Winder, John Lauer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,12 +37,7 @@ public class TinyGGcodeCommand extends GcodeCommand {
     }
     
     public static Boolean isOkErrorResponse(String response) {
-        if (response.contains("{")) {
-            // for now just return true, but try to catch errors still
-            return true;
-        }
-        
-        return false;
+        return response.startsWith("{\"r\"") && !response.contains("\"fv\"");
     }
     
     static String convertCommandToJson(String command) {
@@ -53,17 +48,17 @@ public class TinyGGcodeCommand extends GcodeCommand {
             command.equals("?") || 
             command.startsWith("{\"sr")) {
             // this is a status request cmd
-            ret = "{\"sr\":\"\"}\n";
+            ret = "{\"sr\":\"\"}";
         } else if (command.startsWith("{")) {
             // it is already json ready. leave it alone.
-            ret = command.trim() + "\n";
+            ret = command.trim();
         } else if (command.startsWith("(")) {
             // it's a comment. pass it thru. this app will handle it nicely
             ret = command;
         } else {
             // assume it needs wrapping for gcode cmd
             String c = command.trim();
-            ret = "{\"gc\":\"" + c + "\"}\n";
+            ret = "{\"gc\":\"" + c + "\"}";
         }
         
         return ret;
