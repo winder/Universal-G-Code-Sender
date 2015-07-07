@@ -27,6 +27,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.TinyGController;
+import com.willwinder.universalgcodesender.XLCDController;
 import java.util.ArrayList;
 
 /**
@@ -37,24 +38,29 @@ public class FirmwareUtils {
     final public static String GRBL     = "GRBL";
     final public static String Smoothie = "SmoothieBoard";
     final public static String TinyG    = "TinyG";
+    final public static String XLCD     = "XLCD";
+    
     
     public static ArrayList<String> getFirmwareList() {
         ArrayList<String> ret = new ArrayList<>();
         ret.add(GRBL);
         //ret.add(Smoothie);
         ret.add(TinyG);
+        ret.add(XLCD);
+        
         return ret;
     }
     
     public static AbstractController getControllerFor(String firmware) {
-        if (firmware.equals(GRBL)) {
-            return new GrblController();
-        }
-        if (firmware.equals(Smoothie)) {
-            
-        }
-        if (firmware.equals(TinyG)) {
-            return new TinyGController();
+        switch(firmware) {
+            case GRBL:
+                return new GrblController();
+            case Smoothie:
+                return null;
+            case TinyG:
+                return new TinyGController();
+            case XLCD:
+                return new XLCDController();
         }
         
         return null;
