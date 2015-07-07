@@ -24,8 +24,6 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.utils.CommUtils;
-import com.willwinder.universalgcodesender.connection.Connection;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -141,6 +139,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
             this.sendMessageToConsoleListener(">>> " + commandString);
             
             try {
+                this.sendingCommand(commandString);
                 conn.sendStringToComm(commandString);
 
                 dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
@@ -177,12 +176,24 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         this.sentBufferSize = 0;
     }
 
+    /**
+     * Notifies the subclass that a command has been sent.
+     * @param command The command being sent.
+     */
+    abstract protected void sendingCommand(String command);
     
+    /**
+     * Returns whether or not a command has been completed based on a response
+     * from the controller.
+     * @param response
+     * @return true if a command has completed.
+     */
     abstract protected boolean processedCommand(String response);
     
     /** 
      * Processes message from GRBL. This should only be called from the
      * connection object.
+     * @param response
      */
     @Override
     public void responseMessage(String response) {
