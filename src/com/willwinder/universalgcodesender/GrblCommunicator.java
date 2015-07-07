@@ -23,7 +23,6 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- *
  * @author wwinder
  */
 public class GrblCommunicator extends BufferedCommunicator {
