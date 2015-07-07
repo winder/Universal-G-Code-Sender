@@ -59,4 +59,9 @@ public class GrblCommunicator extends BufferedCommunicator {
     protected boolean processedCommand(String response) {
         return GcodeCommand.isOkErrorResponse(response);
     }
+
+    @Override
+    protected void sendingCommand(String response) {
+        // no-op for this protocol.
+    }
 }

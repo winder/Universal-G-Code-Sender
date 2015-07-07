@@ -113,7 +113,7 @@ public class TinyGController extends AbstractController {
             this.messageForConsole("[restarting] " + response + "\n");
             this.isReady = false;
         }
-        else if (TinyGUtils.isReadyResponse(jo)) {
+        else if (TinyGUtils.isReadyResponse(jo)) {  
             //this.messageForConsole("Got version: " + TinyGUtils.getVersion(jo) + "\n");
             this.messageForConsole("[ready] " + response + "\n");
             this.isReady = true;

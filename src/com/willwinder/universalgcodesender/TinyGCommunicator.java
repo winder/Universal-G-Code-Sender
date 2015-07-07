@@ -45,4 +45,9 @@ public class TinyGCommunicator extends BufferedCommunicator {
     protected boolean processedCommand(String response) {
         return TinyGGcodeCommand.isOkErrorResponse(response);
     }
+
+    @Override
+    protected void sendingCommand(String response) {
+        // no-op for this protocol.
+    }
 }
