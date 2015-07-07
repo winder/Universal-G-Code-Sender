@@ -27,7 +27,7 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.TinyGController;
-import com.willwinder.universalgcodesender.XLCDController;
+import com.willwinder.universalgcodesender.XLCDCommunicator;
 import java.util.ArrayList;
 
 /**
@@ -60,7 +60,7 @@ public class FirmwareUtils {
             case TinyG:
                 return new TinyGController();
             case XLCD:
-                return new XLCDController();
+                return new GrblController(new XLCDCommunicator());
         }
         
         return null;

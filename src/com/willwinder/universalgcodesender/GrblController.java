@@ -58,7 +58,7 @@ public class GrblController extends AbstractController {
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
     
-    protected GrblController(AbstractCommunicator comm) {
+    public GrblController(AbstractCommunicator comm) {
         super(comm);
         
         this.commandCreator = new GcodeCommandCreator();

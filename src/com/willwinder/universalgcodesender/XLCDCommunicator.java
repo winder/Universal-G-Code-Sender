@@ -23,10 +23,10 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 /**
  * @author wwinder
  */
-class XLCDCommunicator extends GrblCommunicator {
+public class XLCDCommunicator extends GrblCommunicator {
 
     int UGSCommandCount = 0;
-    protected XLCDCommunicator() {}
+    public XLCDCommunicator() {}
 
     @Override
     protected void sendingCommand(String command) {
