@@ -35,8 +35,10 @@ class XLCDCommunicator extends GrblCommunicator {
 
     @Override
     protected boolean processedCommand(String response) {
-        if (UGSCommandCount > 0)
-            return GcodeCommand.isOkErrorResponse(response);
+        if (UGSCommandCount > 0 && GcodeCommand.isOkErrorResponse(response)) {
+            UGSCommandCount--;
+            return true;
+        }
         return false;
     }    
 }
