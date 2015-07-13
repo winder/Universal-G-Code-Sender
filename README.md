@@ -32,7 +32,7 @@ Downloads
 <br />
 
 <b>1.0.8 Known issues</b>
-* The visualizer does not work on OSX.
+* The visualizer does not work on OSX. (resolved in nightly build)
 
 <br />
 
