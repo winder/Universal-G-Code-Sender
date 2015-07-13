@@ -31,6 +31,11 @@ Downloads
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
+<b>1.0.8 Known issues</b>
+* The visualizer does not work on OSX.
+
+<br />
+
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_command_table.png "Command table tab during a file send.")
 ![3D Visualizer Window](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_visualizer.png "Visualizer window during a file send.")
 ![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_job_finished.png "Popup after finishing a file send.")
