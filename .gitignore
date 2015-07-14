@@ -25,3 +25,5 @@ tar.gz
 /UGSPlatform/CentralLookup/nbproject/private/
 /UGSPlatform/Options/nbproject/private/
 /UGSPlatform/VisualizerModule/build/
+.idea
+*.iml
