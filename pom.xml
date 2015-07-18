@@ -122,6 +122,13 @@
           <include>MessagesBundle.*</include>
         </includes>
       </resource>
+      <resource>
+        <directory>src/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>build.properties</include>
+        </includes>
+      </resource>
     </resources>
 
     <plugins>
@@ -153,88 +160,36 @@
       </plugin>
 
       <plugin>
-        <groupId>com.jolira</groupId>
-        <artifactId>onejar-maven-plugin</artifactId>
-        <version>1.4.4</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.1</version>
         <executions>
           <execution>
-            <configuration>
-              <!-- Optional -->
-              <onejarVersion>0.97</onejarVersion>
-              <binlibs>
-                <!-- ========== -->
-                <!-- == RXTX == -->
-                <!-- ========== -->
-                <binlib>
-                  <os>mac</os>
-                  <fileSet>
-                    <directory>${project.basedir}/lib/natives/mac</directory>
-                    <includes>
-                      <include>*.*</include>
-                    </includes>
-                  </fileSet>
-                </binlib>
-                <binlib>
-                  <os>linux</os>
-                  <arch>32</arch>
-                  <fileSet>
-                    <directory>${project.basedir}/lib/natives/linux32</directory>
-                    <includes>
-                      <include>*.*</include>
-                    </includes>
-                  </fileSet>
-                </binlib>
-                <binlib>
-                  <os>linux</os>
-                  <arch>64</arch>
-                  <fileSet>
-                    <directory>${project.basedir}/lib/natives/linux64</directory>
-                    <includes>
-                      <include>*.*</include>
-                    </includes>
-                  </fileSet>
-                </binlib>
-                <binlib>
-                  <os>windows</os>
-                  <arch>64</arch>
-                  <fileSet>
-                    <directory>${project.basedir}/lib/natives/win64</directory>
-                    <includes>
-                      <include>*.*</include>
-                    </includes>
-                  </fileSet>
-                </binlib>
-                <binlib>
-                  <os>windows</os>
-                  <arch>32</arch>
-                  <fileSet>
-                    <directory>${project.basedir}/lib/natives/win32</directory>
-                    <includes>
-                      <include>*.*</include>
-                    </includes>
-                  </fileSet>
-                </binlib>
-              </binlibs>
-              <!-- Optional, default is false -->
-              <attachToBuild>true</attachToBuild>
-              <!-- Optional, default is "onejar" -->
-              <classifier>onejar</classifier>
-            </configuration>
+            <phase>package</phase>
             <goals>
-              <goal>one-jar</goal>
+              <goal>shade</goal>
             </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer"/>
+              </transformers>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
           </execution>
         </executions>
       </plugin>
 
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>onejar-maven-plugin.googlecode.com</id>
-      <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-    </pluginRepository>
-  </pluginRepositories>
 
 </project>
