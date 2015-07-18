@@ -1,8 +1,8 @@
 /build/
 /dist/
 /nbproject/private
-/release/
-/release_files/
+release
+release_files
 .DS_Store
 test_files/grbl_*.hex.txt
 target/
