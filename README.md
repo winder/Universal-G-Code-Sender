@@ -50,6 +50,32 @@ Technical details:
   then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
   will contain the .zip file.
 
+
+Development
+-----------
+
+For development the [Maven](http://maven.apache.org) build tool is used.
+
+#### Run main class from command line
+
+```mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow"```
+
+
+#### Execute all tests
+
+```mvn test```
+
+
+#### Just build a self-running uber-jar:
+
+```mvn package```
+
+
+#### Build a UniversalGcodeSender.zip release file
+
+```mvn package assembly:assembly```
+
+
 Changelog
 ---------
 1.0.8 -> 2.0
