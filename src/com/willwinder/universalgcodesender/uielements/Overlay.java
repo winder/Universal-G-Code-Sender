@@ -39,13 +39,12 @@
 
 package com.willwinder.universalgcodesender.uielements;
 
+import com.jogamp.opengl.GLDrawable;
+import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
-import javax.media.opengl.GLDrawable;
-import javax.media.opengl.GLException;
-
 
 
 /** A simple class which uses the TextRenderer to provide an FPS
