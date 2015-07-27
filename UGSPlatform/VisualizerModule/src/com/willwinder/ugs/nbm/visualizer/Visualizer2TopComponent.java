@@ -24,6 +24,7 @@ import com.jogamp.newt.event.MouseEvent;
 import com.jogamp.newt.event.WindowAdapter;
 import com.jogamp.newt.event.WindowEvent;
 import com.jogamp.newt.opengl.GLWindow;
+import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
@@ -32,7 +33,7 @@ import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.InputEvent;
-import javax.media.opengl.GLCapabilities;
+import com.jogamp.opengl.GLCapabilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -70,7 +71,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     private NewtCanvasAWT canvas;
     private GcodeRenderer renderer;
     private FPSAnimator animator;
-    private BackendAPIReadOnly backend;
+    private final BackendAPIReadOnly backend;
     
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -117,6 +118,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
 
     private NewtCanvasAWT makeWindow(
         final String name, final GLCapabilities caps) {
+
         final GLWindow window = GLWindow.create(caps);
         renderer = new GcodeRenderer();
         
@@ -161,7 +163,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
                 renderer.mouseMoved(new Point(x, y));
             }
         });
-        window.addGLEventListener(renderer);
+        window.addGLEventListener((GLEventListener) renderer);
 
         animator = new FPSAnimator(window, 60);
         animator.start();

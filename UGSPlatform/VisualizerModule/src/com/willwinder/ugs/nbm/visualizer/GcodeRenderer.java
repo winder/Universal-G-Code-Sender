@@ -33,6 +33,7 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.newt.awt.NewtCanvasAWT;
+import com.jogamp.opengl.GLDrawable;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
@@ -211,8 +212,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
 
         generateObject();
 
-        this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
-        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.fpsCounter = new FPSCounter((GLDrawable) drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay((GLDrawable) drawable, new Font("SansSerif", Font.BOLD, 12));
         this.overlay.setColor(127, 127, 127, 100);
         this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
