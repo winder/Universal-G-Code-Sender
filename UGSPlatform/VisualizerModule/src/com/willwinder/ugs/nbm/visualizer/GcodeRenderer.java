@@ -33,7 +33,23 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.newt.awt.NewtCanvasAWT;
+import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import static com.jogamp.opengl.GL.GL_LEQUAL;
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.jogamp.opengl.GL.GL_NICEST;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
+import com.jogamp.opengl.GLEventListener;
+import static com.jogamp.opengl.GLProfile.GL2;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
@@ -50,6 +66,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+/*
 import javax.media.opengl.GL;
 import static javax.media.opengl.GL.*;
 import javax.media.opengl.GL2;
@@ -60,6 +77,7 @@ import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import javax.media.opengl.glu.GLU;
+*/
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -390,11 +408,11 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
                 this.vertexArrayDirty = false;
             }
             gl.glLineWidth(1.0f);
-            gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
-            gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
+            gl.glEnableClientState(GL_VERTEX_ARRAY);
+            gl.glEnableClientState(GL_COLOR_ARRAY);
             gl.glDrawArrays( GL.GL_LINES, 0, numberOfVertices);
-            gl.glDisableClientState(GL2.GL_COLOR_ARRAY);
-            gl.glDisableClientState(GL2.GL_VERTEX_ARRAY);
+            gl.glDisableClientState(GL_COLOR_ARRAY);
+            gl.glDisableClientState(GL_VERTEX_ARRAY);
         }
         // Traditional OpenGL
         else {
