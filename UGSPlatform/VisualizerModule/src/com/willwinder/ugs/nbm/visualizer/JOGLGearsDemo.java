@@ -37,7 +37,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     canvas.addGLEventListener(new JOGLGearsDemo());
     frame.add(canvas);
     frame.setSize(300, 300);
-    final Animator animator = new Animator(canvas);
+    final Animator animator = new Animator((com.jogamp.opengl.GLAutoDrawable) canvas);
     frame.addWindowListener(new WindowAdapter() {
         public void windowClosing(WindowEvent e) {
           // Run this on another thread than the AWT event queue to
