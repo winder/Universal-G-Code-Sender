@@ -1,29 +1,27 @@
 
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2.GL_COMPILE;
+import static com.jogamp.opengl.GL2.GL_QUAD_STRIP;
+import static com.jogamp.opengl.GL2GL3.GL_QUADS;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLEventListener;
+import static com.jogamp.opengl.GLProfile.GL2;
+import com.jogamp.opengl.awt.GLCanvas;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_FLAT;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_NORMALIZE;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.util.Animator;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
-import java.awt.Point;
 import java.awt.event.*;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.text.DecimalFormat;
-import java.util.List;
-import javax.media.opengl.GL;
-import static javax.media.opengl.GL.*;
-import javax.media.opengl.GL2;
-import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.awt.GLCanvas;
-import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import javax.media.opengl.glu.GLU;
 
 
 
@@ -81,30 +79,30 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
 
     //gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, pos, 0);
     gl.glEnable(GL.GL_CULL_FACE);
-    gl.glEnable(GL2.GL_LIGHTING);
-    gl.glEnable(GL2.GL_LIGHT0);
+    gl.glEnable(GL_LIGHTING);
+    gl.glEnable(GL_LIGHT0);
     gl.glEnable(GL.GL_DEPTH_TEST);
             
     /* make the gears */
     gear1 = gl.glGenLists(1);
-    gl.glNewList(gear1, GL2.GL_COMPILE);
-    gl.glMaterialfv(GL.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, red, 0);
+    gl.glNewList(gear1, GL_COMPILE);
+    gl.glMaterialfv(GL.GL_FRONT, GL_AMBIENT_AND_DIFFUSE, red, 0);
     gear(gl, 1.0f, 4.0f, 1.0f, 20, 0.7f);
     gl.glEndList();
             
     gear2 = gl.glGenLists(1);
-    gl.glNewList(gear2, GL2.GL_COMPILE);
-    gl.glMaterialfv(GL.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, green, 0);
+    gl.glNewList(gear2, GL_COMPILE);
+    gl.glMaterialfv(GL.GL_FRONT, GL_AMBIENT_AND_DIFFUSE, green, 0);
     gear(gl, 0.5f, 2.0f, 2.0f, 10, 0.7f);
     gl.glEndList();
             
     gear3 = gl.glGenLists(1);
-    gl.glNewList(gear3, GL2.GL_COMPILE);
-    gl.glMaterialfv(GL.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, blue, 0);
+    gl.glNewList(gear3, GL_COMPILE);
+    gl.glMaterialfv(GL.GL_FRONT, GL_AMBIENT_AND_DIFFUSE, blue, 0);
     gear(gl, 1.3f, 2.0f, 0.5f, 10, 0.7f);
     gl.glEndList();
             
-    gl.glEnable(GL2.GL_NORMALIZE);
+    gl.glEnable(GL_NORMALIZE);
         
     
     //drawable.addMouseListener(this);
@@ -116,14 +114,14 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
 
     float h = (float)height / (float)width;
             
-    gl.glMatrixMode(GL2.GL_PROJECTION);
+    gl.glMatrixMode(GL_PROJECTION);
 
     System.err.println("GL_VENDOR: " + gl.glGetString(GL.GL_VENDOR));
     System.err.println("GL_RENDERER: " + gl.glGetString(GL.GL_RENDERER));
     System.err.println("GL_VERSION: " + gl.glGetString(GL.GL_VERSION));
     gl.glLoadIdentity();
     gl.glFrustum(-1.0f, 1.0f, -h, h, 5.0f, 60.0f);
-    gl.glMatrixMode(GL2.GL_MODELVIEW);
+    gl.glMatrixMode(GL_MODELVIEW);
     gl.glLoadIdentity();
     gl.glTranslatef(0.0f, 0.0f, -40.0f);
   }
@@ -198,12 +196,12 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
             
     da = 2.0f * (float) Math.PI / teeth / 4.0f;
             
-    gl.glShadeModel(GL2.GL_FLAT);
+    gl.glShadeModel(GL_FLAT);
 
     gl.glNormal3f(0.0f, 0.0f, 1.0f);
 
     /* draw front face */
-    gl.glBegin(GL2.GL_QUAD_STRIP);
+    gl.glBegin(GL_QUAD_STRIP);
     for (i = 0; i <= teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
@@ -218,7 +216,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     gl.glEnd();
 
     /* draw front sides of teeth */
-    gl.glBegin(GL2.GL_QUADS);
+    gl.glBegin(GL_QUADS);
     for (i = 0; i < teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
@@ -230,7 +228,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     gl.glEnd();
     
     /* draw back face */
-    gl.glBegin(GL2.GL_QUAD_STRIP);
+    gl.glBegin(GL_QUAD_STRIP);
     for (i = 0; i <= teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
@@ -242,7 +240,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     gl.glEnd();
     
     /* draw back sides of teeth */
-    gl.glBegin(GL2.GL_QUADS);
+    gl.glBegin(GL_QUADS);
     for (i = 0; i < teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
@@ -254,7 +252,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     gl.glEnd();
     
     /* draw outward faces of teeth */
-    gl.glBegin(GL2.GL_QUAD_STRIP);
+    gl.glBegin(GL_QUAD_STRIP);
     for (i = 0; i < teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
@@ -282,10 +280,10 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     gl.glVertex3f(r1 * (float)Math.cos(0), r1 * (float)Math.sin(0), -width * 0.5f);
     gl.glEnd();
     
-    gl.glShadeModel(GL2.GL_SMOOTH);
+    gl.glShadeModel(GL_SMOOTH);
     
     /* draw inside radius cylinder */
-    gl.glBegin(GL2.GL_QUAD_STRIP);
+    gl.glBegin(GL_QUAD_STRIP);
     for (i = 0; i <= teeth; i++)
       {
         angle = i * 2.0f * (float) Math.PI / teeth;
