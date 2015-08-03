@@ -17,8 +17,8 @@ Downloads
 ---------
 <b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
 * Currently under heavy development, feedback and suggestions are helpful!
-* [UGS Platform](bit.ly/1KYjrPY) - Next generation platform-based GUI utilizing the UGS API.
-* [classic GUI](http://bit.ly/1vIcB9E) - The classic UGS GUI.
+* [UGS Platform](http://bit.ly/1DkClRW) - Next generation platform-based GUI utilizing the UGS API.
+* [classic GUI](http://bit.ly/1hftIhy) - The classic UGS GUI.
 
 <b>Stable builds</b>
 <br />
