@@ -81,6 +81,7 @@ Changelog
 1.0.8 -> 2.0
 * New serial library: JSSC
 * TinyG support enabled.
+* Translations: French, Greek, Dutch
 
 1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
