@@ -53,7 +53,8 @@ public class Localization {
             if (bundle == null) {
                 Localization.initialize("en", "US");
             }
-            return bundle.getString(id);
+            String val = bundle.getString(id);
+            return new String(val.getBytes("ISO-8859-1"), "UTF-8");
         } catch (Exception e) {
             return "<" + id + ">";
         }
