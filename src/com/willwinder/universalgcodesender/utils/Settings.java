@@ -1,6 +1,9 @@
 package com.willwinder.universalgcodesender.utils;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.Since;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
+import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 
 import java.util.*;
@@ -30,8 +33,26 @@ public class Settings {
     private double smallArcThreshold = 2.0;
     private double smallArcSegmentLength = 1.3;
     private String defaultUnits = "mm";
-    private final Map<Integer, String> customGcodes = new HashMap() {{
-        put(1, "G91 X0 Y0;");
+
+    //vvv deprecated fields, still here to not break the old save files
+    @Expose(serialize = false)
+    private String customGcode1 = null;
+
+    @Expose(serialize = false)
+    private String customGcode2 = null;
+
+    @Expose(serialize = false)
+    private String customGcode3 = null;
+
+    @Expose(serialize = false)
+    private String customGcode4 = null;
+
+    @Expose(serialize = false)
+    private String customGcode5 = null;
+    //^^^ deprecated fields, still here to not break the old save files
+
+    private final Map<Integer, Macro> macros = new HashMap() {{
+        put(1, new Macro("C1", "incremental move nowhere", "G91 X0 Y0;"));
     }};
 
     private String language = "en_US";
@@ -273,20 +294,44 @@ public class Settings {
         setCustomGcode(5, gcode);
     }
 
+    private void migrateLegacyMacros() {
+        if (customGcode1 != null) {
+            setCustomGcode(1, customGcode1);
+            customGcode1 = null;
+        }
+        if (customGcode2 != null) {
+            setCustomGcode(2, customGcode2);
+            customGcode2 = null;
+        }
+        if (customGcode3 != null) {
+            setCustomGcode(3, customGcode3);
+            customGcode3 = null;
+        }
+        if (customGcode4 != null) {
+            setCustomGcode(4, customGcode4);
+            customGcode4 = null;
+        }
+        if (customGcode5 != null) {
+            setCustomGcode(5, customGcode5);
+            customGcode5 = null;
+        }
+    }
+
     public String getCustomGcode(Integer index) {
-       String gcode = customGcodes.get(index);
-        if (gcode == null) {
+        migrateLegacyMacros();
+        Macro macro = macros.get(index);
+        if (macro == null) {
             return "";
         } else {
-            return gcode;
+            return macro.getGcode();
         }
     }
 
     public void setCustomGcode(Integer index, String gcode) {
         if (gcode == null || gcode.trim().isEmpty()) {
-            customGcodes.remove(index);
+            macros.remove(index);
         } else {
-            customGcodes.put(index, gcode);
+            macros.put(index, new Macro(null, null, gcode));
         }
     }
 
