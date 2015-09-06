@@ -3,6 +3,8 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 
+import java.util.*;
+
 public class Settings {
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
@@ -28,11 +30,10 @@ public class Settings {
     private double smallArcThreshold = 2.0;
     private double smallArcSegmentLength = 1.3;
     private String defaultUnits = "mm";
-    private String customGcode1 = "G91 X0 Y0;";
-    private String customGcode2 = "";
-    private String customGcode3 = "";
-    private String customGcode4 = "";
-    private String customGcode5 = "";
+    private final Map<Integer, String> customGcodes = new HashMap() {{
+        put(1, "G91 X0 Y0;");
+    }};
+
     private String language = "en_US";
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
@@ -231,46 +232,63 @@ public class Settings {
         public void setDefaultUnits(String units) {
             defaultUnits = units;
         }
-        
-        public String getCustomGcode1() {
-		return customGcode1;
-	}
-        
-        public void setCustomGcode1(String gcode) {
-		this.customGcode1 = gcode;
-	}
-        
-        public String getCustomGcode2() {
-		return customGcode2;
-	}
-        
-        public void setCustomGcode2(String gcode) {
-		this.customGcode2 = gcode;
-	}
-        
-        public String getCustomGcode3() {
-		return customGcode3;
-	}
-        
-        public void setCustomGcode3(String gcode) {
-		this.customGcode3 = gcode;
-	}
-        
-        public String getCustomGcode4() {
-		return customGcode4;
-	}
-        
-        public void setCustomGcode4(String gcode) {
-		this.customGcode4 = gcode;
-	}
-        
-        public String getCustomGcode5() {
-		return customGcode5;
-	}
-        
-        public void setCustomGcode5(String gcode) {
-		this.customGcode5 = gcode;
-	}
+
+    public String getCustomGcode1() {
+        return getCustomGcode(1);
+    }
+
+    public void setCustomGcode1(String gcode) {
+        setCustomGcode(1, gcode);
+    }
+
+    public String getCustomGcode2() {
+        return getCustomGcode(2);
+    }
+
+    public void setCustomGcode2(String gcode) {
+        setCustomGcode(2, gcode);
+    }
+
+    public String getCustomGcode3() {
+        return getCustomGcode(3);
+    }
+
+    public void setCustomGcode3(String gcode) {
+        setCustomGcode(3, gcode);
+    }
+
+    public String getCustomGcode4() {
+        return getCustomGcode(4);
+    }
+
+    public void setCustomGcode4(String gcode) {
+        setCustomGcode(4, gcode);
+    }
+
+    public String getCustomGcode5() {
+        return getCustomGcode(5);
+    }
+
+    public void setCustomGcode5(String gcode) {
+        setCustomGcode(5, gcode);
+    }
+
+    public String getCustomGcode(Integer index) {
+       String gcode = customGcodes.get(index);
+        if (gcode == null) {
+            return "";
+        } else {
+            return gcode;
+        }
+    }
+
+    public void setCustomGcode(Integer index, String gcode) {
+        if (gcode == null || gcode.trim().isEmpty()) {
+            customGcodes.remove(index);
+        } else {
+            customGcodes.put(index, gcode);
+        }
+    }
 
         public String getLanguage() {
             return this.language;
