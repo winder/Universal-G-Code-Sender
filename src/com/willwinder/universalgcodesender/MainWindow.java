@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.GrblController;
@@ -66,10 +67,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
 
@@ -217,11 +215,14 @@ implements KeyListener, ControllerListener, ControlStateListener {
         mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
         mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
         mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
-        mw.customGcodeText1.setText(mw.settings.getCustomGcode1());
-        mw.customGcodeText2.setText(mw.settings.getCustomGcode2());
-        mw.customGcodeText3.setText(mw.settings.getCustomGcode3());
-        mw.customGcodeText4.setText(mw.settings.getCustomGcode4());
-        mw.customGcodeText5.setText(mw.settings.getCustomGcode5());
+
+        //Macro panel
+        initMacroButtons(mw.settings.getMacro(1), mw.customGcodeText1, mw.customGcodeButton1);
+        initMacroButtons(mw.settings.getMacro(2), mw.customGcodeText2, mw.customGcodeButton2);
+        initMacroButtons(mw.settings.getMacro(3), mw.customGcodeText3, mw.customGcodeButton3);
+        initMacroButtons(mw.settings.getMacro(4), mw.customGcodeText4, mw.customGcodeButton4);
+        initMacroButtons(mw.settings.getMacro(5), mw.customGcodeText5, mw.customGcodeButton5);
+
         mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
         mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
 //        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
@@ -278,6 +279,18 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 }
             }
         });
+    }
+
+    private static void initMacroButtons(Macro macro, JTextField field, JButton button) {
+        if (macro != null) {
+            field.setText(macro.getGcode());
+//            if (macro.getName() != null) {
+//               button.setText(macro.getName());
+//            }
+            if (macro.getDescription() != null) {
+                button.setToolTipText(macro.getDescription());
+            }
+        }
     }
 
     /** This method is called from within the constructor to
@@ -2346,6 +2359,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.baudLabel.setText(Localization.getString("mainWindow.swing.baudLabel"));
         this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
         this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
+        this.cancelButton.setToolTipText("cancel fool!");
         this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 Localization.getString("mainWindow.swing.connectionPanel")));

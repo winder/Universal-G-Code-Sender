@@ -90,6 +90,7 @@ public class SettingsFactory {
                     out.setCustomGcode5(properties.getProperty("customGcode5", ""));
                     out.setLanguage(properties.getProperty("language", "en_US"));
 	    	}
+            out.finalizeInitialization();
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
         }

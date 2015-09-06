@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.Since;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
@@ -52,15 +51,44 @@ public class Settings {
     //^^^ deprecated fields, still here to not break the old save files
 
     private final Map<Integer, Macro> macros = new HashMap() {{
-        put(1, new Macro("C1", "incremental move nowhere", "G91 X0 Y0;"));
+        put(1, new Macro(null, null, "G91 X0 Y0;"));
     }};
 
     private String language = "en_US";
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
 
+    /**
+     * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
+     */
 	public Settings() {
 	}
+
+    /**
+     * Null legacy fields and move data to current data structures
+     */
+    public void finalizeInitialization() {
+        if (customGcode1 != null) {
+            setCustomGcode(1, customGcode1);
+            customGcode1 = null;
+        }
+        if (customGcode2 != null) {
+            setCustomGcode(2, customGcode2);
+            customGcode2 = null;
+        }
+        if (customGcode3 != null) {
+            setCustomGcode(3, customGcode3);
+            customGcode3 = null;
+        }
+        if (customGcode4 != null) {
+            setCustomGcode(4, customGcode4);
+            customGcode4 = null;
+        }
+        if (customGcode5 != null) {
+            setCustomGcode(5, customGcode5);
+            customGcode5 = null;
+        }
+    }
 
 	public String getFirmwareVersion() {
 		return firmwareVersion;
@@ -255,7 +283,8 @@ public class Settings {
         }
 
     public String getCustomGcode1() {
-        return getCustomGcode(1);
+        Macro macro = getMacro(1);
+        return macro == null ? "" : macro.getGcode();
     }
 
     public void setCustomGcode1(String gcode) {
@@ -263,7 +292,8 @@ public class Settings {
     }
 
     public String getCustomGcode2() {
-        return getCustomGcode(2);
+        Macro macro = getMacro(2);
+        return macro == null ? "" : macro.getGcode();
     }
 
     public void setCustomGcode2(String gcode) {
@@ -271,7 +301,8 @@ public class Settings {
     }
 
     public String getCustomGcode3() {
-        return getCustomGcode(3);
+        Macro macro = getMacro(3);
+        return macro == null ? "" : macro.getGcode();
     }
 
     public void setCustomGcode3(String gcode) {
@@ -279,7 +310,8 @@ public class Settings {
     }
 
     public String getCustomGcode4() {
-        return getCustomGcode(4);
+        Macro macro = getMacro(4);
+        return macro == null ? "" : macro.getGcode();
     }
 
     public void setCustomGcode4(String gcode) {
@@ -287,44 +319,16 @@ public class Settings {
     }
 
     public String getCustomGcode5() {
-        return getCustomGcode(5);
+        Macro macro = getMacro(5);
+        return macro == null ? "" : macro.getGcode();
     }
 
     public void setCustomGcode5(String gcode) {
         setCustomGcode(5, gcode);
     }
 
-    private void migrateLegacyMacros() {
-        if (customGcode1 != null) {
-            setCustomGcode(1, customGcode1);
-            customGcode1 = null;
-        }
-        if (customGcode2 != null) {
-            setCustomGcode(2, customGcode2);
-            customGcode2 = null;
-        }
-        if (customGcode3 != null) {
-            setCustomGcode(3, customGcode3);
-            customGcode3 = null;
-        }
-        if (customGcode4 != null) {
-            setCustomGcode(4, customGcode4);
-            customGcode4 = null;
-        }
-        if (customGcode5 != null) {
-            setCustomGcode(5, customGcode5);
-            customGcode5 = null;
-        }
-    }
-
-    public String getCustomGcode(Integer index) {
-        migrateLegacyMacros();
-        Macro macro = macros.get(index);
-        if (macro == null) {
-            return "";
-        } else {
-            return macro.getGcode();
-        }
+    public Macro getMacro(Integer index) {
+        return macros.get(index);
     }
 
     public void setCustomGcode(Integer index, String gcode) {
