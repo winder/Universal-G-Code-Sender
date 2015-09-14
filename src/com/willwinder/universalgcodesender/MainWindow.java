@@ -162,6 +162,11 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+                settings.setCustomGcode1(this.customGcodeText1.getText());
+                settings.setCustomGcode2(this.customGcodeText2.getText());
+                settings.setCustomGcode3(this.customGcodeText3.getText());
+                settings.setCustomGcode4(this.customGcodeText4.getText());
+                settings.setCustomGcode5(this.customGcodeText5.getText());
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){
