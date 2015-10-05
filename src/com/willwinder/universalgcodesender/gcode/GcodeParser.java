@@ -337,9 +337,19 @@ public class GcodeParser {
     }
 
     public List<String> preprocessCommands(Collection<String> commands) {
-        List<String> result = new ArrayList<>(commands.size());
+        int count = commands.size();
+        int interval = count / 1000;
+        List<String> result = new ArrayList<>(count);
 
+        int i = 0;
+        double row = 0;
         for (String command : commands) {
+            i++;
+            row++;
+            if (i >= interval) {
+                System.out.println("row "+row+" of "+count + "("+(row/count)+"%)");
+                i = 0;
+            }
             result.addAll(preprocessCommand(command));
         }
 
