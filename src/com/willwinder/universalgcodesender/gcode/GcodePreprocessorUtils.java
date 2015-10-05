@@ -36,6 +36,17 @@ import javax.vecmath.Point3d;
  */
 public class GcodePreprocessorUtils {
 
+    public static final String EMPTY = "";
+    private static Pattern COMMENT_PAREN = Pattern.compile("\\([^\\(]*\\)");
+    private static Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
+    private static Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
+    private static Pattern WHITESPACE = Pattern.compile("\\s");
+    static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
+
+    static private int decimalLength = -1;
+    private static Pattern decimalPattern;
+    private static DecimalFormat decimalFormatter;
+
     /**
      * Searches the command string for an 'f' and replaces the speed value 
      * between the 'f' and the next space with a percentage of that speed.
@@ -66,10 +77,14 @@ public class GcodePreprocessorUtils {
         String newCommand = command;
 
         // Remove any comments within ( parentheses ) using regex "\([^\(]*\)"
-        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", "");
+
+
+        newCommand = COMMENT_PAREN.matcher(command).replaceAll(EMPTY);
+//        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", EMPTY);
 
         // Remove any comment beginning with ';' using regex ";.*"
-        newCommand = newCommand.replaceAll(";.*", "");
+//        newCommand = newCommand.replaceAll(";.*", EMPTY);
+        newCommand = COMMENT_SEMICOLON.matcher(newCommand).replaceAll(EMPTY);
 
         // Don't send these to the controller.
         if (newCommand.endsWith("%")) {
@@ -83,14 +98,13 @@ public class GcodePreprocessorUtils {
      * Searches for a comment in the input string and returns the first match.
      */
     static public String parseComment(String command) {
-        String comment = "";
+        String comment = EMPTY;
 
         // REGEX: Find any comment, includes the comment characters:
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
         
-        Pattern pattern = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
-        Matcher matcher = pattern.matcher(command);
+        Matcher matcher = COMMENTPARSE.matcher(command);
         if (matcher.find()){
             comment = matcher.group(0);
         }
@@ -99,34 +113,39 @@ public class GcodePreprocessorUtils {
     }
     
     static public String truncateDecimals(int length, String command) {
-        StringBuilder df = new StringBuilder();
-        
-        // Build up the decimal formatter.
-        df.append("#");
-        
-        if (length != 0) { df.append("."); }
-        for (int i=0; i < length; i++) {
-            df.append('#');
+        if (length != decimalLength) {
+            StringBuilder df = new StringBuilder();
+
+            // Build up the decimal formatter.
+            df.append("#");
+
+            if (length != 0) {
+                df.append(".");
+            }
+            for (int i = 0; i < length; i++) {
+                df.append('#');
+            }
+
+            decimalFormatter = new DecimalFormat(df.toString(), Localization.dfs);
+
+            // Build up the regular expression.
+            df = new StringBuilder();
+            df.append("\\d+\\.\\d");
+            for (int i = 0; i < length; i++) {
+                df.append("\\d");
+            }
+            df.append('+');
+            decimalPattern = Pattern.compile(df.toString());
+            decimalLength = length;
         }
-        
-        DecimalFormat formatter = new DecimalFormat(df.toString(), Localization.dfs);
-        
-        // Build up the regular expression.
-        df = new StringBuilder();
-        df.append("\\d+\\.\\d");
-        for (int i=0; i < length; i++) {
-            df.append("\\d");
-        }
-        df.append('+');
-        Pattern pattern = Pattern.compile(df.toString());
-        Matcher matcher = pattern.matcher(command);
+        Matcher matcher = decimalPattern.matcher(command);
 
         // Build up the truncated command.
         Double d;
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             d = Double.parseDouble(matcher.group());
-            matcher.appendReplacement(sb, formatter.format(d));
+            matcher.appendReplacement(sb, decimalFormatter.format(d));
         }
         matcher.appendTail(sb);
         
@@ -136,7 +155,8 @@ public class GcodePreprocessorUtils {
     
     
     static public String removeAllWhitespace(String command) {
-        return command.replaceAll("\\s","");
+//        return command.replaceAll("\\s", EMPTY);
+        return WHITESPACE.matcher(command).replaceAll(EMPTY);
     }
     
     static public List<String> parseCodes(List<String> args, char code) {
@@ -152,7 +172,7 @@ public class GcodePreprocessorUtils {
         return l;
     }
     
-    static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
+
     static public List<Integer> parseGCodes(String command) {
         Matcher matcher = gPattern.matcher(command);
         List<Integer> codes = new ArrayList<>();

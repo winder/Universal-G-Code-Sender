@@ -591,6 +591,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 cs = Charset.forName(fr.getEncoding());
             }
             List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
+            System.out.println("Finished loading");
             if (this.processedCommandLines == null || forceReprocess)
                 this.processedCommandLines = gcp.preprocessCommands(lines);
 
