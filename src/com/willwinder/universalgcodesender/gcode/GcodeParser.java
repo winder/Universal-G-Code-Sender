@@ -347,7 +347,7 @@ public class GcodeParser {
             i++;
             row++;
             if (i >= interval) {
-                System.out.println("row " + (int)row + " of " + count + "(" + (row/count) + "%)");
+                System.out.println("row " + (int)row + " of " + count);
                 i = 0;
             }
             result.addAll(preprocessCommand(command));
