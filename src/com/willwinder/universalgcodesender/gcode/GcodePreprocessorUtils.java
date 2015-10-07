@@ -41,9 +41,9 @@ public class GcodePreprocessorUtils {
     private static Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
     private static Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
     private static Pattern WHITESPACE = Pattern.compile("\\s");
-    static private Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
+    private static Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
 
-    static private int decimalLength = -1;
+    private static int decimalLength = -1;
     private static Pattern decimalPattern;
     private static DecimalFormat decimalFormatter;
 
@@ -77,13 +77,7 @@ public class GcodePreprocessorUtils {
         String newCommand = command;
 
         // Remove any comments within ( parentheses ) using regex "\([^\(]*\)"
-
-
         newCommand = COMMENT_PAREN.matcher(command).replaceAll(EMPTY);
-//        newCommand = newCommand.replaceAll("\\([^\\(]*\\)", EMPTY);
-
-        // Remove any comment beginning with ';' using regex ";.*"
-//        newCommand = newCommand.replaceAll(";.*", EMPTY);
         newCommand = COMMENT_SEMICOLON.matcher(newCommand).replaceAll(EMPTY);
 
         // Don't send these to the controller.
@@ -103,7 +97,6 @@ public class GcodePreprocessorUtils {
         // REGEX: Find any comment, includes the comment characters:
         //              "(?<=\()[^\(\)]*|(?<=\;)[^;]*"
         //              "(?<=\\()[^\\(\\)]*|(?<=\\;)[^;]*"
-        
         Matcher matcher = COMMENTPARSE.matcher(command);
         if (matcher.find()){
             comment = matcher.group(0);
@@ -114,29 +107,9 @@ public class GcodePreprocessorUtils {
     
     static public String truncateDecimals(int length, String command) {
         if (length != decimalLength) {
-            StringBuilder df = new StringBuilder();
+            //Only build the decimal formatter if the truncation length has changed.
+            updateDecimalFormatter(length);
 
-            // Build up the decimal formatter.
-            df.append("#");
-
-            if (length != 0) {
-                df.append(".");
-            }
-            for (int i = 0; i < length; i++) {
-                df.append('#');
-            }
-
-            decimalFormatter = new DecimalFormat(df.toString(), Localization.dfs);
-
-            // Build up the regular expression.
-            df = new StringBuilder();
-            df.append("\\d+\\.\\d");
-            for (int i = 0; i < length; i++) {
-                df.append("\\d");
-            }
-            df.append('+');
-            decimalPattern = Pattern.compile(df.toString());
-            decimalLength = length;
         }
         Matcher matcher = decimalPattern.matcher(command);
 
@@ -152,10 +125,35 @@ public class GcodePreprocessorUtils {
         // Return new command.
         return sb.toString();
     }
-    
-    
+
+    private static void updateDecimalFormatter(int length) {
+        StringBuilder df = new StringBuilder();
+
+        // Build up the decimal formatter.
+        df.append("#");
+
+        if (length != 0) {
+            df.append(".");
+        }
+        for (int i = 0; i < length; i++) {
+            df.append('#');
+        }
+
+        decimalFormatter = new DecimalFormat(df.toString(), Localization.dfs);
+
+        // Build up the regular expression.
+        df = new StringBuilder();
+        df.append("\\d+\\.\\d");
+        for (int i = 0; i < length; i++) {
+            df.append("\\d");
+        }
+        df.append('+');
+        decimalPattern = Pattern.compile(df.toString());
+        decimalLength = length;
+    }
+
+
     static public String removeAllWhitespace(String command) {
-//        return command.replaceAll("\\s", EMPTY);
         return WHITESPACE.matcher(command).replaceAll(EMPTY);
     }
     
