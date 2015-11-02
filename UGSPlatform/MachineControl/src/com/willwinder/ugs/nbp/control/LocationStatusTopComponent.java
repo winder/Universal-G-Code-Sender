@@ -45,9 +45,9 @@ import org.openide.util.NbBundle.Messages;
         preferredID = "StatusTopComponent"
 )
 @Messages({
-    "CTL_StatusAction=Status",
-    "CTL_StatusTopComponent=Status Window",
-    "HINT_StatusTopComponent=This is a Status window"
+    "CTL_StatusAction=Machine Status",
+    "CTL_StatusTopComponent=Machine Status",
+    "HINT_StatusTopComponent=This is the Machine Status"
 })
 public final class LocationStatusTopComponent extends TopComponent implements ControllerListener {
     BackendAPI backend;

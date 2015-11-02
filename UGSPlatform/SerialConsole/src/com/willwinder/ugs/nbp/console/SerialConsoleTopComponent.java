@@ -61,9 +61,9 @@ import org.openide.util.NbPreferences;
         preferredID = "SerialConsoleTopComponent"
 )
 @Messages({
-    "CTL_SerialConsoleAction=SerialConsole",
-    "CTL_SerialConsoleTopComponent=SerialConsole Window",
-    "HINT_SerialConsoleTopComponent=This is a SerialConsole window"
+    "CTL_SerialConsoleAction=Console",
+    "CTL_SerialConsoleTopComponent=Console",
+    "HINT_SerialConsoleTopComponent=This is the UGS Console"
 })
 public final class SerialConsoleTopComponent extends TopComponent implements ControllerListener, MouseListener {
 

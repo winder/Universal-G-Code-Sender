@@ -61,8 +61,8 @@ import org.openide.util.NbPreferences;
 )
 @Messages({
     "CTL_ConnectionGUIAction=ConnectionGUI",
-    "CTL_ConnectionGUITopComponent=ConnectionGUI Window",
-    "HINT_ConnectionGUITopComponent=This is a ConnectionGUI window"
+    "CTL_ConnectionGUITopComponent=ConnectionGUI",
+    "HINT_ConnectionGUITopComponent=This is a ConnectionGUI"
 })
 
 @OnStart

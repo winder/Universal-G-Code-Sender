@@ -52,7 +52,7 @@ import org.openide.util.NbBundle.Messages;
 )
 @Messages({
     "CTL_ActionsAction=Actions",
-    "CTL_ActionsTopComponent=Actions Window",
+    "CTL_ActionsTopComponent=Actions",
     "HINT_ActionsTopComponent=This is a Actions window"
 })
 public final class ActionsTopComponent extends TopComponent {

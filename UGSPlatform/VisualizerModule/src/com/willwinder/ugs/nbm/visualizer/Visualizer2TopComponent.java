@@ -61,8 +61,8 @@ import org.openide.util.NbBundle.Messages;
 )
 @Messages({
     "CTL_Visualizer2Action=Visualizer",
-    "CTL_Visualizer2TopComponent=Visualizer Window",
-    "HINT_Visualizer2TopComponent=This is a Visualizer window"
+    "CTL_Visualizer2TopComponent=Visualizer",
+    "HINT_Visualizer2TopComponent=This is the Visualizer"
 })
 public final class Visualizer2TopComponent extends TopComponent implements ControlStateListener {
     static GLCapabilities glCaps;
