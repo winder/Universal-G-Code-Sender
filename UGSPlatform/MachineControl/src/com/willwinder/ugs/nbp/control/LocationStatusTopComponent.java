@@ -37,7 +37,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "status", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbp.control.StatusTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
