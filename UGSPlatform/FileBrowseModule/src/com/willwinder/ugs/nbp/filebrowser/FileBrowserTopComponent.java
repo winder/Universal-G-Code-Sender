@@ -54,9 +54,9 @@ import org.openide.windows.WindowManager;
         preferredID = "FileBrowserTopComponentTopComponent"
 )
 @Messages({
-    "CTL_FileBrowserTopComponentAction=FileBrowserTopComponent",
-    "CTL_FileBrowserTopComponentTopComponent=FileBrowserTopComponent Window",
-    "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowserTopComponent window"
+    "CTL_FileBrowserTopComponentAction=FileBrowser",
+    "CTL_FileBrowserTopComponentTopComponent=FileBrowser",
+    "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowser"
 })
 public final class FileBrowserTopComponent extends TopComponent implements ControlStateListener {
     BackendAPI backend;

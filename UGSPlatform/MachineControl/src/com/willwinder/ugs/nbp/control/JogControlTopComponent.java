@@ -58,8 +58,8 @@ import org.openide.util.NbBundle.Messages;
 )
 @Messages({
     "CTL_JogControlAction=JogControl",
-    "CTL_JogControlTopComponent=JogControl Window",
-    "HINT_JogControlTopComponent=This is a JogControl window"
+    "CTL_JogControlTopComponent=Machine Jogging",
+    "HINT_JogControlTopComponent=This is a Jog Control window"
 })
 public final class JogControlTopComponent extends TopComponent implements ControlStateListener {
 
