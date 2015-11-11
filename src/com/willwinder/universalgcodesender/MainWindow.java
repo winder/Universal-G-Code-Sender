@@ -1583,17 +1583,18 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
     private void multiplyStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
         double stepSize = this.getStepSize();
-
+        Units selectedUnits = getSelectedUnits();
+        
         if (stepSize < 0.01) {            
             stepSize = 0.01;
         } else if (stepSize >= 0.01 && stepSize < 0.1) {            
             stepSize = 0.1;
         }  else if (stepSize >= 0.1 && stepSize < 1) {            
             stepSize = 1;
-        }  else if (stepSize >= 1 && stepSize < 10) {            
+        }  else if (stepSize >= 1 && stepSize < 10 && selectedUnits.equals(Units.MM)) {            
             stepSize = 10;
-        }  else if (stepSize >= 10) {            
-            stepSize = 100;
+        }  else if (stepSize >= 10 && selectedUnits.equals(Units.MM)) {            
+            stepSize = 100;	
         }
 
         this.setStepSize(stepSize);
