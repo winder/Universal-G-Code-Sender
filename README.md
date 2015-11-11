@@ -78,10 +78,15 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 
 Changelog
 ---------
-1.0.8 -> 2.0
+1.0.8 -> 1.0.9
+* Many performance improvements.
 * New serial library: JSSC
+* Updated 3D library.
+* Maven build script (Thanks nitram509!)
 * TinyG support enabled.
-* Translations: French, Greek, Dutch
+* XLCD support.
+* Bug fixes: INCH/MM jog units, visualizer fixes (crashes and OSX support), "Null stream" error, localization crashes, 
+* Translations: French, Greek, Dutch, Italian
 
 1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
