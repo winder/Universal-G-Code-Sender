@@ -81,7 +81,7 @@ public class MainWindow extends javax.swing.JFrame
 implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
-    final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
+    final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
     static Boolean showNightlyWarning = true;
     
     private PendantUI pendantUI;
