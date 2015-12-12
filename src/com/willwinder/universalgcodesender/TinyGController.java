@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import javax.vecmath.Point3d;
@@ -56,8 +57,8 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public long getJobLengthEstimate(Collection<String> jobLines) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    public long getJobLengthEstimate(File gcodeFile) {
+        return 0;
     }
 
     @Override

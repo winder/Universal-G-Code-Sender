@@ -64,7 +64,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     Units units = Units.UNKNOWN;
     
     // GUI State
-    File gcodeFile;
+    File gcodeFile = null;
+    File processedGcodeFile = null;
+    File tempDir = null;
     String lastComment;
     String activeState;
     ControlState controlState = ControlState.COMM_DISCONNECTED;
@@ -104,7 +106,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
-        try(BufferedReader br = new BufferedReader(new FileReader(this.getFile()))) {
+        try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
             try (PrintWriter pw = new PrintWriter(f, "UTF-8")) {
                 for(String line; (line = br.readLine()) != null; ) {
                     Collection<String> lines = gcp.preprocessCommand(line);
@@ -263,17 +265,33 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
+    
+    @Override
+    public void setTempDir(File file) throws IOException {
+        if (file.isDirectory())
+            this.tempDir = file;
+        else
+            throw new IOException("Temp dir " + file.toString() + " is not a directory.");
+    }
+
+    private File getTempDir() {
+        if (tempDir == null) {
+            tempDir = new File(System.getProperty("java.io.tmpdir"));
+        }
+        return tempDir;
+    }
 
     @Override
-    public void setFile(File file) throws Exception {
+    public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
+        this.processedGcodeFile = null;
         initializeProcessedLines(true);
         this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
     @Override
-    public File getFile() {
+    public File getGcodeFile() {
         logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
@@ -297,7 +315,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 this.G91Mode = false;
             }
 
-            this.controller.queueCommands(processedCommandLines);
+            //this.controller.queueCommands(processedCommandLines);
+            this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
 
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
@@ -583,8 +602,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         return connected;
     }
 
-    Collection<String> processedCommandLines = null;
-    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, IOException {
+    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, Exception {
         if (this.gcodeFile != null) {
             Charset cs;
             try (FileReader fr = new FileReader(this.gcodeFile)) {
@@ -593,8 +611,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
             System.out.println("Finished loading");
             long start = System.currentTimeMillis();
-            if (this.processedCommandLines == null || forceReprocess) {
-                this.processedCommandLines = gcp.preprocessCommands(lines);
+            if (this.processedGcodeFile == null || forceReprocess) {
+                this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
+                this.preprocessAndExportToFile(processedGcodeFile);
             }
             long end = System.currentTimeMillis();
             System.out.println("Took " + (end - start) + "ms to preprocess");
@@ -605,7 +624,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 Thread estimateThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        estimatedSendDuration = controller.getJobLengthEstimate(processedCommandLines);
+                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile);
                     }
                 });
                 estimateThread.start();

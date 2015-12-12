@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.io.Reader;
 import java.util.ArrayList;
 
 /**
@@ -58,6 +59,7 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
+    abstract public void queueStreamForComm(final Reader input);
     abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public boolean areActiveCommands();
     abstract public void streamCommands();
@@ -67,9 +69,16 @@ public abstract class AbstractCommunicator {
     abstract public void softReset();
     abstract public void responseMessage(String response);
     
+    public void setConnection(Connection c) {
+        conn = c;
+    }
+
     //do common operations (related to the connection, that is shared by all communicators)
     protected boolean openCommPort(String name, int baud) throws Exception {
-        conn = ConnectionFactory.getConnectionFor(name, baud);
+        if (conn == null) {
+            conn = ConnectionFactory.getConnectionFor(name, baud);
+        }
+
         if (conn != null) {
             conn.setCommunicator(this);
         }
@@ -79,9 +88,7 @@ public abstract class AbstractCommunicator {
         }
         
         //open it
-        conn.openPort(name, baud);
-
-        return true;
+        return conn.openPort(name, baud);
     }
 
 

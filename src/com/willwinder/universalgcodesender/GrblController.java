@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,7 +73,7 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public long getJobLengthEstimate(Collection<String> jobLines) {
+    public long getJobLengthEstimate(File gcodeFile) {
         // Pending update to support cross-platform and multiple GRBL versions.
         return 0;
         //GrblSimulator simulator = new GrblSimulator(settings.getSettings());

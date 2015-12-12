@@ -39,7 +39,7 @@ public interface BackendAPIReadOnly {
     public void addControllerListener(ControllerListener listener);
     
     // Config options
-    public File getFile();
+    public File getGcodeFile();
 
     // Controller status
     public boolean isConnected();
