@@ -108,7 +108,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void preprocessAndExportToFile(File f) throws Exception {
         try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
             try (PrintWriter pw = new PrintWriter(f, "UTF-8")) {
+                int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
+                    i++;
+                    if (i % 1000000 == 0) {
+                        logger.trace("i: " + i);
+                    }
                     Collection<String> lines = gcp.preprocessCommand(line);
                     for(String processedLine : lines) {
                         pw.println(processedLine);
@@ -608,15 +613,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             try (FileReader fr = new FileReader(this.gcodeFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
-            List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
-            System.out.println("Finished loading");
+            //List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
+            logger.info("Finished loading");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
                 this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
                 this.preprocessAndExportToFile(processedGcodeFile);
             }
             long end = System.currentTimeMillis();
-            System.out.println("Took " + (end - start) + "ms to preprocess");
+            logger.info("Took " + (end - start) + "ms to preprocess");
 
             if (this.isConnected()) {
                 this.estimatedSendDuration = -1L;
