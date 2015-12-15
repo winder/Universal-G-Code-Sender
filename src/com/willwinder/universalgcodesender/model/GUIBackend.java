@@ -112,7 +112,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 for(String line; (line = br.readLine()) != null; ) {
                     i++;
                     if (i % 1000000 == 0) {
-                        logger.trace("i: " + i);
+                        logger.log(Level.FINE, "i: " + i);
                     }
                     Collection<String> lines = gcp.preprocessCommand(line);
                     for(String processedLine : lines) {
