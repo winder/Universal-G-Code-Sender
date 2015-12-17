@@ -47,6 +47,7 @@ import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -91,6 +92,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
+    private final int consoleSize = 1024 * 1024;
 
     // TODO: Move command history box into a self contained object.
     private int commandNum = -1;
@@ -427,6 +429,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
 
         consoleTextArea.setColumns(20);
+        consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -763,7 +766,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)

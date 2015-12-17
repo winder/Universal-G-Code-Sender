@@ -198,6 +198,9 @@
             <Component class="javax.swing.JTextArea" name="consoleTextArea">
               <Properties>
                 <Property name="columns" type="int" value="20"/>
+                <Property name="document" type="javax.swing.text.Document" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+                  <Connection code="new LengthLimitedDocument(consoleSize)" type="code"/>
+                </Property>
                 <Property name="rows" type="int" value="5"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[32767, 32767]"/>
