@@ -71,7 +71,7 @@ public class LengthLimitedDocument extends PlainDocument {
     public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
         if (str == null) return;
 
-        // Make sure the string will fit, then append it it.
+        // Make sure the string will fit, then append it.
         truncateDataFor(str.length());
         super.insertString(getLength(), str, a);
     }
