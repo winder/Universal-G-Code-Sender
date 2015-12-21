@@ -507,37 +507,57 @@ public class GrblControllerTest {
     public void testIsReadyToStreamFile() throws Exception {
         System.out.println("isReadyToStreamFile");
         GrblController instance = new GrblController(mgc);
+        boolean asserted;
         
         // Test 1. Grbl has not yet responded.
         try {
+            asserted = false;
             instance.openCommPort("blah", 1234);
             instance.isReadyToStreamFile();
         } catch (Exception e) {
+            asserted = true;
             assertEquals("Grbl has not finished booting.", e.getMessage());
         }
+        assertTrue(asserted);
         
         // Test 2. No streaming if comm isn't open.
+        instance.closeCommPort();
         instance.rawResponseHandler("Grbl 0.8c");
         try {
+            asserted = false;
             instance.isReadyToStreamFile();
         } catch (Exception e) {
+            asserted = true;
             assertEquals("Cannot begin streaming, comm port is not open.", e.getMessage());
         }
+        assertTrue(asserted);
         
-        // Test 3. Grbl ready, ready for send.
+        // Test 3. No commands queued.
+        instance.openCommPort("blah", 1234);
+        try {
+            asserted = false;
+            instance.isReadyToStreamFile();
+        } catch (Exception e) {
+            asserted = true;
+            assertEquals("There are no commands queued for streaming.", e.getMessage());
+        }
+        assertTrue(asserted);
+
+        // Test 4. Grbl ready, ready for send.
+        instance.queueCommand("G0X0");
         Boolean result = instance.isReadyToStreamFile();
         assertEquals(true, result);
         
-        // Test 4. Can't send during active command.
-        instance.sendCommandImmediately("blah");
-        boolean exceptionFired = false;
+        // Test 5. Can't send during active command.
         try {
+            mgc.areActiveCommands = true;
+            asserted = false;
             instance.isReadyToStreamFile();
         } catch (Exception e) {
-            exceptionFired = true;
-            assertEquals("Cannot stream while there are active commands (controller).", e.getMessage());
+            asserted = true;
+            assertEquals("Cannot stream while there are active commands (communicator).", e.getMessage());
         }
-        assertTrue(exceptionFired);
+        assertTrue(asserted);
     }
 
     /**
@@ -889,30 +909,6 @@ public class GrblControllerTest {
         assertEquals(0, instance.rowsRemaining());
     }
     
-    /**
-     * Test of commandSent method, of class GrblController.
-     */
-    @Test
-    public void testCommandSent() {
-        System.out.println("commandSent");
-        GcodeCommand command = new GcodeCommand("G0X1");
-        GrblController instance = new GrblController(mgc);
-        
-        // Test 1. Sending command when none are queued.
-        boolean hitException = false;
-        try {
-            instance.commandSent(command.getCommandString());
-        } catch (Exception e) {
-            hitException = true;
-        }
-        assertEquals(true, hitException);
-        
-        // Test 2.
-        // The good case is utilized extensively in other tests.
-        
-        // TODO: Test that commandSent triggers a listener event.
-    }
-
     /**
      * Test of commandComplete method, of class GrblController.
      */

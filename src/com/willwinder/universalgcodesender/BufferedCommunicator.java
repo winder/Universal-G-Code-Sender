@@ -24,7 +24,13 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.utils.CommUtils;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -34,7 +40,10 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     
     // Command streaming variables
     private Boolean sendPaused = false;
-    private LinkedBlockingDeque<String> commandBuffer;     // All commands in a file
+    private String nextCommand;                            // Cached command.
+    Object nextCommandLock = new Object();
+    private BufferedReader commandStream;                  // Arbitrary number of commands
+    private LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
     private LinkedBlockingDeque<String> activeStringList;  // Currently running commands
     private int sentBufferSize = 0;
     
@@ -65,6 +74,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     /**
      * Add command to the command queue outside file mode. This is the only way
      * to send a command to the comm port without being in file mode.
+     * These commands will be sent prior to any queued stream, they should
+     * typically be control commands calculated by the application.
      */
     @Override
     public void queueStringForComm(final String input) {        
@@ -76,6 +87,15 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         
         // Add command to queue
         this.commandBuffer.add(commandString);
+    }
+    
+    /**
+     * Arbitrary length of commands to send to the communicator.
+     * @param input 
+     */
+    @Override
+    public void queueStreamForComm(final Reader input) {
+        commandStream = new BufferedReader(input);
     }
        
     /*
@@ -107,15 +127,48 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     }
     
     /**
+     * Returns the next command with the following priority:
+     * 1. nextCommand object if set.
+     * 2. Front of the commandBuffer collection.
+     * 3. Next line in the commandStream.
+     * @return 
+     */
+    private Optional<String> getNextCommand() {
+        synchronized (nextCommandLock) {
+            if (nextCommand != null) {
+                return Optional.of(nextCommand);
+            }
+            else if (!this.commandBuffer.isEmpty()) {
+                nextCommand = commandBuffer.pop();
+            }
+            else try {
+                if (commandStream != null && commandStream.ready()) {
+                    // TODO: Special reader is going to be needed for feature parity
+                    //       it will need to handle this thing.
+                    nextCommand = commandStream.readLine() + "\n";
+                }
+            } catch (IOException ex) {
+                // Fall through to null handling.
+            }
+
+            if (nextCommand != null) {
+                return Optional.of(nextCommand);
+            }
+        }
+        return Optional.empty();
+    }
+   
+    /**
      * Streams anything in the command buffer to the comm port.
      */
     @Override
     public void streamCommands() {
-        if (this.commandBuffer.size() == 0) {
-            // NO-OP
+        // If there are no commands to send, exit.
+        if (!this.getNextCommand().isPresent()) {
             return;
         }
         
+        // If streaming is paused, exit.
         if (this.sendPaused) {
             // Another NO-OP
             return;
@@ -125,10 +178,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         // There is room in the buffer.
         // AND We are NOT in single step mode.
         // OR  We are in single command mode and there are no active commands.
-        while (CommUtils.checkRoomInBuffer(this.sentBufferSize, this.commandBuffer.peek(), this.getBufferSize())
+        while (this.getNextCommand().isPresent() &&
+                CommUtils.checkRoomInBuffer(
+                    this.sentBufferSize,
+                    this.getNextCommand().get(),
+                    this.getBufferSize())
                 && allowMoreCommands()) {
 
-            String commandString = this.commandBuffer.pop();
+            String commandString = this.getNextCommand().get();
             this.activeStringList.add(commandString);
 
             this.sentBufferSize += commandString.length();
@@ -141,7 +198,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
             try {
                 this.sendingCommand(commandString);
                 conn.sendStringToComm(commandString);
-
+                synchronized(nextCommandLock) {
+                    nextCommand = null;
+                }
                 dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -163,7 +222,11 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     
     @Override
     public void cancelSend() {
+        synchronized (nextCommandLock) {
+            this.nextCommand = null;
+        }
         this.commandBuffer.clear();
+        this.commandStream = null;
     }
     
     /**

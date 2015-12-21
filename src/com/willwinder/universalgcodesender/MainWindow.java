@@ -47,6 +47,7 @@ import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
@@ -91,6 +92,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
+    private final int consoleSize = 1024 * 1024;
 
     // TODO: Move command history box into a self contained object.
     private int commandNum = -1;
@@ -427,6 +429,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
 
         consoleTextArea.setColumns(20);
+        consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
@@ -763,7 +766,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1509,9 +1512,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
             try {
                 this.backend.connect(firmware, port, baudRate);
                 
-                if (this.backend.getFile() != null) {
+                if (this.backend.getGcodeFile() != null) {
                     if (this.vw != null) {
-                        vw.setGcodeFile(this.backend.getFile().getAbsolutePath());
+                        vw.setGcodeFile(this.backend.getGcodeFile().getAbsolutePath());
                     }
                 }
                 
@@ -1653,7 +1656,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setFile(gcodeFile);
+                backend.setGcodeFile(gcodeFile);
                 if (this.vw != null) {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
@@ -2224,7 +2227,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.pauseButton.setText(backend.getPauseResumeText());
         this.sendButton.setEnabled(backend.canSend());
         
-        boolean hasFile = backend.getFile() != null;
+        boolean hasFile = backend.getGcodeFile() != null;
         if (hasFile) {
                 this.saveButton.setEnabled(true);
                 this.visualizeButton.setEnabled(true);
@@ -2493,7 +2496,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     @Override
     public void commandQueued(GcodeCommand command) {
-        this.commandTable.addRow(command);
+        //this.commandTable.addRow(command);
     }
      
     @Override
@@ -2502,7 +2505,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 // sent
-                commandTable.updateRow(command);
+                commandTable.addRow(command);
+                //commandTable.updateRow(command);
             }});
     }
     
