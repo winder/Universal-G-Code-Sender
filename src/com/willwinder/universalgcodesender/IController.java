@@ -8,6 +8,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import java.io.File;
+import java.io.Reader;
 import java.util.Collection;
 
 /**
@@ -50,7 +52,7 @@ public interface IController {
     public int getStatusUpdateRate();
     
     public GcodeCommandCreator getCommandCreator();
-    public long getJobLengthEstimate(Collection<String> jobLines);
+    public long getJobLengthEstimate(File gcodeFile);
     
     /*
     Serial
@@ -82,6 +84,7 @@ public interface IController {
     Stream content
     */
     public void sendCommandImmediately(String str) throws Exception;
+    public void queueStream(Reader r);
     public void queueCommand(String str) throws Exception;
     public void queueCommands(Iterable<String> commandStrings) throws Exception;
 }

@@ -33,6 +33,8 @@ import javax.swing.table.TableColumn;
  * @author wwinder
  */
 public class GcodeTable extends JTable {
+    GcodeTableModel model = null;
+
     private boolean autoWindowScroll = false;
     private int offset = 0;
     
@@ -42,6 +44,8 @@ public class GcodeTable extends JTable {
     final private static int COL_INDEX_RESPONSE = 3;
     
     public GcodeTable() {
+        model = new GcodeTableModel();
+        this.setModel(model);
         getTableHeader().setReorderingAllowed(false);
     }
     
@@ -69,7 +73,7 @@ public class GcodeTable extends JTable {
      */
     public void clear() {
         while (getModel().getRowCount()>0){
-            ((GcodeTableModel)this.getModel()).removeRow(0);
+            model.removeRow(0);
         }
         this.offset = 0;
     }
@@ -84,7 +88,7 @@ public class GcodeTable extends JTable {
         else if (command.hasComment())
             commandString += "; " + command.getComment();
             
-        ((GcodeTableModel)this.getModel()).addRow(new Object[]{
+        model.addRow(new Object[]{
             commandString,
             command.isSent(),
             command.isDone(),

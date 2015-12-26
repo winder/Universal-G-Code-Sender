@@ -38,6 +38,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public String queuedString;
     public byte   sentByte;
     public Boolean open = false;
+    public Boolean areActiveCommands = false;
     
     // Function calls.
     public int numOpenCommPortCalls;
@@ -110,7 +111,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     @Override
     public boolean areActiveCommands() {
         this.numAreActiveCommandsCalls++;
-        return false;
+        return this.areActiveCommands;
     }
 
     @Override
