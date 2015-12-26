@@ -437,7 +437,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         bottomTabbedPane.addTab("Console", jScrollPane2);
 
-        commandTable.setModel(new com.willwinder.universalgcodesender.uielements.GcodeTableModel());
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
         commandTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(commandTable);
@@ -1199,7 +1198,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1342,7 +1341,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(6, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
