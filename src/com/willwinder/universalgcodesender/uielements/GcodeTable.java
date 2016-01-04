@@ -22,18 +22,31 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author wwinder
  */
 public class GcodeTable extends JTable {
+    static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
+
     GcodeTableModel model = null;
+    //DefaultTableModel model = null;
+    File persistTo = null;
+    PrintWriter writer = null;
+    int maxLines = -1;
 
     private boolean autoWindowScroll = false;
     private int offset = 0;
@@ -42,11 +55,43 @@ public class GcodeTable extends JTable {
     final private static int COL_INDEX_SENT     = 1;
     final private static int COL_INDEX_DONE     = 2;
     final private static int COL_INDEX_RESPONSE = 3;
+
+    static String[] columnNames = {
+        Localization.getString("gcodeTable.command"),
+        Localization.getString("gcodeTable.sent"),
+        Localization.getString("gcodeTable.done"),
+        Localization.getString("gcodeTable.response")
+    };
+    static Class[] columnTypes =  {
+        String.class,
+        Boolean.class,
+        Boolean.class,
+        String.class
+    };
     
     public GcodeTable() {
-        model = new GcodeTableModel();
+        model = new GcodeTableModel(null, columnNames, columnTypes);
+        /*
+        model = new DefaultTableModel(null, columnNames) {
+            @Override
+            public Class<?> getColumnClass(int idx) {
+                return columnTypes[idx];
+            }
+        };
+        */
+
         this.setModel(model);
         getTableHeader().setReorderingAllowed(false);
+    }
+
+    public void setPersistenceProperties(File f, int maxLines) {
+        try {
+            this.persistTo = f;
+            writer = new PrintWriter(f, "UTF-8");
+            writer.append(StringUtils.join(columnNames,","));
+        } catch(Exception e) {
+            logger.log(Level.SEVERE, "Failed to open file.", e);
+        }
     }
     
     @Override
@@ -72,9 +117,12 @@ public class GcodeTable extends JTable {
      * Delete all rows from the table.
      */
     public void clear() {
-        while (getModel().getRowCount()>0){
+        /*
+        while (model.getRowCount()>0){
             model.removeRow(0);
         }
+        */
+        model.dropData();
         this.offset = 0;
     }
     
@@ -101,18 +149,18 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void updateRow(final GcodeCommand command) {
-
+        
         String commandString = command.getCommandString();
         int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
-        if (!command.isComment() && commandString != getModel().getValueAt(row, COL_INDEX_COMMAND)) {
-            System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, getModel().getValueAt(row, COL_INDEX_COMMAND) ) ;
+        if (!command.isComment() && commandString != model.getValueAt(row, COL_INDEX_COMMAND)) {
+            System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, model.getValueAt(row, COL_INDEX_COMMAND) ) ;
         }
 
-        getModel().setValueAt(command.isSent(),      row, COL_INDEX_SENT);
-        getModel().setValueAt(command.isDone(),      row, COL_INDEX_DONE);
-        getModel().setValueAt(command.getResponse(), row, COL_INDEX_RESPONSE);
+        model.setValueAt(command.isSent(),      row, COL_INDEX_SENT);
+        model.setValueAt(command.isDone(),      row, COL_INDEX_DONE);
+        model.setValueAt(command.getResponse(), row, COL_INDEX_RESPONSE);
         
         scrollTable(row);
     }
