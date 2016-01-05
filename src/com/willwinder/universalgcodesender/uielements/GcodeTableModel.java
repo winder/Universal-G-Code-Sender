@@ -95,9 +95,10 @@ class GcodeTableModel extends AbstractTableModel {
     }
     
     void addRow(Object[] row) {
+        int rowCount = getRowCount();
         //modelData.add(row);
         modelData.addElement(row);
-        fireTableDataChanged();
+        fireTableRowsInserted(rowCount, rowCount);
     }
 
     @Override

@@ -24,13 +24,23 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import org.apache.commons.lang3.StringUtils;
@@ -40,6 +50,56 @@ import org.apache.commons.lang3.StringUtils;
  * @author wwinder
  */
 public class GcodeTable extends JTable {
+    public static void main(String[] args) {
+        JFrame frame = new JFrame();
+        frame.setTitle("Persistent JTable Test");
+        frame.setSize(300,200);
+        frame.setBackground(Color.gray);
+
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BorderLayout());
+        frame.getContentPane().add(topPanel);
+
+        JScrollPane scrollPane = new JScrollPane();
+        //topPanel.add(scrollPane);
+
+        String columns[] = {"Column 1", "Column 2", "Column 3", "Checkbox"};
+        Class columnData[] = { String.class, String.class, String.class, Boolean.class};
+        final GcodeTable table = new GcodeTable();
+        scrollPane.setViewportView(table);
+
+        final JTextArea text = new JTextArea();
+
+        JButton addDataButton = new JButton();
+        addDataButton.setText("Add num rows:");
+        addDataButton.setEnabled(true);
+        addDataButton.addActionListener(new java.awt.event.ActionListener() {
+            int rowNum = 1;
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                final int num = Integer.parseInt(text.getText());
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < num; i++) {
+                            table.addRow(new GcodeCommand("Command " + rowNum++));
+                            Thread.yield();
+                        }
+                        System.gc();
+                    }
+                });
+            }
+        });
+
+
+        BoxLayout bl = new BoxLayout(topPanel, BoxLayout.Y_AXIS);
+        topPanel.setLayout(bl);
+        topPanel.add(addDataButton);
+        topPanel.add(text);
+        topPanel.add(scrollPane);
+
+        frame.setVisible(true);
+    }
+
     static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
     GcodeTableModel model = null;
