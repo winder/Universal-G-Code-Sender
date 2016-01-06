@@ -12,6 +12,7 @@ public class Settings {
     private double manualModeStepSize = 1;
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
+    private boolean commandTableEnabled = false;
     // Sender Settings
     private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
@@ -103,6 +104,14 @@ public class Settings {
 	public void setVerboseOutputEnabled(boolean verboseOutputEnabled) {
 		this.verboseOutputEnabled = verboseOutputEnabled;
 	}
+
+    public boolean isCommandTableEnabled() {
+        return commandTableEnabled;
+    }
+
+    public void setCommandTableEnabled(boolean enabled) {
+        commandTableEnabled = enabled;
+    }
 
         public WindowSettings getMainWindowSettings() {
             return this.mainWindowSettings;

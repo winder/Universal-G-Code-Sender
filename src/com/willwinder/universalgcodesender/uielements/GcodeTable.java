@@ -102,8 +102,8 @@ public class GcodeTable extends JTable {
 
     static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
-    GcodeTableModel model = null;
-    //DefaultTableModel model = null;
+    //GcodeTableModel model = null;
+    DefaultTableModel model = null;
     File persistTo = null;
     PrintWriter writer = null;
     int maxLines = -1;
@@ -130,15 +130,13 @@ public class GcodeTable extends JTable {
     };
     
     public GcodeTable() {
-        model = new GcodeTableModel(null, columnNames, columnTypes);
-        /*
+        //model = new GcodeTableModel(null, columnNames, columnTypes);
         model = new DefaultTableModel(null, columnNames) {
             @Override
             public Class<?> getColumnClass(int idx) {
                 return columnTypes[idx];
             }
         };
-        */
 
         this.setModel(model);
         getTableHeader().setReorderingAllowed(false);
@@ -177,12 +175,10 @@ public class GcodeTable extends JTable {
      * Delete all rows from the table.
      */
     public void clear() {
-        /*
         while (model.getRowCount()>0){
             model.removeRow(0);
         }
-        */
-        model.dropData();
+        //model.dropData();
         this.offset = 0;
     }
     

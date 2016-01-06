@@ -406,6 +406,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public boolean isSending() {
         return this.controlState == ControlState.COMM_SENDING;
     }
+
+    @Override
+    public boolean isIdle() {
+        try {
+            return this.controller.isReadyToStreamFile();
+        } catch(Exception e) {
+            return false;
+        }
+    }
     
     @Override
     public boolean isPaused() {

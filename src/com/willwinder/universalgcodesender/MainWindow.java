@@ -136,6 +136,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
         checkScrollWindow();
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
+        showCommandTableCheckBox.setSelected(settings.isCommandTableEnabled());
         firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
         customGcodeText1.setText(settings.getCustomGcode1());
         customGcodeText2.setText(settings.getCustomGcode2());
@@ -163,6 +164,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+                settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
                 settings.setCustomGcode1(customGcodeText1.getText());
                 settings.setCustomGcode2(customGcodeText2.getText());
@@ -223,6 +225,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
         mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
         mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
+        mw.showCommandTableCheckBox.setSelected(mw.settings.isCommandTableEnabled());
+        mw.showCommandTableCheckBoxActionPerformed(null);
         mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
         mw.customGcodeText1.setText(mw.settings.getCustomGcode1());
         mw.customGcodeText2.setText(mw.settings.getCustomGcode2());
@@ -277,6 +281,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
                 mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
                 mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings(mw.settings);
                 
@@ -304,9 +309,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         jogUnitsGroup = new javax.swing.ButtonGroup();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         bottomTabbedPane = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        commandTableScrollPane = new javax.swing.JScrollPane();
         commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         commandsPanel = new javax.swing.JPanel();
@@ -398,6 +403,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         workPositionZValueLabel = new javax.swing.JLabel();
         latestCommentValueLabel = new javax.swing.JLabel();
         latestCommentLabel = new javax.swing.JLabel();
+        showCommandTableCheckBox = new javax.swing.JCheckBox();
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -433,15 +439,15 @@ implements KeyListener, ControllerListener, ControlStateListener {
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
-        jScrollPane2.setViewportView(consoleTextArea);
+        consoleScrollPane.setViewportView(consoleTextArea);
 
-        bottomTabbedPane.addTab("Console", jScrollPane2);
+        bottomTabbedPane.addTab("Console", consoleScrollPane);
 
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
         commandTable.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(commandTable);
+        commandTableScrollPane.setViewportView(commandTable);
 
-        bottomTabbedPane.addTab("Command Table", jScrollPane1);
+        bottomTabbedPane.addTab("Command Table", commandTableScrollPane);
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
@@ -1344,6 +1350,14 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .addContainerGap(10, Short.MAX_VALUE))
         );
 
+        showCommandTableCheckBox.setSelected(true);
+        showCommandTableCheckBox.setText("Enable command table");
+        showCommandTableCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showCommandTableCheckBoxActionPerformed(evt);
+            }
+        });
+
         settingsMenu.setText("Settings");
 
         grblConnectionSettingsMenuItem.setText("Sender Settings");
@@ -1405,6 +1419,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(scrollWindowCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(showVerboseOutputCheckBox)
+                        .add(18, 18, 18)
+                        .add(showCommandTableCheckBox)
                         .addContainerGap())
                     .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1423,7 +1439,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
-                            .add(showVerboseOutputCheckBox))))
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(showVerboseOutputCheckBox)
+                                .add(showCommandTableCheckBox)))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
         );
@@ -1501,7 +1519,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
-            this.clearTable();
+            this.commandTable.clear();
             this.sentRowsValueLabel.setText("0");
 
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
@@ -2061,6 +2079,27 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
+    private void showCommandTableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCommandTableCheckBoxActionPerformed
+        showCommandTable(showCommandTableCheckBox.isSelected());
+    }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
+
+    private void showCommandTable(Boolean enabled) {
+        if (enabled && (backend.isConnected() && !backend.isIdle())) {
+            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
+            showCommandTableCheckBox.setSelected(false);
+            return;
+        }
+
+        this.commandTable.clear();
+        this.bottomTabbedPane.setEnabledAt(1, enabled);
+        commandTableScrollPane.setEnabled(enabled);
+        if (!enabled) {
+            this.bottomTabbedPane.setSelectedIndex(0);
+        } else {
+            this.bottomTabbedPane.setSelectedIndex(1);
+        }
+    }
+
     private void executeCustomGcode(String str)
     {
         str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
@@ -2387,6 +2426,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.sendButton.setText(Localization.getString("mainWindow.swing.sendButton"));
         this.sentRowsLabel.setText(Localization.getString("mainWindow.swing.sentRowsLabel"));
         this.showVerboseOutputCheckBox.setText(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+        this.showCommandTableCheckBox.setText(Localization.getString("mainWindow.swing.showCommandTableCheckBox"));
         this.softResetMachineControl.setText(Localization.getString("mainWindow.swing.softResetMachineControl"));
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
@@ -2459,10 +2499,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         */
     }
     
-    void clearTable() {
-        this.commandTable.clear();
-    }
-        
     private static void displayErrorDialog(final String errorMessage) {
         java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
             JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
@@ -2504,7 +2540,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 // sent
-                commandTable.addRow(command);
+                if (commandTableScrollPane.isEnabled()) {
+                    commandTable.addRow(command);
+                }
                 //commandTable.updateRow(command);
             }});
     }
@@ -2522,7 +2560,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                commandTable.updateRow(command);
+                if (commandTableScrollPane.isEnabled()) {
+                    commandTable.updateRow(command);
+                }
             }});
     }
 
@@ -2595,9 +2635,11 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
     private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
+    private javax.swing.JScrollPane commandTableScrollPane;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JPanel commandsPanel;
     private javax.swing.JPanel connectionPanel;
+    private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JButton customGcodeButton1;
@@ -2626,8 +2668,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
@@ -2671,6 +2711,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel sentRowsLabel;
     private javax.swing.JLabel sentRowsValueLabel;
     private javax.swing.JMenu settingsMenu;
+    private javax.swing.JCheckBox showCommandTableCheckBox;
     private javax.swing.JCheckBox showVerboseOutputCheckBox;
     private javax.swing.JButton softResetMachineControl;
     private javax.swing.JMenuItem startPendantServerButton;
