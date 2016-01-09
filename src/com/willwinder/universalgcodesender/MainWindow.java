@@ -159,11 +159,27 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
-                settings.setCustomGcode1(customGcodeText1.getText());
-                settings.setCustomGcode2(customGcodeText2.getText());
-                settings.setCustomGcode3(customGcodeText3.getText());
-                settings.setCustomGcode4(customGcodeText4.getText());
-                settings.setCustomGcode5(customGcodeText5.getText());
+
+                if (!customGcodeText1.getText().equals(settings.getCustomGcode1())) {
+                    settings.setCustomGcode1(customGcodeText1.getText());
+                }
+
+                if (!customGcodeText2.getText().equals(settings.getCustomGcode2())) {
+                    settings.setCustomGcode2(customGcodeText2.getText());
+                }
+
+                if (!customGcodeText3.getText().equals(settings.getCustomGcode3())) {
+                    settings.setCustomGcode3(customGcodeText3.getText());
+                }
+
+                if (!customGcodeText4.getText().equals(settings.getCustomGcode4())) {
+                    settings.setCustomGcode4(customGcodeText4.getText());
+                }
+
+                if (!customGcodeText5.getText().equals(settings.getCustomGcode5())) {
+                    settings.setCustomGcode5(customGcodeText5.getText());
+                }
+
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){
