@@ -41,6 +41,7 @@ public class GcodePreprocessorUtils {
     private static Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
     private static Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
     private static Pattern WHITESPACE = Pattern.compile("\\s");
+    private static Pattern M30 = Pattern.compile("[Mm]30");
     private static Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
 
     private static int decimalLength = -1;
@@ -155,6 +156,10 @@ public class GcodePreprocessorUtils {
 
     static public String removeAllWhitespace(String command) {
         return WHITESPACE.matcher(command).replaceAll(EMPTY);
+    }
+
+    static public String removeM30(String command) {
+        return M30.matcher(command).replaceAll(EMPTY);
     }
     
     static public List<String> parseCodes(List<String> args, char code) {

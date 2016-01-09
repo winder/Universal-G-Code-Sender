@@ -53,7 +53,7 @@ import org.openide.util.NbPreferences;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "console", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.console.SerialConsoleTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -61,9 +61,9 @@ import org.openide.util.NbPreferences;
         preferredID = "SerialConsoleTopComponent"
 )
 @Messages({
-    "CTL_SerialConsoleAction=SerialConsole",
-    "CTL_SerialConsoleTopComponent=SerialConsole Window",
-    "HINT_SerialConsoleTopComponent=This is a SerialConsole window"
+    "CTL_SerialConsoleAction=Console",
+    "CTL_SerialConsoleTopComponent=Console",
+    "HINT_SerialConsoleTopComponent=This is the UGS Console"
 })
 public final class SerialConsoleTopComponent extends TopComponent implements ControllerListener, MouseListener {
 

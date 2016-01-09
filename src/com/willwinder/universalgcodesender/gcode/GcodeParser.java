@@ -368,6 +368,8 @@ public class GcodeParser {
         if (removeAllWhitespace) {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
         }
+        
+        newCommand = GcodePreprocessorUtils.removeM30(newCommand);
 
         if (newCommand.length() > 0) {
 

@@ -37,7 +37,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "output", openAtStartup = true)
+@TopComponent.Registration(mode = "status", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbp.control.StatusTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -45,9 +45,9 @@ import org.openide.util.NbBundle.Messages;
         preferredID = "StatusTopComponent"
 )
 @Messages({
-    "CTL_StatusAction=Status",
-    "CTL_StatusTopComponent=Status Window",
-    "HINT_StatusTopComponent=This is a Status window"
+    "CTL_StatusAction=Machine Status",
+    "CTL_StatusTopComponent=Machine Status",
+    "HINT_StatusTopComponent=This is the Machine Status"
 })
 public final class LocationStatusTopComponent extends TopComponent implements ControllerListener {
     BackendAPI backend;

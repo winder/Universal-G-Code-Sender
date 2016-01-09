@@ -52,7 +52,7 @@ import org.openide.util.NbPreferences;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "leftSlidingSide", openAtStartup = true)
+@TopComponent.Registration(mode = "connection", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.connection.ConnectionGUITopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -61,8 +61,8 @@ import org.openide.util.NbPreferences;
 )
 @Messages({
     "CTL_ConnectionGUIAction=ConnectionGUI",
-    "CTL_ConnectionGUITopComponent=ConnectionGUI Window",
-    "HINT_ConnectionGUITopComponent=This is a ConnectionGUI window"
+    "CTL_ConnectionGUITopComponent=ConnectionGUI",
+    "HINT_ConnectionGUITopComponent=This is a ConnectionGUI"
 })
 
 @OnStart

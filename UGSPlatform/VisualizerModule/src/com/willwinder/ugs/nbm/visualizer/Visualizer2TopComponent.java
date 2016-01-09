@@ -52,7 +52,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = false)
+@TopComponent.Registration(mode = "visualizer", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -60,9 +60,9 @@ import org.openide.util.NbBundle.Messages;
         preferredID = "Visualizer2TopComponent"
 )
 @Messages({
-    "CTL_Visualizer2Action=Visualizer2",
-    "CTL_Visualizer2TopComponent=Visualizer2 Window",
-    "HINT_Visualizer2TopComponent=This is a Visualizer2 window"
+    "CTL_Visualizer2Action=Visualizer",
+    "CTL_Visualizer2TopComponent=Visualizer",
+    "HINT_Visualizer2TopComponent=This is the Visualizer"
 })
 public final class Visualizer2TopComponent extends TopComponent implements ControlStateListener {
     static GLCapabilities glCaps;
