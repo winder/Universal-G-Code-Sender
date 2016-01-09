@@ -33,6 +33,8 @@ public class Settings {
     private double smallArcSegmentLength = 1.3;
     private String defaultUnits = "mm";
 
+    private boolean showNightlyWarning = true;
+
     //vvv deprecated fields, still here to not break the old save files
     @Expose(serialize = false)
     private String customGcode1 = null;
@@ -281,6 +283,14 @@ public class Settings {
         public void setDefaultUnits(String units) {
             defaultUnits = units;
         }
+
+    public boolean isShowNightlyWarning() {
+        return showNightlyWarning;
+    }
+
+    public void setShowNightlyWarning(boolean showNightlyWarning) {
+        this.showNightlyWarning = showNightlyWarning;
+    }
 
     public String getCustomGcode1() {
         Macro macro = getMacro(1);

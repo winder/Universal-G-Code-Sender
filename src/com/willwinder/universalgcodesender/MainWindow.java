@@ -80,8 +80,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
-    static Boolean showNightlyWarning = true;
-    
+
     private PendantUI pendantUI;
     public Settings settings;
     
@@ -102,20 +101,20 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
-        if (MainWindow.showNightlyWarning && MainWindow.VERSION.contains("nightly")) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                String message = 
-                          "This version of Universal Gcode Sender is a nightly build.\n"
-                        + "It contains all of the latest features and improvements, \n"
-                        + "but may also have bugs that still need to be fixed.\n"
-                        + "\n"
-                        + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message, 
-                    "", JOptionPane.INFORMATION_MESSAGE);
-        }});
-        }
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
+        if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                String message =
+                        "This version of Universal Gcode Sender is a nightly build.\n"
+                                + "It contains all of the latest features and improvements, \n"
+                                + "but may also have bugs that still need to be fixed.\n"
+                                + "\n"
+                                + "If you encounter any problems, please report them on github.";
+                JOptionPane.showMessageDialog(new JFrame(), message,
+                        "", JOptionPane.INFORMATION_MESSAGE);
+            }});
+        }
         initComponents();
         initProgram();
         backend.addControllerListener(this);
