@@ -22,7 +22,9 @@ Downloads
 
 <b>Stable builds</b>
 <br />
-[1.0.8](http://bit.ly/1BSKon6) - The last stable build before 2.0 work.
+[1.0.9](http://bit.ly/1M6z2ys) - The last stable build before 2.0 work?
+<br />
+[1.0.8](http://bit.ly/1BSKon6)
 <br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
@@ -31,10 +33,6 @@ Downloads
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
-<b>1.0.8 Known issues</b>
-* The visualizer does not work on OSX. (resolved in nightly build)
-
-<br />
 
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_command_table.png "Command table tab during a file send.")
 ![3D Visualizer Window](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_visualizer.png "Visualizer window during a file send.")
@@ -78,10 +76,15 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 
 Changelog
 ---------
-1.0.8 -> 2.0
+1.0.8 -> 1.0.9
+* Many performance improvements.
 * New serial library: JSSC
+* Updated 3D library.
+* Maven build script (Thanks nitram509!)
 * TinyG support enabled.
-* Translations: French, Greek, Dutch
+* XLCD support.
+* Bug fixes: INCH/MM jog units, visualizer fixes (crashes and OSX support), "Null stream" error, localization crashes, 
+* Translations: French, Greek, Dutch, Italian
 
 1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)

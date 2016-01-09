@@ -46,7 +46,7 @@ import org.openide.windows.WindowManager;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = true)
+@TopComponent.Registration(mode = "middle_left", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.filebrowser.FileBrowserTopComponentTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -54,9 +54,9 @@ import org.openide.windows.WindowManager;
         preferredID = "FileBrowserTopComponentTopComponent"
 )
 @Messages({
-    "CTL_FileBrowserTopComponentAction=FileBrowserTopComponent",
-    "CTL_FileBrowserTopComponentTopComponent=FileBrowserTopComponent Window",
-    "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowserTopComponent window"
+    "CTL_FileBrowserTopComponentAction=FileBrowser",
+    "CTL_FileBrowserTopComponentTopComponent=FileBrowser",
+    "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowser"
 })
 public final class FileBrowserTopComponent extends TopComponent implements ControlStateListener {
     BackendAPI backend;

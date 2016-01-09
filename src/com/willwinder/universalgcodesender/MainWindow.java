@@ -79,7 +79,7 @@ public class MainWindow extends javax.swing.JFrame
 implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
-    final private static String VERSION = Version.getVersion() + " " + Version.getTimestamp();
+    final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
     static Boolean showNightlyWarning = true;
     
     private PendantUI pendantUI;
@@ -160,6 +160,11 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+                settings.setCustomGcode1(customGcodeText1.getText());
+                settings.setCustomGcode2(customGcodeText2.getText());
+                settings.setCustomGcode3(customGcodeText3.getText());
+                settings.setCustomGcode4(customGcodeText4.getText());
+                settings.setCustomGcode5(customGcodeText5.getText());
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){

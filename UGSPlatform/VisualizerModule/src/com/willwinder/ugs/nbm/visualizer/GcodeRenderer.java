@@ -284,8 +284,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      */
     @Override
     public void display(GLAutoDrawable drawable) {
-        if (!isDrawable) return;
-        
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();

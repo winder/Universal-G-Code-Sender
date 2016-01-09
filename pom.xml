@@ -10,6 +10,9 @@
   <packaging>jar</packaging>
 
   <properties>
+    <timestamp>${maven.build.timestamp}</timestamp>
+    <maven.build.timestamp.format>MMM dd, yyyy</maven.build.timestamp.format>
+
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.build.releaseSourceDirectory>release_files</project.build.releaseSourceDirectory>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -102,12 +105,14 @@
     <testSourceDirectory>test/</testSourceDirectory>
 
     <resources>
+      <!-- PendantUI -->
       <resource>
-        <directory>src/</directory>
+        <directory>src</directory>
         <includes>
-          <include>resources/**/*.*</include>
+          <include>resources/**</include>
         </includes>
       </resource>
+      <!-- 
       <resource>
         <targetPath>${project.build.outputDirectory}/com/willwinder/universalgcodesender/il8n</targetPath>
         <directory>src/com/willwinder/universalgcodesender/il8n</directory>
@@ -115,11 +120,12 @@
           <include>MessagesBundle.*</include>
         </includes>
       </resource>
+      -->
       <resource>
-        <directory>src/resources</directory>
+        <directory>src</directory>
         <filtering>true</filtering>
         <includes>
-          <include>build.properties</include>
+          <include>resources/build.properties</include>
         </includes>
       </resource>
     </resources>

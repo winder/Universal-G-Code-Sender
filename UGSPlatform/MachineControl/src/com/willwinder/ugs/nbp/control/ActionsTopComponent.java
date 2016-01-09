@@ -43,7 +43,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = true)
+@TopComponent.Registration(mode = "connection", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.ActionsTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -52,7 +52,7 @@ import org.openide.util.NbBundle.Messages;
 )
 @Messages({
     "CTL_ActionsAction=Actions",
-    "CTL_ActionsTopComponent=Actions Window",
+    "CTL_ActionsTopComponent=Actions",
     "HINT_ActionsTopComponent=This is a Actions window"
 })
 public final class ActionsTopComponent extends TopComponent {
