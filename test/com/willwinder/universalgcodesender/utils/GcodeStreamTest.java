@@ -68,15 +68,18 @@ public class GcodeStreamTest {
         FileUtils.deleteDirectory(tempDir);
     }
 
+    /**
+     * Writes 1,000,000 rows to a file then reads it back out.
+     */
     @Test
     public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException {
-        int rows = 10000;
+        int rows = 1000000;
         File f = new File(tempDir,"gcodeFile");
-        GcodeStreamWriter gsw = new GcodeStreamWriter(f);
-        for (int i = 0; i < rows; i++) {
-            gsw.addLine("Line " + i + " before", "Line " + i + " after", null, i);
+        try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+            for (int i = 0; i < rows; i++) {
+                gsw.addLine("Line " + i + " before", "Line " + i + " after", null, i);
+            }
         }
-        gsw.close();
 
         GcodeStreamReader gsr = new GcodeStreamReader(f);
         Assert.assertEquals(rows, gsr.getNumRows());
@@ -90,6 +93,7 @@ public class GcodeStreamTest {
             count++;
             Assert.assertEquals(rows-count, gsr.getNumRowsRemaining());
         }
+
+        Assert.assertEquals(rows, count);
     }
-    
 }

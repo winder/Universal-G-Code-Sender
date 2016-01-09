@@ -69,9 +69,7 @@ public class GcodeStreamReader extends GcodeStream {
         String line = reader.readLine();
         String nextLine[] = parseLine(line);
         if (nextLine.length != NUM_COLUMNS) {
-            throw new IOException("Expected " + NUM_COLUMNS
-                    + " columns, found " + nextLine.length
-                    + " when parsing '" + line + "'");
+            throw new IOException("Corrupt data found while processing gcode stream: " + line);
         }
         numRowsRemaining--;
         return new GcodeCommand(
