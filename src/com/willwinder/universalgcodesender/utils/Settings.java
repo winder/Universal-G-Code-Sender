@@ -341,6 +341,10 @@ public class Settings {
         return macros.get(index);
     }
 
+    public Map<Integer, Macro> getMacros() {
+        return macros;
+    }
+
     public void setCustomGcode(Integer index, String gcode) {
         if (gcode == null || gcode.trim().isEmpty()) {
             macros.remove(index);
