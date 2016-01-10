@@ -34,6 +34,7 @@ public class Settings {
     private String defaultUnits = "mm";
 
     private boolean showNightlyWarning = true;
+    private boolean showSerialPortWarning = true;
 
     //vvv deprecated fields, still here to not break the old save files
     @Expose(serialize = false)
@@ -71,23 +72,23 @@ public class Settings {
      */
     public void finalizeInitialization() {
         if (customGcode1 != null) {
-            setCustomGcode(1, customGcode1);
+            updateMacro(1, null, null, customGcode1);
             customGcode1 = null;
         }
         if (customGcode2 != null) {
-            setCustomGcode(2, customGcode2);
+            updateMacro(2, null, null, customGcode2);
             customGcode2 = null;
         }
         if (customGcode3 != null) {
-            setCustomGcode(3, customGcode3);
+            updateMacro(3, null, null, customGcode3);
             customGcode3 = null;
         }
         if (customGcode4 != null) {
-            setCustomGcode(4, customGcode4);
+            updateMacro(4, null, null, customGcode4);
             customGcode4 = null;
         }
         if (customGcode5 != null) {
-            setCustomGcode(5, customGcode5);
+            updateMacro(5, null, null, customGcode5);
             customGcode5 = null;
         }
     }
@@ -292,60 +293,34 @@ public class Settings {
         this.showNightlyWarning = showNightlyWarning;
     }
 
-    public String getCustomGcode1() {
-        Macro macro = getMacro(1);
-        return macro == null ? "" : macro.getGcode();
+    public boolean isShowSerialPortWarning() {
+        return showSerialPortWarning;
     }
 
-    public void setCustomGcode1(String gcode) {
-        setCustomGcode(1, gcode);
-    }
-
-    public String getCustomGcode2() {
-        Macro macro = getMacro(2);
-        return macro == null ? "" : macro.getGcode();
-    }
-
-    public void setCustomGcode2(String gcode) {
-        setCustomGcode(2, gcode);
-    }
-
-    public String getCustomGcode3() {
-        Macro macro = getMacro(3);
-        return macro == null ? "" : macro.getGcode();
-    }
-
-    public void setCustomGcode3(String gcode) {
-        setCustomGcode(3, gcode);
-    }
-
-    public String getCustomGcode4() {
-        Macro macro = getMacro(4);
-        return macro == null ? "" : macro.getGcode();
-    }
-
-    public void setCustomGcode4(String gcode) {
-        setCustomGcode(4, gcode);
-    }
-
-    public String getCustomGcode5() {
-        Macro macro = getMacro(5);
-        return macro == null ? "" : macro.getGcode();
-    }
-
-    public void setCustomGcode5(String gcode) {
-        setCustomGcode(5, gcode);
+    public void setShowSerialPortWarning(boolean showSerialPortWarning) {
+        this.showSerialPortWarning = showSerialPortWarning;
     }
 
     public Macro getMacro(Integer index) {
-        return macros.get(index);
+        Macro macro = macros.get(index);
+        if (macro == null) {
+            macro = new Macro(index.toString(), null, null);
+        }
+        return macro;
     }
 
-    public void setCustomGcode(Integer index, String gcode) {
+    public void clearMacro(Integer index) {
+        macros.remove(index);
+    }
+
+    public void updateMacro(Integer index, String name, String description, String gcode) {
         if (gcode == null || gcode.trim().isEmpty()) {
             macros.remove(index);
         } else {
-            macros.put(index, new Macro(null, null, gcode));
+            if (name == null) {
+                name = index.toString();
+            }
+            macros.put(index, new Macro(name, description, gcode));
         }
     }
 

@@ -40,4 +40,13 @@ public class Macro {
     public void setGcode(String gcode) {
         this.gcode = gcode;
     }
+
+    @Override
+    public String toString() {
+        return "Macro{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", gcode='" + gcode + '\'' +
+                '}';
+    }
 }
