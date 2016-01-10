@@ -95,5 +95,7 @@ public class GcodeStreamTest {
         }
 
         Assert.assertEquals(rows, count);
+
+        f.delete();
     }
 }

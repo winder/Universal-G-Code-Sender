@@ -41,5 +41,5 @@ public abstract class GcodeStream {
     protected final int COL_COMMENT           = 3;
 
     protected final String separator = "++";
-    protected final String quotedSeparator = Pattern.quote(separator);
+    protected final Pattern splitPattern = Pattern.compile(Pattern.quote(separator));
 }

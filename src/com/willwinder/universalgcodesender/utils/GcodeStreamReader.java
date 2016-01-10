@@ -28,6 +28,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -39,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author wwinder
  */
-public class GcodeStreamReader extends GcodeStream {
+public class GcodeStreamReader extends GcodeStream implements Closeable {
     File file;
     BufferedReader reader;
     int numRows;
@@ -61,7 +62,7 @@ public class GcodeStreamReader extends GcodeStream {
     }
 
     private String[] parseLine(String line) {
-        return line.split(this.quotedSeparator, -1);
+        return splitPattern.split(line, -1);
     }
     public GcodeCommand getNextCommand() throws IOException {
         if (numRowsRemaining == 0) return null;
@@ -77,5 +78,10 @@ public class GcodeStreamReader extends GcodeStream {
                 nextLine[COL_ORIGINAL_COMMAND],
                 nextLine[COL_COMMENT],
                 Integer.parseInt(nextLine[COL_COMMAND_NUMBER]));
+    }
+
+    @Override
+    public void close() throws IOException {
+        reader.close();
     }
 }
