@@ -281,6 +281,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             }
         }
 
+
         org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
 
         GroupLayout.ParallelGroup parallelGroup = macroPanelLayout.createParallelGroup(GroupLayout.LEADING);
@@ -413,6 +414,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
         macroPanel = new javax.swing.JPanel();
+        macroScrollPane = new JScrollPane(macroPanel);
         macroInstructions = new javax.swing.JLabel();
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
@@ -1025,7 +1027,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
-        controlContextTabbedPane.addTab("Macros", macroPanel);
+        controlContextTabbedPane.addTab("Macros", macroScrollPane);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
@@ -2291,21 +2293,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
     }
     
-    private String getNewline() {
-        return "\r\n";
-        
-        /*
-        if (lineBreakNR.isSelected())
-            return "\n\r";
-        else if (lineBreakRN.isSelected())
-            return "\r\n";
-        else if (lineBreakN.isSelected())
-            return "\n";
-        else
-            return "wtfbbq";
-        */
-    }
-    
     void clearTable() {
         this.commandTable.clear();
     }
@@ -2483,6 +2470,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel machinePositionZValueLabel;
     private javax.swing.JLabel macroInstructions;
     private javax.swing.JPanel macroPanel;
+    private javax.swing.JScrollPane macroScrollPane;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
