@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -35,10 +36,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
-import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
@@ -154,26 +151,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
 
-//                if (!customGcodeText1.getText().equals(settings.getCustomGcode1())) {
-//                    settings.setCustomGcode1(customGcodeText1.getText());
-//                }
-//
-//                if (!customGcodeText2.getText().equals(settings.getCustomGcode2())) {
-//                    settings.setCustomGcode2(customGcodeText2.getText());
-//                }
-//
-//                if (!customGcodeText3.getText().equals(settings.getCustomGcode3())) {
-//                    settings.setCustomGcode3(customGcodeText3.getText());
-//                }
-//
-//                if (!customGcodeText4.getText().equals(settings.getCustomGcode4())) {
-//                    settings.setCustomGcode4(customGcodeText4.getText());
-//                }
-//
-//                if (!customGcodeText5.getText().equals(settings.getCustomGcode5())) {
-//                    settings.setCustomGcode5(customGcodeText5.getText());
-//                }
-
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){
@@ -286,12 +263,13 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }
 
     private  void initMacroButtons(Settings settings) {
-        Map<Integer, Macro> macros = settings.getMacros();
-        for (int i = 0; i < macros.size(); i++) {
+        Integer lastMacroIndex = settings.getLastMacroIndex()+1;
+        logger.info((lastMacroIndex) + " macros");
+        for (int i = 0; i <= lastMacroIndex; i++) {
             JButton button = createMacroButton(i);
-            JTextField textField = createMacroTextField();
+            JTextField textField = createMacroTextField(i);
 
-            Macro macro = macros.get(i);
+            Macro macro = settings.getMacro(i);
             if (macro != null) {
                 textField.setText(macro.getGcode());
                 if (macro.getName() != null) {
@@ -302,10 +280,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 }
             }
         }
-
-        //Add extras for future expansion
-        JButton button = createMacroButton(macros.size());
-        JTextField textField = createMacroTextField();
 
         org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
 
@@ -348,8 +322,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         macroPanel.setLayout(macroPanelLayout);
     }
 
-    private JTextField createMacroTextField() {
-        JTextField textField = new JTextField();
+    private JTextField createMacroTextField(int index) {
+        JTextField textField = new MacroTextField(index, settings);
+
         customGcodeTextFields.add(textField);
         return textField;
     }
@@ -1714,36 +1689,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
             MainWindow.displayErrorDialog(e.getMessage());
         }
         
-        /*
-        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-            
-            boolean error = false;
-            String errorMessage = "";
-            @Override
-            protected Boolean doInBackground() throws Exception {
-                try {
-                    backend.send();
-                    resetSentRowLabels(backend.getNumRows());
-                    timer.start();
-                } catch (Exception e) {
-                    timer.stop();
-                    logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
-                    error = true;
-                    errorMessage = e.getMessage();
-                    //MainWindow.displayErrorDialog(e.getMessage());
-                }
-                return true;
-            }
-
-            // Can safely update the GUI from this method.
-            protected void done() {
-                if (error)
-                    MainWindow.displayErrorDialog(errorMessage);
-            }
-        };
-
-        worker.execute();
-        */
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
@@ -1800,30 +1745,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
 	    this.startPendantServerButton.setEnabled(true);
 	    this.stopPendantServerButton.setEnabled(false);
         }//GEN-LAST:event_stopPendantServerButtonActionPerformed
-
-//    private void customGcodeText1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText1ActionPerformed
-//        this.settings.setCustomGcode1(this.customGcodeText1.getText());
-//    }//GEN-LAST:event_customGcodeText1ActionPerformed
-//
-//    private void customGcodeButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton5ActionPerformed
-//        executeCustomGcode(this.customGcodeText5.getText());
-//    }//GEN-LAST:event_customGcodeButton5ActionPerformed
-//
-//    private void customGcodeButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton1ActionPerformed
-//        executeCustomGcode(this.customGcodeText1.getText());
-//    }//GEN-LAST:event_customGcodeButton1ActionPerformed
-//
-//    private void customGcodeButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton2ActionPerformed
-//        executeCustomGcode(this.customGcodeText2.getText());
-//    }//GEN-LAST:event_customGcodeButton2ActionPerformed
-//
-//    private void customGcodeButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton3ActionPerformed
-//        executeCustomGcode(this.customGcodeText3.getText());
-//    }//GEN-LAST:event_customGcodeButton3ActionPerformed
-//
-//    private void customGcodeButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton4ActionPerformed
-//        executeCustomGcode(this.customGcodeText4.getText());
-//    }//GEN-LAST:event_customGcodeButton4ActionPerformed
 
     private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
         try {
@@ -1983,6 +1904,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
     private void executeCustomGcode(String str)
     {
+        if (str == null) {
+            return;
+        }
+
         str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
         final String[] parts = str.split(";");
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -2234,9 +2159,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private void updateCustomGcodeControls(boolean enabled) {
         for(JButton button : customGcodeButtons) {
             button.setEnabled(enabled);
-        }
-        for (JTextField field : customGcodeTextFields) {
-            field.setEnabled(enabled);
         }
     }
 
