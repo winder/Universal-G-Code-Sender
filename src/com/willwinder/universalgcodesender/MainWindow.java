@@ -259,48 +259,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         });
     }
 
-
-
-    private void customGcodeText1ActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void customGcodeText2ActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void customGcodeText3ActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void customGcodeText4ActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void customGcodeText5ActionPerformed(java.awt.event.ActionEvent evt) {
-
-    }
-
-    private void customGcodeButton1ActionPerformed(ActionEvent evt) {
-
-    }
-
-    private void customGcodeButton2ActionPerformed(ActionEvent evt) {
-
-    }
-
-    private void customGcodeButton3ActionPerformed(ActionEvent evt) {
-
-    }
-
-    private void customGcodeButton4ActionPerformed(ActionEvent evt) {
-
-    }
-
-    private void customGcodeButton5ActionPerformed(ActionEvent evt) {
-
-    }
-
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -372,7 +330,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
         macroPane = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, this);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -1863,7 +1821,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
-    private void executeCustomGcode(String str)
+    public void executeCustomGcode(String str)
     {
         if (str == null) {
             return;

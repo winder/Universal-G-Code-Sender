@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.MainWindow;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.jdesktop.layout.*;
@@ -14,6 +15,7 @@ import java.util.*;
 
 public class MacroPanel extends JPanel {
 
+    private MainWindow mainWindow;
     private Settings settings;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
     private java.util.List<JTextField> customGcodeTextFields = new ArrayList<JTextField>();
@@ -22,8 +24,9 @@ public class MacroPanel extends JPanel {
 
     }
 
-    public MacroPanel(Settings settings) {
+    public MacroPanel(Settings settings, MainWindow mainWindow) {
         this.settings = settings;
+        this.mainWindow = mainWindow;
     }
 
     @Override
@@ -126,10 +129,20 @@ public class MacroPanel extends JPanel {
     private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
         //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
         Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
-//        executeCustomGcode(macro.getGcode());
+
+        //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
+        if (mainWindow == null) {
+            System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
+        } else {
+            mainWindow.executeCustomGcode(macro.getGcode());
+        }
     }
 
     public void updateCustomGcodeControls(boolean enabled) {
+        for (JButton button : customGcodeButtons) {
+            button.setEnabled(enabled);
+        }
+
 
     }
 }
