@@ -371,6 +371,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         resetXButton = new javax.swing.JButton();
         resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
+        macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
@@ -982,7 +983,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
-        controlContextTabbedPane.addTab("Macros", macroPanel);
+
+        macroPane.setViewportView(macroPanel);
+
+        controlContextTabbedPane.addTab("Macros", macroPane);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
@@ -2193,7 +2197,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
-//        this.macroInstructions.setText(Localization.getString("mainWindow.swing.macroInstructions"));
+        this.macroPane.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
     }
@@ -2421,6 +2425,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
+    private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;

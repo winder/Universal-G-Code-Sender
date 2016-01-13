@@ -18,10 +18,6 @@ public class MacroPanel extends JPanel {
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
     private java.util.List<JTextField> customGcodeTextFields = new ArrayList<JTextField>();
 
-//    public void init(Settings settings) {
-//        this.settings = settings;
-//    }
-
     public MacroPanel() {
 
     }
@@ -43,11 +39,14 @@ public class MacroPanel extends JPanel {
 
     private void initMacroButtons() {
         if (settings == null) {
+            //I suppose this should be in a text field.
+            System.err.println("settings is null!  Cannot init buttons!");
             return;
         }
         Integer lastMacroIndex = settings.getLastMacroIndex()+1;
 //        logger.info((lastMacroIndex) + " macros");
-        for (int i = 0; i <= lastMacroIndex; i++) {
+
+        for (int i = customGcodeButtons.size(); i <= lastMacroIndex; i++) {
             JButton button = createMacroButton(i);
             JTextField textField = createMacroTextField(i);
 
