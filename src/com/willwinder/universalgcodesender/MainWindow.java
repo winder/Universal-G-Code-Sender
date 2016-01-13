@@ -92,7 +92,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // Duration timer
     private Timer timer;
-    
+
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
@@ -126,7 +126,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         checkScrollWindow();
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
         firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
-        initMacroButtons(settings);
+//        macroPanel1.initMacroButtons(settings);
 
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
@@ -262,85 +262,46 @@ implements KeyListener, ControllerListener, ControlStateListener {
         });
     }
 
-    private  void initMacroButtons(Settings settings) {
-        Integer lastMacroIndex = settings.getLastMacroIndex()+1;
-        logger.info((lastMacroIndex) + " macros");
-        for (int i = 0; i <= lastMacroIndex; i++) {
-            JButton button = createMacroButton(i);
-            JTextField textField = createMacroTextField(i);
-
-            Macro macro = settings.getMacro(i);
-            if (macro != null) {
-                textField.setText(macro.getGcode());
-                if (macro.getName() != null) {
-                    button.setText(macro.getName());
-                }
-                if (macro.getDescription() != null) {
-                    button.setToolTipText(macro.getDescription());
-                }
-            }
-        }
 
 
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
+    private void customGcodeText1ActionPerformed(java.awt.event.ActionEvent evt) {
 
-        GroupLayout.ParallelGroup parallelGroup = macroPanelLayout.createParallelGroup(GroupLayout.LEADING);
-
-        GroupLayout.SequentialGroup sequentialGroup = macroPanelLayout.createSequentialGroup();
-        parallelGroup.add(sequentialGroup);
-
-        sequentialGroup.addContainerGap();
-        GroupLayout.ParallelGroup parallelGroup1 = macroPanelLayout.createParallelGroup(GroupLayout.LEADING);
-        sequentialGroup.add(parallelGroup1);
-
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-            GroupLayout.SequentialGroup group = macroPanelLayout.createSequentialGroup();
-            group.add(customGcodeButtons.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(customGcodeTextFields.get(i));
-            parallelGroup1.add(group);
-        }
-//        sequentialGroup.addContainerGap();
-
-        macroPanelLayout.setHorizontalGroup( parallelGroup );
-        GroupLayout.SequentialGroup sequentialGroup1 = macroPanelLayout.createSequentialGroup();
-        macroPanelLayout.setVerticalGroup(
-                macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(sequentialGroup1
-                                        .add(8, 8, 8)
-//                                        .add(macroInstructions)
-                        ));
-
-
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-//            sequentialGroup1.addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-            sequentialGroup1.add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(customGcodeButtons.get(i))
-                            .add(customGcodeTextFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE));
-        }
-//        sequentialGroup1.addContainerGap(76, Short.MAX_VALUE);
-
-        macroPanel.setLayout(macroPanelLayout);
     }
 
-    private JTextField createMacroTextField(int index) {
-        JTextField textField = new MacroTextField(index, settings);
+    private void customGcodeText2ActionPerformed(java.awt.event.ActionEvent evt) {
 
-        customGcodeTextFields.add(textField);
-        return textField;
     }
 
-    private JButton createMacroButton(int i) {
-        JButton button = new JButton(i+"");
+    private void customGcodeText3ActionPerformed(java.awt.event.ActionEvent evt) {
 
-        button.setEnabled(false);
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                customGcodeButtonActionPerformed(evt);
-            }
-        });
-        customGcodeButtons.add(button);
-        return button;
+    }
+
+    private void customGcodeText4ActionPerformed(java.awt.event.ActionEvent evt) {
+
+    }
+
+    private void customGcodeText5ActionPerformed(java.awt.event.ActionEvent evt) {
+
+    }
+
+    private void customGcodeButton1ActionPerformed(ActionEvent evt) {
+
+    }
+
+    private void customGcodeButton2ActionPerformed(ActionEvent evt) {
+
+    }
+
+    private void customGcodeButton3ActionPerformed(ActionEvent evt) {
+
+    }
+
+    private void customGcodeButton4ActionPerformed(ActionEvent evt) {
+
+    }
+
+    private void customGcodeButton5ActionPerformed(ActionEvent evt) {
+
     }
 
     /** This method is called from within the constructor to
@@ -414,8 +375,18 @@ implements KeyListener, ControllerListener, ControlStateListener {
         resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
         macroPanel = new javax.swing.JPanel();
-        macroScrollPane = new JScrollPane(macroPanel);
+        customGcodeButton4 = new javax.swing.JButton();
+        customGcodeButton3 = new javax.swing.JButton();
+        customGcodeButton2 = new javax.swing.JButton();
+        customGcodeButton1 = new javax.swing.JButton();
+        customGcodeButton5 = new javax.swing.JButton();
+        customGcodeText1 = new javax.swing.JTextField();
+        customGcodeText2 = new javax.swing.JTextField();
+        customGcodeText3 = new javax.swing.JTextField();
+        customGcodeText4 = new javax.swing.JTextField();
+        customGcodeText5 = new javax.swing.JTextField();
         macroInstructions = new javax.swing.JLabel();
+        macroPanel1 = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -1027,7 +998,142 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
-        controlContextTabbedPane.addTab("Macros", macroScrollPane);
+        customGcodeButton4.setText("C4");
+        customGcodeButton4.setEnabled(false);
+        customGcodeButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeButton4ActionPerformed(evt);
+            }
+        });
+
+        customGcodeButton3.setText("C3");
+        customGcodeButton3.setEnabled(false);
+        customGcodeButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeButton3ActionPerformed(evt);
+            }
+        });
+
+        customGcodeButton2.setText("C2");
+        customGcodeButton2.setEnabled(false);
+        customGcodeButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeButton2ActionPerformed(evt);
+            }
+        });
+
+        customGcodeButton1.setText("C1");
+        customGcodeButton1.setEnabled(false);
+        customGcodeButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeButton1ActionPerformed(evt);
+            }
+        });
+
+        customGcodeButton5.setText("C5");
+        customGcodeButton5.setEnabled(false);
+        customGcodeButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeButton5ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText1.setText("G91 X0 Y0");
+        customGcodeText1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText1ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText2ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText3ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText4ActionPerformed(evt);
+            }
+        });
+
+        customGcodeText5.setToolTipText("");
+        customGcodeText5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                customGcodeText5ActionPerformed(evt);
+            }
+        });
+
+        macroInstructions.setText("asgasg");
+
+        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
+        macroPanel.setLayout(macroPanelLayout);
+        macroPanelLayout.setHorizontalGroup(
+            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(macroPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(customGcodeButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(customGcodeText1))
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(customGcodeButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(customGcodeText2))
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(customGcodeButton4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(customGcodeText4))
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(customGcodeButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(customGcodeText3))
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(customGcodeButton5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(customGcodeText5))
+                    .add(macroPanelLayout.createSequentialGroup()
+                        .add(macroInstructions)
+                        .add(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        macroPanelLayout.setVerticalGroup(
+            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(macroPanelLayout.createSequentialGroup()
+                .add(8, 8, 8)
+                .add(macroInstructions)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(customGcodeButton1)
+                    .add(customGcodeText1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(customGcodeButton2)
+                    .add(customGcodeText2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(customGcodeButton3)
+                    .add(customGcodeText3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(customGcodeButton4)
+                    .add(customGcodeText4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(customGcodeButton5)
+                    .add(customGcodeText5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(76, Short.MAX_VALUE))
+        );
+
+        controlContextTabbedPane.addTab("Macros", macroPanel);
+        controlContextTabbedPane.addTab("tab5", macroPanel1);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
@@ -1111,7 +1217,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1254,7 +1360,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(6, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         settingsMenu.setText("Settings");
@@ -2085,19 +2191,19 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
-                this.updateCustomGcodeControls(false);
+                this.macroPanel1.updateCustomGcodeControls(false);
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
                 this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
-                this.updateCustomGcodeControls(true);
+                this.macroPanel1.updateCustomGcodeControls(true);
                 break;
             case COMM_SENDING:
                 // Workflow tab
                 this.updateWorkflowControls(false);
-                this.updateCustomGcodeControls(false);
+                this.macroPanel1.updateCustomGcodeControls(false);
                 // Jogging commands
                 this.updateManualControls(false);
         
@@ -2158,17 +2264,17 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.requestStateInformation.setEnabled(enabled);
     }
     
-    private void updateCustomGcodeControls(boolean enabled) {
-        for(JButton button : customGcodeButtons) {
-            button.setEnabled(enabled);
-        }
-    }
+//    private void updateCustomGcodeControls(boolean enabled) {
+//        for(JButton button : customGcodeButtons) {
+//            button.setEnabled(enabled);
+//        }
+//    }
 
-    private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
-        Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
-        executeCustomGcode(macro.getGcode());
-    }
+//    private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+//        //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
+//        Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
+//        executeCustomGcode(macro.getGcode());
+//    }
 
     private void resetTimerLabels() {
         // Reset labels
@@ -2433,8 +2539,16 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JPanel connectionPanel;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
-    private List<javax.swing.JButton> customGcodeButtons = new ArrayList<JButton>();
-    private List<javax.swing.JTextField> customGcodeTextFields = new ArrayList<JTextField>();
+    private javax.swing.JButton customGcodeButton1;
+    private javax.swing.JButton customGcodeButton2;
+    private javax.swing.JButton customGcodeButton3;
+    private javax.swing.JButton customGcodeButton4;
+    private javax.swing.JButton customGcodeButton5;
+    private javax.swing.JTextField customGcodeText1;
+    private javax.swing.JTextField customGcodeText2;
+    private javax.swing.JTextField customGcodeText3;
+    private javax.swing.JTextField customGcodeText4;
+    private javax.swing.JTextField customGcodeText5;
     private javax.swing.JLabel durationLabel;
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
@@ -2470,7 +2584,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel machinePositionZValueLabel;
     private javax.swing.JLabel macroInstructions;
     private javax.swing.JPanel macroPanel;
-    private javax.swing.JScrollPane macroScrollPane;
+    private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel1;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
