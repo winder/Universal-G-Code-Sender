@@ -12,7 +12,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
-public class MacroPanel extends JScrollPane {
+public class MacroPanel extends JPanel {
 
     private Settings settings;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
@@ -37,11 +37,11 @@ public class MacroPanel extends JScrollPane {
 
     @Override
     public void doLayout() {
-        super.doLayout();
         initMacroButtons();
+        super.doLayout();
     }
 
-    public void initMacroButtons() {
+    private void initMacroButtons() {
         if (settings == null) {
             return;
         }
@@ -63,9 +63,7 @@ public class MacroPanel extends JScrollPane {
             }
         }
 
-
-        JPanel macroPanel = new JPanel();
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
+        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(this);
 
         org.jdesktop.layout.GroupLayout.ParallelGroup parallelGroup = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING);
 
@@ -103,7 +101,7 @@ public class MacroPanel extends JScrollPane {
         }
 //        sequentialGroup1.addContainerGap(76, Short.MAX_VALUE);
 
-        macroPanel.setLayout(macroPanelLayout);
+        setLayout(macroPanelLayout);
     }
 
     private JTextField createMacroTextField(int index) {
