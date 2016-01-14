@@ -1,23 +1,44 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2015-2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender;
 
+import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import java.io.File;
+import java.io.IOException;
 import java.io.PipedReader;
 import java.io.PipedWriter;
-import java.io.Reader;
+import java.lang.reflect.Field;
 import java.util.concurrent.LinkedBlockingDeque;
+import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
-import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
@@ -27,7 +48,7 @@ public class BufferedCommunicatorTest {
 
     BufferedCommunicator instance;
     LinkedBlockingDeque<String> cb;
-    LinkedBlockingDeque<String> asl;
+    LinkedBlockingDeque<GcodeCommand> asl;
 
     final static Connection mockConnection = EasyMock.createMock(Connection.class);
     final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
@@ -35,8 +56,18 @@ public class BufferedCommunicatorTest {
     public BufferedCommunicatorTest() {
     }
     
+    @BeforeClass
+    static public void setup() throws IOException {
+        tempDir = GcodeStreamTest.createTempDirectory();
+    }
+
+    @AfterClass
+    static public void teardown() throws IOException {
+        FileUtils.deleteDirectory(tempDir);
+    }
+
     @Before
-    public void setUp() {
+    public void setUp() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
         EasyMock.reset(mockConnection, mockScl);
 
         instance = new BufferedCommunicatorImpl();
@@ -45,12 +76,20 @@ public class BufferedCommunicatorTest {
         cb = new LinkedBlockingDeque<>();
         asl = new LinkedBlockingDeque<>();
         instance.setQueuesForTesting(cb, asl);
+
+                // Initialize private variable.
+        Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
+        f.setAccessible(true);
+        f.set(instance, false);
+
+        EasyMock.reset(mockConnection, mockScl);
     }
 
     /**
      * Test of getBufferSize method, of class BufferedCommunicator.
      */
     @Test
+    @Ignore
     public void testSingleStepMode() {
         System.out.println("testSingleStepMode");
         fail("Not implemented yet.");
@@ -73,25 +112,25 @@ public class BufferedCommunicatorTest {
         System.out.println("queueStringForComm");
         String input = "input";
         instance.queueStringForComm(input);
-        assertEquals(input + "\n", cb.getFirst());
+        assertEquals(input, cb.getFirst());
     }
 
     /**
      * Test of streamCommands method, of class BufferedCommunicator.
      */
     @Test
-    public void testSimpleStream() throws Exception {
+    public void testSimpleQueueStringsStream() throws Exception {
         System.out.println("streamCommands");
 
-        String input = "input\n";
+        String input = "input";
 
         // Check events and connection:
         // console message, connection stream, sent event
         mockScl.messageForConsole(EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
-        mockConnection.sendStringToComm(input);
+        mockConnection.sendStringToComm(input + instance.getLineTerminator());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
-        mockScl.commandSent(EasyMock.anyString());
+        mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
         EasyMock.replay(mockConnection, mockScl);
@@ -101,41 +140,71 @@ public class BufferedCommunicatorTest {
         instance.queueStringForComm(input);
         instance.streamCommands();
 
-        // Verify
-        Thread.sleep(1000);
         EasyMock.verify(mockConnection, mockScl);
     }
 
     @Test
-    public void testSimpleStreamStream() throws Exception {
-        String[] inputs = {"input1\n", "input2\n"};
+    public void testSimpleRawStreamStream() throws Exception {
+        String[] inputs = {"input1", "input2"};
 
 
         for (String i : inputs) {
-            mockScl.messageForConsole(EasyMock.anyString());;
+            mockScl.messageForConsole(EasyMock.anyString());
             EasyMock.expect(EasyMock.expectLastCall());
 
-            mockConnection.sendStringToComm(i);
+            mockConnection.sendStringToComm(i + instance.getLineTerminator());
             EasyMock.expect(EasyMock.expectLastCall());
 
-            mockScl.commandSent(EasyMock.anyString());
+            mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
             EasyMock.expect(EasyMock.expectLastCall());
         }
 
         EasyMock.replay(mockConnection, mockScl);
 
         PipedReader in = new PipedReader();
-        PipedWriter out = new PipedWriter(in);
-
-        for(String i : inputs) {
-            out.append(i);
+        try (PipedWriter out = new PipedWriter(in)) {
+            for(String i : inputs) {
+                out.append(i + "\n");
+            }
         }
  
-        instance.queueStreamForComm(in);
+        instance.queueRawStreamForComm(in);
         instance.streamCommands();
 
-        Thread.sleep(500);
+        EasyMock.verify(mockConnection, mockScl);
+    }
+
+    @Test
+    public void testSimpleStreamStream() throws Exception {
+        String[] inputs = {"input1", "input2"};
+
+
+        for (String i : inputs) {
+            mockScl.messageForConsole(EasyMock.anyString());
+            EasyMock.expect(EasyMock.expectLastCall());
+
+            mockConnection.sendStringToComm(i + instance.getLineTerminator());
+            EasyMock.expect(EasyMock.expectLastCall());
+
+            mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
+            EasyMock.expect(EasyMock.expectLastCall());
+        }
+
+        EasyMock.replay(mockConnection, mockScl);
         
+        File f = new File(tempDir,"gcodeFile");
+
+        try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+            for(String i : inputs) {
+                gsw.addLine("blah", i, null, -1);
+            }
+        }
+
+        GcodeStreamReader gsr = new GcodeStreamReader(f);
+ 
+        instance.queueStreamForComm(gsr);
+        instance.streamCommands();
+
         EasyMock.verify(mockConnection, mockScl);
     }
 
@@ -143,19 +212,19 @@ public class BufferedCommunicatorTest {
      * Test of areActiveCommands method, of class BufferedCommunicator.
      */
     @Test
-    public void testAreActiveCommands() throws Exception {
+    public void testActiveCommands() throws Exception {
         System.out.println("areActiveCommands");
 
-        String input = "input\n";
+        String input = "input";
 
         // Setup 2 active commands.
         mockScl.messageForConsole(EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
-        mockConnection.sendStringToComm(input);
+        mockConnection.sendStringToComm(input + instance.getLineTerminator());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
-        mockScl.commandSent(EasyMock.anyString());
+        mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
         // Left an active command.
@@ -172,6 +241,7 @@ public class BufferedCommunicatorTest {
 
         // No active commands.
         assertEquals(false, instance.areActiveCommands());
+        assertEquals(0, instance.numActiveCommands());
 
         // Leave active commands in pipeline.
         instance.queueStringForComm(input);
@@ -179,6 +249,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         assertEquals(true, instance.areActiveCommands());
+        assertEquals(2, instance.numActiveCommands());
 
         // Clear out active commands.
         instance.responseMessage("ok");
@@ -186,7 +257,7 @@ public class BufferedCommunicatorTest {
         instance.responseMessage("ok");
         assertEquals(false, instance.areActiveCommands());
 
-        Thread.sleep(500);
+        assertEquals(0, instance.numActiveCommands());
         EasyMock.verify(mockConnection, mockScl);
     }
 
@@ -197,9 +268,9 @@ public class BufferedCommunicatorTest {
     public void testPauseSendResume() throws Exception {
         System.out.println("pauseSend");
 
-        String input = "123456789\n";
+        String input = "123456789";
         for (int i = 0; i < 11; i++) {
-            mockConnection.sendStringToComm(input);
+            mockConnection.sendStringToComm(input + instance.getLineTerminator());
             EasyMock.expect(EasyMock.expectLastCall());
         }
         EasyMock.replay(mockConnection);
@@ -232,7 +303,7 @@ public class BufferedCommunicatorTest {
         System.out.println("cancelSend");
 
         // Queue up 200 characters.
-        String tenChar = "123456789\n";
+        String tenChar = "123456789";
         for (int i = 0; i < 20; i++) {
             instance.queueStringForComm(tenChar);
         }
@@ -257,25 +328,18 @@ public class BufferedCommunicatorTest {
 
         String first = "not-handled";
 
-        /*
         mockScl.rawResponseListener(first);
         EasyMock.expect(EasyMock.expectLastCall()).once();
         mockScl.rawResponseListener("ok");
         EasyMock.expect(EasyMock.expectLastCall()).once();
-        */
 
         EasyMock.replay(mockScl);
 
-        asl.add("command");
+        asl.add(new GcodeCommand("command"));
         instance.responseMessage(first);
         assertEquals(1, asl.size());
         instance.responseMessage("ok");
         assertEquals(0, asl.size());
-
-        /*
-        Thread.sleep(1000);
-        EasyMock.verify(mockScl);
-        */
     }
 
     /**
@@ -324,9 +388,9 @@ public class BufferedCommunicatorTest {
         System.out.println("sendByteImmediately");
         byte b = 10;
 
-        String tenChar = "123456789\n";
+        String tenChar = "123456789";
         for (int i = 0; i < 10; i++) {
-            mockConnection.sendStringToComm(tenChar);
+            mockConnection.sendStringToComm(tenChar + instance.getLineTerminator());
         }
         mockConnection.sendByteImmediately(b);
 

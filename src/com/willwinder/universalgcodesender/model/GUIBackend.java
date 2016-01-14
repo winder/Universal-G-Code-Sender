@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,19 +25,20 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -107,16 +108,25 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
         try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
-            try (PrintWriter pw = new PrintWriter(f, "UTF-8")) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
                 int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
                     i++;
                     if (i % 1000000 == 0) {
                         logger.log(Level.FINE, "i: " + i);
                     }
+                    String comment = GcodePreprocessorUtils.parseComment(line);
                     Collection<String> lines = gcp.preprocessCommand(line);
-                    for(String processedLine : lines) {
-                        pw.println(processedLine);
+
+                    // If it is a comment-only line, add the comment,
+                    if (!comment.isEmpty() && lines.isEmpty()) {
+                        gsw.addLine(line, "", comment, i);
+                    }
+                    // Otherwise add each processed line (often just one line).
+                    else {
+                        for(String processedLine : lines) {
+                            gsw.addLine(line, processedLine, comment, i);
+                        }
                     }
                 }
             }
@@ -321,7 +331,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             }
 
             //this.controller.queueCommands(processedCommandLines);
-            this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
+            //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
+            this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
 
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();

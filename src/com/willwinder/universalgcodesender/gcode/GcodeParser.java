@@ -4,7 +4,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -359,12 +359,10 @@ public class GcodeParser {
 
     public List<String> preprocessCommand(String command) throws Exception {
         List<String> result = new ArrayList<>();
-        boolean hasComment = false;
 
         // Remove comments from command.
         String newCommand = GcodePreprocessorUtils.removeComment(command);
         String rawCommand = newCommand;
-        hasComment = (newCommand.length() != command.length());
 
         if (removeAllWhitespace) {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
@@ -391,15 +389,9 @@ public class GcodeParser {
                 } else {
                     result.add(newCommand);
                 }
-            } else if (hasComment) {
-                // Maintain line level comment.
-                result.add(command.replace(rawCommand, newCommand));
             } else {
                 result.add(newCommand);
             }
-        } else if (hasComment) {
-            // Reinsert comment-only lines.
-            result.add(command);
         }
 
         // Check command length

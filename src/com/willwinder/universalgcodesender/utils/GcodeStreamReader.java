@@ -53,6 +53,10 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
         numRowsRemaining = numRows;
     }
     
+    public boolean ready() {
+        return getNumRowsRemaining() > 0;
+    }
+
     public int getNumRows() {
         return numRows;
     }

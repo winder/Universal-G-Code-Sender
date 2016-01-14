@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013-2015 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,13 +22,16 @@
  */
 package com.willwinder.universalgcodesender;
 
+import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  *
@@ -37,20 +40,38 @@ import java.util.ArrayList;
 public abstract class AbstractCommunicator {
     public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
+    private int commandCounter = 0;
 
+    // Allow events to be sent from same thread for unit tests.
+    private boolean launchEventsInDispatchThread = true;
+
+    // Serial Communicator Listener Events
+    enum SerialCommunicatorEvent {
+        COMMAND_SENT,
+        COMMAND_SKIPPED,
+        RAW_RESPONSE,
+        CONSOLE_MESSAGE,
+        VERBOSE_CONSOLE_MESSAGE
+    }
     // Callback interfaces
-    ArrayList<SerialCommunicatorListener> commandSentListeners;
-    ArrayList<SerialCommunicatorListener> commandCompleteListeners;
+    ArrayList<SerialCommunicatorListener> commandEventListeners;
     ArrayList<SerialCommunicatorListener> commConsoleListeners;
     ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     ArrayList<SerialCommunicatorListener> commRawResponseListener;
+    HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
 
     public AbstractCommunicator() {
-        this.commandSentListeners        = new ArrayList<>();
-        this.commandCompleteListeners    = new ArrayList<>();
+        this.commandEventListeners       = new ArrayList<>();
         this.commConsoleListeners        = new ArrayList<>();
         this.commVerboseConsoleListeners = new ArrayList<>();
         this.commRawResponseListener     = new ArrayList<>();
+
+        this.eventMap = new HashMap<>();
+        eventMap.put(SerialCommunicatorEvent.COMMAND_SENT,            commandEventListeners);
+        eventMap.put(SerialCommunicatorEvent.COMMAND_SKIPPED,         commandEventListeners);
+        eventMap.put(SerialCommunicatorEvent.CONSOLE_MESSAGE,         commConsoleListeners);
+        eventMap.put(SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
+        eventMap.put(SerialCommunicatorEvent.RAW_RESPONSE,            commRawResponseListener);
     }
     
     /*********************/
@@ -59,7 +80,12 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
-    abstract public void queueStreamForComm(final Reader input);
+    /**
+     * Use GcodeStreamReader to allow GUIs to display better execution progress.
+     */
+    @Deprecated
+    abstract public void queueRawStreamForComm(final Reader input);
+    abstract public void queueStreamForComm(final GcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public boolean areActiveCommands();
     abstract public void streamCommands();
@@ -68,6 +94,7 @@ public abstract class AbstractCommunicator {
     abstract public void cancelSend();
     abstract public void softReset();
     abstract public void responseMessage(String response);
+    abstract public int numActiveCommands();
     
     public void setConnection(Connection c) {
         conn = c;
@@ -96,6 +123,10 @@ public abstract class AbstractCommunicator {
     protected void closeCommPort() throws Exception {
         conn.closePort();
     }
+
+    protected int getNextCommandId() {
+        return this.commandCounter++;
+    }
     
     /** Getters & Setters. */
     abstract public String getLineTerminator();
@@ -104,21 +135,16 @@ public abstract class AbstractCommunicator {
     /** Listener helpers. */
     /* ****************** */
     void setListenAll(SerialCommunicatorListener scl) {
-        this.addCommandSentListener(scl);
-        this.addCommandCompleteListener(scl);
+        this.addCommandEventListener(scl);
         this.addCommConsoleListener(scl);
         this.addCommVerboseConsoleListener(scl);
         this.addCommRawResponseListener(scl);
     }
 
-    void addCommandSentListener(SerialCommunicatorListener scl) {
-        this.commandSentListeners.add(scl);
+    void addCommandEventListener(SerialCommunicatorListener scl) {
+        this.commandEventListeners.add(scl);
     }
 
-    void addCommandCompleteListener(SerialCommunicatorListener scl) {
-        this.commandCompleteListeners.add(scl);
-    }
-    
     void addCommConsoleListener(SerialCommunicatorListener scl) {
         this.commConsoleListeners.add(scl);
     }
@@ -142,67 +168,75 @@ public abstract class AbstractCommunicator {
             return;
         }
         
-        int verbosity;
+        SerialCommunicatorEvent verbosity;
         if (!verbose) {
-            verbosity = CONSOLE_MESSAGE;
+            verbosity = SerialCommunicatorEvent.CONSOLE_MESSAGE;
         }
         else {
-            verbosity = VERBOSE_CONSOLE_MESSAGE;
+            verbosity = SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE;
         }
         
-        dispatchListenerEvents(verbosity, this.commConsoleListeners, msg);
+        dispatchListenerEvents(verbosity, msg);
     }
-    
-    // Serial Communicator Listener Events
-    protected static final int COMMAND_SENT = 1;
-    protected static final int COMMAND_COMPLETE = 2;
-    protected static final int RAW_RESPONSE = 3;
-    protected static final int CONSOLE_MESSAGE = 4;
-    protected static final int VERBOSE_CONSOLE_MESSAGE = 5;
     
     /**
      * A bunch of methods to dispatch listener events with various arguments.
      */
-    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final String message) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (sclList != null) {
-                    for (SerialCommunicatorListener s : sclList) {
-                        sendEventToListener(event, s, message, null);
-                    }
-                }
-            }
-        });
+    protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final String message) {
+        dispatchListenerEvents(event, message, null);
     }
     
-    static protected void dispatchListenerEvents(final int event, final ArrayList<SerialCommunicatorListener> sclList, final GcodeCommand command) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (sclList != null) {
-                    for (SerialCommunicatorListener s : sclList) {
-                        sendEventToListener(event, s, null, command);
-                    }
-                }
-            }
-        });
+    protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final GcodeCommand command) {
+        dispatchListenerEvents(event, null, command);
     }
 
-    static protected void sendEventToListener(int event, SerialCommunicatorListener scl, 
+    private void dispatchListenerEvents(final SerialCommunicatorEvent event, 
+                                            final String string, final GcodeCommand command) {
+        if (event == COMMAND_SENT || event == COMMAND_SKIPPED) {
+            if (command == null)
+                throw new IllegalArgumentException("Dispatching a COMMAND_SENT event requires a GcodeCommand object.");
+        } else if (string == null) {
+            throw new IllegalArgumentException("Dispatching a " +event+ " event requires a String object.");
+        }
+
+
+        final ArrayList<SerialCommunicatorListener> sclList = eventMap.get(event);
+
+        if (launchEventsInDispatchThread) {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    sendEventToListeners(event, sclList, string, command);
+                }
+            });
+        } else {
+            sendEventToListeners(event, sclList, string, command);
+        }
+    }
+
+    private void sendEventToListeners(final SerialCommunicatorEvent event, 
+                                            ArrayList<SerialCommunicatorListener> sclList,
                                             String string, GcodeCommand command) {
         switch(event) {
             case COMMAND_SENT:
-                scl.commandSent(string);
+                for (SerialCommunicatorListener scl : sclList)
+                    scl.commandSent(command);
+                break;
+            case COMMAND_SKIPPED:
+                for (SerialCommunicatorListener scl : sclList)
+                    scl.commandSkipped(command);
                 break;
             case CONSOLE_MESSAGE:
-                scl.messageForConsole(string);
+                for (SerialCommunicatorListener scl : sclList)
+                    scl.messageForConsole(string);
                 break;
             case VERBOSE_CONSOLE_MESSAGE:
-                scl.verboseMessageForConsole(string);
+                for (SerialCommunicatorListener scl : sclList)
+                    scl.verboseMessageForConsole(string);
                 break;
             case RAW_RESPONSE:
-                scl.rawResponseListener(string);
+                for (SerialCommunicatorListener scl : sclList)
+                    scl.rawResponseListener(string);
             default:
 
         }

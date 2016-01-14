@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2015 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,7 +23,10 @@
 
 package com.willwinder.universalgcodesender;
 
+import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -36,29 +39,28 @@ import java.util.logging.Logger;
  *
  * @author wwinder
  */
-public abstract class BufferedCommunicator extends AbstractCommunicator {// extends AbstractSerialCommunicator {
+public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     // Command streaming variables
     private Boolean sendPaused = false;
-    private String nextCommand;                            // Cached command.
+    private GcodeCommand nextCommand;                      // Cached command.
     Object nextCommandLock = new Object();
-    private BufferedReader commandStream;                  // Arbitrary number of commands
+    private BufferedReader    rawCommandStream;            // Arbitrary number of commands
+    private GcodeStreamReader commandStream;               // Arbitrary number of commands
     private LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
-    private LinkedBlockingDeque<String> activeStringList;  // Currently running commands
+    private LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
     
     private Boolean singleStepModeEnabled = false;
     
-    //abstract public String getLineTerminator();
     abstract public int getBufferSize();
     
-    protected void setQueuesForTesting(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl) {
+    protected void setQueuesForTesting(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
         this.commandBuffer = cb;
-        this.activeStringList = asl;
+        this.activeCommandList = asl;
     }
     
     public BufferedCommunicator() {
-        //this.setLineTerminator(getLineTerminator());
     }
     
     @Override
@@ -81,21 +83,27 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     public void queueStringForComm(final String input) {        
         String commandString = input;
         
-        if (! commandString.endsWith("\n")) {
-            commandString += "\n";
-        }
-        
         // Add command to queue
         this.commandBuffer.add(commandString);
     }
     
+
     /**
      * Arbitrary length of commands to send to the communicator.
      * @param input 
      */
     @Override
-    public void queueStreamForComm(final Reader input) {
-        commandStream = new BufferedReader(input);
+    public void queueRawStreamForComm(final Reader input) {
+        rawCommandStream = new BufferedReader(input);
+    }
+
+    /**
+     * Arbitrary length of commands to send to the communicator.
+     * @param input 
+     */
+    @Override
+    public void queueStreamForComm(final GcodeStreamReader input) {
+        commandStream = input;
     }
        
     /*
@@ -113,7 +121,12 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     
     @Override
     public boolean areActiveCommands() {
-        return (this.activeStringList.size() > 0);
+        return (this.activeCommandList.size() > 0);
+    }
+
+    @Override
+    public int numActiveCommands() {
+        return this.activeCommandList.size();
     }
     
     // Helper for determining if commands should be throttled.
@@ -133,25 +146,30 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
      * 3. Next line in the commandStream.
      * @return 
      */
-    private Optional<String> getNextCommand() {
+    private Optional<GcodeCommand> getNextCommand() {
         synchronized (nextCommandLock) {
             if (nextCommand != null) {
                 return Optional.of(nextCommand);
             }
             else if (!this.commandBuffer.isEmpty()) {
-                nextCommand = commandBuffer.pop();
+                nextCommand = new GcodeCommand(commandBuffer.pop());
             }
             else try {
-                if (commandStream != null && commandStream.ready()) {
-                    // TODO: Special reader is going to be needed for feature parity
-                    //       it will need to handle this thing.
-                    nextCommand = commandStream.readLine() + "\n";
+                if (rawCommandStream != null && rawCommandStream.ready()) {
+                    nextCommand = new GcodeCommand(rawCommandStream.readLine());
+                }
+                else if (commandStream != null && commandStream.ready()) {
+                    nextCommand = commandStream.getNextCommand();
                 }
             } catch (IOException ex) {
                 // Fall through to null handling.
             }
 
             if (nextCommand != null) {
+                nextCommand.setCommandNumber(getNextCommandId());
+                if (nextCommand.getCommandString().endsWith("\n")) {
+                    nextCommand.setCommand(nextCommand.getCommandString().trim());
+                }
                 return Optional.of(nextCommand);
             }
         }
@@ -181,27 +199,35 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         while (this.getNextCommand().isPresent() &&
                 CommUtils.checkRoomInBuffer(
                     this.sentBufferSize,
-                    this.getNextCommand().get(),
+                    this.getNextCommand().get().getCommandString(),
                     this.getBufferSize())
                 && allowMoreCommands()) {
 
-            String commandString = this.getNextCommand().get();
-            this.activeStringList.add(commandString);
+            GcodeCommand command = this.getNextCommand().get();
 
-            this.sentBufferSize += commandString.length();
-            
-            // Newlines are embedded when they get queued so just send it.
-        
-            // Command already has a newline attached.
-            this.sendMessageToConsoleListener(">>> " + commandString);
-            
-            try {
-                this.sendingCommand(commandString);
-                conn.sendStringToComm(commandString);
+            if (command.getCommandString().isEmpty()) {
+                dispatchListenerEvents(COMMAND_SKIPPED, command);
                 synchronized(nextCommandLock) {
                     nextCommand = null;
                 }
-                dispatchListenerEvents(COMMAND_SENT, this.commandSentListeners, commandString.trim());
+                continue;
+            }
+
+            String commandString = command.getCommandString().trim();
+            
+            this.activeCommandList.add(command);
+            this.sentBufferSize += commandString.length() + 1;
+        
+            // Command already has a newline attached.
+            this.sendMessageToConsoleListener(">>> " + commandString + "\n");
+            
+            try {
+                this.sendingCommand(commandString);
+                conn.sendStringToComm(commandString + this.getLineTerminator());
+                synchronized(nextCommandLock) {
+                    nextCommand = null;
+                }
+                dispatchListenerEvents(SerialCommunicatorEvent.COMMAND_SENT, command);
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(-1);
@@ -235,7 +261,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     @Override
     public void softReset() {
         this.commandBuffer.clear();
-        this.activeStringList.clear();
+        this.activeCommandList.clear();
         this.sentBufferSize = 0;
     }
 
@@ -261,14 +287,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
     @Override
     public void responseMessage(String response) {
         // Send this information back up to the Controller.
-        dispatchListenerEvents(RAW_RESPONSE, this.commRawResponseListener, response);
+        dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
 
         // Keep the data flow going in case of an "ok/error".
         if (processedCommand(response)) {
             // Pop the front of the active list.
-            if (this.activeStringList != null && this.activeStringList.size() > 0) {
-                String commandString = this.activeStringList.pop();
-                this.sentBufferSize -= commandString.length();
+            if (this.activeCommandList != null && this.activeCommandList.size() > 0) {
+                GcodeCommand command = this.activeCommandList.pop();
+                this.sentBufferSize -= command.getCommandString().length();
 
                 if (this.sendPaused == false) {
                     this.streamCommands();
@@ -283,7 +309,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         
         if (ret) {
             this.commandBuffer = new LinkedBlockingDeque<>();
-            this.activeStringList = new LinkedBlockingDeque<>();
+            this.activeCommandList = new LinkedBlockingDeque<>();
             this.sentBufferSize = 0;
         }
         return ret;
@@ -296,7 +322,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {// exte
         
         this.sendPaused = false;
         this.commandBuffer = null;
-        this.activeStringList = null;
+        this.activeCommandList = null;
     }
 
     @Override

@@ -36,7 +36,7 @@ import org.junit.Test;
 public class GrblCommunicatorTest {
     MockGrbl mg;
     LinkedBlockingDeque<String> cb;
-    LinkedBlockingDeque<String> asl;
+    LinkedBlockingDeque<GcodeCommand> asl;
     
     public GrblCommunicatorTest() {
     }
@@ -83,7 +83,8 @@ public class GrblCommunicatorTest {
             assertEquals(1, cb.size());
             
             // Test that instance adds newline to improperly formed command.
-            assertEquals(input + "\n", cb.peek());
+            String next = cb.peek();
+            assertEquals(input, cb.peek());
             
             instance.queueStringForComm(input);
             instance.queueStringForComm(input);
@@ -91,12 +92,11 @@ public class GrblCommunicatorTest {
             // Test that instance continues to queue inputs.
             assertEquals(3, cb.size());
             
-            input = "someCommand\n";
+            input = "someCommand";
             cb = new LinkedBlockingDeque<>();
             mc = new MockConnection(mg.in, mg.out);
             instance = new GrblCommunicator(cb, asl, mc);
 
-            
             instance.queueStringForComm(input);
             // Test that instance doesn't add superfluous newlines.
             assertEquals(input, cb.peek());
@@ -213,6 +213,7 @@ public class GrblCommunicatorTest {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        String term = instance.getLineTerminator();
         String thirtyNineCharString = "thirty-nine character command here.....";
 
         boolean result;
@@ -247,8 +248,8 @@ public class GrblCommunicatorTest {
 
         // Check with MockGrbl to verify the fourth command wasn't sent.
         String output = mg.readStringFromGrblBuffer();
-        assertEquals(thirtyNineCharString+"\n"+thirtyNineCharString+"\n"+thirtyNineCharString+"\n",
-                        output);
+        String goal = thirtyNineCharString+term+thirtyNineCharString+term+thirtyNineCharString+term;
+        assertEquals(goal, output);
         
         // Make room for the next command.
         mc.sendResponse("ok");
@@ -258,7 +259,7 @@ public class GrblCommunicatorTest {
         
         // Make sure the queued command was sent.
         output = mg.readStringFromGrblBuffer();
-        assertEquals(thirtyNineCharString+"\n", output);
+        assertEquals(thirtyNineCharString+term, output);
   
         // Wrap up.
         mc.sendResponse("ok");

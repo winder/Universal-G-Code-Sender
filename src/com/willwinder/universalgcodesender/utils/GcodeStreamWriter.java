@@ -51,10 +51,16 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
     }
 
     private String getString(String str) {
-        return str == null ? "" : str;
+        return str == null ? "" : str.trim();
     }
 
     public void addLine(String original, String processed, String comment, int commandNumber) {
+        if (    (original != null && original.trim().contains("\n")) || 
+                (processed != null && processed.trim().contains("\n")) ||
+                (comment != null && comment.trim().contains("\n"))) {
+            throw new IllegalArgumentException("Cannot include newlines in gcode stream.");
+        }
+
         lineCount++;
         String sep = "";
         for (int i = 0; i < NUM_COLUMNS; i++) {

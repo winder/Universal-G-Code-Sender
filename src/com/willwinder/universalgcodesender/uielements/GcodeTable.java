@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -111,18 +111,21 @@ public class GcodeTable extends JTable {
     private boolean autoWindowScroll = false;
     private int offset = 0;
     
-    final private static int COL_INDEX_COMMAND  = 0;
-    final private static int COL_INDEX_SENT     = 1;
-    final private static int COL_INDEX_DONE     = 2;
-    final private static int COL_INDEX_RESPONSE = 3;
+    final private static int COL_INDEX_COMMAND       = 0;
+    final private static int COL_INDEX_ORIG_COMMAND  = 1;
+    final private static int COL_INDEX_SENT          = 2;
+    final private static int COL_INDEX_DONE          = 3;
+    final private static int COL_INDEX_RESPONSE      = 4;
 
     static String[] columnNames = {
         Localization.getString("gcodeTable.command"),
+        Localization.getString("gcodeTable.originalcommand"),
         Localization.getString("gcodeTable.sent"),
         Localization.getString("gcodeTable.done"),
         Localization.getString("gcodeTable.response")
     };
     static Class[] columnTypes =  {
+        String.class,
         String.class,
         Boolean.class,
         Boolean.class,
@@ -159,7 +162,7 @@ public class GcodeTable extends JTable {
 
         // This is totally bogus, but they look alright when I throw in a max
         // width for the boolean columns.
-        setPreferredColumnWidths(new double[] {0.55, 0.2, 0.2, 0.2} );
+        setPreferredColumnWidths(new double[] {0.25, 0.3, 0.2, 0.2, 0.2} );
 
         getColumnModel().getColumn(COL_INDEX_SENT).setResizable(false);
         getColumnModel().getColumn(COL_INDEX_SENT).setMaxWidth(50);
@@ -186,14 +189,18 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void addRow(final GcodeCommand command) {
-        String commandString = command.getCommandString();
+        /*
+        String commandString = command.getCommandString()
+                + "(" + command.getOriginalCommandString() + ")";
         if (command.isComment())
             commandString = "; " + command.getComment();
         else if (command.hasComment())
             commandString += "; " + command.getComment();
+        */
             
         model.addRow(new Object[]{
-            commandString,
+            command.getCommandString(),
+            command.getOriginalCommandString(),
             command.isSent(),
             command.isDone(),
             command.getResponse()});
@@ -267,5 +274,10 @@ public class GcodeTable extends JTable {
 
     public void setOffset(int offset) {
         this.offset = offset;
+    }
+
+    @Override
+    public boolean isCellEditable(int row, int column) {
+        return false;
     }
 }
