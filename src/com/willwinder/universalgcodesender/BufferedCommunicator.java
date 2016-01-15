@@ -224,7 +224,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             
             try {
                 this.sendingCommand(commandString);
-                conn.sendStringToComm(commandString + this.getLineTerminator());
+                conn.sendStringToComm(commandString + "\n");
                 synchronized(nextCommandLock) {
                     nextCommand = null;
                 }
@@ -295,7 +295,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             // Pop the front of the active list.
             if (this.activeCommandList != null && this.activeCommandList.size() > 0) {
                 GcodeCommand command = this.activeCommandList.pop();
-                this.sentBufferSize -= command.getCommandString().length();
+                this.sentBufferSize -= command.getCommandString().length() + 1;
 
                 if (this.sendPaused == false) {
                     this.streamCommands();

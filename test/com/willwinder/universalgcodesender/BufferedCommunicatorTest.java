@@ -128,7 +128,7 @@ public class BufferedCommunicatorTest {
         // console message, connection stream, sent event
         mockScl.messageForConsole(EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
-        mockConnection.sendStringToComm(input + instance.getLineTerminator());
+        mockConnection.sendStringToComm(input + "\n");
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
         mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
@@ -152,7 +152,7 @@ public class BufferedCommunicatorTest {
             mockScl.messageForConsole(EasyMock.anyString());
             EasyMock.expect(EasyMock.expectLastCall());
 
-            mockConnection.sendStringToComm(i + instance.getLineTerminator());
+            mockConnection.sendStringToComm(i + "\n");
             EasyMock.expect(EasyMock.expectLastCall());
 
             mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
@@ -183,7 +183,7 @@ public class BufferedCommunicatorTest {
             mockScl.messageForConsole(EasyMock.anyString());
             EasyMock.expect(EasyMock.expectLastCall());
 
-            mockConnection.sendStringToComm(i + instance.getLineTerminator());
+            mockConnection.sendStringToComm(i + "\n");
             EasyMock.expect(EasyMock.expectLastCall());
 
             mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
@@ -221,7 +221,7 @@ public class BufferedCommunicatorTest {
         mockScl.messageForConsole(EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
-        mockConnection.sendStringToComm(input + instance.getLineTerminator());
+        mockConnection.sendStringToComm(input + "\n");
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
         mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
@@ -270,7 +270,7 @@ public class BufferedCommunicatorTest {
 
         String input = "123456789";
         for (int i = 0; i < 11; i++) {
-            mockConnection.sendStringToComm(input + instance.getLineTerminator());
+            mockConnection.sendStringToComm(input + "\n");
             EasyMock.expect(EasyMock.expectLastCall());
         }
         EasyMock.replay(mockConnection);
@@ -390,7 +390,7 @@ public class BufferedCommunicatorTest {
 
         String tenChar = "123456789";
         for (int i = 0; i < 10; i++) {
-            mockConnection.sendStringToComm(tenChar + instance.getLineTerminator());
+            mockConnection.sendStringToComm(tenChar + "\n");
         }
         mockConnection.sendByteImmediately(b);
 

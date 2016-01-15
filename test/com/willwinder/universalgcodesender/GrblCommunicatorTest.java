@@ -213,7 +213,7 @@ public class GrblCommunicatorTest {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
-        String term = instance.getLineTerminator();
+        String term = "\n";
         String thirtyNineCharString = "thirty-nine character command here.....";
 
         boolean result;
