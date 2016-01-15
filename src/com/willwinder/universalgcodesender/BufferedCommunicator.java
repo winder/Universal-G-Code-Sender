@@ -121,7 +121,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     @Override
     public boolean areActiveCommands() {
-        return (this.activeCommandList.size() > 0);
+        return (this.activeCommandList.size() > 0)
+                || (this.commandStream != null && this.commandStream.getNumRowsRemaining() > 0);
     }
 
     @Override
