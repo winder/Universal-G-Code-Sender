@@ -33,3 +33,4 @@ tar.gz
 .idea
 *.iml
 dependency-reduced-pom.xml
+/UGSPlatform/dist/

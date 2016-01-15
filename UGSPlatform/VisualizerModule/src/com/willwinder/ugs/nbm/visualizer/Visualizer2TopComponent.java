@@ -122,8 +122,8 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         final GLWindow window = GLWindow.create(caps);
         renderer = new GcodeRenderer();
         
-        if (backend.getFile() != null)
-            renderer.setGcodeFile(backend.getFile().getAbsolutePath());
+        if (backend.getGcodeFile() != null)
+            renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
         
         window.setTitle(name);
         window.addWindowListener(new WindowAdapter() {
@@ -196,7 +196,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
             case FILE_CHANGED:
                 if (renderer != null && animator != null) {
                     animator.pause();
-                    renderer.setGcodeFile(backend.getFile().getAbsolutePath());
+                    renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
                     invalidate();
                     animator.resume();
                 }
