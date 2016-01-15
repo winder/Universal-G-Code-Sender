@@ -217,7 +217,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             String commandString = command.getCommandString().trim();
             
             this.activeCommandList.add(command);
-            this.sentBufferSize += commandString.length() + 1;
+            this.sentBufferSize += (commandString.length() + 1);
         
             // Command already has a newline attached.
             this.sendMessageToConsoleListener(">>> " + commandString + "\n");
@@ -295,7 +295,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             // Pop the front of the active list.
             if (this.activeCommandList != null && this.activeCommandList.size() > 0) {
                 GcodeCommand command = this.activeCommandList.pop();
-                this.sentBufferSize -= command.getCommandString().length() + 1;
+                this.sentBufferSize -= (command.getCommandString().length() + 1);
 
                 if (this.sendPaused == false) {
                     this.streamCommands();
