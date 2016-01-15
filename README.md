@@ -22,7 +22,7 @@ Downloads
 
 <b>Stable builds</b>
 <br />
-[1.0.9](http://bit.ly/1M6z2ys) - The last stable build before 2.0 work?
+[1.0.9](http://bit.ly/1M6z2ys)
 <br />
 [1.0.8](http://bit.ly/1BSKon6)
 <br />
@@ -42,12 +42,7 @@ Downloads
 Technical details:
 * JSSC for serial communication (RXTX was used up through v1.0.8)
 * JogAmp for OpenGL.
-* Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
 * Developed with NetBeans 8.0.2 or later.
-* To build a release using Netbeans open the 'Files' pane and right click build.xml,
-  then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
-  will contain the .zip file.
-
 
 Development
 -----------
@@ -76,6 +71,9 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 
 Changelog
 ---------
+1.0.9 -> 2.0
+* constant-memory branch in progress, stream any sized gcode file with the same performance.
+
 1.0.8 -> 1.0.9
 * Many performance improvements.
 * New serial library: JSSC
