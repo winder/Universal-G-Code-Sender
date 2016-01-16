@@ -95,6 +95,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         arrowMovementEnabled = new javax.swing.JCheckBox();
         stepSizeLabel = new javax.swing.JLabel();
         inchRadioButton = new javax.swing.JRadioButton();
@@ -114,6 +115,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
         org.openide.awt.Mnemonics.setLocalizedText(stepSizeLabel, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.stepSizeLabel.text_1")); // NOI18N
         stepSizeLabel.setEnabled(false);
 
+        buttonGroup1.add(inchRadioButton);
         org.openide.awt.Mnemonics.setLocalizedText(inchRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.inchRadioButton.text_1")); // NOI18N
         inchRadioButton.setEnabled(false);
         inchRadioButton.addActionListener(new java.awt.event.ActionListener() {
@@ -122,6 +124,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
             }
         });
 
+        buttonGroup1.add(mmRadioButton);
         org.openide.awt.Mnemonics.setLocalizedText(mmRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.mmRadioButton.text_1")); // NOI18N
         mmRadioButton.setEnabled(false);
         mmRadioButton.addActionListener(new java.awt.event.ActionListener() {
@@ -197,7 +200,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
                     .addComponent(yPlusButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(yMinusButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(xPlusButton, javax.swing.GroupLayout.DEFAULT_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(xPlusButton, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(movementButtonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(zMinusButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -228,15 +231,12 @@ public final class JogControlTopComponent extends TopComponent implements Contro
                     .addComponent(arrowMovementEnabled)
                     .addComponent(movementButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(inchRadioButton)
-                                    .addComponent(stepSizeLabel))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(stepSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(mmRadioButton))))
+                            .addComponent(inchRadioButton)
+                            .addComponent(stepSizeLabel))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(stepSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(mmRadioButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -296,6 +296,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox arrowMovementEnabled;
+    private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
