@@ -82,6 +82,11 @@ public interface IController {
     Stream content
     */
     public void sendCommandImmediately(String str) throws Exception;
+    public void queueCommand(StringBuilder str) throws Exception;
     public void queueCommand(String str) throws Exception;
     public void queueCommands(Iterable<String> commandStrings) throws Exception;
+//
+//    public String getDistanceModeCode();
+//    public String getUnitsCode();
+    public void restoreParserModalState();
 }

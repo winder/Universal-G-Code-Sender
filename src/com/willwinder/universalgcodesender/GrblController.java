@@ -26,6 +26,8 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
@@ -53,7 +55,7 @@ public class GrblController extends AbstractController {
     private Point3d workLocation;
     private double maxZLocationMM;
     private Units units;
-    
+
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
@@ -108,6 +110,11 @@ public class GrblController extends AbstractController {
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
             this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
+            try {
+                sendCommandImmediately(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
             this.beginPollingPosition();
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
@@ -124,6 +131,13 @@ public class GrblController extends AbstractController {
             verboseMessageForConsole(response + "\n");
             
             this.handlePositionString(response);
+        }
+
+        else if (GrblUtils.isGrblFeedbackMessage(response)) {
+            GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
+            this.messageForConsole(grblFeedbackMessage.toString() + "\n");
+            setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
+            setUnitsCode(grblFeedbackMessage.getUnits());
         }
         
         else {
@@ -255,6 +269,8 @@ public class GrblController extends AbstractController {
                 }
                 return;
             }
+
+            restoreParserModalState();
         }
         // Throw exception
         super.returnToHome();

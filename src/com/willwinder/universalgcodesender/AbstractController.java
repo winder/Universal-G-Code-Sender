@@ -222,6 +222,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     // Listeners
     private ArrayList<ControllerListener> listeners;
+
+    //Track current mode to restore after jogging
+    private String distanceModeCode = null;
+    private String unitsCode = null;
         
     /**
      * Dependency injection constructor to allow a mock communicator.
@@ -469,6 +473,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
 
         return true;
+    }
+
+    @Override
+    public void queueCommand(StringBuilder str) throws Exception {
+        queueCommand(str.toString());
     }
 
     @Override
@@ -812,6 +821,42 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             for (ControllerListener c : listeners) {
                 c.postProcessData(numRows);
             }
+        }
+    }
+
+    protected String getUnitsCode() {
+        return unitsCode;
+    }
+
+    protected void setUnitsCode(String unitsCode) {
+        if (unitsCode != null) {
+            this.unitsCode = unitsCode;
+        }
+    }
+
+    protected String getDistanceModeCode() {
+        return distanceModeCode;
+    }
+
+    protected void setDistanceModeCode(String distanceModeCode) {
+        if (distanceModeCode != null) {
+            this.distanceModeCode = distanceModeCode;
+        }
+    }
+
+    public void restoreParserModalState() {
+        StringBuilder cmd = new StringBuilder();
+        if (getDistanceModeCode() != null) {
+            cmd.append(getDistanceModeCode()).append("; ");
+        }
+        if (getUnitsCode() != null) {
+            cmd.append(getUnitsCode()).append("; ");
+        }
+
+        try {
+            queueCommand(cmd);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

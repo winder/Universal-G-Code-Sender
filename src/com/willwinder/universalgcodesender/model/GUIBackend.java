@@ -79,7 +79,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     String cancelButtonText;
     boolean cancelButtonEnabled;
 
-    boolean G91Mode = false;
+//    boolean G91Mode = false;
     
     public GcodeParser gcp = new GcodeParser();
     
@@ -197,7 +197,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
-        
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
             return;
@@ -243,7 +242,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
 
         this.sendGcodeCommand(command.toString());
-        G91Mode = true;
+        controller.restoreParserModalState();
     }
 
     @Override
@@ -290,12 +289,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.controller.isReadyToStreamFile();
 
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
-
-            if (this.G91Mode) {
-                List<String> processed = gcp.preprocessCommand("G90");
-                controller.queueCommands(processed);
-                this.G91Mode = false;
-            }
 
             this.controller.queueCommands(processedCommandLines);
 
@@ -418,9 +411,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         this.controller.returnToHome();
         
         // TODO: These should get pushed into the controller?
-        
-        // The return to home command uses G91 to lift the tool.
-        this.G91Mode = true;
         // Also sets the units to mm.
         this.units = Units.MM;
     }
