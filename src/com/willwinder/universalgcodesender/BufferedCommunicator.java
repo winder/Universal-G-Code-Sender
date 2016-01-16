@@ -30,7 +30,6 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -147,9 +146,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * 3. Next line in the commandStream.
      * @return 
      */
-    private Optional<GcodeCommand> getNextCommand() {
+    private GcodeCommand getNextCommand() {
         if (nextCommand != null) {
-            return Optional.of(nextCommand);
+            return nextCommand;
         }
         else if (!this.commandBuffer.isEmpty()) {
             nextCommand = new GcodeCommand(commandBuffer.pop());
@@ -170,9 +169,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             if (nextCommand.getCommandString().endsWith("\n")) {
                 nextCommand.setCommand(nextCommand.getCommandString().trim());
             }
-            return Optional.of(nextCommand);
+            return nextCommand;
         }
-        return Optional.empty();
+        return null;
     }
    
     /**
@@ -182,7 +181,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     synchronized public void streamCommands() {
         // If there are no commands to send, exit.
-        if (!this.getNextCommand().isPresent()) {
+        if (this.getNextCommand() == null) {
             return;
         }
         
@@ -196,14 +195,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         // There is room in the buffer.
         // AND We are NOT in single step mode.
         // OR  We are in single command mode and there are no active commands.
-        while (this.getNextCommand().isPresent() &&
+        while (this.getNextCommand() != null &&
                 CommUtils.checkRoomInBuffer(
                     this.sentBufferSize,
-                    this.getNextCommand().get().getCommandString(),
+                    this.getNextCommand().getCommandString(),
                     this.getBufferSize())
                 && allowMoreCommands()) {
 
-            GcodeCommand command = this.getNextCommand().get();
+            GcodeCommand command = this.getNextCommand();
 
             if (command.getCommandString().isEmpty()) {
                 dispatchListenerEvents(COMMAND_SKIPPED, command);
