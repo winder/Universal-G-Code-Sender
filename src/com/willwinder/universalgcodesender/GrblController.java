@@ -111,7 +111,7 @@ public class GrblController extends AbstractController {
             
             this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
             try {
-                sendCommandImmediately(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND);
+                sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -212,8 +212,9 @@ public class GrblController extends AbstractController {
     @Override
     public void performHomingCycle() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }
@@ -225,8 +226,9 @@ public class GrblController extends AbstractController {
     @Override
     public void resetCoordinatesToZero() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getResetCoordsToZeroCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getResetCoordsToZeroCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }
@@ -238,8 +240,9 @@ public class GrblController extends AbstractController {
     @Override
     public void resetCoordinateToZero(final char coord) throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }
@@ -264,7 +267,8 @@ public class GrblController extends AbstractController {
                 Iterator<String> iter = commands.iterator();
                 // Perform the homing commands
                 while(iter.hasNext()){
-                    String command = iter.next();
+                    String gcode = iter.next();
+                    GcodeCommand command = createCommand(gcode);
                     this.sendCommandImmediately(command);
                 }
                 return;
@@ -279,8 +283,9 @@ public class GrblController extends AbstractController {
     @Override
     public void killAlarmLock() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getKillAlarmLockCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }
@@ -292,8 +297,9 @@ public class GrblController extends AbstractController {
     @Override
     public void toggleCheckMode() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getToggleCheckModeCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }
@@ -305,8 +311,9 @@ public class GrblController extends AbstractController {
     @Override
     public void viewParserState() throws Exception {
         if (this.isCommOpen()) {
-            String command = GrblUtils.getViewParserStateCommand(this.grblVersion, this.grblVersionLetter);
-            if (!"".equals(command)) {
+            String gcode = GrblUtils.getViewParserStateCommand(this.grblVersion, this.grblVersionLetter);
+            if (!"".equals(gcode)) {
+                GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
                 return;
             }

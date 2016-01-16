@@ -401,14 +401,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * Note: this is the only place where a string is sent to the comm.
      */
     @Override
-    public void sendCommandImmediately(String str) throws Exception {
+    public void sendCommandImmediately(GcodeCommand command) throws Exception {
         isReadyToSendCommandsEvent();
         
         if (!this.commOpen) {
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
-        GcodeCommand command = this.commandCreator.createCommand(str);
+        ;
         //this.outgoingQueue.add(command);
         this.commands.add(outgoingQueueIdx, command);
 
@@ -476,20 +476,20 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueCommand(StringBuilder str) throws Exception {
-        queueCommand(str.toString());
+    public GcodeCommand createCommand(String gcode) throws Exception {
+        return this.commandCreator.createCommand(gcode);
     }
 
     @Override
-    public void queueCommand(String str) throws Exception {
-        GcodeCommand command = this.commandCreator.createCommand(str);
+    public void queueCommand(GcodeCommand command) throws Exception {
         this.commands.add(command);
     }
     
     @Override
     public void queueCommands(Iterable<String> commandStrings) throws Exception {
         for (String s : commandStrings) {
-            queueCommand(s);
+            GcodeCommand command = createCommand(s);
+            queueCommand(command);
         }
     }
     
@@ -844,17 +844,39 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
+    @Override
+    public void updateParserModalState(GcodeCommand command) {
+        if (command.isTemporaryParserModalChange()) {
+            return;
+        }
+        String gcode = command.getCommandString().toUpperCase();
+        if (gcode.contains("G90")) {
+            distanceModeCode = "G90";
+        }
+        if (gcode.contains("G91")) {
+            distanceModeCode = "G91";
+        }
+        if (gcode.contains("G20")) {
+            unitsCode = "G20";
+        }
+        if (gcode.contains("G21")) {
+            unitsCode = "G21";
+        }
+    }
+
     public void restoreParserModalState() {
         StringBuilder cmd = new StringBuilder();
         if (getDistanceModeCode() != null) {
-            cmd.append(getDistanceModeCode()).append("; ");
+            cmd.append(getDistanceModeCode()).append(" ");
         }
         if (getUnitsCode() != null) {
-            cmd.append(getUnitsCode()).append("; ");
+            cmd.append(getUnitsCode()).append(" ");
         }
 
         try {
-            queueCommand(cmd);
+            GcodeCommand command = createCommand(cmd.toString());
+            command.setTemporaryParserModalChange(true);
+            sendCommandImmediately(command);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

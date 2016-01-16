@@ -184,8 +184,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        logger.log(Level.INFO, "Sending gcode command: {0}", commandText);
-        controller.sendCommandImmediately(commandText);
+        GcodeCommand command = controller.createCommand(commandText);
+        sendGcodeCommand(command);
+    }
+
+    @Override
+    public void sendGcodeCommand(GcodeCommand command) throws Exception {
+        logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
+        controller.sendCommandImmediately(command);
     }
 
     /**
@@ -206,42 +212,45 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         String formattedStepSize = Utils.formatter.format(stepSize);
 
         // Build G91 command.
-        StringBuilder command = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         
         // Set jog command to the preferred units.
         if (this.units != units) {
             if (units == Units.INCH) {
-                command.append("G20 ");
+                builder.append("G20 ");
             } else if (units == Units.MM) {
-                command.append("G21 ");
+                builder.append("G21 ");
             }
 
             this.units = units;
         }
         
-        command.append("G91 G0 ");
+        builder.append("G91 G0 ");
         
         if (dirX != 0) {
-            command.append(" X");
+            builder.append(" X");
             if (dirX < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         } if (dirY != 0) {
-            command.append(" Y");
+            builder.append(" Y");
             if (dirY < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         } if (dirZ != 0) {
-            command.append(" Z");
+            builder.append(" Z");
             if (dirZ < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         }
 
-        this.sendGcodeCommand(command.toString());
+        GcodeCommand command = controller.createCommand(builder.toString());
+        command.setTemporaryParserModalChange(true);
+        controller.sendCommandImmediately(command);
+//        this.sendGcodeCommand(builder.toString());
         controller.restoreParserModalState();
     }
 
@@ -478,7 +487,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         } else if (gcodeString.contains("g20")) {
             this.units = Units.INCH;
         }
-            
+
+        controller.updateParserModalState(command);
         controller.currentUnits(this.units);
     }
 

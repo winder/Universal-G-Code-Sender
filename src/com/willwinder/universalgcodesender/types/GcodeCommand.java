@@ -46,6 +46,7 @@ public class GcodeCommand {
     private boolean isComment = false;
     private boolean hasComment = false;
     private String comment;
+    private boolean isTemporaryParserModalChange = false;
 
     public GcodeCommand(String command) {
         this(command, -1);
@@ -130,6 +131,20 @@ public class GcodeCommand {
 
     public String getComment() {
         return this.comment;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public boolean isTemporaryParserModalChange() {
+        return isTemporaryParserModalChange;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public void setTemporaryParserModalChange(boolean isGUICommand) {
+        this.isTemporaryParserModalChange = isGUICommand;
     }
 
     public Boolean parseResponse() {

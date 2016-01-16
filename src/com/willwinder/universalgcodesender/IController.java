@@ -8,6 +8,8 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+
 import java.util.Collection;
 
 /**
@@ -81,12 +83,13 @@ public interface IController {
     /*
     Stream content
     */
-    public void sendCommandImmediately(String str) throws Exception;
-    public void queueCommand(StringBuilder str) throws Exception;
-    public void queueCommand(String str) throws Exception;
+    public GcodeCommand createCommand(String gcode) throws Exception;
+    public void sendCommandImmediately(GcodeCommand cmd) throws Exception;
+    public void queueCommand(GcodeCommand cmd) throws Exception;
     public void queueCommands(Iterable<String> commandStrings) throws Exception;
 //
 //    public String getDistanceModeCode();
 //    public String getUnitsCode();
     public void restoreParserModalState();
+    public void updateParserModalState(GcodeCommand command);
 }

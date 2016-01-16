@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,11 +37,18 @@ public class PendantUITest {
 	public class MockMainWindow implements BackendAPI {
 		
             public String commandText;
-            @Override
-            public void sendGcodeCommand(String commandText) {
-                this.commandText = commandText;
-                System.out.println(commandText);
-            }
+
+        @Override
+        public void sendGcodeCommand(String commandText) {
+            this.commandText = commandText;
+            System.out.println(commandText);
+        }
+
+        @Override
+        public void sendGcodeCommand(GcodeCommand command) {
+            this.commandText = command.getCommandString();
+            System.out.println(commandText);
+        }
 
             public int dirX, dirY, dirZ; 
             public double stepSize;

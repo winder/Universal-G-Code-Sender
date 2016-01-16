@@ -79,11 +79,17 @@ public class GcodeTable extends JTable {
      */
     public void addRow(final GcodeCommand command) {
         String commandString = command.getCommandString();
-        if (command.isComment())
+        if (command.isComment()) {
             commandString = "; " + command.getComment();
-        else if (command.hasComment())
+        }
+        else if (command.hasComment()) {
             commandString += "; " + command.getComment();
-            
+        }
+
+        if (command.getCommandNumber() != getModel().getRowCount()) {
+            System.err.println("command number "+command.getCommandNumber()+" doesn't match row " + getModel().getRowCount());
+        }
+//        command.setCommandNumber(getModel().getRowCount());
         ((GcodeTableModel)this.getModel()).addRow(new Object[]{
             commandString,
             command.isSent(),
