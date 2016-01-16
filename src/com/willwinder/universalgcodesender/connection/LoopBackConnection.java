@@ -41,11 +41,11 @@ public class LoopBackConnection extends Connection {
             Thread.sleep(1000);
         } catch (Exception e) {}
         // This is nested beneath a GrblController, notify it that we're ready.
-        comm.responseMessage("Grbl 0.9j [just kidding]");
         comm.responseMessage(" ");
-        comm.responseMessage("This is a diagnostic end point which responds");
-        comm.responseMessage("to each gcode command as fast as possible while");
-        comm.responseMessage("doing nothing else.");
+        comm.responseMessage("Grbl 9.9z [ugs diagnostic mode]");
+        comm.responseMessage(" ");
+        comm.responseMessage("This is a diagnostic end point which responds to each gcode");
+        comm.responseMessage("command as fast as possible while doing nothing else.");
 
         while (true) {
             try {
