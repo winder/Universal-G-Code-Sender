@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -180,6 +181,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      */
     @Override
     synchronized public void streamCommands() {
+        Optional.of(this);
         // If there are no commands to send, exit.
         if (this.getNextCommand() == null) {
             return;

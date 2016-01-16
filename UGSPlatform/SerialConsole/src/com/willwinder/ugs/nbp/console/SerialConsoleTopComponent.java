@@ -161,7 +161,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void commandQueued(GcodeCommand gc) {
+    public void commandSkipped(GcodeCommand gc) {
     }
 
     @Override
