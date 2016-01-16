@@ -326,7 +326,7 @@ public class PendantUI implements ControllerListener{
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
     }
 
     @Override

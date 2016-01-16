@@ -381,7 +381,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }
     
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 

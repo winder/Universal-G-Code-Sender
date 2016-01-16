@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -44,7 +42,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
-    Object nextCommandLock = new Object();
     private BufferedReader    rawCommandStream;            // Arbitrary number of commands
     private GcodeStreamReader commandStream;               // Arbitrary number of commands
     private LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
@@ -141,6 +138,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
     
     /**
+     * THIS COMMAND CAN ONLY BE CALLED FROM streamCommands UNLESS
+     * THE nextCommand OBJECT IS SYNCHRONIZED.
+     * 
      * Returns the next command with the following priority:
      * 1. nextCommand object if set.
      * 2. Front of the commandBuffer collection.
@@ -148,40 +148,39 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @return 
      */
     private Optional<GcodeCommand> getNextCommand() {
-        synchronized (nextCommandLock) {
-            if (nextCommand != null) {
-                return Optional.of(nextCommand);
+        if (nextCommand != null) {
+            return Optional.of(nextCommand);
+        }
+        else if (!this.commandBuffer.isEmpty()) {
+            nextCommand = new GcodeCommand(commandBuffer.pop());
+        }
+        else try {
+            if (rawCommandStream != null && rawCommandStream.ready()) {
+                nextCommand = new GcodeCommand(rawCommandStream.readLine());
             }
-            else if (!this.commandBuffer.isEmpty()) {
-                nextCommand = new GcodeCommand(commandBuffer.pop());
+            else if (commandStream != null && commandStream.ready()) {
+                nextCommand = commandStream.getNextCommand();
             }
-            else try {
-                if (rawCommandStream != null && rawCommandStream.ready()) {
-                    nextCommand = new GcodeCommand(rawCommandStream.readLine());
-                }
-                else if (commandStream != null && commandStream.ready()) {
-                    nextCommand = commandStream.getNextCommand();
-                }
-            } catch (IOException ex) {
-                // Fall through to null handling.
-            }
+        } catch (IOException ex) {
+            // Fall through to null handling.
+        }
 
-            if (nextCommand != null) {
-                nextCommand.setCommandNumber(getNextCommandId());
-                if (nextCommand.getCommandString().endsWith("\n")) {
-                    nextCommand.setCommand(nextCommand.getCommandString().trim());
-                }
-                return Optional.of(nextCommand);
+        if (nextCommand != null) {
+            nextCommand.setCommandNumber(getNextCommandId());
+            if (nextCommand.getCommandString().endsWith("\n")) {
+                nextCommand.setCommand(nextCommand.getCommandString().trim());
             }
+            return Optional.of(nextCommand);
         }
         return Optional.empty();
     }
    
     /**
      * Streams anything in the command buffer to the comm port.
+     * Synchronized to prevent commands from sending out of order.
      */
     @Override
-    public void streamCommands() {
+    synchronized public void streamCommands() {
         // If there are no commands to send, exit.
         if (!this.getNextCommand().isPresent()) {
             return;
@@ -208,9 +207,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
             if (command.getCommandString().isEmpty()) {
                 dispatchListenerEvents(COMMAND_SKIPPED, command);
-                synchronized(nextCommandLock) {
-                    nextCommand = null;
-                }
+                nextCommand = null;
                 continue;
             }
 
@@ -225,10 +222,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             try {
                 this.sendingCommand(commandString);
                 conn.sendStringToComm(commandString + "\n");
-                synchronized(nextCommandLock) {
-                    nextCommand = null;
-                }
-                dispatchListenerEvents(SerialCommunicatorEvent.COMMAND_SENT, command);
+                dispatchListenerEvents(COMMAND_SENT, command);
+                nextCommand = null;
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(-1);
@@ -249,9 +244,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     @Override
     public void cancelSend() {
-        synchronized (nextCommandLock) {
-            this.nextCommand = null;
-        }
+        this.nextCommand = null;
         this.commandBuffer.clear();
         this.commandStream = null;
     }

@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  *
@@ -114,6 +115,9 @@ public abstract class AbstractCommunicator {
             throw new Exception(Localization.getString("communicator.exception.port") + ": "+name);
         }
         
+        // Handle all events in a single thread.
+        this.eventThread.start();
+
         //open it
         return conn.openPort(name, baud);
     }
@@ -121,6 +125,9 @@ public abstract class AbstractCommunicator {
 
     //do common things (related to the connection, that is shared by all communicators)
     protected void closeCommPort() throws Exception {
+        this.stop = true;
+        this.eventThread.interrupt();
+
         conn.closePort();
     }
 
@@ -203,12 +210,7 @@ public abstract class AbstractCommunicator {
         final ArrayList<SerialCommunicatorListener> sclList = eventMap.get(event);
 
         if (launchEventsInDispatchThread) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    sendEventToListeners(event, sclList, string, command);
-                }
-            });
+            this.eventQueue.add(new EventData(event, sclList, string, command));
         } else {
             sendEventToListeners(event, sclList, string, command);
         }
@@ -241,4 +243,40 @@ public abstract class AbstractCommunicator {
 
         }
     }
+
+    /**
+     * If commands complete very fast, like several comments in a row being
+     * skipped, then multiple event handlers could process them out of order. To
+     * prevent that from happening we use a blocking queue to add events in the
+     * main thread, and process them in order a single event thread.
+     */
+    private LinkedBlockingDeque<EventData> eventQueue = new LinkedBlockingDeque<>();
+    boolean stop = false;
+    Thread eventThread = new Thread(() -> {
+        while (!stop) {
+            try {
+                EventData e = eventQueue.take();
+                sendEventToListeners(e.event, e.sclList, e.string, e.command);
+            } catch (Exception e) {}
+        }
+    });
+
+    // Simple data class used to pass data to the event thread.
+    private class EventData {
+        public EventData(
+                SerialCommunicatorEvent               event,
+                ArrayList<SerialCommunicatorListener> sclList, 
+                String                                string,
+                GcodeCommand                          command) {
+            this.sclList = sclList;
+            this.event = event;
+            this.command = command;
+            this.string = string;
+        }
+        public ArrayList<SerialCommunicatorListener> sclList;
+        public SerialCommunicatorEvent               event;
+        public GcodeCommand                          command;
+        public String                                string;
+    }
+
 }

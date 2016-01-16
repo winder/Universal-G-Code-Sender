@@ -357,7 +357,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public long getNumRemainingRows() {
-        return getNumRows() - getNumSentRows();
+        return this.controller.rowsRemaining();
     }
     @Override
     public long getSendDuration() {
@@ -514,7 +514,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
     }
 
     @Override

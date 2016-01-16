@@ -1249,7 +1249,7 @@
                       <Component id="firmwareLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="firmwareComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace pref="27" max="32767" attributes="0"/>
+                  <EmptySpace pref="26" max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -1318,7 +1318,6 @@
         </Component>
         <Component class="javax.swing.JComboBox" name="firmwareComboBox">
           <Properties>
-            <Property name="editable" type="boolean" value="true"/>
             <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
               <StringArray count="0"/>
             </Property>

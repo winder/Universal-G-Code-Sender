@@ -1159,8 +1159,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         firmwareLabel.setText("Firmware:");
 
-        firmwareComboBox.setEditable(true);
-
         org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
         connectionPanel.setLayout(connectionPanelLayout);
         connectionPanelLayout.setHorizontalGroup(
@@ -2530,8 +2528,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }
     
     @Override
-    public void commandQueued(GcodeCommand command) {
-        //this.commandTable.addRow(command);
+    public void commandSkipped(GcodeCommand command) {
+        commandSent(command);
     }
      
     @Override

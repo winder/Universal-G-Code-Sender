@@ -30,8 +30,6 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 
 /**
@@ -375,7 +373,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 return this.numCommandsSent;
                 //return streamCommands.getNumRows() - streamCommands.getNumRowsRemaining();
             case ROWS_REMAINING:
-                return this.numCommands - this.numCommandsCompleted;
+                return this.numCommands - this.numCommandsCompleted - this.numCommandsSkipped;
                 //return streamCommands.getNumRowsRemaining();
             default:
                 throw new IllegalStateException("This should be impossible - RowStat default case.");
@@ -603,39 +601,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         dispatchCommandSent(command);
     }
 
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        if (this.isStreamingFile()) {
-            this.numCommandsSkipped++;
-        }
-        
-        this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
-        command.setResponse("<skipped by application>");
-        command.setSkipped(true);
-        dispatchCommandSent(command);
-        dispatchCommandComplete(command);
-        if (command.hasComment()) {
-            dispatchCommandCommment(command.getComment());
-        }
-    }
-    
-    /**
-     * Notify controller that the next command has completed with response and
-     * that the stream is complete once the last command has finished.
-     */
-    public void commandComplete(String response) throws UnexpectedCommand {
-        if (this.activeCommands.size() == 0) {
-            throw new UnexpectedCommand();
-        }
-        
-        GcodeCommand command = this.activeCommands.remove(0);
-
-        command.setResponse(response);
-
-        //this.commandComplete(command);
-        this.numCommandsCompleted++;
-        dispatchCommandComplete(command);
-
+    public void checkStreamFinished() {
         if (!this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
@@ -645,6 +611,42 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             boolean isSuccess = (this.errorCount == 0);
             this.fileStreamComplete(streamName, isSuccess);
         }
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+        if (this.isStreamingFile()) {
+            this.numCommandsSkipped++;
+        }
+        
+        this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
+        command.setResponse("<skipped by application>");
+        command.setSkipped(true);
+        dispatchCommandSkipped(command);
+        if (command.hasComment()) {
+            dispatchCommandCommment(command.getComment());
+        }
+
+        checkStreamFinished();
+    }
+    
+    /**
+     * Notify controller that the next command has completed with response and
+     * that the stream is complete once the last command has finished.
+     */
+    public void commandComplete(String response) throws UnexpectedCommand {
+        if (this.activeCommands.isEmpty()) {
+            throw new UnexpectedCommand();
+        }
+        
+        GcodeCommand command = this.activeCommands.remove(0);
+
+        command.setResponse(response);
+
+        this.numCommandsCompleted++;
+        dispatchCommandComplete(command);
+
+        checkStreamFinished();
     }
     
     @Override
@@ -700,10 +702,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
     
-    protected void dispatchCommandQueued(GcodeCommand command) {
+    protected void dispatchCommandSkipped(GcodeCommand command) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
-                c.commandQueued(command);
+                c.commandSkipped(command);
             }
         }
     }

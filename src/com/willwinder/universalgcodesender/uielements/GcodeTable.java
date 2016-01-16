@@ -34,7 +34,6 @@ import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -75,16 +74,13 @@ public class GcodeTable extends JTable {
         addDataButton.setEnabled(true);
         addDataButton.addActionListener(new java.awt.event.ActionListener() {
             int rowNum = 1;
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 final int num = Integer.parseInt(text.getText());
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        for (int i = 0; i < num; i++) {
-                            table.addRow(new GcodeCommand("Command " + rowNum++));
-                            Thread.yield();
-                        }
-                        System.gc();
+                EventQueue.invokeLater(() -> {
+                    for (int i = 0; i < num; i++) {
+                        table.addRow(new GcodeCommand("Command " + rowNum++));
+                        Thread.yield();
                     }
                 });
             }
@@ -189,15 +185,6 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void addRow(final GcodeCommand command) {
-        /*
-        String commandString = command.getCommandString()
-                + "(" + command.getOriginalCommandString() + ")";
-        if (command.isComment())
-            commandString = "; " + command.getComment();
-        else if (command.hasComment())
-            commandString += "; " + command.getComment();
-        */
-            
         model.addRow(new Object[]{
             command.getCommandString(),
             command.getOriginalCommandString(),
@@ -217,6 +204,7 @@ public class GcodeTable extends JTable {
         int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
+        String val = (String)model.getValueAt(row, COL_INDEX_COMMAND);
         if (!command.isComment() && commandString != model.getValueAt(row, COL_INDEX_COMMAND)) {
             System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, model.getValueAt(row, COL_INDEX_COMMAND) ) ;
         }
