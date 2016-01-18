@@ -106,6 +106,7 @@ public class GcodeTable extends JTable {
 
     private boolean autoWindowScroll = false;
     private int offset = 0;
+    private boolean first = true;
     
     final private static int COL_INDEX_COMMAND       = 0;
     final private static int COL_INDEX_ORIG_COMMAND  = 1;
@@ -179,12 +180,17 @@ public class GcodeTable extends JTable {
         }
         //model.dropData();
         this.offset = 0;
+        this.first = true;
     }
     
     /**
      * Update table with a GcodeCommand.
      */
     public void addRow(final GcodeCommand command) {
+        if (first) {
+            offset = command.getCommandNumber() * -1;
+            first = false;
+        }
         model.addRow(new Object[]{
             command.getCommandString(),
             command.getOriginalCommandString(),
