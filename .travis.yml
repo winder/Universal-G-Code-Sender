@@ -1,7 +1,13 @@
 language: java
+
 after_success:
+  - codecov
   - mvn package assembly:assembly
   - mkdir -p UGSPlatform/UGSLib/release/modules/ext/ugs/
   - cp target/UniversalGcodeSender.jar "UGSPlatform/UGSLib/release/modules/ext/ugs/Universal G-Code Sender.jar"
   - cd UGSPlatform
   - ant build-zip
+
+before_script:
+  - pip install --user codecov
+
