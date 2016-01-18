@@ -55,7 +55,7 @@ public final class Start extends AbstractAction implements ContextAwareAction, C
     
     public Start(Lookup lookup) {
         Icon icon = ImageUtilities.image2Icon(
-        ImageUtilities.loadImage("resources/play.png"));
+                ImageUtilities.loadImage("resources/play.png"));
         putValue(SMALL_ICON, icon);
  
         this.setEnabled(true);
