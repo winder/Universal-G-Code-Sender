@@ -83,13 +83,14 @@ public class SettingsFactory {
                     out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
                     out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
                     out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
-                    out.setCustomGcode1(properties.getProperty("customGcode1", "G0 X0 Y0;"));
-                    out.setCustomGcode2(properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
-                    out.setCustomGcode3(properties.getProperty("customGcode3", ""));
-                    out.setCustomGcode4(properties.getProperty("customGcode4", ""));
-                    out.setCustomGcode5(properties.getProperty("customGcode5", ""));
+                    out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
+                    out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
+                    out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));
+                    out.updateMacro(4, null, null, properties.getProperty("customGcode4", ""));
+                    out.updateMacro(5, null, null, properties.getProperty("customGcode5", ""));
                     out.setLanguage(properties.getProperty("language", "en_US"));
 	    	}
+            out.finalizeInitialization();
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
         }
