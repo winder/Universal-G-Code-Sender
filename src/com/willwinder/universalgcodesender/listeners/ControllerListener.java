@@ -32,9 +32,9 @@ public interface ControllerListener {
     void fileStreamComplete(String filename, boolean success);
     
     /**
-     * A command has been added to the output queue.
+     * A command in the stream has been skipped.
      */
-    void commandQueued(GcodeCommand command);
+    void commandSkipped(GcodeCommand command);
     
     /**
      * A command has successfully been sent to the controller.

@@ -2,7 +2,7 @@
  * Abstract Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2015 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.*;
 import java.util.*;
@@ -35,7 +36,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public abstract class AbstractController implements SerialCommunicatorListener, IController {
+public abstract class AbstractController implements SerialCommunicatorListener, IController {;
     public class UnexpectedCommand extends Exception {
         
     }
@@ -184,41 +185,30 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private long streamStop = 0;
     private File gcodeFile;
     
-    // This metadata needs to be cached instead of inferred from queue's because
-    // in case of a cancel the queues will be cleared.
-    private int numCommandsStreamed = 0;
+    // This metadata needs to be cached instead of looked up from queues and
+    // streams, because those sources may be compromised during a cancel.
+    private int numCommands = 0;
     private int numCommandsSent = 0;
     private int numCommandsSkipped = 0;
     private int numCommandsCompleted = 0;
     
-    // Structures for organizing all streaming commands.
-    // This is structured as an array of commands with pointers that move across
-    // the array.
+    // Commands become active after the Communicator notifies us that they have
+    // been sent.
     //
-    // outgoingQueueIdx (o) - if 0, then no commands have been sent.
-    //                      - if 50, then commands 0-50 have been queued to the comm layer.
+    // The concept of queue'd commands is going away, it was never exposed in
+    // the GUI anyway.
     //
-    // sentIdx (s) - (s - o) are waiting on the comm layer.
-    //             - (a - s) are sent and awaiting a response.
-    //
-    // awaitingResponseIdx (a) - if less than outgoingIdx, then there are 
-    //                           (o - a + 1) commands in progress.
-    //                         - if equal to outgoingIdx, then all commands have
-    //                           a response.
-    //
-    // completedCommandIdx (c) - this should basically always be equal to a - 1.
-    //
-    // ==========================================|  // 'o' and earlier are queued
-    //                       |=======|           |  // 'a' through 's' are sent but not completed commands
-    // ==================|   |       |           |  // 'c' and before are completed
-    // |   |   |   |   | c | a |   | s |   |   | o |   |   |   |   |   |   |
-    
-    private ArrayList<GcodeCommand> commands;  // The list of commands to be sent.
-    private int outgoingQueueIdx;              // Index of the next command waiting to be queued.
-    private int sentIdx;                       // Index of the next command to send.
-    private int awaitingResponseIdx;           // Index of the next command expecting a response.
-    private int completedCommandIdx;           // Index of the last command completed.
-    private int errorCount;                    // Number of 'error' responses.
+    // Algorithm:
+    //   1) Send all manually queued commands to the Communicator.
+    //   2) Queue file stream(s).
+    //   3) As commands are sent by the Communicator create a GCodeCommand
+    //      (with command number) object and add it to the activeCommands list.
+    //   4) As commands are completed remove them from the activeCommand list.
+    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
+    private ArrayList<String>       queuedCommands;    // The list of specially queued commands to be sent.
+    private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
+    private GcodeStreamReader       streamCommands;    // The stream of commands to send.
+    private int                     errorCount;        // Number of 'error' responses.
     
     // Listeners
     private ArrayList<ControllerListener> listeners;
@@ -234,26 +224,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm = comm;
         this.comm.setListenAll(this);
         
-        //this.gcp = new GcodeParser();
-
-        commands = new ArrayList<>();
-        outgoingQueueIdx = 0;
-        sentIdx = 0;
-        awaitingResponseIdx = 0;
-        completedCommandIdx = -1;
-        
-        /*
-        this.prepQueue = new ConcurrentLinkedQueue<>();
-        this.outgoingQueue = new ConcurrentLinkedQueue<>();
-        this.awaitingResponseQueue = new ConcurrentLinkedQueue<>();
-        this.completedCommandList = new ConcurrentLinkedQueue<>();
-        this.errorCommandList = new ConcurrentLinkedQueue<>();
-        */
+        activeCommands = new ArrayList<>();
+        queuedCommands = new ArrayList<>();
         
         this.listeners = new ArrayList<>();
     }
     
-    @Deprecated public AbstractController() {
+    @Deprecated
+    public AbstractController() {
         this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
 
@@ -375,25 +353,50 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
-    @Override
-    public int rowsInQueue() {
-        if (this.completedCommandIdx < 0) return this.commands.size();
-        return this.commands.size() - this.completedCommandIdx;
+    private enum RowStat {
+        TOTAL_ROWS,
+        ROWS_SENT,
+        ROWS_REMAINING
+    }
+
+    /**
+     * Get one of the row statistics, returns -1 if stat is unavailable.
+     * @param stat
+     * @return 
+     */
+    public int getRowStat(RowStat stat) {
+        if (this.rawStreamCommands != null) {
+            return -1;
+        }
+
+        switch (stat) {
+            case TOTAL_ROWS:
+                return this.numCommands;
+                //return streamCommands.getNumRows();
+            case ROWS_SENT:
+                return this.numCommandsSent;
+                //return streamCommands.getNumRows() - streamCommands.getNumRowsRemaining();
+            case ROWS_REMAINING:
+                return this.numCommands - this.numCommandsCompleted - this.numCommandsSkipped;
+                //return streamCommands.getNumRowsRemaining();
+            default:
+                throw new IllegalStateException("This should be impossible - RowStat default case.");
+        }
     }
 
     @Override
     public int rowsInSend() {
-        return this.numCommandsStreamed;
+        return getRowStat(RowStat.TOTAL_ROWS);
     }
     
     @Override
     public int rowsSent() {
-        return this.numCommandsSent;
+        return getRowStat(RowStat.ROWS_SENT);
     }
     
     @Override
     public int rowsRemaining() {
-        return this.numCommandsStreamed - this.numCommandsCompleted - this.numCommandsSkipped;
+        return getRowStat(RowStat.ROWS_REMAINING);
     }
     
     /**
@@ -408,54 +411,23 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
+        //todo: fix VVV
+        this.sendStringToComm(str);
         ;
         //this.outgoingQueue.add(command);
         this.commands.add(outgoingQueueIdx, command);
-
-        this.commandQueued(command);
-        this.sendStringToComm(command.getCommandString());
-    }
-    
-    private void prepCommandForCommAndSend(int idx) throws Exception {
-        GcodeCommand command = commands.get(idx);
         
-        // Special case for the first command because it is usually updated by completed commands looking back.
-        if (this.outgoingQueueIdx == this.awaitingResponseIdx && command.hasComment())
-            dispatchCommandCommment(command.getComment());
+        //^^^^
 
-        // Add to the list of commands to send.
-        //this.commands.add(outgoingIdx, command);
-
-        this.commandQueued(command);
-
-        // Don't send zero length commands.
-        if (command.getCommandString().equals("")) {
-            this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
-
-            if (command.hasComment())
-                command.setResponse("<comment skipped by application>");
-            else
-                command.setResponse("<skipped by application>");
-            command.setSkipped(true);
-            // Need to queue the command first so that listeners don't
-            // see a random command complete without notice.
-            this.commandComplete(command);
-            // For the listeners...
-            dispatchCommandSent(command);
-        } else {
-            this.sendStringToComm(command.getCommandString());
-        }
+        this.comm.streamCommands();
     }
     
     /**
      * This is the only place where commands with an expected 'ok'/'error'
-     * response are sent to the comm.
+     * response are sent to the comm - with the exception of command streams.
      */
     private void sendStringToComm(String command) {
         this.comm.queueStringForComm(command+"\n");
-        // Send command to the serial port.
-        numCommandsStreamed++;
-        this.comm.streamCommands();
     }
     
     @Override
@@ -463,10 +435,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         isReadyToSendCommandsEvent();
         
         if (this.commOpen == false) {
-            throw new Exception("Cannot send command(s), comm port is not open.");
+            throw new Exception("Cannot begin streaming, comm port is not open.");
         }
-        if (this.awaitingResponseIdx != this.outgoingQueueIdx) {
-            throw new Exception("Cannot stream while there are active commands (controller).");
+        if (this.isStreaming) {
+            throw new Exception("Already streaming.");
         }
         if (this.comm.areActiveCommands()) {
             throw new Exception("Cannot stream while there are active commands (communicator).");
@@ -476,6 +448,21 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
+    public void queueRawStream(Reader r) {
+        this.rawStreamCommands = r;
+        updateNumCommands();
+    }
+
+    @Override
+    public void queueStream(GcodeStreamReader r) {
+        this.streamCommands = r;
+        updateNumCommands();
+    }
+
+    @Override
+    public void queueCommand(String str) throws Exception {
+        this.queuedCommands.add(str);
+        updateNumCommands();
     public GcodeCommand createCommand(String gcode) throws Exception {
         return this.commandCreator.createCommand(gcode);
     }
@@ -491,6 +478,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             GcodeCommand command = createCommand(s);
             queueCommand(command);
         }
+        updateNumCommands();
     }
     
     /**
@@ -501,8 +489,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void beginStreaming() throws Exception {
 
         this.isReadyToStreamFile();
-        
-        if (this.commands.size() <= this.outgoingQueueIdx) {
+
+        // Throw if there's nothing queued.
+        if (this.queuedCommands.size() == 0 &&
+                this.rawStreamCommands == null &&
+                this.streamCommands == null) {
             throw new Exception("There are no commands queued for streaming.");
         }
         
@@ -515,24 +506,31 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.isStreaming = true;
         this.streamStop = 0;
         this.streamStart = System.currentTimeMillis();
-        this.numCommandsStreamed = 0;
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
         this.numCommandsCompleted = 0;
+        updateNumCommands();
 
+        // Send all queued commands and streams then kick off the stream.
         try {
-            // Send all queued commands and wait for a response.
-            GcodeCommand command;
-            while (this.outgoingQueueIdx < this.commands.size()) {
-                prepCommandForCommAndSend(outgoingQueueIdx);
+            while (this.queuedCommands.size() > 0) {
+                this.sendStringToComm(this.queuedCommands.remove(0));
             }
             
-            // Inform the GUI of the postprocessed number of commands.
-            this.dispatchPostProcessData(numCommandsStreamed);
+            if (this.rawStreamCommands != null) {
+                comm.queueRawStreamForComm(this.rawStreamCommands);
+            }
+
+            if (this.streamCommands != null) {
+                comm.queueStreamForComm(this.streamCommands);
+            }
+
+            comm.streamCommands();
         } catch(Exception e) {
             e.printStackTrace();
             this.isStreaming = false;
             this.streamStart = 0;
+            this.comm.cancelSend();
             throw e;
         }
     }
@@ -567,60 +565,36 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         
         //flushSendQueues();
         flushQueuedCommands();
-        
-        /*
-        this.outgoingQueue.clear();
-        this.completedCommandList.clear();
-        this.errorCommandList.clear();
-        */
+
         
         this.comm.cancelSend();
         
+        // If there are no active commands, done streaming. Otherwise wait for
+        // them to finish.
+        if (!comm.areActiveCommands()) {
+            this.isStreaming = false;
+        }
+
         cancelSendAfterEvent();
     }
     
     private synchronized void flushQueuedCommands() {
-        if (this.commands.size() > 0) {
-            this.commands.subList(sentIdx, this.commands.size()).clear();
-            this.outgoingQueueIdx = this.awaitingResponseIdx;
-        }
+        // TODO: Special handling for stream necessary?
+        this.queuedCommands.clear();
     }
+
     // Reset send queue and idx's.
     private void flushSendQueues() {
-        
-        this.commands.clear();
-        this.sentIdx = 0;
-        this.outgoingQueueIdx = 0;
-        this.awaitingResponseIdx = 0;
-        this.completedCommandIdx = -1;
         this.errorCount = 0;
-        
-        /*
-        this.prepQueue.clear();
-        this.outgoingQueue.clear();
-        this.awaitingResponseQueue.clear();
-        this.completedCommandList.clear();
-        this.errorCommandList.clear();
-        */
     }
 
-    private void printStateOfQueues() {
-        System.out.println("command queue size = " + this.commands.size());
-        System.out.println("sentIdx = " + this.sentIdx);
-        System.out.println("outgoingQueueIdx = " + this.outgoingQueueIdx);
-        System.out.println("awaitingResponseIdx = " + this.awaitingResponseIdx);
-        System.out.println("completedCommandIdx = " + this.completedCommandIdx);
-        System.out.println("numErrors = " + this.errorCount);
-        System.out.println("============");
-        
+    private void updateNumCommands() {
+        numCommands = queuedCommands.size();
+        if (streamCommands != null) {
+            numCommands += streamCommands.getNumRows();
+        }
     }
     
-    // No longer a listener event
-    private void commandQueued(GcodeCommand command) {
-        this.outgoingQueueIdx++;
-        dispatchCommandQueued(command);
-    }
-
     // No longer a listener event
     private void fileStreamComplete(String filename, boolean success) {
         this.messageForConsole("\n**** Finished sending file. ****\n\n");
@@ -631,96 +605,22 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     @Override
-    public void commandSent(String commandStr) {
-        this.sentIdx++;
-        
+    public void commandSent(GcodeCommand command) {
         if (this.isStreamingFile()) {
             this.numCommandsSent++;
         }
         
-        GcodeCommand command = this.commands.get(this.awaitingResponseIdx++);
-
-        // Jump over skipped commands
-        while (command.isSkipped()) {
-            command = this.commands.get(this.awaitingResponseIdx++);
-            this.sentIdx++;
-        }
-
-        //GcodeCommand c = this.outgoingQueue.remove();
-        if (!command.isSkipped())
-            command.setSent(true);
+        command.setSent(true);
+        this.activeCommands.add(command);
         
-        if (!command.getCommandString().equals(commandStr)) {
-            this.errorMessageForConsole("Command <"+command.getCommandString()+
-                    "> does not equal expected command <"+commandStr+">");
+        if (command.hasComment()) {
+            dispatchCommandCommment(command.getComment());
         }
-
-        //this.awaitingResponseQueue.add(c);
-        
         dispatchCommandSent(command);
     }
-    
-    /**
-     * Notify controller that the next command has completed with response.
-     */
-    public void commandComplete(String response) throws UnexpectedCommand {
-        if (this.commands.size() == (this.completedCommandIdx + 1)) {
-            throw new UnexpectedCommand();
-        }
-        
-        GcodeCommand command = this.commands.get(++this.completedCommandIdx);
 
-        while (command.isSkipped() && (this.completedCommandIdx < this.commands.size())) {
-            command = this.commands.get(++this.completedCommandIdx);
-        }
-
-        command.setResponse(response);
-        this.commandComplete(command);
-    }
-    
-    /**
-     * Internal command complete has extra handling for skipped command case.
-     */
-    private void commandComplete(GcodeCommand command) throws UnexpectedCommand {
-        GcodeCommand c = command;
-        
-        // If the command wasn't sent, it was skipped and should be ignored
-        // from the remaining queues.
-        if (!command.isSkipped()) {
-            this.numCommandsCompleted++;
-
-            if (this.completedCommandIdx >= this.outgoingQueueIdx) {
-                throw new UnexpectedCommand();
-                //throw new Exception("Attempting to complete a command that "
-                //        + "doesn't exist: <" + command.toString() + ">");
-            }
-            
-            // Peek to see if the next one is a comment, and skip skipped commands
-            while (this.isStreamingFile() && (this.completedCommandIdx + 1) < this.commands.size()) {
-                GcodeCommand next = this.commands.get(this.completedCommandIdx + 1);
-                if (next != null) {
-                    if (next.hasComment()) {
-                        dispatchCommandCommment(next.getComment());
-                    }
-
-                    if (next.isSkipped()) {
-                        this.completedCommandIdx++;
-                    } else {
-                        break;
-                    }
-                }
-            }
-        } else {
-            if (this.isStreamingFile()) {
-                this.numCommandsSkipped++;
-            }
-        }
-        
-        dispatchCommandComplete(c);
-        
-        if (this.isStreamingFile() &&
-                this.commands.size() <= this.outgoingQueueIdx &&
-                this.completedCommandIdx == (this.commands.size() - 1)) {
+    public void checkStreamFinished() {
+        if (!this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
                 streamName = this.gcodeFile.getName();
@@ -731,6 +631,42 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+        if (this.isStreamingFile()) {
+            this.numCommandsSkipped++;
+        }
+        
+        this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
+        command.setResponse("<skipped by application>");
+        command.setSkipped(true);
+        dispatchCommandSkipped(command);
+        if (command.hasComment()) {
+            dispatchCommandCommment(command.getComment());
+        }
+
+        checkStreamFinished();
+    }
+    
+    /**
+     * Notify controller that the next command has completed with response and
+     * that the stream is complete once the last command has finished.
+     */
+    public void commandComplete(String response) throws UnexpectedCommand {
+        if (this.activeCommands.isEmpty()) {
+            throw new UnexpectedCommand();
+        }
+        
+        GcodeCommand command = this.activeCommands.remove(0);
+
+        command.setResponse(response);
+
+        this.numCommandsCompleted++;
+        dispatchCommandComplete(command);
+
+        checkStreamFinished();
+    }
+    
     @Override
     public void messageForConsole(String msg) {
         dispatchConsoleMessage(msg, Boolean.FALSE);
@@ -784,10 +720,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
     
-    protected void dispatchCommandQueued(GcodeCommand command) {
+    protected void dispatchCommandSkipped(GcodeCommand command) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
-                c.commandQueued(command);
+                c.commandSkipped(command);
             }
         }
     }

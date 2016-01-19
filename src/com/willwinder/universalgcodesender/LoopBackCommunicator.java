@@ -1,10 +1,9 @@
-/*
- * This is the interface which the SerialCommunicator class uses to notify
- * external programs of important events during communication.
+/**
+ * A diagnostic class to test application speed, overrides the connection
+ * with a handler that responds with "ok" as fast as possible.
  */
-
 /*
-    Copywrite 2012-2016 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,22 +20,16 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.willwinder.universalgcodesender;
 
-package com.willwinder.universalgcodesender.listeners;
-
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.connection.LoopBackConnection;
 
 /**
  *
  * @author wwinder
  */
-public interface SerialCommunicatorListener {
-    //void capabilitiesListener(CommUtils.Capabilities capability);
-    void rawResponseListener(String response);
-    
-    void commandSent(GcodeCommand command);
-    void commandSkipped(GcodeCommand command);
-    void messageForConsole(String msg);
-    void verboseMessageForConsole(String msg);
-    void errorMessageForConsole(String msg);
+public class LoopBackCommunicator extends GrblCommunicator {
+    public LoopBackCommunicator() {
+        this.conn = new LoopBackConnection();
+    }
 }

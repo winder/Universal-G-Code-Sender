@@ -23,7 +23,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.IOException;
-import java.util.NoSuchElementException;
 import org.junit.After;
 import org.junit.Ignore; 
 import static org.junit.Assert.*;
@@ -250,12 +249,15 @@ public class GrblControllerTest {
         
         // Test begining stream with no data to stream.
         expResult = false;
+        boolean threwException = false;
         try {
             instance.openCommPort("blah", 123);
             instance.beginStreaming();
         } catch (Exception ex) {
             assertEquals("There are no commands queued for streaming.", ex.getMessage());
+            threwException = true;
         }
+        assertTrue(threwException);
         result = instance.isStreamingFile();
         assertEquals(expResult, result);
 
@@ -277,7 +279,7 @@ public class GrblControllerTest {
         command.setSent(true);
         command.setResponse("ok");
         try {
-            instance.commandSent(command.getCommandString());
+            instance.commandSent(command);
             instance.commandComplete(command.getCommandString());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -338,7 +340,7 @@ public class GrblControllerTest {
         command.setSent(true);
         command.setResponse("ok");
         try {
-            instance.commandSent(command.getCommandString());
+            instance.commandSent(command);
             instance.commandComplete(command.getCommandString());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -365,6 +367,11 @@ public class GrblControllerTest {
         assert(result <= (expResult + 500));
     }
 
+    private void assertCounts(GrblController instance, int total, int sent, int remaining) {
+        assertEquals(total, instance.rowsInSend());
+        assertEquals(sent, instance.rowsSent());
+        assertEquals(remaining, instance.rowsRemaining());
+    }
     /**
      * Test of rowsInSend method, of class GrblController.
      */
@@ -379,15 +386,7 @@ public class GrblControllerTest {
 
         // Test 1.
         // When not sending, no commands queues, everything should be zero.
-        expResult = 0;
-        result = instance.rowsInSend();
-        assertEquals(expResult, result);
-        expResult = 0;
-        result = instance.rowsSent();
-        assertEquals(expResult, result);
-        expResult = 0;
-        result = instance.rowsRemaining();
-        assertEquals(expResult, result);
+        assertCounts(instance, 0, 0, 0);
         
         // Add 30 commands.
         for (int i=0; i < 30; i++) {
@@ -397,22 +396,14 @@ public class GrblControllerTest {
         try {
             instance.openCommPort("blah", 123);
             instance.beginStreaming();
+            mgc.areActiveCommands = true;
         } catch (Exception ex) {
             fail("Unexpected exception from GrblController: " +ex.getMessage());
         }
         
         // Test 2.
-        // 30 Commands queued, zero sent, zero completed.
-        expResult = 30;
-        result = instance.rowsInSend();
-        assertEquals(expResult, result);
-        expResult = 0;
-        result = instance.rowsSent();
-        assertEquals(expResult, result);
-        expResult = 30;
-        result = instance.rowsRemaining();
-        assertEquals(expResult, result);
-    
+        // 30 Commands queued, zero sent, 30 completed.
+        assertCounts(instance, 30, 0, 30);
         
         // Test 3.
         // Sent 15 of them, none completed.
@@ -421,21 +412,13 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0 X1");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             fail("Unexpected exception from command sent: " + ex.getMessage());
         }
-        expResult = 30;
-        result = instance.rowsInSend();
-        assertEquals(expResult, result);
-        expResult = 15;
-        result = instance.rowsSent();
-        assertEquals(expResult, result);
-        expResult = 30;
-        result = instance.rowsRemaining();
-        assertEquals(expResult, result);
+        assertCounts(instance, 30, 15, 30);
         
         // Test 4.
         // Complete 15 of them.
@@ -450,15 +433,7 @@ public class GrblControllerTest {
             ex.printStackTrace();
             fail("Unexpected exception from command complete: " + ex.getMessage());
         }
-        expResult = 30;
-        result = instance.rowsInSend();
-        assertEquals(expResult, result);
-        expResult = 15;
-        result = instance.rowsSent();
-        assertEquals(expResult, result);
-        expResult = 15;
-        result = instance.rowsRemaining();
-        assertEquals(expResult, result);
+        assertCounts(instance, 30, 15, 15);
         
         // Test 5.
         // Finish sending/completing the remaining 15 commands.
@@ -467,22 +442,15 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0 X1");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
                 instance.commandComplete(command.getCommandString());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
             fail("Unexpected exception from command complete: " + ex.getMessage());
         }
-        expResult = 30;
-        result = instance.rowsInSend();
-        assertEquals(expResult, result);
-        expResult = 30;
-        result = instance.rowsSent();
-        assertEquals(expResult, result);
-        expResult = 0;
-        result = instance.rowsRemaining();
-        assertEquals(expResult, result);
+        mgc.areActiveCommands = false;
+        assertCounts(instance, 30, 30, 0);
     }
 
     /**
@@ -509,38 +477,47 @@ public class GrblControllerTest {
     public void testIsReadyToStreamFile() throws Exception {
         System.out.println("isReadyToStreamFile");
         GrblController instance = new GrblController(mgc);
+        boolean asserted;
         
         // Test 1. Grbl has not yet responded.
         try {
+            asserted = false;
             instance.openCommPort("blah", 1234);
             instance.isReadyToStreamFile();
         } catch (Exception e) {
+            asserted = true;
             assertEquals("Grbl has not finished booting.", e.getMessage());
         }
+        assertTrue(asserted);
         
         // Test 2. No streaming if comm isn't open.
+        instance.closeCommPort();
         instance.rawResponseHandler("Grbl 0.8c");
         try {
+            asserted = false;
             instance.isReadyToStreamFile();
         } catch (Exception e) {
+            asserted = true;
             assertEquals("Cannot begin streaming, comm port is not open.", e.getMessage());
         }
+        assertTrue(asserted);
         
         // Test 3. Grbl ready, ready for send.
+        instance.openCommPort("blah", 1234);
         Boolean result = instance.isReadyToStreamFile();
         assertEquals(true, result);
         
         // Test 4. Can't send during active command.
-        GcodeCommand command = instance.createCommand("blah");
-        instance.sendCommandImmediately(command);
-        boolean exceptionFired = false;
+        instance.queueCommand("G0X0");
         try {
+            mgc.areActiveCommands = true;
+            asserted = false;
             instance.isReadyToStreamFile();
         } catch (Exception e) {
-            exceptionFired = true;
-            assertEquals("Cannot stream while there are active commands (controller).", e.getMessage());
+            asserted = true;
+            assertEquals("Cannot stream while there are active commands (communicator).", e.getMessage());
         }
-        assertTrue(exceptionFired);
+        assertTrue(asserted);
     }
 
     /**
@@ -580,7 +557,6 @@ public class GrblControllerTest {
         boolean caughtException = false;
         try {
             instance.beginStreaming();
-            
         } catch (Exception e) {
             caughtException = true;
             assertEquals("There are no commands queued for streaming.", e.getMessage());
@@ -605,7 +581,7 @@ public class GrblControllerTest {
         GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
-        instance.commandSent(command.getCommandString());
+        instance.commandSent(command);
         instance.commandComplete(command.getCommandString());
         
         // Test 3. Stream some commands and make sure they get sent.
@@ -627,7 +603,7 @@ public class GrblControllerTest {
         // Wrap up test 3.
         for (int i=0; i < 30; i++) {
             command.setCommand("G0X" + i);
-            instance.commandSent(command.getCommandString());
+            instance.commandSent(command);
             instance.commandComplete(command.getCommandString());
         }
     }
@@ -727,10 +703,11 @@ public class GrblControllerTest {
         // Note: It is hoped that one day cancel will proactively clear out the
         //       in progress commands. But that day is not today.
         assertEquals(30, instance.rowsRemaining());
-        //wrapUp(instance, 15);
         
         // Test 2.2
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.8c)
+        //setUp();
+        //instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
         for (int i=0; i < 30; i++) {
             instance.queueCommand(instance.createCommand("G0X" + i));
@@ -756,7 +733,7 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0X0");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
             }
         } catch (Exception ex) {
             fail("Unexpected exception from command sent: " + ex.getMessage());
@@ -779,7 +756,7 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0 X1");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -854,7 +831,7 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0 X1");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
             }
         } catch (Exception ex) {
             fail("Unexpected exception from command sent: " + ex.getMessage());
@@ -878,7 +855,7 @@ public class GrblControllerTest {
                 GcodeCommand command = new GcodeCommand("G0 X1");
                 command.setSent(true);
                 command.setResponse("ok");
-                instance.commandSent(command.getCommandString());
+                instance.commandSent(command);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -892,30 +869,6 @@ public class GrblControllerTest {
         assertEquals(0, instance.rowsRemaining());
     }
     
-    /**
-     * Test of commandSent method, of class GrblController.
-     */
-    @Test
-    public void testCommandSent() {
-        System.out.println("commandSent");
-        GcodeCommand command = new GcodeCommand("G0X1");
-        GrblController instance = new GrblController(mgc);
-        
-        // Test 1. Sending command when none are queued.
-        boolean hitException = false;
-        try {
-            instance.commandSent(command.getCommandString());
-        } catch (Exception e) {
-            hitException = true;
-        }
-        assertEquals(true, hitException);
-        
-        // Test 2.
-        // The good case is utilized extensively in other tests.
-        
-        // TODO: Test that commandSent triggers a listener event.
-    }
-
     /**
      * Test of commandComplete method, of class GrblController.
      */

@@ -130,7 +130,7 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
         // TODO: When canned cycles are handled in the controller I'll need to
         //       update the visualizer to use commands sniffed from this queue.
     }

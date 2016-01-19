@@ -22,42 +22,103 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.Vector;
+import javax.swing.table.AbstractTableModel;
+import third_party.PersistentVector;
+
 
 /**
  *
  * @author wwinder
  */
-public class GcodeTableModel extends DefaultTableModel {
-    private final Class[] types = new Class [] {
-        java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
-    };
-    private final boolean[] canEdit = new boolean [] {
-        false, false, false, false
-    };
-    
-    public GcodeTableModel() {
-        super(new Object [][] {
 
-            },
-            new String [] {
-                Localization.getString("gcodeTable.command"),
-                Localization.getString("gcodeTable.sent"),
-                Localization.getString("gcodeTable.done"),
-                Localization.getString("gcodeTable.response")
+// class that extends the AbstractTableModel
+class GcodeTableModel extends AbstractTableModel {
+
+    //ArrayList<Object[]> modelData;
+    PersistentVector modelData;
+    String[] header;
+    Class[] types;
+    
+    /**
+     * A TableModel which persists old data to the disk.
+     * @param obj
+     * @param header
+     * @param types 
+     */
+    GcodeTableModel(Object[][] obj, String[] header, Class[] types) {
+        // save the header
+        this.header = header;	
+        // save the types
+        this.types = types;
+        // and the rows
+        //modelData = new ArrayList<>();
+        modelData = new PersistentVector();
+
+        // copy the rows into the ArrayList
+        if (obj != null) {
+            for(int i = 0; i < obj.length; ++i) {
+                //modelData.add(obj[i]);
+                modelData.addElement(obj[i]);
             }
-        );
-    }      
+        }
+    }
+    // method that needs to be overload. The row count is the size of the ArrayList
+    @Override
+    public int getRowCount() {
+        return modelData.size();
+    }
+
+    // method that needs to be overload. The column count is the size of our header
+    @Override
+    public int getColumnCount() {
+        return header.length;
+    }
+
+    // method that needs to be overload. The object is in the arrayList at rowIndex
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        return ((Object[])modelData.elementAt(rowIndex))[columnIndex];
+        //return modelData.get(rowIndex)[columnIndex];
+    }
+    
+    // a method to return the column name 
+    @Override
+    public String getColumnName(int index) {
+        return header[index];
+    }
 
     @Override
     public Class getColumnClass(int columnIndex) {
         return types [columnIndex];
     }
+    
+    void addRow(Object[] row) {
+        int rowCount = getRowCount();
+        //modelData.add(row);
+        modelData.addElement(row);
+        fireTableRowsInserted(rowCount, rowCount);
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int row, int column) {
+        //modelData.get(row)[column] = aValue;
+        Object[] r = (Object[]) modelData.elementAt(row);
+        r[column] = aValue;
+        modelData.setElementAt(r, row);
+        fireTableCellUpdated(row, column);
+    }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return canEdit [columnIndex];
+        return false;
     }
 
+    void dropData() {
+        //modelData = new ArrayList<>();
+        modelData = new PersistentVector();
+        // inform the GUI that I have change
+        fireTableDataChanged();
+    }
 }

@@ -77,7 +77,7 @@ public class GrblSettingsListener implements ControllerListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
 
     }
 

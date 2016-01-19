@@ -1,5 +1,5 @@
 /*
-    Copywrite 2012-2015 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,7 +34,7 @@ public class GrblCommunicator extends BufferedCommunicator {
      * act as GRBL.
      */
     protected GrblCommunicator(
-            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<String> asl, Connection c) {
+            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
         // Base constructor.
         //this();
         //TODO-f4grx-DONE: Mock connection

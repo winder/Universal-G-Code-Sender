@@ -343,7 +343,7 @@ public final class LocationStatusTopComponent extends TopComponent implements Co
     }
 
     @Override
-    public void commandQueued(GcodeCommand gc) {
+    public void commandSkipped(GcodeCommand gc) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

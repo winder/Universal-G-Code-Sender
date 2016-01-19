@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import jssc.SerialPortList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -69,7 +70,7 @@ public class CommUtils {
      * Checks if there is enough room in the GRBL buffer for nextCommand.
      */
     static public Boolean checkRoomInBuffer(int sentBuffer, String nextCommand, int bufferSize) {
-        if (nextCommand == null ) {
+        if (nextCommand == null) {
             return false;
         }
         

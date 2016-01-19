@@ -1,491 +1,211 @@
 package com.willwinder.universalgcodesender.pendantui;
 
+import com.google.gson.Gson;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collection;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.model.Utils.Units;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
-import java.io.File;
+import com.willwinder.universalgcodesender.utils.Settings;
+import org.easymock.EasyMock;
 
 public class PendantUITest {
-	private final MockMainWindow mainWindow = new MockMainWindow();
-	private final PendantUI pendantUI = new PendantUI(mainWindow);
-	private final MockUGSController controller = new MockUGSController();
+	private final BackendAPI mockBackend = EasyMock.createStrictMock(BackendAPI.class);
+	private final IController mockController = EasyMock.createStrictMock(AbstractController.class);
 	private final SystemStateBean systemState = new SystemStateBean();
-	
-	public class MockMainWindow implements BackendAPI {
-		
-            public String commandText;
-
-        @Override
-        public void sendGcodeCommand(String commandText) {
-            this.commandText = commandText;
-            System.out.println(commandText);
-        }
-
-        @Override
-        public void sendGcodeCommand(GcodeCommand command) {
-            this.commandText = command.getCommandString();
-            System.out.println(commandText);
-        }
-
-            public int dirX, dirY, dirZ; 
-            public double stepSize;
-            public Units units;
-
-            @Override
-            public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) {
-                this.dirX = dirX;
-                this.dirY = dirY;
-                this.dirZ = dirZ;
-                this.units = units;
-                this.stepSize = stepSize;
-                System.out.println("dirX: "+dirX+" dirY: "+dirY+" dirZ: "+dirZ+" stepSize: "+stepSize+" units: "+units);
-            }
-
-            public Settings settings = new Settings();
-
-            @Override
-            public Settings getSettings() {
-                return settings;
-            }
-
-            @Override
-            public AbstractController getController() {
-                return controller;
-            }
-
-            @Override
-            public void updateSystemState(SystemStateBean systemStateBean) {
-
-            }
-
-            public boolean sendButtonActionPerformed = false;
-
-            @Override
-            public void send() {
-                sendButtonActionPerformed = true;
-                System.out.println("sendButtonActionPerformed");
-            }
-
-            public boolean pauseButtonActionPerformed = false;
-
-            @Override
-            public void pauseResume() {
-                pauseButtonActionPerformed = true;
-                System.out.println("pauseButtonActionPerformed");
-            }
-
-            public boolean cancelButtonActionPerformed = false;
-
-            @Override
-            public void cancel() {
-                cancelButtonActionPerformed = true;
-                System.out.println("cancelButtonActionPerformed");
-            }
-
-            public boolean returnToZeroButtonActionPerformed = false;
-
-            @Override
-            public void returnToZero() {
-                returnToZeroButtonActionPerformed = true;
-                System.out.println("returnToZeroButtonActionPerformed");
-            }
-
-            public boolean resetCoordinatesButtonActionPerformed = false;
-
-            @Override
-            public void resetCoordinatesToZero() {
-                resetCoordinatesButtonActionPerformed = true;
-                System.out.println("resetCoordinatesButtonActionPerformed");
-            }
-
-            @Override
-            public void resetCoordinateToZero(char coord) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void connect(String firmware, String port, int baudRate) throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean isConnected() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void disconnect() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void applySettings(Settings settings) throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public ControlState getControlState() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public String getPauseResumeText() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean isPaused() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean canCancel() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void setFile(File file) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public long getSendDuration() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public long getSendRemainingDuration() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void applySettingsToController(Settings settings, IController controller) throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean isSending() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean canPause() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public long getNumRows() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public long getNumSentRows() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public long getNumRemainingRows() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void killAlarmLock() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void performHomingCycle() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void toggleCheckMode() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void issueSoftReset() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void requestParserState() throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public File getFile() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public boolean canSend() {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void addControlStateListener(ControlStateListener listener) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void addControllerListener(ControllerListener listener) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-            @Override
-            public void preprocessAndExportToFile(File f) throws Exception {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-	}
-	
-	public class MockUGSController extends AbstractController{
-            @Override
-            protected void statusUpdatesRateValueChanged(int rate) {
-            }
-
-            @Override
-            protected void statusUpdatesEnabledValueChanged(boolean enabled) {
-            }
-
-            @Override
-            protected void resumeStreamingEvent() throws IOException {
-            }
-
-            @Override
-            protected void rawResponseHandler(String response) {
-            }
-
-            @Override
-            protected void pauseStreamingEvent() throws IOException {
-            }
-
-            @Override
-            protected void isReadyToSendCommandsEvent() throws Exception {
-            }
-
-            @Override
-            public long getJobLengthEstimate(Collection<String> jobLines) {
-                return 0;
-            }
-
-            @Override
-            protected void closeCommBeforeEvent() {
-            }
-
-            @Override
-            protected void closeCommAfterEvent() {
-            }
-
-            @Override
-            protected void cancelSendBeforeEvent() {
-            }
-
-            @Override
-            protected void cancelSendAfterEvent() {
-            }
-
-            public boolean performHomingCycle = false;
-
-            @Override
-            public void performHomingCycle() throws Exception {
-                performHomingCycle = true;
-            }
-
-            public boolean killAlarmLock = false;
-            @Override
-            public void killAlarmLock() throws Exception {
-                killAlarmLock = true;
-            }
-
-            public boolean toggleCheckMode = true;
-            @Override
-            public void toggleCheckMode() throws Exception {
-                toggleCheckMode = true;
-            }
-
-            @Override
-            public void currentUnits(Units units) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-
-	}
+	private final PendantUI pendantUI = new PendantUI(mockBackend);
 	
 	@Before
 	public void setup(){
-            pendantUI.setSystemState(systemState);
+        EasyMock.reset(mockBackend, mockController);
+        pendantUI.setSystemState(systemState);
 	}
 	@Test
 	public void testPendantUI() {
-            assertSame(mainWindow, pendantUI.getMainWindow());
+            assertSame(mockBackend, pendantUI.getMainWindow());
 	}
 
 	@Test
-	public void testStart() {
-            pendantUI.setPort(23123);
-            String url = pendantUI.start().get(0).getUrlString();
-		
-            systemState.setControlState(ControlState.COMM_IDLE);
-		
-            // test resource handler
-            String indexPage = getResponse(url);
-            assertTrue(indexPage.contains("$(function()"));
+	public void testStart() throws Exception {
 
-            // test sendGcode Handler
-            getResponse(url+"/sendGcode?gCode=MyGcode");
-            assertEquals(mainWindow.commandText, "MyGcode");
+        // This is what we're about to do...
+        // 1. Send a command
+        mockBackend.sendGcodeCommand("MyGcode");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=$H");
-            assertTrue(controller.performHomingCycle);
+        // 2. Commands
+        mockBackend.performHomingCycle();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=$X");
-            assertTrue(controller.killAlarmLock);
+        mockBackend.killAlarmLock();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=$C");
-            assertTrue(controller.toggleCheckMode);
+        mockBackend.toggleCheckMode();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=SEND_FILE");
-            assertTrue(mainWindow.sendButtonActionPerformed);
+        mockBackend.send();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            // Disabled when idle
-            getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
-            assertFalse(mainWindow.pauseButtonActionPerformed);
+        // 3. Call some invalid commands which wont reach the backend.
 
-            // Disabled when idle
-            getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
-            assertFalse(mainWindow.cancelButtonActionPerformed);
+        // 4. Change the mode to sending and call pause/resume and cancel.
+        mockBackend.pauseResume();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            systemState.setControlState(ControlState.COMM_SENDING);
+        mockBackend.cancel();
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
-            assertTrue(mainWindow.pauseButtonActionPerformed);
+        // 5. Adjust machine location.
+        mockBackend.adjustManualLocation(1, 2, 3, 4.0, Utils.Units.UNKNOWN);
+        EasyMock.expect(EasyMock.expectLastCall()).once();
 
-            getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
-            assertTrue(mainWindow.cancelButtonActionPerformed);
+        // 6. Get system state
+        mockBackend.updateSystemState(EasyMock.anyObject(SystemStateBean.class));
+        EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
-            systemState.setControlState(ControlState.COMM_IDLE);
+        // 7. Get settings
+        Settings settings = new Settings();
+        settings.getPendantConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
+        EasyMock.expect(mockBackend.getSettings()).andReturn(settings).once();
 
-            // test adjust manual location handler
-            String adjustManualLocationResponse = getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
-            assertEquals(ControlState.COMM_IDLE.name(), adjustManualLocationResponse);
-            assertEquals(1,mainWindow.dirX);
-            assertEquals(2,mainWindow.dirY);
-            assertEquals(3,mainWindow.dirZ);
-            assertEquals(4.0,mainWindow.stepSize,0);
+        ///////////////////////////
+        // Start mock and do it! //
+        ///////////////////////////
+        EasyMock.replay(mockBackend);
+        pendantUI.setPort(23123);
+        String url = pendantUI.start().get(0).getUrlString();
+    
+        systemState.setControlState(ControlState.COMM_IDLE);
+        pendantUI.setSystemState(systemState);
+    
+        // test resource handler
+        String indexPage = getResponse(url);
+        assertTrue(indexPage.contains("$(function()"));
 
-            // test get system state handler
-            SystemStateBean systemStateTest = new Gson().fromJson(getResponse(url+"/getSystemState"), SystemStateBean.class);
-            assertEquals(ControlState.COMM_IDLE, systemStateTest.getControlState());
+        // 1. Send a command
+        getResponse(url+"/sendGcode?gCode=MyGcode");
+        // 2. Send commands
+        getResponse(url+"/sendGcode?gCode=$H");
+        getResponse(url+"/sendGcode?gCode=$X");
+        getResponse(url+"/sendGcode?gCode=$C");
+        getResponse(url+"/sendGcode?gCode=SEND_FILE");
 
-            systemState.setControlState(ControlState.COMM_SENDING);
-            systemStateTest = new Gson().fromJson(getResponse(url+"/getSystemState"), SystemStateBean.class);
-            assertEquals(ControlState.COMM_SENDING, systemStateTest.getControlState());
+        // 3. Call some invalid commands which wont reach the backend.
+        getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
+        getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
 
-            
-            // test config handler
-            String configResponse = getResponse(url+"/config");
-            assertTrue(configResponse.contains("shortCutButtonList"));
+        // 4. Change the mode to sending and call pause/resume and cancel.
+        systemState.setControlState(ControlState.COMM_SENDING);
+        getResponse(url+"/sendGcode?gCode=PAUSE_RESUME_FILE");
+        getResponse(url+"/sendGcode?gCode=CANCEL_FILE");
 
-            pendantUI.getMainWindow().getSettings().getPendantConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
+        // 5. Adjust machine location.
+        systemState.setControlState(ControlState.COMM_IDLE);
+        String adjustManualLocationResponse =
+                getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
 
-            configResponse = getResponse(url+"/config");
-            assertTrue(configResponse.contains("newStepSizeOptionValue"));
+        // 6. Get system state
+        SystemStateBean systemStateTest = new Gson().fromJson(
+                getResponse(url+"/getSystemState"), SystemStateBean.class);
+        assertEquals(ControlState.COMM_IDLE, systemStateTest.getControlState());
 
-            pendantUI.stop();
+        systemState.setControlState(ControlState.COMM_SENDING);
+        systemStateTest = new Gson().fromJson(
+                getResponse(url+"/getSystemState"), SystemStateBean.class);
+        assertEquals(ControlState.COMM_SENDING, systemStateTest.getControlState());
 
-            assertTrue(pendantUI.getServer().isStopped());
+        // 7. Get settings
+        String configResponse = getResponse(url+"/config");
+        assertTrue(configResponse.contains("shortCutButtonList"));
+        assertTrue(configResponse.contains("newStepSizeOptionValue"));
+
+        // Wrap up.
+        pendantUI.stop();
+        assertTrue(pendantUI.getServer().isStopped());
+
+        // Verify that all the EasyMock functions were called.
+        EasyMock.verify(mockBackend);
 	}
 	
 	private String getResponse(String urlStr){
-            StringBuilder out = new StringBuilder();
+        StringBuilder out = new StringBuilder();
 
-            try {
-                URL url = new URL(urlStr);
-                URLConnection conn = url.openConnection();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        out.append(line);
-                    }
+        try {
+            URL url = new URL(urlStr);
+            URLConnection conn = url.openConnection();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    out.append(line);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }				
-            return out.toString();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }				
+        return out.toString();
 	}
 
 	@Test
 	public void testGetUrl() {
-            String test = pendantUI.getUrlList().get(0).getUrlString();
+        String test = pendantUI.getUrlList().get(0).getUrlString();
 
-            assertTrue(test.startsWith("http://"));
-            assertTrue(test.contains("8080"));
+        assertTrue(test.startsWith("http://"));
+        assertTrue(test.contains("8080"));
 	}
 
 	@Test
 	public void testGetPort() {
-            pendantUI.setPort(999);
-            assertEquals(999, pendantUI.getPort());
+        pendantUI.setPort(999);
+        assertEquals(999, pendantUI.getPort());
 	}
 
 	@Test
 	public void testSetPort() {
-            pendantUI.setPort(999);
-            assertEquals(999, pendantUI.getPort());
+        pendantUI.setPort(999);
+        assertEquals(999, pendantUI.getPort());
 	}
 
 	@Test
 	public void testIsManualControlEnabled() {
+        systemState.setControlState(ControlState.COMM_DISCONNECTED);
+        assertFalse(pendantUI.isManualControlEnabled());
 
-            systemState.setControlState(ControlState.COMM_DISCONNECTED);
-            assertFalse(pendantUI.isManualControlEnabled());
+        systemState.setControlState(ControlState.COMM_IDLE);
+        assertTrue(pendantUI.isManualControlEnabled());
 
-            systemState.setControlState(ControlState.COMM_IDLE);
-            assertTrue(pendantUI.isManualControlEnabled());
+        systemState.setControlState(ControlState.COMM_SENDING);
+        assertFalse(pendantUI.isManualControlEnabled());
 
-            systemState.setControlState(ControlState.COMM_SENDING);
-            assertFalse(pendantUI.isManualControlEnabled());
+        systemState.setControlState(ControlState.COMM_SENDING_PAUSED);
+        assertTrue(pendantUI.isManualControlEnabled());
 
-            systemState.setControlState(ControlState.COMM_SENDING_PAUSED);
-            assertTrue(pendantUI.isManualControlEnabled());
-
-            //systemState.setControlState(ControlState.FILE_SELECTED);
-            //assertTrue(pendantUI.isManualControlEnabled());
-
+        //systemState.setControlState(ControlState.FILE_SELECTED);
+        //assertTrue(pendantUI.isManualControlEnabled());
 	}
 	
 	@Test
 	public void testSystemStateSetFileName(){
-            String fileSeparator = System.getProperty("file.separator");
+        String fileSeparator = System.getProperty("file.separator");
 
-            String testFileName = fileSeparator+"folder1"+fileSeparator+"folder2"+fileSeparator+"fileName.nc";
+        String testFileName = fileSeparator+"folder1"+fileSeparator+"folder2"+fileSeparator+"fileName.nc";
 
-            systemState.setFileName(testFileName);
+        systemState.setFileName(testFileName);
 
-            assertEquals("fileName.nc", systemState.getFileName());
-
+        assertEquals("fileName.nc", systemState.getFileName());
 	}
 }

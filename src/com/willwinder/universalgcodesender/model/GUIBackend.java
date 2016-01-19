@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,19 +25,20 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -64,7 +65,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     Units units = Units.UNKNOWN;
     
     // GUI State
-    File gcodeFile;
+    File gcodeFile = null;
+    File processedGcodeFile = null;
+    File tempDir = null;
     String lastComment;
     String activeState;
     ControlState controlState = ControlState.COMM_DISCONNECTED;
@@ -104,12 +107,26 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
-        try(BufferedReader br = new BufferedReader(new FileReader(this.getFile()))) {
-            try (PrintWriter pw = new PrintWriter(f, "UTF-8")) {
+        try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+                int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
+                    i++;
+                    if (i % 1000000 == 0) {
+                        logger.log(Level.FINE, "i: " + i);
+                    }
+                    String comment = GcodePreprocessorUtils.parseComment(line);
                     Collection<String> lines = gcp.preprocessCommand(line);
-                    for(String processedLine : lines) {
-                        pw.println(processedLine);
+
+                    // If it is a comment-only line, add the comment,
+                    if (!comment.isEmpty() && lines.isEmpty()) {
+                        gsw.addLine(line, "", comment, i);
+                    }
+                    // Otherwise add each processed line (often just one line).
+                    else {
+                        for(String processedLine : lines) {
+                            gsw.addLine(line, processedLine, comment, i);
+                        }
                     }
                 }
             }
@@ -271,17 +288,33 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Getting controller");
         return this.controller;
     }
+    
+    @Override
+    public void setTempDir(File file) throws IOException {
+        if (file.isDirectory())
+            this.tempDir = file;
+        else
+            throw new IOException("Temp dir " + file.toString() + " is not a directory.");
+    }
+
+    private File getTempDir() {
+        if (tempDir == null) {
+            tempDir = new File(System.getProperty("java.io.tmpdir"));
+        }
+        return tempDir;
+    }
 
     @Override
-    public void setFile(File file) throws Exception {
+    public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
+        this.processedGcodeFile = null;
         initializeProcessedLines(true);
         this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
     }
     
     @Override
-    public File getFile() {
+    public File getGcodeFile() {
         logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
@@ -299,7 +332,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
 
-            this.controller.queueCommands(processedCommandLines);
+            //this.controller.queueCommands(processedCommandLines);
+            //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
+            this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
 
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
@@ -324,7 +359,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public long getNumRemainingRows() {
-        return getNumRows() - getNumSentRows();
+        return this.controller.rowsRemaining();
     }
     @Override
     public long getSendDuration() {
@@ -383,6 +418,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public boolean isSending() {
         return this.controlState == ControlState.COMM_SENDING;
+    }
+
+    @Override
+    public boolean isIdle() {
+        try {
+            return this.controller.isReadyToStreamFile();
+        } catch(Exception e) {
+            return false;
+        }
     }
     
     @Override
@@ -469,7 +513,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
     }
 
     @Override
@@ -583,21 +627,21 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         return connected;
     }
 
-    Collection<String> processedCommandLines = null;
-    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, IOException {
+    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, Exception {
         if (this.gcodeFile != null) {
             Charset cs;
             try (FileReader fr = new FileReader(this.gcodeFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
-            List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
-            System.out.println("Finished loading");
+            //List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
+            logger.info("Finished loading");
             long start = System.currentTimeMillis();
-            if (this.processedCommandLines == null || forceReprocess) {
-                this.processedCommandLines = gcp.preprocessCommands(lines);
+            if (this.processedGcodeFile == null || forceReprocess) {
+                this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
+                this.preprocessAndExportToFile(processedGcodeFile);
             }
             long end = System.currentTimeMillis();
-            System.out.println("Took " + (end - start) + "ms to preprocess");
+            logger.info("Took " + (end - start) + "ms to preprocess");
 
             if (this.isConnected()) {
                 this.estimatedSendDuration = -1L;
@@ -605,7 +649,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 Thread estimateThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        estimatedSendDuration = controller.getJobLengthEstimate(processedCommandLines);
+                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile);
                     }
                 });
                 estimateThread.start();

@@ -53,9 +53,6 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
     @Deprecated public String getLineTerminator() {
         return this.lineTerminator;
     }
-    // Must create /var/lock on OSX, fixed in more current RXTX (supposedly):
-    // $ sudo mkdir /var/lock
-    // $ sudo chmod 777 /var/lock
     @Override
     synchronized public boolean openPort(String name, int baud) throws Exception {
         this.inputBuffer = new StringBuilder();

@@ -77,7 +77,7 @@ public final class FileBrowserTopComponent extends TopComponent implements Contr
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setFile(gcodeFile);
+                backend.setGcodeFile(gcodeFile);
                 settings.setLastOpenedFilename(gcodeFile.getAbsolutePath());
             } catch (Exception ex) {
                 //MainWindow.displayErrorDialog(ex.getMessage());

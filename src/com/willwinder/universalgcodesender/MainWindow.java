@@ -25,32 +25,28 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.utils.Version;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
-import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -66,10 +62,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.Timer;
+import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
 
@@ -82,8 +75,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
-    static Boolean showNightlyWarning = true;
-    
+
     private PendantUI pendantUI;
     public Settings settings;
     
@@ -91,6 +83,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
+    private final int consoleSize = 1024 * 1024;
 
     // TODO: Move command history box into a self contained object.
     private int commandNum = -1;
@@ -101,23 +94,23 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // Duration timer
     private Timer timer;
-    
+
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
-        if (MainWindow.showNightlyWarning && MainWindow.VERSION.contains("nightly")) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                String message = 
-                          "This version of Universal Gcode Sender is a nightly build.\n"
-                        + "It contains all of the latest features and improvements, \n"
-                        + "but may also have bugs that still need to be fixed.\n"
-                        + "\n"
-                        + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message, 
-                    "", JOptionPane.INFORMATION_MESSAGE);
-        }});
-        }
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
+        if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                String message =
+                        "This version of Universal Gcode Sender is a nightly build.\n"
+                                + "It contains all of the latest features and improvements, \n"
+                                + "but may also have bugs that still need to be fixed.\n"
+                                + "\n"
+                                + "If you encounter any problems, please report them on github.";
+                JOptionPane.showMessageDialog(new JFrame(), message,
+                        "", JOptionPane.INFORMATION_MESSAGE);
+            }});
+        }
         initComponents();
         initProgram();
         backend.addControllerListener(this);
@@ -134,12 +127,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
         scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
         checkScrollWindow();
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
+        showCommandTableCheckBox.setSelected(settings.isCommandTableEnabled());
         firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
-        customGcodeText1.setText(settings.getCustomGcode1());
-        customGcodeText2.setText(settings.getCustomGcode2());
-        customGcodeText3.setText(settings.getCustomGcode3());
-        customGcodeText4.setText(settings.getCustomGcode4());
-        customGcodeText5.setText(settings.getCustomGcode5());
+//        macroPanel.initMacroButtons(settings);
+
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
 //        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
@@ -161,12 +152,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+                settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
                 settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
-                settings.setCustomGcode1(customGcodeText1.getText());
-                settings.setCustomGcode2(customGcodeText2.getText());
-                settings.setCustomGcode3(customGcodeText3.getText());
-                settings.setCustomGcode4(customGcodeText4.getText());
-                settings.setCustomGcode5(customGcodeText5.getText());
+
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){
@@ -208,8 +196,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         GUIBackend backend = new GUIBackend();
         final MainWindow mw = new MainWindow(backend);
         
-        Dimension dim = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-
         /* Apply the settings to the MainWindow bofore showing it */
         mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
         mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
@@ -221,16 +207,13 @@ implements KeyListener, ControllerListener, ControlStateListener {
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
         mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
         mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
+        mw.showCommandTableCheckBox.setSelected(mw.settings.isCommandTableEnabled());
+        mw.showCommandTableCheckBoxActionPerformed(null);
         mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
-        mw.customGcodeText1.setText(mw.settings.getCustomGcode1());
-        mw.customGcodeText2.setText(mw.settings.getCustomGcode2());
-        mw.customGcodeText3.setText(mw.settings.getCustomGcode3());
-        mw.customGcodeText4.setText(mw.settings.getCustomGcode4());
-        mw.customGcodeText5.setText(mw.settings.getCustomGcode5());
+
         mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
         mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
-//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
-        
+
         mw.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent ce) {
@@ -275,6 +258,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
                 mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
                 mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
                 SettingsFactory.saveSettings(mw.settings);
                 
@@ -302,9 +286,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         jogUnitsGroup = new javax.swing.ButtonGroup();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         bottomTabbedPane = new javax.swing.JTabbedPane();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        commandTableScrollPane = new javax.swing.JScrollPane();
         commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         commandsPanel = new javax.swing.JPanel();
@@ -355,18 +339,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
         resetXButton = new javax.swing.JButton();
         resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
-        macroPanel = new javax.swing.JPanel();
-        customGcodeButton4 = new javax.swing.JButton();
-        customGcodeButton3 = new javax.swing.JButton();
-        customGcodeButton2 = new javax.swing.JButton();
-        customGcodeButton1 = new javax.swing.JButton();
-        customGcodeButton5 = new javax.swing.JButton();
-        customGcodeText1 = new javax.swing.JTextField();
-        customGcodeText2 = new javax.swing.JTextField();
-        customGcodeText3 = new javax.swing.JTextField();
-        customGcodeText4 = new javax.swing.JTextField();
-        customGcodeText5 = new javax.swing.JTextField();
-        macroInstructions = new javax.swing.JLabel();
+        macroPane = new javax.swing.JScrollPane();
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, this);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -396,6 +370,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         workPositionZValueLabel = new javax.swing.JLabel();
         latestCommentValueLabel = new javax.swing.JLabel();
         latestCommentLabel = new javax.swing.JLabel();
+        showCommandTableCheckBox = new javax.swing.JCheckBox();
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -427,19 +402,19 @@ implements KeyListener, ControllerListener, ControlStateListener {
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
 
         consoleTextArea.setColumns(20);
+        consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
-        jScrollPane2.setViewportView(consoleTextArea);
+        consoleScrollPane.setViewportView(consoleTextArea);
 
-        bottomTabbedPane.addTab("Console", jScrollPane2);
+        bottomTabbedPane.addTab("Console", consoleScrollPane);
 
-        commandTable.setModel(new com.willwinder.universalgcodesender.uielements.GcodeTableModel());
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
         commandTable.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(commandTable);
+        commandTableScrollPane.setViewportView(commandTable);
 
-        bottomTabbedPane.addTab("Command Table", jScrollPane1);
+        bottomTabbedPane.addTab("Command Table", commandTableScrollPane);
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
@@ -763,7 +738,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -978,141 +953,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
-        customGcodeButton4.setText("C4");
-        customGcodeButton4.setEnabled(false);
-        customGcodeButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeButton4ActionPerformed(evt);
-            }
-        });
+        macroPane.setViewportView(macroPanel);
 
-        customGcodeButton3.setText("C3");
-        customGcodeButton3.setEnabled(false);
-        customGcodeButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeButton3ActionPerformed(evt);
-            }
-        });
-
-        customGcodeButton2.setText("C2");
-        customGcodeButton2.setEnabled(false);
-        customGcodeButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeButton2ActionPerformed(evt);
-            }
-        });
-
-        customGcodeButton1.setText("C1");
-        customGcodeButton1.setEnabled(false);
-        customGcodeButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeButton1ActionPerformed(evt);
-            }
-        });
-
-        customGcodeButton5.setText("C5");
-        customGcodeButton5.setEnabled(false);
-        customGcodeButton5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeButton5ActionPerformed(evt);
-            }
-        });
-
-        customGcodeText1.setText("G91 X0 Y0");
-        customGcodeText1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeText1ActionPerformed(evt);
-            }
-        });
-
-        customGcodeText2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeText2ActionPerformed(evt);
-            }
-        });
-
-        customGcodeText3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeText3ActionPerformed(evt);
-            }
-        });
-
-        customGcodeText4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeText4ActionPerformed(evt);
-            }
-        });
-
-        customGcodeText5.setToolTipText("");
-        customGcodeText5.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                customGcodeText5ActionPerformed(evt);
-            }
-        });
-
-        macroInstructions.setText("asgasg");
-
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
-        macroPanel.setLayout(macroPanelLayout);
-        macroPanelLayout.setHorizontalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(macroPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(customGcodeButton1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(customGcodeText1))
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(customGcodeButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(customGcodeText2))
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(customGcodeButton4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(customGcodeText4))
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(customGcodeButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(customGcodeText3))
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(customGcodeButton5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(customGcodeText5))
-                    .add(macroPanelLayout.createSequentialGroup()
-                        .add(macroInstructions)
-                        .add(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        macroPanelLayout.setVerticalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(macroPanelLayout.createSequentialGroup()
-                .add(8, 8, 8)
-                .add(macroInstructions)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButton1)
-                    .add(customGcodeText1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButton2)
-                    .add(customGcodeText2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButton3)
-                    .add(customGcodeText3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButton4)
-                    .add(customGcodeText4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButton5)
-                    .add(customGcodeText5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(76, Short.MAX_VALUE))
-        );
-
-        controlContextTabbedPane.addTab("Macros", macroPanel);
+        controlContextTabbedPane.addTab("Macros", macroPane);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
@@ -1150,8 +993,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         portLabel.setText("Port:");
 
         firmwareLabel.setText("Firmware:");
-
-        firmwareComboBox.setEditable(true);
 
         org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
         connectionPanel.setLayout(connectionPanelLayout);
@@ -1196,7 +1037,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(25, Short.MAX_VALUE))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1339,8 +1180,16 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(6, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
+
+        showCommandTableCheckBox.setSelected(true);
+        showCommandTableCheckBox.setText("Enable command table");
+        showCommandTableCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showCommandTableCheckBoxActionPerformed(evt);
+            }
+        });
 
         settingsMenu.setText("Settings");
 
@@ -1403,6 +1252,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(scrollWindowCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(showVerboseOutputCheckBox)
+                        .add(18, 18, 18)
+                        .add(showCommandTableCheckBox)
                         .addContainerGap())
                     .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
             .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1421,7 +1272,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
-                            .add(showVerboseOutputCheckBox))))
+                            .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                                .add(showVerboseOutputCheckBox)
+                                .add(showCommandTableCheckBox)))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
         );
@@ -1499,7 +1352,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
-            this.clearTable();
+            this.commandTable.clear();
             this.sentRowsValueLabel.setText("0");
 
             String firmware = this.firmwareComboBox.getSelectedItem().toString();
@@ -1509,9 +1362,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
             try {
                 this.backend.connect(firmware, port, baudRate);
                 
-                if (this.backend.getFile() != null) {
+                if (this.backend.getGcodeFile() != null) {
                     if (this.vw != null) {
-                        vw.setGcodeFile(this.backend.getFile().getAbsolutePath());
+                        vw.setGcodeFile(this.backend.getGcodeFile().getAbsolutePath());
                     }
                 }
                 
@@ -1653,7 +1506,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             try {
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setFile(gcodeFile);
+                backend.setGcodeFile(gcodeFile);
                 if (this.vw != null) {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
@@ -1776,36 +1629,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
             MainWindow.displayErrorDialog(e.getMessage());
         }
         
-        /*
-        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
-            
-            boolean error = false;
-            String errorMessage = "";
-            @Override
-            protected Boolean doInBackground() throws Exception {
-                try {
-                    backend.send();
-                    resetSentRowLabels(backend.getNumRows());
-                    timer.start();
-                } catch (Exception e) {
-                    timer.stop();
-                    logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
-                    error = true;
-                    errorMessage = e.getMessage();
-                    //MainWindow.displayErrorDialog(e.getMessage());
-                }
-                return true;
-            }
-
-            // Can safely update the GUI from this method.
-            protected void done() {
-                if (error)
-                    MainWindow.displayErrorDialog(errorMessage);
-            }
-        };
-
-        worker.execute();
-        */
     }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
@@ -1862,30 +1685,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
 	    this.startPendantServerButton.setEnabled(true);
 	    this.stopPendantServerButton.setEnabled(false);
         }//GEN-LAST:event_stopPendantServerButtonActionPerformed
-
-    private void customGcodeText1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText1ActionPerformed
-        this.settings.setCustomGcode1(this.customGcodeText1.getText());
-    }//GEN-LAST:event_customGcodeText1ActionPerformed
-
-    private void customGcodeButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton5ActionPerformed
-        executeCustomGcode(this.customGcodeText5.getText());
-    }//GEN-LAST:event_customGcodeButton5ActionPerformed
-
-    private void customGcodeButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton1ActionPerformed
-        executeCustomGcode(this.customGcodeText1.getText());
-    }//GEN-LAST:event_customGcodeButton1ActionPerformed
-
-    private void customGcodeButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton2ActionPerformed
-        executeCustomGcode(this.customGcodeText2.getText());
-    }//GEN-LAST:event_customGcodeButton2ActionPerformed
-
-    private void customGcodeButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton3ActionPerformed
-        executeCustomGcode(this.customGcodeText3.getText());
-    }//GEN-LAST:event_customGcodeButton3ActionPerformed
-
-    private void customGcodeButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeButton4ActionPerformed
-        executeCustomGcode(this.customGcodeText4.getText());
-    }//GEN-LAST:event_customGcodeButton4ActionPerformed
 
     private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
         try {
@@ -2037,30 +1836,39 @@ implements KeyListener, ControllerListener, ControlStateListener {
         }
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
-    private void customGcodeText2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText2ActionPerformed
-        this.settings.setCustomGcode2(this.customGcodeText2.getText());
-    }//GEN-LAST:event_customGcodeText2ActionPerformed
-
-    private void customGcodeText3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText3ActionPerformed
-        this.settings.setCustomGcode3(this.customGcodeText3.getText());
-    }//GEN-LAST:event_customGcodeText3ActionPerformed
-
-    private void customGcodeText4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText4ActionPerformed
-        this.settings.setCustomGcode4(this.customGcodeText4.getText());
-    }//GEN-LAST:event_customGcodeText4ActionPerformed
-
-    private void customGcodeText5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customGcodeText5ActionPerformed
-        this.settings.setCustomGcode5(this.customGcodeText5.getText());
-    }//GEN-LAST:event_customGcodeText5ActionPerformed
-
     private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
     }//GEN-LAST:event_inchRadioButtonActionPerformed
 
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
-    private void executeCustomGcode(String str)
+    private void showCommandTableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCommandTableCheckBoxActionPerformed
+        showCommandTable(showCommandTableCheckBox.isSelected());
+    }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
+
+    private void showCommandTable(Boolean enabled) {
+        if (enabled && (backend.isConnected() && !backend.isIdle())) {
+            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
+            showCommandTableCheckBox.setSelected(false);
+            return;
+        }
+
+        this.commandTable.clear();
+        this.bottomTabbedPane.setEnabledAt(1, enabled);
+        commandTableScrollPane.setEnabled(enabled);
+        if (!enabled) {
+            this.bottomTabbedPane.setSelectedIndex(0);
+        } else {
+            this.bottomTabbedPane.setSelectedIndex(1);
+        }
+    }
+
+    public void executeCustomGcode(String str)
     {
+        if (str == null) {
+            return;
+        }
+
         str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
         final String[] parts = str.split(";");
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -2224,7 +2032,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.pauseButton.setText(backend.getPauseResumeText());
         this.sendButton.setEnabled(backend.canSend());
         
-        boolean hasFile = backend.getFile() != null;
+        boolean hasFile = backend.getGcodeFile() != null;
         if (hasFile) {
                 this.saveButton.setEnabled(true);
                 this.visualizeButton.setEnabled(true);
@@ -2236,19 +2044,19 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
-                this.updateCustomGcodeControls(false);
+                this.macroPanel.updateCustomGcodeControls(false);
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
                 this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
-                this.updateCustomGcodeControls(true);
+                this.macroPanel.updateCustomGcodeControls(true);
                 break;
             case COMM_SENDING:
                 // Workflow tab
                 this.updateWorkflowControls(false);
-                this.updateCustomGcodeControls(false);
+                this.macroPanel.updateCustomGcodeControls(false);
                 // Jogging commands
                 this.updateManualControls(false);
         
@@ -2309,18 +2117,17 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.requestStateInformation.setEnabled(enabled);
     }
     
-    private void updateCustomGcodeControls(boolean enabled) {
-        this.customGcodeButton1.setEnabled(enabled);    
-        this.customGcodeButton2.setEnabled(enabled);   
-        this.customGcodeButton3.setEnabled(enabled);
-        this.customGcodeButton4.setEnabled(enabled);
-        this.customGcodeButton5.setEnabled(enabled);        
-        this.customGcodeText1.setEnabled(enabled);
-        this.customGcodeText2.setEnabled(enabled);
-        this.customGcodeText3.setEnabled(enabled);
-        this.customGcodeText4.setEnabled(enabled);
-        this.customGcodeText5.setEnabled(enabled);
-    }
+//    private void updateCustomGcodeControls(boolean enabled) {
+//        for(JButton button : customGcodeButtons) {
+//            button.setEnabled(enabled);
+//        }
+//    }
+
+//    private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+//        //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
+//        Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
+//        executeCustomGcode(macro.getGcode());
+//    }
 
     private void resetTimerLabels() {
         // Reset labels
@@ -2351,6 +2158,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.baudLabel.setText(Localization.getString("mainWindow.swing.baudLabel"));
         this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
         this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
+        this.cancelButton.setToolTipText("cancel fool!");
         this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 Localization.getString("mainWindow.swing.connectionPanel")));
@@ -2385,11 +2193,12 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.sendButton.setText(Localization.getString("mainWindow.swing.sendButton"));
         this.sentRowsLabel.setText(Localization.getString("mainWindow.swing.sentRowsLabel"));
         this.showVerboseOutputCheckBox.setText(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+        this.showCommandTableCheckBox.setText(Localization.getString("mainWindow.swing.showCommandTableCheckBox"));
         this.softResetMachineControl.setText(Localization.getString("mainWindow.swing.softResetMachineControl"));
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
-        this.macroInstructions.setText(Localization.getString("mainWindow.swing.macroInstructions"));
+        this.macroPane.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
     }
@@ -2401,7 +2210,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         String[] portList = CommUtils.getSerialPortList();
 
         if (portList.length < 1) {
-            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
+            if (settings.isShowSerialPortWarning()) {
+                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
+            }
         } else {
             // Sort?
             //java.util.Collections.sort(portList);
@@ -2442,21 +2253,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
     }
     
-    private String getNewline() {
-        return "\r\n";
-        
-        /*
-        if (lineBreakNR.isSelected())
-            return "\n\r";
-        else if (lineBreakRN.isSelected())
-            return "\r\n";
-        else if (lineBreakN.isSelected())
-            return "\n";
-        else
-            return "wtfbbq";
-        */
-    }
-    
     void clearTable() {
         this.commandTable.clear();
     }
@@ -2492,8 +2288,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
     }
     
     @Override
-    public void commandQueued(GcodeCommand command) {
-        this.commandTable.addRow(command);
+    public void commandSkipped(GcodeCommand command) {
+        commandSent(command);
     }
      
     @Override
@@ -2502,7 +2298,10 @@ implements KeyListener, ControllerListener, ControlStateListener {
             @Override
             public void run() {
                 // sent
-                commandTable.updateRow(command);
+                if (commandTableScrollPane.isEnabled()) {
+                    commandTable.addRow(command);
+                }
+                //commandTable.updateRow(command);
             }});
     }
     
@@ -2519,7 +2318,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                commandTable.updateRow(command);
+                if (commandTableScrollPane.isEnabled()) {
+                    commandTable.updateRow(command);
+                }
             }});
     }
 
@@ -2592,21 +2393,13 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
     private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
+    private javax.swing.JScrollPane commandTableScrollPane;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JPanel commandsPanel;
     private javax.swing.JPanel connectionPanel;
+    private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
-    private javax.swing.JButton customGcodeButton1;
-    private javax.swing.JButton customGcodeButton2;
-    private javax.swing.JButton customGcodeButton3;
-    private javax.swing.JButton customGcodeButton4;
-    private javax.swing.JButton customGcodeButton5;
-    private javax.swing.JTextField customGcodeText1;
-    private javax.swing.JTextField customGcodeText2;
-    private javax.swing.JTextField customGcodeText3;
-    private javax.swing.JTextField customGcodeText4;
-    private javax.swing.JTextField customGcodeText5;
     private javax.swing.JLabel durationLabel;
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JLabel fileLabel;
@@ -2623,8 +2416,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
@@ -2640,8 +2431,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
-    private javax.swing.JLabel macroInstructions;
-    private javax.swing.JPanel macroPanel;
+    private javax.swing.JScrollPane macroPane;
+    private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
@@ -2668,6 +2459,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private javax.swing.JLabel sentRowsLabel;
     private javax.swing.JLabel sentRowsValueLabel;
     private javax.swing.JMenu settingsMenu;
+    private javax.swing.JCheckBox showCommandTableCheckBox;
     private javax.swing.JCheckBox showVerboseOutputCheckBox;
     private javax.swing.JButton softResetMachineControl;
     private javax.swing.JMenuItem startPendantServerButton;

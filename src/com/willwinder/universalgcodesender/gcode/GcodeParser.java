@@ -4,7 +4,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,6 +50,7 @@ public class GcodeParser {
     private double smallArcThreshold = 1.0;
     // Not configurable outside, but maybe it should be.
     private double smallArcSegmentLength = 0.3;
+    private int maxCommandLength = 50;
     
     // The gcode.
     List<PointSegment> points;
@@ -336,7 +337,7 @@ public class GcodeParser {
         return ps;
     }
 
-    public List<String> preprocessCommands(Collection<String> commands) {
+    public List<String> preprocessCommands(Collection<String> commands) throws Exception {
         int count = commands.size();
         int interval = count / 1000;
         List<String> result = new ArrayList<>(count);
@@ -356,14 +357,12 @@ public class GcodeParser {
         return result;
     }
 
-    public List<String> preprocessCommand(String command) {
+    public List<String> preprocessCommand(String command) throws Exception {
         List<String> result = new ArrayList<>();
-        boolean hasComment = false;
 
         // Remove comments from command.
         String newCommand = GcodePreprocessorUtils.removeComment(command);
         String rawCommand = newCommand;
-        hasComment = (newCommand.length() != command.length());
 
         if (removeAllWhitespace) {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
@@ -390,15 +389,16 @@ public class GcodeParser {
                 } else {
                     result.add(newCommand);
                 }
-            } else if (hasComment) {
-                // Maintain line level comment.
-                result.add(command.replace(rawCommand, newCommand));
             } else {
                 result.add(newCommand);
             }
-        } else if (hasComment) {
-            // Reinsert comment-only lines.
-            result.add(command);
+        }
+
+        // Check command length
+        for (String c : result) {
+            if (c.length() > maxCommandLength) {
+                throw new Exception ("Command '"+c+"' is too long: " + c.length() + " > " + maxCommandLength);
+            }
         }
 
         return result;
