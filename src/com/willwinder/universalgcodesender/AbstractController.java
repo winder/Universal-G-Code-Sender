@@ -205,7 +205,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //      (with command number) object and add it to the activeCommands list.
     //   4) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private ArrayList<String>       queuedCommands;    // The list of specially queued commands to be sent.
+    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
     private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
     private GcodeStreamReader       streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
@@ -411,14 +411,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
-        //todo: fix VVV
-        this.sendStringToComm(str);
-        ;
-        //this.outgoingQueue.add(command);
-        this.commands.add(outgoingQueueIdx, command);
-        
-        //^^^^
-
+        this.sendStringToComm(command.getCommandString());
         this.comm.streamCommands();
     }
     
@@ -460,24 +453,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueCommand(String str) throws Exception {
-        this.queuedCommands.add(str);
-        updateNumCommands();
     public GcodeCommand createCommand(String gcode) throws Exception {
         return this.commandCreator.createCommand(gcode);
     }
 
     @Override
     public void queueCommand(GcodeCommand command) throws Exception {
-        this.commands.add(command);
-    }
-    
-    @Override
-    public void queueCommands(Iterable<String> commandStrings) throws Exception {
-        for (String s : commandStrings) {
-            GcodeCommand command = createCommand(s);
-            queueCommand(command);
-        }
+        this.queuedCommands.add(command);
         updateNumCommands();
     }
     
@@ -514,7 +496,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         // Send all queued commands and streams then kick off the stream.
         try {
             while (this.queuedCommands.size() > 0) {
-                this.sendStringToComm(this.queuedCommands.remove(0));
+                this.sendStringToComm(this.queuedCommands.remove(0).getCommandString());
             }
             
             if (this.rawStreamCommands != null) {

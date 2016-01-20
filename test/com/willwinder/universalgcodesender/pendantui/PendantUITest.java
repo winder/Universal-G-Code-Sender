@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
 

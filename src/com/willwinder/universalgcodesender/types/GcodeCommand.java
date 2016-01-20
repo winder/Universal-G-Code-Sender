@@ -36,7 +36,6 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 public class GcodeCommand {
     private String command;
     private String originalCommand;
-    private String comment = null;
     private String response;
     private String responseType;
     private Boolean sent = false;

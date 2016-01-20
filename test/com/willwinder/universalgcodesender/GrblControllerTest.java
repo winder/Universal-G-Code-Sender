@@ -508,7 +508,7 @@ public class GrblControllerTest {
         assertEquals(true, result);
         
         // Test 4. Can't send during active command.
-        instance.queueCommand("G0X0");
+        instance.queueCommand(instance.createCommand("G0X0"));
         try {
             mgc.areActiveCommands = true;
             asserted = false;
