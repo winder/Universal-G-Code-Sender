@@ -116,7 +116,7 @@ public class GcodeTable extends JTable {
 
     static String[] columnNames = {
         Localization.getString("gcodeTable.command"),
-        Localization.getString("gcodeTable.originalcommand"),
+        Localization.getString("gcodeTable.originalCommand"),
         Localization.getString("gcodeTable.sent"),
         Localization.getString("gcodeTable.done"),
         Localization.getString("gcodeTable.response")
