@@ -57,8 +57,6 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
     synchronized public boolean openPort(String name, int baud) throws Exception {
         this.inputBuffer = new StringBuilder();
         
-        boolean returnCode;
-
         this.serialPort = new SerialPort(name);
         this.serialPort.openPort();
         this.serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
@@ -67,8 +65,8 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
         if (this.serialPort == null) {
             throw new Exception("Serial port not found.");
         }
-        
-        return true;
+
+        return serialPort.isOpened();
     }
         
     @Override
@@ -86,7 +84,12 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
             }
         }
     }
-    
+
+    @Override
+    public boolean isOpen() {
+        return serialPort != null && serialPort.isOpened();
+    }
+
     /**
      * Sends a command to the serial device. This actually streams the bits to
      * the comm port.
