@@ -309,9 +309,9 @@
               <Properties>
                 <Property name="enabled" type="boolean" value="false"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="commandTextFieldActionPerformed"/>
-              </Events>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend)"/>
+              </AuxValues>
             </Component>
           </SubComponents>
         </Container>

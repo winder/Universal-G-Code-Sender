@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2015 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -42,11 +42,10 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -70,8 +69,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class MainWindow extends javax.swing.JFrame 
-implements KeyListener, ControllerListener, ControlStateListener {
+public class MainWindow extends JFrame implements ControllerListener, ControlStateListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
@@ -293,7 +291,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         commandsPanel = new javax.swing.JPanel();
         commandLabel = new javax.swing.JLabel();
-        commandTextField = new javax.swing.JTextField();
+        commandTextField = new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend);
         fileModePanel = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
@@ -422,11 +420,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         commandLabel.setText("Command");
 
         commandTextField.setEnabled(false);
-        commandTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandTextFieldActionPerformed(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout commandsPanelLayout = new org.jdesktop.layout.GroupLayout(commandsPanel);
         commandsPanel.setLayout(commandsPanelLayout);
@@ -1037,7 +1030,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(27, Short.MAX_VALUE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1180,7 +1173,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(23, Short.MAX_VALUE))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
 
         showCommandTableCheckBox.setSelected(true);
@@ -1290,66 +1283,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         checkScrollWindow();
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
 
-    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        final String str = this.commandTextField.getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    backend.sendGcodeCommand(str);
-                } catch (Exception ex) {
-                    displayErrorDialog(ex.getMessage());
-                }
-            }
-        });
-        this.commandTextField.setText("");
-        this.manualCommandHistory.add(str);
-        this.commandNum = -1;
-    }//GEN-LAST:event_commandTextFieldActionPerformed
-
-    // TODO: Find out how to make these key* functions actions like the above.
-    // TODO: Create custom text area that will do all this stuff without
-    //       cluttering up the MainWindow class.
-    @Override
-    public void keyPressed(KeyEvent ke) {
-        boolean pressed = false;
-        
-        if (ke.getKeyCode() == KeyEvent.VK_UP) {
-            pressed = true;
-            if (this.commandNum == 0 || this.manualCommandHistory.isEmpty()) {
-                java.awt.Toolkit.getDefaultToolkit().beep();
-            } else if (this.commandNum == -1) {
-                this.commandNum = this.manualCommandHistory.size() -1;
-            } else {
-                this.commandNum--;
-            }
-        }
-        else if (ke.getKeyCode() == KeyEvent.VK_DOWN) {
-            pressed = true;
-            if ((this.commandNum == -1) || this.commandNum == (this.manualCommandHistory.size() -1)) {
-                java.awt.Toolkit.getDefaultToolkit().beep();
-                return;
-            } else {
-                this.commandNum++;
-            }
-        }
-        
-        if (pressed && this.commandNum != -1) {
-            String text = this.manualCommandHistory.get(this.commandNum);
-            this.commandTextField.setText(text);
-        }
-    }
-    
-    @Override
-    public void keyTyped(KeyEvent ke) {
-        // Don't care about this one...
-    }
-    
-    @Override
-    public void keyReleased(KeyEvent ke) {
-        // Or this one...
-    }
-    
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
             this.commandTable.clear();
@@ -1371,13 +1304,13 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
             } catch (Exception e) {
-                MainWindow.displayErrorDialog(e.getMessage());
+                displayErrorDialog(e.getMessage());
             }
         } else {
             try {
                 this.backend.disconnect();
             } catch (Exception e) {
-                MainWindow.displayErrorDialog(e.getMessage());
+                displayErrorDialog(e.getMessage());
             }
         }
     }//GEN-LAST:event_opencloseButtonActionPerformed
@@ -1490,7 +1423,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
             try {
                 backend.applySettings(settings);
             } catch (Exception e) {
-                MainWindow.displayErrorDialog(e.getMessage());
+                displayErrorDialog(e.getMessage());
             }
 
             if (this.vw != null) {
@@ -1511,7 +1444,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
                     vw.setGcodeFile(gcodeFile.getAbsolutePath());
                 }
             } catch (Exception ex) {
-                MainWindow.displayErrorDialog(ex.getMessage());
+                displayErrorDialog(ex.getMessage());
             }
         } else {
             // Canceled file open.
@@ -1565,7 +1498,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             backend.cancel();
         } catch (Exception e) {
-            MainWindow.displayErrorDialog(e.getMessage());
+            displayErrorDialog(e.getMessage());
         }
     }
     
@@ -1577,7 +1510,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.pauseResume();
         } catch (Exception e) {
-            MainWindow.displayErrorDialog(e.getMessage());
+            displayErrorDialog(e.getMessage());
         }
     }
     
@@ -1626,7 +1559,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         } catch (Exception e) {
             timer.stop();
             logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
-            MainWindow.displayErrorDialog(e.getMessage());
+            displayErrorDialog(e.getMessage());
         }
         
     }//GEN-LAST:event_sendButtonActionPerformed
@@ -1634,20 +1567,20 @@ implements KeyListener, ControllerListener, ControlStateListener {
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
         try {
             if (!this.backend.isConnected()) {
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
+                displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             } else if (this.backend.getController() instanceof GrblController) {
                     GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
                     gfsd.setVisible(true);
             } else {
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
+                displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
             }
         } catch (Exception ex) {
-                MainWindow.displayErrorDialog(ex.getMessage());
+                displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        //MainWindow.displayErrorDialog("Disabled for refactoring.");
+        //displayErrorDialog("Disabled for refactoring.");
         
         int returnVal = fileChooser.showSaveDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1658,14 +1591,14 @@ implements KeyListener, ControllerListener, ControlStateListener {
                 
                 backend.preprocessAndExportToFile(newFile);
             } catch (FileNotFoundException ex) {
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
+                displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
                         + ": " + ex.getMessage());
             } catch (IOException e) {
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.processingFile")
+                displayErrorDialog(Localization.getString("mainWindow.error.processingFile")
                         + ": "+e.getMessage());
             } catch (Exception e) {
                 logger.log(Level.INFO, "Exception in saveButtonActionPerformed.", e);
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.duringSave") +
+                displayErrorDialog(Localization.getString("mainWindow.error.duringSave") +
                         ": " + e.getMessage());
             }
         }
@@ -1690,7 +1623,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.resetCoordinateToZero('Z');
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_resetZCoordinateButtonActionPerformed
 
@@ -1698,7 +1631,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.resetCoordinateToZero('Y');
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_resetYCoordinateButtonActionPerformed
 
@@ -1706,7 +1639,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.resetCoordinateToZero('X');
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_resetXCoordinateButtonActionPerformed
 
@@ -1714,7 +1647,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.requestParserState();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_requestStateInformationActionPerformed
 
@@ -1722,7 +1655,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.issueSoftReset();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_softResetMachineControlActionPerformed
 
@@ -1754,7 +1687,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.toggleCheckMode();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_toggleCheckModeActionPerformed
 
@@ -1762,7 +1695,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.killAlarmLock();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_killAlarmLockActionPerformed
 
@@ -1770,7 +1703,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.performHomingCycle();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
@@ -1788,7 +1721,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
         } catch (Exception e) {
-            MainWindow.displayErrorDialog(e.getMessage());
+            displayErrorDialog(e.getMessage());
         }
     }
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
@@ -1823,7 +1756,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             backend.returnToZero();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
 
     }//GEN-LAST:event_returnToZeroButtonActionPerformed
@@ -1832,7 +1765,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             this.backend.resetCoordinatesToZero();
         } catch (Exception ex) {
-            MainWindow.displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
@@ -1848,7 +1781,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
-            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
+            displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
             showCommandTableCheckBox.setSelected(false);
             return;
         }
@@ -1904,7 +1837,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         try {
             backend.applySettings(settings);
         } catch (Exception e) {
-            MainWindow.displayErrorDialog(e.getMessage());
+            displayErrorDialog(e.getMessage());
         }
         
         this.setLocalLabels();
@@ -1916,7 +1849,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         
         // Command History
         this.manualCommandHistory = new ArrayList<>();
-        this.commandTextField.addKeyListener(this);
         
         // Add keyboard listener for manual controls.
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
@@ -2211,7 +2143,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
 
         if (portList.length < 1) {
             if (settings.isShowSerialPortWarning()) {
-                MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
+                displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }
         } else {
             // Sort?
@@ -2230,7 +2162,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         List<String> firmwareList = FirmwareUtils.getFirmwareList();
         
         if (firmwareList.size() < 1) {
-            MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
+            displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
         } else {
             java.util.Iterator<String> iter = firmwareList.iterator();
             while ( iter.hasNext() ) {
@@ -2257,13 +2189,6 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.commandTable.clear();
     }
         
-    private static void displayErrorDialog(final String errorMessage) {
-        java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-            JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
-                    Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
-        }});
-    }
-    
     /** 
      * SerialCommunicatorListener implementation.
      */
