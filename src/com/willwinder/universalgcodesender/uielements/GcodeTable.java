@@ -24,84 +24,23 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Rectangle;
-import java.io.File;
-import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author wwinder
  */
 public class GcodeTable extends JTable {
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-        frame.setTitle("Persistent JTable Test");
-        frame.setSize(300,200);
-        frame.setBackground(Color.gray);
-
-        JPanel topPanel = new JPanel();
-        topPanel.setLayout(new BorderLayout());
-        frame.getContentPane().add(topPanel);
-
-        JScrollPane scrollPane = new JScrollPane();
-        //topPanel.add(scrollPane);
-
-        String columns[] = {"Column 1", "Column 2", "Column 3", "Checkbox"};
-        Class columnData[] = { String.class, String.class, String.class, Boolean.class};
-        final GcodeTable table = new GcodeTable();
-        scrollPane.setViewportView(table);
-
-        final JTextArea text = new JTextArea();
-
-        JButton addDataButton = new JButton();
-        addDataButton.setText("Add num rows:");
-        addDataButton.setEnabled(true);
-        addDataButton.addActionListener(new java.awt.event.ActionListener() {
-            int rowNum = 1;
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                final int num = Integer.parseInt(text.getText());
-                EventQueue.invokeLater(() -> {
-                    for (int i = 0; i < num; i++) {
-                        table.addRow(new GcodeCommand("Command " + rowNum++));
-                        Thread.yield();
-                    }
-                });
-            }
-        });
-
-
-        BoxLayout bl = new BoxLayout(topPanel, BoxLayout.Y_AXIS);
-        topPanel.setLayout(bl);
-        topPanel.add(addDataButton);
-        topPanel.add(text);
-        topPanel.add(scrollPane);
-
-        frame.setVisible(true);
-    }
-
     static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
     //GcodeTableModel model = null;
     DefaultTableModel model = null;
-    File persistTo = null;
-    PrintWriter writer = null;
     int maxLines = -1;
 
     private boolean autoWindowScroll = false;
@@ -142,16 +81,6 @@ public class GcodeTable extends JTable {
         getTableHeader().setReorderingAllowed(false);
     }
 
-    public void setPersistenceProperties(File f, int maxLines) {
-        try {
-            this.persistTo = f;
-            writer = new PrintWriter(f, "UTF-8");
-            writer.append(StringUtils.join(columnNames,","));
-        } catch(Exception e) {
-            logger.log(Level.SEVERE, "Failed to open file.", e);
-        }
-    }
-    
     @Override
     public void setBounds(int x, int y, int width, int height)
     {
@@ -205,14 +134,18 @@ public class GcodeTable extends JTable {
      * Update table with a GcodeCommand.
      */
     public void updateRow(final GcodeCommand command) {
-        
         String commandString = command.getCommandString();
         int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
         String val = (String)model.getValueAt(row, COL_INDEX_COMMAND);
         if (!command.isComment() && commandString != model.getValueAt(row, COL_INDEX_COMMAND)) {
-            System.out.printf("Row mismatch [%s] does not match row %d [%s].]\n", commandString, row, model.getValueAt(row, COL_INDEX_COMMAND) ) ;
+            String message = String.format(
+                    "Row mismatch [%s] does not match row %d [%s].]\n",
+                    commandString,
+                    row,
+                    model.getValueAt(row, COL_INDEX_COMMAND));
+            logger.log(Level.WARNING, message) ;
         }
 
         model.setValueAt(command.isSent(),      row, COL_INDEX_SENT);
