@@ -149,7 +149,3 @@ Changelog
 * Usability improvements.
 * Many bug fixes.
 * Renamed package to com.willwinder.universalgcodesender.
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/winder/universal-g-code-sender/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
