@@ -317,7 +317,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public Boolean isCommOpen() {
-        return comm.isCommOpen();
+        return comm != null && comm.isCommOpen();
     }
     
     //// File send metadata ////
