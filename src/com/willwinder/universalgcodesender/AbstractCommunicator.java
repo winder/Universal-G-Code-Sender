@@ -111,7 +111,7 @@ public abstract class AbstractCommunicator {
             conn.setCommunicator(this);
         }
         
-        if(conn==null) {
+        if (conn==null) {
             throw new Exception(Localization.getString("communicator.exception.port") + ": "+name);
         }
         
@@ -120,6 +120,10 @@ public abstract class AbstractCommunicator {
 
         //open it
         return conn.openPort(name, baud);
+    }
+
+    public boolean isCommOpen() {
+        return conn != null && conn.isOpen();
     }
 
 

@@ -21,7 +21,9 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+
 import java.io.File;
 import java.io.Reader;
 import java.util.Collection;
@@ -96,9 +98,12 @@ public interface IController {
     /*
     Stream content
     */
-    public void sendCommandImmediately(String str) throws Exception;
+    public GcodeCommand createCommand(String gcode) throws Exception;
+    public void sendCommandImmediately(GcodeCommand cmd) throws Exception;
+    public void queueCommand(GcodeCommand cmd) throws Exception;
     public void queueStream(GcodeStreamReader r);
     public void queueRawStream(Reader r);
-    public void queueCommand(String str) throws Exception;
-    public void queueCommands(Iterable<String> commandStrings) throws Exception;
+
+    public void restoreParserModalState();
+    public void updateParserModalState(GcodeCommand command);
 }

@@ -82,7 +82,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     String cancelButtonText;
     boolean cancelButtonEnabled;
 
-    boolean G91Mode = false;
+//    boolean G91Mode = false;
     
     public GcodeParser gcp = new GcodeParser();
     
@@ -201,8 +201,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        logger.log(Level.INFO, "Sending gcode command: {0}", commandText);
-        controller.sendCommandImmediately(commandText);
+        GcodeCommand command = controller.createCommand(commandText);
+        sendGcodeCommand(command);
+    }
+
+    @Override
+    public void sendGcodeCommand(GcodeCommand command) throws Exception {
+        logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
+        controller.sendCommandImmediately(command);
     }
 
     /**
@@ -214,7 +220,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
-        
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
             return;
@@ -224,43 +229,46 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         String formattedStepSize = Utils.formatter.format(stepSize);
 
         // Build G91 command.
-        StringBuilder command = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         
         // Set jog command to the preferred units.
         if (this.units != units) {
             if (units == Units.INCH) {
-                command.append("G20 ");
+                builder.append("G20 ");
             } else if (units == Units.MM) {
-                command.append("G21 ");
+                builder.append("G21 ");
             }
 
             this.units = units;
         }
         
-        command.append("G91 G0 ");
+        builder.append("G91 G0 ");
         
         if (dirX != 0) {
-            command.append(" X");
+            builder.append(" X");
             if (dirX < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         } if (dirY != 0) {
-            command.append(" Y");
+            builder.append(" Y");
             if (dirY < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         } if (dirZ != 0) {
-            command.append(" Z");
+            builder.append(" Z");
             if (dirZ < 0) {
-                command.append('-');
+                builder.append('-');
             }
-            command.append(formattedStepSize);
+            builder.append(formattedStepSize);
         }
 
-        this.sendGcodeCommand(command.toString());
-        G91Mode = true;
+        GcodeCommand command = controller.createCommand(builder.toString());
+        command.setTemporaryParserModalChange(true);
+        controller.sendCommandImmediately(command);
+//        this.sendGcodeCommand(builder.toString());
+        controller.restoreParserModalState();
     }
 
     @Override
@@ -323,12 +331,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.controller.isReadyToStreamFile();
 
             this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
-
-            if (this.G91Mode) {
-                List<String> processed = gcp.preprocessCommand("G90");
-                controller.queueCommands(processed);
-                this.G91Mode = false;
-            }
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
@@ -462,9 +464,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         this.controller.returnToHome();
         
         // TODO: These should get pushed into the controller?
-        
-        // The return to home command uses G91 to lift the tool.
-        this.G91Mode = true;
         // Also sets the units to mm.
         this.units = Units.MM;
     }
@@ -532,7 +531,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         } else if (gcodeString.contains("g20")) {
             this.units = Units.INCH;
         }
-            
+
+        controller.updateParserModalState(command);
         controller.currentUnits(this.units);
     }
 

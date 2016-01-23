@@ -157,7 +157,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     abstract protected void statusUpdatesRateValueChanged(int rate);
     
     // These abstract objects are initialized in concrete class.
-    protected AbstractCommunicator comm;
+    protected final AbstractCommunicator comm;
     protected GcodeCommandCreator commandCreator;
     
     /**
@@ -173,7 +173,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private int statusUpdateRate = 200;
     
     // State
-    private Boolean commOpen = false;
+//    private Boolean commOpen = false;
     
     // Parser state
     private Boolean absoluteMode = true;
@@ -205,13 +205,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //      (with command number) object and add it to the activeCommands list.
     //   4) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private ArrayList<String>       queuedCommands;    // The list of specially queued commands to be sent.
+    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
     private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
     private GcodeStreamReader       streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
     
     // Listeners
     private ArrayList<ControllerListener> listeners;
+
+    //Track current mode to restore after jogging
+    private String distanceModeCode = null;
+    private String unitsCode = null;
         
     /**
      * Dependency injection constructor to allow a mock communicator.
@@ -269,27 +273,27 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public Boolean openCommPort(String port, int portRate) throws Exception {
-        if (this.commOpen) {
+        if (isCommOpen()) {
             throw new Exception("Comm port is already open.");
         }
         
         // No point in checking response, it throws an exception on errors.
-        this.commOpen = this.comm.openCommPort(port, portRate);
+       this.comm.openCommPort(port, portRate);
         
-        if (this.commOpen) {
+        if (isCommOpen()) {
             this.openCommAfterEvent();
 
             this.messageForConsole(
                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
                 
-        return this.commOpen;
+        return isCommOpen();
     }
-    
+
     @Override
     public Boolean closeCommPort() throws Exception {
         // Already closed.
-        if (this.commOpen == false) {
+        if (isCommOpen() == false) {
             return true;
         }
         
@@ -306,17 +310,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.flushSendQueues();
         this.commandCreator.resetNum();
         this.comm.closeCommPort();
-        //this.comm = null;
-        this.commOpen = false;
-        
+
         this.closeCommAfterEvent();
         return true;
     }
     
     @Override
     public Boolean isCommOpen() {
-        // TODO: Query comm port for this information.
-        return this.commOpen;
+        return comm != null && comm.isCommOpen();
     }
     
     //// File send metadata ////
@@ -400,15 +401,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * Note: this is the only place where a string is sent to the comm.
      */
     @Override
-    public void sendCommandImmediately(String str) throws Exception {
+    public void sendCommandImmediately(GcodeCommand command) throws Exception {
         isReadyToSendCommandsEvent();
         
-        if (!this.commOpen) {
+        if (!isCommOpen()) {
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
-        this.sendStringToComm(str);
-
+        this.sendStringToComm(command.getCommandString());
         this.comm.streamCommands();
     }
     
@@ -424,7 +424,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public Boolean isReadyToStreamFile() throws Exception {
         isReadyToSendCommandsEvent();
         
-        if (this.commOpen == false) {
+        if (!isCommOpen()) {
             throw new Exception("Cannot begin streaming, comm port is not open.");
         }
         if (this.isStreaming) {
@@ -450,16 +450,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueCommand(String str) throws Exception {
-        this.queuedCommands.add(str);
-        updateNumCommands();
+    public GcodeCommand createCommand(String gcode) throws Exception {
+        return this.commandCreator.createCommand(gcode);
     }
-    
+
     @Override
-    public void queueCommands(Iterable<String> commandStrings) throws Exception {
-        for (String s : commandStrings) {
-            queueCommand(s);
-        }
+    public void queueCommand(GcodeCommand command) throws Exception {
+        this.queuedCommands.add(command);
         updateNumCommands();
     }
     
@@ -496,7 +493,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         // Send all queued commands and streams then kick off the stream.
         try {
             while (this.queuedCommands.size() > 0) {
-                this.sendStringToComm(this.queuedCommands.remove(0));
+                this.sendStringToComm(this.queuedCommands.remove(0).getCommandString());
             }
             
             if (this.rawStreamCommands != null) {
@@ -739,6 +736,64 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             for (ControllerListener c : listeners) {
                 c.postProcessData(numRows);
             }
+        }
+    }
+
+    protected String getUnitsCode() {
+        return unitsCode;
+    }
+
+    protected void setUnitsCode(String unitsCode) {
+        if (unitsCode != null) {
+            this.unitsCode = unitsCode;
+        }
+    }
+
+    protected String getDistanceModeCode() {
+        return distanceModeCode;
+    }
+
+    protected void setDistanceModeCode(String distanceModeCode) {
+        if (distanceModeCode != null) {
+            this.distanceModeCode = distanceModeCode;
+        }
+    }
+
+    @Override
+    public void updateParserModalState(GcodeCommand command) {
+        if (command.isTemporaryParserModalChange()) {
+            return;
+        }
+        String gcode = command.getCommandString().toUpperCase();
+        if (gcode.contains("G90")) {
+            distanceModeCode = "G90";
+        }
+        if (gcode.contains("G91")) {
+            distanceModeCode = "G91";
+        }
+        if (gcode.contains("G20")) {
+            unitsCode = "G20";
+        }
+        if (gcode.contains("G21")) {
+            unitsCode = "G21";
+        }
+    }
+
+    public void restoreParserModalState() {
+        StringBuilder cmd = new StringBuilder();
+        if (getDistanceModeCode() != null) {
+            cmd.append(getDistanceModeCode()).append(" ");
+        }
+        if (getUnitsCode() != null) {
+            cmd.append(getUnitsCode()).append(" ");
+        }
+
+        try {
+            GcodeCommand command = createCommand(cmd.toString());
+            command.setTemporaryParserModalChange(true);
+            sendCommandImmediately(command);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
