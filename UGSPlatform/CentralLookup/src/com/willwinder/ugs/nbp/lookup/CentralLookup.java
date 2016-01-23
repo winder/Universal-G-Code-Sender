@@ -48,7 +48,7 @@ public class CentralLookup extends AbstractLookup {
         this.add(SettingsFactory.loadSettings());
     }
     
-    public void add(Object instance) {
+    final public void add(Object instance) {
         content.add(instance);
     }
 

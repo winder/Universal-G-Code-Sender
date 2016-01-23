@@ -633,8 +633,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             try (FileReader fr = new FileReader(this.gcodeFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
-            //List<String> lines = Files.readAllLines(this.gcodeFile.toPath(), cs);
-            logger.info("Finished loading");
+            logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
                 this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());

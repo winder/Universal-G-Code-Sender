@@ -34,3 +34,6 @@ tar.gz
 *.iml
 dependency-reduced-pom.xml
 /UGSPlatform/dist/
+/UGSPlatform/WorkflowModule/build/
+/UGSPlatform/WorkflowModule/nbproject/private/
+/UGSPlatform/WorkflowModuleTutorial/nbproject/private/
