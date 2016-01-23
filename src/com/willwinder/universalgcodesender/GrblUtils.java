@@ -253,6 +253,10 @@ public class GrblUtils {
         }
         return false;
     }
+
+    static protected Boolean isGrblFeedbackMessage(final String response) {
+        return response.startsWith("[") && response.endsWith("]");
+    }
     
     /**
      * Parse state out of position string.

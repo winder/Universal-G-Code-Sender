@@ -36,7 +36,6 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 public class GcodeCommand {
     private String command;
     private String originalCommand;
-    private String comment = null;
     private String response;
     private String responseType;
     private Boolean sent = false;
@@ -46,6 +45,9 @@ public class GcodeCommand {
     private Integer commandNum = -1;
     private Boolean isSkipped = false;
     private boolean isComment = false;
+    private boolean hasComment = false;
+    private String comment;
+    private boolean isTemporaryParserModalChange = false;
 
     public GcodeCommand(String command) {
         this(command, -1);
@@ -68,7 +70,7 @@ public class GcodeCommand {
         this.comment = comment;
         this.commandNum = num;
     }
-    
+
     /** Setters. */
     public void setCommand(String command) {
         this.command = command;
@@ -105,7 +107,7 @@ public class GcodeCommand {
     public String getOriginalCommandString() {
         return this.originalCommand;
     }
-    
+
     public int getCommandNumber() {
         return this.commandNum;
     }
@@ -140,6 +142,20 @@ public class GcodeCommand {
 
     public String getComment() {
         return this.comment;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public boolean isTemporaryParserModalChange() {
+        return isTemporaryParserModalChange;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public void setTemporaryParserModalChange(boolean isGUICommand) {
+        this.isTemporaryParserModalChange = isGUICommand;
     }
 
     public Boolean parseResponse() {

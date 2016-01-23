@@ -56,7 +56,8 @@ public class GrblSettingsListener implements ControllerListener {
 
             } while(!ready);
 
-            controller.sendCommandImmediately("$$");
+            GcodeCommand command = controller.createCommand("$$");
+            controller.sendCommandImmediately(command);
             while (this.sending) {
                 Thread.sleep(10);
             }

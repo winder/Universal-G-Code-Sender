@@ -36,7 +36,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public String portName;
     public int    portRate;
     public String queuedString;
-    public byte   sentByte;
+    public byte   sentByte = 0x0;
     public Boolean open = false;
     public Boolean areActiveCommands = false;
     
@@ -92,6 +92,11 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.numCloseCommPortCalls++;
         
         this.open = false;
+    }
+
+    @Override
+    public boolean isCommOpen() {
+        return open;
     }
 
     @Override

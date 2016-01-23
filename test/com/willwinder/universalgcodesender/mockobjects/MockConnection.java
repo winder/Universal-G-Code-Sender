@@ -37,10 +37,12 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class MockConnection extends Connection {
-    protected InputStream in;   // protected for unit testing.
-    protected OutputStream out; // protected for unit testing.
+    protected final InputStream in;   // protected for unit testing.
+    protected final OutputStream out; // protected for unit testing.
 
     public MockConnection() {
+        in = null;
+        out = null;
     }
     
     public MockConnection(final InputStream in, final OutputStream out) {
@@ -59,6 +61,11 @@ public class MockConnection extends Connection {
 
     @Override
     public void closePort() {
+    }
+
+    @Override
+    public boolean isOpen() {
+        return true;
     }
 
     @Override
