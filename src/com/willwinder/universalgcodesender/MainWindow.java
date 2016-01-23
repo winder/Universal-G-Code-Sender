@@ -58,11 +58,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
 
@@ -94,6 +95,8 @@ implements KeyListener, ControllerListener, ControlStateListener {
     
     // Duration timer
     private Timer timer;
+
+    private java.util.Timer autoConnectTimer;
 
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
@@ -243,7 +246,7 @@ implements KeyListener, ControllerListener, ControlStateListener {
         });
         
         mw.initFileChooser();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -1913,7 +1916,17 @@ implements KeyListener, ControllerListener, ControlStateListener {
         this.loadFirmwareSelector();
         this.setTitle(Localization.getString("title") + " (" 
                 + Localization.getString("version") + " " + VERSION + ")");
-        
+
+
+        this.autoConnectTimer = new java.util.Timer("AutoConnectTimer", true);
+        autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                backend.autoconnect();
+            }
+        }, 1000, 5000);
+
+
         // Command History
         this.manualCommandHistory = new ArrayList<>();
         this.commandTextField.addKeyListener(this);
@@ -2222,6 +2235,9 @@ implements KeyListener, ControllerListener, ControlStateListener {
             }
 
             commPortComboBox.setSelectedIndex(0);
+
+
+
         }
     }
     
