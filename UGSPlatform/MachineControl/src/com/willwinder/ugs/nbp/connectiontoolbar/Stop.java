@@ -71,7 +71,9 @@ public final class Stop extends AbstractAction implements ContextAwareAction, Co
 
     @Override
     public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        this.setEnabled(this.isEnabled());
+        java.awt.EventQueue.invokeLater(() -> {
+            this.setEnabled(this.isEnabled());
+        });
     }
     
     @Override

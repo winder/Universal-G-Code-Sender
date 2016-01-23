@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.connectiontoolbar;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.Icon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -71,7 +74,10 @@ public final class Start extends AbstractAction implements ContextAwareAction, C
 
     @Override
     public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        this.setEnabled(backend.canSend() || backend.isPaused());
+        java.awt.EventQueue.invokeLater(() -> {
+            this.setEnabled(backend.canSend() || backend.isPaused());
+        });
+
     }
     
     @Override
