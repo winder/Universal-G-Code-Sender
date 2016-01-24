@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugs.nbp.connection;
 
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.utils.Settings;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 /**
@@ -33,21 +30,8 @@ public class ConnectionProperty  {
     private String firmware;
     private String address;
     private String baud;
-/*
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        this.pcs.addPropertyChangeListener(listener);
-    }
-
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        this.pcs.removePropertyChangeListener(listener);
-    }
-*/
 
     public ConnectionProperty() {
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        firmware = settings.getFirmwareVersion();
-        address = settings.getPort();
-        baud = settings.getPortRate();
     }
     
     /**
@@ -80,5 +64,15 @@ public class ConnectionProperty  {
         String oldValue = this.baud;
         this.baud = newValue;
         this.pcs.firePropertyChange("baud", oldValue, newValue);
+    }
+
+    public String getFirmware() {
+        return firmware;
+    }
+
+    public void setFirmware(String newValue) {
+        String oldValue = this.baud;
+        this.firmware = newValue;
+        this.pcs.firePropertyChange("firmware", oldValue, newValue);
     }
 }

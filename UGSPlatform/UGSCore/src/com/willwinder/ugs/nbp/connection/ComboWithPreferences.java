@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -64,7 +64,7 @@ public abstract class ComboWithPreferences extends JComboBox<String> {
         initializing = false;
     }
     
-    protected void setCombo(String value) {
+    final protected void setCombo(String value) {
         for (int i = 0; i < this.getItemCount(); i++) {
             if (this.getItemAt(i).equals(value)) {
                 this.setSelectedIndex(i);
@@ -100,6 +100,10 @@ public abstract class ComboWithPreferences extends JComboBox<String> {
         NbPreferences.forModule(this.getPreferenceClass()).put(this.getPreferenceName(), pref);
     }
     
+    /**
+     * When a preference changes call the set function on the preference to
+     * notify others.
+     */
     protected void changeEvent(ActionEvent evt) {
         if (initializing) return;
         Object item = this.getSelectedItem();
@@ -108,6 +112,9 @@ public abstract class ComboWithPreferences extends JComboBox<String> {
         }
     }
     
+    /**
+     * Update combo if this was our preference.
+     */
     protected void prefChange(PreferenceChangeEvent evt) {
         initializing = true;
         try {

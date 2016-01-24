@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,13 +23,10 @@ import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.ControlStateEvent.event;
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.Icon;
-import javax.swing.JComboBox;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -55,8 +52,8 @@ import org.openide.util.Utilities;
 
 public final class ConnectDisconnectAction extends AbstractAction implements ContextAwareAction, ControlStateListener {
     BackendAPI backend;
-    private String CONNECT_ICON_PATH = "resources/disconnect.gif";
-    private String DISCONNECT_ICON_PATH = "resources/connect.png";
+    final private String CONNECT_ICON_PATH = "resources/disconnect.gif";
+    final private String DISCONNECT_ICON_PATH = "resources/connect.png";
 
     public ConnectDisconnectAction() {
         this (Utilities.actionsGlobalContext());

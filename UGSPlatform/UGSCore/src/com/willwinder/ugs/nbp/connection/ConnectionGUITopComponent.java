@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,13 +20,11 @@
 package com.willwinder.ugs.nbp.connection;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -36,7 +34,6 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
-import org.openide.modules.OnStop;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
@@ -88,7 +85,6 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         settings = CentralLookup.getDefault().lookup(Settings.class);
             
         backend.addControlStateListener(this);
-        loadFirmwareSelector();
     }
     
     public static void connect() {
@@ -123,28 +119,12 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         }
     }
     
-    private void loadFirmwareSelector() {
-        firmwareComboBox.removeAllItems();
-        List<String> firmwareList = FirmwareUtils.getFirmwareList();
-        
-        if (firmwareList.size() < 1) {
-            //MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
-        } else {
-            java.util.Iterator<String> iter = firmwareList.iterator();
-            while ( iter.hasNext() ) {
-                firmwareComboBox.addItem(iter.next());
-            }
-        }
-    }
-    
     private void initializePorts() {
         commPortComboBox.removeAllItems();
         
         String[] portList = jssc.SerialPortList.getPortNames();
 
         if (portList.length < 1) {
-            //MainWindow.displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
-            System.out.println("NO SERIAL PORTS!!!");
             NotifyDescriptor nd = new NotifyDescriptor.Message(Localization.getString("mainWindow.error.noSerialPort"), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
 
@@ -173,7 +153,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         baudLabel = new javax.swing.JLabel();
         portLabel = new javax.swing.JLabel();
         firmwareLabel = new javax.swing.JLabel();
-        firmwareComboBox = new javax.swing.JComboBox<String>();
+        firmwareComboBox = new FirmwareComboBox();
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(org.openide.util.NbBundle.getMessage(ConnectionGUITopComponent.class, "ConnectionGUITopComponent.connectionPanel.border.title"))); // NOI18N
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));

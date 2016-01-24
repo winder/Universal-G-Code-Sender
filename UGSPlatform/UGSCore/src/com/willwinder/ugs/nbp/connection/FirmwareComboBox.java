@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,14 +18,13 @@
  */
 package com.willwinder.ugs.nbp.connection;
 
-import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 
 /**
  *
  * @author wwinder
  */
-public class PortComboBox extends ComboWithPreferences {
-
+public class FirmwareComboBox extends ComboWithPreferences {
     @Override
     Class getPreferenceClass() {
         return ConnectionProperty.class;
@@ -33,30 +32,18 @@ public class PortComboBox extends ComboWithPreferences {
 
     @Override
     String getPreferenceName() {
-        return "address";
+        return "firmware";
     }
 
     @Override
     String getDefaultValue() {
-        return "";
-    }
-    
-    public PortComboBox() {
-        super();
+        return "GRBL";
     }
     
     @Override
     protected void initComboBox() {
-        // Add serial ports
-        String[] portList = CommUtils.getSerialPortList();
-        if (portList.length < 1) {
-            this.addItem("<no ports>");
-        } else {
-            for (String port : portList) {
-                this.addItem(port);
-            }
-
-            this.setSelectedIndex(0);
-        }
+        FirmwareUtils.getFirmwareList().stream().forEach((value) -> {
+            this.addItem(value);
+        });
     }
 }

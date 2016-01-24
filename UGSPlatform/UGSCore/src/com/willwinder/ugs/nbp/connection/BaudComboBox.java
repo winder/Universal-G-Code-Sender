@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,11 +36,6 @@ public class BaudComboBox extends ComboWithPreferences {
     @Override
     String getDefaultValue() {
         return "115200";
-    }
-    
-    public BaudComboBox() {
-        super();
-        // Add baud rates
     }
     
     @Override
