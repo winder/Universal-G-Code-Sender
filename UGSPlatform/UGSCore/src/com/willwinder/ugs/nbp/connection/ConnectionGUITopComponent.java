@@ -119,24 +119,6 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         }
     }
     
-    private void initializePorts() {
-        commPortComboBox.removeAllItems();
-        
-        String[] portList = jssc.SerialPortList.getPortNames();
-
-        if (portList.length < 1) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message(Localization.getString("mainWindow.error.noSerialPort"), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
-
-        } else {
-            for (String port : portList) {
-                commPortComboBox.addItem(port);
-            }
-
-            commPortComboBox.setSelectedIndex(0);
-        }    
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -273,7 +255,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
     }//GEN-LAST:event_opencloseButtonActionPerformed
 
     private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
-        initializePorts();
+        ((PortComboBox)commPortComboBox).initComboBox();
     }//GEN-LAST:event_refreshButtonActionPerformed
 
     private void commPortComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commPortComboBoxActionPerformed
@@ -307,47 +289,6 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         initializing = true;
         setName(Bundle.CTL_ConnectionGUITopComponent());
         setToolTipText(Bundle.HINT_ConnectionGUITopComponent());
-        
-        //cp = CentralLookup.getDefault().lookup(ConnectionProperty.class);
-        //cp.addPropertyChangeListener(this);
-
-        /*
-        commPortComboBox.removeAllItems();
-        initializePorts();
-        
-        final JComboBox baudCombo = this.baudrateSelectionComboBox;
-        final JComboBox portCombo = this.commPortComboBox;
-        final JComboBox firmCombo = this.firmwareComboBox;
-        
-        final Preferences pref = NbPreferences.forModule(ConnectionProperty.class);
-        
-        setCombo(baudCombo, pref.get("baud", "115200"));
-        setCombo(portCombo, pref.get("address", ""));
-        setCombo(firmCombo, pref.get("firmware", "GRBL"));
-        
-        pref.addPreferenceChangeListener(new PreferenceChangeListener() {
-            @Override
-            public void preferenceChange(PreferenceChangeEvent evt) {
-                JComboBox combo = null;
-                if (evt.getKey().equals("address")) {
-                    combo = portCombo;
-                } else if (evt.getKey().equals("baud")) {
-                    combo = baudCombo;
-                } else if (evt.getKey().equals("firmware")) {
-                    combo = firmCombo;
-                }
-
-                if (combo == null) return;
-
-                initializing = true;
-                try {
-                    setCombo(combo, evt.getNewValue());
-                } finally {
-                    initializing = false;
-                }
-            }
-        });
-                */
         initializing = false;
     }
 

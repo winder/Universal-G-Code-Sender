@@ -1,3 +1,15 @@
+/**
+ * This was an attempt at data binding with NetBeans. There's got to be a better
+ * way, but basically this is how it works...
+ * 
+ * The class returned by getPreferenceClass() is a singleton which is stored in
+ * the CentralLookup, objects extending this class can either create their own,
+ * or use a shared class and they will all be synchronized on the same property
+ * file.
+ * 
+ * On construction the initComboBox function will be called to populate the box.
+ * 
+ */
 /*
     Copywrite 2015-2016 Will Winder
 

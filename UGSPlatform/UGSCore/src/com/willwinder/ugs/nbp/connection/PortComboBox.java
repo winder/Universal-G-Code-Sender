@@ -47,6 +47,8 @@ public class PortComboBox extends ComboWithPreferences {
     
     @Override
     protected void initComboBox() {
+        this.removeAllItems();
+
         // Add serial ports
         String[] portList = CommUtils.getSerialPortList();
         if (portList.length < 1) {
