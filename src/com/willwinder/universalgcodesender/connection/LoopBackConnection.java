@@ -34,6 +34,7 @@ import jssc.SerialPort;
 public class LoopBackConnection extends Connection {
     private BlockingQueue<Integer> sent;
     private boolean exit = false;
+    private boolean open = false;
     Thread  okThread;
 
     Runnable okRunnable = () -> {
@@ -71,12 +72,19 @@ public class LoopBackConnection extends Connection {
         okThread.start();
         exit = false;
 
-        return true;
+        open = true;
+        return isOpen();
     }
-        
+
+    @Override
+    public boolean isOpen() {
+        return open;
+    }
+
     @Override
     public void closePort() throws Exception {
         exit = true;
+        open = false;
         okThread.interrupt();
     }
     

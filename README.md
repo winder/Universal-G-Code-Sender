@@ -72,7 +72,7 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 Changelog
 ---------
 1.0.9 -> 2.0
-* constant-memory branch in progress, stream any sized gcode file with the same performance.
+* Constant memory! Optimized every part of UGS to run in a fixed amount of memory, no more slowness because a file is too large.
 
 1.0.8 -> 1.0.9
 * Many performance improvements.

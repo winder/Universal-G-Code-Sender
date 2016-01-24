@@ -77,7 +77,7 @@ public class BufferedCommunicatorTest {
         asl = new LinkedBlockingDeque<>();
         instance.setQueuesForTesting(cb, asl);
 
-                // Initialize private variable.
+        // Initialize private variable.
         Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
         f.setAccessible(true);
         f.set(instance, false);

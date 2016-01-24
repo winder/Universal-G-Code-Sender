@@ -1,9 +1,10 @@
-/*
- * This class is mainly to satiet netbeans and its automatic code generation.
+/**
+ * A table model which persists data to a file, this is an attempt to have an
+ * arbitrary sized table. It seems to add too much overhead though.
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,21 +23,14 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import java.util.ArrayList;
-import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import third_party.PersistentVector;
-
 
 /**
  *
  * @author wwinder
  */
-
-// class that extends the AbstractTableModel
 class GcodeTableModel extends AbstractTableModel {
-
-    //ArrayList<Object[]> modelData;
     PersistentVector modelData;
     String[] header;
     Class[] types;
@@ -53,7 +47,6 @@ class GcodeTableModel extends AbstractTableModel {
         // save the types
         this.types = types;
         // and the rows
-        //modelData = new ArrayList<>();
         modelData = new PersistentVector();
 
         // copy the rows into the ArrayList
@@ -64,6 +57,7 @@ class GcodeTableModel extends AbstractTableModel {
             }
         }
     }
+
     // method that needs to be overload. The row count is the size of the ArrayList
     @Override
     public int getRowCount() {
@@ -96,14 +90,12 @@ class GcodeTableModel extends AbstractTableModel {
     
     void addRow(Object[] row) {
         int rowCount = getRowCount();
-        //modelData.add(row);
         modelData.addElement(row);
         fireTableRowsInserted(rowCount, rowCount);
     }
 
     @Override
     public void setValueAt(Object aValue, int row, int column) {
-        //modelData.get(row)[column] = aValue;
         Object[] r = (Object[]) modelData.elementAt(row);
         r[column] = aValue;
         modelData.setElementAt(r, row);
@@ -116,7 +108,6 @@ class GcodeTableModel extends AbstractTableModel {
     }
 
     void dropData() {
-        //modelData = new ArrayList<>();
         modelData = new PersistentVector();
         // inform the GUI that I have change
         fireTableDataChanged();
