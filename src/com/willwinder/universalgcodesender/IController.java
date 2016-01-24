@@ -38,10 +38,17 @@ public interface IController {
     */
     public void addListener(ControllerListener cl);
 
-    /*
-    State updates.
-    */
-    public void currentUnits(Units units);
+    /**
+     * Get units to interpret position updates
+     * @return Units
+     */
+    public Units getReportingUnits();
+
+    /**
+     * Set current machine reporting units
+     * @param units
+     */
+    public void setReportingUnits(Units units);
     
     /*
     Actions

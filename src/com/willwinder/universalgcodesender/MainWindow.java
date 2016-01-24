@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
@@ -2273,20 +2274,20 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
     }
     
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         this.activeStateValueLabel.setText( state );
         this.setStatusColorForState( state );
-        
+
         if (machineCoord != null) {
-            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + "" );
-            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + "" );
-            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + "" );
+            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation );
+            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation );
+            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation );
         }
         
         if (workCoord != null) {
-            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + "" );
-            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + "" );
-            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + "" );
+            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation );
+            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation );
+            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation );
         }
     }
     

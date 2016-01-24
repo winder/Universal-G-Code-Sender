@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.vecmath.Point3d;
 
+import com.willwinder.universalgcodesender.model.Position;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 
@@ -346,7 +347,7 @@ public class PendantUI implements ControllerListener{
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         // TODO Auto-generated method stub
         
     }

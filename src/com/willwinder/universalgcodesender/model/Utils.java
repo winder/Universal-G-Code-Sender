@@ -11,10 +11,16 @@ package com.willwinder.universalgcodesender.model;
  */
 public class Utils {
     public enum Units {
-        MM,
-        INCH,
-        UNKNOWN
-    };
+        MM("mm"),
+        INCH("\""),
+        UNKNOWN("");
+
+        public final String abbreviation;
+
+        Units(String abbreviation) {
+            this.abbreviation = abbreviation;
+        }
+    }
     
     public enum ControlState {
         COMM_DISCONNECTED,

@@ -178,18 +178,18 @@ public class GrblControllerTest {
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.8c");
-        assertEquals(4, mgc.numStreamCommandsCalls);
+        assertEquals(5, mgc.numStreamCommandsCalls);
 
         instance.performHomingCycle();
-        assertEquals(5, mgc.numStreamCommandsCalls);
+        assertEquals(6, mgc.numStreamCommandsCalls);
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.9");
-        assertEquals(6, mgc.numStreamCommandsCalls);
+        assertEquals(8, mgc.numStreamCommandsCalls);
 
         instance.performHomingCycle();
-        assertEquals(7, mgc.numStreamCommandsCalls);
+        assertEquals(9, mgc.numStreamCommandsCalls);
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
         assertEquals(expResult, mgc.queuedString);
     }
@@ -257,9 +257,9 @@ public class GrblControllerTest {
         instance.openCommPort("blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
 
-        //$G gets queued on startup
-        assertEquals(1, mgc.numQueueStringForCommCalls);
-        assertEquals(1, mgc.numStreamCommandsCalls);
+        //$G and $$ get queued on startup
+        assertEquals(2, mgc.numQueueStringForCommCalls);
+        assertEquals(2, mgc.numStreamCommandsCalls);
 
         // By default nothing is streaming.
         Boolean expResult = false;
@@ -290,8 +290,8 @@ public class GrblControllerTest {
         result = instance.isStreamingFile();
         expResult = true;
         assertEquals(expResult, result);
-        assertEquals(2, mgc.numQueueStringForCommCalls);
-        assertEquals(2, mgc.numStreamCommandsCalls);
+        assertEquals(3, mgc.numQueueStringForCommCalls);
+        assertEquals(3, mgc.numStreamCommandsCalls);
     
         // Wrap up streaming and make sure isStreaming switches back.
         GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
@@ -483,12 +483,13 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         instance.openCommPort("blah", 123);
         instance.rawResponseHandler("Grbl 0.8c");
-        assertEquals(1, mgc.numQueueStringForCommCalls);
-        assertEquals(1, mgc.numStreamCommandsCalls);
-        GcodeCommand command = instance.createCommand(str);
-        instance.sendCommandImmediately(command);
+        //$G and $$ get queued on startup
         assertEquals(2, mgc.numQueueStringForCommCalls);
         assertEquals(2, mgc.numStreamCommandsCalls);
+        GcodeCommand command = instance.createCommand(str);
+        instance.sendCommandImmediately(command);
+        assertEquals(3, mgc.numQueueStringForCommCalls);
+        assertEquals(3, mgc.numStreamCommandsCalls);
         assertEquals(str  + "\n", mgc.queuedString);
     }
 
@@ -577,7 +578,8 @@ public class GrblControllerTest {
         
         instance.openCommPort("blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
-        assertEquals(1, mgc.numQueueStringForCommCalls);
+        //$G and $$ get queued on startup
+        assertEquals(2, mgc.numQueueStringForCommCalls);
 
         // Test 1. No commands to stream.
         boolean caughtException = false;
@@ -601,7 +603,7 @@ public class GrblControllerTest {
             assertEquals("Cannot stream while there are active commands (controller).", ex.getMessage());
         }
         assertFalse(caughtException);
-        assertEquals(2, mgc.numQueueStringForCommCalls);
+        assertEquals(3, mgc.numQueueStringForCommCalls);
 
         // Wrap up test 2.
         GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
@@ -625,7 +627,7 @@ public class GrblControllerTest {
         assertFalse(caughtException);
         
         assertEquals(30, instance.rowsRemaining());
-        assertEquals(32, mgc.numQueueStringForCommCalls);
+        assertEquals(33, mgc.numQueueStringForCommCalls);
         // Wrap up test 3.
         for (int i=0; i < 30; i++) {
             command.setCommand("G0X" + i);

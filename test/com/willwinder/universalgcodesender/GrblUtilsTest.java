@@ -21,6 +21,9 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
 import javax.vecmath.Point3d;
 import static org.junit.Assert.*;
+
+import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Utils;
 import org.junit.Test;
 
 /**
@@ -336,8 +339,8 @@ public class GrblUtilsTest {
         System.out.println("getMachinePositionFromStatusString");
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = Capabilities.STATUS_C;
-        Point3d expResult = new Point3d(5.529, 0.560, 7.000);
-        Point3d result = GrblUtils.getMachinePositionFromStatusString(status, version);
+        Position expResult = new Position(5.529, 0.560, 7.000, Utils.Units.UNKNOWN);
+        Position result = GrblUtils.getMachinePositionFromStatusString(status, version, Utils.Units.UNKNOWN);
         assertEquals(expResult, result);
     }
 
@@ -349,8 +352,8 @@ public class GrblUtilsTest {
         System.out.println("getWorkPositionFromStatusString");
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
         Capabilities version = Capabilities.STATUS_C;
-        Point3d expResult = new Point3d(1.529, -5.440, -0.000);
-        Point3d result = GrblUtils.getWorkPositionFromStatusString(status, version);
+        Position expResult = new Position(1.529, -5.440, -0.000, Utils.Units.UNKNOWN);
+        Position result = GrblUtils.getWorkPositionFromStatusString(status, version, Utils.Units.UNKNOWN);
         assertEquals(expResult, result);
     }
     
