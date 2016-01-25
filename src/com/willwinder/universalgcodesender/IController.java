@@ -38,12 +38,6 @@ public interface IController {
     */
     public void addListener(ControllerListener cl);
 
-    /**
-     * Set current machine reporting units
-     * @param units
-     */
-    public void setReportingUnits(Units units);
-    
     /*
     Actions
     */

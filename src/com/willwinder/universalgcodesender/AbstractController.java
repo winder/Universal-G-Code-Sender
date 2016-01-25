@@ -737,11 +737,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
+    /**
+     * Get current machine reporting units
+     */
     protected Utils.Units getReportingUnits() {
         return reportingUnits;
     }
 
-    @Override
+    /**
+     * Set current machine reporting units
+     * @param units
+     */
     public void setReportingUnits(Utils.Units units) {
         this.reportingUnits = units;
     }
