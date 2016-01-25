@@ -28,6 +28,8 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import java.awt.Dimension;
@@ -52,6 +54,8 @@ implements ControllerListener, WindowListener {
     // Interactive members.
     private Point3d machineCoordinate;
     private Point3d workCoordinate;
+    private Utils.Units reportingUnits = Utils.Units.UNKNOWN;
+
     private int completedCommandNumber = -1;
     private String gcodeFile = null;
     private VisualizerCanvas canvas = null;
@@ -115,13 +119,15 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         machineCoordinate = machineCoord;
         workCoordinate = workCoord;
-        
+        this.reportingUnits = machineCoord.getUnits();
+
         // Give coordinates to canvas.
         this.canvas.setMachineCoordinate(this.machineCoordinate);
         this.canvas.setWorkCoordinate(this.workCoordinate);
+
     }
     
     @Override

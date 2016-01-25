@@ -55,15 +55,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     private IController controller = null;
     private Settings settings = null;
-    Point3d machineCoord = null;
-    Point3d workCoord = null;
+    Position machineCoord = null;
+    Position workCoord = null;
+    Units reportUnits = Units.UNKNOWN;
+
     String state;
     Collection<ControllerListener> controllerListeners = new ArrayList<>();
     Collection<ControlStateListener> controlStateListeners = new ArrayList<>();
 
-    // Machine state
-    Units units = Units.UNKNOWN;
-    
     // GUI State
     File gcodeFile = null;
     File processedGcodeFile = null;
@@ -232,16 +231,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         StringBuilder builder = new StringBuilder();
         
         // Set jog command to the preferred units.
-        if (this.units != units) {
-            if (units == Units.INCH) {
-                builder.append("G20 ");
-            } else if (units == Units.MM) {
-                builder.append("G21 ");
-            }
-
-            this.units = units;
+        if (units == Units.INCH) {
+            builder.append("G20 ");
+        } else if (units == Units.MM) {
+            builder.append("G21 ");
         }
-        
+
         builder.append("G91 G0 ");
         
         if (dirX != 0) {
@@ -267,7 +262,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         GcodeCommand command = controller.createCommand(builder.toString());
         command.setTemporaryParserModalChange(true);
         controller.sendCommandImmediately(command);
-//        this.sendGcodeCommand(builder.toString());
         controller.restoreParserModalState();
     }
 
@@ -462,10 +456,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void returnToZero() throws Exception {
         this.controller.returnToHome();
-        
-        // TODO: These should get pushed into the controller?
-        // Also sets the units to mm.
-        this.units = Units.MM;
     }
 
     @Override
@@ -522,18 +512,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        String gcodeString = command.getCommandString().toLowerCase();
-
-        // Check for unit changes.
-        Units before = this.units;
-        if (gcodeString.contains("g21")) {
-            this.units = Units.MM;
-        } else if (gcodeString.contains("g20")) {
-            this.units = Units.INCH;
-        }
-
         controller.updateParserModalState(command);
-        controller.currentUnits(this.units);
     }
 
     @Override
@@ -546,10 +525,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         this.activeState = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
+        this.reportUnits = machineCoord.getUnits();
     }
 
     @Override

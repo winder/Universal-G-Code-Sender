@@ -39,11 +39,6 @@ public interface IController {
     public void addListener(ControllerListener cl);
 
     /*
-    State updates.
-    */
-    public void currentUnits(Units units);
-    
-    /*
     Actions
     */
     public void performHomingCycle() throws Exception;

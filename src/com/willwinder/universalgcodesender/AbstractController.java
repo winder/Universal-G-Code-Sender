@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
@@ -172,11 +174,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     
-    // State
-//    private Boolean commOpen = false;
-    
-    // Parser state
-    private Boolean absoluteMode = true;
+    private Utils.Units reportingUnits = Utils.Units.UNKNOWN;
     
     // Added value
     private Boolean isStreaming = false;
@@ -417,7 +415,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * response are sent to the comm - with the exception of command streams.
      */
     private void sendStringToComm(String command) {
-        this.comm.queueStringForComm(command+"\n");
+        this.comm.queueStringForComm(command + "\n");
     }
     
     @Override
@@ -675,7 +673,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.listeners.add(cl);
     }
 
-    protected void dispatchStatusString(String state, Point3d machine, Point3d work) {
+    protected void dispatchStatusString(String state, Position machine, Position work) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.statusStringListener(state, machine, work);
@@ -737,6 +735,21 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 c.postProcessData(numRows);
             }
         }
+    }
+
+    /**
+     * Get current machine reporting units
+     */
+    protected Utils.Units getReportingUnits() {
+        return reportingUnits;
+    }
+
+    /**
+     * Set current machine reporting units
+     * @param units
+     */
+    protected void setReportingUnits(Utils.Units units) {
+        this.reportingUnits = units;
     }
 
     protected String getUnitsCode() {

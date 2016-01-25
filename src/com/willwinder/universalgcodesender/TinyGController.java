@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.File;
@@ -42,8 +43,8 @@ public class TinyGController extends AbstractController {
     Units units;
     
     String state = "";
-    Point3d machineLocation = new Point3d();
-    Point3d workLocation = new Point3d();
+    Position machineLocation = new Position();
+    Position workLocation = new Position();
     
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
@@ -194,11 +195,6 @@ public class TinyGController extends AbstractController {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public void currentUnits(Units units) {
-        this.units = units;
-    }
-    
     static class TinyGUtils {
         static JsonParser parser = new JsonParser();
         

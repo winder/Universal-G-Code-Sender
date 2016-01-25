@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -49,6 +50,7 @@ public class GrblUtils {
     public static final String GRBL_KILL_ALARM_LOCK_COMMAND = "$X";
     public static final String GRBL_TOGGLE_CHECK_MODE_COMMAND = "$C";
     public static final String GRBL_VIEW_PARSER_STATE_COMMAND = "$G";
+    public static final String GRBL_VIEW_SETTINGS_COMMAND = "$$";
     
     /**
      * Gcode Commands
@@ -257,6 +259,11 @@ public class GrblUtils {
     static protected Boolean isGrblFeedbackMessage(final String response) {
         return response.startsWith("[") && response.endsWith("]");
     }
+
+
+    static protected Boolean isGrblSettingMessage(final String response) {
+        return response.startsWith("$") && response.endsWith(")");
+    }
     
     /**
      * Parse state out of position string.
@@ -296,29 +303,30 @@ public class GrblUtils {
     }
 
     static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)");
-    static protected Point3d getMachinePositionFromStatusString(final String status, final Capabilities version) {
+    static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version == Capabilities.STATUS_C) {
-            return GrblUtils.getPositionFromStatusString(status, machinePattern);
+            return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
         } else {
             return null;
         }
     }
     
     static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
-    static protected Point3d getWorkPositionFromStatusString(final String status, final Capabilities version) {
+    static protected Position getWorkPositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version == Capabilities.STATUS_C) {
-            return GrblUtils.getPositionFromStatusString(status, workPattern);
+            return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
         } else {
             return null;
         }
     }
     
-    static private Point3d getPositionFromStatusString(final String status, final Pattern pattern) {
+    static private Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
-            return new Point3d( Double.parseDouble(matcher.group(1)),
+            return new Position( Double.parseDouble(matcher.group(1)),
                                 Double.parseDouble(matcher.group(2)),
-                                Double.parseDouble(matcher.group(3)));
+                                Double.parseDouble(matcher.group(3)),
+                                reportingUnits);
         }
         
         return null;

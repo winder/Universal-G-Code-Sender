@@ -22,9 +22,12 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;
@@ -109,7 +112,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     private void initSettings() throws Exception {
         this.loadingSettings = true;
-        this.grblController.sendGcodeCommand("$$");
+        this.grblController.sendGcodeCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND);
     }
     
     private void checkDoneSavingSettings() {
@@ -396,7 +399,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
 
