@@ -39,12 +39,6 @@ public interface IController {
     public void addListener(ControllerListener cl);
 
     /**
-     * Get units to interpret position updates
-     * @return Units
-     */
-    public Units getReportingUnits();
-
-    /**
      * Set current machine reporting units
      * @param units
      */

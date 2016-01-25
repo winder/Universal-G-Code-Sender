@@ -737,8 +737,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
-    @Override
-    public Utils.Units getReportingUnits() {
+    protected Utils.Units getReportingUnits() {
         return reportingUnits;
     }
 
