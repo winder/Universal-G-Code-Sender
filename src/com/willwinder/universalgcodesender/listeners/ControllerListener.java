@@ -21,6 +21,8 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import javax.vecmath.Point3d;
 
@@ -59,7 +61,7 @@ public interface ControllerListener {
     /**
      * Controller status information.
      */
-    void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
+    void statusStringListener(String state, Position machineCoord, Position workCoord);
     
     /**
      * Data gathered while preprocessing commands for queue.

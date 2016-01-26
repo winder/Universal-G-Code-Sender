@@ -24,9 +24,11 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
+import com.willwinder.universalgcodesender.types.GrblSettingMessage;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -52,10 +54,9 @@ public class GrblController extends AbstractController {
     private GrblUtils.Capabilities positionMode = null;
     private Boolean realTimeCapable = false;
     private String grblState;
-    private Point3d machineLocation;
-    private Point3d workLocation;
+    private Position machineLocation;
+    private Position workLocation;
     private double maxZLocationMM;
-    private Units units;
 
     // Polling state
     private int outstandingPolls = 0;
@@ -116,6 +117,7 @@ public class GrblController extends AbstractController {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
             this.beginPollingPosition();
             
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
@@ -140,7 +142,15 @@ public class GrblController extends AbstractController {
             setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
             setUnitsCode(grblFeedbackMessage.getUnits());
         }
-        
+
+        else if (GrblUtils.isGrblSettingMessage(response)) {
+            GrblSettingMessage message = new GrblSettingMessage(response);
+            this.messageForConsole(response + "\n");
+            if (message.isReportingUnits()) {
+                setReportingUnits(message.getReportingUnits());
+            }
+        }
+
         else {
             // Display any unhandled messages
             this.messageForConsole(response + "\n");
@@ -258,10 +268,6 @@ public class GrblController extends AbstractController {
             double max = 0;
             if (this.maxZLocationMM != -1) {
                 max = this.maxZLocationMM;
-                if (this.units == Units.INCH) {
-                    System.out.println("Converting max Z to INCH");
-                    max = this.maxZLocationMM / 26.4;
-                }
             }
             ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, max);
             if (!commands.isEmpty()) {
@@ -400,6 +406,12 @@ public class GrblController extends AbstractController {
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
         if (this.positionMode != null && this.getStatusUpdatesEnabled()) {
+            try {
+                sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
             if (this.positionPollTimer.isRunning() == false) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();
@@ -420,8 +432,9 @@ public class GrblController extends AbstractController {
     private void handlePositionString(final String string) {
         if (this.positionMode != null) {
             grblState = GrblUtils.getStateFromStatusString(string, positionMode);
-            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode);
-            workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode);
+
+            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode, getReportingUnits());
+            workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode, getReportingUnits());
             
             // Save max Z location
             if (machineLocation != null) {
@@ -457,8 +470,4 @@ public class GrblController extends AbstractController {
         this.beginPollingPosition();
     }
 
-    @Override
-    public void currentUnits(Units units) {
-        this.units = units;
-    }
 }

@@ -37,3 +37,7 @@ dependency-reduced-pom.xml
 /UGSPlatform/WorkflowModule/build/
 /UGSPlatform/WorkflowModule/nbproject/private/
 /UGSPlatform/WorkflowModuleTutorial/nbproject/private/
+/UGSPlatform/UGSCore/build/
+/UGSPlatform/ConnectionModule/nbproject/private/
+/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/nbproject/private/
+/UGSPlatform/UGSCore/nbproject/private/
