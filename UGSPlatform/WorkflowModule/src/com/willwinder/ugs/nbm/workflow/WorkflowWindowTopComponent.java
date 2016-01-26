@@ -24,6 +24,7 @@
 package com.willwinder.ugs.nbm.workflow;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbm.workflow.Bundle;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.ControlStateEvent;
