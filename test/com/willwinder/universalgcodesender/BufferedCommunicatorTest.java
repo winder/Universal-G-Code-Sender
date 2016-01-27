@@ -63,7 +63,7 @@ public class BufferedCommunicatorTest {
 
     @AfterClass
     static public void teardown() throws IOException {
-        FileUtils.deleteDirectory(tempDir);
+        FileUtils.forceDeleteOnExit(tempDir);
     }
 
     @Before
