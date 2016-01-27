@@ -1,14 +1,7 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.willwinder.ugs.nbm.visualizer;
-
-/*
  * 3D Canvas for GCode Visualizer.
  *
- * Created on Jan 29, 2013
+ * Created on Jan 29, 2013-2016
  */
 
 /*
@@ -29,6 +22,8 @@ package com.willwinder.ugs.nbm.visualizer;
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.willwinder.ugs.nbm.visualizer;
+
 
 
 import com.jogamp.common.nio.Buffers;
@@ -66,18 +61,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-/*
-import javax.media.opengl.GL;
-import static javax.media.opengl.GL.*;
-import javax.media.opengl.GL2;
-import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import javax.media.opengl.glu.GLU;
-*/
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -87,7 +70,8 @@ import javax.vecmath.Vector3d;
  * 
  */
 @SuppressWarnings("serial")
-public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
+public class GcodeRenderer extends NewtCanvasAWT implements
+        GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
     
     static boolean ortho = true;
@@ -672,9 +656,10 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      * GLEventListener method.
      */
     @Override
-    public void dispose(GLAutoDrawable drawable) { 
+    synchronized public void dispose(GLAutoDrawable drawable) { 
         logger.log(Level.INFO, "Disposing OpenGL context.");
 
+        this.isDrawable = false;
         this.lineColorBuffer = null;
         this.lineVertexBuffer = null;
         this.gcodeLineList = null;

@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -95,10 +95,14 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
 
     @Override
     protected void componentClosed() {
-        super.componentClosed();
+        System.out.println("Component closed, canvas = " + canvas);
+        if (canvas == null) return;
+
+        //super.componentClosed();
         remove(canvas);
         //dispose of canvas and native resources
         canvas.destroy();
+        canvas = null;
     }
 
     @Override
@@ -114,6 +118,12 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
                 getTopLevelAncestor().revalidate();
             }
         }
+    }
+    
+    @Override
+    protected void componentDeactivated() {
+        System.out.println("Component deactivated, canvas = " + canvas);
+        componentClosed();
     }
 
     private NewtCanvasAWT makeWindow(
