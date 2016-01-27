@@ -95,8 +95,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
     // Duration timer
     private Timer timer;
 
-    private java.util.Timer autoConnectTimer;
-
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
@@ -1530,17 +1528,21 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
-                        remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
-                        
-                        //sentRowsValueLabel.setText(""+sentRows);
-                        sentRowsValueLabel.setText(""+backend.getNumSentRows());
-                        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                        try {
+                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
+                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
 
-                        if (backend.isSending()) {
-                            if (vw != null) {
-                                vw.setCompletedCommandNumber((int)backend.getNumSentRows());
+                            //sentRowsValueLabel.setText(""+sentRows);
+                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
+                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+
+                            if (backend.isSending()) {
+                                if (vw != null) {
+                                    vw.setCompletedCommandNumber((int)backend.getNumSentRows());
+                                }
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -1850,16 +1852,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
         this.loadFirmwareSelector();
         this.setTitle(Localization.getString("title") + " (" 
                 + Localization.getString("version") + " " + VERSION + ")");
-
-
-        this.autoConnectTimer = new java.util.Timer("AutoConnectTimer", true);
-        autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                backend.autoconnect();
-            }
-        }, 1000, 5000);
-
 
         // Command History
         this.manualCommandHistory = new ArrayList<>();

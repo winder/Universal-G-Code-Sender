@@ -37,6 +37,9 @@ public class Settings {
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
 
+    private boolean autoConnectOnStartup = false;
+    private boolean autoReconnect = false;
+
     //vvv deprecated fields, still here to not break the old save files
     @Expose(serialize = false)
     private String customGcode1 = null;
@@ -356,4 +359,12 @@ public class Settings {
         public void setLanguage (String language) {
             this.language = language;
         }
+
+    public boolean isAutoConnectOnStartup() {
+        return autoConnectOnStartup;
+    }
+
+    public boolean isAutoReconnect() {
+        return autoReconnect;
+    }
 }
