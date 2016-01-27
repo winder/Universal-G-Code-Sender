@@ -120,12 +120,6 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         }
     }
     
-    @Override
-    protected void componentDeactivated() {
-        System.out.println("Component deactivated, canvas = " + canvas);
-        componentClosed();
-    }
-
     private NewtCanvasAWT makeWindow(
         final String name, final GLCapabilities caps) {
 
@@ -137,12 +131,19 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         
         window.setTitle(name);
         window.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowDestroyNotify(
-                final WindowEvent e) {
-                // System.exit(0);
-            }
-        });
+            public void windowDestroyNotify(final WindowEvent e) {
+                // Run this on another thread than the AWT event queue to
+                // make sure the call to Animator.stop() completes before
+                // exiting
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        animator.stop();
+                        componentClosed();
+                    }
+                }).start();
+            }});
+
         window.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseWheelMoved(MouseEvent me) {
