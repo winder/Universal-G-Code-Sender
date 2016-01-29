@@ -107,7 +107,7 @@ public class AbstractControllerTest {
 
     @AfterClass
     static public void teardown() throws IOException {
-        FileUtils.deleteDirectory(tempDir);
+        FileUtils.forceDelete(tempDir);
     }
 
     @Before
@@ -490,31 +490,35 @@ public class AbstractControllerTest {
         int rate = 1234;
 
         File f = new File(tempDir,"gcodeFile");
-
-        try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
-            for(String i : commands) {
-                gsw.addLine("blah", command, null, -1);
+        try {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+                for (String i : commands) {
+                    gsw.addLine("blah", command, null, -1);
+                }
             }
+
+            try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
+                openInstanceExpectUtility(port, rate);
+                streamInstanceExpectUtility();
+
+                // TODO Fix this
+                // Making sure the commands get queued.
+                mockCommunicator.queueStreamForComm(gsr);
+
+                EasyMock.expect(EasyMock.expectLastCall()).times(1);
+
+                EasyMock.replay(instance, mockCommunicator);
+
+                // Open port, send some commands, make sure they are streamed.
+                instance.openCommPort(port, rate);
+                instance.queueStream(gsr);
+                instance.beginStreaming();
+            }
+
+            EasyMock.verify(mockCommunicator, instance);
+        } finally {
+            FileUtils.forceDelete(f);
         }
-
-        GcodeStreamReader gsr = new GcodeStreamReader(f);
-
-        openInstanceExpectUtility(port, rate);
-        streamInstanceExpectUtility();
-        
-        // TODO Fix this
-        // Making sure the commands get queued.
-        mockCommunicator.queueStreamForComm(gsr);
-        EasyMock.expect(EasyMock.expectLastCall()).times(1);
-
-        EasyMock.replay(instance, mockCommunicator);
-
-        // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(port, rate);
-        instance.queueStream(gsr);
-        instance.beginStreaming();
-
-        EasyMock.verify(mockCommunicator, instance);
     }
 
     /**
