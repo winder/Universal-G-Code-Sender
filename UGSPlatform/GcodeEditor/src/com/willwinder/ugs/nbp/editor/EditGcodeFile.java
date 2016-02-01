@@ -45,7 +45,7 @@ public final class EditGcodeFile implements ActionListener {
     }
 
     private Collection<TopComponent> getCurrentlyOpenedEditors() {
-        final ArrayList<TopComponent> result = new ArrayList<TopComponent>();
+        final ArrayList<TopComponent> result = new ArrayList<>();
         final WindowManager wm = WindowManager.getDefault();
         for (Mode mode : wm.getModes()) {
             if (wm.isEditorMode(mode)) {
