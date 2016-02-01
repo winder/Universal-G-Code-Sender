@@ -13,9 +13,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import javax.swing.Action;
+import javax.swing.JEditorPane;
+import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -38,7 +41,10 @@ import org.openide.windows.WindowManager;
 @ActionReference(path = "Menu/File", position = 1301)
 @Messages("CTL_EditGcodeFile=Edit Gcode File...")
 public final class EditGcodeFile implements ActionListener {
+    EditorListener el = new EditorListener();
+
     private void closeOpenFile() {
+        updateListener(false);
         Collection<TopComponent> editors = getCurrentlyOpenedEditors();
         for (TopComponent editor : editors) {
             editor.close();
@@ -56,6 +62,32 @@ public final class EditGcodeFile implements ActionListener {
         return result;
     }
 
+    private void updateListener(Boolean enabled) {
+        Node[] nodes = TopComponent.getRegistry().getCurrentNodes();
+        if (nodes == null) return;
+        for (Node n : nodes) {
+            EditorCookie ec = (EditorCookie) n.getLookup().lookup(EditorCookie.class);
+            if (ec != null) {
+                JEditorPane[] panes = ec.getOpenedPanes();
+                for (JEditorPane pane : panes) {
+                    if (enabled) {
+                        pane.addCaretListener(el);
+                    } else {
+                        pane.removeCaretListener(el);
+                    }
+                }
+            }
+        }
+
+        /*
+        EditorCookie ec = (EditorCookie) n[0].getCookie(EditorCookie.class);
+
+        EditorListener el = new EditorListener();
+        dOb.addPropertyChangeListener(el);
+        fo.addFileChangeListener(el);
+*/
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -66,7 +98,9 @@ public final class EditGcodeFile implements ActionListener {
 
         try {
             FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
-            DataObject.find(fo).getLookup().lookup(OpenCookie.class).open();
+            DataObject dOb = DataObject.find(fo);
+            dOb.getLookup().lookup(OpenCookie.class).open();
+            updateListener(true);
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
