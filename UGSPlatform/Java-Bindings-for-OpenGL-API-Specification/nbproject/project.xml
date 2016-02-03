@@ -39,10 +39,25 @@
                 <package>com.jogamp.newt.event</package>
                 <package>com.jogamp.newt.event.awt</package>
                 <package>com.jogamp.newt.opengl</package>
+                <package>com.jogamp.newt.opengl.util</package>
                 <package>com.jogamp.newt.opengl.util.stereo</package>
                 <package>com.jogamp.newt.swt</package>
                 <package>com.jogamp.newt.util</package>
                 <package>com.jogamp.newt.util.applet</package>
+                <package>com.jogamp.oculusvr</package>
+                <package>com.jogamp.openal</package>
+                <package>com.jogamp.openal.eax</package>
+                <package>com.jogamp.openal.sound3d</package>
+                <package>com.jogamp.openal.util</package>
+                <package>com.jogamp.opencl</package>
+                <package>com.jogamp.opencl.gl</package>
+                <package>com.jogamp.opencl.impl</package>
+                <package>com.jogamp.opencl.llb</package>
+                <package>com.jogamp.opencl.llb.gl</package>
+                <package>com.jogamp.opencl.llb.impl</package>
+                <package>com.jogamp.opencl.spi</package>
+                <package>com.jogamp.opencl.util</package>
+                <package>com.jogamp.opencl.util.concurrent</package>
                 <package>com.jogamp.opengl</package>
                 <package>com.jogamp.opengl.awt</package>
                 <package>com.jogamp.opengl.egl</package>
@@ -71,6 +86,7 @@
                 <package>jogamp.common.jvm</package>
                 <package>jogamp.common.os</package>
                 <package>jogamp.common.os.elf</package>
+                <package>jogamp.common.util</package>
                 <package>jogamp.common.util.locks</package>
                 <package>jogamp.graph.curve.opengl</package>
                 <package>jogamp.graph.curve.opengl.shader</package>
@@ -83,8 +99,6 @@
                 <package>jogamp.graph.font.typecast.t2</package>
                 <package>jogamp.graph.font.typecast.tt.engine</package>
                 <package>jogamp.graph.geom.plane</package>
-                <package>jogamp.nativetag.common.android.aarch64</package>
-                <package>jogamp.nativetag.common.android.armv6</package>
                 <package>jogamp.nativetag.common.linux.amd64</package>
                 <package>jogamp.nativetag.common.linux.armv6</package>
                 <package>jogamp.nativetag.common.linux.armv6hf</package>
@@ -94,8 +108,33 @@
                 <package>jogamp.nativetag.common.solaris.i586</package>
                 <package>jogamp.nativetag.common.windows.amd64</package>
                 <package>jogamp.nativetag.common.windows.i586</package>
-                <package>jogamp.nativetag.opengl.android.aarch64</package>
-                <package>jogamp.nativetag.opengl.android.armv6</package>
+                <package>jogamp.nativetag.oculusvr.linux.amd64</package>
+                <package>jogamp.nativetag.oculusvr.linux.armv6</package>
+                <package>jogamp.nativetag.oculusvr.linux.armv6hf</package>
+                <package>jogamp.nativetag.oculusvr.linux.i586</package>
+                <package>jogamp.nativetag.oculusvr.macosx.universal</package>
+                <package>jogamp.nativetag.oculusvr.solaris.amd64</package>
+                <package>jogamp.nativetag.oculusvr.solaris.i586</package>
+                <package>jogamp.nativetag.oculusvr.windows.amd64</package>
+                <package>jogamp.nativetag.oculusvr.windows.i586</package>
+                <package>jogamp.nativetag.openal.linux.amd64</package>
+                <package>jogamp.nativetag.openal.linux.armv6</package>
+                <package>jogamp.nativetag.openal.linux.armv6hf</package>
+                <package>jogamp.nativetag.openal.linux.i586</package>
+                <package>jogamp.nativetag.openal.macosx.universal</package>
+                <package>jogamp.nativetag.openal.solaris.amd64</package>
+                <package>jogamp.nativetag.openal.solaris.i586</package>
+                <package>jogamp.nativetag.openal.windows.amd64</package>
+                <package>jogamp.nativetag.openal.windows.i586</package>
+                <package>jogamp.nativetag.opencl.linux.amd64</package>
+                <package>jogamp.nativetag.opencl.linux.armv6</package>
+                <package>jogamp.nativetag.opencl.linux.armv6hf</package>
+                <package>jogamp.nativetag.opencl.linux.i586</package>
+                <package>jogamp.nativetag.opencl.macosx.universal</package>
+                <package>jogamp.nativetag.opencl.solaris.amd64</package>
+                <package>jogamp.nativetag.opencl.solaris.i586</package>
+                <package>jogamp.nativetag.opencl.windows.amd64</package>
+                <package>jogamp.nativetag.opencl.windows.i586</package>
                 <package>jogamp.nativetag.opengl.linux.amd64</package>
                 <package>jogamp.nativetag.opengl.linux.armv6</package>
                 <package>jogamp.nativetag.opengl.linux.armv6hf</package>
@@ -129,6 +168,8 @@
                 <package>jogamp.newt.event</package>
                 <package>jogamp.newt.swt</package>
                 <package>jogamp.newt.swt.event</package>
+                <package>jogamp.openal</package>
+                <package>jogamp.opencl</package>
                 <package>jogamp.opengl</package>
                 <package>jogamp.opengl.awt</package>
                 <package>jogamp.opengl.egl</package>
@@ -145,6 +186,8 @@
                 <package>jogamp.opengl.glu.tessellator</package>
                 <package>jogamp.opengl.macosx.cgl</package>
                 <package>jogamp.opengl.macosx.cgl.awt</package>
+                <package>jogamp.opengl.oculusvr</package>
+                <package>jogamp.opengl.oculusvr.stereo.lense</package>
                 <package>jogamp.opengl.openal.av</package>
                 <package>jogamp.opengl.util</package>
                 <package>jogamp.opengl.util.av</package>
@@ -160,100 +203,8 @@
                 <package>jogamp.opengl.x11.glx</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-android-aarch64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-android-aarch64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-solaris-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-solaris-amd64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-linux-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-linux-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-macosx-universal.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-macosx-universal.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-android-armv6.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-android-armv6.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-android-armv6.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-android-armv6.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-linux-armv6hf.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-linux-armv6hf.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-linux-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-linux-amd64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-solaris-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-solaris-amd64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-android-aarch64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-android-aarch64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-linux-armv6hf.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-linux-armv6hf.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-linux-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-linux-amd64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-linux-armv6.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-linux-armv6.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-windows-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-windows-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-linux-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-linux-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-windows-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-windows-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-linux-armv6.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-linux-armv6.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-solaris-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-solaris-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-solaris-i586.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-solaris-i586.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/gluegen-rt-2.3.1-natives-windows-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/gluegen-rt-2.3.1-natives-windows-amd64.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-macosx-universal.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-macosx-universal.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jogl-all-2.3.1-natives-windows-amd64.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogl-all-2.3.1-natives-windows-amd64.jar</binary-origin>
+                <runtime-relative-path>ext/jogamp-fat.jar</runtime-relative-path>
+                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogamp-fat.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
