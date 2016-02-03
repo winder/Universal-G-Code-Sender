@@ -204,7 +204,7 @@
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/jogamp-fat.jar</runtime-relative-path>
-                <binary-origin>/opt/Universal-G-Code-Sender/UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/release/modules/ext/jogamp-fat.jar</binary-origin>
+                <binary-origin>release/modules/ext/jogamp-fat.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
