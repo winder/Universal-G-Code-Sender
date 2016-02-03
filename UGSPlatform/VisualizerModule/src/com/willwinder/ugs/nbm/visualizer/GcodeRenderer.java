@@ -1,7 +1,7 @@
 /*
  * 3D Canvas for GCode Visualizer.
  *
- * Created on Jan 29, 2013-2016
+ * Created on Jan 29, 2013
  */
 
 /*
@@ -69,9 +69,9 @@ import javax.vecmath.Vector3d;
  * 
  */
 @SuppressWarnings("serial")
-public class GcodeRenderer extends NewtCanvasAWT implements
-        GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
+public class GcodeRenderer implements GLEventListener {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
+    GLAutoDrawable drawable = null;
     
     static boolean ortho = true;
     static double orthoRotation = -45;
@@ -144,11 +144,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements
      * Constructor.
      */
     public GcodeRenderer() {
-       //this.addGLEventListener(this);
-       //this.addKeyListener(this);
-       //this.addMouseMotionListener(this);
-       //this.addMouseWheelListener(this);
-
        this.eye = new Point3d(0, 0, 1.5);
        this.center = new Point3d(0, 0, 0);
        
@@ -189,6 +184,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         
         generateObject();
         
+        // Force a display in case an animator isn't running.
+        drawable.display();
         logger.log(Level.INFO, "Done setting gcode file.");
     }
     
@@ -210,6 +207,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements
     @Override
     public void init(GLAutoDrawable drawable) {
         logger.log(Level.INFO, "Initializing OpenGL context.");
+
+        this.drawable = drawable;
 
         generateObject();
 
@@ -665,109 +664,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         this.isDrawable = false;
         this.numberOfVertices = 0;
     }
-
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyTyped(KeyEvent ke) {
-        //System.out.println ("key typed");
-    }
-
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyPressed(KeyEvent ke) {
-        double DELTA_SIZE = 0.1;
-            
-        switch(ke.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                this.eye.y+=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_DOWN:
-                this.eye.y-=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_LEFT:
-                this.eye.x-=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_RIGHT:
-                this.eye.x+=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_MINUS:
-                if (ke.isControlDown())
-                    this.zoomOut(1);
-                break;
-            case KeyEvent.VK_0:
-                if (ke.isControlDown()) {
-                    this.zoomMultiplier = 1;
-                    this.scaleFactor = this.scaleFactorBase;
-                }
-                break;
-            case KeyEvent.VK_ESCAPE:
-                this.zoomMultiplier = 1;
-                this.scaleFactor = this.scaleFactorBase;
-                this.eye.x = 0;
-                this.eye.y = 0;
-                this.eye.z = 1.5;
-                this.rotation.x = 0;
-                this.rotation.y = -30;
-                this.rotation.z = 0;
-        }
-        
-        switch(ke.getKeyChar()) {
-            case 'p':
-                this.eye.z+=DELTA_SIZE;
-                break;
-            case ';':
-                this.eye.z-=DELTA_SIZE;
-                break;
-            case 'w':
-                this.center.y+=DELTA_SIZE;
-                break;
-            case 's':
-                this.center.y-=DELTA_SIZE;
-                break;
-            case 'a':
-                this.center.x-=DELTA_SIZE;
-                break;
-            case 'd':
-                this.center.x+=DELTA_SIZE;
-                break;
-            case 'r':
-                this.center.z+=DELTA_SIZE;
-                break;
-            case 'f':
-                this.center.z-=DELTA_SIZE;
-                break;
-            case '+':
-                if (ke.isControlDown())
-                    this.zoomIn(1);
-                break;
-        }
-        
-        //System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
-    }
-    
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyReleased(KeyEvent ke) {
-        //System.out.println ("key released");
-    }
-
-    
-    /** Mouse Motion Listener Events **/
-    @Override
-    public void mouseDragged(MouseEvent me) {
-        if (me.isShiftDown() || me.getModifiers() == this.panMouseButton) {
-            mousePan(this.current);
-        } else {
-            mouseRotate(this.current);
-        }
-    }
-
+   
     private void setHorizontalTranslationVector() {
         double x = Math.cos(Math.toRadians(this.rotation.x));
         double xz = Math.sin(Math.toRadians(this.rotation.x));
@@ -787,12 +684,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         translationVectorV.normalize();
     }
 
-    @Override
-    public void mouseMoved(MouseEvent me) {
-        // Keep last location up to date so that we're ready to start dragging.
-        mouseMoved(me.getPoint());
-    }
-    
     public void mouseMoved(Point lastPoint) {
         last = lastPoint;
     }
@@ -817,6 +708,10 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         this.current = point;
         int dx = this.current.x - this.last.x;
         int dy = this.current.y - this.last.y;
+        pan(dx, dy);
+    }
+
+    public void pan(int dx, int dy) {
         if (ortho) {
             // Treat dx and dy as vectors relative to the rotation angle.
             this.eye.x -= ((dx * this.translationVectorH.x * this.panMultiplierX) + (dy * this.translationVectorV.x * panMultiplierY));
@@ -831,7 +726,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         this.last = this.current;
     }
     
-    public void mouseZoom(int delta) {
+    public void zoom(int delta) {
         if (delta == 0)
             return;
 
@@ -846,11 +741,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements
             else
                 zoomOut(delta * -1);
         }
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        mouseZoom(e.getWheelRotation());
     }
 
     private void zoomOut(int increments) {
@@ -881,6 +771,20 @@ public class GcodeRenderer extends NewtCanvasAWT implements
         } else {
             this.eye.z -= increments;
         }
+    }
+
+    /**
+     * Reset the view angle and zoom.
+     */
+    public void resetView() {
+        this.zoomMultiplier = 1;
+        this.scaleFactor = this.scaleFactorBase;
+        this.eye.x = 0;
+        this.eye.y = 0;
+        this.eye.z = 1.5;
+        this.rotation.x = 0;
+        this.rotation.y = -30;
+        this.rotation.z = 0;
     }
 
     public double getMinArcLength() {

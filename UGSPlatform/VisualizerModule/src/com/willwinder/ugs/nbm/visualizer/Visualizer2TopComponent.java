@@ -25,16 +25,8 @@ import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
-import java.awt.Point;
-import java.awt.event.InputEvent;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowListener;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -123,98 +115,33 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     private GLJPanel makeWindow(
         final String name, final GLCapabilities caps) {
 
-        //final GLWindow window = GLWindow.create(caps);
         final GLJPanel p = new GLJPanel(caps);
-        final JFrame frame = new JFrame(name);
 
         renderer = new GcodeRenderer();
         
         if (backend.getGcodeFile() != null)
             renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
         
-        // Install a shutdown hook...
-        frame.addWindowListener(new WindowListener() {
-            @Override
-            public void windowDeactivated(java.awt.event.WindowEvent e) {
-                // Run this on another thread than the AWT event queue to
-                // make sure the call to Animator.stop() completes before
-                // exiting
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        animator.stop();
-                        componentClosed();
-                    }
-                }).start();
-            }
+        animator = new FPSAnimator(p, 15);
+        RendererInputHandler rih = new RendererInputHandler(renderer, animator);
 
-            @Override
-            public void windowOpened(java.awt.event.WindowEvent e) {
-            }
+        // Install listeners...
 
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent e) {
-            }
+        // shutdown hook...
+        //frame.addWindowListener(rih);
+        p.addKeyListener(rih);
 
-            @Override
-            public void windowClosed(java.awt.event.WindowEvent e) {
-            }
+        // mouse wheel...
+        p.addMouseWheelListener(rih);
 
-            @Override
-            public void windowIconified(java.awt.event.WindowEvent e) {
-            }
+        // mouse motion...
+        p.addMouseMotionListener(rih);
 
-            @Override
-            public void windowDeiconified(java.awt.event.WindowEvent e) {
-            }
-
-            @Override
-            public void windowActivated(java.awt.event.WindowEvent e) {
-            }
-        
-        });
-
-        // Mouse wheel...
-        p.addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                int rotation = e.getScrollAmount();
-                renderer.mouseZoom(rotation);
-            }
-        });
-
-        // Mouse motion...
-        p.addMouseMotionListener(new MouseMotionListener() {
-            @Override
-            public void mouseDragged(java.awt.event.MouseEvent e) {
-                if (SwingUtilities.isLeftMouseButton(e)) {
-                    int x = e.getX();
-                    int y = e.getY();
-                    
-                    int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
-
-                    if (e.isShiftDown() || e.getModifiers() == panMouseButton) {
-                        renderer.mousePan(new Point(x,y));
-                    } else {
-                        renderer.mouseRotate(new Point(x,y));
-                    }
-                }
-            }
-
-            @Override
-            public void mouseMoved(java.awt.event.MouseEvent e) {
-                int x = e.getX();
-                int y = e.getY();
-
-                renderer.mouseMoved(new Point(x, y));
-            }
-
-        });
+        // mouse...
+        p.addMouseListener(rih);
 
         p.addGLEventListener((GLEventListener) renderer);
 
-        animator = new FPSAnimator(p, 15);
-        animator.start();
         return p;
     }
 
