@@ -43,8 +43,8 @@ public class EditorListener implements CaretListener {
             int startIndex = map.getElementIndex(jep.getSelectionStart());
             int endIndex   = map.getElementIndex(jep.getSelectionEnd());
 
-            System.out.println("Start line: " + startIndex);
-            System.out.println("End line: " + endIndex);
+            //System.out.println("Start line: " + startIndex);
+            //System.out.println("End line: " + endIndex);
         }
     }
 }
