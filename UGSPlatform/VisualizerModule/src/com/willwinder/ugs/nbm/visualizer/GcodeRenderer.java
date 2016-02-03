@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -38,7 +38,6 @@ import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
-import static com.jogamp.opengl.GLProfile.GL2;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
@@ -238,7 +237,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        logger.log(Level.INFO, "Reshaping OpenGL context.");
+        //logger.log(Level.INFO, "Reshaping OpenGL context.");
         this.xSize = width;
         this.ySize = height;
 

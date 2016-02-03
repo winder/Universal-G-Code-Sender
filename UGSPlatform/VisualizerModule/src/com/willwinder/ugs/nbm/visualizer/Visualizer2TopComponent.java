@@ -18,12 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.newt.awt.NewtCanvasAWT;
-import com.jogamp.newt.event.MouseAdapter;
-import com.jogamp.newt.event.MouseEvent;
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.newt.event.WindowEvent;
-import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
@@ -34,6 +28,13 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.awt.GLJPanel;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowListener;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -66,9 +67,8 @@ import org.openide.util.NbBundle.Messages;
 })
 public final class Visualizer2TopComponent extends TopComponent implements ControlStateListener {
     static GLCapabilities glCaps;
-    int quad_x = 5;
-    int quad_y = 5;
-    private NewtCanvasAWT canvas;
+
+    private GLJPanel panel;
     private GcodeRenderer renderer;
     private FPSAnimator animator;
     private final BackendAPIReadOnly backend;
@@ -89,27 +89,27 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     @Override
     protected void componentOpened() {
         super.componentOpened();
-        canvas = makeWindow("TestWindow", glCaps);
-        add(canvas, BorderLayout.CENTER);
+        panel = makeWindow("TestWindow", glCaps);
+        add(panel, BorderLayout.CENTER);
     }
 
     @Override
     protected void componentClosed() {
-        System.out.println("Component closed, canvas = " + canvas);
-        if (canvas == null) return;
+        super.componentClosed();
+        System.out.println("Component closed, panel = " + panel);
+        if (panel == null) return;
 
-        //super.componentClosed();
-        remove(canvas);
-        //dispose of canvas and native resources
-        canvas.destroy();
-        canvas = null;
+        remove(panel);
+        //dispose of panel and native resources
+        panel.destroy();
+        panel = null;
     }
 
     @Override
     protected void componentActivated() {
         super.componentActivated();
-        if (canvas != null) {
-            canvas.setSize(getSize());
+        if (panel != null) {
+            panel.setSize(getSize());
             //need to update complete component tree
             invalidate();
             
@@ -120,18 +120,22 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         }
     }
     
-    private NewtCanvasAWT makeWindow(
+    private GLJPanel makeWindow(
         final String name, final GLCapabilities caps) {
 
-        final GLWindow window = GLWindow.create(caps);
+        //final GLWindow window = GLWindow.create(caps);
+        final GLJPanel p = new GLJPanel(caps);
+        final JFrame frame = new JFrame(name);
+
         renderer = new GcodeRenderer();
         
         if (backend.getGcodeFile() != null)
             renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
         
-        window.setTitle(name);
-        window.addWindowListener(new WindowAdapter() {
-            public void windowDestroyNotify(final WindowEvent e) {
+        // Install a shutdown hook...
+        frame.addWindowListener(new WindowListener() {
+            @Override
+            public void windowDeactivated(java.awt.event.WindowEvent e) {
                 // Run this on another thread than the AWT event queue to
                 // make sure the call to Animator.stop() completes before
                 // exiting
@@ -142,51 +146,76 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
                         componentClosed();
                     }
                 }).start();
-            }});
-
-        window.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseWheelMoved(MouseEvent me) {
-                float[] rotation = me.getRotation();
-                
-                renderer.mouseZoom(Math.round(me.getRotation()[1]));
             }
-            
-            @Override
-            public void mouseDragged(MouseEvent me) {
-                int x = me.getX();
-                int y = me.getY();
-                
-                int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
 
-                if (me.isShiftDown() || me.getModifiers() == panMouseButton) {
-                    renderer.mousePan(new Point(x,y));
-                } else {
-                    renderer.mouseRotate(new Point(x,y));
+            @Override
+            public void windowOpened(java.awt.event.WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+            }
+
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+            }
+
+            @Override
+            public void windowIconified(java.awt.event.WindowEvent e) {
+            }
+
+            @Override
+            public void windowDeiconified(java.awt.event.WindowEvent e) {
+            }
+
+            @Override
+            public void windowActivated(java.awt.event.WindowEvent e) {
+            }
+        
+        });
+
+        // Mouse wheel...
+        p.addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                int rotation = e.getScrollAmount();
+                renderer.mouseZoom(rotation);
+            }
+        });
+
+        // Mouse motion...
+        p.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int x = e.getX();
+                    int y = e.getY();
+                    
+                    int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
+
+                    if (e.isShiftDown() || e.getModifiers() == panMouseButton) {
+                        renderer.mousePan(new Point(x,y));
+                    } else {
+                        renderer.mouseRotate(new Point(x,y));
+                    }
                 }
             }
-            
+
             @Override
-            public void mouseMoved(MouseEvent me) {
-                int x = me.getX();
-                int y = me.getY();
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                int x = e.getX();
+                int y = e.getY();
 
                 renderer.mouseMoved(new Point(x, y));
             }
-        });
-        window.addGLEventListener((GLEventListener) renderer);
 
-        animator = new FPSAnimator(window, 60);
-        animator.start();
-        NewtCanvasAWT canvas = new NewtCanvasAWT(window);
-        window.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                quad_x = e.getX();
-                quad_y = window.getHeight() - e.getY();
-            }
         });
-        return canvas;
+
+        p.addGLEventListener((GLEventListener) renderer);
+
+        animator = new FPSAnimator(p, 15);
+        animator.start();
+        return p;
     }
 
     void writeProperties(java.util.Properties p) {
