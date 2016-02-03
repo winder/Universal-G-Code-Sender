@@ -1,3 +1,7 @@
+/**
+ * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
+ */
+
 /*
     Copywrite 2015-2016 Will Winder
 
@@ -81,7 +85,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     @Override
     protected void componentOpened() {
         super.componentOpened();
-        panel = makeWindow("TestWindow", glCaps);
+        panel = makeWindow(glCaps);
         add(panel, BorderLayout.CENTER);
     }
 
@@ -112,9 +116,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         }
     }
     
-    private GLJPanel makeWindow(
-        final String name, final GLCapabilities caps) {
-
+    private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
         renderer = new GcodeRenderer();
@@ -129,6 +131,8 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
 
         // shutdown hook...
         //frame.addWindowListener(rih);
+
+        // key listener...
         p.addKeyListener(rih);
 
         // mouse wheel...
