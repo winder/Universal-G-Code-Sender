@@ -27,7 +27,6 @@ package com.willwinder.ugs.nbm.visualizer;
 
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import static com.jogamp.opengl.GL.GL_LEQUAL;
