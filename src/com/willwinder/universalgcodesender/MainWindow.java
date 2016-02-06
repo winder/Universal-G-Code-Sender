@@ -38,7 +38,6 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -65,12 +64,13 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
 /**
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, ControlStateListener {
+public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();

@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
 /**
  *
@@ -60,7 +60,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     String state;
     Collection<ControllerListener> controllerListeners = new ArrayList<>();
-    Collection<ControlStateListener> controlStateListeners = new ArrayList<>();
+    Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
 
     // GUI State
     File gcodeFile = null;
@@ -85,7 +85,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public GcodeParser gcp = new GcodeParser();
     
     @Override
-    public void addControlStateListener(ControlStateListener listener) {
+    public void addControlStateListener(UGSEventListener listener) {
         logger.log(Level.INFO, "Adding control state listener.");
         controlStateListeners.add(listener);
     }
@@ -646,7 +646,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.controlState = event.getControlState();
         }
         
-        for (ControlStateListener l : controlStateListeners) {
+        for (UGSEventListener l : controlStateListeners) {
             logger.info("Sending control state change.");
             l.ControlStateEvent(event);
         }

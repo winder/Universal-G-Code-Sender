@@ -23,19 +23,19 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import java.io.File;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
 /**
  *
  * @author wwinder
  */
 public interface BackendAPIReadOnly {
-    public void addControlStateListener(ControlStateListener listener);
+    public void addControlStateListener(UGSEventListener listener);
     public void addControllerListener(ControllerListener listener);
     
     // Config options
