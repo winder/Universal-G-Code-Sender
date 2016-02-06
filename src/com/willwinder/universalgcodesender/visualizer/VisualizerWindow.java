@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -95,6 +95,11 @@ implements ControllerListener, WindowListener {
     public void setGcodeFile(String file) {
         this.gcodeFile = file;
         canvas.setGcodeFile(this.gcodeFile);
+    }
+
+    public void setProcessedGcodeFile(String file) {
+        this.gcodeFile = file;
+        canvas.setProcessedGcodeFile(this.gcodeFile);
     }
     
     public void setCompletedCommandNumber(int num) {

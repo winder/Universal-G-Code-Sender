@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Noah Levy, William Winder
+    Copywrite 2013-2016 Noah Levy, William Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,7 +27,10 @@ package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.vecmath.Point3d;
@@ -95,9 +98,22 @@ public class GcodeViewParse {
             max.z = z;
         }
     }
+
+    public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
+            double arcSegmentLength) throws IOException {
+        GcodeParser gp = new GcodeParser();
+
+        while (reader.getNumRowsRemaining() > 0) {
+            GcodeCommand c = reader.getNextCommand();
+            gp.addCommand(c.getCommandString(), c.getCommandNumber());
+        }
+
+        return getLinesFromParser(gp, arcSegmentLength);
+    }
     
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
+
         for (String s : gcode) {
             gp.addCommand(s);
         }

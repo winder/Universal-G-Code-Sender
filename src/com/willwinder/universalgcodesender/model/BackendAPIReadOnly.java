@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.model.Utils.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import java.io.File;
 

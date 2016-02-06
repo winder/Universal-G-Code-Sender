@@ -18,12 +18,12 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 
 /**
  *
  * @author wwinder
  */
 public interface ControlStateListener {
-    public void ControlStateEvent(ControlStateEvent evt);
+    public void ControlStateEvent(UGSEvent evt);
 }

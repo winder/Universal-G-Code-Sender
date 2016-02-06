@@ -26,9 +26,10 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -41,10 +42,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -144,7 +143,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
         
         if (openCommConnection(port, baudRate)) {
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
         }
     }
 
@@ -160,7 +159,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Disconnecting.");
         this.controller.closeCommPort();
         this.controller = null;
-        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_DISCONNECTED));
+        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED));
     }
 
     @Override
@@ -303,8 +302,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Setting gcode file.");
         this.gcodeFile = file;
         this.processedGcodeFile = null;
+
+        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADING,
+                file.getAbsolutePath()));
+
         initializeProcessedLines(true);
-        this.sendControlStateEvent(new ControlStateEvent(file.getAbsolutePath()));
+
+        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
+                processedGcodeFile.getAbsolutePath()));
     }
     
     @Override
@@ -324,7 +329,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
@@ -333,7 +338,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
         } catch (Exception e) {
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
             e.printStackTrace();
             throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
@@ -386,11 +391,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             switch(controlState) {
                 case COMM_SENDING:
                     this.controller.pauseStreaming();
-                    this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING_PAUSED));
+                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING_PAUSED));
                     return;
                 case COMM_SENDING_PAUSED:
                     this.controller.resumeStreaming();
-                    this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_SENDING));
+                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
                     return;
                 default:
                     throw new Exception();
@@ -449,7 +454,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void cancel() throws Exception {
         if (this.canCancel()) {
             this.controller.cancelSend();
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
         }
     }
 
@@ -499,7 +504,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
     }
 
     @Override
@@ -636,9 +641,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
     
-    private void sendControlStateEvent(ControlStateEvent event) {
-        if (event.getEventType() == ControlStateEvent.event.STATE_CHANGED) {
-            this.controlState = event.getState();
+    private void sendControlStateEvent(UGSEvent event) {
+        if (event.isStateChangeEvent()) {
+            this.controlState = event.getControlState();
         }
         
         for (ControlStateListener l : controlStateListeners) {
