@@ -203,8 +203,8 @@
                 <package>jogamp.opengl.x11.glx</package>
             </public-packages>
             <class-path-extension>
-                <runtime-relative-path>ext/jogamp-fat.jar</runtime-relative-path>
-                <binary-origin>lib/jogamp-fat.jar</binary-origin>
+                <runtime-relative-path>ext/jogamp-fat-2.3.2.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jogamp-fat-2.3.2.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>
