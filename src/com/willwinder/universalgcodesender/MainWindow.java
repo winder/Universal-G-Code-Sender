@@ -2309,7 +2309,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }
 
     @Override
-    public void ControlStateEvent(UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {
         if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
             this.updateControls();
         }

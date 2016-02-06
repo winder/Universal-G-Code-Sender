@@ -40,6 +40,7 @@ public interface BackendAPIReadOnly {
     
     // Config options
     public File getGcodeFile();
+    public File getProcessedGcodeFile();
 
     // Controller status
     public boolean isConnected();

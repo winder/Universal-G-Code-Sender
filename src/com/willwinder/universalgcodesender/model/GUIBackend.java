@@ -317,6 +317,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Getting gcode file.");
         return this.gcodeFile;
     }
+
+    @Override
+    public File getProcessedGcodeFile() {
+        logger.log(Level.INFO, "Getting processed gcode file.");
+        return this.processedGcodeFile;
+    }
     
     @Override
     public void send() throws Exception {
@@ -648,7 +654,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         
         for (UGSEventListener l : controlStateListeners) {
             logger.info("Sending control state change.");
-            l.ControlStateEvent(event);
+            l.UGSEvent(event);
         }
     }
 }
