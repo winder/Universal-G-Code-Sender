@@ -2188,8 +2188,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        // Stop the timer
-        this.timer.stop();
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
         remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
 
@@ -2199,6 +2197,12 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
                 JOptionPane.showMessageDialog(new JFrame(),
                         Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {}
+
+                // Stop the timer after a delay to make sure it is updated.
+                timer.stop();
             }});
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));

@@ -129,7 +129,6 @@ public class GcodeViewParse {
         Point3d start = null;
         Point3d end = null;
         LineSegment ls;
-        int num = 0;
         for (PointSegment segment : psl) {
             PointSegment ps = segment;
             ps.convertToMetric();
@@ -148,7 +147,7 @@ public class GcodeViewParse {
                     if (points != null) {
                         Point3d startPoint = start;
                         for (Point3d nextPoint : points) {
-                            ls = new LineSegment(startPoint, nextPoint, num);
+                            ls = new LineSegment(startPoint, nextPoint, ps.getLineNumber());
                             ls.setIsArc(ps.isArc());
                             ls.setIsFastTraverse(ps.isFastTraverse());
                             ls.setIsZMovement(ps.isZMovement());
@@ -159,7 +158,7 @@ public class GcodeViewParse {
                     }
                 // Line
                 } else {
-                    ls = new LineSegment(start, end, num++);
+                    ls = new LineSegment(start, end, ps.getLineNumber());
                     ls.setIsArc(ps.isArc());
                     ls.setIsFastTraverse(ps.isFastTraverse());
                     ls.setIsZMovement(ps.isZMovement());
