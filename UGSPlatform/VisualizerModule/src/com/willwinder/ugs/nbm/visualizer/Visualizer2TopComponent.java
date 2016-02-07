@@ -25,12 +25,13 @@ package com.willwinder.ugs.nbm.visualizer;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -61,7 +62,7 @@ import org.openide.util.NbBundle.Messages;
     "CTL_Visualizer2TopComponent=Visualizer",
     "HINT_Visualizer2TopComponent=This is the Visualizer"
 })
-public final class Visualizer2TopComponent extends TopComponent implements ControlStateListener {
+public final class Visualizer2TopComponent extends TopComponent implements UGSEventListener {
     static GLCapabilities glCaps;
 
     private GLJPanel panel;
@@ -71,7 +72,7 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
         glCaps = new GLCapabilities(null);
 
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -116,6 +117,13 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
         }
     }
     
+    private void updateGcodeFile() {
+        if (backend.getProcessedGcodeFile() != null) {
+            renderer.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
+        } else if (backend.getGcodeFile() != null) {
+            renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
+        }
+    }
     private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
@@ -162,15 +170,20 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        switch (cse.getEventType()) {
-            case FILE_CHANGED:
-                if (renderer != null && animator != null) {
-                    animator.pause();
-                    renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
-                    invalidate();
-                    animator.resume();
-                }
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isFileChangeEvent()) {
+            animator.pause();
+
+            switch (cse.getFileState()) {
+                case FILE_LOADING:
+                    renderer.setGcodeFile(cse.getFile());
+                    break;
+                case FILE_LOADED:
+                    renderer.setProcessedGcodeFile(cse.getFile());
+                    break;
+            }
+
+            animator.resume();
         }
     }
 }

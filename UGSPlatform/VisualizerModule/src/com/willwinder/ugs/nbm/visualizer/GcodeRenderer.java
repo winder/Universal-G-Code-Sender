@@ -46,12 +46,14 @@ import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -85,6 +87,7 @@ public class GcodeRenderer implements GLEventListener {
     
     // Gcode file data
     private String gcodeFile = null;
+    private boolean processedFile = false; // True if the file should be opened with GcodeStreamReader.
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
@@ -172,10 +175,19 @@ public class GcodeRenderer implements GLEventListener {
         return this.lastCommandNumber;
     }
     
+    public void setProcessedGcodeFile(String file) {
+        this.processedFile = true;
+        setFile(file);
+    }
+    public void setGcodeFile(String file) {
+        this.processedFile = false;
+        setFile(file);
+    }
+
     /**
      * Assign a gcode file to drawing.
      */
-    public void setGcodeFile(String file) {
+    public void setFile(String file) {
         this.gcodeFile = file;
         this.isDrawable = false;
         this.currentCommandNumber = 0;
@@ -463,11 +475,16 @@ public class GcodeRenderer implements GLEventListener {
         if (this.gcodeFile == null){ return; }
         
         try {
-
             GcodeViewParse gcvp = new GcodeViewParse();
-            List<String> linesInFile;
-            linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-            gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            if (this.processedFile) {
+                GcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
+                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
+            }
+            else {
+                List<String> linesInFile;
+                linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            }
 
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
@@ -793,19 +810,6 @@ public class GcodeRenderer implements GLEventListener {
     public void setMinArcLength(double minArcLength) {
         if (this.minArcLength != minArcLength) {
             this.minArcLength = minArcLength;
-            if (this.gcodeFile != null) {
-                this.setGcodeFile(this.gcodeFile);
-            }
-        }
-    }
-
-    public double getArcLength() {
-        return arcLength;
-    }
-
-    public void setArcLength(double arcLength) {
-        if (this.arcLength != arcLength) {
-            this.arcLength = arcLength;
             if (this.gcodeFile != null) {
                 this.setGcodeFile(this.gcodeFile);
             }
