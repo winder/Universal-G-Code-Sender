@@ -21,9 +21,9 @@ package com.willwinder.ugs.nbp.connection;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,7 +64,7 @@ import org.openide.util.NbPreferences;
 })
 
 @OnStart
-public final class ConnectionGUITopComponent extends TopComponent implements ControlStateListener, Runnable {
+public final class ConnectionGUITopComponent extends TopComponent implements UGSEventListener, Runnable {
     private static final Logger logger = Logger.getLogger(ConnectionGUITopComponent.class.getName());
     private boolean initializing = true;
     
@@ -84,7 +84,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         settings = CentralLookup.getDefault().lookup(Settings.class);
             
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
     }
     
     public static void connect() {
@@ -311,7 +311,7 @@ public final class ConnectionGUITopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void ControlStateEvent(ControlStateEvent cse) {
+    public void UGSEvent(UGSEvent cse) {
         if (backend.isConnected()) {
             this.opencloseButton.setText(Localization.getString("close"));
         } else {

@@ -25,10 +25,10 @@ package com.willwinder.ugs.nbm.workflow;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.ugs.nbm.workflow.Bundle;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.model.Utils.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.io.File;
@@ -69,10 +69,10 @@ import org.openide.util.NbBundle.Messages;
     "HINT_WorkflowWindowTopComponent=This is a WorkflowWindow window"
 })
 /**
- * ControlStateListener - this is how a plugin can listen to UGS lifecycle events.
+ * UGSEventListener - this is how a plugin can listen to UGS lifecycle events.
  * ListSelectionListener - listen for table selections.
  */
-public final class WorkflowWindowTopComponent extends TopComponent implements ControlStateListener, ListSelectionListener {
+public final class WorkflowWindowTopComponent extends TopComponent implements UGSEventListener, ListSelectionListener {
 
     // These are the UGS backend objects for interacting with the backend.
     private final Settings settings;
@@ -98,7 +98,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements Co
         // and BackendAPI objects.
         settings = CentralLookup.getDefault().lookup(Settings.class);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
 
         // Only allow contiguous ranges of selections and register as a listener.
         this.fileTable.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -115,18 +115,14 @@ public final class WorkflowWindowTopComponent extends TopComponent implements Co
      * @param cse 
      */
     @Override
-    public void ControlStateEvent(ControlStateEvent cse) {
-        switch (cse.getEventType()) {
-            case STATE_CHANGED:
-                if (wasSending && cse.getState() == ControlState.COMM_IDLE)
-                   this.completeFile(backend.getGcodeFile());
-                wasSending = backend.isSending();
-                break;
-            case FILE_CHANGED:
-                this.addFileToWorkflow(backend.getGcodeFile());
-                break;
-            default:
-                throw new AssertionError(cse.getEventType().name());
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isStateChangeEvent()) {
+            if (wasSending && cse.getControlState() == ControlState.COMM_IDLE)
+               this.completeFile(backend.getGcodeFile());
+            wasSending = backend.isSending();
+        }
+        if (cse.isFileChangeEvent()) {
+            this.addFileToWorkflow(backend.getGcodeFile());
         }
     }
 

@@ -19,8 +19,9 @@
 package com.willwinder.ugs.nbp.connectiontoolbar;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -46,7 +47,7 @@ import org.openide.util.Utilities;
 )
 @ActionReference(path = "Toolbars/StartPauseStop", position = 11)
 @Messages("CTL_Stop=Stop")
-public final class Stop extends AbstractAction implements ContextAwareAction, ControlStateListener {
+public final class Stop extends AbstractAction implements ContextAwareAction, UGSEventListener {
     BackendAPI backend;
 
     public Stop() {
@@ -61,7 +62,7 @@ public final class Stop extends AbstractAction implements ContextAwareAction, Co
         this.setEnabled(true);
         
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
     }
     
     @Override
@@ -70,7 +71,7 @@ public final class Stop extends AbstractAction implements ContextAwareAction, Co
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
+    public void UGSEvent(UGSEvent cse) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {

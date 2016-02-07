@@ -115,7 +115,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         initComponents();
         initProgram();
         backend.addControllerListener(this);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
         
         arrowMovementEnabled.setSelected(settings.isManualModeEnabled());
         stepSizeSpinner.setValue(settings.getManualModeStepSize());

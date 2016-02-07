@@ -20,9 +20,9 @@
 package com.willwinder.ugs.nbp.filebrowser;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.io.File;
@@ -58,7 +58,7 @@ import org.openide.windows.WindowManager;
     "CTL_FileBrowserTopComponentTopComponent=FileBrowser",
     "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowser"
 })
-public final class FileBrowserTopComponent extends TopComponent implements ControlStateListener {
+public final class FileBrowserTopComponent extends TopComponent implements UGSEventListener {
     BackendAPI backend;
     JFileChooser fileChooser;
     
@@ -148,7 +148,7 @@ public final class FileBrowserTopComponent extends TopComponent implements Contr
         fileChooser = GcodeFileTypeFilter.getGcodeFileChooser("");
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -169,9 +169,9 @@ public final class FileBrowserTopComponent extends TopComponent implements Contr
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        if (cse.getEventType() == ControlStateEvent.event.FILE_CHANGED) {
-            fileTextField.setText(cse.getFile());
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isFileChangeEvent()) {
+            fileTextField.setText(backend.getGcodeFile().getAbsolutePath());
         }
     }
 }
