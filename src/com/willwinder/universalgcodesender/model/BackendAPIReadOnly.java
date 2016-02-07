@@ -35,7 +35,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
  * @author wwinder
  */
 public interface BackendAPIReadOnly {
-    public void addControlStateListener(UGSEventListener listener);
+    public void addUGSEventListener(UGSEventListener listener);
     public void addControllerListener(ControllerListener listener);
     
     // Config options

@@ -85,7 +85,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public GcodeParser gcp = new GcodeParser();
     
     @Override
-    public void addControlStateListener(UGSEventListener listener) {
+    public void addUGSEventListener(UGSEventListener listener) {
         logger.log(Level.INFO, "Adding control state listener.");
         controlStateListeners.add(listener);
     }
