@@ -1,5 +1,9 @@
+/**
+ * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
+ */
+
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,22 +22,16 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.jogamp.newt.awt.NewtCanvasAWT;
-import com.jogamp.newt.event.MouseAdapter;
-import com.jogamp.newt.event.MouseEvent;
-import com.jogamp.newt.event.WindowAdapter;
-import com.jogamp.newt.event.WindowEvent;
-import com.jogamp.newt.opengl.GLWindow;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
-import java.awt.Point;
-import java.awt.event.InputEvent;
 import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.awt.GLJPanel;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -64,18 +62,17 @@ import org.openide.util.NbBundle.Messages;
     "CTL_Visualizer2TopComponent=Visualizer",
     "HINT_Visualizer2TopComponent=This is the Visualizer"
 })
-public final class Visualizer2TopComponent extends TopComponent implements ControlStateListener {
+public final class Visualizer2TopComponent extends TopComponent implements UGSEventListener {
     static GLCapabilities glCaps;
-    int quad_x = 5;
-    int quad_y = 5;
-    private NewtCanvasAWT canvas;
+
+    private GLJPanel panel;
     private GcodeRenderer renderer;
     private FPSAnimator animator;
     private final BackendAPIReadOnly backend;
     
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
         glCaps = new GLCapabilities(null);
 
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -89,23 +86,27 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     @Override
     protected void componentOpened() {
         super.componentOpened();
-        canvas = makeWindow("TestWindow", glCaps);
-        add(canvas, BorderLayout.CENTER);
+        panel = makeWindow(glCaps);
+        add(panel, BorderLayout.CENTER);
     }
 
     @Override
     protected void componentClosed() {
         super.componentClosed();
-        remove(canvas);
-        //dispose of canvas and native resources
-        canvas.destroy();
+        System.out.println("Component closed, panel = " + panel);
+        if (panel == null) return;
+
+        remove(panel);
+        //dispose of panel and native resources
+        panel.destroy();
+        panel = null;
     }
 
     @Override
     protected void componentActivated() {
         super.componentActivated();
-        if (canvas != null) {
-            canvas.setSize(getSize());
+        if (panel != null) {
+            panel.setSize(getSize());
             //need to update complete component tree
             invalidate();
             
@@ -115,67 +116,45 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
             }
         }
     }
+    
+    private void updateGcodeFile() {
+        if (backend.getProcessedGcodeFile() != null) {
+            renderer.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
+        } else if (backend.getGcodeFile() != null) {
+            renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
+        }
+    }
+    private GLJPanel makeWindow(final GLCapabilities caps) {
+        final GLJPanel p = new GLJPanel(caps);
 
-    private NewtCanvasAWT makeWindow(
-        final String name, final GLCapabilities caps) {
-
-        final GLWindow window = GLWindow.create(caps);
         renderer = new GcodeRenderer();
         
         if (backend.getGcodeFile() != null)
             renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
         
-        window.setTitle(name);
-        window.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowDestroyNotify(
-                final WindowEvent e) {
-                // System.exit(0);
-            }
-        });
-        window.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseWheelMoved(MouseEvent me) {
-                float[] rotation = me.getRotation();
-                
-                renderer.mouseZoom(Math.round(me.getRotation()[1]));
-            }
-            
-            @Override
-            public void mouseDragged(MouseEvent me) {
-                int x = me.getX();
-                int y = me.getY();
-                
-                int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
+        animator = new FPSAnimator(p, 15);
+        RendererInputHandler rih = new RendererInputHandler(renderer, animator);
 
-                if (me.isShiftDown() || me.getModifiers() == panMouseButton) {
-                    renderer.mousePan(new Point(x,y));
-                } else {
-                    renderer.mouseRotate(new Point(x,y));
-                }
-            }
-            
-            @Override
-            public void mouseMoved(MouseEvent me) {
-                int x = me.getX();
-                int y = me.getY();
+        // Install listeners...
 
-                renderer.mouseMoved(new Point(x, y));
-            }
-        });
-        window.addGLEventListener((GLEventListener) renderer);
+        // shutdown hook...
+        //frame.addWindowListener(rih);
 
-        animator = new FPSAnimator(window, 60);
-        animator.start();
-        NewtCanvasAWT canvas = new NewtCanvasAWT(window);
-        window.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                quad_x = e.getX();
-                quad_y = window.getHeight() - e.getY();
-            }
-        });
-        return canvas;
+        // key listener...
+        p.addKeyListener(rih);
+
+        // mouse wheel...
+        p.addMouseWheelListener(rih);
+
+        // mouse motion...
+        p.addMouseMotionListener(rih);
+
+        // mouse...
+        p.addMouseListener(rih);
+
+        p.addGLEventListener((GLEventListener) renderer);
+
+        return p;
     }
 
     void writeProperties(java.util.Properties p) {
@@ -191,15 +170,20 @@ public final class Visualizer2TopComponent extends TopComponent implements Contr
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        switch (cse.getEventType()) {
-            case FILE_CHANGED:
-                if (renderer != null && animator != null) {
-                    animator.pause();
-                    renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
-                    invalidate();
-                    animator.resume();
-                }
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isFileChangeEvent()) {
+            animator.pause();
+
+            switch (cse.getFileState()) {
+                case FILE_LOADING:
+                    renderer.setGcodeFile(cse.getFile());
+                    break;
+                case FILE_LOADED:
+                    renderer.setProcessedGcodeFile(cse.getFile());
+                    break;
+            }
+
+            animator.resume();
         }
     }
 }

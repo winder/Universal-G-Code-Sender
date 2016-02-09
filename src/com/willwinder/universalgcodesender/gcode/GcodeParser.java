@@ -116,22 +116,29 @@ public class GcodeParser {
     }
     
     /**
-     * Add a command to be processed.
+     * Add a command to be processed with no line number association.
      */
     public PointSegment addCommand(String command) {
+        return addCommand(command, this.commandNumber++);
+    }
+
+    /**
+     * Add a command to be processed with a line number.
+     */
+    public PointSegment addCommand(String command, int line) {
         String stripped = GcodePreprocessorUtils.removeComment(command);
         List<String> args = GcodePreprocessorUtils.splitCommand(stripped);
-        return this.addCommand(args);
+        return this.addCommand(args, line);
     }
     
     /**
      * Add a command which has already been broken up into its arguments.
      */
-    public PointSegment addCommand(List<String> args) {
+    public PointSegment addCommand(List<String> args, int line) {
         if (args.isEmpty()) {
             return null;
         }
-        return processCommand(args);
+        return processCommand(args, line);
     }
 
     /**
@@ -183,8 +190,7 @@ public class GcodeParser {
         }
         
         // Remove the last point now that we're about to expand it.
-        this.points.remove(this.points.size() - 1);
-        commandNumber--;        
+        int num = this.points.remove(this.points.size() - 1).getLineNumber();
                 
         // Initialize return value
         List<PointSegment> psl = new ArrayList<>();
@@ -194,7 +200,7 @@ public class GcodeParser {
         // skip first element.
         Iterator<Point3d> psi = expandedPoints.listIterator(1);
         while (psi.hasNext()) {
-            temp = new PointSegment(psi.next(), commandNumber++);
+            temp = new PointSegment(psi.next(), num);
             temp.setIsMetric(lastSegment.isMetric());
 
             // Add new points.
@@ -212,7 +218,7 @@ public class GcodeParser {
         return this.points;
     }
 
-    private PointSegment processCommand(List<String> args) {
+    private PointSegment processCommand(List<String> args, int line) {
         List<String> gCodes;
         PointSegment ps = null;
         
@@ -229,14 +235,14 @@ public class GcodeParser {
         }
         
         for (String i : gCodes) {
-            ps = handleGCode(i, args);
+            ps = handleGCode(i, args, line);
         }
         
         return ps;
     }
 
-    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse) {
-        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line) {
+        PointSegment ps = new PointSegment(nextPoint, line);
 
         boolean zOnly = false;
 
@@ -257,8 +263,8 @@ public class GcodeParser {
         return ps;
     }
 
-    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args) {
-        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line) {
+        PointSegment ps = new PointSegment(nextPoint, line);
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
@@ -285,7 +291,7 @@ public class GcodeParser {
         return ps;
     }
 
-    private PointSegment handleGCode(String code, List<String> args) {
+    private PointSegment handleGCode(String code, List<String> args, int line) {
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
@@ -296,18 +302,18 @@ public class GcodeParser {
 
         switch (code) {
             case "0":
-                ps = addLinearPointSegment(nextPoint, true);
+                ps = addLinearPointSegment(nextPoint, true, line);
                 break;
             case "1":
-                ps = addLinearPointSegment(nextPoint, false);
+                ps = addLinearPointSegment(nextPoint, false, line);
                 break;
 
             // Arc command.
             case "2":
-                ps = addArcPointSegment(nextPoint, true, args);
+                ps = addArcPointSegment(nextPoint, true, args, line);
                 break;
             case "3":
-                ps = addArcPointSegment(nextPoint, false, args);
+                ps = addArcPointSegment(nextPoint, false, args, line);
                 break;
 
             case "20":

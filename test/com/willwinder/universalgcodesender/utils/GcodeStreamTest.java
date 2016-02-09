@@ -65,7 +65,7 @@ public class GcodeStreamTest {
 
     @AfterClass
     static public void teardown() throws IOException {
-        FileUtils.deleteDirectory(tempDir);
+        FileUtils.forceDelete(tempDir);
     }
 
     /**
@@ -75,27 +75,30 @@ public class GcodeStreamTest {
     public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException {
         int rows = 1000000;
         File f = new File(tempDir,"gcodeFile");
-        try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
-            for (int i = 0; i < rows; i++) {
-                gsw.addLine("Line " + i + " before", "Line " + i + " after", null, i);
+        try {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+                for (int i = 0; i < rows; i++) {
+                    gsw.addLine("Line " + i + " before", "Line " + i + " after", null, i);
+                }
             }
+
+            try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
+                Assert.assertEquals(rows, gsr.getNumRows());
+
+                int count = 0;
+                while (gsr.getNumRowsRemaining() > 0) {
+                    GcodeCommand gc = gsr.getNextCommand();
+                    Assert.assertEquals("Line " + count + " after", gc.getCommandString());
+                    Assert.assertEquals("", gc.getComment());
+                    Assert.assertEquals(count, gc.getCommandNumber());
+                    count++;
+                    Assert.assertEquals(rows - count, gsr.getNumRowsRemaining());
+                }
+
+                Assert.assertEquals(rows, count);
+            }
+        } finally {
+            FileUtils.forceDelete(f);
         }
-
-        GcodeStreamReader gsr = new GcodeStreamReader(f);
-        Assert.assertEquals(rows, gsr.getNumRows());
-
-        int count = 0;
-        while (gsr.getNumRowsRemaining() > 0) {
-            GcodeCommand gc = gsr.getNextCommand();
-            Assert.assertEquals("Line " + count + " after", gc.getCommandString());
-            Assert.assertEquals("", gc.getComment());
-            Assert.assertEquals(count, gc.getCommandNumber());
-            count++;
-            Assert.assertEquals(rows-count, gsr.getNumRowsRemaining());
-        }
-
-        Assert.assertEquals(rows, count);
-
-        f.delete();
     }
 }

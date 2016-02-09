@@ -16,8 +16,8 @@ import org.junit.Test;
 
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.model.Utils.ControlState;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 import com.willwinder.universalgcodesender.utils.Settings;

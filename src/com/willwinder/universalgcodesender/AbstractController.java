@@ -597,7 +597,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     public void checkStreamFinished() {
-        if (!this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
+        if (this.isStreamingFile() && !this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
                 streamName = this.gcodeFile.getName();

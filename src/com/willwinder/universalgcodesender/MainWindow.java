@@ -37,8 +37,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.model.ControlStateEvent;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -66,12 +65,13 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
 /**
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, ControlStateListener {
+public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
@@ -91,6 +91,8 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
 
     // Other windows
     VisualizerWindow vw = null;
+    String gcodeFile = null;
+    String processedGcodeFile = null;
     
     // Duration timer
     private Timer timer;
@@ -114,7 +116,7 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
         initComponents();
         initProgram();
         backend.addControllerListener(this);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
         
         arrowMovementEnabled.setSelected(settings.isManualModeEnabled());
         stepSizeSpinner.setValue(settings.getManualModeStepSize());
@@ -1297,12 +1299,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
             try {
                 this.backend.connect(firmware, port, baudRate);
                 
-                if (this.backend.getGcodeFile() != null) {
-                    if (this.vw != null) {
-                        vw.setGcodeFile(this.backend.getGcodeFile().getAbsolutePath());
-                    }
-                }
-                
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
             } catch (Exception e) {
@@ -1442,9 +1438,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
                 fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
                 backend.setGcodeFile(gcodeFile);
-                if (this.vw != null) {
-                    vw.setGcodeFile(gcodeFile.getAbsolutePath());
-                }
             } catch (Exception ex) {
                 displayErrorDialog(ex.getMessage());
             }
@@ -1480,9 +1473,8 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
 
             vw.setMinArcLength(settings.getSmallArcThreshold());
             vw.setArcLength(settings.getSmallArcSegmentLength());
-            if (this.fileTextField.getText().length() > 1) {
-                vw.setGcodeFile(this.fileTextField.getText());
-            }
+            setVisualizerFile();
+
             // Add listener
             this.backend.addControllerListener(vw);
         }
@@ -2204,8 +2196,6 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        // Stop the timer
-        this.timer.stop();
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
         remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
 
@@ -2215,6 +2205,12 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
                 JOptionPane.showMessageDialog(new JFrame(),
                         Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {}
+
+                // Stop the timer after a delay to make sure it is updated.
+                timer.stop();
             }});
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
@@ -2303,13 +2299,40 @@ public class MainWindow extends JFrame implements ControllerListener, ControlSta
     public void postProcessData(int numRows) {
     }
     
-    
+    /**
+     * Updates the visualizer with the processed gcode file if it is available,
+     * otherwise uses the unprocessed file.
+     */
+    private void setVisualizerFile() {
+        if (vw == null) return;
+
+        if (processedGcodeFile == null) {
+            if (gcodeFile == null) {
+                return;
+            }
+            vw.setGcodeFile(gcodeFile);
+        } else {
+            vw.setProcessedGcodeFile(processedGcodeFile);
+        }
+    }
+
     @Override
-    public void ControlStateEvent(ControlStateEvent evt) {
-        switch (evt.getEventType()) {
-            case STATE_CHANGED:
-            case FILE_CHANGED:
-                this.updateControls();
+    public void UGSEvent(UGSEvent evt) {
+        if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
+            this.updateControls();
+        }
+        if (evt.isFileChangeEvent()) {
+            switch(evt.getFileState()) {
+                case FILE_LOADING:
+                    processedGcodeFile = null;
+                    gcodeFile = evt.getFile();
+                    break;
+                case FILE_LOADED:
+                    processedGcodeFile = evt.getFile();
+                    break;
+            }
+
+            setVisualizerFile();
         }
     }
 

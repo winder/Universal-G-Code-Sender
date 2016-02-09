@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.event.MouseEvent;
@@ -33,7 +34,6 @@ import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPopupMenu;
-import javax.vecmath.Point3d;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -193,7 +193,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void statusStringListener(String string, Point3d pntd, Point3d pntd1) {
+    public void statusStringListener(String string, Position pntd, Position pntd1) {
     }
 
     @Override

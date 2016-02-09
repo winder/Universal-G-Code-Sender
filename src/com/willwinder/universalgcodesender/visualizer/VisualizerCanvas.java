@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -43,9 +43,11 @@ import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -78,6 +80,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     
     // Gcode file data
     private String gcodeFile = null;
+    private boolean processedGcodeFile = false; // True if the file should be loaded with a GcodeStreamReader
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
@@ -170,10 +173,19 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         return this.lastCommandNumber;
     }
     
+    public void setProcessedGcodeFile(String file) {
+        this.processedGcodeFile = true;
+        setFile(file);
+    }
     /**
      * Assign a gcode file to drawing.
      */
     public void setGcodeFile(String file) {
+        this.processedGcodeFile = false;
+        setFile(file);
+    }
+
+    private void setFile(String file) {
         this.gcodeFile = file;
         this.isDrawable = false;
         this.currentCommandNumber = 0;
@@ -451,49 +463,56 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (this.gcodeFile == null){ return; }
         
         try {
+            GcodeViewParse gcvp = new GcodeViewParse();
 
-        GcodeViewParse gcvp = new GcodeViewParse();
-        List<String> linesInFile;
-        linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-        gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
-        
-        this.objectMin = gcvp.getMinimumExtremes();
-        this.objectMax = gcvp.getMaximumExtremes();
+            // Load from stream
+            if (this.processedGcodeFile) {
+                GcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile));
+                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
+            }
+            // Load raw file
+            else {
+                List<String> linesInFile;
+                linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            }
+            
+            this.objectMin = gcvp.getMinimumExtremes();
+            this.objectMax = gcvp.getMaximumExtremes();
 
-        if (gcodeLineList.size() == 0) {
-            return;
-        }
-        
-        // Grab the line number off the last line.
-        this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
-        
-        System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
-        System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
-        System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
-        
-        this.center = VisualizerUtils.findCenter(objectMin, objectMax);
-        System.out.println("Center = " + center.toString());
-        System.out.println("Num Line Segments :" + gcodeLineList.size());
+            if (gcodeLineList.size() == 0) {
+                return;
+            }
+            
+            // Grab the line number off the last line.
+            this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
+            
+            System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
+            System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
+            System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
+            
+            this.center = VisualizerUtils.findCenter(objectMin, objectMax);
+            System.out.println("Center = " + center.toString());
+            System.out.println("Num Line Segments :" + gcodeLineList.size());
 
-        this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
-        
-        this.scaleFactorBase = 1.0/this.maxSide;
-        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+            this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
+            
+            this.scaleFactorBase = 1.0/this.maxSide;
+            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
-        this.isDrawable = true;
-        
-        double objectWidth = this.objectMax.x-this.objectMin.x;
-        double objectHeight = this.objectMax.y-this.objectMin.y;
-        this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
-                + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
-                + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
-        
-        // Now that the object is known, fill the buffers.
-        this.createVertexBuffers();
-        this.colorArrayDirty = true;
-        this.vertexArrayDirty = true;
-        
+            this.isDrawable = true;
+            
+            double objectWidth = this.objectMax.x-this.objectMin.x;
+            double objectHeight = this.objectMax.y-this.objectMin.y;
+            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
+                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+                    + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
+            
+            // Now that the object is known, fill the buffers.
+            this.createVertexBuffers();
+            this.colorArrayDirty = true;
+            this.vertexArrayDirty = true;
         } catch (IOException e) {
             System.out.println("Error opening file: " + e.getLocalizedMessage());
         }

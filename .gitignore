@@ -41,3 +41,5 @@ dependency-reduced-pom.xml
 /UGSPlatform/ConnectionModule/nbproject/private/
 /UGSPlatform/Java-Bindings-for-OpenGL-API-Specification/nbproject/private/
 /UGSPlatform/UGSCore/nbproject/private/
+/UGSPlatform/GcodeEditor/build/
+/UGSPlatform/GcodeEditor/nbproject/private/

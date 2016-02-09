@@ -65,7 +65,6 @@ public class CommandTextAreaTest {
 
     @Before
     public void setup() {
-        System.out.println("SETUP");
         cta = new CommandTextArea(backend);
         cta.focusNotNeeded = true;
         EasyMock.reset(backend);

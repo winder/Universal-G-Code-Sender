@@ -1,18 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.willwinder.ugs.nbm.visualizer;
-
-/*
  * 3D Canvas for GCode Visualizer.
  *
  * Created on Jan 29, 2013
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,10 +22,11 @@ package com.willwinder.ugs.nbm.visualizer;
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.willwinder.ugs.nbm.visualizer;
+
 
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.newt.awt.NewtCanvasAWT;
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import static com.jogamp.opengl.GL.GL_LEQUAL;
@@ -43,7 +37,6 @@ import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
-import static com.jogamp.opengl.GLProfile.GL2;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
@@ -53,12 +46,14 @@ import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -66,18 +61,6 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-/*
-import javax.media.opengl.GL;
-import static javax.media.opengl.GL.*;
-import javax.media.opengl.GL2;
-import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import javax.media.opengl.glu.GLU;
-*/
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -87,8 +70,9 @@ import javax.vecmath.Vector3d;
  * 
  */
 @SuppressWarnings("serial")
-public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
+public class GcodeRenderer implements GLEventListener {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
+    GLAutoDrawable drawable = null;
     
     static boolean ortho = true;
     static double orthoRotation = -45;
@@ -103,6 +87,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
     
     // Gcode file data
     private String gcodeFile = null;
+    private boolean processedFile = false; // True if the file should be opened with GcodeStreamReader.
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
@@ -161,11 +146,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      * Constructor.
      */
     public GcodeRenderer() {
-       //this.addGLEventListener(this);
-       //this.addKeyListener(this);
-       //this.addMouseMotionListener(this);
-       //this.addMouseWheelListener(this);
-
        this.eye = new Point3d(0, 0, 1.5);
        this.center = new Point3d(0, 0, 0);
        
@@ -195,10 +175,19 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         return this.lastCommandNumber;
     }
     
+    public void setProcessedGcodeFile(String file) {
+        this.processedFile = true;
+        setFile(file);
+    }
+    public void setGcodeFile(String file) {
+        this.processedFile = false;
+        setFile(file);
+    }
+
     /**
      * Assign a gcode file to drawing.
      */
-    public void setGcodeFile(String file) {
+    public void setFile(String file) {
         this.gcodeFile = file;
         this.isDrawable = false;
         this.currentCommandNumber = 0;
@@ -206,6 +195,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         
         generateObject();
         
+        // Force a display in case an animator isn't running.
+        drawable.display();
         logger.log(Level.INFO, "Done setting gcode file.");
     }
     
@@ -227,6 +218,8 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
     @Override
     public void init(GLAutoDrawable drawable) {
         logger.log(Level.INFO, "Initializing OpenGL context.");
+
+        this.drawable = drawable;
 
         generateObject();
 
@@ -254,7 +247,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
-        logger.log(Level.INFO, "Reshaping OpenGL context.");
+        //logger.log(Level.INFO, "Reshaping OpenGL context.");
         this.xSize = width;
         this.ySize = height;
 
@@ -482,11 +475,16 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         if (this.gcodeFile == null){ return; }
         
         try {
-
             GcodeViewParse gcvp = new GcodeViewParse();
-            List<String> linesInFile;
-            linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-            gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            if (this.processedFile) {
+                GcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
+                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
+            }
+            else {
+                List<String> linesInFile;
+                linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            }
 
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
@@ -672,118 +670,17 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
      * GLEventListener method.
      */
     @Override
-    public void dispose(GLAutoDrawable drawable) { 
+    synchronized public void dispose(GLAutoDrawable drawable) { 
         logger.log(Level.INFO, "Disposing OpenGL context.");
 
+        this.isDrawable = false;
         this.lineColorBuffer = null;
         this.lineVertexBuffer = null;
         this.gcodeLineList = null;
         this.isDrawable = false;
         this.numberOfVertices = 0;
     }
-
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyTyped(KeyEvent ke) {
-        //System.out.println ("key typed");
-    }
-
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyPressed(KeyEvent ke) {
-        double DELTA_SIZE = 0.1;
-            
-        switch(ke.getKeyCode()) {
-            case KeyEvent.VK_UP:
-                this.eye.y+=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_DOWN:
-                this.eye.y-=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_LEFT:
-                this.eye.x-=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_RIGHT:
-                this.eye.x+=DELTA_SIZE;
-                break;
-            case KeyEvent.VK_MINUS:
-                if (ke.isControlDown())
-                    this.zoomOut(1);
-                break;
-            case KeyEvent.VK_0:
-                if (ke.isControlDown()) {
-                    this.zoomMultiplier = 1;
-                    this.scaleFactor = this.scaleFactorBase;
-                }
-                break;
-            case KeyEvent.VK_ESCAPE:
-                this.zoomMultiplier = 1;
-                this.scaleFactor = this.scaleFactorBase;
-                this.eye.x = 0;
-                this.eye.y = 0;
-                this.eye.z = 1.5;
-                this.rotation.x = 0;
-                this.rotation.y = -30;
-                this.rotation.z = 0;
-        }
-        
-        switch(ke.getKeyChar()) {
-            case 'p':
-                this.eye.z+=DELTA_SIZE;
-                break;
-            case ';':
-                this.eye.z-=DELTA_SIZE;
-                break;
-            case 'w':
-                this.center.y+=DELTA_SIZE;
-                break;
-            case 's':
-                this.center.y-=DELTA_SIZE;
-                break;
-            case 'a':
-                this.center.x-=DELTA_SIZE;
-                break;
-            case 'd':
-                this.center.x+=DELTA_SIZE;
-                break;
-            case 'r':
-                this.center.z+=DELTA_SIZE;
-                break;
-            case 'f':
-                this.center.z-=DELTA_SIZE;
-                break;
-            case '+':
-                if (ke.isControlDown())
-                    this.zoomIn(1);
-                break;
-        }
-        
-        //System.out.println("Eye: " + eye.toString()+"\nCent: "+cent.toString());
-    }
-    
-    /**
-     * KeyListener method.
-     */
-    @Override
-    public void keyReleased(KeyEvent ke) {
-        //System.out.println ("key released");
-    }
-
-    
-    /** Mouse Motion Listener Events **/
-    @Override
-    public void mouseDragged(MouseEvent me) {
-        if (me.isShiftDown() || me.getModifiers() == this.panMouseButton) {
-            mousePan(this.current);
-        } else {
-            mouseRotate(this.current);
-        }
-    }
-
+   
     private void setHorizontalTranslationVector() {
         double x = Math.cos(Math.toRadians(this.rotation.x));
         double xz = Math.sin(Math.toRadians(this.rotation.x));
@@ -803,12 +700,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         translationVectorV.normalize();
     }
 
-    @Override
-    public void mouseMoved(MouseEvent me) {
-        // Keep last location up to date so that we're ready to start dragging.
-        mouseMoved(me.getPoint());
-    }
-    
     public void mouseMoved(Point lastPoint) {
         last = lastPoint;
     }
@@ -833,6 +724,10 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         this.current = point;
         int dx = this.current.x - this.last.x;
         int dy = this.current.y - this.last.y;
+        pan(dx, dy);
+    }
+
+    public void pan(int dx, int dy) {
         if (ortho) {
             // Treat dx and dy as vectors relative to the rotation angle.
             this.eye.x -= ((dx * this.translationVectorH.x * this.panMultiplierX) + (dy * this.translationVectorV.x * panMultiplierY));
@@ -847,7 +742,7 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         this.last = this.current;
     }
     
-    public void mouseZoom(int delta) {
+    public void zoom(int delta) {
         if (delta == 0)
             return;
 
@@ -862,11 +757,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
             else
                 zoomOut(delta * -1);
         }
-    }
-
-    @Override
-    public void mouseWheelMoved(MouseWheelEvent e) {
-        mouseZoom(e.getWheelRotation());
     }
 
     private void zoomOut(int increments) {
@@ -899,6 +789,20 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
         }
     }
 
+    /**
+     * Reset the view angle and zoom.
+     */
+    public void resetView() {
+        this.zoomMultiplier = 1;
+        this.scaleFactor = this.scaleFactorBase;
+        this.eye.x = 0;
+        this.eye.y = 0;
+        this.eye.z = 1.5;
+        this.rotation.x = 0;
+        this.rotation.y = -30;
+        this.rotation.z = 0;
+    }
+
     public double getMinArcLength() {
         return minArcLength;
     }
@@ -906,19 +810,6 @@ public class GcodeRenderer extends NewtCanvasAWT implements GLEventListener, Key
     public void setMinArcLength(double minArcLength) {
         if (this.minArcLength != minArcLength) {
             this.minArcLength = minArcLength;
-            if (this.gcodeFile != null) {
-                this.setGcodeFile(this.gcodeFile);
-            }
-        }
-    }
-
-    public double getArcLength() {
-        return arcLength;
-    }
-
-    public void setArcLength(double arcLength) {
-        if (this.arcLength != arcLength) {
-            this.arcLength = arcLength;
             if (this.gcodeFile != null) {
                 this.setGcodeFile(this.gcodeFile);
             }

@@ -19,9 +19,9 @@
 package com.willwinder.ugs.nbp.connection;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.ControlStateEvent.event;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -50,7 +50,7 @@ import org.openide.util.Utilities;
 
 //@NbBundle.Messages("CTL_Disconnect=Disconnect")
 
-public final class ConnectDisconnectAction extends AbstractAction implements ContextAwareAction, ControlStateListener {
+public final class ConnectDisconnectAction extends AbstractAction implements ContextAwareAction, UGSEventListener {
     BackendAPI backend;
     final private String CONNECT_ICON_PATH = "resources/disconnect.gif";
     final private String DISCONNECT_ICON_PATH = "resources/connect.png";
@@ -66,7 +66,7 @@ public final class ConnectDisconnectAction extends AbstractAction implements Con
         this.setEnabled(true);
         
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
     }
     
     @Override
@@ -75,10 +75,10 @@ public final class ConnectDisconnectAction extends AbstractAction implements Con
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
-        if (cse.getEventType() == event.STATE_CHANGED) {
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isStateChangeEvent()) {
             Icon icon = null;
-            switch (cse.getState()) {
+            switch (cse.getControlState()) {
                 case COMM_IDLE:
                     icon = ImageUtilities.image2Icon(ImageUtilities.loadImage(DISCONNECT_ICON_PATH));
                     break;

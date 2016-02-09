@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -183,8 +184,8 @@ public class GUIBackendTest {
     public void testGetControlState() {
         System.out.println("getControlState");
         GUIBackend instance = new GUIBackend();
-        Utils.ControlState expResult = null;
-        Utils.ControlState result = instance.getControlState();
+        ControlState expResult = null;
+        ControlState result = instance.getControlState();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

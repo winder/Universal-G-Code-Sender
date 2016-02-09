@@ -20,9 +20,10 @@
 package com.willwinder.ugs.nbp.control;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.listeners.ControlStateListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Utils.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -61,7 +62,7 @@ import org.openide.util.NbBundle.Messages;
     "CTL_JogControlTopComponent=Machine Jogging",
     "HINT_JogControlTopComponent=This is a Jog Control window"
 })
-public final class JogControlTopComponent extends TopComponent implements ControlStateListener {
+public final class JogControlTopComponent extends TopComponent implements UGSEventListener {
 
     BackendAPI backend;
     Settings settings;
@@ -314,7 +315,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         settings = CentralLookup.getDefault().lookup(Settings.class);
 
-        backend.addControlStateListener(this);
+        backend.addUGSEventListener(this);
     }
 
     @Override
@@ -360,7 +361,7 @@ public final class JogControlTopComponent extends TopComponent implements Contro
     }
 
     @Override
-    public void ControlStateEvent(com.willwinder.universalgcodesender.model.ControlStateEvent cse) {
+    public void UGSEvent(UGSEvent cse) {
         updateComponents();
     }
 }

@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -84,8 +84,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getNextValue() {
-        return this.getNextStepSize();
-        /*
         Double num;
         this.setStepSize(getNextStepSize());
 
@@ -97,7 +95,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
-        */
     }
 
     /**
@@ -112,8 +109,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
      */
     @Override
     public Object getPreviousValue() {
-        return this.getPreviousStepSize();
-        /*
         Double num;
         this.setStepSize(getPreviousStepSize());
 
@@ -125,6 +120,5 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         return num;
-                */
     }
 }
