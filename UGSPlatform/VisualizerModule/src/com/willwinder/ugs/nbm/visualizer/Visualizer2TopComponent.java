@@ -84,6 +84,24 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
     }
 
     @Override
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isFileChangeEvent()) {
+            animator.pause();
+
+            switch (cse.getFileState()) {
+                case FILE_LOADING:
+                    renderer.setGcodeFile(cse.getFile());
+                    break;
+                case FILE_LOADED:
+                    renderer.setProcessedGcodeFile(cse.getFile());
+                    break;
+            }
+
+            animator.resume();
+        }
+    }
+
+    @Override
     protected void componentOpened() {
         super.componentOpened();
         panel = makeWindow(glCaps);
@@ -167,23 +185,5 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
-    }
-
-    @Override
-    public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent()) {
-            animator.pause();
-
-            switch (cse.getFileState()) {
-                case FILE_LOADING:
-                    renderer.setGcodeFile(cse.getFile());
-                    break;
-                case FILE_LOADED:
-                    renderer.setProcessedGcodeFile(cse.getFile());
-                    break;
-            }
-
-            animator.resume();
-        }
     }
 }

@@ -196,7 +196,9 @@ public class GcodeRenderer implements GLEventListener {
         generateObject();
         
         // Force a display in case an animator isn't running.
-        drawable.display();
+        if (drawable != null) {
+            drawable.display();
+        }
         logger.log(Level.INFO, "Done setting gcode file.");
     }
     
