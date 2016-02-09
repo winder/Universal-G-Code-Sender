@@ -37,9 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -163,7 +161,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
         
         if (openCommConnection(port, baudRate)) {
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
             streamFailed = false;   //reset
         }
     }
@@ -186,7 +184,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (this.controller != null) {
             this.controller.closeCommPort();
             this.controller = null;
-            this.sendControlStateEvent(new ControlStateEvent(ControlState.COMM_DISCONNECTED));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED));
         }
     }
 
