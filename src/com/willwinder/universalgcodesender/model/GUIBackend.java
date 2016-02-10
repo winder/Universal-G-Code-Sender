@@ -209,14 +209,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
 
         if (!isConnected()) {
-            if (settings == null ||
-                    streamFailed                    ) {
+            if (settings == null || streamFailed) {
                 return;
             }
             if (lastResponse == Long.MIN_VALUE && settings.isAutoConnectOnStartup()) {
                 logger.log(Level.INFO, "Attempting auto connect.");
             } else if (lastResponse > Long.MIN_VALUE && settings.isAutoReconnect()) {
                 logger.log(Level.INFO, "Attempting auto reconnect.");
+            } else {
+                return;
             }
 
             try {

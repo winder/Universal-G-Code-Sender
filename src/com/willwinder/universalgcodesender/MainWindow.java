@@ -1401,6 +1401,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
         gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
         gcsd.setselectedLanguage(settings.getLanguage());
+        gcsd.setAutoConnectOnStartup(settings.isAutoConnectOnStartup());
+        gcsd.setAutoReconnect(settings.isAutoReconnect());
+
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1417,7 +1420,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
             settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
             settings.setLanguage(gcsd.getLanguage());
-            
+            settings.setAutoConnectOnStartup(gcsd.getAutoConnectOnStartup());
+            settings.setAutoReconnect(gcsd.getAutoReconnect());
+
             try {
                 backend.applySettings(settings);
             } catch (Exception e) {

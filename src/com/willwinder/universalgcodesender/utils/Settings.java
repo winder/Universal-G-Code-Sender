@@ -367,4 +367,12 @@ public class Settings {
     public boolean isAutoReconnect() {
         return autoReconnect;
     }
+
+    public void setAutoReconnect(boolean autoReconnect) {
+        this.autoReconnect = autoReconnect;
+    }
+
+    public void setAutoConnectOnStartup(boolean autoConnectOnStartup) {
+        this.autoConnectOnStartup = autoConnectOnStartup;
+    }
 }
