@@ -21,6 +21,8 @@
  */
 package com.willwinder.ugs.nbp.editor;
 
+import com.willwinder.ugs.nbp.interfaces.EditorListener;
+import com.willwinder.ugs.nbp.interfaces.SelectionMediator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.event.ActionEvent;
@@ -65,6 +67,7 @@ public final class EditGcodeFile implements ActionListener {
         }
     }
 
+    // TODO: This returns any window opened in the editor area, not just editors.
     private Collection<TopComponent> getCurrentlyOpenedEditors() {
         final ArrayList<TopComponent> result = new ArrayList<>();
         final WindowManager wm = WindowManager.getDefault();
@@ -86,6 +89,7 @@ public final class EditGcodeFile implements ActionListener {
                 for (JEditorPane pane : panes) {
                     if (enabled) {
                         pane.addCaretListener(el);
+                        SelectionMediator.getSelectionMediator().setEditorListener(el);
                     } else {
                         pane.removeCaretListener(el);
                     }

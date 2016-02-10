@@ -30,6 +30,7 @@
                 <package>com.google.gson.internal.bind</package>
                 <package>com.google.gson.reflect</package>
                 <package>com.google.gson.stream</package>
+                <package>com.willwinder.ugs.nbp.interfaces</package>
                 <package>com.willwinder.universalgcodesender</package>
                 <package>com.willwinder.universalgcodesender.CLI</package>
                 <package>com.willwinder.universalgcodesender.connection</package>
@@ -45,8 +46,8 @@
                 <package>javax.vecmath</package>
             </public-packages>
             <class-path-extension>
-              <runtime-relative-path>ext/ugs/Universal G-Code Sender.jar</runtime-relative-path>
-              <binary-origin>release/modules/ext/ugs/Universal G-Code Sender.jar</binary-origin>
+                <runtime-relative-path>ext/ugs/Universal G-Code Sender.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/ugs/Universal G-Code Sender.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/vecmath.jar</runtime-relative-path>

@@ -21,6 +21,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.ugs.nbp.interfaces.HighlightListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import java.awt.Point;
 import java.awt.event.InputEvent;
@@ -32,6 +33,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowListener;
+import java.util.Collection;
 import javax.swing.SwingUtilities;
 
 /**
@@ -40,7 +42,7 @@ import javax.swing.SwingUtilities;
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener {
+        MouseListener, KeyListener, HighlightListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
 
@@ -210,5 +212,10 @@ public class RendererInputHandler implements
     @Override
     public void keyReleased(KeyEvent ke) {
         animator.stop();
+    }
+
+    @Override
+    public void highlightsChanged(Collection<Integer> lines) {
+        System.out.println("Highlights changed!!!!");
     }
 }

@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
+import com.willwinder.ugs.nbp.interfaces.SelectionMediator;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -154,6 +155,8 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
         RendererInputHandler rih = new RendererInputHandler(renderer, animator);
 
         // Install listeners...
+
+        SelectionMediator.getSelectionMediator().setHighlightListener(rih);
 
         // shutdown hook...
         //frame.addWindowListener(rih);

@@ -20,8 +20,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.interfaces;
 
+import com.willwinder.ugs.nbp.interfaces.HighlightListener;
+import java.util.ArrayList;
+import java.util.Collection;
 import javax.swing.JEditorPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -32,6 +35,10 @@ import javax.swing.text.Element;
  * @author wwinder
  */
 public class EditorListener implements CaretListener {
+    HighlightListener hl = null;
+    public void setHighlightListener(HighlightListener hl) {
+        this.hl = hl;
+    }
 
     @Override
     public void caretUpdate(CaretEvent e) {
@@ -43,6 +50,13 @@ public class EditorListener implements CaretListener {
             int startIndex = map.getElementIndex(jep.getSelectionStart());
             int endIndex   = map.getElementIndex(jep.getSelectionEnd());
 
+            if (hl != null) {
+                Collection<Integer> selectedLines = new ArrayList<>();
+                for (int i = startIndex; i <= endIndex; i++) {
+                    selectedLines.add(i);
+                }
+                hl.highlightsChanged(selectedLines);
+            }
             //System.out.println("Start line: " + startIndex);
             //System.out.println("End line: " + endIndex);
         }
