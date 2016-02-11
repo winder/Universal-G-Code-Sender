@@ -58,6 +58,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -133,6 +134,8 @@ public class GcodeRenderer implements GLEventListener {
     private byte[] lineColorData = null;
     private FloatBuffer lineVertexBuffer = null;
     private ByteBuffer lineColorBuffer = null;
+
+    Collection<Integer> highlightedLines = null;
     
     // Track when arrays need to be updated due to changing data.
     private boolean colorArrayDirty = false;
@@ -184,6 +187,13 @@ public class GcodeRenderer implements GLEventListener {
         setFile(file);
     }
 
+    public void forceRedraw() {
+        this.createVertexBuffers();
+        if (drawable != null) {
+            drawable.display();
+        }
+    }
+
     /**
      * Assign a gcode file to drawing.
      */
@@ -196,9 +206,8 @@ public class GcodeRenderer implements GLEventListener {
         generateObject();
         
         // Force a display in case an animator isn't running.
-        if (drawable != null) {
-            drawable.display();
-        }
+        forceRedraw();
+
         logger.log(Level.INFO, "Done setting gcode file.");
     }
     
@@ -364,7 +373,7 @@ public class GcodeRenderer implements GLEventListener {
         
         gl.glLineWidth(8.0f);
         byte []color;
-        color = VisualizerUtils.getVertexColor(VisualizerUtils.Color.YELLOW);
+        color = VisualizerUtils.Color.YELLOW.getBytes();
         int verts = 0;
         int colors = 0;
         
@@ -553,6 +562,10 @@ public class GcodeRenderer implements GLEventListener {
                     color = VisualizerUtils.Color.WHITE;
                 }
 
+                if (highlightedLines != null && highlightedLines.contains(ls.getLineNumber())) {
+                    color = VisualizerUtils.Color.YELLOW;
+                }
+
                 // Override color if it is cutoff
                 if (ls.getLineNumber() < this.currentCommandNumber) {
                     color = VisualizerUtils.Color.GRAY;
@@ -562,7 +575,7 @@ public class GcodeRenderer implements GLEventListener {
                 {
                     Point3d p1 = ls.getStart();
                     Point3d p2 = ls.getEnd();
-                    byte[] c = VisualizerUtils.getVertexColor(color);
+                    byte[] c = color.getBytes();
 
                     // colors
                     //p1
@@ -664,6 +677,11 @@ public class GcodeRenderer implements GLEventListener {
         if (this.currentCommandNumber > this.lastCommandNumber) increasing = false;
         else if (this.currentCommandNumber <= 0)             increasing = true;
         */ 
+    }
+
+    public void setHighlightedLines(Collection<Integer> lines) {
+        highlightedLines = lines;
+        this.colorArrayDirty = true;
     }
     
     /**

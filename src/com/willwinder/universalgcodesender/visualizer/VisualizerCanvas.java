@@ -351,7 +351,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         gl.glLineWidth(8.0f);
         byte []color;
-        color = VisualizerUtils.getVertexColor(VisualizerUtils.Color.YELLOW);
+        color = VisualizerUtils.Color.YELLOW.getBytes();
         int verts = 0;
         int colors = 0;
         
@@ -552,7 +552,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 {
                     Point3d p1 = ls.getStart();
                     Point3d p2 = ls.getEnd();
-                    byte[] c = VisualizerUtils.getVertexColor(color);
+                    byte[] c = color.getBytes();
 
                     // colors
                     //p1

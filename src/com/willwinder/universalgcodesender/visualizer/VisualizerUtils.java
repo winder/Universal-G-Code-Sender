@@ -37,14 +37,25 @@ import javax.vecmath.Point3d;
 public class VisualizerUtils {
     
     public enum Color {
-        RED, 
-        BLUE, 
-        PURPLE, 
-        YELLOW, 
-        OTHER_YELLOW, 
-        GREEN, 
-        WHITE,
-        GRAY,
+        RED(255,100,100), 
+        BLUE(0,255,255), 
+        PURPLE(242,0,255), 
+        YELLOW(237,255,0), 
+        OTHER_YELLOW(234,212,7), 
+        GREEN(33,255,0), 
+        WHITE(255,255,255),
+        GRAY(80,80,80),
+        BLACK(0,0,0);
+
+        final byte[] rgb;
+
+        private Color(int r, int g, int b) {
+            rgb = new byte[]{(byte)r,(byte)g,(byte)b};
+        }
+
+        public byte[] getBytes() {
+            return rgb;
+        }
     }
     
     /**
@@ -110,39 +121,6 @@ public class VisualizerUtils {
         }
 
         return vect;
-    }
-
-    public static byte[] getVertexColor(Color color) {
-        byte[] ret;
-        switch (color) {
-            case RED:
-                ret = new byte[]{(byte) 255, (byte) 100, (byte) 100};
-                break;
-            case BLUE:
-                ret = new byte[]{(byte) 0, (byte) 255, (byte) 255};
-                break;
-            case PURPLE:
-                ret = new byte[]{(byte) 242, (byte) 0, (byte) 255};
-                break;
-            case YELLOW:
-                ret = new byte[]{(byte) 237, (byte) 255, (byte) 0};
-                break;
-            case OTHER_YELLOW:
-                ret = new byte[]{(byte) 234, (byte) 212, (byte) 7};
-                break;
-            case GREEN:
-                ret = new byte[]{(byte) 33, (byte) 255, (byte) 0};
-                break;
-            case WHITE:
-                ret = new byte[]{(byte) 255, (byte) 255, (byte) 255};
-                break;
-            case GRAY:
-                ret = new byte[]{(byte) 80, (byte) 80, (byte) 80};
-                break;
-            default:
-                ret = new byte[]{(byte) 255, (byte) 255, (byte) 255};
-        }
-        return ret;
     }
 
     /**

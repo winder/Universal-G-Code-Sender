@@ -22,7 +22,6 @@
  */
 package com.willwinder.ugs.nbp.interfaces;
 
-import com.willwinder.ugs.nbp.interfaces.HighlightListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.swing.JEditorPane;
@@ -57,8 +56,6 @@ public class EditorListener implements CaretListener {
                 }
                 hl.highlightsChanged(selectedLines);
             }
-            //System.out.println("Start line: " + startIndex);
-            //System.out.println("End line: " + endIndex);
         }
     }
 }

@@ -216,6 +216,7 @@ public class RendererInputHandler implements
 
     @Override
     public void highlightsChanged(Collection<Integer> lines) {
-        System.out.println("Highlights changed!!!!");
+        gcodeRenderer.setHighlightedLines(lines);
+        gcodeRenderer.forceRedraw();
     }
 }
