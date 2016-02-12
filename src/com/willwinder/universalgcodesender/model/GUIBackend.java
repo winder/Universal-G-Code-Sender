@@ -20,8 +20,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
@@ -31,16 +30,14 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -51,7 +48,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
  */
 public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
-    
+    public static final int AUTO_DISCONNECT_THRESHOLD = 5000;
+
     private IController controller = null;
     private Settings settings = null;
     Position machineCoord = null;
@@ -80,10 +78,27 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     String cancelButtonText;
     boolean cancelButtonEnabled;
 
-//    boolean G91Mode = false;
+    private long lastResponse = Long.MIN_VALUE;
+    private long lastConnectAttempt = Long.MIN_VALUE;
+    private boolean streamFailed = false;
+    private boolean disableAutoconnect = false;
+    private final java.util.Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
     
     public GcodeParser gcp = new GcodeParser();
-    
+
+    public GUIBackend() {
+        scheduleTimers();
+    }
+
+    protected void scheduleTimers() {
+        autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                autoconnect();
+            }
+        }, 1000, 1000);
+    }
+
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
         logger.log(Level.INFO, "Adding control state listener.");
@@ -134,6 +149,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void connect(String firmware, String port, int baudRate) throws Exception {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
+        lastConnectAttempt = System.currentTimeMillis();
+        disableAutoconnect = false;
+
         this.controller = FirmwareUtils.getControllerFor(firmware);
         applySettingsToController(settings, this.controller);
 
@@ -144,6 +162,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         
         if (openCommConnection(port, baudRate)) {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+            streamFailed = false;   //reset
         }
     }
 
@@ -156,10 +175,68 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void disconnect() throws Exception {
+        disableAutoconnect = true;
+        disconnectInternal();
+    }
+
+    private void disconnectInternal() throws Exception {
         logger.log(Level.INFO, "Disconnecting.");
-        this.controller.closeCommPort();
-        this.controller = null;
-        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED));
+        if (this.controller != null) {
+            this.controller.closeCommPort();
+            this.controller = null;
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED));
+        }
+    }
+
+    @Override
+    public void autoconnect() {
+        if (disableAutoconnect) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        if (now - lastResponse > AUTO_DISCONNECT_THRESHOLD &&
+                now - lastConnectAttempt > AUTO_DISCONNECT_THRESHOLD ) {
+            logger.log(Level.INFO, "No Response in " + (now - lastResponse)+"ms.");
+            if (controller != null && controller.isStreamingFile()) {
+                streamFailed = true;
+            }
+
+            try {
+                disconnectInternal();
+            } catch (Exception e) {
+                logger.log(Level.INFO, "Disconnect failed ", e);
+            }
+        }
+
+        if (!isConnected()) {
+            if (settings == null || streamFailed) {
+                return;
+            }
+            if (lastResponse == Long.MIN_VALUE && settings.isAutoConnectOnStartup()) {
+                logger.log(Level.INFO, "Attempting auto connect.");
+            } else if (lastResponse > Long.MIN_VALUE && settings.isAutoReconnect()) {
+                logger.log(Level.INFO, "Attempting auto reconnect.");
+            } else {
+                return;
+            }
+
+            try {
+                String[] portList = CommUtils.getSerialPortList();
+                boolean portMatch = false;
+                for (String port : portList) {
+                    if (port.equals(settings.getPort())) {
+                        portMatch = true;
+                        break;
+                    }
+                }
+
+                if (portMatch) {
+                    connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
+                }
+            } catch (Exception e) {
+                logger.log(Level.INFO, "Auto connect failed",e);
+            }
+        }
     }
 
     @Override
@@ -170,7 +247,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             applySettingsToController(this.settings, this.controller);
         }
     }
-    
+
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
         logger.log(Level.INFO, "Getting system state 'updateSystemState'");
@@ -541,6 +618,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
         this.reportUnits = machineCoord.getUnits();
+        this.lastResponse = System.currentTimeMillis();
     }
 
     @Override

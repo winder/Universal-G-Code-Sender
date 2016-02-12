@@ -57,11 +57,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -244,7 +245,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         
         mw.initFileChooser();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -1400,6 +1401,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
         gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
         gcsd.setselectedLanguage(settings.getLanguage());
+        gcsd.setAutoConnectOnStartup(settings.isAutoConnectOnStartup());
+        gcsd.setAutoReconnect(settings.isAutoReconnect());
+
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
@@ -1416,7 +1420,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
             settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
             settings.setLanguage(gcsd.getLanguage());
-            
+            settings.setAutoConnectOnStartup(gcsd.getAutoConnectOnStartup());
+            settings.setAutoReconnect(gcsd.getAutoReconnect());
+
             try {
                 backend.applySettings(settings);
             } catch (Exception e) {
@@ -1519,17 +1525,21 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 java.awt.EventQueue.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
-                        remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
-                        
-                        //sentRowsValueLabel.setText(""+sentRows);
-                        sentRowsValueLabel.setText(""+backend.getNumSentRows());
-                        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+                        try {
+                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
+                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
 
-                        if (backend.isSending()) {
-                            if (vw != null) {
-                                vw.setCompletedCommandNumber((int)backend.getNumSentRows());
+                            //sentRowsValueLabel.setText(""+sentRows);
+                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
+                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+
+                            if (backend.isSending()) {
+                                if (vw != null) {
+                                    vw.setCompletedCommandNumber((int)backend.getNumSentRows());
+                                }
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     }
                 });
@@ -1839,7 +1849,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.loadFirmwareSelector();
         this.setTitle(Localization.getString("title") + " (" 
                 + Localization.getString("version") + " " + VERSION + ")");
-        
+
         // Command History
         this.manualCommandHistory = new ArrayList<>();
         
@@ -2147,6 +2157,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
 
             commPortComboBox.setSelectedIndex(0);
+
+
+
         }
     }
     
