@@ -1,6 +1,6 @@
 /**
- * Listens for editor events to notify visualizer.
- * TODO: Visualizer = Editor Listener?
+ * Listens for editor events to notify visualizer, puts changes on the
+ * HighlightEventBus as HighlightEvent objects.
  */
 /*
     Copywrite 2016 Will Winder
@@ -20,25 +20,24 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.interfaces;
+package com.willwinder.ugs.nbp.editor;
 
+import com.google.common.eventbus.EventBus;
+import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
+import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.swing.JEditorPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 import javax.swing.text.Element;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author wwinder
  */
 public class EditorListener implements CaretListener {
-    HighlightListener hl = null;
-    public void setHighlightListener(HighlightListener hl) {
-        this.hl = hl;
-    }
-
     @Override
     public void caretUpdate(CaretEvent e) {
         JEditorPane jep = null;
@@ -49,12 +48,14 @@ public class EditorListener implements CaretListener {
             int startIndex = map.getElementIndex(jep.getSelectionStart());
             int endIndex   = map.getElementIndex(jep.getSelectionEnd());
 
-            if (hl != null) {
+            EventBus eb = Lookup.getDefault().lookup(HighlightEventBus.class);
+            if (eb != null) {
                 Collection<Integer> selectedLines = new ArrayList<>();
                 for (int i = startIndex; i <= endIndex; i++) {
                     selectedLines.add(i);
                 }
-                hl.highlightsChanged(selectedLines);
+
+                eb.post(new HighlightEvent(selectedLines));
             }
         }
     }

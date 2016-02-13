@@ -22,6 +22,14 @@
                         <specification-version>1.0</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>org.openide.util.lookup</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>8.32.1</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
             <public-packages>
                 <package>com.google.common.annotations</package>
@@ -46,6 +54,7 @@
                 <package>com.google.gson.internal.bind</package>
                 <package>com.google.gson.reflect</package>
                 <package>com.google.gson.stream</package>
+                <package>com.willwinder.ugs.nbp.eventbus</package>
                 <package>com.willwinder.ugs.nbp.interfaces</package>
                 <package>com.willwinder.universalgcodesender</package>
                 <package>com.willwinder.universalgcodesender.CLI</package>

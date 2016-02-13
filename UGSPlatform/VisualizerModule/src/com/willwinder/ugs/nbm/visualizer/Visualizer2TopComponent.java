@@ -22,6 +22,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.google.common.eventbus.EventBus;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
@@ -30,12 +31,13 @@ import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.willwinder.ugs.nbp.interfaces.SelectionMediator;
+import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 
@@ -156,7 +158,10 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
 
         // Install listeners...
 
-        SelectionMediator.getSelectionMediator().setHighlightListener(rih);
+        EventBus eb = Lookup.getDefault().lookup(HighlightEventBus.class);
+        if (eb != null) {
+            eb.register(rih);
+        }
 
         // shutdown hook...
         //frame.addWindowListener(rih);
