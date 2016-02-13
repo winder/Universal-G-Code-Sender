@@ -94,6 +94,7 @@ public class RendererInputHandler implements
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         gcodeRenderer.zoom(e.getWheelRotation());
+        gcodeRenderer.forceRedraw();
     }
 
     
