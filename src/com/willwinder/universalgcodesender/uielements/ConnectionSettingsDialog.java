@@ -74,6 +74,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         closeWithSave.setText(Localization.getString("save.close"));
         closeWithoutSave.setText(Localization.getString("close"));
         helpButton.setText(Localization.getString("help"));
+
+        autoConnectOnStartupCheckbox.setText(Localization.getString("sender.autoconnect"));
+        autoReconnectCheckbox.setText(Localization.getString("sender.autoreconnect"));
     }
     
     /**
@@ -123,7 +126,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     }
     
     public boolean getConvertArcsToLines() {
-        return this.convertArcsToLinesCheckBox.isSelected();
+        return this.autoConnectOnStartupCheckbox.isSelected();
     }
     
     public double getSmallArcThreshold() {
@@ -137,7 +140,15 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     public String getLanguage() {
         return ((Language)languageBox.getSelectedItem()).getLanguage() + "_" + ((Language)languageBox.getSelectedItem()).getRegion();
     }
-    
+
+    public boolean getAutoConnectOnStartup() {
+        return autoConnectOnStartupCheckbox.isSelected();
+    }
+
+    public boolean getAutoReconnect() {
+        return autoReconnectCheckbox.isSelected();
+    }
+
     /**
      * Setters for all the values.
      */
@@ -178,7 +189,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     }
     
     public void setConvertArcsToLines(boolean enabled) {
-        this.convertArcsToLinesCheckBox.setSelected(enabled);
+        this.autoConnectOnStartupCheckbox.setSelected(enabled);
     }
     
     public void setSmallArcThreshold(double threshold) {
@@ -193,7 +204,15 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         Language l = AvailableLanguages.getLanguageByString(language);
         this.languageBox.setSelectedItem(l);
     }
-    
+
+    public void setAutoConnectOnStartup(boolean selected) {
+        autoConnectOnStartupCheckbox.setSelected(selected);
+    }
+
+    public void setAutoReconnect(boolean selected) {
+        autoReconnectCheckbox.setSelected(selected);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -220,28 +239,30 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         statusPollingRate = new javax.swing.JLabel();
         statusPollRateSpinner = new javax.swing.JSpinner();
         displayStateColor = new javax.swing.JCheckBox();
-        convertArcsToLinesCheckBox = new javax.swing.JCheckBox();
+        autoConnectOnStartupCheckbox = new javax.swing.JCheckBox();
         smallArcThresholdLabel = new javax.swing.JLabel();
         smallArcThresholdSpinner = new javax.swing.JSpinner();
         smallArcSegmentLengthLabel = new javax.swing.JLabel();
         smallArcSegmentLengthSpinner = new javax.swing.JSpinner();
         languageBox = new javax.swing.JComboBox();
+        convertArcsToLinesCheckBox = new javax.swing.JCheckBox();
+        autoReconnectCheckbox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         overrideSpeedCheckBox.setText("Enable speed override");
 
-        overrideSpeedPercentSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
+        overrideSpeedPercentSpinner.setModel(new javax.swing.SpinnerNumberModel(100, 1, null, 1));
 
         overrideSpeedPercentLabel.setText("Speed override percent");
 
-        maxCommandLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(50), Integer.valueOf(1), null, Integer.valueOf(1)));
+        maxCommandLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(50, 1, null, 1));
 
         maxCommandLengthLabel.setText("Max command length");
 
         truncateDecimalDigitsLabel.setText("Truncate decimal digits");
 
-        truncateDecimalDigitsSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(4), Integer.valueOf(1), null, Integer.valueOf(1)));
+        truncateDecimalDigitsSpinner.setModel(new javax.swing.SpinnerNumberModel(4, 1, null, 1));
 
         singleStepModeCheckBox.setText("Enable single step mode");
 
@@ -275,21 +296,30 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         statusPollingRate.setText("Status poll rate (ms)");
 
-        statusPollRateSpinner.setModel(new javax.swing.SpinnerNumberModel(Integer.valueOf(100), Integer.valueOf(1), null, Integer.valueOf(1)));
+        statusPollRateSpinner.setModel(new javax.swing.SpinnerNumberModel(100, 1, null, 1));
 
         displayStateColor.setText("Enable state color display");
 
-        convertArcsToLinesCheckBox.setText("Convert arcs to lines");
+        autoConnectOnStartupCheckbox.setText("Auto connect on startup");
+        autoConnectOnStartupCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoConnectOnStartupCheckboxActionPerformed(evt);
+            }
+        });
 
         smallArcThresholdLabel.setText("Small arc threshold (mm)");
 
-        smallArcThresholdSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(2.0d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
+        smallArcThresholdSpinner.setModel(new javax.swing.SpinnerNumberModel(2.0d, 0.0d, null, 0.1d));
 
         smallArcSegmentLengthLabel.setText("Small arc segment length (mm)");
 
-        smallArcSegmentLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.3d), Double.valueOf(0.0d), null, Double.valueOf(0.1d)));
+        smallArcSegmentLengthSpinner.setModel(new javax.swing.SpinnerNumberModel(1.3d, 0.0d, null, 0.1d));
 
         languageBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        convertArcsToLinesCheckBox.setText("Convert arcs to lines");
+
+        autoReconnectCheckbox.setText("Auto re-connect on startup");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -313,7 +343,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(removeAllWhitespaceCheckBox)
                                     .addComponent(singleStepModeCheckBox)
-                                    .addComponent(overrideSpeedCheckBox)))
+                                    .addComponent(overrideSpeedCheckBox)
+                                    .addComponent(sendStatusPolls)))
                             .addComponent(titleLabel))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
@@ -335,25 +366,33 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(statusPollingRate))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(sendStatusPolls)
-                            .addComponent(displayStateColor)
-                            .addComponent(convertArcsToLinesCheckBox)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(statusPollRateSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(statusPollingRate))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(smallArcSegmentLengthLabel))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(smallArcThresholdLabel))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(convertArcsToLinesCheckBox)
+                                    .addComponent(displayStateColor))))
+                        .addGap(40, 40, 40))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(smallArcThresholdSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(smallArcThresholdLabel))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(smallArcSegmentLengthLabel))
-                    .addComponent(languageBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(18, 18, 18))
+                        .addComponent(languageBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18))))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(45, 45, 45)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(autoReconnectCheckbox)
+                    .addComponent(autoConnectOnStartupCheckbox))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -397,8 +436,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addComponent(smallArcSegmentLengthLabel)
                     .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(autoConnectOnStartupCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(autoReconnectCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(languageBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(closeWithSave)
                     .addComponent(closeWithoutSave)
@@ -441,7 +484,13 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonActionPerformed
 
+    private void autoConnectOnStartupCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoConnectOnStartupCheckboxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_autoConnectOnStartupCheckboxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox autoConnectOnStartupCheckbox;
+    private javax.swing.JCheckBox autoReconnectCheckbox;
     private javax.swing.JButton closeWithSave;
     private javax.swing.JButton closeWithoutSave;
     private javax.swing.JCheckBox convertArcsToLinesCheckBox;
