@@ -37,7 +37,7 @@ public class Settings {
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
 
-    private boolean autoConnectOnStartup = false;
+    private boolean autoConnect = false;
     private boolean autoReconnect = false;
 
     //vvv deprecated fields, still here to not break the old save files
@@ -360,8 +360,8 @@ public class Settings {
             this.language = language;
         }
 
-    public boolean isAutoConnectOnStartup() {
-        return autoConnectOnStartup;
+    public boolean isAutoConnectEnabled() {
+        return autoConnect;
     }
 
     public boolean isAutoReconnect() {
@@ -372,7 +372,7 @@ public class Settings {
         this.autoReconnect = autoReconnect;
     }
 
-    public void setAutoConnectOnStartup(boolean autoConnectOnStartup) {
-        this.autoConnectOnStartup = autoConnectOnStartup;
+    public void setAutoConnectEnabled(boolean autoConnect) {
+        this.autoConnect = autoConnect;
     }
 }

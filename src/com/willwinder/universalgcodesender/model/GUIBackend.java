@@ -81,7 +81,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;
     private boolean streamFailed = false;
-    private boolean disableAutoconnect = false;
+    private boolean autoconnect = false;
     private final java.util.Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
     
     public GcodeParser gcp = new GcodeParser();
@@ -150,7 +150,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void connect(String firmware, String port, int baudRate) throws Exception {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         lastConnectAttempt = System.currentTimeMillis();
-        disableAutoconnect = false;
 
         this.controller = FirmwareUtils.getControllerFor(firmware);
         applySettingsToController(settings, this.controller);
@@ -175,7 +174,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void disconnect() throws Exception {
-        disableAutoconnect = true;
+        autoconnect = false;
         disconnectInternal();
     }
 
@@ -190,7 +189,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void autoconnect() {
-        if (disableAutoconnect) {
+        if (!autoconnect) {
             return;
         }
         long now = System.currentTimeMillis();
@@ -212,7 +211,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             if (settings == null || streamFailed) {
                 return;
             }
-            if (lastResponse == Long.MIN_VALUE && settings.isAutoConnectOnStartup()) {
+            if (lastResponse == Long.MIN_VALUE && autoconnect) {
                 logger.log(Level.INFO, "Attempting auto connect.");
             } else if (lastResponse > Long.MIN_VALUE && settings.isAutoReconnect()) {
                 logger.log(Level.INFO, "Attempting auto reconnect.");
@@ -647,6 +646,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (settings == null) {
             throw new Exception("Programmer error.");
         }
+        autoconnect = settings.isAutoConnectEnabled();
         // Apply settings settings to controller.
         if (settings.isOverrideSpeedSelected()) {
             double value = settings.getOverrideSpeedValue();

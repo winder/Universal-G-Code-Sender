@@ -75,7 +75,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         closeWithoutSave.setText(Localization.getString("close"));
         helpButton.setText(Localization.getString("help"));
 
-        autoConnectOnStartupCheckbox.setText(Localization.getString("sender.autoconnect"));
+        autoConnectCheckbox.setText(Localization.getString("sender.autoconnect"));
         autoReconnectCheckbox.setText(Localization.getString("sender.autoreconnect"));
     }
     
@@ -126,7 +126,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     }
     
     public boolean getConvertArcsToLines() {
-        return this.autoConnectOnStartupCheckbox.isSelected();
+        return this.convertArcsToLinesCheckBox.isSelected();
     }
     
     public double getSmallArcThreshold() {
@@ -141,8 +141,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         return ((Language)languageBox.getSelectedItem()).getLanguage() + "_" + ((Language)languageBox.getSelectedItem()).getRegion();
     }
 
-    public boolean getAutoConnectOnStartup() {
-        return autoConnectOnStartupCheckbox.isSelected();
+    public boolean getAutoConnectEnabled() {
+        return autoConnectCheckbox.isSelected();
     }
 
     public boolean getAutoReconnect() {
@@ -189,7 +189,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
     }
     
     public void setConvertArcsToLines(boolean enabled) {
-        this.autoConnectOnStartupCheckbox.setSelected(enabled);
+        this.convertArcsToLinesCheckBox.setSelected(enabled);
     }
     
     public void setSmallArcThreshold(double threshold) {
@@ -205,8 +205,8 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         this.languageBox.setSelectedItem(l);
     }
 
-    public void setAutoConnectOnStartup(boolean selected) {
-        autoConnectOnStartupCheckbox.setSelected(selected);
+    public void setAutoConnectEnabled(boolean selected) {
+        autoConnectCheckbox.setSelected(selected);
     }
 
     public void setAutoReconnect(boolean selected) {
@@ -239,7 +239,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
         statusPollingRate = new javax.swing.JLabel();
         statusPollRateSpinner = new javax.swing.JSpinner();
         displayStateColor = new javax.swing.JCheckBox();
-        autoConnectOnStartupCheckbox = new javax.swing.JCheckBox();
+        autoConnectCheckbox = new javax.swing.JCheckBox();
         smallArcThresholdLabel = new javax.swing.JLabel();
         smallArcThresholdSpinner = new javax.swing.JSpinner();
         smallArcSegmentLengthLabel = new javax.swing.JLabel();
@@ -300,10 +300,10 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
 
         displayStateColor.setText("Enable state color display");
 
-        autoConnectOnStartupCheckbox.setText("Auto connect on startup");
-        autoConnectOnStartupCheckbox.addActionListener(new java.awt.event.ActionListener() {
+        autoConnectCheckbox.setText("Auto connect on startup");
+        autoConnectCheckbox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                autoConnectOnStartupCheckboxActionPerformed(evt);
+                autoConnectCheckboxActionPerformed(evt);
             }
         });
 
@@ -391,7 +391,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .addGap(45, 45, 45)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(autoReconnectCheckbox)
-                    .addComponent(autoConnectOnStartupCheckbox))
+                    .addComponent(autoConnectCheckbox))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -436,7 +436,7 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                     .addComponent(smallArcSegmentLengthLabel)
                     .addComponent(smallArcSegmentLengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(autoConnectOnStartupCheckbox)
+                .addComponent(autoConnectCheckbox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(autoReconnectCheckbox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -475,7 +475,9 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 .append(Localization.getString("sender.help.state")).append("\n\n")
                 .append(Localization.getString("sender.help.arcs")).append("\n\n")
                 .append(Localization.getString("sender.help.arcs.threshold")).append("\n\n")
-                .append(Localization.getString("sender.help.arcs.length"));
+                .append(Localization.getString("sender.help.arcs.length"))
+                .append(Localization.getString("sender.help.autoconnect"))
+                .append(Localization.getString("sender.help.autoreconnect"));
                 
         
         JOptionPane.showMessageDialog(new JFrame(), 
@@ -484,12 +486,12 @@ public class ConnectionSettingsDialog extends javax.swing.JDialog {
                 JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonActionPerformed
 
-    private void autoConnectOnStartupCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoConnectOnStartupCheckboxActionPerformed
+    private void autoConnectCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoConnectCheckboxActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_autoConnectOnStartupCheckboxActionPerformed
+    }//GEN-LAST:event_autoConnectCheckboxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox autoConnectOnStartupCheckbox;
+    private javax.swing.JCheckBox autoConnectCheckbox;
     private javax.swing.JCheckBox autoReconnectCheckbox;
     private javax.swing.JButton closeWithSave;
     private javax.swing.JButton closeWithoutSave;

@@ -111,7 +111,7 @@
               <EmptySpace min="-2" pref="45" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="autoReconnectCheckbox" min="-2" max="-2" attributes="0"/>
-                  <Component id="autoConnectOnStartupCheckbox" min="-2" max="-2" attributes="0"/>
+                  <Component id="autoConnectCheckbox" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
@@ -165,7 +165,7 @@
                   <Component id="smallArcSegmentLengthSpinner" alignment="2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="autoConnectOnStartupCheckbox" min="-2" max="-2" attributes="0"/>
+              <Component id="autoConnectCheckbox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="autoReconnectCheckbox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -287,12 +287,12 @@
         <Property name="text" type="java.lang.String" value="Enable state color display"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="autoConnectOnStartupCheckbox">
+    <Component class="javax.swing.JCheckBox" name="autoConnectCheckbox">
       <Properties>
         <Property name="text" type="java.lang.String" value="Auto connect on startup"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoConnectOnStartupCheckboxActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoConnectCheckboxActionPerformed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="smallArcThresholdLabel">
