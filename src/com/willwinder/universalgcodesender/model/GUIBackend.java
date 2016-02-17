@@ -251,21 +251,28 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
         logger.log(Level.INFO, "Getting system state 'updateSystemState'");
-        systemStateBean.setFileName(gcodeFile.getAbsolutePath());
+        if (gcodeFile != null)
+            systemStateBean.setFileName(gcodeFile.getAbsolutePath());
         systemStateBean.setLatestComment(lastComment);
         systemStateBean.setActiveState(activeState);
         systemStateBean.setControlState(controlState);
-        systemStateBean.setDuration(String.valueOf(this.getSendDuration()));
-        systemStateBean.setEstimatedTimeRemaining(String.valueOf(this.getSendRemainingDuration()));
-        systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.getX()));
-        systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.getY()));
-        systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.getZ()));
-        systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
-        systemStateBean.setRowsInFile(String.valueOf(this.getNumRows()));
-        systemStateBean.setSentRows(String.valueOf(this.getNumSentRows()));
-        systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.getX()));
-        systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.getY()));
-        systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.getZ()));
+        if (this.machineCoord != null) {
+            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.getX()));
+            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.getY()));
+            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.getZ()));
+        }
+        if (this.controller != null) {
+            systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
+            systemStateBean.setRowsInFile(String.valueOf(this.getNumRows()));
+            systemStateBean.setSentRows(String.valueOf(this.getNumSentRows()));
+            systemStateBean.setDuration(String.valueOf(this.getSendDuration()));
+            systemStateBean.setEstimatedTimeRemaining(String.valueOf(this.getSendRemainingDuration()));
+        }
+        if (this.workCoord != null) {
+            systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.getX()));
+            systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.getY()));
+            systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.getZ()));
+        }
         systemStateBean.setSendButtonText(openCloseButtonText);
         systemStateBean.setSendButtonEnabled(openCloseButtonEnabled);
         systemStateBean.setPauseResumeButtonText(pauseButtonText);
