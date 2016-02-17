@@ -192,20 +192,28 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (!autoconnect) {
             return;
         }
-        long now = System.currentTimeMillis();
-        if (now - lastResponse > AUTO_DISCONNECT_THRESHOLD &&
-                now - lastConnectAttempt > AUTO_DISCONNECT_THRESHOLD ) {
-            logger.log(Level.INFO, "No Response in " + (now - lastResponse)+"ms.");
-            if (controller != null && controller.isStreamingFile()) {
-                streamFailed = true;
-            }
 
-            try {
-                disconnectInternal();
-            } catch (Exception e) {
-                logger.log(Level.INFO, "Disconnect failed ", e);
+        // This breaks when a machine is homing. GRBL at least will stop sending
+        // status during a homing operation.
+        /*
+        // Check if a timeout has occurred.
+        if (controller.getStatusUpdatesEnabled() && settings.isAutoReconnect()) {
+            long now = System.currentTimeMillis();
+            if (now - lastResponse > AUTO_DISCONNECT_THRESHOLD &&
+                    now - lastConnectAttempt > AUTO_DISCONNECT_THRESHOLD ) {
+                logger.log(Level.INFO, "No Response in " + (now - lastResponse)+"ms.");
+                if (controller != null && controller.isStreamingFile()) {
+                    streamFailed = true;
+                }
+
+                try {
+                    disconnectInternal();
+                } catch (Exception e) {
+                    logger.log(Level.INFO, "Disconnect failed ", e);
+                }
             }
         }
+        */
 
         if (!isConnected()) {
             if (settings == null || streamFailed) {
