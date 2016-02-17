@@ -66,6 +66,7 @@ import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import javax.vecmath.Point3d;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 
 /**
  *
@@ -265,7 +266,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 SettingsFactory.saveSettings(mw.settings);
                 
                 if(mw.pendantUI!=null){
-                	mw.pendantUI.stop();
+                    mw.pendantUI.stop();
                 }
             }
         });
@@ -1514,11 +1515,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }
     
     private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
-    	pauseButtonActionPerformed();
+        pauseButtonActionPerformed();
     }//GEN-LAST:event_pauseButtonActionPerformed
     
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-    	// Timer for updating duration labels.
+        // Timer for updating duration labels.
         ActionListener actionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
@@ -1609,17 +1610,20 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }//GEN-LAST:event_saveButtonActionPerformed
 
         private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
-	    this.pendantUI = new PendantUI(backend);
-	    this.pendantUI.start();
-	    this.startPendantServerButton.setEnabled(false);
-	    this.stopPendantServerButton.setEnabled(true);
+            this.pendantUI = new PendantUI(backend);
+            Collection<PendantURLBean> results = this.pendantUI.start();
+            for (PendantURLBean result : results) {
+                this.messageForConsole("Pendant URL: " + result.getUrlString(), false);
+            }
+            this.startPendantServerButton.setEnabled(false);
+            this.stopPendantServerButton.setEnabled(true);
             this.backend.addControllerListener(pendantUI);
         }//GEN-LAST:event_startPendantServerButtonActionPerformed
 
         private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
-	    this.pendantUI.stop();
-	    this.startPendantServerButton.setEnabled(true);
-	    this.stopPendantServerButton.setEnabled(false);
+            this.pendantUI.stop();
+            this.startPendantServerButton.setEnabled(true);
+            this.stopPendantServerButton.setEnabled(false);
         }//GEN-LAST:event_stopPendantServerButtonActionPerformed
 
     private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
