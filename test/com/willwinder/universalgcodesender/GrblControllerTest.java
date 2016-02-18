@@ -541,7 +541,7 @@ public class GrblControllerTest {
             instance.isReadyToStreamFile();
         } catch (Exception e) {
             asserted = true;
-            assertEquals("Cannot stream while there are active commands (communicator).", e.getMessage());
+            assertEquals("Cannot stream while there are active commands: ", e.getMessage());
         }
         assertTrue(asserted);
     }

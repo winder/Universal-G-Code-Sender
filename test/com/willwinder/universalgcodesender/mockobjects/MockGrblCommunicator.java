@@ -114,6 +114,11 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
 
     @Override
+    public String activeCommandSummary() {
+        return "";
+    }
+
+    @Override
     public boolean areActiveCommands() {
         this.numAreActiveCommandsCalls++;
         return this.areActiveCommands;
