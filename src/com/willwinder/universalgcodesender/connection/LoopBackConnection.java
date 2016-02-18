@@ -23,8 +23,13 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.vecmath.Point3d;
 import jssc.SerialPort;
 
 /**
@@ -32,10 +37,11 @@ import jssc.SerialPort;
  * @author wwinder
  */
 public class LoopBackConnection extends Connection {
-    private BlockingQueue<Integer> sent;
+    private BlockingQueue<String> sent;
     private boolean exit = false;
     private boolean open = false;
     Thread  okThread;
+    private int ms = 0;
 
     Runnable okRunnable = () -> {
         try {
@@ -48,18 +54,37 @@ public class LoopBackConnection extends Connection {
         comm.responseMessage("This is a diagnostic end point which responds to each gcode");
         comm.responseMessage("command as fast as possible while doing nothing else.");
 
+        PointSegment lastCommand = null;
         while (true) {
+            GcodeParser gcp = new GcodeParser();
             try {
-                sent.take();
-                comm.responseMessage("ok");
+                String command = sent.take();
+                Thread.sleep(ms);
+
+                String response;
+                if (command.equals(Byte.toString(GrblUtils.GRBL_STATUS_COMMAND))) {
+                    String xyz = "0,0,0";
+                    if (lastCommand != null) {
+                        Point3d p = lastCommand.point();
+                        xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
+                    }
+                    System.out.println("STATUS\n\n\n\n\n\n");
+                    response = String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz);
+                    System.out.println(response);
+                } else {
+                    lastCommand = gcp.addCommand(command);
+                    response = "ok";
+                }
+                comm.responseMessage(response);
             } catch (InterruptedException ex) {
                 if (exit) return;
             }
         }
     };
 
-    public LoopBackConnection() {
+    public LoopBackConnection(int ms) {
         this("\r\n");
+        this.ms = ms;
         sent = new LinkedBlockingQueue<>();
         okThread = new Thread(okRunnable);
     }
@@ -90,11 +115,12 @@ public class LoopBackConnection extends Connection {
     
     @Override
     public void sendStringToComm(String command) throws Exception {
-        this.sent.put(1);
+        this.sent.put(command);
     }
         
     @Override
     public void sendByteImmediately(byte b) throws Exception {
+        this.sent.put(Byte.toString(b));
     }
     
     public static boolean supports(String portname, int baud) {

@@ -29,7 +29,11 @@ import com.willwinder.universalgcodesender.connection.LoopBackConnection;
  * @author wwinder
  */
 public class LoopBackCommunicator extends GrblCommunicator {
+    public LoopBackCommunicator(int ms) {
+        this.conn = new LoopBackConnection(ms);
+    }
+
     public LoopBackCommunicator() {
-        this.conn = new LoopBackConnection();
+        this.conn = new LoopBackConnection(0);
     }
 }

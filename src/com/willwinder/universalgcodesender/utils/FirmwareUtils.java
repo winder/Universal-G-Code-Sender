@@ -41,6 +41,7 @@ public class FirmwareUtils {
     final public static String TinyG    = "TinyG";
     final public static String XLCD     = "XLCD";
     final public static String LOOPBACK = "Loopback";
+    final public static String LOOPBACK2= "Loopback_Slow";
     
    
     public static ArrayList<String> getFirmwareList() {
@@ -50,6 +51,7 @@ public class FirmwareUtils {
         ret.add(TinyG);
         ret.add(XLCD);
         ret.add(LOOPBACK);
+        ret.add(LOOPBACK2);
         
         return ret;
     }
@@ -66,6 +68,8 @@ public class FirmwareUtils {
                 return new GrblController(new XLCDCommunicator());
             case LOOPBACK:
                 return new GrblController(new LoopBackCommunicator());
+            case LOOPBACK2:
+                return new GrblController(new LoopBackCommunicator(10));
         }
         
         return null;
