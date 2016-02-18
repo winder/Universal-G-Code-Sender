@@ -34,4 +34,21 @@ public class Utils {
             this.abbreviation = abbreviation;
         }
     }
+
+    public static double scaleUnits(Units from, Units to) {
+        final double mmPerInch = 25.4;
+        switch (from) {
+            case MM:
+                switch(to) {
+                    case MM: return 1.0;
+                    case INCH: return 1.0 / mmPerInch;
+                }
+            case INCH:
+                switch(to) {
+                    case MM: return 25.4;
+                    case INCH: return 1.0;
+                }
+        }
+        return 1.0;
+    }
 }

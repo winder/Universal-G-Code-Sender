@@ -18,4 +18,9 @@ public class Position extends Point3d {
     public Utils.Units getUnits() {
         return units;
     }
+
+    public Position getPositionIn(Utils.Units units) {
+        double scale = Utils.scaleUnits(this.units, units);
+        return new Position(x*scale, y*scale, z*scale, units);
+    }
 }

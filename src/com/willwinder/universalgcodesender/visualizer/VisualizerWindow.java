@@ -51,12 +51,6 @@ implements ControllerListener, WindowListener {
     // OpenGL Control
     FPSAnimator animator;
     
-    // Interactive members.
-    private Point3d machineCoordinate;
-    private Point3d workCoordinate;
-    private Utils.Units reportingUnits = Utils.Units.UNKNOWN;
-
-    private int completedCommandNumber = -1;
     private String gcodeFile = null;
     private VisualizerCanvas canvas = null;
     
@@ -103,7 +97,6 @@ implements ControllerListener, WindowListener {
     }
     
     public void setCompletedCommandNumber(int num) {
-        this.completedCommandNumber = num;
         this.canvas.setCurrentCommandNumber(num);
     }
 
@@ -125,14 +118,9 @@ implements ControllerListener, WindowListener {
 
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        machineCoordinate = machineCoord;
-        workCoordinate = workCoord;
-        this.reportingUnits = machineCoord.getUnits();
-
         // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(this.machineCoordinate);
-        this.canvas.setWorkCoordinate(this.workCoordinate);
-
+        this.canvas.setMachineCoordinate(machineCoord);
+        this.canvas.setWorkCoordinate(workCoord);
     }
     
     @Override

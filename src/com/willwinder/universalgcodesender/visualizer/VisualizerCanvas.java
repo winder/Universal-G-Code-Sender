@@ -41,6 +41,8 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -194,12 +196,12 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         generateObject();
     }
     
-    public void setWorkCoordinate(Point3d p) {
-        this.workCoord.set(p);
+    public void setWorkCoordinate(Position p) {
+        this.workCoord.set(p.getPositionIn(Utils.Units.MM));
     }
     
-    public void setMachineCoordinate(Point3d p) {
-        this.machineCoord.set(p);
+    public void setMachineCoordinate(Position p) {
+        this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
     }
 
     // ------ Implement methods declared in GLEventListener ------
