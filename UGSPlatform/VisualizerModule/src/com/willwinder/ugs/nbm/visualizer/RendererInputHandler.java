@@ -21,11 +21,12 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
-import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -45,7 +46,7 @@ import org.openide.util.Lookup;
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener {
+        MouseListener, KeyListener, ControllerListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
 
@@ -222,5 +223,42 @@ public class RendererInputHandler implements
     @Override
     public void keyReleased(KeyEvent ke) {
         animator.stop();
+    }
+
+    /**
+     * Controller listener methods
+     */
+    @Override
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+        gcodeRenderer.setMachineCoordinate(machineCoord);
+        gcodeRenderer.setWorkCoordinate(workCoord);
+    }
+
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandComplete(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandComment(String comment) {
+    }
+
+    @Override
+    public void messageForConsole(String msg, Boolean verbose) {
+    }
+
+    @Override
+    public void postProcessData(int numRows) {
     }
 }

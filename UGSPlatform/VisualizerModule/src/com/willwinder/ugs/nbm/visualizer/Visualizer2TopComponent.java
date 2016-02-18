@@ -163,6 +163,8 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
             eb.register(rih);
         }
 
+        backend.addControllerListener(rih);
+
         // shutdown hook...
         //frame.addWindowListener(rih);
 

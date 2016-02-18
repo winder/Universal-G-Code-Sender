@@ -178,7 +178,6 @@ public class BufferedCommunicatorTest {
     public void testSimpleStreamStream() throws Exception {
         String[] inputs = {"input1", "input2"};
 
-
         for (String i : inputs) {
             mockScl.messageForConsole(EasyMock.anyString());
             EasyMock.expect(EasyMock.expectLastCall());
