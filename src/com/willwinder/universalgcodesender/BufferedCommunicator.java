@@ -115,6 +115,24 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     */
     
     /** File Stream Methods. **/
+    @Override
+    public String activeCommandSummary() {
+        StringBuilder sb = new StringBuilder();
+        String comma = "";
+
+        for (GcodeCommand gc : activeCommandList) {
+            sb.append(comma).append(gc.getCommandString());
+            comma = ", ";
+        }
+
+        if (commandStream != null) {
+            sb.append(comma)
+                    .append(commandStream.getNumRowsRemaining())
+                    .append(" streaming commands.");
+        }
+
+        return sb.toString();
+    }
     
     @Override
     public boolean areActiveCommands() {
@@ -124,7 +142,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
     @Override
     public int numActiveCommands() {
-        return this.activeCommandList.size();
+        int streamingCount =
+                commandStream == null ? 0 : commandStream.getNumRowsRemaining();
+        return this.activeCommandList.size() + streamingCount;
     }
     
     // Helper for determining if commands should be throttled.

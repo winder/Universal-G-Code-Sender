@@ -205,6 +205,8 @@ public class BufferedCommunicatorTest {
         instance.queueStreamForComm(gsr);
         instance.streamCommands();
 
+        assertEquals("input1, input2, 0 streaming commands.", instance.activeCommandSummary());
+
         EasyMock.verify(mockConnection, mockScl);
     }
 
@@ -250,6 +252,7 @@ public class BufferedCommunicatorTest {
 
         assertEquals(true, instance.areActiveCommands());
         assertEquals(2, instance.numActiveCommands());
+        assertEquals(input + ", " + input, instance.activeCommandSummary());
 
         // Clear out active commands.
         instance.responseMessage("ok");

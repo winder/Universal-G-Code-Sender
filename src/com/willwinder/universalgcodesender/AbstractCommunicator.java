@@ -88,6 +88,7 @@ public abstract class AbstractCommunicator {
     abstract public void queueRawStreamForComm(final Reader input);
     abstract public void queueStreamForComm(final GcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;
+    abstract public String activeCommandSummary();
     abstract public boolean areActiveCommands();
     abstract public void streamCommands();
     abstract public void pauseSend();

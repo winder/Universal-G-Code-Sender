@@ -429,7 +429,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Already streaming.");
         }
         if (this.comm.areActiveCommands()) {
-            throw new Exception("Cannot stream while there are active commands (communicator).");
+            throw new Exception("Cannot stream while there are active commands: "
+                    + comm.activeCommandSummary());
         }
 
         return true;
