@@ -68,9 +68,7 @@ public class LoopBackConnection extends Connection {
                         Point3d p = lastCommand.point();
                         xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
                     }
-                    System.out.println("STATUS\n\n\n\n\n\n");
                     response = String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz);
-                    System.out.println(response);
                 } else {
                     lastCommand = gcp.addCommand(command);
                     response = "ok";
