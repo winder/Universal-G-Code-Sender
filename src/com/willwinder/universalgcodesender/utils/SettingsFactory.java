@@ -62,23 +62,11 @@ public class SettingsFactory {
         else {
             properties = new File(homeDir + propertiesFilename);
 
-            // Check homedir hidden/not hidden
+            // Check homedir for hidden / not hidden files
             json = new File(homeDir + "/" + jsonFilename);
             if (!json.exists()) {
+                // Default to hidden if none.
                 json = new File(homeDir + "/." + jsonFilename);
-            }
-            // Check /etc
-            if (!json.exists()) {
-                json = new File("/etc/" + jsonFilename);
-            }
-            // Check /usr/share
-            if (!json.exists()) {
-                json = new File("/usr/share/UniversalGcodeSender/" + jsonFilename);
-            }
-
-            // No file.
-            if (!json.exists()) {
-                json       = new File(homeDir + "/" + jsonFilename);
             }
         }
 
