@@ -406,6 +406,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         consoleTextArea.setColumns(20);
         consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
+        consoleTextArea.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));

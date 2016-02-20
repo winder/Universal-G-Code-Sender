@@ -95,6 +95,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
         consoleTextArea = new javax.swing.JTextArea();
 
         consoleTextArea.setColumns(20);
+        consoleTextArea.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
