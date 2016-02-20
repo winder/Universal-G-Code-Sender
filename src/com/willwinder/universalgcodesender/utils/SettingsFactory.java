@@ -31,6 +31,7 @@ import java.io.FileWriter;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -39,30 +40,75 @@ import java.util.logging.Logger;
 public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     
-    public static File getSettingsFolder(){
-    	File settingsFolder = new File(System.getProperty("user.home"));
-    	if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-    		settingsFolder = new File(System.getProperty("user.home")+"/Library/Preferences/");
-    	}
-    	return settingsFolder;
+    private static File getSettingsFile() {
+        String propertiesFilename = "UniversalGcodeSender.properties";
+        String jsonFilename = "UniversalGcodeSender.json";
+
+        File properties = null;
+        File json = null;
+
+        String homeDir = System.getProperty("user.home");
+
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            homeDir = homeDir + "/Library/Preferences/";
+            properties = new File(homeDir + propertiesFilename);
+            json       = new File(homeDir + jsonFilename);
+        }
+        else if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            properties = new File(homeDir + propertiesFilename);
+            json       = new File(homeDir + jsonFilename);
+        }
+        // Unix
+        else {
+            properties = new File(homeDir + propertiesFilename);
+
+            // Check homedir hidden/not hidden
+            json = new File(homeDir + "/" + jsonFilename);
+            if (!json.exists()) {
+                json = new File(homeDir + "/." + jsonFilename);
+            }
+            // Check /etc
+            if (!json.exists()) {
+                json = new File("/etc/" + jsonFilename);
+            }
+            // Check /usr/share
+            if (!json.exists()) {
+                json = new File("/usr/share/UniversalGcodeSender/" + jsonFilename);
+            }
+
+            // No file.
+            if (!json.exists()) {
+                json       = new File(homeDir + "/" + jsonFilename);
+            }
+        }
+
+        return properties.exists() ? properties : json;
     }
-    
+
+    @Deprecated
+    private static File getSettingsFolder(){
+        File settingsFolder = new File(System.getProperty("user.home"));
+        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
+            settingsFolder = new File(System.getProperty("user.home")+"/Library/Preferences/");
+        }
+        return settingsFolder;
+    }
+
     public static Settings loadSettings() {
-    	// the defaults are now in the settings bean
-    	Settings out = new Settings();
-    	
-    	File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
-    	File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
-    	
+        // the defaults are now in the settings bean
+        Settings out = new Settings();
+
+        File settingsFile = getSettingsFile();
+
         logger.info(Localization.getString("settings.log.loading"));
         try {
-	    	if(jsonFile.exists()){
-	            logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), jsonFile});
-	    		out = new Gson().fromJson(new FileReader(jsonFile), Settings.class);
-	    	} else if(propertiesFile.exists()){
-                    logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), propertiesFile});
+            if(settingsFile.getName().endsWith("json") && settingsFile.exists()){
+                logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+            } else if(settingsFile.getName().endsWith("properties")){
+                    logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
                     Properties properties = new Properties();
-                    properties.load(new FileInputStream(propertiesFile));
+                    properties.load(new FileInputStream(settingsFile));
                     out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty("user.home")));
                     out.setPort(properties.getProperty("port", ""));
                     out.setPortRate(properties.getProperty("port.rate", "9600"));
@@ -89,7 +135,7 @@ public class SettingsFactory {
                     out.updateMacro(4, null, null, properties.getProperty("customGcode4", ""));
                     out.updateMacro(5, null, null, properties.getProperty("customGcode5", ""));
                     out.setLanguage(properties.getProperty("language", "en_US"));
-	    	}
+            }
             out.finalizeInitialization();
         } catch (Exception e) {
             logger.warning(Localization.getString("settings.log.error"));
@@ -102,14 +148,15 @@ public class SettingsFactory {
     public static void saveSettings(Settings settings) {
         logger.info(Localization.getString("settings.log.saving"));
         try {
-            File jsonFile = new File(getSettingsFolder(), "UniversalGcodeSender.json");
+            // Save json file.
+            File jsonFile = getSettingsFile();
             try (FileWriter fileWriter = new FileWriter(jsonFile)) {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 fileWriter.write(gson.toJson(settings, Settings.class));
             }
-        	
-            File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
 
+            // Delete the old settings file if it exists.
+            File propertiesFile = new File(getSettingsFolder(), "UniversalGcodeSender.properties");
             if(propertiesFile.exists()){
                     propertiesFile.delete();
             }
