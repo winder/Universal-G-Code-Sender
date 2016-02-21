@@ -65,6 +65,7 @@ import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 /**
  *
@@ -2337,6 +2338,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     break;
                 case FILE_LOADED:
                     processedGcodeFile = evt.getFile();
+                    try {
+                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                            resetSentRowLabels(gsr.getNumRows());
+                        }
+                    } catch (IOException ex) {}
                     break;
             }
 
