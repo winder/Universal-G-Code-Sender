@@ -102,18 +102,21 @@ public class GrblController extends AbstractController {
         }
         
         else if (GrblUtils.isGrblVersionString(response)) {
+            this.isReady = true;
+            this.comm.resetBuffers();
+
             // Version string goes to console
             this.messageForConsole(response + "\n");
             
             this.grblVersion = GrblUtils.getVersionDouble(response);
             this.grblVersionLetter = GrblUtils.getVersionLetter(response);
-            this.isReady = true;
             
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
             this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
             try {
-                sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
+                this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
+                this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -406,12 +409,6 @@ public class GrblController extends AbstractController {
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
         if (this.positionMode != null && this.getStatusUpdatesEnabled()) {
-            try {
-                sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
             if (this.positionPollTimer.isRunning() == false) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();

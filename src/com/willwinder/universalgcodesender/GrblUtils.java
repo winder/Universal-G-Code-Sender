@@ -28,7 +28,6 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.vecmath.Point3d;
 
 /**
  *

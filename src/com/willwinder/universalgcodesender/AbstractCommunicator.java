@@ -97,6 +97,12 @@ public abstract class AbstractCommunicator {
     abstract public void softReset();
     abstract public void responseMessage(String response);
     abstract public int numActiveCommands();
+
+    /**
+     * Reset any internal buffers. In case a controller reset was detected call
+     * this.
+     */
+    abstract public void resetBuffers();
     
     public void setConnection(Connection c) {
         conn = c;

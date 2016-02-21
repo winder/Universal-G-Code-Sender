@@ -51,7 +51,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -64,7 +63,6 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
-import javax.vecmath.Point3d;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 
