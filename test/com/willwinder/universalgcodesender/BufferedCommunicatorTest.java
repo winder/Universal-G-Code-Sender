@@ -446,5 +446,4 @@ public class BufferedCommunicatorTest {
             return "\r\n";
         }
     }
-    
 }

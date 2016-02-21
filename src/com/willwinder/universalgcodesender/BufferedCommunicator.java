@@ -116,6 +116,13 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     /** File Stream Methods. **/
     @Override
+    public void resetBuffers() {
+        if (activeCommandList != null) {
+            activeCommandList.clear();
+        }
+    }
+
+    @Override
     public String activeCommandSummary() {
         StringBuilder sb = new StringBuilder();
         String comma = "";

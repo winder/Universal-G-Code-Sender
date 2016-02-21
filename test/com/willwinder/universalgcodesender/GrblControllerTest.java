@@ -158,7 +158,7 @@ public class GrblControllerTest {
         assertEquals(true, hitIt);
         
         instance.rawResponseHandler("Grbl 0.7");
-        assertEquals(1, mgc.numStreamCommandsCalls);
+        assertEquals(2, mgc.numStreamCommandsCalls);
 
         hitIt = false;
         try {
@@ -170,26 +170,26 @@ public class GrblControllerTest {
         assertEquals(true, hitIt);
         
         instance.rawResponseHandler("Grbl 0.8");
-        assertEquals(2, mgc.numStreamCommandsCalls);
+        assertEquals(4, mgc.numStreamCommandsCalls);
 
         instance.performHomingCycle();
-        assertEquals(3, mgc.numStreamCommandsCalls);
+        assertEquals(5, mgc.numStreamCommandsCalls);
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8 + "\n";
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.8c");
-        assertEquals(5, mgc.numStreamCommandsCalls);
+        assertEquals(7, mgc.numStreamCommandsCalls);
 
         instance.performHomingCycle();
-        assertEquals(6, mgc.numStreamCommandsCalls);
+        assertEquals(8, mgc.numStreamCommandsCalls);
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.9");
-        assertEquals(8, mgc.numStreamCommandsCalls);
+        assertEquals(10, mgc.numStreamCommandsCalls);
 
         instance.performHomingCycle();
-        assertEquals(9, mgc.numStreamCommandsCalls);
+        assertEquals(11, mgc.numStreamCommandsCalls);
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
         assertEquals(expResult, mgc.queuedString);
     }
