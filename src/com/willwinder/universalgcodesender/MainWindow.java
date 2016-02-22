@@ -431,6 +431,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         bottomTabbedPane.setMinimumSize(new java.awt.Dimension(0, 0));
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
 
+        consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
         consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
         consoleTextArea.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N

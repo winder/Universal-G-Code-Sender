@@ -202,6 +202,7 @@
           <SubComponents>
             <Component class="javax.swing.JTextArea" name="consoleTextArea">
               <Properties>
+                <Property name="editable" type="boolean" value="false"/>
                 <Property name="columns" type="int" value="20"/>
                 <Property name="document" type="javax.swing.text.Document" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
                   <Connection code="new LengthLimitedDocument(consoleSize)" type="code"/>

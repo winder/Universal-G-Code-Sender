@@ -94,6 +94,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
         jScrollPane2 = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
 
+        consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
         consoleTextArea.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         consoleTextArea.setRows(5);

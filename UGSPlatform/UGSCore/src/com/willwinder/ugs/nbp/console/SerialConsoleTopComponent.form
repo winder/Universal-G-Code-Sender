@@ -35,6 +35,7 @@
       <SubComponents>
         <Component class="javax.swing.JTextArea" name="consoleTextArea">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="columns" type="int" value="20"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Monospaced" size="13" style="0"/>
