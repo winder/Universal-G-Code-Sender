@@ -75,7 +75,6 @@ import javax.vecmath.Vector3d;
 @SuppressWarnings("serial")
 public class GcodeRenderer implements GLEventListener {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
-    GLAutoDrawable drawable = null;
     
     static boolean ortho = true;
     static double orthoRotation = -45;
@@ -98,6 +97,7 @@ public class GcodeRenderer implements GLEventListener {
 
     // GL Utility
     private GLU glu;
+    GLAutoDrawable drawable = null;
     
     // Projection variables
     private Point3d center, eye;
@@ -145,7 +145,7 @@ public class GcodeRenderer implements GLEventListener {
     
     private FPSCounter fpsCounter;
     private Overlay overlay;
-    private String dimensionsLabel;
+    private String dimensionsLabel = "";
     
     /**
      * Constructor.
@@ -290,29 +290,30 @@ public class GcodeRenderer implements GLEventListener {
      */
     @Override
     public void display(GLAutoDrawable drawable) {
-        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
+        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         
-        // Scale the model so that it will fit on the window.
-        gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
-        
+        //renderAxes(drawable);
+
+        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
         // Rotate prior to translating so that rotation happens from middle of
         // object.
         if (ortho) {
             // Manual rotation
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         } else {
             // Shift model to center of window.
             gl.glTranslated(-this.center.x, -this.center.y, 0);
         }
-        gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
         // Draw model
         if (isDrawable) {
-            //renderAxes(drawable);
+            // Scale the model so that it will fit on the window.
+            gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
+            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+        
             renderModel(drawable);
             renderTool(drawable);
         }
@@ -321,37 +322,42 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glPopMatrix();
         
-        if (isDrawable) {
-            this.fpsCounter.draw();
-            this.overlay.draw(this.dimensionsLabel);
-            //this(drawable, new Font("SansSerif", Font.BOLD, 12));
-        }
-        
+        this.fpsCounter.draw();
+        this.overlay.draw(this.dimensionsLabel);
+        //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+    
+        gl.glLoadIdentity();
         update();
     }
     
     private void renderAxes(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
-        
-        gl.glBegin(GL_LINES);
-        
-        // X-Axis
-        gl.glColor3f( 1, 0, 0 );
-        gl.glVertex3f( 0, 0, 0 );
-        gl.glVertex3f( 50, 0, 0 );
 
-        // Y-Axis
-        gl.glColor3f( 0, 1, 0 );
-        gl.glVertex3f( 0, 0, 0 );
-        gl.glVertex3f( 0, 50, 0 );
+        gl.glPushMatrix();
+            gl.glTranslated(-0.5f, -0.5f, -0.5f);
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            
+            gl.glBegin(GL_LINES);
+            
+            // X-Axis
+            gl.glColor3f( 1, 0, 0 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 1, 0f, 0f );
+
+            // Y-Axis
+            gl.glColor3f( 0, 1, 0 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 0, 1f, 0f );
+            
+            // Z-Axis
+            gl.glColor3f( 0, 1, 1 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 0, 0f, 1f );
+            
+            gl.glEnd();
         
-        // Z-Axis
-        gl.glColor3f( 0, 0, 1 );
-        gl.glVertex3f( 0, 0, 0 );
-        gl.glVertex3f( 0, 0, 50 );
-        
-        gl.glEnd();
-        
+        gl.glPopMatrix();
         //# Draw number 50 on x/y-axis line.
         //glRasterPos2f(50,-5)
         //glutInit()
