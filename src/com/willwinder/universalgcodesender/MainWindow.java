@@ -66,6 +66,9 @@ import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import java.awt.Toolkit;
+import javax.swing.text.DefaultEditorKit;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -193,6 +196,31 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
+        // Fix look and feel to use CMD+C/X/V/A instead of CTRL
+        if (SystemUtils.IS_OS_MAC)
+        {
+            Collection<InputMap> ims = new ArrayList<>();
+            ims.add((InputMap) UIManager.get("TextField.focusInputMap"));
+            ims.add((InputMap) UIManager.get("TextArea.focusInputMap"));
+            ims.add((InputMap) UIManager.get("EditorPane.focusInputMap"));
+            ims.add((InputMap) UIManager.get("FormattedTextField.focusInputMap"));
+            ims.add((InputMap) UIManager.get("PasswordField.focusInputMap"));
+            ims.add((InputMap) UIManager.get("TextPane.focusInputMap"));
+
+            int c = KeyEvent.VK_C;
+            int v = KeyEvent.VK_V;
+            int x = KeyEvent.VK_X;
+            int a = KeyEvent.VK_A;
+            int meta = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
+
+            for (InputMap im : ims) {
+                im.put(KeyStroke.getKeyStroke(c, meta), DefaultEditorKit.copyAction);
+                im.put(KeyStroke.getKeyStroke(v, meta), DefaultEditorKit.pasteAction);
+                im.put(KeyStroke.getKeyStroke(x, meta), DefaultEditorKit.cutAction);
+                im.put(KeyStroke.getKeyStroke(a, meta), DefaultEditorKit.selectAllAction);
+            }
+        }
         
          /* Create the form */
         GUIBackend backend = new GUIBackend();
