@@ -9,6 +9,8 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -62,6 +64,7 @@ public final class MacroWindowTopComponent extends TopComponent implements UGSEv
     private boolean isSending;
     private static final String SEPARATOR = "|";
     private static final String UGS_MACROFILENAMe = "ugsMacros.txt";
+    private Settings settings;
     
     public MacroWindowTopComponent() {
         initComponents();
@@ -70,6 +73,8 @@ public final class MacroWindowTopComponent extends TopComponent implements UGSEv
         
         this.macroPanel.setLayout(new GridLayout(6,4, 20, 20));
 
+        settings = CentralLookup.getDefault().lookup(Settings.class);
+        
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
@@ -408,7 +413,7 @@ public final class MacroWindowTopComponent extends TopComponent implements UGSEv
         for(int i = 0; i < rows; i++) {
             String buttonTitle = (String) this.model.getValueAt(i, 0);
             String buttonGcode = (String) this.model.getValueAt(i, 1);
-            fileContent += buttonTitle + SEPARATOR + buttonGcode + "\n";
+            
             JButton button = new JButton(buttonTitle);
             button.setToolTipText(buttonGcode);
             button.setEnabled(!isSending && backend.isConnected());
@@ -419,14 +424,10 @@ public final class MacroWindowTopComponent extends TopComponent implements UGSEv
             });
             //button.setMinimumSize(new Dimension(30, 30));
             this.macroPanel.add(button);
+            
+            settings.updateMacro(i, buttonTitle, "", buttonGcode);
         }
-        
-            // try-with-resources statement based on post comment below :)
-            try (FileWriter file = new FileWriter(UGS_MACROFILENAMe)) {
-                file.write(fileContent);
-            } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+       
     }
 
     
@@ -480,32 +481,22 @@ public final class MacroWindowTopComponent extends TopComponent implements UGSEv
     }
 
     private void loadSettings() {
-        File f = new File(UGS_MACROFILENAMe);
-        if(f.exists() && !f.isDirectory()) { 
-            try(BufferedReader br = new BufferedReader(new FileReader(UGS_MACROFILENAMe))) {
-                StringBuilder sb = new StringBuilder();
-                String line = br.readLine();
-
-                while (line != null) {
-                    
-                    
-                    if (line.indexOf(SEPARATOR) != 0) {
-                        String title = line.substring(0, line.indexOf(SEPARATOR));
-                        String gcode = line.substring(line.indexOf(SEPARATOR) + SEPARATOR.length(), line.length());
-
-                        addRow(title, gcode);
-                    }
-                    
-                    
-                    
-                    
-                    line = br.readLine();
-                }
-                String everything = sb.toString();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
+        
+       
+        
+        int index = settings.getLastMacroIndex();
+        
+        if (settings.getLastMacroIndex() > -1) {
+            for (int i = 0; i <= settings.getLastMacroIndex(); i++) {
+                Macro macro = settings.getMacro(i);
+                
+                addRow(macro.getName(), macro.getGcode());
+                
+                
+                
             }
         }
+        
     }
     
 
