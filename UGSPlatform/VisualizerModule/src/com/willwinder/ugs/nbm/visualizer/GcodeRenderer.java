@@ -103,7 +103,6 @@ public class GcodeRenderer implements GLEventListener {
     private Point3d center, eye;
     private Point3d objectMin, objectMax;
     private double maxSide;
-    private double aspectRatio;
     private int xSize, ySize;
     private double minArcLength;
     private double arcLength;
@@ -158,10 +157,8 @@ public class GcodeRenderer implements GLEventListener {
        this.machineCoord = new Point3d(0, 0, 0);
        
        this.rotation = new Point3d(0.0, -30.0, 0.0);
-       if (ortho) {
-           setVerticalTranslationVector();
-           setHorizontalTranslationVector();
-       }
+       setVerticalTranslationVector();
+       setHorizontalTranslationVector();
     }
     
     /**
@@ -276,8 +273,6 @@ public class GcodeRenderer implements GLEventListener {
     void initObjectVariables() {
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
 
-        this.aspectRatio = (float)this.xSize / this.ySize;
-
         this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
         this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);
@@ -299,14 +294,9 @@ public class GcodeRenderer implements GLEventListener {
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
         // Rotate prior to translating so that rotation happens from middle of
         // object.
-        if (ortho) {
-            // Manual rotation
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-        } else {
-            // Shift model to center of window.
-            gl.glTranslated(-this.center.x, -this.center.y, 0);
-        }
+        // Manual rotation
+        gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+        gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
 
         // Draw model
         if (isDrawable) {
@@ -455,6 +445,7 @@ public class GcodeRenderer implements GLEventListener {
      */
     private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
         final GL2 gl = drawable.getGL().getGL2();
+        float aspectRatio = (float)x / y;
 
         if (ortho) {
             gl.glDisable(GL_DEPTH_TEST);
@@ -462,7 +453,7 @@ public class GcodeRenderer implements GLEventListener {
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
-            gl.glOrtho(-0.51*this.aspectRatio,0.51*this.aspectRatio,-0.51,0.51,-10,10);
+            gl.glOrtho(-0.51*aspectRatio,0.51*aspectRatio,-0.51,0.51,-10,10);
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity();
         } else {
@@ -472,7 +463,7 @@ public class GcodeRenderer implements GLEventListener {
             gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
             gl.glLoadIdentity();             // reset projection matrix
 
-            glu.gluPerspective(45.0, this.aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
+            glu.gluPerspective(45.0, aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
             // Move camera out and point it at the origin
             glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,
                           0, 0, 0,
