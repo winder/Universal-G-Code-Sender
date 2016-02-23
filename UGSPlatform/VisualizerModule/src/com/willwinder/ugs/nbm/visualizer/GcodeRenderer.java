@@ -34,6 +34,7 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.GL.GL_NICEST;
 import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
@@ -285,32 +286,33 @@ public class GcodeRenderer implements GLEventListener {
      */
     @Override
     public void display(GLAutoDrawable drawable) {
+        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        
-        //renderAxes(drawable);
-
-        this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
-        // Rotate prior to translating so that rotation happens from middle of
-        // object.
-        // Manual rotation
-        gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-        gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
 
         // Draw model
         if (isDrawable) {
+            gl.glPushMatrix();
+
+            // Rotate prior to translating so that rotation happens from middle of
+            // object.
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             // Scale the model so that it will fit on the window.
             gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
             renderModel(drawable);
             renderTool(drawable);
+
+            gl.glPopMatrix();
         }
         
         gl.glDisable(GL.GL_DEPTH_TEST);
-
-        gl.glPopMatrix();
+        
+        //renderCornerAxes(drawable);
+        //renderCornerCube(drawable);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -320,16 +322,112 @@ public class GcodeRenderer implements GLEventListener {
         update();
     }
     
-    private void renderAxes(GLAutoDrawable drawable) {
+    private void renderCornerCube(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
+        gl.glLineWidth(4);
+
+        float ar = (float)xSize/ySize;
+
+        float size = 0.1f;
+        float size2 = size/2;
+        float fromEdge = 0.8f;
+
+        gl.glEnable(GL_DEPTH_TEST);
+        gl.glPushMatrix();
+            gl.glTranslated(-0.51*ar*fromEdge, 0.51*fromEdge, -0.5f);
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+            
+            gl.glBegin(GL_QUADS);
+            
+            // back
+            gl.glColor3f( 0, 1, 1 );
+            gl.glNormal3f( 0, 1, 0);
+            gl.glVertex3f( -size2,  size2,  size2 );
+            gl.glVertex3f(  size2,  size2,  size2 );
+            gl.glVertex3f(  size2,  size2, -size2 );
+            gl.glVertex3f( -size2,  size2, -size2 );
+
+            // top
+            gl.glColor3f( 0, 0.9f, 0.9f );
+            gl.glNormal3f( 0, 0, 1);
+            gl.glVertex3f(  size2, -size2,  size2 );
+            gl.glVertex3f(  size2,  size2,  size2 );
+            gl.glVertex3f( -size2,  size2,  size2 );
+            gl.glVertex3f( -size2, -size2,  size2 );
+            
+            // right
+            gl.glColor3f( 0, 0.8f, 0.8f );
+            gl.glNormal3f( 1, 0, 0);
+            gl.glVertex3f(  size2,  size2, -size2 );
+            gl.glVertex3f(  size2,  size2,  size2 );
+            gl.glVertex3f(  size2, -size2,  size2 );
+            gl.glVertex3f(  size2, -size2, -size2 );
+
+            // left
+            gl.glColor3f( 0, 0.7f, 0.7f );
+            gl.glNormal3f(-1, 0, 0);
+            gl.glVertex3f( -size2, -size2,  size2 );
+            gl.glVertex3f( -size2,  size2,  size2 );
+            gl.glVertex3f( -size2,  size2, -size2 );
+            gl.glVertex3f( -size2, -size2, -size2 );
+
+            // front
+            gl.glColor3f( 0, 0.6f, 0.6f );
+            gl.glNormal3f( 0, -1, 0);
+            gl.glVertex3f( -size2, -size2, -size2 );
+            gl.glVertex3f(  size2, -size2, -size2 );
+            gl.glVertex3f(  size2, -size2,  size2 );
+            gl.glVertex3f( -size2, -size2,  size2 );
+
+            // bottom
+            gl.glColor3f( 0, 0.5f, 0.5f );
+            gl.glNormal3f( 0, 0,-1);
+            gl.glVertex3f(  size2,  size2, -size2 );
+            gl.glVertex3f(  size2, -size2, -size2 );
+            gl.glVertex3f( -size2, -size2, -size2 );
+            gl.glVertex3f( -size2,  size2, -size2 );
+            /*
+            gl.glBegin(GL_LINES);
+
+            // X-Axis
+            gl.glColor3f( 1, 0, 0 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 1, 0f, 0f );
+
+            // Y-Axis
+            gl.glColor3f( 0, 1, 0 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 0, 1f, 0f );
+            
+            // Z-Axis
+            gl.glColor3f( 0, 1, 1 );
+            gl.glVertex3f( 0, 0f, 0f );
+            gl.glVertex3f( 0, 0f, 1f );
+            */
+            
+            gl.glEnd();
+        gl.glDisable(GL_DEPTH_TEST);
+        
+        gl.glPopMatrix();
+    }
+    private void renderCornerAxes(GLAutoDrawable drawable) {
+        final GL2 gl = drawable.getGL().getGL2();
+        gl.glLineWidth(4);
+
+        float ar = (float)xSize/ySize;
+
+        float size = 0.1f;
+        float size2 = size/2;
+        float fromEdge = 0.8f;
 
         gl.glPushMatrix();
-            gl.glTranslated(-0.5f, -0.5f, -0.5f);
+            gl.glTranslated(-0.51*ar*fromEdge, 0.51*fromEdge, -0.5f);
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             
             gl.glBegin(GL_LINES);
-            
+
             // X-Axis
             gl.glColor3f( 1, 0, 0 );
             gl.glVertex3f( 0, 0f, 0f );
@@ -346,6 +444,7 @@ public class GcodeRenderer implements GLEventListener {
             gl.glVertex3f( 0, 0f, 1f );
             
             gl.glEnd();
+        gl.glDisable(GL_DEPTH_TEST);
         
         gl.glPopMatrix();
         //# Draw number 50 on x/y-axis line.
@@ -367,7 +466,6 @@ public class GcodeRenderer implements GLEventListener {
      */
     private void renderTool(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-
         
         gl.glLineWidth(8.0f);
         byte []color;
@@ -463,7 +561,7 @@ public class GcodeRenderer implements GLEventListener {
             gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
             gl.glLoadIdentity();             // reset projection matrix
 
-            glu.gluPerspective(45.0, aspectRatio, 0.1, 100.0); // fovy, aspect, zNear, zFar
+            glu.gluPerspective(45.0, aspectRatio, 0.1, 20000.0); // fovy, aspect, zNear, zFar
             // Move camera out and point it at the origin
             glu.gluLookAt(this.eye.x,  this.eye.y,  this.eye.z,
                           0, 0, 0,
