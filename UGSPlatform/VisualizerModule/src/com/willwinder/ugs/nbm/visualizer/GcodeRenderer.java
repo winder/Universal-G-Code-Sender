@@ -40,12 +40,14 @@ import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import com.jogamp.opengl.glu.GLU;
+import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
@@ -147,6 +149,7 @@ public class GcodeRenderer implements GLEventListener {
     private boolean vertexArrayDirty = false;
     
     OrientationCube orientationCube;
+    GLUquadric gq;
     private FPSCounter fpsCounter;
     private Overlay overlay;
     private String dimensionsLabel = "";
@@ -255,6 +258,7 @@ public class GcodeRenderer implements GLEventListener {
         gl.glLoadIdentity();
 
         orientationCube = new OrientationCube(0.1f, drawable);
+        gq = glu.gluNewQuadric();
     }
 
     /**
@@ -405,20 +409,25 @@ public class GcodeRenderer implements GLEventListener {
     private void renderTool(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         
-        gl.glLineWidth(8.0f);
-        byte []color;
-        color = VisualizerUtils.Color.YELLOW.getBytes();
-        int verts = 0;
-        int colors = 0;
+        byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
         
+        gl.glPushMatrix();
+            gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
+            glu.gluCylinder(gq, 0f, 10f, .25/scaleFactor, 16, 1);
+        gl.glPopMatrix();
+
+        /*
+        // The ugly yellow line. RIP.
         gl.glBegin(GL_LINES);
         
+            gl.glLineWidth(8.0f);
             gl.glColor3ub(color[0], color[1], color[2]);
             gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z);
             gl.glColor3ub(color[0], color[1], color[2]);
             gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z+(1.0/this.scaleFactor));
             
         gl.glEnd();
+        */
     }
     
     /**
@@ -485,7 +494,7 @@ public class GcodeRenderer implements GLEventListener {
 
         if (ortho) {
             gl.glDisable(GL_DEPTH_TEST);
-            //gl.glDisable(GL_LIGHTING);
+            //gl.glEnable(GL_LIGHTING);
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
@@ -508,7 +517,6 @@ public class GcodeRenderer implements GLEventListener {
             // Enable the model-view transform
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity(); // reset
-
         }
     }
     
