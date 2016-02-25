@@ -764,8 +764,9 @@ public class GcodeRenderer implements GLEventListener {
         int dx = this.current.x - this.last.x;
         int dy = this.current.y - this.last.y;
 
-        this.rotation.x += dx / 2.0;
-        this.rotation.y -= dy / 2.0;
+        rotation.x = this.rotation.x += dx / 2.0;
+        rotation.y = Math.min(0, Math.max(-180, this.rotation.y += dy / 2.0));
+
         if (ortho) {
             setHorizontalTranslationVector();
             setVerticalTranslationVector();
