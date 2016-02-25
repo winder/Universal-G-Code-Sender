@@ -31,6 +31,7 @@ import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import static com.jogamp.opengl.GL.GL_FRONT_AND_BACK;
 import static com.jogamp.opengl.GL.GL_LEQUAL;
 import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.GL.GL_NICEST;
@@ -40,8 +41,15 @@ import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_COLOR_MATERIAL;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
@@ -301,25 +309,53 @@ public class GcodeRenderer implements GLEventListener {
         final GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
+        /*
+        gl.glEnable(GL_LIGHTING);
+        gl.glEnable(GL_LIGHT0);
+        float[] lightPos = { 2000,3000,2000,1 };        // light position
+        float[] noAmbient = { 1f, 1f, 1f, 1f };     // low ambient light
+        float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
+        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient, 0);
+        gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse, 0);
+        gl.glLightfv(GL_LIGHT0, GL_POSITION,lightPos, 0);
+        */
+
+    float[] lightPos = { 0,-1000,-50,1 };        // light position
+    gl.glEnable(GL_LIGHTING);
+    gl.glEnable(GL_LIGHT0);
+    gl.glEnable(GL_COLOR_MATERIAL); 
+    gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+
+
+    float[] ambient ={ 0.5f, 0.5f, 0.5f, 1f }; // low ambient light
+    float[] spec =    { 0.1f, 0.1f, 0.1f, 1f }; // low ambient light
+    float[] diffuse ={ 0.3f, 0.3f, 0.3f, 1f };
+    // properties of the light
+    gl.glLightfv(GL_LIGHT0, GL_AMBIENT, ambient, 0);
+    gl.glLightfv(GL_LIGHT0, GL_SPECULAR, spec, 0);
+    gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse, 0);
+    gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPos, 0);
+    gl.glMaterialfv(GL.GL_FRONT_AND_BACK, gl.GL_DIFFUSE, diffuse, 0);
+
+
         // Draw model
         if (isDrawable) {
             gl.glPushMatrix();
 
-            // Rotate prior to translating so that rotation happens from middle of
-            // object.
+            // Rotate first to center object.
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             // Scale the model so that it will fit on the window.
             gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
+            gl.glDisable(GL_LIGHTING);
             renderModel(drawable);
+            gl.glEnable(GL_LIGHTING);
             renderTool(drawable);
 
             gl.glPopMatrix();
         }
-        
-        gl.glDisable(GL.GL_DEPTH_TEST);
         
         //renderCornerAxes(drawable);
         renderCornerCube(drawable);
@@ -413,6 +449,7 @@ public class GcodeRenderer implements GLEventListener {
         
         gl.glPushMatrix();
             gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
+            glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, 10f, .25/scaleFactor, 16, 1);
         gl.glPopMatrix();
 
@@ -494,7 +531,6 @@ public class GcodeRenderer implements GLEventListener {
 
         if (ortho) {
             gl.glDisable(GL_DEPTH_TEST);
-            //gl.glEnable(GL_LIGHTING);
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
@@ -769,15 +805,17 @@ public class GcodeRenderer implements GLEventListener {
     
     public void mouseRotate(Point point) {
         this.current = point;
-        int dx = this.current.x - this.last.x;
-        int dy = this.current.y - this.last.y;
+        if (this.last != null) {
+            int dx = this.current.x - this.last.x;
+            int dy = this.current.y - this.last.y;
 
-        rotation.x = this.rotation.x += dx / 2.0;
-        rotation.y = Math.min(0, Math.max(-180, this.rotation.y += dy / 2.0));
+            rotation.x = this.rotation.x += dx / 2.0;
+            rotation.y = Math.min(0, Math.max(-180, this.rotation.y += dy / 2.0));
 
-        if (ortho) {
-            setHorizontalTranslationVector();
-            setVerticalTranslationVector();
+            if (ortho) {
+                setHorizontalTranslationVector();
+                setVerticalTranslationVector();
+            }
         }
         
         // Now that the motion has been accumulated, reset last.
