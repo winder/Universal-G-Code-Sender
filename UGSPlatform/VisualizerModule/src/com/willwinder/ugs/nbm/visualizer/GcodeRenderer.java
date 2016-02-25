@@ -28,6 +28,8 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import static com.jogamp.opengl.GL.GL_LEQUAL;
 import static com.jogamp.opengl.GL.GL_LINES;
@@ -44,6 +46,7 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import com.jogamp.opengl.glu.GLU;
+import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
@@ -143,6 +146,7 @@ public class GcodeRenderer implements GLEventListener {
     private boolean colorArrayDirty = false;
     private boolean vertexArrayDirty = false;
     
+    OrientationCube orientationCube;
     private FPSCounter fpsCounter;
     private Overlay overlay;
     private String dimensionsLabel = "";
@@ -151,15 +155,15 @@ public class GcodeRenderer implements GLEventListener {
      * Constructor.
      */
     public GcodeRenderer() {
-       this.eye = new Point3d(0, 0, 1.5);
-       this.center = new Point3d(0, 0, 0);
+        this.eye = new Point3d(0, 0, 1.5);
+        this.center = new Point3d(0, 0, 0);
        
-       this.workCoord = new Point3d(0, 0, 0);
-       this.machineCoord = new Point3d(0, 0, 0);
+        this.workCoord = new Point3d(0, 0, 0);
+        this.machineCoord = new Point3d(0, 0, 0);
        
-       this.rotation = new Point3d(0.0, -30.0, 0.0);
-       setVerticalTranslationVector();
-       setHorizontalTranslationVector();
+        this.rotation = new Point3d(0.0, -30.0, 0.0);
+        setVerticalTranslationVector();
+        setHorizontalTranslationVector();
     }
     
     /**
@@ -249,6 +253,8 @@ public class GcodeRenderer implements GLEventListener {
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
         gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
         gl.glLoadIdentity();
+
+        orientationCube = new OrientationCube(0.1f, drawable);
     }
 
     /**
@@ -312,7 +318,7 @@ public class GcodeRenderer implements GLEventListener {
         gl.glDisable(GL.GL_DEPTH_TEST);
         
         //renderCornerAxes(drawable);
-        //renderCornerCube(drawable);
+        renderCornerCube(drawable);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -334,82 +340,14 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glEnable(GL_DEPTH_TEST);
         gl.glPushMatrix();
-            gl.glTranslated(-0.51*ar*fromEdge, 0.51*fromEdge, -0.5f);
+            gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             
-            gl.glBegin(GL_QUADS);
-            
-            // back
-            gl.glColor3f( 0, 1, 1 );
-            gl.glNormal3f( 0, 1, 0);
-            gl.glVertex3f( -size2,  size2,  size2 );
-            gl.glVertex3f(  size2,  size2,  size2 );
-            gl.glVertex3f(  size2,  size2, -size2 );
-            gl.glVertex3f( -size2,  size2, -size2 );
-
-            // top
-            gl.glColor3f( 0, 0.9f, 0.9f );
-            gl.glNormal3f( 0, 0, 1);
-            gl.glVertex3f(  size2, -size2,  size2 );
-            gl.glVertex3f(  size2,  size2,  size2 );
-            gl.glVertex3f( -size2,  size2,  size2 );
-            gl.glVertex3f( -size2, -size2,  size2 );
-            
-            // right
-            gl.glColor3f( 0, 0.8f, 0.8f );
-            gl.glNormal3f( 1, 0, 0);
-            gl.glVertex3f(  size2,  size2, -size2 );
-            gl.glVertex3f(  size2,  size2,  size2 );
-            gl.glVertex3f(  size2, -size2,  size2 );
-            gl.glVertex3f(  size2, -size2, -size2 );
-
-            // left
-            gl.glColor3f( 0, 0.7f, 0.7f );
-            gl.glNormal3f(-1, 0, 0);
-            gl.glVertex3f( -size2, -size2,  size2 );
-            gl.glVertex3f( -size2,  size2,  size2 );
-            gl.glVertex3f( -size2,  size2, -size2 );
-            gl.glVertex3f( -size2, -size2, -size2 );
-
-            // front
-            gl.glColor3f( 0, 0.6f, 0.6f );
-            gl.glNormal3f( 0, -1, 0);
-            gl.glVertex3f( -size2, -size2, -size2 );
-            gl.glVertex3f(  size2, -size2, -size2 );
-            gl.glVertex3f(  size2, -size2,  size2 );
-            gl.glVertex3f( -size2, -size2,  size2 );
-
-            // bottom
-            gl.glColor3f( 0, 0.5f, 0.5f );
-            gl.glNormal3f( 0, 0,-1);
-            gl.glVertex3f(  size2,  size2, -size2 );
-            gl.glVertex3f(  size2, -size2, -size2 );
-            gl.glVertex3f( -size2, -size2, -size2 );
-            gl.glVertex3f( -size2,  size2, -size2 );
-            /*
-            gl.glBegin(GL_LINES);
-
-            // X-Axis
-            gl.glColor3f( 1, 0, 0 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 1, 0f, 0f );
-
-            // Y-Axis
-            gl.glColor3f( 0, 1, 0 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 0, 1f, 0f );
-            
-            // Z-Axis
-            gl.glColor3f( 0, 1, 1 );
-            gl.glVertex3f( 0, 0f, 0f );
-            gl.glVertex3f( 0, 0f, 1f );
-            */
-            
-            gl.glEnd();
-        gl.glDisable(GL_DEPTH_TEST);
+            orientationCube.draw(drawable);
         
         gl.glPopMatrix();
+        gl.glDisable(GL_DEPTH_TEST);
     }
     private void renderCornerAxes(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
