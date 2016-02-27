@@ -316,8 +316,7 @@ public class GcodeRenderer implements GLEventListener {
         float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float position[] = { 10f, 10f, 0f, 0.0f };
-        float lmodel_ambient[] = { 0.7f, 0.5f, 0.5f, 1.0f };
-        float local_view[] = { 0.0f };
+        float lmodel_ambient[] = { 0.9f, 0.6f, 0.6f, 1.0f };
 
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, ambient, 0);
@@ -346,7 +345,13 @@ public class GcodeRenderer implements GLEventListener {
         }
         
         //renderCornerAxes(drawable);
+        gl.glEnable(GL_LIGHTING); 
+        lmodel_ambient = new float[]{ 0.7f, 0.7f, 0.7f, 1.0f };
+        position = new float[]{ 0f, 20f, 10f, 0.0f };
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
         renderCornerCube(drawable);
+        gl.glDisable(GL_LIGHTING); 
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
