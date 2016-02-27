@@ -346,8 +346,8 @@ public class GcodeRenderer implements GLEventListener {
         
         //renderCornerAxes(drawable);
         gl.glEnable(GL_LIGHTING); 
-        lmodel_ambient = new float[]{ 0.7f, 0.7f, 0.7f, 1.0f };
-        position = new float[]{ 0f, 20f, 10f, 0.0f };
+        lmodel_ambient = new float[]{ 0.5f, 0.5f, 0.5f, 1.0f };
+        position = new float[]{ 10f, 20f, 100f, 0.0f };
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
         renderCornerCube(drawable);
