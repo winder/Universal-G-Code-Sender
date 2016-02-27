@@ -265,7 +265,7 @@ public class GcodeRenderer implements GLEventListener {
         gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
         gl.glLoadIdentity();
 
-        orientationCube = new OrientationCube(0.1f, drawable);
+        orientationCube = new OrientationCube(0.5f, drawable);
         gq = glu.gluNewQuadric();
     }
 
@@ -285,8 +285,9 @@ public class GcodeRenderer implements GLEventListener {
         GL2 gl = drawable.getGL().getGL2();  // get the OpenGL 2 graphics context
 
         initObjectVariables();
+
         // Set the view port (display area) to cover the entire window
-        //gl.glViewport(0, 0, width, height);
+        gl.glViewport(0, 0, xSize, ySize);
     }
 
     void initObjectVariables() {
@@ -337,7 +338,6 @@ public class GcodeRenderer implements GLEventListener {
     gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPos, 0);
     gl.glMaterialfv(GL.GL_FRONT_AND_BACK, gl.GL_DIFFUSE, diffuse, 0);
 
-
         // Draw model
         if (isDrawable) {
             gl.glPushMatrix();
@@ -357,8 +357,10 @@ public class GcodeRenderer implements GLEventListener {
             gl.glPopMatrix();
         }
         
+        gl.glDisable(GL_LIGHTING);
         //renderCornerAxes(drawable);
         renderCornerCube(drawable);
+        gl.glEnable(GL_LIGHTING);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -376,11 +378,18 @@ public class GcodeRenderer implements GLEventListener {
 
         float size = 0.1f;
         float size2 = size/2;
+
+        // Set viewport to the corner.
         float fromEdge = 0.8f;
+        int squareSize = ySize-(int)(ySize*fromEdge);
+        gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
 
         gl.glEnable(GL_DEPTH_TEST);
         gl.glPushMatrix();
-            gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
+            setupPerpective(squareSize, squareSize, drawable, true);
+            gl.glEnable(GL_DEPTH_TEST);
+
+            //gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
             
@@ -388,7 +397,10 @@ public class GcodeRenderer implements GLEventListener {
         
         gl.glPopMatrix();
         gl.glDisable(GL_DEPTH_TEST);
+
+        gl.glViewport(0, 0, xSize, ySize);
     }
+
     private void renderCornerAxes(GLAutoDrawable drawable) {
         final GL2 gl = drawable.getGL().getGL2();
         gl.glLineWidth(4);
@@ -444,11 +456,12 @@ public class GcodeRenderer implements GLEventListener {
      */
     private void renderTool(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
-        
+
         byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
         
         gl.glPushMatrix();
             gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
+
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, 10f, .25/scaleFactor, 16, 1);
         gl.glPopMatrix();
