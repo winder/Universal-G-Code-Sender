@@ -37,19 +37,14 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.GL.GL_NICEST;
 import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_COLOR_MATERIAL;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_EMISSION;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
@@ -259,7 +254,6 @@ public class GcodeRenderer implements GLEventListener {
         glu = new GLU();                         // get GL Utilities
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
-        gl.glEnable(GL_DEPTH_TEST); // enables depth testing
         gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
         gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
         gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
@@ -310,34 +304,28 @@ public class GcodeRenderer implements GLEventListener {
         final GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
 
-        /*
-        gl.glEnable(GL_LIGHTING);
-        gl.glEnable(GL_LIGHT0);
-        float[] lightPos = { 2000,3000,2000,1 };        // light position
-        float[] noAmbient = { 1f, 1f, 1f, 1f };     // low ambient light
-        float[] diffuse = { 1f, 1f, 1f, 1f };        // full diffuse colour
-        gl.glLightfv(GL_LIGHT0, GL_AMBIENT, noAmbient, 0);
-        gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse, 0);
-        gl.glLightfv(GL_LIGHT0, GL_POSITION,lightPos, 0);
-        */
 
-    float[] lightPos = { 0,-1000,-50,1 };        // light position
-    gl.glEnable(GL_LIGHTING);
-    gl.glEnable(GL_LIGHT0);
-    gl.glEnable(GL_COLOR_MATERIAL); 
-    gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+        gl.glEnable ( GL_COLOR_MATERIAL ) ;
 
+        //gl.glEnable(GL2.GL_LIGHTING); 
+        gl.glEnable(GL2.GL_LIGHT0);  
+        gl.glEnable(GL2.GL_NORMALIZE); 
 
-    float[] ambient ={ 0.5f, 0.5f, 0.5f, 1f }; // low ambient light
-    float[] spec =    { 0.1f, 0.1f, 0.1f, 1f }; // low ambient light
-    float[] diffuse ={ 0.3f, 0.3f, 0.3f, 1f };
-    // properties of the light
-    gl.glLightfv(GL_LIGHT0, GL_AMBIENT, ambient, 0);
-    gl.glLightfv(GL_LIGHT0, GL_SPECULAR, spec, 0);
-    gl.glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse, 0);
-    gl.glLightfv(GL_LIGHT0, GL_POSITION, lightPos, 0);
-    gl.glMaterialfv(GL.GL_FRONT_AND_BACK, gl.GL_DIFFUSE, diffuse, 0);
+        float ambient[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+        float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float position[] = { 10f, 10f, 0f, 0.0f };
+        float lmodel_ambient[] = { 0.7f, 0.5f, 0.5f, 1.0f };
+        float local_view[] = { 0.0f };
 
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, ambient, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
+
+        gl.glEnable(GL_DEPTH_TEST); // enables depth testing
         // Draw model
         if (isDrawable) {
             gl.glPushMatrix();
@@ -349,18 +337,16 @@ public class GcodeRenderer implements GLEventListener {
             gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
-            gl.glDisable(GL_LIGHTING);
             renderModel(drawable);
-            gl.glEnable(GL_LIGHTING);
+            gl.glEnable(GL_LIGHTING); 
             renderTool(drawable);
+            gl.glDisable(GL_LIGHTING); 
 
             gl.glPopMatrix();
         }
         
-        gl.glDisable(GL_LIGHTING);
         //renderCornerAxes(drawable);
         renderCornerCube(drawable);
-        gl.glEnable(GL_LIGHTING);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -384,10 +370,8 @@ public class GcodeRenderer implements GLEventListener {
         int squareSize = ySize-(int)(ySize*fromEdge);
         gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
 
-        gl.glEnable(GL_DEPTH_TEST);
         gl.glPushMatrix();
             setupPerpective(squareSize, squareSize, drawable, true);
-            gl.glEnable(GL_DEPTH_TEST);
 
             //gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
@@ -396,7 +380,6 @@ public class GcodeRenderer implements GLEventListener {
             orientationCube.draw(drawable);
         
         gl.glPopMatrix();
-        gl.glDisable(GL_DEPTH_TEST);
 
         gl.glViewport(0, 0, xSize, ySize);
     }
@@ -434,7 +417,6 @@ public class GcodeRenderer implements GLEventListener {
             gl.glVertex3f( 0, 0f, 1f );
             
             gl.glEnd();
-        gl.glDisable(GL_DEPTH_TEST);
         
         gl.glPopMatrix();
         //# Draw number 50 on x/y-axis line.
@@ -462,6 +444,7 @@ public class GcodeRenderer implements GLEventListener {
         gl.glPushMatrix();
             gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
 
+            gl.glColor3f(1f, 1f, 0f);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, 10f, .25/scaleFactor, 16, 1);
         gl.glPopMatrix();
@@ -543,7 +526,6 @@ public class GcodeRenderer implements GLEventListener {
         float aspectRatio = (float)x / y;
 
         if (ortho) {
-            gl.glDisable(GL_DEPTH_TEST);
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
@@ -551,8 +533,6 @@ public class GcodeRenderer implements GLEventListener {
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity();
         } else {
-            gl.glEnable(GL.GL_DEPTH_TEST);
-
             // Setup perspective projection, with aspect ratio matches viewport
             gl.glMatrixMode(GL_PROJECTION);  // choose projection matrix
             gl.glLoadIdentity();             // reset projection matrix
