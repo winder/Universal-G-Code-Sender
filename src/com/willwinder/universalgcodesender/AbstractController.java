@@ -555,6 +555,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         cancelSendAfterEvent();
     }
+
+    @Override
+    public void resetBuffers() {
+        this.activeCommands.clear();
+        this.comm.resetBuffers();
+    }
     
     private synchronized void flushQueuedCommands() {
         // TODO: Special handling for stream necessary?

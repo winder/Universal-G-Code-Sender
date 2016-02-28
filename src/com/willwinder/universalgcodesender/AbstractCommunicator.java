@@ -102,7 +102,13 @@ public abstract class AbstractCommunicator {
      * Reset any internal buffers. In case a controller reset was detected call
      * this.
      */
-    abstract public void resetBuffers();
+    abstract public void resetBuffersInternal();
+    final public void resetBuffers() {
+        if (eventQueue != null) {
+            eventQueue.clear();
+        }
+        resetBuffersInternal();
+    }
     
     public void setConnection(Connection c) {
         conn = c;

@@ -103,7 +103,7 @@ public class GrblController extends AbstractController {
         
         else if (GrblUtils.isGrblVersionString(response)) {
             this.isReady = true;
-            this.comm.resetBuffers();
+            resetBuffers();
 
             // Version string goes to console
             this.messageForConsole(response + "\n");

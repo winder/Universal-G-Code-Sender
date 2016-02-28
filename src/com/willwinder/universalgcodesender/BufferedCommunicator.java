@@ -116,7 +116,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     /** File Stream Methods. **/
     @Override
-    public void resetBuffers() {
+    public void resetBuffersInternal() {
         if (activeCommandList != null) {
             activeCommandList.clear();
         }
