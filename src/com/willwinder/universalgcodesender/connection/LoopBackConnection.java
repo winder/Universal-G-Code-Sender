@@ -23,6 +23,7 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
+import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
@@ -43,17 +44,22 @@ public class LoopBackConnection extends Connection {
     Thread  okThread;
     private int ms = 0;
 
-    Runnable okRunnable = () -> {
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {}
-        // This is nested beneath a GrblController, notify it that we're ready.
+    private static void initialize(AbstractCommunicator comm) {
         comm.responseMessage(" ");
         comm.responseMessage("Grbl 9.9z [ugs diagnostic mode]");
         comm.responseMessage(" ");
         comm.responseMessage("This is a diagnostic end point which responds to each gcode");
         comm.responseMessage("command as fast as possible while doing nothing else.");
+    }
 
+    Runnable okRunnable = () -> {
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {}
+        // This is nested beneath a GrblController, notify it that we're ready.
+        initialize(comm);
+
+        int count = 0;
         PointSegment lastCommand = null;
         while (true) {
             GcodeParser gcp = new GcodeParser();
@@ -68,12 +74,17 @@ public class LoopBackConnection extends Connection {
                         Point3d p = lastCommand.point();
                         xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
                     }
-                    response = String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz);
+                    comm.responseMessage(String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz));
                 } else {
-                    lastCommand = gcp.addCommand(command);
-                    response = "ok";
+                    count++;
+                    if (count == 2) {
+                        initialize(comm);
+                    }
+                    else if (count > 2) {
+                        lastCommand = gcp.addCommand(command);
+                        comm.responseMessage("ok");
+                    }
                 }
-                comm.responseMessage(response);
             } catch (InterruptedException ex) {
                 if (exit) return;
             }
