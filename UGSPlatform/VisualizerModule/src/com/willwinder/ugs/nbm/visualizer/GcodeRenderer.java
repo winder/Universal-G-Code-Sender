@@ -334,22 +334,19 @@ public class GcodeRenderer implements GLEventListener {
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
             renderModel(drawable);
-            gl.glEnable(GL_LIGHTING); 
-                renderTool(drawable);
-                //renderGrid(drawable);
-            gl.glDisable(GL_LIGHTING); 
+            renderTool(drawable);
+            //renderGrid(drawable);
 
             gl.glPopMatrix();
         }
         
         //renderCornerAxes(drawable);
-        gl.glEnable(GL_LIGHTING); 
-        lmodel_ambient = new float[]{ 0.5f, 0.5f, 0.5f, 1.0f };
-        position = new float[]{ 10f, 20f, 100f, 0.0f };
-        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
-        renderCornerCube(drawable);
-        gl.glDisable(GL_LIGHTING); 
+
+        if (orientationCube.rotate()) {
+            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+        }
+        orientationCube.draw(drawable);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -357,35 +354,6 @@ public class GcodeRenderer implements GLEventListener {
     
         gl.glLoadIdentity();
         update();
-    }
-    
-    private void renderCornerCube(GLAutoDrawable drawable) {
-        final GL2 gl = drawable.getGL().getGL2();
-        gl.glLineWidth(4);
-
-        float ar = (float)xSize/ySize;
-
-        float size = 0.1f;
-        float size2 = size/2;
-
-        // Set viewport to the corner.
-        float fromEdge = 0.8f;
-        int squareSize = ySize-(int)(ySize*fromEdge);
-        gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
-
-        gl.glPushMatrix();
-            setupPerpective(squareSize, squareSize, drawable, true);
-            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
-
-            //gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-            
-            orientationCube.draw(drawable);
-        
-        gl.glPopMatrix();
-
-        gl.glViewport(0, 0, xSize, ySize);
     }
 
     private void renderCornerAxes(GLAutoDrawable drawable) {
@@ -481,6 +449,7 @@ public class GcodeRenderer implements GLEventListener {
     private void renderTool(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
 
+        gl.glEnable(GL_LIGHTING); 
         byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
         
         gl.glPushMatrix();
@@ -491,6 +460,7 @@ public class GcodeRenderer implements GLEventListener {
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, .1f, .25, 16, 1);
         gl.glPopMatrix();
+        gl.glDisable(GL_LIGHTING); 
 
         /*
         // The ugly yellow line. RIP.

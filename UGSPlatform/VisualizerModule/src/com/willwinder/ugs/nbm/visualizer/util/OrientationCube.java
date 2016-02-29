@@ -44,6 +44,17 @@ public class OrientationCube implements Renderable {
     size = s;
   }
 
+  @Override
+  public boolean rotate() {
+      return true;
+  }
+
+  @Override
+  public boolean center() {
+      return false;
+  }
+
+  @Override
   public void init(GLAutoDrawable drawable) {
     renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
     renderer.setColor(0.2f, 0.2f, 0.2f, 1f);
@@ -56,9 +67,37 @@ public class OrientationCube implements Renderable {
     textScaleFactor = size / (w * 1.7f);
   }
 
+  @Override
   public void draw(GLAutoDrawable drawable) {
     GL2 gl = drawable.getGL().getGL2();
 
+    int ySize = drawable.getDelegatedDrawable().getSurfaceHeight();
+    int xSize = drawable.getDelegatedDrawable().getSurfaceWidth();
+
+    // Set viewport to the corner.
+    float fromEdge = 0.8f;
+    int squareSize = ySize-(int)(ySize*fromEdge);
+    gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
+
+    gl.glPushMatrix();
+        gl.glMatrixMode(gl.GL_PROJECTION);
+        gl.glLoadIdentity();
+        gl.glOrtho(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5); //, maxSide, maxSide, maxSide, maxSide, maxSide);
+        gl.glMatrixMode(gl.GL_MODELVIEW);
+
+        // Setup lighting
+        float[] lmodel_ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
+        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
+        
+        gl.glEnable(GL2.GL_LIGHTING); 
+        drawCube(gl);
+        gl.glDisable(gl.GL_LIGHTING); 
+    gl.glPopMatrix();
+
+    gl.glViewport(0, 0, xSize, ySize);
+  }
+
+  private void drawCube(GL2 gl) {
     // Six faces of cube
     // Top face
     gl.glPushMatrix();

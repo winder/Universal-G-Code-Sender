@@ -12,6 +12,16 @@ import com.jogamp.opengl.GLAutoDrawable;
  * @author wwinder
  */
 public interface Renderable {
-  public void init(GLAutoDrawable drawable);
-  public void draw(GLAutoDrawable drawable);
+    /**
+     * Indicates whether the object should be rotated prior to calling draw.
+     */
+    public boolean rotate();
+
+    /**
+     * Indicates whether the object should be centered prior to calling draw.
+     */
+    public boolean center();
+
+    public void init(GLAutoDrawable drawable);
+    public void draw(GLAutoDrawable drawable);
 }
