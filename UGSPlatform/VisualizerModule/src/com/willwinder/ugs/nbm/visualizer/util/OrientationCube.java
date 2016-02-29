@@ -32,7 +32,7 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
-public class OrientationCube implements Renderable {
+public class OrientationCube extends Renderable {
   private final float size;
   private final float[] color = {0.8f, 0.8f, 0.8f};
   private final float[] border = {0.2f, 0.2f, 0.2f};

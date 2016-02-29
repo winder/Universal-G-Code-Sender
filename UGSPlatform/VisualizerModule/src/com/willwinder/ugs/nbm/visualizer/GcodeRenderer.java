@@ -36,7 +36,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_COLOR_MATERIAL;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
@@ -45,6 +44,8 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
+import com.willwinder.ugs.nbm.visualizer.util.Renderable;
+import com.willwinder.ugs.nbm.visualizer.util.Tool;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
@@ -62,6 +63,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
@@ -144,11 +146,11 @@ public class GcodeRenderer implements GLEventListener {
     private boolean colorArrayDirty = false;
     private boolean vertexArrayDirty = false;
     
-    OrientationCube orientationCube;
-    GLUquadric gq;
     private FPSCounter fpsCounter;
     private Overlay overlay;
     private String dimensionsLabel = "";
+
+    private ArrayList<Renderable> objects;
     
     /**
      * Constructor.
@@ -164,7 +166,9 @@ public class GcodeRenderer implements GLEventListener {
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
 
-        orientationCube = new OrientationCube(0.5f);
+        objects = new ArrayList<>();
+        objects.add(new Tool());
+        objects.add(new OrientationCube(0.5f));
     }
     
     /**
@@ -249,16 +253,17 @@ public class GcodeRenderer implements GLEventListener {
         glu = new GLU();                         // get GL Utilities
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
-        gl.glDepthFunc(gl.GL_LEQUAL);  // the type of depth test to do
-        gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST); // best perspective correction
-        gl.glShadeModel(gl.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
-        gl.glEnable(gl.GL_BLEND);
-        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
+        gl.glShadeModel(GL2.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+        gl.glEnable(GL2.GL_BLEND);
+        gl.glBlendFunc(GL2.GL_SRC_ALPHA, GL2.GL_ONE_MINUS_SRC_ALPHA);
 
         gl.glLoadIdentity();
 
-        orientationCube.init(drawable);
-        gq = glu.gluNewQuadric();
+        for (Renderable r : objects) {
+            r.init(drawable);
+        }
     }
 
     /**
@@ -334,7 +339,6 @@ public class GcodeRenderer implements GLEventListener {
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
             renderModel(drawable);
-            renderTool(drawable);
             //renderGrid(drawable);
 
             gl.glPopMatrix();
@@ -342,11 +346,20 @@ public class GcodeRenderer implements GLEventListener {
         
         //renderCornerAxes(drawable);
 
-        if (orientationCube.rotate()) {
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+        for (Renderable r : objects) {
+            gl.glPushMatrix();
+                r.setWorkCoord(workCoord);
+                r.setScaleFactor(scaleFactor);
+                if (r.rotate()) {
+                    gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+                    gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+                }
+                if (r.center()) {
+                    gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+                }
+                r.draw(drawable);
+            gl.glPopMatrix();
         }
-        orientationCube.draw(drawable);
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
@@ -441,39 +454,6 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glPopMatrix();
 
-    }
-    
-    /**
-     * Draws a tool at the current work coordinates.
-     */
-    private void renderTool(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-
-        gl.glEnable(GL_LIGHTING); 
-        byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
-        
-        gl.glPushMatrix();
-            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
-            gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
-
-            gl.glColor3f(1f, 1f, 0f);
-            glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
-            glu.gluCylinder(gq, 0f, .1f, .25, 16, 1);
-        gl.glPopMatrix();
-        gl.glDisable(GL_LIGHTING); 
-
-        /*
-        // The ugly yellow line. RIP.
-        gl.glBegin(GL_LINES);
-        
-            gl.glLineWidth(8.0f);
-            gl.glColor3ub(color[0], color[1], color[2]);
-            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z);
-            gl.glColor3ub(color[0], color[1], color[2]);
-            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z+(1.0/this.scaleFactor));
-            
-        gl.glEnd();
-        */
     }
     
     /**
