@@ -163,6 +163,8 @@ public class GcodeRenderer implements GLEventListener {
         this.rotation = new Point3d(0.0, -30.0, 0.0);
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
+
+        orientationCube = new OrientationCube(0.5f);
     }
     
     /**
@@ -255,7 +257,7 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glLoadIdentity();
 
-        orientationCube = new OrientationCube(0.5f, drawable);
+        orientationCube.init(drawable);
         gq = glu.gluNewQuadric();
     }
 
@@ -335,8 +337,8 @@ public class GcodeRenderer implements GLEventListener {
         
             renderModel(drawable);
             gl.glEnable(GL_LIGHTING); 
-                renderGrid(drawable);
                 renderTool(drawable);
+                //renderGrid(drawable);
             gl.glDisable(GL_LIGHTING); 
 
             gl.glPopMatrix();
@@ -448,21 +450,25 @@ public class GcodeRenderer implements GLEventListener {
             // floor
             double side = 1;
             gl.glBegin(gl.GL_QUADS);
-            gl.glVertex3d(-side, -0.001,-side);
-            gl.glVertex3d(-side, -0.001, side);
-            gl.glVertex3d( side, -0.001, side);
-            gl.glVertex3d( side, -0.001,-side);
+            gl.glVertex3d(-side, 0,-side);
+            gl.glVertex3d(-side, 0, side);
+            gl.glVertex3d( side, 0, side);
+            gl.glVertex3d( side, 0,-side);
             gl.glEnd();
 
             // grid
             gl.glBegin(GL_LINES);
             for(double i=-side;i<=side;i++) {
                 if (i==0) { gl.glColor3d(.6f,.3f,.3f); } else { gl.glColor3d(.25,.25,.25); };
-                gl.glVertex3d(i,0,-side);
-                gl.glVertex3d(i,0,side);
+                gl.glVertex3d(i,0.001,-side);
+                gl.glVertex3d(i,0.001,side);
+                gl.glVertex3d(i,-0.001,-side);
+                gl.glVertex3d(i,-0.001,side);
                 if (i==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
-                gl.glVertex3d(-side,0,i);
-                gl.glVertex3d(side,0,i);
+                gl.glVertex3d(-side,0.001,i);
+                gl.glVertex3d(side,0.001,i);
+                gl.glVertex3d(-side,-0.001,i);
+                gl.glVertex3d(side,-0.001,i);
             };
             gl.glEnd();
 

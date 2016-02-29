@@ -32,15 +32,19 @@ import com.jogamp.opengl.util.awt.TextRenderer;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
-public class OrientationCube {
-  private final TextRenderer renderer;
-  private final float textScaleFactor;
+public class OrientationCube implements Renderable {
   private final float size;
   private final float[] color = {0.8f, 0.8f, 0.8f};
   private final float[] border = {0.2f, 0.2f, 0.2f};
 
-  public OrientationCube(float s, GLAutoDrawable drawable) {
+  private TextRenderer renderer;
+  private float textScaleFactor;
+
+  public OrientationCube(float s) {
     size = s;
+  }
+
+  public void init(GLAutoDrawable drawable) {
     renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
     renderer.setColor(0.2f, 0.2f, 0.2f, 1f);
 
