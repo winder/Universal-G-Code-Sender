@@ -110,8 +110,8 @@ public class GcodeRenderer implements GLEventListener {
     private double arcLength;
 
     // Scaling
-    private double scaleFactor;
-    private double scaleFactorBase;
+    private double scaleFactor = 1;
+    private double scaleFactorBase = 1;
     private double zoomMultiplier = 1;
     private boolean invertZoom = false; // TODO: Make configurable
     // const values until added to settings
@@ -301,14 +301,12 @@ public class GcodeRenderer implements GLEventListener {
 
         final GL2 gl = drawable.getGL().getGL2();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-
-
         gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        gl.glEnable ( GL_COLOR_MATERIAL ) ;
 
         //gl.glEnable(GL2.GL_LIGHTING); 
         gl.glEnable(GL2.GL_LIGHT0);  
         gl.glEnable(GL2.GL_NORMALIZE); 
+        gl.glEnable (GL2.GL_COLOR_MATERIAL ) ;
 
         float ambient[] = { 0.4f, 0.4f, 0.4f, 1.0f };
         float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -332,7 +330,7 @@ public class GcodeRenderer implements GLEventListener {
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
 
             // Scale the model so that it will fit on the window.
-            gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
+            //gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
             renderModel(drawable);
@@ -377,6 +375,7 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glPushMatrix();
             setupPerpective(squareSize, squareSize, drawable, true);
+            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
 
             //gl.glTranslated(-0.51*ar*(fromEdge+.1f), 0.51*fromEdge, 0f);
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
@@ -573,7 +572,8 @@ public class GcodeRenderer implements GLEventListener {
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
-            gl.glOrtho(-0.51*aspectRatio,0.51*aspectRatio,-0.51,0.51,-10,10);
+            gl.glOrtho(-0.51*aspectRatio/scaleFactor,0.51*aspectRatio/scaleFactor,-0.51/scaleFactor,0.51/scaleFactor,
+                    -10/scaleFactor,10/scaleFactor);
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity();
         } else {
