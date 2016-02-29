@@ -105,7 +105,7 @@ public class OrientationCube implements Renderable {
                         String text) {
     float halfFaceSize = faceSize / 2;
     float borderSize = halfFaceSize * 0.8f;
-    float layer2 = halfFaceSize + 0.00001f;
+    float layer2 = halfFaceSize + 0.001f;
     // Face is centered around the local coordinate system's z axis,
     // at a z depth of faceSize / 2
     gl.glColor3f(border[0], border[1], border[2]);
