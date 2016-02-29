@@ -28,23 +28,16 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
-import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import static com.jogamp.opengl.GL.GL_FRONT_AND_BACK;
-import static com.jogamp.opengl.GL.GL_LEQUAL;
 import static com.jogamp.opengl.GL.GL_LINES;
-import static com.jogamp.opengl.GL.GL_NICEST;
 import com.jogamp.opengl.GL2;
-import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_COLOR_MATERIAL;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_EMISSION;
 import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHTING;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
@@ -254,9 +247,12 @@ public class GcodeRenderer implements GLEventListener {
         glu = new GLU();                         // get GL Utilities
         gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
-        gl.glDepthFunc(GL_LEQUAL);  // the type of depth test to do
-        gl.glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // best perspective correction
-        gl.glShadeModel(GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+        gl.glDepthFunc(gl.GL_LEQUAL);  // the type of depth test to do
+        gl.glHint(gl.GL_PERSPECTIVE_CORRECTION_HINT, gl.GL_NICEST); // best perspective correction
+        gl.glShadeModel(gl.GL_SMOOTH); // blends colors nicely, and smoothes out lighting
+        gl.glEnable(gl.GL_BLEND);
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA);
+
         gl.glLoadIdentity();
 
         orientationCube = new OrientationCube(0.5f, drawable);
@@ -332,13 +328,15 @@ public class GcodeRenderer implements GLEventListener {
             // Rotate first to center object.
             gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
             gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+
             // Scale the model so that it will fit on the window.
             gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
             gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
         
             renderModel(drawable);
             gl.glEnable(GL_LIGHTING); 
-            renderTool(drawable);
+                renderGrid(drawable);
+                renderTool(drawable);
             gl.glDisable(GL_LIGHTING); 
 
             gl.glPopMatrix();
@@ -437,6 +435,40 @@ public class GcodeRenderer implements GLEventListener {
         //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, A)
         //glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, 48)
     }
+
+    /**
+     * Draws a grid along the XY axis.
+     */
+    private void renderGrid(GLAutoDrawable drawable) {
+        GL2 gl = drawable.getGL().getGL2();
+        gl.glPushMatrix();
+            gl.glRotated(90, 1.0, 0.0, 0.0);
+            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
+            gl.glColor4f(.3f,.3f,.3f, .5f);
+            // floor
+            double side = 1;
+            gl.glBegin(gl.GL_QUADS);
+            gl.glVertex3d(-side, -0.001,-side);
+            gl.glVertex3d(-side, -0.001, side);
+            gl.glVertex3d( side, -0.001, side);
+            gl.glVertex3d( side, -0.001,-side);
+            gl.glEnd();
+
+            // grid
+            gl.glBegin(GL_LINES);
+            for(double i=-side;i<=side;i++) {
+                if (i==0) { gl.glColor3d(.6f,.3f,.3f); } else { gl.glColor3d(.25,.25,.25); };
+                gl.glVertex3d(i,0,-side);
+                gl.glVertex3d(i,0,side);
+                if (i==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
+                gl.glVertex3d(-side,0,i);
+                gl.glVertex3d(side,0,i);
+            };
+            gl.glEnd();
+
+        gl.glPopMatrix();
+
+    }
     
     /**
      * Draws a tool at the current work coordinates.
@@ -447,11 +479,12 @@ public class GcodeRenderer implements GLEventListener {
         byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
         
         gl.glPushMatrix();
+            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
             gl.glTranslated(this.workCoord.x, this.workCoord.y, this.workCoord.z);
 
             gl.glColor3f(1f, 1f, 0f);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
-            glu.gluCylinder(gq, 0f, 10f, .25/scaleFactor, 16, 1);
+            glu.gluCylinder(gq, 0f, .1f, .25, 16, 1);
         gl.glPopMatrix();
 
         /*
