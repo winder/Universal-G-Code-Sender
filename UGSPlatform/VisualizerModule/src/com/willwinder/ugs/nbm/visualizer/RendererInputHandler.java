@@ -232,6 +232,7 @@ public class RendererInputHandler implements
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         gcodeRenderer.setMachineCoordinate(machineCoord);
         gcodeRenderer.setWorkCoordinate(workCoord);
+        gcodeRenderer.forceRedraw();
     }
 
     @Override
