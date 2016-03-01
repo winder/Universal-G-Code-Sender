@@ -52,6 +52,7 @@ import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point3d;
@@ -159,10 +160,12 @@ public class GcodeRenderer implements GLEventListener {
         objects = new ArrayList<>();
         objects.add(new Tool());
         objects.add(new OrientationCube(0.5f));
+        Collections.sort(objects);
     }
 
     public void addRenderable(Renderable r) {
         objects.add(r);
+        Collections.sort(objects);
     }
     
     public void forceRedraw() {

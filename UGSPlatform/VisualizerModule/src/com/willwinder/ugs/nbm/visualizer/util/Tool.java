@@ -19,6 +19,10 @@ public class Tool extends Renderable {
     private GLU glu;
     GLUquadric gq;
 
+    public Tool() {
+        super(9);
+    }
+
     @Override
     public boolean rotate() {
         return true;

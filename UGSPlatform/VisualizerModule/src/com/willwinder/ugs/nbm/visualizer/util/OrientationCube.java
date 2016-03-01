@@ -41,6 +41,7 @@ public class OrientationCube extends Renderable {
   private float textScaleFactor;
 
   public OrientationCube(float s) {
+    super(Integer.MIN_VALUE);  
     size = s;
   }
 

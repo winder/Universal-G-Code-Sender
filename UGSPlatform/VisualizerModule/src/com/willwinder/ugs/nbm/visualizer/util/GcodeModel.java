@@ -61,6 +61,7 @@ public class GcodeModel extends Renderable {
     private double maxSide;
 
     public GcodeModel() {
+        super(10);
         objectSize = new Point3d();
     }
 
@@ -125,6 +126,8 @@ public class GcodeModel extends Renderable {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();
+
+        gl.glDisable(gl.GL_LIGHTING);
         
         // Batch mode if available 
         if(!forceOldStyle
