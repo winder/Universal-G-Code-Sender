@@ -147,13 +147,15 @@ public class GcodeRenderer implements GLEventListener {
      * Constructor.
      */
     public GcodeRenderer() {
-        this.eye = new Point3d(0, 0, 1.5);
-        this.center = new Point3d(0, 0, 0);
+        eye = new Point3d(0, 0, 1.5);
+        center = new Point3d(0, 0, 0);
+        objectMin = new Point3d(-10,-10,-10);
+        objectMax = new Point3d( 10, 10, 10);
        
-        this.workCoord = new Point3d(0, 0, 0);
-        this.machineCoord = new Point3d(0, 0, 0);
+        workCoord = new Point3d(0, 0, 0);
+        machineCoord = new Point3d(0, 0, 0);
        
-        this.rotation = new Point3d(0.0, -30.0, 0.0);
+        rotation = new Point3d(0.0, -30.0, 0.0);
         setVerticalTranslationVector();
         setHorizontalTranslationVector();
 
@@ -253,6 +255,7 @@ public class GcodeRenderer implements GLEventListener {
         this.objectMin = min;
         this.objectMax = max;
         initObjectVariables();
+        forceRedraw();
     }
 
     private void initObjectVariables() {
