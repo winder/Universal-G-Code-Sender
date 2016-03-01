@@ -14,8 +14,6 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public abstract class Renderable implements Comparable<Renderable> {
-    Point3d workCoord;
-    double scaleFactor;
     Integer priority;
 
     /**
@@ -44,14 +42,6 @@ public abstract class Renderable implements Comparable<Renderable> {
         return -1 * priority.compareTo(o.priority);
     }
 
-    public void setWorkCoord(Point3d p) {
-        workCoord = p;
-    }
-
-    public void setScaleFactor(double sf) {
-        scaleFactor = sf;
-    }
-
     /**
      * Indicates whether the object should be rotated prior to calling draw.
      */
@@ -63,5 +53,5 @@ public abstract class Renderable implements Comparable<Renderable> {
     abstract public boolean center();
 
     abstract public void init(GLAutoDrawable drawable);
-    abstract public void draw(GLAutoDrawable drawable);
+    abstract public void draw(GLAutoDrawable drawable, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor);
 }

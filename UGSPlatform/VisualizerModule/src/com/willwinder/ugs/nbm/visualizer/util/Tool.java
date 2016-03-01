@@ -10,6 +10,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -40,7 +41,7 @@ public class Tool extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable) {
+    public void draw(GLAutoDrawable drawable, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         GL2 gl = drawable.getGL().getGL2();
 
         gl.glEnable(gl.GL_LIGHTING); 

@@ -38,6 +38,7 @@ import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
+import com.willwinder.ugs.nbm.visualizer.util.Grid;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.util.Renderable;
 import com.willwinder.ugs.nbm.visualizer.util.Tool;
@@ -51,7 +52,6 @@ import java.awt.Point;
 import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -78,16 +78,6 @@ public class GcodeRenderer implements GLEventListener {
     private Point3d machineCoord;
     private Point3d workCoord;
     
-    /*
-    // Gcode file data
-    private String gcodeFile = null;
-    private boolean processedFile = false; // True if the file should be opened with GcodeStreamReader.
-    private boolean isDrawable = false; //True if a file is loaded; false if not
-    private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
-    private int currentCommandNumber = 0;
-    private int lastCommandNumber = 0;
-    */
-
     // GL Utility
     private GLU glu;
     GLAutoDrawable drawable = null;
@@ -122,17 +112,6 @@ public class GcodeRenderer implements GLEventListener {
     Point current;
     private Point3d rotation;
 
-    /*
-    // OpenGL Object Buffer Variables
-    private int numberOfVertices = -1;
-    private float[] lineVertexData = null;
-    private byte[] lineColorData = null;
-    private FloatBuffer lineVertexBuffer = null;
-    private ByteBuffer lineColorBuffer = null;
-    */
-
-    Collection<Integer> highlightedLines = null;
-    
     // Track when arrays need to be updated due to changing data.
     private boolean colorArrayDirty = false;
     private boolean vertexArrayDirty = false;
@@ -162,6 +141,7 @@ public class GcodeRenderer implements GLEventListener {
         objects = new ArrayList<>();
         objects.add(new Tool());
         objects.add(new OrientationCube(0.5f));
+        objects.add(new Grid());
         Collections.sort(objects);
     }
 
@@ -299,33 +279,11 @@ public class GcodeRenderer implements GLEventListener {
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
         gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
 
-        gl.glEnable(GL_DEPTH_TEST); // enables depth testing
-        // Draw model
-        /*
+        gl.glEnable(GL_DEPTH_TEST);
+
+        // Render the different parts of the scene.
         for (Renderable r : objects) {
             gl.glPushMatrix();
-
-            // Rotate first to center object.
-            gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
-            gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
-
-            // Scale the model so that it will fit on the window.
-            //gl.glScaled(this.scaleFactor, this.scaleFactor, this.scaleFactor);
-            gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
-        
-            //renderModel(drawable);
-            //renderGrid(drawable);
-
-            gl.glPopMatrix();
-        }
-        */
-        
-        //renderCornerAxes(drawable);
-
-        for (Renderable r : objects) {
-            gl.glPushMatrix();
-                r.setWorkCoord(workCoord);
-                r.setScaleFactor(scaleFactor);
                 if (r.rotate()) {
                     gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
                     gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
@@ -333,13 +291,12 @@ public class GcodeRenderer implements GLEventListener {
                 if (r.center()) {
                     gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
                 }
-                r.draw(drawable);
+                r.draw(drawable, workCoord, objectMin, objectMax, scaleFactor);
             gl.glPopMatrix();
         }
         
         this.fpsCounter.draw();
         this.overlay.draw(this.dimensionsLabel);
-        //this(drawable, new Font("SansSerif", Font.BOLD, 12));
     
         gl.glLoadIdentity();
         update();
@@ -395,44 +352,6 @@ public class GcodeRenderer implements GLEventListener {
     }
 
     /**
-     * Draws a grid along the XY axis.
-     */
-    private void renderGrid(GLAutoDrawable drawable) {
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
-            gl.glRotated(90, 1.0, 0.0, 0.0);
-            gl.glScaled(1./this.scaleFactor, 1./this.scaleFactor, 1./this.scaleFactor);
-            gl.glColor4f(.3f,.3f,.3f, .5f);
-            // floor
-            double side = 1;
-            gl.glBegin(gl.GL_QUADS);
-            gl.glVertex3d(-side, 0,-side);
-            gl.glVertex3d(-side, 0, side);
-            gl.glVertex3d( side, 0, side);
-            gl.glVertex3d( side, 0,-side);
-            gl.glEnd();
-
-            // grid
-            gl.glBegin(GL_LINES);
-            for(double i=-side;i<=side;i++) {
-                if (i==0) { gl.glColor3d(.6f,.3f,.3f); } else { gl.glColor3d(.25,.25,.25); };
-                gl.glVertex3d(i,0.001,-side);
-                gl.glVertex3d(i,0.001,side);
-                gl.glVertex3d(i,-0.001,-side);
-                gl.glVertex3d(i,-0.001,side);
-                if (i==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
-                gl.glVertex3d(-side,0.001,i);
-                gl.glVertex3d(side,0.001,i);
-                gl.glVertex3d(-side,-0.001,i);
-                gl.glVertex3d(side,-0.001,i);
-            };
-            gl.glEnd();
-
-        gl.glPopMatrix();
-
-    }
-    
-    /**
      * Setup the perspective matrix.
      */
     private void setupPerpective(int x, int y, GLAutoDrawable drawable, boolean ortho) {
@@ -464,9 +383,6 @@ public class GcodeRenderer implements GLEventListener {
         }
     }
     
-    // For seeing the tool path.
-    //private int count = 0;
-    //private boolean increasing = true;
     /**
      * Called after each render.
      */
@@ -476,17 +392,6 @@ public class GcodeRenderer implements GLEventListener {
             System.out.println("Work coordinates: " + this.workCoord.toString());
             System.out.println("-----------------");
         }
-        
-        /*
-        // Increases the cutoff number each frame to show the tool path.
-        count++;
-        
-        if (increasing) currentCommandNumber+=10;
-        else            currentCommandNumber-=10;
-
-        if (this.currentCommandNumber > this.lastCommandNumber) increasing = false;
-        else if (this.currentCommandNumber <= 0)             increasing = true;
-        */ 
     }
     
     /**
