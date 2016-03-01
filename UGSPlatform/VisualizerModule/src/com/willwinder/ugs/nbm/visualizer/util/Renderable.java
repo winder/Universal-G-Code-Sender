@@ -6,6 +6,7 @@
 package com.willwinder.ugs.nbm.visualizer.util;
 
 import com.jogamp.opengl.GLAutoDrawable;
+import java.util.Objects;
 import javax.vecmath.Point3d;
 
 /**
@@ -30,7 +31,7 @@ public abstract class Renderable implements Comparable<Renderable> {
         if (this == obj) return true;
         if (!(obj instanceof Renderable)) return false;
         Renderable that = (Renderable)obj;
-        return this.priority == that.priority;
+        return Objects.equals(this.priority, that.priority);
     }
 
     @Override
