@@ -32,8 +32,6 @@ import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
 import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -65,7 +63,7 @@ import org.openide.util.NbBundle.Messages;
     "CTL_Visualizer2TopComponent=Visualizer",
     "HINT_Visualizer2TopComponent=This is the Visualizer"
 })
-public final class Visualizer2TopComponent extends TopComponent implements UGSEventListener {
+public final class Visualizer2TopComponent extends TopComponent {
     static GLCapabilities glCaps;
 
     private GLJPanel panel;
@@ -75,7 +73,6 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
     
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addUGSEventListener(this);
         glCaps = new GLCapabilities(null);
 
         setMinimumSize(new java.awt.Dimension(50, 50));
@@ -84,24 +81,6 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
 
         setName(Bundle.CTL_Visualizer2TopComponent());
         setToolTipText(Bundle.HINT_Visualizer2TopComponent());
-    }
-
-    @Override
-    public void UGSEvent(UGSEvent cse) {
-        if (cse.isFileChangeEvent()) {
-            animator.pause();
-
-            switch (cse.getFileState()) {
-                case FILE_LOADING:
-                    renderer.setGcodeFile(cse.getFile());
-                    break;
-                case FILE_LOADED:
-                    renderer.setProcessedGcodeFile(cse.getFile());
-                    break;
-            }
-
-            animator.resume();
-        }
     }
 
     @Override
@@ -138,23 +117,19 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
         }
     }
     
-    private void updateGcodeFile() {
-        if (backend.getProcessedGcodeFile() != null) {
-            renderer.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
-        } else if (backend.getGcodeFile() != null) {
-            renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
-        }
-    }
     private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
         renderer = new GcodeRenderer();
         
-        if (backend.getGcodeFile() != null)
-            renderer.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
-        
         animator = new FPSAnimator(p, 15);
         RendererInputHandler rih = new RendererInputHandler(renderer, animator);
+
+        if (backend.getProcessedGcodeFile() != null) {
+            rih.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
+        } else if (backend.getGcodeFile() != null) {
+            rih.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
+        }
 
         // Install listeners...
 
@@ -164,6 +139,7 @@ public final class Visualizer2TopComponent extends TopComponent implements UGSEv
         }
 
         backend.addControllerListener(rih);
+        backend.addUGSEventListener(rih);
 
         // shutdown hook...
         //frame.addWindowListener(rih);

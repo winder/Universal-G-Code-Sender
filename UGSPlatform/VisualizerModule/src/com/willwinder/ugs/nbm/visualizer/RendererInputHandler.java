@@ -23,9 +23,12 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
+import com.willwinder.ugs.nbm.visualizer.util.GcodeModel;
 import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Point;
 import java.awt.event.InputEvent;
@@ -38,7 +41,6 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowListener;
 import javax.swing.SwingUtilities;
-import org.openide.util.Lookup;
 
 /**
  *
@@ -46,20 +48,55 @@ import org.openide.util.Lookup;
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener, ControllerListener {
+        MouseListener, KeyListener, ControllerListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
+    private GcodeModel gcodeModel;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a) {
         gcodeRenderer = gr;
         animator = a;
+        gcodeModel = new GcodeModel();
+        gr.addRenderable(gcodeModel);
     }
 
     @Subscribe
     public void highlightEventListener(HighlightEvent he) {
-        gcodeRenderer.setHighlightedLines(he.getLines());
+        gcodeModel.setHighlightedLines(he.getLines());
         gcodeRenderer.forceRedraw();
     }
+ 
+    public void setGcodeFile(String file) {
+        gcodeModel.setGcodeFile(file);
+        gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
+    }
+
+    public void setProcessedGcodeFile(String file) {
+        gcodeModel.setProcessedGcodeFile(file);
+    }
+
+    /**
+     * UGS Event Listener
+     */
+    @Override
+    public void UGSEvent(UGSEvent cse) {
+        if (cse.isFileChangeEvent()) {
+            animator.pause();
+
+            switch (cse.getFileState()) {
+                case FILE_LOADING:
+                    gcodeModel.setGcodeFile(cse.getFile());
+                    break;
+                case FILE_LOADED:
+                    gcodeModel.setProcessedGcodeFile(cse.getFile());
+                    break;
+            }
+
+            animator.resume();
+        }
+    }
+
+
     
     /**
      * Mouse Motion Listener
