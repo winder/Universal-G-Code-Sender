@@ -48,7 +48,7 @@ public class Grid extends Renderable {
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
             gl.glRotated(90, 1.0, 0.0, 0.0);
-            gl.glColor4f(.3f,.3f,.3f, .4f);
+            gl.glColor4f(.3f,.3f,.3f, .05f);
 
             // floor - cover entire model and a little extra.
             gl.glPushMatrix();

@@ -198,7 +198,7 @@ public class GcodeRenderer implements GLEventListener {
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
-        gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // set background (clear) color
+        gl.glClearColor(0.69f, 0.87f, 0.9f, 0.0f); // set background (clear) color
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
         gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
