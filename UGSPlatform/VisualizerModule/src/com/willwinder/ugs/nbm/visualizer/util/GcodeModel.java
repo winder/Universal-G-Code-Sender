@@ -59,8 +59,6 @@ public class GcodeModel extends Renderable {
 
     private Point3d objectMin, objectMax, objectSize, center;
     private double maxSide;
-    private double scaleFactor = 1;
-    private double scaleFactorBase = 1;
 
     public GcodeModel() {
         objectSize = new Point3d();
@@ -124,6 +122,8 @@ public class GcodeModel extends Renderable {
 
     @Override
     public void draw(GLAutoDrawable drawable) {
+        if (!isDrawable) return;
+
         GL2 gl = drawable.getGL().getGL2();
         
         // Batch mode if available 
@@ -223,7 +223,6 @@ public class GcodeModel extends Renderable {
 
             this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
 
-            this.scaleFactorBase = 1.0/this.maxSide;
             objectSize.setX(this.objectMax.x-this.objectMin.x);
             objectSize.setY(this.objectMax.y-this.objectMin.y);
             objectSize.setZ(this.objectMax.z-this.objectMin.z);

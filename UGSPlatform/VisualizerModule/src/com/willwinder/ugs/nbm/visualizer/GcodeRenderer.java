@@ -257,6 +257,7 @@ public class GcodeRenderer implements GLEventListener {
 
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
 
+        this.center = VisualizerUtils.findCenter(objectMin, objectMax);
         this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
         this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);

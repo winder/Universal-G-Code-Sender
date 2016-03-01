@@ -73,6 +73,7 @@ public class RendererInputHandler implements
 
     public void setProcessedGcodeFile(String file) {
         gcodeModel.setProcessedGcodeFile(file);
+        gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
     }
 
     /**
@@ -85,10 +86,10 @@ public class RendererInputHandler implements
 
             switch (cse.getFileState()) {
                 case FILE_LOADING:
-                    gcodeModel.setGcodeFile(cse.getFile());
+                    setGcodeFile(cse.getFile());
                     break;
                 case FILE_LOADED:
-                    gcodeModel.setProcessedGcodeFile(cse.getFile());
+                    setProcessedGcodeFile(cse.getFile());
                     break;
             }
 
