@@ -27,12 +27,8 @@ import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
 import com.jogamp.opengl.GLAutoDrawable;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-import com.willwinder.ugs.nbm.visualizer.GcodeRenderer;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -71,7 +67,6 @@ public class GcodeModel extends Renderable {
     Collection<Integer> highlightedLines = null;
 
     private Point3d objectMin, objectMax, objectSize, center;
-    private double maxSide;
 
     public GcodeModel() {
         super(10);
@@ -91,9 +86,9 @@ public class GcodeModel extends Renderable {
      * This is used to gray out completed commands.
      */
     public void setCurrentCommandNumber(int num) {
-        this.currentCommandNumber = num;
-        this.createVertexBuffers();
-        this.colorArrayDirty = true;
+        currentCommandNumber = num;
+        updateVertexBuffers();
+        colorArrayDirty = true;
     }
 
     /**
@@ -237,8 +232,6 @@ public class GcodeModel extends Renderable {
             System.out.println("Center = " + center.toString());
             System.out.println("Num Line Segments :" + gcodeLineList.size());
 
-            this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
-
             objectSize.setX(this.objectMax.x-this.objectMin.x);
             objectSize.setY(this.objectMax.y-this.objectMin.y);
             objectSize.setZ(this.objectMax.z-this.objectMin.z);
@@ -255,44 +248,70 @@ public class GcodeModel extends Renderable {
             // Now that the object is known, fill the buffers.
             this.isDrawable = true;
 
-            this.createVertexBuffers();
+            this.numberOfVertices = gcodeLineList.size() * 2;
+            this.lineVertexData = new float[numberOfVertices * 3];
+            this.lineColorData = new byte[numberOfVertices * 3];
+            
+            this.updateVertexBuffers();
         } catch (IOException e) {
             System.out.println("Error opening file: " + e.getLocalizedMessage());
         }
 
     }
     
+    public enum Color {
+        RED(255,100,100), 
+        BRICK_RED(178,34,34),
+        LIGHT_BLUE(0,255,255), 
+        DARK_BLUE(0,0,128), 
+        PURPLE(242,0,255), 
+        YELLOW(237,255,0), 
+        OTHER_YELLOW(234,212,7), 
+        GREEN(33,255,0), 
+        DARK_GREEN(0,100,0), 
+        WHITE(255,255,255),
+        DARK_GRAY(105,105,105),
+        LIGHT_GRAY(190,190,190),
+        BLACK(0,0,0);
+
+        final byte[] rgb;
+
+        private Color(int r, int g, int b) {
+            rgb = new byte[]{(byte)r,(byte)g,(byte)b};
+        }
+
+        public byte[] getBytes() {
+            return rgb;
+        }
+    }
+
     /**
      * Convert the gcodeLineList into vertex and color arrays.
      */
-    private void createVertexBuffers() {
+    private void updateVertexBuffers() {
         if (this.isDrawable) {
-            this.numberOfVertices = gcodeLineList.size() * 2;
-            this.lineVertexData = new float[numberOfVertices * 3];
-            this.lineColorData = new byte[numberOfVertices * 3];
-            
-            VisualizerUtils.Color color;
+            Color color;
             int vertIndex = 0;
             int colorIndex = 0;
             for(LineSegment ls : gcodeLineList) {
                 // Find the lines color.
                 if (ls.isArc()) {
-                    color = VisualizerUtils.Color.RED;
+                    color = Color.BRICK_RED;
                 } else if (ls.isFastTraverse()) {
-                    color = VisualizerUtils.Color.BLUE;
+                    color = Color.LIGHT_BLUE;
                 } else if (ls.isZMovement()) {
-                    color = VisualizerUtils.Color.GREEN;
+                    color = Color.DARK_GREEN;
                 } else {
-                    color = VisualizerUtils.Color.WHITE;
+                    color = Color.DARK_BLUE;
                 }
 
                 if (highlightedLines != null && highlightedLines.contains(ls.getLineNumber())) {
-                    color = VisualizerUtils.Color.YELLOW;
+                    color = Color.YELLOW;
                 }
 
                 // Override color if it is cutoff
                 if (ls.getLineNumber() < this.currentCommandNumber) {
-                    color = VisualizerUtils.Color.GRAY;
+                    color = Color.LIGHT_GRAY;
                 }
 
                 // Draw it.
@@ -367,8 +386,8 @@ public class GcodeModel extends Renderable {
         }
         
         if (lineColorBuffer == null) {
-            if (this.lineColorData == null) {
-                this.createVertexBuffers();
+            if (lineColorData == null) {
+                updateVertexBuffers();
             }
             lineColorBuffer = Buffers.newDirectByteBuffer(this.lineColorData.length);
         }
