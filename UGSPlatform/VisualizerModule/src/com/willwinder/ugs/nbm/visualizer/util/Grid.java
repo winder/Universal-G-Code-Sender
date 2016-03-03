@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbm.visualizer.util;
 
@@ -75,7 +88,7 @@ public class Grid extends Renderable {
                     gl.glVertex3d(x, -0.001, -bottomLeft.y);
                     gl.glVertex3d(x, -0.001, -topRight.y);
                     
-                    if (x==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
+                    if (y==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
                     gl.glVertex3d(bottomLeft.x,  0.001, -y);
                     gl.glVertex3d(topRight.x  ,  0.001, -y);
 
