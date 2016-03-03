@@ -54,7 +54,7 @@ public class Tool extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         GL2 gl = drawable.getGL().getGL2();
 
         gl.glEnable(gl.GL_LIGHTING); 

@@ -41,6 +41,7 @@ import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.util.Grid;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.util.Renderable;
+import com.willwinder.ugs.nbm.visualizer.util.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.util.Tool;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
@@ -71,7 +72,6 @@ public class GcodeRenderer implements GLEventListener {
     static double orthoRotation = -45;
     static boolean forceOldStyle = false;
     static boolean debugCoordinates = false; // turn on coordinate debug output
-    
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
@@ -111,16 +111,13 @@ public class GcodeRenderer implements GLEventListener {
     Point last;
     Point current;
     private Point3d rotation;
-
-    // Track when arrays need to be updated due to changing data.
-    private boolean colorArrayDirty = false;
-    private boolean vertexArrayDirty = false;
     
     private FPSCounter fpsCounter;
     private Overlay overlay;
     private String dimensionsLabel = "";
 
     private ArrayList<Renderable> objects;
+    private boolean idle = true;
     
     /**
      * Constructor.
@@ -142,6 +139,7 @@ public class GcodeRenderer implements GLEventListener {
         objects.add(new Tool());
         objects.add(new OrientationCube(0.5f));
         objects.add(new Grid());
+        objects.add(new SizeDisplay());
         Collections.sort(objects);
     }
 
@@ -235,6 +233,7 @@ public class GcodeRenderer implements GLEventListener {
     public void setObjectSize(Point3d min, Point3d max) {
         this.objectMin = min;
         this.objectMax = max;
+        idle = false;
         initObjectVariables();
         forceRedraw();
     }
@@ -292,7 +291,7 @@ public class GcodeRenderer implements GLEventListener {
                 if (r.center()) {
                     gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
                 }
-                r.draw(drawable, workCoord, objectMin, objectMax, scaleFactor);
+                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor);
             gl.glPopMatrix();
         }
         

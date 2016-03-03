@@ -48,7 +48,7 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         double buffer = maxSide * 0.05;
         Point3d bottomLeft = new Point3d(focusMin);
@@ -61,21 +61,21 @@ public class Grid extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            gl.glRotated(90, 1.0, 0.0, 0.0);
+            //gl.glRotated(90, 1.0, 0.0, 0.0);
             gl.glColor4f(.3f,.3f,.3f, .05f);
 
             // floor - cover entire model and a little extra.
             gl.glPushMatrix();
                 gl.glBegin(gl.GL_QUADS);
-                    gl.glVertex3d(bottomLeft.x, 0, -bottomLeft.y);
-                    gl.glVertex3d(bottomLeft.x, 0, -topRight.y);
-                    gl.glVertex3d(topRight.x  , 0, -topRight.y);
-                    gl.glVertex3d(topRight.x  , 0, -bottomLeft.y);
+                    gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
+                    gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
+                    gl.glVertex3d(topRight.x  , topRight.y  , 0);
+                    gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
                 gl.glEnd();
             gl.glPopMatrix();
             
             double stepSize = maxSide / 20;
-            double offset = 0.01;
+            double offset = 0.001;
 
             gl.glLineWidth(1.5f);
             // grid
@@ -83,18 +83,18 @@ public class Grid extends Renderable {
             for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
                 for (double y=bottomLeft.y; y<=topRight.y; y+=stepSize) {
                     if (x==0) { gl.glColor3d(.6f,.3f,.3f); } else { gl.glColor3d(.25,.25,.25); };
-                    gl.glVertex3d(x,  offset, -bottomLeft.y);
-                    gl.glVertex3d(x,  offset, -topRight.y);
+                    gl.glVertex3d(x, bottomLeft.y, offset);
+                    gl.glVertex3d(x, topRight.y  , offset);
 
-                    gl.glVertex3d(x, -offset, -bottomLeft.y);
-                    gl.glVertex3d(x, -offset, -topRight.y);
+                    gl.glVertex3d(x, bottomLeft.y, -offset);
+                    gl.glVertex3d(x, topRight.y  , -offset);
                     
                     if (y==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
-                    gl.glVertex3d(bottomLeft.x,  offset, -y);
-                    gl.glVertex3d(topRight.x  ,  offset, -y);
+                    gl.glVertex3d(bottomLeft.x, y,  offset);
+                    gl.glVertex3d(topRight.x  , y,  offset);
 
-                    gl.glVertex3d(bottomLeft.x, -offset, -y);
-                    gl.glVertex3d(topRight.x  , -offset, -y);
+                    gl.glVertex3d(bottomLeft.x, y, -offset);
+                    gl.glVertex3d(topRight.x  , y, -offset);
                 }
             };
             gl.glEnd();
