@@ -47,6 +47,33 @@ public class Grid extends Renderable {
     public void init(GLAutoDrawable drawable) {
     }
 
+    private double getBestStepSize(double maxSide) {
+        return maxSide/20;
+    }
+
+    private double getDistFromZeroForStepSize(double stepSize, double point, boolean min) {
+        // Get remainder.
+        double remainder = Math.abs(point);
+        while (remainder >= stepSize) {
+            remainder -= stepSize;
+        }
+
+        if (point <= 0) {
+            if (min) {
+                return point - (stepSize - remainder);
+            } else {
+                return point + remainder;
+            }
+        }
+        else {
+            if (min) {
+                return point - remainder;
+            } else {
+                return point + (stepSize - remainder);
+            }
+        }
+    }
+
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
@@ -54,15 +81,17 @@ public class Grid extends Renderable {
         Point3d bottomLeft = new Point3d(focusMin);
         Point3d topRight = new Point3d(focusMax);
 
-        bottomLeft.x -= buffer;
-        bottomLeft.y -= buffer;
-        topRight.x += buffer;
-        topRight.y += buffer;
+        // Setup the stepSize and min/max edges so that the lines look right.
+        double stepSize = getBestStepSize(maxSide);
+        bottomLeft.x = getDistFromZeroForStepSize(stepSize, bottomLeft.x, true);
+        bottomLeft.y = getDistFromZeroForStepSize(stepSize, bottomLeft.y, true);
+        topRight.x = getDistFromZeroForStepSize(stepSize, topRight.x, false);
+        topRight.y = getDistFromZeroForStepSize(stepSize, topRight.y, false);
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
             //gl.glRotated(90, 1.0, 0.0, 0.0);
-            gl.glColor4f(.3f,.3f,.3f, .05f);
+            gl.glColor4f(.3f,.3f,.3f, .09f);
 
             // floor - cover entire model and a little extra.
             gl.glPushMatrix();
@@ -74,7 +103,6 @@ public class Grid extends Renderable {
                 gl.glEnd();
             gl.glPopMatrix();
             
-            double stepSize = maxSide / 20;
             double offset = 0.001;
 
             gl.glLineWidth(1.5f);
@@ -82,14 +110,18 @@ public class Grid extends Renderable {
             gl.glBegin(GL_LINES);
             for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
                 for (double y=bottomLeft.y; y<=topRight.y; y+=stepSize) {
-                    if (x==0) { gl.glColor3d(.6f,.3f,.3f); } else { gl.glColor3d(.25,.25,.25); };
+                    if (x==0) continue; 
+                    gl.glColor3d(.70,.70,.70);
+
                     gl.glVertex3d(x, bottomLeft.y, offset);
                     gl.glVertex3d(x, topRight.y  , offset);
 
                     gl.glVertex3d(x, bottomLeft.y, -offset);
                     gl.glVertex3d(x, topRight.y  , -offset);
                     
-                    if (y==0) { gl.glColor3d(.3,.3,.6); } else { gl.glColor3d(.25,.25,.25); };
+                    //if (y==0) { gl.glColor3d(.00,.00,.9); }
+                    if (y==0) continue;
+                    gl.glColor3d(.70,.70,.70);
                     gl.glVertex3d(bottomLeft.x, y,  offset);
                     gl.glVertex3d(topRight.x  , y,  offset);
 
@@ -98,6 +130,26 @@ public class Grid extends Renderable {
                 }
             };
             gl.glEnd();
+
+            gl.glLineWidth(5f);
+            gl.glBegin(GL_LINES);
+                // X Axis Line
+                gl.glColor3d(.9f,.00f,.00f);
+                gl.glVertex3d(0, bottomLeft.y, offset);
+                gl.glVertex3d(0, topRight.y  , offset);
+
+                gl.glVertex3d(0, bottomLeft.y, -offset);
+                gl.glVertex3d(0, topRight.y  , -offset);
+
+                // Y Axis Line
+                gl.glColor3d(.00,.00,.9);
+                gl.glVertex3d(bottomLeft.x, 0,  offset);
+                gl.glVertex3d(topRight.x  , 0,  offset);
+
+                gl.glVertex3d(bottomLeft.x, 0, -offset);
+                gl.glVertex3d(topRight.x  , 0, -offset);
+            gl.glEnd();
+
         gl.glPopMatrix();
     }
 }
