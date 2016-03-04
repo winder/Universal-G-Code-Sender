@@ -262,10 +262,12 @@ public class GcodeModel extends Renderable {
     public enum Color {
         RED(255,100,100), 
         BRICK_RED(178,34,34),
+        ORANGE(229,83,0),
         LIGHT_BLUE(0,255,255), 
-        DARK_BLUE(0,0,128), 
+        DARK_BLUE(0,0,158), 
         PURPLE(242,0,255), 
         YELLOW(237,255,0), 
+        DARK_YELLOW(204,204,0),
         OTHER_YELLOW(234,212,7), 
         GREEN(33,255,0), 
         DARK_GREEN(0,100,0), 
@@ -298,7 +300,7 @@ public class GcodeModel extends Renderable {
                 if (ls.isArc()) {
                     color = Color.BRICK_RED;
                 } else if (ls.isFastTraverse()) {
-                    color = Color.LIGHT_BLUE;
+                    color = Color.DARK_YELLOW;
                 } else if (ls.isZMovement()) {
                     color = Color.DARK_GREEN;
                 } else {
