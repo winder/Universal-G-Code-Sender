@@ -66,7 +66,7 @@ public class Tool extends Renderable {
 
             gl.glColor3f(1f, 1f, 0f);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
-            glu.gluCylinder(gq, 0f, .1f, .25, 16, 1);
+            glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
         gl.glPopMatrix();
         gl.glDisable(gl.GL_LIGHTING); 
 
