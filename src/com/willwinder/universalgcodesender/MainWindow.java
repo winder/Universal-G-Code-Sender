@@ -1474,6 +1474,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 File gcodeFile = fileChooser.getSelectedFile();
                 backend.setGcodeFile(gcodeFile);
             } catch (Exception ex) {
+                logger.log(Level.SEVERE, "Problem while browsing.", ex);
                 displayErrorDialog(ex.getMessage());
             }
         } else {
@@ -2100,12 +2101,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void resetTimerLabels() {
         // Reset labels
         this.durationValueLabel.setText("00:00:00");
-        if (this.backend.getSendDuration() < 0) {
-            this.remainingTimeValueLabel.setText("estimating...");
-        } else if (this.backend.getSendDuration() == 0) {
-            this.remainingTimeValueLabel.setText("--:--:--");
-        } else {
-            this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
+        if (this.backend.isConnected()) {
+            if (this.backend.getSendDuration() < 0) {
+                this.remainingTimeValueLabel.setText("estimating...");
+            } else if (this.backend.getSendDuration() == 0) {
+                this.remainingTimeValueLabel.setText("--:--:--");
+            } else {
+                this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
+            }
         }
     }
 
