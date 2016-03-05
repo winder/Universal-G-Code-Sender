@@ -61,8 +61,8 @@ public class Tool extends Renderable {
         byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
         
         gl.glPushMatrix();
-            gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+            gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
             gl.glColor3f(1f, 1f, 0f);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
