@@ -287,6 +287,8 @@ public class RendererInputHandler implements
 
     @Override
     public void commandComplete(GcodeCommand command) {
+        gcodeModel.setCurrentCommandNumber(command.getCommandNumber());
+        // TODO: When to redraw??
     }
 
     @Override
