@@ -22,7 +22,6 @@ package com.willwinder.ugs.nbp.console;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -69,7 +68,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
 
     static String verboseString = "[" + Localization.getString("verbose") + "] ";
     
-    BackendAPIReadOnly backend;
+    BackendAPI backend;
     Settings settings;
     
     JPopupMenu menu = new JPopupMenu();
@@ -91,8 +90,10 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane2 = new javax.swing.JScrollPane();
+        consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
+        commandLabel = new javax.swing.JLabel();
+        commandTextArea = new com.willwinder.universalgcodesender.uielements.CommandTextArea();
 
         consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
@@ -100,29 +101,46 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
-        jScrollPane2.setViewportView(consoleTextArea);
+        consoleScrollPane.setViewportView(consoleTextArea);
+
+        org.openide.awt.Mnemonics.setLocalizedText(commandLabel, org.openide.util.NbBundle.getMessage(SerialConsoleTopComponent.class, "SerialConsoleTopComponent.commandLabel.text")); // NOI18N
+
+        commandTextArea.setText(org.openide.util.NbBundle.getMessage(SerialConsoleTopComponent.class, "SerialConsoleTopComponent.commandTextArea.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(commandLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(commandTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(consoleScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 190, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(commandLabel)
+                    .addComponent(commandTextArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel commandLabel;
+    private com.willwinder.universalgcodesender.uielements.CommandTextArea commandTextArea;
+    private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
-    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
+
     @Override
     public void componentOpened() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         settings = CentralLookup.getDefault().lookup(Settings.class);
         
+        commandTextArea.init(backend);
         verboseMenuItem.setSelected(settings.isVerboseOutputEnabled());
 
         backend.addControllerListener(this);

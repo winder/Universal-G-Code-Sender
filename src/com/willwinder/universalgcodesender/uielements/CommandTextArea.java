@@ -18,9 +18,11 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.awt.Color;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -33,19 +35,36 @@ import javax.swing.JTextField;
  *
  * @author wwinder
  */
-public class CommandTextArea extends JTextField implements KeyEventDispatcher {
-    private final BackendAPI backend;
+public class CommandTextArea extends JTextField implements KeyEventDispatcher, UGSEventListener {
+    private BackendAPI backend;
     List<String> commandHistory = new ArrayList<>();
     int commandNum = -1;
 
     // This is needed for unit testing.
     protected boolean focusNotNeeded = false;
 
+    public CommandTextArea() {
+    }
+
     public CommandTextArea(BackendAPI backend) {
+        init(backend);
+    }
+
+    public final void init(BackendAPI backend) {
         this.backend = backend;
+        this.backend.addUGSEventListener(this);
         this.addActionListener((ActionEvent evt) -> action(evt));
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
             .addKeyEventDispatcher(this);
+        this.setEnabled(backend.isConnected());
+    }
+
+    /**
+     * Detect connection events to enable/disable command text area.
+     */
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        this.setEnabled(backend.isConnected());
     }
 
     public void action(ActionEvent evt) {
