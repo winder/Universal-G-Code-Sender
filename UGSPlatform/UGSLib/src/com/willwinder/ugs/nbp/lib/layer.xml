@@ -5,7 +5,9 @@
         <folder name="Modes">
             <file name="connection.wsmode" url="connectionWsmode.xml"/>
             <file name="console.wsmode" url="consoleWsmode.xml"/>
+            <file name="editor.wsmode" url="editorWsmode.xml"/>
             <file name="middle_left.wsmode" url="middle_leftWsmode.xml"/>
+            <file name="properties.wsmode" url="propertiesWsmode.xml"/>
             <file name="status.wsmode" url="statusWsmode.xml"/>
             <file name="visualizer.wsmode" url="visualizerWsmode.xml"/>
         </folder>
