@@ -24,9 +24,10 @@ package com.willwinder.ugs.nbp.editor;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JEditorPane;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -49,12 +50,33 @@ import org.openide.windows.WindowManager;
         id = "com.willwinder.ugs.nbp.editor.EditGcodeFile"
 )
 @ActionRegistration(
-        displayName = "#CTL_EditGcodeFile"
+        displayName = "#CTL_EditGcodeFile",
+        lazy = false
 )
 @ActionReference(path = "Menu/File", position = 1301)
 @Messages("CTL_EditGcodeFile=Edit Gcode File...")
-public final class EditGcodeFile implements ActionListener {
+//public final class EditGcodeFile implements ActionListener {
+public final class EditGcodeFile extends AbstractAction implements ContextAwareAction {
     EditorListener el = new EditorListener();
+    BackendAPI backend;
+    
+    public EditGcodeFile() {
+        this (Utilities.actionsGlobalContext());
+    }
+
+    public EditGcodeFile(Lookup lookup) {
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    }
+
+    @Override
+    public Action createContextAwareInstance(Lookup actionContext) {
+        return new EditGcodeFile(actionContext);
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return backend.getGcodeFile() != null;
+    }
 
     private void closeOpenFile() {
         updateListener(false);
@@ -63,7 +85,6 @@ public final class EditGcodeFile implements ActionListener {
             editor.close();
         }
     }
-
     
     /**
      * Get all the windows in the "Editor" mode, then filter to just editors.
@@ -113,7 +134,6 @@ public final class EditGcodeFile implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         if (backend == null || backend.getGcodeFile() == null) return;
 
         // Close any opened file.
