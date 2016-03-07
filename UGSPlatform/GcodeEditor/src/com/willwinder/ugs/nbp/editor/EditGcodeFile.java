@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import javax.swing.JEditorPane;
 import org.openide.awt.ActionID;
@@ -65,13 +64,30 @@ public final class EditGcodeFile implements ActionListener {
         }
     }
 
-    // TODO: This returns any window opened in the editor area, not just editors.
+    
+    /**
+     * Get all the windows in the "Editor" mode, then filter to just editors.
+     */
     private Collection<TopComponent> getCurrentlyOpenedEditors() {
         final ArrayList<TopComponent> result = new ArrayList<>();
         final WindowManager wm = WindowManager.getDefault();
         for (Mode mode : wm.getModes()) {
             if (wm.isEditorMode(mode)) {
-                result.addAll(Arrays.asList(wm.getOpenedTopComponents(mode)));
+                TopComponent[] opened = wm.getOpenedTopComponents(mode);
+                for (TopComponent tc : opened) {
+                    Node[] arr = tc.getActivatedNodes();
+                    for (int j = 0; arr != null && j < arr.length; j++) {
+                        EditorCookie ec = (EditorCookie) arr[j].getCookie(EditorCookie.class);
+                        if (ec != null) {
+                            JEditorPane[] panes = ec.getOpenedPanes();
+                            if (panes != null) {
+                                result.add(tc);
+                                // USE panes
+                            }
+                        }
+                    }
+
+                }
             }
         }
         return result;
