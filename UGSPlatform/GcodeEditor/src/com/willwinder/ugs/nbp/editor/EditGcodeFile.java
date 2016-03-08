@@ -61,21 +61,38 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
     BackendAPI backend;
     
     public EditGcodeFile() {
-        this (Utilities.actionsGlobalContext());
-    }
+        putValue(Action.NAME, org.openide.util.NbBundle.getMessage(EditGcodeFile.class, "EditGcodeFile.action.name")); // NOI18N
 
-    public EditGcodeFile(Lookup lookup) {
+
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
     }
 
     @Override
     public Action createContextAwareInstance(Lookup actionContext) {
-        return new EditGcodeFile(actionContext);
+        return new EditGcodeFile();
     }
 
     @Override
     public boolean isEnabled() {
+        System.out.println("Is enabled: " + (backend.getGcodeFile() != null));
         return backend.getGcodeFile() != null;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (backend == null || backend.getGcodeFile() == null) return;
+
+        // Close any opened file.
+        closeOpenFile();
+
+        try {
+            FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
+            DataObject dOb = DataObject.find(fo);
+            dOb.getLookup().lookup(OpenCookie.class).open();
+            updateListener(true);
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     private void closeOpenFile() {
@@ -132,20 +149,4 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (backend == null || backend.getGcodeFile() == null) return;
-
-        // Close any opened file.
-        closeOpenFile();
-
-        try {
-            FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
-            DataObject dOb = DataObject.find(fo);
-            dOb.getLookup().lookup(OpenCookie.class).open();
-            updateListener(true);
-        } catch (DataObjectNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
 }
