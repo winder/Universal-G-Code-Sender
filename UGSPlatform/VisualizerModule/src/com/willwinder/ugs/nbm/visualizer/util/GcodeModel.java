@@ -113,6 +113,9 @@ public class GcodeModel extends Renderable {
         this.colorArrayDirty = true;
     }
 
+    public List<LineSegment> getLineList() {
+        return this.gcodeLineList;
+    }
 
     @Override
     public boolean rotate() {

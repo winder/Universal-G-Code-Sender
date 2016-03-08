@@ -24,6 +24,7 @@ package com.willwinder.ugs.nbm.visualizer;
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.util.GcodeModel;
+import com.willwinder.ugs.nbm.visualizer.util.Highlight;
 import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -52,17 +53,21 @@ public class RendererInputHandler implements
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
     private GcodeModel gcodeModel;
+    private Highlight highlight;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a) {
         gcodeRenderer = gr;
         animator = a;
         gcodeModel = new GcodeModel();
+        highlight = new Highlight(gcodeModel);
         gr.addRenderable(gcodeModel);
+        gr.addRenderable(highlight);
     }
 
     @Subscribe
     public void highlightEventListener(HighlightEvent he) {
-        gcodeModel.setHighlightedLines(he.getLines());
+        //gcodeModel.setHighlightedLines(he.getLines());
+        highlight.setHighlightedLines(he.getLines());
         gcodeRenderer.forceRedraw();
     }
  
