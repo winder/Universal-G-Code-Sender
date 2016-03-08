@@ -361,7 +361,7 @@ public class GcodeRenderer implements GLEventListener {
         if (ortho) {
             gl.glMatrixMode(GL_PROJECTION);
             gl.glLoadIdentity();
-            gl.glOrtho(-0.51*aspectRatio/scaleFactor,0.51*aspectRatio/scaleFactor,-0.51/scaleFactor,0.51/scaleFactor,
+            gl.glOrtho(-0.60*aspectRatio/scaleFactor,0.60*aspectRatio/scaleFactor,-0.60/scaleFactor,0.60/scaleFactor,
                     -10/scaleFactor,10/scaleFactor);
             gl.glMatrixMode(GL_MODELVIEW);
             gl.glLoadIdentity();
