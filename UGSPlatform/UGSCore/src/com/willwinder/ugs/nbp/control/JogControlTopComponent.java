@@ -32,10 +32,8 @@ import java.awt.Container;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.*;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.awt.ActionRegistration;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -90,6 +88,58 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         enableComponents(this, backend.getControlState() == ControlState.COMM_IDLE);
     }
     
+    private double getStepSize() {
+        String value = this.stepSizeSpinner.getValue().toString();
+        BigDecimal bd = new BigDecimal(value);
+        bd.setScale(3, RoundingMode.HALF_EVEN);
+        return bd.doubleValue();
+        //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
+    }
+    
+    private Units getSelectedUnits() {
+        if (this.inchRadioButton.isSelected()) {
+            return Units.INCH;
+        } if (this.mmRadioButton.isSelected()) {
+            return Units.MM;
+        } else {
+            return Units.UNKNOWN;
+        }
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent cse) {
+        updateComponents();
+    }
+    
+    @Override
+    public void componentOpened() {
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        settings = CentralLookup.getDefault().lookup(Settings.class);
+        jogService = Lookup.getDefault().lookup(JogService.class);
+
+        jogService.setStepSize(getStepSize());
+        jogService.setUnits(getSelectedUnits());
+
+        backend.addUGSEventListener(this);
+    }
+
+    @Override
+    public void componentClosed() {
+        // TODO add custom code on component closing
+    }
+
+    void writeProperties(java.util.Properties p) {
+        // better to version settings since initial version as advocated at
+        // http://wiki.apidesign.org/wiki/PropertyFiles
+        p.setProperty("version", "1.0");
+        // TODO store your settings
+    }
+
+    void readProperties(java.util.Properties p) {
+        String version = p.getProperty("version");
+        // TODO read your settings according to their version
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -115,11 +165,11 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         org.openide.awt.Mnemonics.setLocalizedText(arrowMovementEnabled, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.arrowMovementEnabled.text")); // NOI18N
         arrowMovementEnabled.setEnabled(false);
 
-        org.openide.awt.Mnemonics.setLocalizedText(stepSizeLabel, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.stepSizeLabel.text_1")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(stepSizeLabel, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.stepSizeLabel.text")); // NOI18N
         stepSizeLabel.setEnabled(false);
 
         buttonGroup1.add(inchRadioButton);
-        org.openide.awt.Mnemonics.setLocalizedText(inchRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.inchRadioButton.text_1")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(inchRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.inchRadioButton.text")); // NOI18N
         inchRadioButton.setEnabled(false);
         inchRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -128,7 +178,7 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         });
 
         buttonGroup1.add(mmRadioButton);
-        org.openide.awt.Mnemonics.setLocalizedText(mmRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.mmRadioButton.text_1")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(mmRadioButton, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.mmRadioButton.text")); // NOI18N
         mmRadioButton.setEnabled(false);
         mmRadioButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -312,53 +362,4 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     private javax.swing.JButton zMinusButton;
     private javax.swing.JButton zPlusButton;
     // End of variables declaration//GEN-END:variables
-    @Override
-    public void componentOpened() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        settings = CentralLookup.getDefault().lookup(Settings.class);
-        jogService = Lookup.getDefault().lookup(JogService.class);
-
-        jogService.setStepSize(getStepSize());
-        jogService.setUnits(getSelectedUnits());
-
-        backend.addUGSEventListener(this);
-    }
-
-    @Override
-    public void componentClosed() {
-        // TODO add custom code on component closing
-    }
-
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
-    }
-
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
-    }
-    
-    private double getStepSize() {
-        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
-        return bd.doubleValue();
-        //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
-    }
-    
-    private Units getSelectedUnits() {
-        if (this.inchRadioButton.isSelected()) {
-            return Units.INCH;
-        } if (this.mmRadioButton.isSelected()) {
-            return Units.MM;
-        } else {
-            return Units.UNKNOWN;
-        }
-    }
-
-    @Override
-    public void UGSEvent(UGSEvent cse) {
-        updateComponents();
-    }
 }

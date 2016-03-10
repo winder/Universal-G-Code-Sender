@@ -7,6 +7,7 @@ package com.willwinder.ugs.nbp.control;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -42,5 +43,9 @@ public class JogService {
             NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
         }
+    }
+
+    public boolean canJog() {
+        return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
     }
 }
