@@ -35,6 +35,8 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.*;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 
@@ -66,12 +68,12 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
 
     BackendAPI backend;
     Settings settings;
+    JogService jogService;
 
     public JogControlTopComponent() {
         initComponents();
         setName(Bundle.CTL_JogControlTopComponent());
         setToolTipText(Bundle.HINT_JogControlTopComponent());
-
     }
 
     public void enableComponents(Container container, boolean enable) {
@@ -260,39 +262,39 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     }// </editor-fold>//GEN-END:initComponents
 
     private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
-
+        jogService.setUnits(Units.INCH);
     }//GEN-LAST:event_inchRadioButtonActionPerformed
 
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
-
+        jogService.setUnits(Units.MM);
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
-
+        jogService.setStepSize(getStepSize());
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
-        this.adjustManualLocation(0, 0, -1);
+        jogService.adjustManualLocation(0, 0, -1);
     }//GEN-LAST:event_zMinusButtonActionPerformed
 
     private void yMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yMinusButtonActionPerformed
-        this.adjustManualLocation(0, -1, 0);
+        jogService.adjustManualLocation(0, -1, 0);
     }//GEN-LAST:event_yMinusButtonActionPerformed
 
     private void xPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xPlusButtonActionPerformed
-        this.adjustManualLocation(1, 0, 0);
+        jogService.adjustManualLocation(1, 0, 0);
     }//GEN-LAST:event_xPlusButtonActionPerformed
 
     private void xMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_xMinusButtonActionPerformed
-        this.adjustManualLocation(-1, 0, 0);
+        jogService.adjustManualLocation(-1, 0, 0);
     }//GEN-LAST:event_xMinusButtonActionPerformed
 
     private void zPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zPlusButtonActionPerformed
-        this.adjustManualLocation(0, 0, 1);
+        jogService.adjustManualLocation(0, 0, 1);
     }//GEN-LAST:event_zPlusButtonActionPerformed
 
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
-        this.adjustManualLocation(0, 1, 0);
+        jogService.adjustManualLocation(0, 1, 0);
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -314,6 +316,10 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     public void componentOpened() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         settings = CentralLookup.getDefault().lookup(Settings.class);
+        jogService = Lookup.getDefault().lookup(JogService.class);
+
+        jogService.setStepSize(getStepSize());
+        jogService.setUnits(getSelectedUnits());
 
         backend.addUGSEventListener(this);
     }
@@ -348,15 +354,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
             return Units.MM;
         } else {
             return Units.UNKNOWN;
-        }
-    }
-    
-    private void adjustManualLocation(int x, int y, int z) {
-        try {
-            this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
-        } catch (Exception e) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
         }
     }
 
