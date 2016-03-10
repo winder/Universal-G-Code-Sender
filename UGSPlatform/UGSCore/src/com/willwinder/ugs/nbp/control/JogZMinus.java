@@ -28,7 +28,7 @@ import org.openide.awt.ActionRegistration;
         displayName = "seeConstructor",
         lazy = false
 )
-@ActionReference(path = "Menu/Machine", position = 1300)
+@ActionReference(path = "Menu/Machine/Jog", position = 1300)
 public class JogZMinus extends AbstractAction implements ContextAwareAction {
     JogService jogService;
 
