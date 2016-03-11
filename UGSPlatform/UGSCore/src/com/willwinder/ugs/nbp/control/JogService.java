@@ -18,12 +18,24 @@
  */
 package com.willwinder.ugs.nbp.control;
 
+import com.google.common.base.Joiner;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.Arrays;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.SwingUtilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
+import org.openide.util.NbBundle;
+import static org.openide.util.NbBundle.getMessage;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -39,7 +51,7 @@ public class JogService {
 
     public JogService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        //initActions();
+        initActions();
     }
 
     public void setStepSize(double size) {
@@ -63,28 +75,49 @@ public class JogService {
         return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
     }
 
+    private static FileObject getOrCreateMenuFolder(String inputPath) throws IOException {
+        String parts[] = inputPath.split("/");
+        FileObject existing = FileUtil.getConfigFile(inputPath);
+        if (existing != null)
+            return existing;
+
+        FileObject base = FileUtil.getConfigFile(parts[0]);
+        if (base == null) return null;
+
+        for (int i = 1; i < parts.length; i++) {
+            String path = Joiner.on('/').join(Arrays.copyOfRange(parts,0,i+1));
+            FileObject next = FileUtil.getConfigFile(path);
+            if (next == null) {
+                next = base.createFolder(parts[i]);
+            }
+            base = next;
+        }
+
+        return FileUtil.getConfigFile(inputPath);
+    }
+
     /**
      * Create the jog actions.
      */
-    /*
     private void initActions() {
         SwingUtilities.invokeLater(() -> {
-            FileObject menuFolder = FileUtil.getConfigFile("Menu/Machine/Jog");
             try {
-                registerAction("JogService.xPlus" , menuFolder, 1, 0, 0);
-                registerAction("JogService.xMinus", menuFolder,-1, 0, 0);
-                registerAction("JogService.yPlus" , menuFolder, 0, 1, 0);
-                registerAction("JogService.yMinus", menuFolder, 0,-1, 0);
-                registerAction("JogService.zPlus" , menuFolder, 0, 0, 1);
-                registerAction("JogService.zMinus", menuFolder, 0, 0,-1);
+                String menuPath = "Menu/Machine/Jog3";
+                
+                registerAction(getMessage(this.getClass(), "JogService.xPlus") , menuPath, new JogAction(this, 1, 0, 0));
+                registerAction(getMessage(this.getClass(), "JogService.xMinus"), menuPath, new JogAction(this,-1, 0, 0));
+                registerAction(getMessage(this.getClass(), "JogService.yPlus") , menuPath, new JogAction(this, 0, 1, 0));
+                registerAction(getMessage(this.getClass(), "JogService.yMinus"), menuPath, new JogAction(this, 0,-1, 0));
+                registerAction(getMessage(this.getClass(), "JogService.zPlus") , menuPath, new JogAction(this, 0, 0, 1));
+                registerAction(getMessage(this.getClass(), "JogService.zMinus"), menuPath, new JogAction(this, 0, 0,-1));
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
         });
     }
 
-    private void registerAction(String nameId, FileObject in, int x, int y, int z) throws IOException {
-        String name = NbBundle.getMessage(JogService.class, nameId);
+    private void registerAction(String name, String menuPath, Action a) throws IOException {
+        FileObject in = getOrCreateMenuFolder(menuPath);
 
         // Create if missing.
         FileObject menu = in.getFileObject(name, "instance");
@@ -92,16 +125,16 @@ public class JogService {
             menu = in.createData(name, "instance");
         }
 
-        AbstractAction action = new JogAction(name, this, x, y, z);
-        menu.setAttribute("instanceCreate", action);
-        menu.setAttribute("instanceClass", action.getClass().getName());
+        a.putValue(Action.NAME, name);
+        menu.setAttribute("instanceCreate", a);
+        menu.setAttribute("instanceClass", a.getClass().getName());
     }
 
     protected class JogAction extends AbstractAction {
         JogService js;
         int x,y,z;
-        public JogAction(String name, JogService service, int x, int y, int z) {
-            super(name);
+        public JogAction(JogService service, int x, int y, int z) {
+            //super(name);
             js = service;
             this.x = x;
             this.y = y;
@@ -118,5 +151,4 @@ public class JogService {
             return js.canJog();
         }
     }
-    */
 }
