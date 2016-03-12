@@ -56,6 +56,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
@@ -1961,6 +1962,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }
 
     private double getStepSize() {
+        try {
+            this.stepSizeSpinner.commitEdit();
+        } catch (ParseException e) {
+            this.stepSizeSpinner.setValue(0.0);
+        }
         BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
         return bd.doubleValue();
         //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
