@@ -18,23 +18,18 @@
  */
 package com.willwinder.ugs.nbp.control;
 
-import com.google.common.base.Joiner;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.services.ActionRegistrationService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.SwingUtilities;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
+import org.openide.util.Lookup;
 import static org.openide.util.NbBundle.getMessage;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -75,59 +70,30 @@ public class JogService {
         return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
     }
 
-    private static FileObject getOrCreateMenuFolder(String inputPath) throws IOException {
-        String parts[] = inputPath.split("/");
-        FileObject existing = FileUtil.getConfigFile(inputPath);
-        if (existing != null)
-            return existing;
-
-        FileObject base = FileUtil.getConfigFile(parts[0]);
-        if (base == null) return null;
-
-        for (int i = 1; i < parts.length; i++) {
-            String path = Joiner.on('/').join(Arrays.copyOfRange(parts,0,i+1));
-            FileObject next = FileUtil.getConfigFile(path);
-            if (next == null) {
-                next = base.createFolder(parts[i]);
-            }
-            base = next;
-        }
-
-        return FileUtil.getConfigFile(inputPath);
-    }
-
     /**
      * Create the jog actions.
      */
     private void initActions() {
-        SwingUtilities.invokeLater(() -> {
-            try {
-                String menuPath = "Menu/Machine/Jog3";
-                
-                registerAction(getMessage(this.getClass(), "JogService.xPlus") , menuPath, new JogAction(this, 1, 0, 0));
-                registerAction(getMessage(this.getClass(), "JogService.xMinus"), menuPath, new JogAction(this,-1, 0, 0));
-                registerAction(getMessage(this.getClass(), "JogService.yPlus") , menuPath, new JogAction(this, 0, 1, 0));
-                registerAction(getMessage(this.getClass(), "JogService.yMinus"), menuPath, new JogAction(this, 0,-1, 0));
-                registerAction(getMessage(this.getClass(), "JogService.zPlus") , menuPath, new JogAction(this, 0, 0, 1));
-                registerAction(getMessage(this.getClass(), "JogService.zMinus"), menuPath, new JogAction(this, 0, 0,-1));
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        });
-    }
+        ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
-    private void registerAction(String name, String menuPath, Action a) throws IOException {
-        FileObject in = getOrCreateMenuFolder(menuPath);
-
-        // Create if missing.
-        FileObject menu = in.getFileObject(name, "instance");
-        if (menu == null) {
-            menu = in.createData(name, "instance");
+        try {
+            String menuPath = "Menu/Machine/Jog";
+            
+            ars.registerAction(getMessage(this.getClass(), "JogService.xPlus") ,
+                    "Machine", "M-RIGHT" , menuPath, new JogAction(this, 1, 0, 0));
+            ars.registerAction(getMessage(this.getClass(), "JogService.xMinus"),
+                    "Machine", "M-LEFT"  , menuPath, new JogAction(this,-1, 0, 0));
+            ars.registerAction(getMessage(this.getClass(), "JogService.yPlus") ,
+                    "Machine", "M-UP"    , menuPath, new JogAction(this, 0, 1, 0));
+            ars.registerAction(getMessage(this.getClass(), "JogService.yMinus"),
+                    "Machine", "M-DOWN"  , menuPath, new JogAction(this, 0,-1, 0));
+            ars.registerAction(getMessage(this.getClass(), "JogService.zPlus") ,
+                    "Machine", "SM-UP"   , menuPath, new JogAction(this, 0, 0, 1));
+            ars.registerAction(getMessage(this.getClass(), "JogService.zMinus"),
+                    "Machine", "SM-DOWN" , menuPath, new JogAction(this, 0, 0,-1));
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
         }
-
-        a.putValue(Action.NAME, name);
-        menu.setAttribute("instanceCreate", a);
-        menu.setAttribute("instanceClass", a.getClass().getName());
     }
 
     protected class JogAction extends AbstractAction {

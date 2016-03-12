@@ -15,6 +15,14 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.openide.filesystems</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>9.8.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.util.lookup</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -107,7 +115,9 @@
                 <package>com.jogamp.opengl.util.texture.awt</package>
                 <package>com.jogamp.opengl.util.texture.spi</package>
                 <package>com.jogamp.opengl.util.texture.spi.awt</package>
+                <package>com.willwinder.ugs.nbm.visualizer.util</package>
                 <package>com.willwinder.ugs.nbp.eventbus</package>
+                <package>com.willwinder.ugs.nbp.services</package>
                 <package>com.willwinder.universalgcodesender</package>
                 <package>com.willwinder.universalgcodesender.CLI</package>
                 <package>com.willwinder.universalgcodesender.connection</package>
