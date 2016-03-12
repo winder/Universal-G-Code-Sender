@@ -79,11 +79,11 @@ public class ActionRegistrationService {
     }
 
     private FileObject getFolderAt(String inputPath) throws IOException {
-        String parts[] = inputPath.split("/");
         FileObject existing = FileUtil.getConfigFile(inputPath);
         if (existing != null)
             return existing;
 
+        String parts[] = inputPath.split("/");
         FileObject base = FileUtil.getConfigFile(parts[0]);
         if (base == null) return null;
 
