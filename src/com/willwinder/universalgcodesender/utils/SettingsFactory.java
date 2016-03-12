@@ -39,34 +39,39 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
-    
-    private static File getSettingsFile() {
-        String propertiesFilename = "UniversalGcodeSender.properties";
-        String jsonFilename = "UniversalGcodeSender.json";
+    public static final String PROPERTIES_FILENAME = "UniversalGcodeSender.properties";
+    public static final String JSON_FILENAME = "UniversalGcodeSender.json";
+    public static final String MAC_LIBRARY = "/Library/Preferences/";
 
+    private static File getSettingsFile() {
         File properties = null;
         File json = null;
 
         String homeDir = System.getProperty("user.home");
+        String osName = System.getProperty("os.name").toLowerCase();
 
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            homeDir = homeDir + "/Library/Preferences/";
-            properties = new File(homeDir + propertiesFilename);
-            json       = new File(homeDir + jsonFilename);
+        if (osName.contains("mac")) {
+            homeDir = homeDir + MAC_LIBRARY;
+            properties = new File(homeDir + PROPERTIES_FILENAME);
+            json       = new File(homeDir + JSON_FILENAME);
         }
-        else if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-            properties = new File(homeDir + propertiesFilename);
-            json       = new File(homeDir + jsonFilename);
+        else if (osName.contains("windows")) {
+            if (!homeDir.endsWith(File.separator)) {
+                homeDir = homeDir + File.separator;
+            }
+
+            properties = new File(homeDir + PROPERTIES_FILENAME);
+            json       = new File(homeDir + JSON_FILENAME);
         }
         // Unix
         else {
-            properties = new File(homeDir + propertiesFilename);
+            properties = new File(homeDir + PROPERTIES_FILENAME);
 
             // Check homedir for hidden / not hidden files
-            json = new File(homeDir + "/" + jsonFilename);
+            json = new File(homeDir + File.separator + JSON_FILENAME);
             if (!json.exists()) {
                 // Default to hidden if none.
-                json = new File(homeDir + "/." + jsonFilename);
+                json = new File(homeDir + File.separator + "." + JSON_FILENAME);
             }
         }
 
@@ -77,7 +82,7 @@ public class SettingsFactory {
     private static File getSettingsFolder(){
         File settingsFolder = new File(System.getProperty("user.home"));
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            settingsFolder = new File(System.getProperty("user.home")+"/Library/Preferences/");
+            settingsFolder = new File(System.getProperty("user.home")+MAC_LIBRARY);
         }
         return settingsFolder;
     }
