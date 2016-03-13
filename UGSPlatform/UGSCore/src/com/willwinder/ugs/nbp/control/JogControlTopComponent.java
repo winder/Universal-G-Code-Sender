@@ -149,7 +149,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        arrowMovementEnabled = new javax.swing.JCheckBox();
         stepSizeLabel = new javax.swing.JLabel();
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
@@ -161,9 +160,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         xMinusButton = new javax.swing.JButton();
         zPlusButton = new javax.swing.JButton();
         yPlusButton = new javax.swing.JButton();
-
-        org.openide.awt.Mnemonics.setLocalizedText(arrowMovementEnabled, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.arrowMovementEnabled.text")); // NOI18N
-        arrowMovementEnabled.setEnabled(false);
 
         org.openide.awt.Mnemonics.setLocalizedText(stepSizeLabel, org.openide.util.NbBundle.getMessage(JogControlTopComponent.class, "JogControlTopComponent.stepSizeLabel.text")); // NOI18N
         stepSizeLabel.setEnabled(false);
@@ -281,7 +277,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(arrowMovementEnabled)
                     .addComponent(movementButtonPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -296,8 +291,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(arrowMovementEnabled)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(stepSizeLabel)
                     .addComponent(stepSizeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -348,7 +341,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     }//GEN-LAST:event_yPlusButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox arrowMovementEnabled;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JRadioButton mmRadioButton;
