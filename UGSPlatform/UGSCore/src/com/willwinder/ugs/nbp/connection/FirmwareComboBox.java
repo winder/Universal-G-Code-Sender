@@ -18,7 +18,10 @@
  */
 package com.willwinder.ugs.nbp.connection;
 
+import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import org.openide.util.Lookup;
 
 /**
  *

@@ -30,6 +30,9 @@
  */
 package com.willwinder.ugs.nbp.connection;
 
+import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.event.ActionEvent;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
@@ -41,9 +44,20 @@ import org.openide.util.NbPreferences;
  *
  * @author wwinder
  */
-public abstract class ComboWithPreferences extends JComboBox<String> {
+public abstract class ComboWithPreferences extends JComboBox<String> implements UGSEventListener {
+
+    /**
+     * Not a great use of this pattern, but I don't like this pattern so hack in
+     * a common enabled state based on connection.
+     */
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent ugse) {
+        this.setEnabled(!backend.isConnected());
+    }
+
     boolean initializing;
     Preferences pref;
+    BackendAPI backend;
 
     abstract Class getPreferenceClass();
     abstract String getPreferenceName();
@@ -74,6 +88,8 @@ public abstract class ComboWithPreferences extends JComboBox<String> {
         setCombo(getPreference());
         
         initializing = false;
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
     }
     
     final protected void setCombo(String value) {
