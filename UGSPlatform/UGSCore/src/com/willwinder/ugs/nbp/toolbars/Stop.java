@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.connectiontoolbar;
+package com.willwinder.ugs.nbp.toolbars;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -47,7 +47,7 @@ import org.openide.util.Utilities;
 )
 @ActionReference(path = "Toolbars/StartPauseStop", position = 11)
 @Messages("CTL_Stop=Stop")
-public final class Stop extends AbstractAction implements ContextAwareAction, UGSEventListener {
+public final class Stop extends AbstractAction implements UGSEventListener {
     BackendAPI backend;
 
     public Stop() {
@@ -65,11 +65,6 @@ public final class Stop extends AbstractAction implements ContextAwareAction, UG
         backend.addUGSEventListener(this);
     }
     
-    @Override
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new Stop(actionContext);
-    }
-
     @Override
     public void UGSEvent(UGSEvent cse) {
         java.awt.EventQueue.invokeLater(new Runnable() {
