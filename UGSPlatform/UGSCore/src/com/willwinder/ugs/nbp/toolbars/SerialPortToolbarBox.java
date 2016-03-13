@@ -124,7 +124,7 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
                     .addGap(20)
                     .addComponent(portLabel)
                     .addGap(2)
-                    .addComponent(portComboBox)
+                    .addComponent(portComboBox, 100, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGap(20)
                     .addComponent(baudLabel)
                     .addGap(2)
