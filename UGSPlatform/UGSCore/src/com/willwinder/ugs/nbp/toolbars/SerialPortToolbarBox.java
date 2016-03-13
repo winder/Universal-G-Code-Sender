@@ -16,8 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.connection;
+package com.willwinder.ugs.nbp.toolbars;
 
+import com.willwinder.ugs.nbp.connection.BaudComboBox;
+import com.willwinder.ugs.nbp.connection.FirmwareComboBox;
+import com.willwinder.ugs.nbp.connection.PortComboBox;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.Component;
@@ -64,8 +67,10 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
     private class MyToolbarPresenter extends TopComponent {
         BackendAPI backend;
 
+        JLabel fwLabel;
         JLabel portLabel;
         JLabel baudLabel;
+        FirmwareComboBox fwComboBox;
         PortComboBox portComboBox;
         BaudComboBox baudComboBox;
         
@@ -82,21 +87,27 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
         }
         
         private void setInitializing(Boolean initializing) {
+            this.fwComboBox.setInitializing(initializing);
             this.portComboBox.setInitializing(initializing);
             this.baudComboBox.setInitializing(initializing);
         }
         
         private void initComponents() {
+            fwLabel = new javax.swing.JLabel();
             portLabel = new javax.swing.JLabel();
             baudLabel = new javax.swing.JLabel();
+            fwComboBox = new FirmwareComboBox();
             portComboBox = new PortComboBox();
             baudComboBox = new BaudComboBox();
 
+            fwComboBox.setEditable(false);
             portComboBox.setEditable(true);
             baudComboBox.setEditable(true);
 
+            org.openide.awt.Mnemonics.setLocalizedText(fwLabel, org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Firmware.text")); // NOI18N
             org.openide.awt.Mnemonics.setLocalizedText(portLabel, org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Port.text")); // NOI18N
             org.openide.awt.Mnemonics.setLocalizedText(baudLabel, org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Baud.text")); // NOI18N
+            fwLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Firmware.text"));
             portLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Port.text"));
             baudLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Baud.text"));
             
@@ -107,6 +118,10 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
             layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
+                    .addComponent(fwLabel)
+                    .addGap(2)
+                    .addComponent(fwComboBox)
+                    .addGap(20)
                     .addComponent(portLabel)
                     .addGap(2)
                     .addComponent(portComboBox)
@@ -121,6 +136,8 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
                 .addGroup(layout.createSequentialGroup()
                     .addContainerGap()
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(fwLabel)
+                        .addComponent(fwComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(portLabel)
                         .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(baudLabel)
