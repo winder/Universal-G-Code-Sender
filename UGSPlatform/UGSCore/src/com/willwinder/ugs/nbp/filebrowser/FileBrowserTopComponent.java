@@ -60,7 +60,6 @@ import org.openide.windows.WindowManager;
 })
 public final class FileBrowserTopComponent extends TopComponent implements UGSEventListener {
     BackendAPI backend;
-    JFileChooser fileChooser;
     
     public FileBrowserTopComponent() {
         initComponents();
@@ -69,23 +68,9 @@ public final class FileBrowserTopComponent extends TopComponent implements UGSEv
     }
 
     public static void openGcodeFileDialog() {
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        
-        JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename());
-        int returnVal = fileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow());
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File gcodeFile = fileChooser.getSelectedFile();
-                backend.setGcodeFile(gcodeFile);
-                settings.setLastOpenedFilename(gcodeFile.getAbsolutePath());
-            } catch (Exception ex) {
-                //MainWindow.displayErrorDialog(ex.getMessage());
-            }
-        } else {
-            // Canceled file open.
-        }  
+        OpenGcodeFile.openGcodeFileDialog();
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -145,7 +130,6 @@ public final class FileBrowserTopComponent extends TopComponent implements UGSEv
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
-        fileChooser = GcodeFileTypeFilter.getGcodeFileChooser("");
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
         backend.addUGSEventListener(this);

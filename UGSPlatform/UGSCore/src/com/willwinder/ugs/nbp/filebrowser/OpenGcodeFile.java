@@ -19,13 +19,21 @@
 
 package com.willwinder.ugs.nbp.filebrowser;
 
+import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import javax.swing.JFileChooser;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.WindowManager;
 
 @ActionID(
         category = "File",
@@ -43,6 +51,26 @@ public final class OpenGcodeFile implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        FileBrowserTopComponent.openGcodeFileDialog();
+        openGcodeFileDialog();
+    }
+
+    public static void openGcodeFileDialog() {
+        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        
+        JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename());
+        int returnVal = fileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow());
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                File gcodeFile = fileChooser.getSelectedFile();
+                backend.setGcodeFile(gcodeFile);
+                settings.setLastOpenedFilename(gcodeFile.getAbsolutePath());
+                SettingsFactory.saveSettings(settings);
+            } catch (Exception ex) {
+                //MainWindow.displayErrorDialog(ex.getMessage());
+            }
+        } else {
+            // Canceled file open.
+        }  
     }
 }
