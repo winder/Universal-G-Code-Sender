@@ -199,70 +199,60 @@
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-android-armv6</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/android-armv6</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-linux-amd64</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-linux-armv6</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-armv6</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-linux-armv6hf</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-armv6hf</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-linux-i586</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-i586</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-macosx-universal</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/macosx-universal</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-windows-amd64</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/windows-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-windows-i586</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/windows-i586</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-solaris-amd64</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/solaris-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.gluegen</groupId>
                   <artifactId>gluegen-rt</artifactId>
                   <classifier>natives-solaris-i586</classifier>
                   <version>${gluegen.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/solaris-i586</outputDirectory>
                 </artifactItem>
 
                 <!-- JogAmp, Module JOGL -->
@@ -271,70 +261,60 @@
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-android-armv6</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/android-armv6</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-linux-amd64</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-linux-armv6</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-armv6</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-linux-armv6hf</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-armv6hf</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-linux-i586</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/linux-i586</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-macosx-universal</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/macosx-universal</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-windows-amd64</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/windows-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-windows-i586</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/windows-i586</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-solaris-amd64</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/solaris-amd64</outputDirectory>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.jogamp.jogl</groupId>
                   <artifactId>jogl-all</artifactId>
                   <classifier>natives-solaris-i586</classifier>
                   <version>${jogl.version}</version>
-                  <outputDirectory>${project.build.outputDirectory}/natives/solaris-i586</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -359,13 +339,6 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer"/>
               </transformers>
-              <artifactSet>
-                <excludes>
-                  <!-- exclude natives, because they are copied from the resources -->
-                  <exclude>org.jogamp.gluegen:gluegen-rt:natives*</exclude>
-                  <exclude>org.jogamp.jogl:jogl-all:natives*</exclude>
-                </excludes>
-              </artifactSet>
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
