@@ -54,7 +54,7 @@ public class Grid extends Renderable {
     private double getDistFromZeroForStepSize(double stepSize, double point, boolean min) {
         // Get remainder.
         double remainder = Math.abs(point);
-        while (remainder >= stepSize) {
+        while (remainder >= stepSize/2) {
             remainder -= stepSize;
         }
 
