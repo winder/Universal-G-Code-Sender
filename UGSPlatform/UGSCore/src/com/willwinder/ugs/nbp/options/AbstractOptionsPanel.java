@@ -5,99 +5,51 @@
  */
 package com.willwinder.ugs.nbp.options;
 
+import com.willwinder.ugs.nbp.options.OptionTable.Option;
+import java.awt.Component;
 import java.util.Collection;
 import java.util.HashMap;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
  * @author wwinder
  */
 abstract class AbstractOptionsPanel extends JPanel {
-    protected abstract class Option {
-        public String option;
-        public String description;
-        Option(String name, String d) {
-            option = name;
-            description = d;
-        }
-
-        abstract Object getValue();
-    }
-
-    protected abstract class StringOption {
-        String value = "";
-        void setValue(String v) {
-            value = v;
-        }
-        Object getValue() {
-            return value;
-        }
-    }
-
-    protected abstract class BoolOption {
-        Boolean value = false;
-        void setValue(Boolean v) {
-            value = v;
-        }
-        Object getValue() {
-            return value;
-        }
-    }
-
-    abstract Collection<Option> getOptions();
 
     AbstractOptionsPanel() {
         initComponents();
-        initOptionTable();
     }
 
-    private void initOptionTable() {
-        
+    /**
+     * Call this in the subclasses to add rows to the panel.
+     */
+    protected void add(Option o) {
+        optionTable.addRow(o);
     }
+
 
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea preferenceDescriptionTextArea;
-    private javax.swing.JTable preferenceTable;
+    private OptionTable optionTable;
 
-
+    /**
+     * Setup the UI.
+     */
     private void initComponents() {
         jScrollPane1 = new javax.swing.JScrollPane();
-        preferenceTable = new javax.swing.JTable();
+        optionTable = new OptionTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         preferenceDescriptionTextArea = new javax.swing.JTextArea();
 
-        preferenceTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {}
-            },
-            new String[] {}
-    /*
-            new String [] {
-                "Title 1", "Title 2"
-            }
-*/
-        ) {
-            boolean[] canEdit = new boolean [] {
-                false, true
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
-            }
-        });
-        preferenceTable.setColumnSelectionAllowed(true);
-        preferenceTable.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(preferenceTable);
-        preferenceTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        if (preferenceTable.getColumnModel().getColumnCount() > 0) {
-            preferenceTable.getColumnModel().getColumn(0).setResizable(false);
-            /*
-            preferenceTable.getColumnModel().getColumn(0).setHeaderValue(org.openide.util.NbBundle.getMessage(SenderPanel.class, "SenderPanel.preferenceTable.columnModel.title0")); // NOI18N
-            preferenceTable.getColumnModel().getColumn(1).setHeaderValue(org.openide.util.NbBundle.getMessage(SenderPanel.class, "SenderPanel.preferenceTable.columnModel.title1")); // NOI18N
-            */
+        jScrollPane1.setViewportView(optionTable);
+        optionTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (optionTable.getColumnModel().getColumnCount() > 0) {
+            optionTable.getColumnModel().getColumn(0).setResizable(false);
         }
 
         preferenceDescriptionTextArea.setColumns(20);
