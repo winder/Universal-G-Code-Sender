@@ -33,7 +33,9 @@ import org.openide.util.Lookup;
         keywords = "#AdvancedOption_Keywords_Console",
         keywordsCategory = "UGS/Console"
 )
-@org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_Console=Console", "AdvancedOption_Keywords_Console=Console"})
+@org.openide.util.NbBundle.Messages({
+    "AdvancedOption_DisplayName_Console=Console",
+    "AdvancedOption_Keywords_Console=Console"})
 public final class ConsoleOptionsPanelController extends OptionsPanelController {
 
     private ConsolePanel panel;

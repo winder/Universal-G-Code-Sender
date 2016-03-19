@@ -6,22 +6,19 @@
 package com.willwinder.ugs.nbp.options;
 
 import com.willwinder.ugs.nbp.options.OptionTable.Option;
-import java.awt.Component;
-import java.util.Collection;
-import java.util.HashMap;
 import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
  * @author wwinder
  */
-abstract class AbstractOptionsPanel extends JPanel {
+abstract class AbstractOptionsPanel extends JPanel implements TableModelListener {
 
     AbstractOptionsPanel() {
         initComponents();
+        optionTable.getModel().addTableModelListener(this);
     }
 
     /**
@@ -31,11 +28,17 @@ abstract class AbstractOptionsPanel extends JPanel {
         optionTable.addRow(o);
     }
 
+    /**
+     * Remove all the options.
+     */
+    protected void clear() {
+        optionTable.clear();
+    }
 
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea preferenceDescriptionTextArea;
-    private OptionTable optionTable;
+    public OptionTable optionTable;
 
     /**
      * Setup the UI.

@@ -6,8 +6,11 @@
 package com.willwinder.ugs.nbp.options;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -22,7 +25,6 @@ public class OptionTable extends JTable {
 
     // Class type of cell being edited.
     private Class editingClass = null;
-
 
     public OptionTable() {
         types = new ArrayList<>();
@@ -45,6 +47,12 @@ public class OptionTable extends JTable {
     public void addRow(Option o) {
         model.addRow(new Object[]{o.option, o.getValue()});
         types.add(o.getValue().getClass());
+    }
+
+    public void clear() {
+        while (model.getRowCount()>0){
+            model.removeRow(0);
+        }
     }
 
     @Override
@@ -90,6 +98,7 @@ public class OptionTable extends JTable {
             option = name;
             description = d;
         }
+        abstract void setValue(Object v);
 
         abstract Object getValue();
     }
@@ -99,6 +108,14 @@ public class OptionTable extends JTable {
         public StringOption(String name, String d, String v) {
             super(name, d);
             value = v;
+        }
+        @Override
+        public void setValue(Object o) {
+            if (o instanceof String) {
+                value = (String) o;
+            } else {
+                throw new IllegalArgumentException("Wrong type.");
+            }
         }
         @Override
         Object getValue() {
@@ -113,6 +130,14 @@ public class OptionTable extends JTable {
             value = v;
         }
         @Override
+        public void setValue(Object o) {
+            if (o instanceof Boolean) {
+                value = (Boolean) o;
+            } else {
+                throw new IllegalArgumentException("Wrong type.");
+            }
+        }
+        @Override
         Object getValue() {
             return value;
         }
@@ -125,6 +150,14 @@ public class OptionTable extends JTable {
             value = v;
         }
         @Override
+        public void setValue(Object o) {
+            if (o instanceof Integer) {
+                value = (Integer) o;
+            } else {
+                throw new IllegalArgumentException("Wrong type.");
+            }
+        }
+        @Override
         Object getValue() {
             return value;
         }
@@ -135,6 +168,14 @@ public class OptionTable extends JTable {
         public DoubleOption(String name, String d, Double v) {
             super(name, d);
             value = v;
+        }
+        @Override
+        public void setValue(Object o) {
+            if (o instanceof Double) {
+                value = (Double) o;
+            } else {
+                throw new IllegalArgumentException("Wrong type.");
+            }
         }
         @Override
         Object getValue() {

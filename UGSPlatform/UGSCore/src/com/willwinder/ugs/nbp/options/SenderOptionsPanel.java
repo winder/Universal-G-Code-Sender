@@ -9,10 +9,14 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.options.OptionTable.BoolOption;
 import com.willwinder.ugs.nbp.options.OptionTable.DoubleOption;
 import com.willwinder.ugs.nbp.options.OptionTable.IntOption;
+import com.willwinder.ugs.nbp.options.OptionTable.Option;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import javax.swing.event.TableModelEvent;
 
 /**
  *
@@ -20,8 +24,109 @@ import java.util.Collection;
  */
 public class SenderOptionsPanel extends AbstractOptionsPanel {
     SenderOptionsPanelController controller;
+
+    // This is a compatibility thing, because options aren't accessed as a map
+    // I need a way to call each of the getter / setter methods. I'm going to
+    // store the option objects in here and use the setting name as a key.
+    HashMap<String, Option> loadMap;
+    HashMap<String, Option> storeMap;
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        controller.changed();
+    }
+
     public SenderOptionsPanel(SenderOptionsPanelController controller) {
         this.controller = controller;
+        // LinkedHashMap to preserve insertion order.
+        loadMap = new LinkedHashMap<>();
+        storeMap = new LinkedHashMap<>();
+        String key;
+        Option op;
+
+        // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
+        key = "sender.speed.override";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // setOverrideSpeedValue, getOverrideSpeedValue, double
+        key = "sender.speed.percent";
+        op = new DoubleOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isSingleStepMode, setSingleStepMode, bool
+        key = "sender.singlestep";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // getMaxCommandLength, setMaxCommandLength, int
+        key = "sender.command.length";
+        op = new IntOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // getTruncateDecimalLength, setTruncateDecimalLength, int
+        key = "sender.truncate";
+        op = new IntOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
+        key = "sender.whitespace";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
+        key = "sender.status";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // getStatusUpdateRate, setStatusUpdateRate, int
+        key = "sender.status.rate";
+        op = new IntOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isDisplayStateColor, setDisplayStateColor, bool
+        key = "sender.state";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isConvertArcsToLines, setConvertArcsToLines, bool
+        key = "sender.arcs";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // getSmallArcThreshold, setSmallArcThreshold, double
+        key = "sender.arcs.threshold";
+        op = new DoubleOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // getSmallArcSegmentLength, setSmallArcSegmentLength, double
+        key = "sender.arcs.length";
+        op = new DoubleOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isAutoConnectEnabled, setAutoConnect, bool
+        key = "sender.autoconnect";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
+
+        // isAutoReconnect, setAutoReconnect, bool
+        key = "sender.autoreconnect";
+        op = new BoolOption(localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.option, op);
     }
 
     private String localize(String s) {
@@ -29,53 +134,179 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
     }
 
     void load() {
-        // TODO read settings and initialize GUI
-        // Example:        
-        // someCheckBox.setSelected(Preferences.userNodeForPackage(SenderPanel.class).getBoolean("someFlag", false));
-        // or for org.openide.util with API spec. version >= 7.4:
-        // someCheckBox.setSelected(NbPreferences.forModule(SenderPanel.class).getBoolean("someFlag", false));
-        // or:
-        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
+        clear();
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
 
-        // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
-        add(new BoolOption(localize("sender.speed.override"), "", settings.isOverrideSpeedSelected()));
-        // setOverrideSpeedValue, getOverrideSpeedValue, double
-        add(new DoubleOption(localize("sender.speed.percent"), "", settings.getOverrideSpeedValue()));
-        // isSingleStepMode, setSingleStepMode, bool
-        add(new BoolOption(localize("sender.singlestep"), "", settings.isSingleStepMode()));
-        // getMaxCommandLength, setMaxCommandLength, int
-        add(new IntOption(localize("sender.command.length"), "", settings.getMaxCommandLength()));
-        // getTruncateDecimalLength, setTruncateDecimalLength, int
-        add(new IntOption(localize("sender.truncate"), "", settings.getTruncateDecimalLength()));
-        // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
-        add(new BoolOption(localize("sender.whitespace"), "", settings.isRemoveAllWhitespace()));
-        // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
-        add(new BoolOption(localize("sender.status"), "", settings.isStatusUpdatesEnabled()));
-        // getStatusUpdateRate, setStatusUpdateRate, int
-        add(new IntOption(localize("sender.status.rate"), "", settings.getStatusUpdateRate()));
-        // isDisplayStateColor, setDisplayStateColor, bool
-        add(new BoolOption(localize("sender.state"), "", settings.isDisplayStateColor()));
-        // isConvertArcsToLines, setConvertArcsToLines, bool
-        add(new BoolOption(localize("sender.arcs"), "", settings.isConvertArcsToLines()));
-        // getSmallArcThreshold, setSmallArcThreshold, double
-        add(new DoubleOption(localize("sender.arcs.threshold"), "", settings.getSmallArcThreshold()));
-        // getSmallArcSegmentLength, setSmallArcSegmentLength, double
-        add(new DoubleOption(localize("sender.arcs.length"), "", settings.getSmallArcSegmentLength()));
-        // isAutoConnectEnabled, setAutoConnect, bool
-        add(new BoolOption(localize("sender.autoconnect"), "", settings.isAutoConnectEnabled()));
-        // isAutoReconnect, setAutoReconnect, bool
-        add(new BoolOption(localize("sender.autoreconnect"), "", settings.isAutoReconnect()));
+        // Update value in options.
+        for (Entry<String,Option> entry : loadMap.entrySet()) {
+            switch (entry.getKey()) {
+                // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
+                case "sender.speed.override":
+                    entry.getValue().setValue(settings.isOverrideSpeedSelected());
+                    break;
+
+                // setOverrideSpeedValue, getOverrideSpeedValue, double
+                case "sender.speed.percent":
+                    entry.getValue().setValue(settings.getOverrideSpeedValue());
+                    break;
+
+                // isSingleStepMode, setSingleStepMode, bool
+                case "sender.singlestep":
+                    entry.getValue().setValue(settings.isSingleStepMode());
+                    break;
+
+                // getMaxCommandLength, setMaxCommandLength, int
+                case "sender.command.length":
+                    entry.getValue().setValue(settings.getMaxCommandLength());
+                    break;
+
+                // getTruncateDecimalLength, setTruncateDecimalLength, int
+                case "sender.truncate":
+                    entry.getValue().setValue(settings.getTruncateDecimalLength());
+                    break;
+
+                // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
+                case "sender.whitespace":
+                    entry.getValue().setValue(settings.isRemoveAllWhitespace());
+                    break;
+
+                // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
+                case "sender.status":
+                    entry.getValue().setValue(settings.isStatusUpdatesEnabled());
+                    break;
+
+                // getStatusUpdateRate, setStatusUpdateRate, int
+                case "sender.status.rate":
+                    entry.getValue().setValue(settings.getStatusUpdateRate());
+                    break;
+
+                // isDisplayStateColor, setDisplayStateColor, bool
+                case "sender.state":
+                    entry.getValue().setValue(settings.isDisplayStateColor());
+                    break;
+
+                // isConvertArcsToLines, setConvertArcsToLines, bool
+                case "sender.arcs":
+                    entry.getValue().setValue(settings.isConvertArcsToLines());
+                    break;
+
+                // getSmallArcThreshold, setSmallArcThreshold, double
+                case "sender.arcs.threshold":
+                    entry.getValue().setValue(settings.getSmallArcThreshold());
+                    break;
+
+                // getSmallArcSegmentLength, setSmallArcSegmentLength, double
+                case "sender.arcs.length":
+                    entry.getValue().setValue(settings.getSmallArcSegmentLength());
+                    break;
+
+                // isAutoConnectEnabled, setAutoConnect, bool
+                case "sender.autoconnect":
+                    entry.getValue().setValue(settings.isAutoConnectEnabled());
+                    break;
+
+                // isAutoReconnect, setAutoReconnect, bool
+                case "sender.autoreconnect":
+                    entry.getValue().setValue(settings.isAutoReconnect());
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown option in sender options panel.");
+            }
+
+            add(entry.getValue());
+        }
     }
 
     void store() {
-        // TODO store modified settings
-        // Example:
-        // Preferences.userNodeForPackage(SenderPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or for org.openide.util with API spec. version >= 7.4:
-        // NbPreferences.forModule(SenderPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or:
-        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
+        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+
+        // Update options
+        for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
+            String preference = (String) optionTable.getModel().getValueAt(i, 0);
+            Option op = storeMap.get(preference);
+            op.setValue(optionTable.getModel().getValueAt(i,1));
+        }
+
+        // Update value in options.
+        for (Entry<String,Option> entry : loadMap.entrySet()) {
+            switch (entry.getKey()) {
+                // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
+                case "sender.speed.override":
+                    Boolean value = (Boolean)entry.getValue().getValue();
+                    settings.setOverrideSpeedSelected((Boolean)entry.getValue().getValue());
+                    break;
+
+                // setOverrideSpeedValue, getOverrideSpeedValue, double
+                case "sender.speed.percent":
+                    settings.setOverrideSpeedValue((Double)entry.getValue().getValue());
+                    break;
+
+                // isSingleStepMode, setSingleStepMode, bool
+                case "sender.singlestep":
+                    settings.setSingleStepMode((Boolean)entry.getValue().getValue());
+                    break;
+
+                // getMaxCommandLength, setMaxCommandLength, int
+                case "sender.command.length":
+                    settings.setMaxCommandLength((Integer)entry.getValue().getValue());
+                    break;
+
+                // getTruncateDecimalLength, setTruncateDecimalLength, int
+                case "sender.truncate":
+                    settings.setTruncateDecimalLength((Integer)entry.getValue().getValue());
+                    break;
+
+                // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
+                case "sender.whitespace":
+                    settings.setRemoveAllWhitespace((Boolean)entry.getValue().getValue());
+                    break;
+
+                // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
+                case "sender.status":
+                    settings.setStatusUpdatesEnabled((Boolean)entry.getValue().getValue());
+                    break;
+
+                // getStatusUpdateRate, setStatusUpdateRate, int
+                case "sender.status.rate":
+                    settings.setStatusUpdateRate((Integer)entry.getValue().getValue());
+                    break;
+
+                // isDisplayStateColor, setDisplayStateColor, bool
+                case "sender.state":
+                    settings.setDisplayStateColor((Boolean)entry.getValue().getValue());
+                    break;
+
+                // isConvertArcsToLines, setConvertArcsToLines, bool
+                case "sender.arcs":
+                    settings.setConvertArcsToLines((Boolean)entry.getValue().getValue());
+                    break;
+
+                // getSmallArcThreshold, setSmallArcThreshold, double
+                case "sender.arcs.threshold":
+                    settings.setSmallArcThreshold((Double)entry.getValue().getValue());
+                    break;
+
+                // getSmallArcSegmentLength, setSmallArcSegmentLength, double
+                case "sender.arcs.length":
+                    settings.setSmallArcSegmentLength((Double)entry.getValue().getValue());
+                    break;
+
+                // isAutoConnectEnabled, setAutoConnect, bool
+                case "sender.autoconnect":
+                    settings.setAutoConnectEnabled((Boolean)entry.getValue().getValue());
+                    break;
+
+                // isAutoReconnect, setAutoReconnect, bool
+                case "sender.autoreconnect":
+                    settings.setAutoReconnect((Boolean)entry.getValue().getValue());
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unknown option in sender options panel.");
+            }
+        }
+        SettingsFactory.saveSettings(settings);
     }
 
     boolean valid() {
