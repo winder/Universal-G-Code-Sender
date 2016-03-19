@@ -308,6 +308,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
 
         lineBreakGroup = new javax.swing.ButtonGroup();
         jTabbedPane1 = new javax.swing.JTabbedPane();
@@ -317,14 +318,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         jogUnitsGroup = new javax.swing.ButtonGroup();
         scrollWindowCheckBox = new javax.swing.JCheckBox();
         bottomTabbedPane = new javax.swing.JTabbedPane();
+        commandsPanel = new javax.swing.JPanel();
+        commandLabel = new javax.swing.JLabel();
+        commandTextField = new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend);
         consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
         commandTableScrollPane = new javax.swing.JScrollPane();
         commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
-        commandsPanel = new javax.swing.JPanel();
-        commandLabel = new javax.swing.JLabel();
-        commandTextField = new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend);
         fileModePanel = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
@@ -432,16 +433,48 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         bottomTabbedPane.setMinimumSize(new java.awt.Dimension(0, 0));
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
 
+        commandsPanel.setLayout(new java.awt.GridBagLayout());
+
+        commandLabel.setText("Command");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        commandsPanel.add(commandLabel, gridBagConstraints);
+
+        commandTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commandTextFieldActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
+        commandsPanel.add(commandTextField, gridBagConstraints);
+
         consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
         consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
-        consoleTextArea.setFont(new java.awt.Font("Monospaced", 0, 13)); // NOI18N
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
         consoleScrollPane.setViewportView(consoleTextArea);
 
-        bottomTabbedPane.addTab("Console", consoleScrollPane);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        commandsPanel.add(consoleScrollPane, gridBagConstraints);
+
+        bottomTabbedPane.addTab("Commands", commandsPanel);
 
         commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
         commandTable.getTableHeader().setReorderingAllowed(false);
@@ -451,35 +484,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
-
-        commandLabel.setText("Command");
-
-        commandTextField.setEnabled(false);
-
-        org.jdesktop.layout.GroupLayout commandsPanelLayout = new org.jdesktop.layout.GroupLayout(commandsPanel);
-        commandsPanel.setLayout(commandsPanelLayout);
-        commandsPanelLayout.setHorizontalGroup(
-            commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(commandsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(commandTextField)
-                    .add(commandsPanelLayout.createSequentialGroup()
-                        .add(commandLabel)
-                        .add(0, 595, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        commandsPanelLayout.setVerticalGroup(
-            commandsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(commandsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(commandLabel)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commandTextField, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(143, Short.MAX_VALUE))
-        );
-
-        controlContextTabbedPane.addTab("Commands", commandsPanel);
 
         fileModePanel.setMinimumSize(new java.awt.Dimension(389, 150));
 
@@ -766,7 +770,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -1065,7 +1069,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(firmwareLabel)
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(26, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         showVerboseOutputCheckBox.setText("Show verbose output");
@@ -1208,7 +1212,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(machinePositionZLabel)
                             .add(machinePositionZValueLabel))))
-                .addContainerGap(10, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
 
         showCommandTableCheckBox.setSelected(true);
@@ -1304,7 +1308,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                                 .add(showVerboseOutputCheckBox)
                                 .add(showCommandTableCheckBox)))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 305, Short.MAX_VALUE))
+                .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE)
+                .add(4, 4, 4))
         );
 
         pack();
@@ -1817,6 +1822,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         showCommandTable(showCommandTableCheckBox.isSelected());
     }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
 
+    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_commandTextFieldActionPerformed
+
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
             displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
@@ -2139,10 +2148,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(
                 Localization.getString("mainWindow.swing.connectionPanel")));
-        this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.commands"));
-        this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.fileMode"));
-        this.controlContextTabbedPane.setTitleAt(2, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
-        this.controlContextTabbedPane.setTitleAt(3, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
+//        this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.commands"));
+        this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.fileMode"));
+        this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
+        this.controlContextTabbedPane.setTitleAt(2, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
         this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileLabel.setText(Localization.getString("mainWindow.swing.fileLabel"));
         this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
