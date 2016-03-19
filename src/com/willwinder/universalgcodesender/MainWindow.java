@@ -389,7 +389,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         cancelButton = new javax.swing.JButton();
         visualizeButton = new javax.swing.JButton();
         browseButton = new javax.swing.JButton();
-        fileTextField = new javax.swing.JTextField();
         saveButton = new javax.swing.JButton();
         fileRunPanel = new javax.swing.JPanel();
         remainingTimeValueLabel = new javax.swing.JLabel();
@@ -1036,7 +1035,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(sendButton, gridBagConstraints);
@@ -1050,7 +1049,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.ipadx = 6;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -1065,7 +1064,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(cancelButton, gridBagConstraints);
@@ -1079,7 +1078,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(visualizeButton, gridBagConstraints);
@@ -1092,19 +1091,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(browseButton, gridBagConstraints);
-
-        fileTextField.setEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(fileTextField, gridBagConstraints);
 
         saveButton.setText("Save");
         saveButton.setEnabled(false);
@@ -1117,7 +1107,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridy = 2;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(saveButton, gridBagConstraints);
@@ -1175,7 +1165,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(remainingTimeValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(52, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         fileRunPanelLayout.setVerticalGroup(
             fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1205,11 +1195,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
         fileModePanel.add(fileRunPanel, gridBagConstraints);
 
         settingsMenu.setText("Settings");
@@ -1304,7 +1293,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 405, Short.MAX_VALUE)
                         .add(4, 4, 4))
                     .add(layout.createSequentialGroup()
-                        .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 203, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
@@ -1472,8 +1461,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                fileTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
-                fileTextField.setToolTipText(fileChooser.getSelectedFile().getAbsolutePath());
+                fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + fileChooser.getSelectedFile().getName()));
+                fileModePanel.setToolTipText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
                 backend.setGcodeFile(gcodeFile);
             } catch (Exception ex) {
@@ -2017,7 +2006,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (hasFile) {
                 this.saveButton.setEnabled(true);
                 this.visualizeButton.setEnabled(true);
-                this.fileTextField.setEnabled(false);
         }
         
         switch (backend.getControlState()) {
@@ -2420,7 +2408,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JPanel fileModePanel;
     private javax.swing.JPanel fileRunPanel;
-    private javax.swing.JTextField fileTextField;
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
     private javax.swing.JMenu firmwareSettingsMenu;
