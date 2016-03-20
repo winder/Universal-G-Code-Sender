@@ -19,11 +19,8 @@
 package com.willwinder.ugs.nbp.lib.options;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -104,94 +101,25 @@ public class OptionTable extends JTable {
     }
 
 
-    public static abstract class Option {
+    public static class Option<T> {
         public String option;
         public String description;
-        Option(String name, String d) {
+        public T value;
+
+        public Option(String name, String d) {
             option = name;
             description = d;
         }
-        public abstract void setValue(Object v);
-
-        public abstract Object getValue();
-    }
-
-    public static class StringOption extends Option {
-        String value;
-        public StringOption(String name, String d, String v) {
-            super(name, d);
+        public Option(String name, String d, T v) {
+            option = name;
+            description = d;
             value = v;
         }
-        @Override
-        public void setValue(Object o) {
-            if (o instanceof String) {
-                value = (String) o;
-            } else {
-                throw new IllegalArgumentException("Wrong type.");
-            }
+        public void setValue(T v) {
+            value = (T)v;
         }
-        @Override
-        public Object getValue() {
-            return value;
-        }
-    }
 
-    public static class BoolOption extends Option {
-        Boolean value;
-        public BoolOption(String name, String d, Boolean v) {
-            super(name, d);
-            value = v;
-        }
-        @Override
-        public void setValue(Object o) {
-            if (o instanceof Boolean) {
-                value = (Boolean) o;
-            } else {
-                throw new IllegalArgumentException("Wrong type.");
-            }
-        }
-        @Override
-        public Object getValue() {
-            return value;
-        }
-    }
-
-    public static class IntOption extends Option {
-        Integer value;
-        public IntOption(String name, String d, Integer v) {
-            super(name, d);
-            value = v;
-        }
-        @Override
-        public void setValue(Object o) {
-            if (o instanceof Integer) {
-                value = (Integer) o;
-            } else {
-                throw new IllegalArgumentException("Wrong type.");
-            }
-        }
-        @Override
-        public Object getValue() {
-            return value;
-        }
-    }
-
-    public static class DoubleOption extends Option {
-        Double value;
-        public DoubleOption(String name, String d, Double v) {
-            super(name, d);
-            value = v;
-        }
-        @Override
-        public void setValue(Object o) {
-            if (o instanceof Double) {
-                value = (Double) o;
-            } else {
-                throw new IllegalArgumentException("Wrong type.");
-            }
-        }
-        @Override
-        public Object getValue() {
+        public T getValue() {
             return value;
         }
     }

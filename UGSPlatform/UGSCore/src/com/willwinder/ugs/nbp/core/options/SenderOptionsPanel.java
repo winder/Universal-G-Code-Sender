@@ -20,9 +20,6 @@ package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
-import com.willwinder.ugs.nbp.lib.options.OptionTable.BoolOption;
-import com.willwinder.ugs.nbp.lib.options.OptionTable.DoubleOption;
-import com.willwinder.ugs.nbp.lib.options.OptionTable.IntOption;
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -60,85 +57,85 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
 
         // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
         key = "sender.speed.override";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // setOverrideSpeedValue, getOverrideSpeedValue, double
         key = "sender.speed.percent";
-        op = new DoubleOption(localize(key), "", null);
+        op = new Option<Double>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isSingleStepMode, setSingleStepMode, bool
         key = "sender.singlestep";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getMaxCommandLength, setMaxCommandLength, int
         key = "sender.command.length";
-        op = new IntOption(localize(key), "", null);
+        op = new Option<Integer>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getTruncateDecimalLength, setTruncateDecimalLength, int
         key = "sender.truncate";
-        op = new IntOption(localize(key), "", null);
+        op = new Option<Integer>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
         key = "sender.whitespace";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
         key = "sender.status";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getStatusUpdateRate, setStatusUpdateRate, int
         key = "sender.status.rate";
-        op = new IntOption(localize(key), "", null);
+        op = new Option<Integer>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isDisplayStateColor, setDisplayStateColor, bool
         key = "sender.state";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isConvertArcsToLines, setConvertArcsToLines, bool
         key = "sender.arcs";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getSmallArcThreshold, setSmallArcThreshold, double
         key = "sender.arcs.threshold";
-        op = new DoubleOption(localize(key), "", null);
+        op = new Option<Double>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getSmallArcSegmentLength, setSmallArcSegmentLength, double
         key = "sender.arcs.length";
-        op = new DoubleOption(localize(key), "", null);
+        op = new Option<Double>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isAutoConnectEnabled, setAutoConnect, bool
         key = "sender.autoconnect";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isAutoReconnect, setAutoReconnect, bool
         key = "sender.autoreconnect";
-        op = new BoolOption(localize(key), "", null);
+        op = new Option<Boolean>(localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
     }
