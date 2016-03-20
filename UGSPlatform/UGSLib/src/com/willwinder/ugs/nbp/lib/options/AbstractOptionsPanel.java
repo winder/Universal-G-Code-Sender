@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.lib.options;
 
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
 import javax.swing.JPanel;
+import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 /**
@@ -28,9 +29,21 @@ import javax.swing.event.TableModelListener;
  */
 public abstract class AbstractOptionsPanel extends JPanel implements TableModelListener {
 
-    public AbstractOptionsPanel() {
+    public abstract void load();
+    public abstract void store();
+    public abstract boolean valid();
+
+    IChanged changer;
+
+    public AbstractOptionsPanel(IChanged change) {
+        changer = change;
         initComponents();
         optionTable.getModel().addTableModelListener(this);
+    }
+
+    @Override
+    public void tableChanged(TableModelEvent e) {
+        changer.changed();
     }
 
     /**

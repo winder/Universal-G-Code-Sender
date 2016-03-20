@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
+import com.willwinder.ugs.nbp.lib.options.IChanged;
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -27,28 +28,21 @@ import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
-import javax.swing.event.TableModelEvent;
 
 /**
  *
  * @author wwinder
  */
 public class SenderOptionsPanel extends AbstractOptionsPanel {
-    SenderOptionsPanelController controller;
-
     // This is a compatibility thing, because options aren't accessed as a map
     // I need a way to call each of the getter / setter methods. I'm going to
     // store the option objects in here and use the setting name as a key.
     HashMap<String, Option> loadMap;
     HashMap<String, Option> storeMap;
 
-    @Override
-    public void tableChanged(TableModelEvent e) {
-        controller.changed();
-    }
+    public SenderOptionsPanel(IChanged controller) {
+        super(controller);
 
-    public SenderOptionsPanel(SenderOptionsPanelController controller) {
-        this.controller = controller;
         // LinkedHashMap to preserve insertion order.
         loadMap = new LinkedHashMap<>();
         storeMap = new LinkedHashMap<>();
@@ -144,7 +138,8 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         return Localization.getString(s);
     }
 
-    void load() {
+    @Override
+    public void load() {
         clear();
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
 
@@ -229,7 +224,8 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         }
     }
 
-    void store() {
+    @Override
+    public void store() {
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
 
         // Update options
@@ -320,7 +316,8 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         SettingsFactory.saveSettings(settings);
     }
 
-    boolean valid() {
+    @Override
+    public boolean valid() {
         // TODO check whether form is consistent and complete
         return true;
     }
