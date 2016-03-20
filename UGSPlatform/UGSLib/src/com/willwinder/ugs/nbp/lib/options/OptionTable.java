@@ -75,6 +75,9 @@ public class OptionTable extends JTable {
             // TODO: When I have a color type check for that to create a custom
             //       color renderer. Also language combo box?
             Class rowClass = getModel().getValueAt(row, modelColumn).getClass();
+            if (rowClass == java.awt.Color.class) {
+                return new ColorRenderer(true);
+            }
             return getDefaultRenderer(rowClass);
         } else {
             return super.getCellRenderer(row, column);
@@ -89,6 +92,9 @@ public class OptionTable extends JTable {
             // TODO: When I have a color type check for that to create a custom
             //       color picker. Also language combo box?
             editingClass = getModel().getValueAt(row, modelColumn).getClass();
+            if (editingClass == java.awt.Color.class) {
+                return new ColorEditor();
+            }
             return getDefaultEditor(editingClass);
         } else {
             return super.getCellEditor(row, column);
