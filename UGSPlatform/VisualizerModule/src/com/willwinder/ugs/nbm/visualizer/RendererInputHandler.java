@@ -25,7 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.util.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.util.Highlight;
-import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
+import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;

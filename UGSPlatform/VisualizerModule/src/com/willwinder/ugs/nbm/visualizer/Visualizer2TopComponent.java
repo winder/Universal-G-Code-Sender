@@ -31,7 +31,7 @@ import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
-import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
+import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;

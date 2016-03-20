@@ -23,8 +23,8 @@
 package com.willwinder.ugs.nbp.editor;
 
 import com.google.common.eventbus.EventBus;
-import com.willwinder.ugs.nbp.eventbus.HighlightEvent;
-import com.willwinder.ugs.nbp.eventbus.HighlightEventBus;
+import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
+import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.swing.JEditorPane;
