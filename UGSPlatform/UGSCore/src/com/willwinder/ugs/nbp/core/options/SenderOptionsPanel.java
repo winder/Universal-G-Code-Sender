@@ -140,7 +140,6 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
 
     @Override
     public void load() {
-        clear();
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
 
         // Update value in options.

@@ -34,6 +34,7 @@ public abstract class AbstractOptionPanelController<T extends AbstractOptionsPan
 
     @Override
     public void update() {
+        getPanel().clear();
         getPanel().load();
         changed = false;
     }
