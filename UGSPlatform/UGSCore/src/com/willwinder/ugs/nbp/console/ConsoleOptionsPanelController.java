@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,7 +16,6 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.willwinder.ugs.nbp.console;
 
 import java.beans.PropertyChangeListener;
@@ -42,6 +41,7 @@ public final class ConsoleOptionsPanelController extends OptionsPanelController 
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
 
+    @Override
     public void update() {
         getPanel().load();
         changed = false;
@@ -58,30 +58,37 @@ public final class ConsoleOptionsPanelController extends OptionsPanelController 
         });
     }
 
+    @Override
     public void cancel() {
         // need not do anything special, if no changes have been persisted yet
     }
 
+    @Override
     public boolean isValid() {
         return getPanel().valid();
     }
 
+    @Override
     public boolean isChanged() {
         return changed;
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
         return null; // new HelpCtx("...ID") if you have a help set
     }
 
+    @Override
     public JComponent getComponent(Lookup masterLookup) {
         return getPanel();
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener l) {
         pcs.addPropertyChangeListener(l);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
     }

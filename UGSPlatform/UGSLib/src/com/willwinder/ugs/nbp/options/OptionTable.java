@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbp.options;
 
@@ -91,16 +104,16 @@ public class OptionTable extends JTable {
     }
 
 
-    protected static abstract class Option {
+    public static abstract class Option {
         public String option;
         public String description;
         Option(String name, String d) {
             option = name;
             description = d;
         }
-        abstract void setValue(Object v);
+        public abstract void setValue(Object v);
 
-        abstract Object getValue();
+        public abstract Object getValue();
     }
 
     public static class StringOption extends Option {
@@ -118,7 +131,7 @@ public class OptionTable extends JTable {
             }
         }
         @Override
-        Object getValue() {
+        public Object getValue() {
             return value;
         }
     }
@@ -138,7 +151,7 @@ public class OptionTable extends JTable {
             }
         }
         @Override
-        Object getValue() {
+        public Object getValue() {
             return value;
         }
     }
@@ -158,7 +171,7 @@ public class OptionTable extends JTable {
             }
         }
         @Override
-        Object getValue() {
+        public Object getValue() {
             return value;
         }
     }
@@ -178,7 +191,7 @@ public class OptionTable extends JTable {
             }
         }
         @Override
-        Object getValue() {
+        public Object getValue() {
             return value;
         }
     }

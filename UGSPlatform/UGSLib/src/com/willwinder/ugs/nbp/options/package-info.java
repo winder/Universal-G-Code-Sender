@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -17,12 +17,11 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 @OptionsPanelController.ContainerRegistration(
-        id = "UGS", 
+        id = "UGS",
         categoryName = "#OptionsCategory_Name_UGS",
-        iconBase = "com/willwinder/ugs/nbp/options/CNC.png", 
-        keywords = "#OptionsCategory_Keywords_UGS", 
+        iconBase = "com/willwinder/ugs/nbp/options/CNC.png",
+        keywords = "#OptionsCategory_Keywords_UGS",
         keywordsCategory = "UGS")
-
 @NbBundle.Messages(value = {
     "OptionsCategory_Name_UGS=UGS",
     "OptionsCategory_Keywords_UGS=UGS"})
