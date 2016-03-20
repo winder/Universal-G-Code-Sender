@@ -60,16 +60,12 @@ final class VisualizerOptionsPanel extends AbstractOptionsPanel {
         return new Color(pref, true);
     }
 
+    private void setColorOption(String option, Color color) {
+        NbPreferences.forModule(VisualizerOptionsPanel.class).putInt(option, color.getRGB());
+    }
+
     @Override
     public void load() {
-        // TODO read settings and initialize GUI
-        // Example:        
-        // someCheckBox.setSelected(Preferences.userNodeForPackage(VisualizerPanel.class).getBoolean("someFlag", false));
-        // or for org.openide.util with API spec. version >= 7.4:
-        // someCheckBox.setSelected(NbPreferences.forModule(VisualizerPanel.class).getBoolean("someFlag", false));
-        // or:
-        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
-
         for (colorPref cp : colorPreferences) {
             Color c = getColorOption(cp.preference, cp.defaultColor);
             this.add(new Option<>(cp.localized, "", c));
@@ -78,13 +74,15 @@ final class VisualizerOptionsPanel extends AbstractOptionsPanel {
 
     @Override
     public void store() {
-        // TODO store modified settings
-        // Example:
-        // Preferences.userNodeForPackage(VisualizerPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or for org.openide.util with API spec. version >= 7.4:
-        // NbPreferences.forModule(VisualizerPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or:
-        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
+        // n^2 whoop whoo
+        for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
+            String preference = (String) optionTable.getModel().getValueAt(i, 0);
+            for (colorPref cp : colorPreferences) {
+                if (cp.localized.equals(preference)) {
+                    setColorOption(cp.preference, (Color)optionTable.getModel().getValueAt(i,1));
+                }
+            }
+        }
     }
 
     @Override
