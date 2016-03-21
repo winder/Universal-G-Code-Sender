@@ -73,6 +73,11 @@ public class GcodeModel extends Renderable {
         objectSize = new Point3d();
     }
 
+    @Override
+    public void reloadPreferences() {
+
+    }
+
     public void setProcessedGcodeFile(String file) {
         this.processedFile = true;
         setFile(file);

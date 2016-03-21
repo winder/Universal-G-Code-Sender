@@ -162,6 +162,12 @@ public class GcodeRenderer implements GLEventListener {
         this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
     }
 
+    public void reloadPreferences() {
+        for (Renderable r : objects) {
+            r.reloadPreferences();
+        }
+    }
+
     // ------ Implement methods declared in GLEventListener ------
 
     /**

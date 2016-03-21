@@ -31,6 +31,8 @@ import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
+import java.util.prefs.Preferences;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -38,6 +40,7 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 
 /**
  * Top component which displays something.
@@ -124,6 +127,9 @@ public final class Visualizer2TopComponent extends TopComponent {
         
         animator = new FPSAnimator(p, 15);
         RendererInputHandler rih = new RendererInputHandler(renderer, animator);
+
+        Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
+        pref.addPreferenceChangeListener(rih);
 
         if (backend.getProcessedGcodeFile() != null) {
             rih.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());

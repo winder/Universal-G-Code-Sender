@@ -22,19 +22,28 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import java.awt.Color;
 import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
-public class Tool extends Renderable {
+public final class Tool extends Renderable {
     private GLU glu;
     GLUquadric gq;
+    Color toolColor;
 
     public Tool() {
         super(9);
+        reloadPreferences();
+    }
+
+    public void reloadPreferences() {
+        VisualizerOptions vo = new VisualizerOptions();
+        toolColor = (Color)vo.getOptionForKey("visualizer.color.tool").value;
     }
 
     @Override
@@ -64,7 +73,8 @@ public class Tool extends Renderable {
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
             gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
-            gl.glColor3f(1f, 1f, 0f);
+            //gl.glColor3f(1f, 1f, 0f);
+            gl.glColor4f(toolColor.getRed()/255, toolColor.getGreen()/255, toolColor.getBlue()/255, toolColor.getAlpha()/255);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);

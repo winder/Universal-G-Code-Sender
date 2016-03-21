@@ -32,6 +32,11 @@ public class Highlight extends Renderable {
     }
 
     @Override
+    public void reloadPreferences() {
+
+    }
+
+    @Override
     public boolean rotate() {
         return true;
     }

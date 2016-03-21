@@ -109,15 +109,18 @@ public class OptionTable extends JTable {
 
     public static class Option<T> {
         public String option;
+        public String localized;
         public String description;
         public T value;
 
-        public Option(String name, String d) {
+        public Option(String name, String l, String d) {
             option = name;
+            localized = l;
             description = d;
         }
-        public Option(String name, String d, T v) {
+        public Option(String name, String l, String d, T v) {
             option = name;
+            localized = l;
             description = d;
             value = v;
         }

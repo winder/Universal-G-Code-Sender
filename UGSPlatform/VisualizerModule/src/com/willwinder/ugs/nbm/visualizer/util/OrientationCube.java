@@ -47,6 +47,11 @@ public class OrientationCube extends Renderable {
   }
 
   @Override
+  public void reloadPreferences() {
+
+  }
+
+  @Override
   public boolean rotate() {
       return true;
   }

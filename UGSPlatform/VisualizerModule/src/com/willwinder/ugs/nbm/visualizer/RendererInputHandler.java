@@ -41,6 +41,8 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowListener;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
 import javax.swing.SwingUtilities;
 
 /**
@@ -49,7 +51,8 @@ import javax.swing.SwingUtilities;
  */
 public class RendererInputHandler implements
         WindowListener, MouseWheelListener, MouseMotionListener,
-        MouseListener, KeyListener, ControllerListener, UGSEventListener {
+        MouseListener, KeyListener, PreferenceChangeListener,
+        ControllerListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
     private GcodeModel gcodeModel;
@@ -69,6 +72,11 @@ public class RendererInputHandler implements
         //gcodeModel.setHighlightedLines(he.getLines());
         highlight.setHighlightedLines(he.getLines());
         gcodeRenderer.forceRedraw();
+    }
+
+    @Override
+    public void preferenceChange(PreferenceChangeEvent evt) {
+        gcodeRenderer.reloadPreferences();
     }
  
     public void setGcodeFile(String file) {
