@@ -23,7 +23,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 import javax.vecmath.Point3d;
 
@@ -38,11 +37,11 @@ public final class Tool extends Renderable {
 
     public Tool() {
         super(9);
-        reloadPreferences();
+        reloadPreferences(new VisualizerOptions());
     }
 
-    public void reloadPreferences() {
-        VisualizerOptions vo = new VisualizerOptions();
+    @Override
+    final public void reloadPreferences(VisualizerOptions vo) {
         toolColor = (Color)vo.getOptionForKey("visualizer.color.tool").value;
     }
 
@@ -66,21 +65,19 @@ public final class Tool extends Renderable {
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         GL2 gl = drawable.getGL().getGL2();
 
-        gl.glEnable(gl.GL_LIGHTING); 
-        byte color[] = VisualizerUtils.Color.YELLOW.getBytes();
+        gl.glEnable(GL2.GL_LIGHTING); 
         
         gl.glPushMatrix();
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
             gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
-            //gl.glColor3f(1f, 1f, 0f);
-            gl.glColor4f(toolColor.getRed()/255f, toolColor.getGreen()/255f, toolColor.getBlue()/255f, toolColor.getAlpha()/255f);
-            glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
+            gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
+            glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
         gl.glPopMatrix();
-        gl.glDisable(gl.GL_LIGHTING); 
+        gl.glDisable(GL2.GL_LIGHTING); 
 
         /*
         // The ugly yellow line. RIP.

@@ -5,12 +5,12 @@
  */
 package com.willwinder.ugs.nbm.visualizer.util;
 
-import static com.jogamp.opengl.GL.GL_CULL_FACE;
-import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
@@ -22,16 +22,20 @@ import javax.vecmath.Point3d;
  */
 public class SizeDisplay extends Renderable {
 
-    private static DecimalFormat formatter = new DecimalFormat("#.##");
+    private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
     private TextRenderer renderer;
+    float[] color;
+    boolean textRendererDirty = true;
 
     public SizeDisplay() {
         super(3);
+        reloadPreferences(new VisualizerOptions());
     }
 
     @Override
-    public void reloadPreferences() {
-
+    final public void reloadPreferences(VisualizerOptions vo) {
+        color = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.sizedisplay").value);
+        textRendererDirty = true;
     }
 
     @Override
@@ -47,24 +51,27 @@ public class SizeDisplay extends Renderable {
     @Override
     public void init(GLAutoDrawable drawable) {
         renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
-        renderer.setColor(0.2f, 0.2f, 0.2f, 1f);
+        renderer.setColor(color[0], color[1], color[2], color[3]);
+        textRendererDirty = false;
     }
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
         if (idle) return;
 
+        if (textRendererDirty) init(drawable);
+
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         double buffer = maxSide * 0.03;
         double offset = buffer*2;
 
         GL2 gl = drawable.getGL().getGL2();
-        gl.glColor4f(0.5f,0.5f,0.5f,1f);
-        gl.glLineWidth(2f);
 
             // X
             gl.glPushMatrix();
                 gl.glTranslated(0, -offset, 0);
+                gl.glColor4fv(color, 0);
+                gl.glLineWidth(2f);
                 gl.glBegin(GL2.GL_LINES);
                     gl.glVertex3d(focusMin.x, focusMin.y, 0);
                     gl.glVertex3d(focusMin.x, focusMin.y-offset, 0);
@@ -77,7 +84,7 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double xSize = focusMax.x-focusMin.x;
-                String text = formatter.format(xSize) + " mm";
+                String text = FORMATTER.format(xSize) + " mm";
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();
@@ -97,6 +104,8 @@ public class SizeDisplay extends Renderable {
             // Y
             gl.glPushMatrix();
                 gl.glTranslated(-offset, 0, 0);
+                gl.glColor4fv(color, 0);
+                gl.glLineWidth(2f);
                 gl.glBegin(GL2.GL_LINES);
                     gl.glVertex3d(focusMin.x       , focusMin.y, 0);
                     gl.glVertex3d(focusMin.x-offset, focusMin.y, 0);
@@ -109,7 +118,7 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double ySize = focusMax.y-focusMin.y;
-                String text = formatter.format(ySize) + " mm";
+                String text = FORMATTER.format(ySize) + " mm";
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();
@@ -130,7 +139,9 @@ public class SizeDisplay extends Renderable {
             // Z
             gl.glPushMatrix();
                 gl.glTranslated(offset, 0, 0);
-                gl.glBegin(gl.GL_LINES);
+                gl.glColor4fv(color, 0);
+                gl.glLineWidth(2f);
+                gl.glBegin(GL2.GL_LINES);
                     gl.glVertex3d(focusMax.x       , focusMin.y, focusMin.z);
                     gl.glVertex3d(focusMax.x+offset, focusMin.y, focusMin.z);
                     gl.glVertex3d(focusMax.x+buffer, focusMin.y, focusMin.z);
@@ -142,7 +153,7 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double zSize = focusMax.z-focusMin.z;
-                String text = formatter.format(zSize) + " mm";
+                String text = FORMATTER.format(zSize) + " mm";
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();

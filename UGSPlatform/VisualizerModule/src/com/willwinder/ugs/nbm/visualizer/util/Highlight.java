@@ -1,14 +1,29 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbm.visualizer.util;
 
 import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.vecmath.Point3d;
@@ -26,13 +41,18 @@ public class Highlight extends Renderable {
     private int numberOfVertices = -1;
     private float[] lineVertexData = null;
 
+    // Preferences
+    Color highlightColor;
+
     public Highlight(GcodeModel model) {
         super(9);
         this.model = model;
+        reloadPreferences(new VisualizerOptions());
     }
 
     @Override
-    public void reloadPreferences() {
+    final public void reloadPreferences(VisualizerOptions vo) {
+        highlightColor = (Color)vo.getOptionForKey("visualizer.color.highlight").value;
 
     }
 
@@ -64,11 +84,11 @@ public class Highlight extends Renderable {
         gl.glBegin(GL_LINES);
         gl.glLineWidth(2.0f);
 
-        byte[] c = GcodeModel.Color.YELLOW.getBytes();
+        float[] c = VisualizerOptions.colorToFloatArray(Color.YELLOW);
         for (int verts = 0; verts < (this.numberOfVertices * 3); ) {
-            gl.glColor3ub(c[0],c[1],c[2]);
+            gl.glColor4fv(c, 0);
             gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
-            gl.glColor3ub(c[0],c[1],c[2]);
+            gl.glColor4fv(c, 0);
             gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
         }
 

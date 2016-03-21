@@ -29,11 +29,12 @@ import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import com.jogamp.opengl.GLAutoDrawable;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,18 +65,30 @@ public class GcodeModel extends Renderable {
     private FloatBuffer lineVertexBuffer = null;
     private ByteBuffer lineColorBuffer = null;
 
-    Collection<Integer> highlightedLines = null;
-
     private Point3d objectMin, objectMax, objectSize, center;
+
+    // Preferences
+    Color linearColor;
+    Color rapidColor;
+    Color arcColor;
+    Color plungeColor;
+    Color completedColor;
 
     public GcodeModel() {
         super(10);
         objectSize = new Point3d();
+        reloadPreferences(new VisualizerOptions());
     }
 
     @Override
-    public void reloadPreferences() {
-
+    final public void reloadPreferences(VisualizerOptions vo) {
+        linearColor = (Color)vo.getOptionForKey("visualizer.color.linear").value;
+        rapidColor = (Color)vo.getOptionForKey("visualizer.color.rapid").value;
+        arcColor = (Color)vo.getOptionForKey("visualizer.color.arc").value;
+        plungeColor = (Color)vo.getOptionForKey("visualizer.color.plunge").value;
+        completedColor = (Color)vo.getOptionForKey("visualizer.color.completed").value;
+        updateVertexBuffers();
+        colorArrayDirty = true;
     }
 
     public void setProcessedGcodeFile(String file) {
@@ -111,11 +124,6 @@ public class GcodeModel extends Renderable {
         //forceRedraw();
 
         logger.log(Level.INFO, "Done setting gcode file.");
-    }
-
-    public void setHighlightedLines(Collection<Integer> lines) {
-        highlightedLines = lines;
-        this.colorArrayDirty = true;
     }
 
     public List<LineSegment> getLineList() {
@@ -266,34 +274,6 @@ public class GcodeModel extends Renderable {
         }
 
     }
-    
-    public enum Color {
-        RED(255,100,100), 
-        BRICK_RED(178,34,34),
-        ORANGE(229,83,0),
-        LIGHT_BLUE(0,255,255), 
-        DARK_BLUE(0,0,158), 
-        PURPLE(242,0,255), 
-        YELLOW(237,255,0), 
-        DARK_YELLOW(204,204,0),
-        OTHER_YELLOW(234,212,7), 
-        GREEN(33,255,0), 
-        DARK_GREEN(0,100,0), 
-        WHITE(255,255,255),
-        DARK_GRAY(105,105,105),
-        LIGHT_GRAY(190,190,190),
-        BLACK(0,0,0);
-
-        final byte[] rgb;
-
-        private Color(int r, int g, int b) {
-            rgb = new byte[]{(byte)r,(byte)g,(byte)b};
-        }
-
-        public byte[] getBytes() {
-            return rgb;
-        }
-    }
 
     /**
      * Convert the gcodeLineList into vertex and color arrays.
@@ -303,32 +283,32 @@ public class GcodeModel extends Renderable {
             Color color;
             int vertIndex = 0;
             int colorIndex = 0;
+            byte[] c = new byte[3];
             for(LineSegment ls : gcodeLineList) {
                 // Find the lines color.
                 if (ls.isArc()) {
-                    color = Color.BRICK_RED;
+                    color = arcColor;
                 } else if (ls.isFastTraverse()) {
-                    color = Color.DARK_YELLOW;
+                    color = rapidColor;
                 } else if (ls.isZMovement()) {
-                    color = Color.DARK_GREEN;
+                    color = plungeColor;
                 } else {
-                    color = Color.DARK_BLUE;
-                }
-
-                if (highlightedLines != null && highlightedLines.contains(ls.getLineNumber())) {
-                    color = Color.YELLOW;
+                    color = linearColor;
                 }
 
                 // Override color if it is cutoff
                 if (ls.getLineNumber() < this.currentCommandNumber) {
-                    color = Color.LIGHT_GRAY;
+                    color = completedColor;
                 }
 
                 // Draw it.
                 {
                     Point3d p1 = ls.getStart();
                     Point3d p2 = ls.getEnd();
-                    byte[] c = color.getBytes();
+
+                    c[0] = (byte)color.getRed();
+                    c[1] = (byte)color.getBlue();
+                    c[2] = (byte)color.getGreen();
 
                     // colors
                     //p1

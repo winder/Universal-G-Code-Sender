@@ -21,7 +21,9 @@ package com.willwinder.ugs.nbm.visualizer.util;
 import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import java.awt.Color;
 import javax.vecmath.Point3d;
 
 /**
@@ -29,13 +31,22 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class Grid extends Renderable {
+    float[] gridLineColor;
+    float[] gridPlaneColor;
+    float[] xAxisColor;
+    float[] yAxisColor;
+
     public Grid() {
         super(5);
+        reloadPreferences(new VisualizerOptions());
     }
 
     @Override
-    public void reloadPreferences() {
-
+    final public void reloadPreferences(VisualizerOptions vo) {
+        gridLineColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.xy-grid").value);
+        gridPlaneColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.xy-plane").value);
+        yAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.y-axis").value);
+        xAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.x-axis").value);
     }
 
     @Override
@@ -95,12 +106,12 @@ public class Grid extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            //gl.glRotated(90, 1.0, 0.0, 0.0);
-            gl.glColor4f(.3f,.3f,.3f, .09f);
+            //gl.glColor4f(.3f,.3f,.3f, .09f);
+            gl.glColor4fv(gridPlaneColor, 0);
 
             // floor - cover entire model and a little extra.
             gl.glPushMatrix();
-                gl.glBegin(gl.GL_QUADS);
+                gl.glBegin(GL2.GL_QUADS);
                     gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
                     gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
                     gl.glVertex3d(topRight.x  , topRight.y  , 0);
@@ -116,7 +127,7 @@ public class Grid extends Renderable {
             for(double x=bottomLeft.x;x<=topRight.x;x+=stepSize) {
                 for (double y=bottomLeft.y; y<=topRight.y; y+=stepSize) {
                     if (x==0) continue; 
-                    gl.glColor3d(.70,.70,.70);
+                    gl.glColor4fv(gridLineColor, 0);
 
                     gl.glVertex3d(x, bottomLeft.y, offset);
                     gl.glVertex3d(x, topRight.y  , offset);
@@ -124,22 +135,21 @@ public class Grid extends Renderable {
                     gl.glVertex3d(x, bottomLeft.y, -offset);
                     gl.glVertex3d(x, topRight.y  , -offset);
                     
-                    //if (y==0) { gl.glColor3d(.00,.00,.9); }
                     if (y==0) continue;
-                    gl.glColor3d(.70,.70,.70);
+                    gl.glColor4fv(gridLineColor, 0);
                     gl.glVertex3d(bottomLeft.x, y,  offset);
                     gl.glVertex3d(topRight.x  , y,  offset);
 
                     gl.glVertex3d(bottomLeft.x, y, -offset);
                     gl.glVertex3d(topRight.x  , y, -offset);
                 }
-            };
+            }
             gl.glEnd();
 
             gl.glLineWidth(5f);
             gl.glBegin(GL_LINES);
                 // X Axis Line
-                gl.glColor3d(.9f,.00f,.00f);
+                gl.glColor4fv(yAxisColor, 0);
                 gl.glVertex3d(0, bottomLeft.y, offset);
                 gl.glVertex3d(0, topRight.y  , offset);
 
@@ -147,7 +157,7 @@ public class Grid extends Renderable {
                 gl.glVertex3d(0, topRight.y  , -offset);
 
                 // Y Axis Line
-                gl.glColor3d(.00,.00,.9);
+                gl.glColor4fv(xAxisColor, 0);
                 gl.glVertex3d(bottomLeft.x, 0,  offset);
                 gl.glVertex3d(topRight.x  , 0,  offset);
 

@@ -29,6 +29,7 @@ import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import javax.vecmath.Point3d;
@@ -47,7 +48,7 @@ public class OrientationCube extends Renderable {
   }
 
   @Override
-  public void reloadPreferences() {
+  public void reloadPreferences(VisualizerOptions vo) {
 
   }
 

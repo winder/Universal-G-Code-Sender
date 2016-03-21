@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbm.visualizer.util;
 
 import com.jogamp.opengl.GLAutoDrawable;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.util.Objects;
 import javax.vecmath.Point3d;
 
@@ -66,6 +67,6 @@ public abstract class Renderable implements Comparable<Renderable> {
     abstract public boolean center();
 
     abstract public void init(GLAutoDrawable drawable);
-    abstract public void reloadPreferences();
+    abstract public void reloadPreferences(VisualizerOptions vo);
     abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor);
 }

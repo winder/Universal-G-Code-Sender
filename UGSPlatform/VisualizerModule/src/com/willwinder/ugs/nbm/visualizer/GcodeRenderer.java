@@ -38,6 +38,7 @@ import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT_AND_DIFFUSE;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.util.Grid;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.util.Renderable;
@@ -48,6 +49,7 @@ import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
@@ -118,6 +120,9 @@ public class GcodeRenderer implements GLEventListener {
 
     private ArrayList<Renderable> objects;
     private boolean idle = true;
+
+    // Preferences
+    java.awt.Color clearColor;
     
     /**
      * Constructor.
@@ -141,6 +146,8 @@ public class GcodeRenderer implements GLEventListener {
         objects.add(new Grid());
         objects.add(new SizeDisplay());
         Collections.sort(objects);
+
+        reloadPreferences();
     }
 
     public void addRenderable(Renderable r) {
@@ -162,9 +169,13 @@ public class GcodeRenderer implements GLEventListener {
         this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
     }
 
-    public void reloadPreferences() {
+    final public void reloadPreferences() {
+        VisualizerOptions vo = new VisualizerOptions();
+
+        clearColor = (Color)vo.getOptionForKey("visualizer.color.background").value;
+
         for (Renderable r : objects) {
-            r.reloadPreferences();
+            r.reloadPreferences(vo);
         }
         forceRedraw();
     }
@@ -203,8 +214,7 @@ public class GcodeRenderer implements GLEventListener {
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
         glu = new GLU();                         // get GL Utilities
-        gl.glClearColor(220/255f, 235/255f, 255/255f, 0);
-        //gl.glClearColor(0.09f, 0.57f, 0.6f, 0.0f); // set background (clear) color
+        gl.glClearColor(clearColor.getRed()/255f, clearColor.getGreen()/255f, clearColor.getBlue()/255f, clearColor.getAlpha()/255f);
         gl.glClearDepth(1.0f);      // set clear depth value to farthest
         gl.glDepthFunc(GL2.GL_LEQUAL);  // the type of depth test to do
         gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST); // best perspective correction
@@ -266,10 +276,10 @@ public class GcodeRenderer implements GLEventListener {
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
+        gl.glClearColor(clearColor.getRed()/255f, clearColor.getGreen()/255f, clearColor.getBlue()/255f, clearColor.getAlpha()/255f);
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
         gl.glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
-        //gl.glEnable(GL2.GL_LIGHTING); 
         gl.glEnable(GL2.GL_LIGHT0);  
         gl.glEnable(GL2.GL_NORMALIZE); 
         gl.glEnable (GL2.GL_COLOR_MATERIAL ) ;
@@ -278,7 +288,6 @@ public class GcodeRenderer implements GLEventListener {
         float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float position[] = { 0f, 0f, 50f, 1.0f };
-        //float lmodel_ambient[] = { 0.9f, 0.6f, 0.6f, 1.0f };
         float lmodel_ambient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
