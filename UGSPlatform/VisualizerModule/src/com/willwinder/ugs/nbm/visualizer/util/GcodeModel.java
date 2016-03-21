@@ -307,8 +307,8 @@ public class GcodeModel extends Renderable {
                     Point3d p2 = ls.getEnd();
 
                     c[0] = (byte)color.getRed();
-                    c[1] = (byte)color.getBlue();
-                    c[2] = (byte)color.getGreen();
+                    c[1] = (byte)color.getGreen();
+                    c[2] = (byte)color.getBlue();
 
                     // colors
                     //p1
