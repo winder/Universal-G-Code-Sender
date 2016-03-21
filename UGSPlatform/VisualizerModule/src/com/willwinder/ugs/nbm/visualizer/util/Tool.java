@@ -74,7 +74,7 @@ public final class Tool extends Renderable {
             gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
             //gl.glColor3f(1f, 1f, 0f);
-            gl.glColor4f(toolColor.getRed()/255, toolColor.getGreen()/255, toolColor.getBlue()/255, toolColor.getAlpha()/255);
+            gl.glColor4f(toolColor.getRed()/255f, toolColor.getGreen()/255f, toolColor.getBlue()/255f, toolColor.getAlpha()/255f);
             glu.gluQuadricNormals(gq, glu.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);

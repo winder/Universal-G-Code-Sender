@@ -278,7 +278,8 @@ public class GcodeRenderer implements GLEventListener {
         float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         float position[] = { 0f, 0f, 50f, 1.0f };
-        float lmodel_ambient[] = { 0.9f, 0.6f, 0.6f, 1.0f };
+        //float lmodel_ambient[] = { 0.9f, 0.6f, 0.6f, 1.0f };
+        float lmodel_ambient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, ambient, 0);
