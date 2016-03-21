@@ -166,6 +166,7 @@ public class GcodeRenderer implements GLEventListener {
         for (Renderable r : objects) {
             r.reloadPreferences();
         }
+        forceRedraw();
     }
 
     // ------ Implement methods declared in GLEventListener ------
