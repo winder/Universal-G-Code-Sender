@@ -485,11 +485,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
-        controlContextTabbedPane.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                controlContextTabbedPaneFocusGained(evt);
-            }
-        });
         controlContextTabbedPane.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 controlContextTabbedPaneComponentShown(evt);
@@ -666,12 +661,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         machineControlPanel.add(resetZButton, gridBagConstraints);
 
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-        macroActionPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                macroActionPanelComponentShownListener(evt);
-            }
-        });
 
         org.jdesktop.layout.GroupLayout macroActionPanelLayout = new org.jdesktop.layout.GroupLayout(macroActionPanel);
         macroActionPanel.setLayout(macroActionPanelLayout);
@@ -1884,10 +1873,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         // TODO add your handling code here:
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
-    private void controlContextTabbedPaneFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneFocusGained
-        // TODO add your handling code here:
-    }//GEN-LAST:event_controlContextTabbedPaneFocusGained
-
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
@@ -1895,10 +1880,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
         macroActionPanel.doLayout();
     }//GEN-LAST:event_machineControlPanelComponentShownHandler
-
-    private void macroActionPanelComponentShownListener(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_macroActionPanelComponentShownListener
-        System.out.println("macro action panel component shown");
-    }//GEN-LAST:event_macroActionPanelComponentShownListener
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {

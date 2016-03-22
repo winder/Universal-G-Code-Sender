@@ -307,7 +307,6 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="controlContextTabbedPaneFocusGained"/>
         <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="controlContextTabbedPaneComponentShown"/>
       </Events>
 
@@ -493,9 +492,6 @@
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
                 <Container class="com.willwinder.universalgcodesender.uielements.MacroActionPanel" name="macroActionPanel">
-                  <Events>
-                    <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="macroActionPanelComponentShownListener"/>
-                  </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, this)"/>
                   </AuxValues>
