@@ -52,15 +52,15 @@ import org.openide.util.NbPreferences;
 )
 @TopComponent.Registration(mode = "connection", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.connection.ConnectionGUITopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_ConnectionGUIAction",
         preferredID = "ConnectionGUITopComponent"
 )
 @Messages({
-    "CTL_ConnectionGUIAction=ConnectionGUI",
-    "CTL_ConnectionGUITopComponent=ConnectionGUI",
-    "HINT_ConnectionGUITopComponent=This is a ConnectionGUI"
+    "CTL_ConnectionGUIAction=Connection",
+    "CTL_ConnectionGUITopComponent=Connection",
+    "HINT_ConnectionGUITopComponent=Configure connection"
 })
 
 @OnStart

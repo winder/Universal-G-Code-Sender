@@ -24,7 +24,6 @@
 package com.willwinder.ugs.nbm.workflow;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.ugs.nbm.workflow.Bundle;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -58,15 +57,15 @@ import org.openide.util.NbBundle.Messages;
 )
 @TopComponent.Registration(mode = "visualizer", openAtStartup = false)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window/Plugins" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_WorkflowWindowAction",
         preferredID = "WorkflowWindowTopComponent"
 )
 @Messages({
-    "CTL_WorkflowWindowAction=WorkflowWindow",
-    "CTL_WorkflowWindowTopComponent=WorkflowWindow Window",
-    "HINT_WorkflowWindowTopComponent=This is a WorkflowWindow window"
+    "CTL_WorkflowWindowAction=Workflow Helper",
+    "CTL_WorkflowWindowTopComponent=Workflow Helper",
+    "HINT_WorkflowWindowTopComponent=Multi file job assistant."
 })
 /**
  * UGSEventListener - this is how a plugin can listen to UGS lifecycle events.

@@ -16,9 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.willwinder.ugs.nbp.core.console;
 
+import com.willwinder.ugs.nbp.core.console.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -62,7 +62,7 @@ import org.openide.util.NbPreferences;
 @Messages({
     "CTL_SerialConsoleAction=Console",
     "CTL_SerialConsoleTopComponent=Console",
-    "HINT_SerialConsoleTopComponent=This is the UGS Console"
+    "HINT_SerialConsoleTopComponent=The UGS Console"
 })
 public final class SerialConsoleTopComponent extends TopComponent implements ControllerListener, MouseListener {
 

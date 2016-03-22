@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 20152016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 
 package com.willwinder.ugs.nbp.core.filebrowser;
 
+import com.willwinder.ugs.nbp.core.filebrowser.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -43,15 +44,15 @@ import org.openide.util.NbBundle.Messages;
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.filebrowser.FileBrowserTopComponentTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_FileBrowserTopComponentAction",
         preferredID = "FileBrowserTopComponentTopComponent"
 )
 @Messages({
-    "CTL_FileBrowserTopComponentAction=FileBrowser",
-    "CTL_FileBrowserTopComponentTopComponent=FileBrowser",
-    "HINT_FileBrowserTopComponentTopComponent=This is a FileBrowser"
+    "CTL_FileBrowserTopComponentAction=File browser",
+    "CTL_FileBrowserTopComponentTopComponent=File Browser",
+    "HINT_FileBrowserTopComponentTopComponent=File browers"
 })
 public final class FileBrowserTopComponent extends TopComponent implements UGSEventListener {
     BackendAPI backend;
