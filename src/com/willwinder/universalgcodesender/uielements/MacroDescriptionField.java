@@ -8,15 +8,15 @@ import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class MacroTextField extends JTextField {
+public class MacroDescriptionField extends JTextField {
 
     private final Integer index;
     private final Settings settings;
 
-    public MacroTextField(final Integer index, Settings settings) {
+    public MacroDescriptionField(final Integer index, Settings settings) {
         this.index = index;
         this.settings = settings;
-        this.setToolTipText(Localization.getString("macroPanel.text"));
+        this.setToolTipText(Localization.getString("macroPanel.description"));
 
         addKeyListener(new KeyListener() {
             @Override
@@ -38,6 +38,6 @@ public class MacroTextField extends JTextField {
 
     private void update() {
         Macro macro = this.settings.getMacro(this.index);
-        this.settings.updateMacro(this.index, macro.getName(), macro.getDescription(), this.getText());
+        this.settings.updateMacro(this.index, macro.getName(), this.getText(), macro.getGcode());
     }
 }
