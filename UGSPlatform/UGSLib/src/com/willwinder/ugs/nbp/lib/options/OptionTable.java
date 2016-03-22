@@ -55,7 +55,7 @@ public class OptionTable extends JTable {
     }
 
     public void addRow(Option o) {
-        model.addRow(new Object[]{o.option, o.getValue()});
+        model.addRow(new Object[]{o.localized, o.getValue()});
         types.add(o.getValue().getClass());
     }
 

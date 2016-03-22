@@ -43,8 +43,11 @@ final public class VisualizerOptionsPanel extends AbstractOptionsPanel {
         // n^2 whoop whoo
         for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
             String preference = (String) optionTable.getModel().getValueAt(i, 0);
-            Option op = vo.getOptionForKey(preference);
-            VisualizerOptions.setColorOption(op.option, (Color)optionTable.getModel().getValueAt(i,1));
+            for (Option op : vo) {
+                if (op.localized.equals(preference)) {
+                    VisualizerOptions.setColorOption(op.option, (Color)optionTable.getModel().getValueAt(i,1));
+                }
+            }
         }
     }
 

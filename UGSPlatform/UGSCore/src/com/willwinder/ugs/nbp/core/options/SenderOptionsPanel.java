@@ -51,85 +51,85 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
 
         // isOverrideSpeedSelected, setOverrideSpeedSelected, bool
         key = "sender.speed.override";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // setOverrideSpeedValue, getOverrideSpeedValue, double
         key = "sender.speed.percent";
-        op = new Option<Double>(localize(key), "", null);
+        op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isSingleStepMode, setSingleStepMode, bool
         key = "sender.singlestep";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getMaxCommandLength, setMaxCommandLength, int
         key = "sender.command.length";
-        op = new Option<Integer>(localize(key), "", null);
+        op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getTruncateDecimalLength, setTruncateDecimalLength, int
         key = "sender.truncate";
-        op = new Option<Integer>(localize(key), "", null);
+        op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
         key = "sender.whitespace";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
         key = "sender.status";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getStatusUpdateRate, setStatusUpdateRate, int
         key = "sender.status.rate";
-        op = new Option<Integer>(localize(key), "", null);
+        op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isDisplayStateColor, setDisplayStateColor, bool
         key = "sender.state";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isConvertArcsToLines, setConvertArcsToLines, bool
         key = "sender.arcs";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getSmallArcThreshold, setSmallArcThreshold, double
         key = "sender.arcs.threshold";
-        op = new Option<Double>(localize(key), "", null);
+        op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // getSmallArcSegmentLength, setSmallArcSegmentLength, double
         key = "sender.arcs.length";
-        op = new Option<Double>(localize(key), "", null);
+        op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isAutoConnectEnabled, setAutoConnect, bool
         key = "sender.autoconnect";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
 
         // isAutoReconnect, setAutoReconnect, bool
         key = "sender.autoreconnect";
-        op = new Option<Boolean>(localize(key), "", null);
+        op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.option, op);
     }
