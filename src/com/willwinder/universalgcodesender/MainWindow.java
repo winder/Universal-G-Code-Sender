@@ -63,6 +63,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.Timer;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
@@ -141,7 +143,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
 //        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
 
-        
         initFileChooser();
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -327,17 +328,19 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         machineControlPanel = new javax.swing.JPanel();
-        resetCoordinatesButton = new javax.swing.JButton();
-        returnToZeroButton = new javax.swing.JButton();
-        performHomingCycleButton = new javax.swing.JButton();
-        killAlarmLock = new javax.swing.JButton();
-        toggleCheckMode = new javax.swing.JButton();
         helpButtonMachineControl = new javax.swing.JButton();
+        resetYButton = new javax.swing.JButton();
         softResetMachineControl = new javax.swing.JButton();
         requestStateInformation = new javax.swing.JButton();
+        returnToZeroButton = new javax.swing.JButton();
+        toggleCheckMode = new javax.swing.JButton();
+        resetCoordinatesButton = new javax.swing.JButton();
+        performHomingCycleButton = new javax.swing.JButton();
+        killAlarmLock = new javax.swing.JButton();
         resetXButton = new javax.swing.JButton();
-        resetYButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, this);
         macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, this);
         connectionPanel = new javax.swing.JPanel();
@@ -482,46 +485,18 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
-
-        resetCoordinatesButton.setText("Reset Zero");
-        resetCoordinatesButton.setEnabled(false);
-        resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetCoordinatesButtonActionPerformed(evt);
+        controlContextTabbedPane.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                controlContextTabbedPaneComponentShown(evt);
             }
         });
 
-        returnToZeroButton.setText("Return to Zero");
-        returnToZeroButton.setEnabled(false);
-        returnToZeroButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                returnToZeroButtonActionPerformed(evt);
+        machineControlPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                machineControlPanelComponentShownHandler(evt);
             }
         });
-
-        performHomingCycleButton.setText("$H");
-        performHomingCycleButton.setEnabled(false);
-        performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                performHomingCycleButtonActionPerformed(evt);
-            }
-        });
-
-        killAlarmLock.setText("$X");
-        killAlarmLock.setEnabled(false);
-        killAlarmLock.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                killAlarmLockActionPerformed(evt);
-            }
-        });
-
-        toggleCheckMode.setText("$C");
-        toggleCheckMode.setEnabled(false);
-        toggleCheckMode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                toggleCheckModeActionPerformed(evt);
-            }
-        });
+        machineControlPanel.setLayout(new java.awt.GridBagLayout());
 
         helpButtonMachineControl.setText("Help");
         helpButtonMachineControl.addActionListener(new java.awt.event.ActionListener() {
@@ -529,30 +504,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 helpButtonMachineControlActionPerformed(evt);
             }
         });
-
-        softResetMachineControl.setText("Soft Reset");
-        softResetMachineControl.setEnabled(false);
-        softResetMachineControl.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                softResetMachineControlActionPerformed(evt);
-            }
-        });
-
-        requestStateInformation.setText("$G");
-        requestStateInformation.setEnabled(false);
-        requestStateInformation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                requestStateInformationActionPerformed(evt);
-            }
-        });
-
-        resetXButton.setText("Reset X Axis");
-        resetXButton.setEnabled(false);
-        resetXButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetXCoordinateButtonActionPerformed(evt);
-            }
-        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 2, 0, 0);
+        machineControlPanel.add(helpButtonMachineControl, gridBagConstraints);
 
         resetYButton.setText("Reset Y Axis");
         resetYButton.setEnabled(false);
@@ -561,6 +518,133 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 resetYCoordinateButtonActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        machineControlPanel.add(resetYButton, gridBagConstraints);
+
+        softResetMachineControl.setText("Soft Reset");
+        softResetMachineControl.setEnabled(false);
+        softResetMachineControl.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                softResetMachineControlActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 76;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        machineControlPanel.add(softResetMachineControl, gridBagConstraints);
+
+        requestStateInformation.setText("$G");
+        requestStateInformation.setEnabled(false);
+        requestStateInformation.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                requestStateInformationActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        machineControlPanel.add(requestStateInformation, gridBagConstraints);
+
+        returnToZeroButton.setText("Return to Zero");
+        returnToZeroButton.setEnabled(false);
+        returnToZeroButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                returnToZeroButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 56;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        machineControlPanel.add(returnToZeroButton, gridBagConstraints);
+
+        toggleCheckMode.setText("$C");
+        toggleCheckMode.setEnabled(false);
+        toggleCheckMode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                toggleCheckModeActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        machineControlPanel.add(toggleCheckMode, gridBagConstraints);
+
+        resetCoordinatesButton.setText("Reset Zero");
+        resetCoordinatesButton.setEnabled(false);
+        resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetCoordinatesButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.ipadx = 74;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        machineControlPanel.add(resetCoordinatesButton, gridBagConstraints);
+
+        performHomingCycleButton.setText("$H");
+        performHomingCycleButton.setEnabled(false);
+        performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                performHomingCycleButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
+        machineControlPanel.add(performHomingCycleButton, gridBagConstraints);
+
+        killAlarmLock.setText("$X");
+        killAlarmLock.setEnabled(false);
+        killAlarmLock.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                killAlarmLockActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.ipadx = 4;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        machineControlPanel.add(killAlarmLock, gridBagConstraints);
+
+        resetXButton.setText("Reset X Axis");
+        resetXButton.setEnabled(false);
+        resetXButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                resetXCoordinateButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
+        machineControlPanel.add(resetXButton, gridBagConstraints);
 
         resetZButton.setText("Reset Z Axis");
         resetZButton.setEnabled(false);
@@ -569,64 +653,40 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 resetZCoordinateButtonActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
+        machineControlPanel.add(resetZButton, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout machineControlPanelLayout = new org.jdesktop.layout.GroupLayout(machineControlPanel);
-        machineControlPanel.setLayout(machineControlPanelLayout);
-        machineControlPanelLayout.setHorizontalGroup(
-            machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, machineControlPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(machineControlPanelLayout.createSequentialGroup()
-                        .add(softResetMachineControl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(resetZButton))
-                    .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, machineControlPanelLayout.createSequentialGroup()
-                            .add(requestStateInformation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(helpButtonMachineControl))
-                        .add(org.jdesktop.layout.GroupLayout.LEADING, machineControlPanelLayout.createSequentialGroup()
-                            .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .add(machineControlPanelLayout.createSequentialGroup()
-                        .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(resetXButton))
-                    .add(machineControlPanelLayout.createSequentialGroup()
-                        .add(returnToZeroButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(resetYButton)))
-                .addContainerGap(394, Short.MAX_VALUE))
+        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+
+        org.jdesktop.layout.GroupLayout macroActionPanelLayout = new org.jdesktop.layout.GroupLayout(macroActionPanel);
+        macroActionPanel.setLayout(macroActionPanelLayout);
+        macroActionPanelLayout.setHorizontalGroup(
+            macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 643, Short.MAX_VALUE)
         );
-        machineControlPanelLayout.setVerticalGroup(
-            machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(machineControlPanelLayout.createSequentialGroup()
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(resetCoordinatesButton)
-                    .add(resetXButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(returnToZeroButton)
-                    .add(resetYButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(softResetMachineControl)
-                    .add(resetZButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(performHomingCycleButton)
-                    .add(killAlarmLock)
-                    .add(toggleCheckMode))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(requestStateInformation)
-                    .add(helpButtonMachineControl))
-                .addContainerGap(111, Short.MAX_VALUE))
+        macroActionPanelLayout.setVerticalGroup(
+            macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 250, Short.MAX_VALUE)
         );
+
+        jScrollPane1.setViewportView(macroActionPanel);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridheight = 6;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.ipadx = 372;
+        gridBagConstraints.ipady = 244;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 1.0;
+        gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 0);
+        machineControlPanel.add(jScrollPane1, gridBagConstraints);
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
@@ -1269,7 +1329,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         .add(18, 18, 18)
                         .add(showCommandTableCheckBox)
                         .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1813,6 +1873,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         // TODO add your handling code here:
     }//GEN-LAST:event_commandTextFieldActionPerformed
 
+    private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
+        // TODO add your handling code here:
+    }//GEN-LAST:event_controlContextTabbedPaneComponentShown
+
+    private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
+        macroActionPanel.doLayout();
+    }//GEN-LAST:event_machineControlPanelComponentShownHandler
+
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
             displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
@@ -2015,6 +2083,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
                 this.macroPanel.updateCustomGcodeControls(false);
+                this.macroActionPanel.updateCustomGcodeControls(false);
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
@@ -2022,11 +2091,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
                 this.macroPanel.updateCustomGcodeControls(true);
+                this.macroActionPanel.updateCustomGcodeControls(true);
                 break;
             case COMM_SENDING:
                 // Workflow tab
                 this.updateWorkflowControls(false);
                 this.macroPanel.updateCustomGcodeControls(false);
+                this.macroActionPanel.updateCustomGcodeControls(false);
                 // Jogging commands
                 this.updateManualControls(false);
         
@@ -2414,6 +2485,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
@@ -2429,6 +2501,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
+    private com.willwinder.universalgcodesender.uielements.MacroActionPanel macroActionPanel;
     private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
