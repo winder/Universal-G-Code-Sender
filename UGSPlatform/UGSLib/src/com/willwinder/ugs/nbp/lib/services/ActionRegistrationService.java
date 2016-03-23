@@ -59,22 +59,26 @@ public class ActionRegistrationService {
         /////////////////////
         // Add/Update Menu //
         /////////////////////
-        in = getFolderAt(menuPath);
-        obj = in.getFileObject(name, "shadow");
-        // Create if missing.
-        if (obj == null) {
-            obj = in.createData(name, "shadow");
-            obj.setAttribute("originalFile", originalFile);
+        if (menuPath != null && name != null) {
+            in = getFolderAt(menuPath);
+            obj = in.getFileObject(name, "shadow");
+            // Create if missing.
+            if (obj == null) {
+                obj = in.createData(name, "shadow");
+                obj.setAttribute("originalFile", originalFile);
+            }
         }
 
         /////////////////////////
         // Add/Update Shortcut //
         /////////////////////////
-        in = getFolderAt("Shortcuts");
-        obj = in.getFileObject(shortcut, "shadow");
-        if (obj == null) {
-            obj = in.createData(shortcut, "shadow");
-            obj.setAttribute("originalFile", originalFile);
+        if (shortcut != null) {
+            in = getFolderAt("Shortcuts");
+            obj = in.getFileObject(shortcut, "shadow");
+            if (obj == null) {
+                obj = in.createData(shortcut, "shadow");
+                obj.setAttribute("originalFile", originalFile);
+            }
         }
     }
 
