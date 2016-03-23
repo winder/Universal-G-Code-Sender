@@ -336,6 +336,7 @@ public class Settings {
         macros.remove(index);
     }
 
+    @Deprecated
     public void updateMacro(Integer index, String gcode) {
         Macro macro = getMacro(index);
         updateMacro(index, macro.getName(), macro.getDescription(), gcode);
