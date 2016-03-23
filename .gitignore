@@ -29,6 +29,7 @@ tar.gz
 /UGSPlatform/SerialConsole/build/
 /UGSPlatform/Options/nbproject/private/
 /UGSPlatform/UGSLib/build/
+/UGSPlatform/UGSLib/nbproject/private/
 /UGSPlatform/VisualizerModule/build/
 .idea
 *.iml
