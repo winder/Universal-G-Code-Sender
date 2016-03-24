@@ -51,7 +51,8 @@ public final class MacroService {
         try {
             FileObject root= FileUtil.getConfigRoot(); 
             FileUtil.createData(root, menuPath).delete(); 
-            FileObject actionsObject = FileUtil.createData(root, "/Actions/" + actionCategory);
+            FileUtil.createFolder(root, menuPath); 
+            FileObject actionsObject = FileUtil.createFolder(root, "/Actions/" + actionCategory);
             ArrayList<FileObject> actionObjects = new ArrayList<>(Arrays.asList(actionsObject.getChildren()));
 
             ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
@@ -65,11 +66,11 @@ public final class MacroService {
                 // Remove from list if it already exists.
                 for (Iterator<FileObject> iter = actionObjects.iterator(); iter.hasNext();) {
                     FileObject next = iter.next();
-                    if (next.getName().startsWith(m.getName())) {
+                    if (next.getName().equals(m.getName())) {
                         iter.remove();
-                        break;
                     }
                 }
+
                 ars.registerAction(m.getName(), actionCategory, null, menuPath, new MacroAction(settings, backend, i));
             }
 
@@ -78,7 +79,7 @@ public final class MacroService {
                 action.delete();
             }
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 
