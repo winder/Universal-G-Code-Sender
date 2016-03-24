@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.MainWindow;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -16,7 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
-public class MacroPanel extends JPanel {
+public class MacroPanel extends JPanel implements UGSEventListener {
 
     private BackendAPI backend;
     private Settings settings;
@@ -32,6 +33,9 @@ public class MacroPanel extends JPanel {
     public MacroPanel(Settings settings, BackendAPI backend) {
         this.settings = settings;
         this.backend = backend;
+        if (backend != null) {
+            backend.addUGSEventListener(this);
+        }
     }
 
     @Override
@@ -166,10 +170,15 @@ public class MacroPanel extends JPanel {
         }
     }
 
-    public void updateCustomGcodeControls(boolean enabled) {
+    private void updateCustomGcodeControls(boolean enabled) {
         for (JButton button : customGcodeButtons) {
             button.setEnabled(enabled);
         }
+    }
+
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        updateCustomGcodeControls(backend.isIdle());
     }
 
     public static void executeCustomGcode(String str, BackendAPI backend)

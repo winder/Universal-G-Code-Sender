@@ -2053,22 +2053,16 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
-                this.macroPanel.updateCustomGcodeControls(false);
-                this.macroActionPanel.updateCustomGcodeControls(false);
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
                 this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
-                this.macroPanel.updateCustomGcodeControls(true);
-                this.macroActionPanel.updateCustomGcodeControls(true);
                 break;
             case COMM_SENDING:
                 // Workflow tab
                 this.updateWorkflowControls(false);
-                this.macroPanel.updateCustomGcodeControls(false);
-                this.macroActionPanel.updateCustomGcodeControls(false);
                 // Jogging commands
                 this.updateManualControls(false);
         
