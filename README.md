@@ -4,6 +4,7 @@ Online documentation available here: http://winder.github.io/ugs_website/
 Documentation contributions can be made here: https://github.com/winder/ugs_website
 
 To run simply unzip the .zip file and double click the .jar file.
+<br />
 On some platforms you will need to run an included start script.
 
 Note for MAC users:
