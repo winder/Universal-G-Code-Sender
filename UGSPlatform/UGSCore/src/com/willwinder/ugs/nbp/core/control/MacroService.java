@@ -24,7 +24,12 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import javax.swing.AbstractAction;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
@@ -34,29 +39,48 @@ import org.openide.util.lookup.ServiceProvider;
  * @author wwinder
  */
 @ServiceProvider(service=MacroService.class) 
-public class MacroService {
+public final class MacroService {
     public MacroService() {
-        initActions();
+        reInitActions();
     }
 
-    
-    private void initActions() {
-        ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+    public void reInitActions() {
+        String menuPath = "Menu/Machine/Macros";
+        String actionCategory = "Macro";
 
         try {
-            String menuPath = "Menu/Machine/Macros";
+            FileObject root= FileUtil.getConfigRoot(); 
+            FileUtil.createData(root, menuPath).delete(); 
+            FileObject actionsObject = FileUtil.createData(root, "/Actions/" + actionCategory);
+            ArrayList<FileObject> actionObjects = new ArrayList<>(Arrays.asList(actionsObject.getChildren()));
+
+            ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
+            Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+            BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
             int numMacros = settings.getLastMacroIndex() + 1;
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
-                ars.registerAction(m.getName(), "Macro", null, menuPath, new MacroAction(settings, backend, i));
+
+                // Remove from list if it already exists.
+                for (Iterator<FileObject> iter = actionObjects.iterator(); iter.hasNext();) {
+                    FileObject next = iter.next();
+                    if (next.getName().startsWith(m.getName())) {
+                        iter.remove();
+                        break;
+                    }
+                }
+                ars.registerAction(m.getName(), actionCategory, null, menuPath, new MacroAction(settings, backend, i));
+            }
+
+            // Remove anything that doesn't exist.
+            for (FileObject action : actionObjects) {
+                action.delete();
             }
         } catch (Exception e) {
 
         }
     }
-
 
     protected class MacroAction extends AbstractAction {
         BackendAPI backend;

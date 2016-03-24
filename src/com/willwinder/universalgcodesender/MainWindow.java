@@ -340,9 +340,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         resetXButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, this);
+        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, backend);
         macroPane = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, this);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -1898,35 +1898,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         }
     }
 
-    public void executeCustomGcode(String str)
-    {
-        if (str == null) {
-            return;
-        }
-
-        str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        final String[] parts = str.split(";");
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    for (String cmd : parts)
-                    {
-                        backend.sendGcodeCommand(cmd);
-                    }
-                } catch (Exception ex) {
-                    displayErrorDialog(ex.getMessage());
-                }
-            }
-        });
-        
-        for (String cmd : parts)
-        {
-            this.manualCommandHistory.add(cmd);
-            this.commandNum = -1;
-        }
-    }
-    
     /**
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */

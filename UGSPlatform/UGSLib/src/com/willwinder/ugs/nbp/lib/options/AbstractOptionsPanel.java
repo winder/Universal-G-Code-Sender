@@ -33,7 +33,7 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
     public abstract void store();
     public abstract boolean valid();
 
-    IChanged changer;
+    protected IChanged changer;
 
     public AbstractOptionsPanel(IChanged change) {
         changer = change;
