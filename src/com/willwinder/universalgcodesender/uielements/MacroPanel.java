@@ -2,7 +2,10 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.MainWindow;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.jdesktop.layout.*;
 
@@ -14,9 +17,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 
-public class MacroPanel extends JPanel {
+public class MacroPanel extends JPanel implements UGSEventListener {
 
-    private MainWindow mainWindow;
+    private BackendAPI backend;
     private Settings settings;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
     private java.util.List<JTextField> customGcodeTextFields = new ArrayList<JTextField>();
@@ -27,9 +30,12 @@ public class MacroPanel extends JPanel {
 
     }
 
-    public MacroPanel(Settings settings, MainWindow mainWindow) {
+    public MacroPanel(Settings settings, BackendAPI backend) {
         this.settings = settings;
-        this.mainWindow = mainWindow;
+        this.backend = backend;
+        if (backend != null) {
+            backend.addUGSEventListener(this);
+        }
     }
 
     @Override
@@ -82,11 +88,14 @@ public class MacroPanel extends JPanel {
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             org.jdesktop.layout.GroupLayout.SequentialGroup group = macroPanelLayout.createSequentialGroup();
-            group.add(customGcodeButtons.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(customGcodeNameFields.get(i))
-                    .add(customGcodeTextFields.get(i))
-                    .add(customGcodeDescriptionFields.get(i));
+            if (backend != null) {
+                group.add(customGcodeButtons.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED);
+            }
+            group
+                .add(customGcodeNameFields.get(i))
+                .add(customGcodeTextFields.get(i))
+                .add(customGcodeDescriptionFields.get(i));
             parallelGroup1.add(group);
         }
 
@@ -100,11 +109,15 @@ public class MacroPanel extends JPanel {
 
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
-            sequentialGroup1.add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButtons.get(i))
-                    .add(customGcodeNameFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(customGcodeTextFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(customGcodeDescriptionFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE));
+            org.jdesktop.layout.GroupLayout.ParallelGroup pg = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE);
+            if (backend != null) {
+                pg.add(customGcodeButtons.get(i));
+            }
+            pg
+                .add(customGcodeNameFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(customGcodeTextFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(customGcodeDescriptionFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE);
+            sequentialGroup1.add(pg);
         }
 
         setLayout(macroPanelLayout);
@@ -150,16 +163,44 @@ public class MacroPanel extends JPanel {
         Macro macro = settings.getMacro(i);
 
         //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
-        if (mainWindow == null) {
+        if (backend == null) {
             System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
         } else {
-            mainWindow.executeCustomGcode(macro.getGcode());
+            executeCustomGcode(macro.getGcode(), backend);
         }
     }
 
-    public void updateCustomGcodeControls(boolean enabled) {
+    private void updateCustomGcodeControls(boolean enabled) {
         for (JButton button : customGcodeButtons) {
             button.setEnabled(enabled);
         }
+    }
+
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        updateCustomGcodeControls(backend.isIdle());
+    }
+
+    public static void executeCustomGcode(String str, BackendAPI backend)
+    {
+        if (str == null) {
+            return;
+        }
+
+        str = str.replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
+        final String[] parts = str.split(";");
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    for (String cmd : parts)
+                    {
+                        backend.sendGcodeCommand(cmd);
+                    }
+                } catch (Exception ex) {
+                    GUIHelpers.displayErrorDialog(ex.getMessage());
+                }
+            }
+        });
     }
 }

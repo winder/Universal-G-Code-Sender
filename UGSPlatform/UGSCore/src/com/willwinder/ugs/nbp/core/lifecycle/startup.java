@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,22 +18,20 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import org.openide.modules.OnStop;
+import com.willwinder.ugs.nbp.core.control.JogService;
+import com.willwinder.ugs.nbp.core.control.MacroService;
+import org.openide.modules.OnStart;
+import org.openide.util.Lookup;
 
 /**
  *
  * @author wwinder
  */
-@OnStop
-public class shutdown implements Runnable {
+@OnStart
+public class startup implements Runnable {
     @Override
     public void run() {
-        // Save settings.
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        SettingsFactory.saveSettings(settings);
+        Lookup.getDefault().lookup(JogService.class);
+        Lookup.getDefault().lookup(MacroService.class);
     }
-    
 }

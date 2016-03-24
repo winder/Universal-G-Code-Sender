@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.core.control.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -45,15 +46,15 @@ import org.openide.util.NbBundle.Messages;
 )
 @TopComponent.Registration(mode = "connection", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.ActionsTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_ActionsAction",
         preferredID = "ActionsTopComponent"
 )
 @Messages({
-    "CTL_ActionsAction=Actions",
-    "CTL_ActionsTopComponent=Actions",
-    "HINT_ActionsTopComponent=This is a Actions window"
+    "CTL_ActionsAction=Common Actions",
+    "CTL_ActionsTopComponent=Common Actions",
+    "HINT_ActionsTopComponent=Common action shortcuts."
 })
 public final class ActionsTopComponent extends TopComponent {
     protected Settings settings = CentralLookup.getDefault().lookup(Settings.class);
@@ -63,7 +64,6 @@ public final class ActionsTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_ActionsTopComponent());
         setToolTipText(Bundle.HINT_ActionsTopComponent());
-
     }
 
     /**

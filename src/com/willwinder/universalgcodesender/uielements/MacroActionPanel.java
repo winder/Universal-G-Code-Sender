@@ -1,6 +1,8 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.MainWindow;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
 
@@ -9,9 +11,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class MacroActionPanel extends JPanel {
+public class MacroActionPanel extends JPanel implements UGSEventListener {
 
-    private MainWindow mainWindow;
+    private BackendAPI backend;
     private Settings settings;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
 
@@ -19,12 +21,11 @@ public class MacroActionPanel extends JPanel {
 
     }
 
-    public MacroActionPanel(Settings settings, MainWindow mainWindow) {
+    public MacroActionPanel(Settings settings, BackendAPI backend) {
         this.settings = settings;
-        this.mainWindow = mainWindow;
+        this.backend = backend;
+        backend.addUGSEventListener(this);
     }
-
-
 
     @Override
     public void updateUI() {
@@ -113,18 +114,21 @@ public class MacroActionPanel extends JPanel {
         Macro macro = settings.getMacro(i);
 
         //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
-        if (mainWindow == null) {
+        if (backend == null) {
             System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
         } else {
-            mainWindow.executeCustomGcode(macro.getGcode());
+            MacroPanel.executeCustomGcode(macro.getGcode(), backend);
         }
     }
 
-    public void updateCustomGcodeControls(boolean enabled) {
+    private void updateCustomGcodeControls(boolean enabled) {
         for (JButton button : customGcodeButtons) {
             button.setEnabled(enabled);
         }
+    }
 
-
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        updateCustomGcodeControls(backend.isIdle());
     }
 }

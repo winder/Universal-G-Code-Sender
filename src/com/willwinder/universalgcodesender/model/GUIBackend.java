@@ -297,6 +297,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void sendGcodeCommand(GcodeCommand command) throws Exception {
         logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
+        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
         controller.sendCommandImmediately(command);
     }
 
@@ -615,6 +616,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void commandComplete(GcodeCommand command) {
         controller.updateParserModalState(command);
+        if (isIdle()) {
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+        }
     }
 
     @Override

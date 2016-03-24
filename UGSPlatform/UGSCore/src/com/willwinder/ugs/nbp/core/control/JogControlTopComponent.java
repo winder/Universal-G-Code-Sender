@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.core.control.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -52,15 +53,15 @@ import org.openide.util.NbBundle.Messages;
 )
 @TopComponent.Registration(mode = "status", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.JogControlTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window/Classic" , position = 333 )
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_JogControlAction",
         preferredID = "JogControlTopComponent"
 )
 @Messages({
-    "CTL_JogControlAction=JogControl",
-    "CTL_JogControlTopComponent=Machine Jogging",
-    "HINT_JogControlTopComponent=This is a Jog Control window"
+    "CTL_JogControlAction=Jog Controller",
+    "CTL_JogControlTopComponent=Jog Controller",
+    "HINT_JogControlTopComponent=Buttons to send movement commands."
 })
 public final class JogControlTopComponent extends TopComponent implements UGSEventListener {
 

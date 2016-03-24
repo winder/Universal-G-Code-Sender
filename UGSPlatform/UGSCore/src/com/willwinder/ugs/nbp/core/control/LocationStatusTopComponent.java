@@ -1,10 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2015-2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.core.control.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -43,9 +57,9 @@ import org.openide.util.NbBundle.Messages;
         preferredID = "StatusTopComponent"
 )
 @Messages({
-    "CTL_StatusAction=Machine Status",
-    "CTL_StatusTopComponent=Machine Status",
-    "HINT_StatusTopComponent=This is the Machine Status"
+    "CTL_StatusAction=Controller State (DRO)",
+    "CTL_StatusTopComponent=Controller State (DRO)",
+    "HINT_StatusTopComponent=Current controller state."
 })
 public final class LocationStatusTopComponent extends TopComponent implements ControllerListener {
     BackendAPI backend;

@@ -151,7 +151,7 @@ public class GcodeModel extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
 
-        gl.glDisable(gl.GL_LIGHTING);
+        gl.glDisable(GL2.GL_LIGHTING);
         
         // Batch mode if available 
         if(!forceOldStyle
@@ -233,7 +233,7 @@ public class GcodeModel extends Renderable {
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
 
-            if (gcodeLineList.size() == 0) {
+            if (gcodeLineList.isEmpty()) {
                 return;
             }
 
