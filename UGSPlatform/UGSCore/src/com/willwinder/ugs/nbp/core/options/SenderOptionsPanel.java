@@ -53,85 +53,85 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         key = "sender.speed.override";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // setOverrideSpeedValue, getOverrideSpeedValue, double
         key = "sender.speed.percent";
         op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isSingleStepMode, setSingleStepMode, bool
         key = "sender.singlestep";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // getMaxCommandLength, setMaxCommandLength, int
         key = "sender.command.length";
         op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // getTruncateDecimalLength, setTruncateDecimalLength, int
         key = "sender.truncate";
         op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isRemoveAllWhitespace, setRemoveAllWhitespace, bool
         key = "sender.whitespace";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isStatusUpdatesEnabled, setStatusUpdatesEnabled, bool
         key = "sender.status";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // getStatusUpdateRate, setStatusUpdateRate, int
         key = "sender.status.rate";
         op = new Option<Integer>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isDisplayStateColor, setDisplayStateColor, bool
         key = "sender.state";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isConvertArcsToLines, setConvertArcsToLines, bool
         key = "sender.arcs";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // getSmallArcThreshold, setSmallArcThreshold, double
         key = "sender.arcs.threshold";
         op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // getSmallArcSegmentLength, setSmallArcSegmentLength, double
         key = "sender.arcs.length";
         op = new Option<Double>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isAutoConnectEnabled, setAutoConnect, bool
         key = "sender.autoconnect";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
 
         // isAutoReconnect, setAutoReconnect, bool
         key = "sender.autoreconnect";
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
-        storeMap.put(op.option, op);
+        storeMap.put(op.localized, op);
     }
 
     private String localize(String s) {
@@ -227,11 +227,16 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
     public void store() {
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
 
+        if (storeMap.size() != optionTable.getModel().getRowCount()) {
+            return;
+        }
+
         // Update options
         for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
             String preference = (String) optionTable.getModel().getValueAt(i, 0);
             Option op = storeMap.get(preference);
-            op.setValue(optionTable.getModel().getValueAt(i,1));
+            Object val = optionTable.getModel().getValueAt(i,1);
+            op.setValue(val);
         }
 
         // Update value in options.
