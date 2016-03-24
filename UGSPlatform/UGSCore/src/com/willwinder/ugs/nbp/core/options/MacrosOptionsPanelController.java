@@ -19,13 +19,7 @@
 package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionPanelController;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import javax.swing.JComponent;
-import javax.swing.SwingUtilities;
 import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.HelpCtx;
-import org.openide.util.Lookup;
 
 @OptionsPanelController.SubRegistration(
         location = "UGS",
@@ -34,7 +28,6 @@ import org.openide.util.Lookup;
         keywordsCategory = "UGS/Macros"
 )
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_Macros=Macros", "AdvancedOption_Keywords_Macros=macros"})
-//public final class MacrosOptionsPanelController extends OptionsPanelController {
 public class MacrosOptionsPanelController extends AbstractOptionPanelController<MacrosPanel> {
     @Override
     public MacrosPanel getPanel() {
