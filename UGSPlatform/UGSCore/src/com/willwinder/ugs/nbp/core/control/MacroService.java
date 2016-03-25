@@ -50,7 +50,7 @@ public final class MacroService {
 
         try {
             FileObject root= FileUtil.getConfigRoot(); 
-            FileUtil.createData(root, menuPath).delete(); 
+            FileUtil.createFolder(root, menuPath).delete(); 
             FileUtil.createFolder(root, menuPath); 
             FileObject actionsObject = FileUtil.createFolder(root, "/Actions/" + actionCategory);
             ArrayList<FileObject> actionObjects = new ArrayList<>(Arrays.asList(actionsObject.getChildren()));
