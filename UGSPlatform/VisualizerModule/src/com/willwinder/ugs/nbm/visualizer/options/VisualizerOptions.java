@@ -63,6 +63,7 @@ public class VisualizerOptions extends ArrayList<Option> {
         add(getOption("visualizer.color.xy-plane", "Color (and opacity) of XY plane.", "", new Color(77,77,77,29)));
         add(getOption("visualizer.color.x-axis", "Color (and opacity) of X-Axis line.", "", new Color(230,0,0)));
         add(getOption("visualizer.color.y-axis", "Color (and opacity) of Y-Axis line.", "", new Color(0,0,230)));
+        add(getOption("visualizer.color.z-axis", "Color (and opacity) of Z-Axis line.", "", new Color(0,230,0)));
        
         // SizeDisplay renderable
         add(getOption("visualizer.color.sizedisplay", "Color of size display lines and text.", "", new Color(128,128,128)));

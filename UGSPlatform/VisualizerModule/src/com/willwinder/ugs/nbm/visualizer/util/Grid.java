@@ -35,6 +35,7 @@ public class Grid extends Renderable {
     float[] gridPlaneColor;
     float[] xAxisColor;
     float[] yAxisColor;
+    float[] zAxisColor;
 
     public Grid() {
         super(5);
@@ -47,6 +48,7 @@ public class Grid extends Renderable {
         gridPlaneColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.xy-plane").value);
         yAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.y-axis").value);
         xAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.x-axis").value);
+        zAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.z-axis").value);
     }
 
     @Override
@@ -106,19 +108,6 @@ public class Grid extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            //gl.glColor4f(.3f,.3f,.3f, .09f);
-            gl.glColor4fv(gridPlaneColor, 0);
-
-            // floor - cover entire model and a little extra.
-            gl.glPushMatrix();
-                gl.glBegin(GL2.GL_QUADS);
-                    gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
-                    gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
-                    gl.glVertex3d(topRight.x  , topRight.y  , 0);
-                    gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
-                gl.glEnd();
-            gl.glPopMatrix();
-            
             double offset = 0.001;
 
             gl.glLineWidth(1.5f);
@@ -163,8 +152,25 @@ public class Grid extends Renderable {
 
                 gl.glVertex3d(bottomLeft.x, 0, -offset);
                 gl.glVertex3d(topRight.x  , 0, -offset);
+
+                // Z Axis Line
+                gl.glColor4fv(zAxisColor, 0);
+                gl.glVertex3d(0, 0, bottomLeft.z);
+                gl.glVertex3d(0, 0, Math.max(topRight.z, -bottomLeft.z));
             gl.glEnd();
 
+            //gl.glColor4f(.3f,.3f,.3f, .09f);
+            gl.glColor4fv(gridPlaneColor, 0);
+
+            // floor - cover entire model and a little extra.
+            gl.glPushMatrix();
+                gl.glBegin(GL2.GL_QUADS);
+                    gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
+                    gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
+                    gl.glVertex3d(topRight.x  , topRight.y  , 0);
+                    gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
+                gl.glEnd();
+            gl.glPopMatrix();
         gl.glPopMatrix();
     }
 }

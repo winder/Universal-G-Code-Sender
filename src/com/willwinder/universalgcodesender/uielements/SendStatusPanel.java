@@ -78,7 +78,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                         }
                     }
                 });
-
             }
         };
 
