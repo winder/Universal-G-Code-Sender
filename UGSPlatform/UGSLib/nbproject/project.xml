@@ -157,6 +157,9 @@
                 <package>com.willwinder.universalgcodesender.visualizer</package>
                 <package>javax.vecmath</package>
                 <package>jssc</package>
+                <package>net.miginfocom.layout</package>
+                <package>net.miginfocom.swing</package>
+                <package>net.miginfocom.swt</package>
             </public-packages>
             <class-path-extension>
                 <runtime-relative-path>ext/ugs/Universal G-Code Sender.jar</runtime-relative-path>
