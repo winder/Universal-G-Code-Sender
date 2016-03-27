@@ -28,6 +28,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
@@ -73,6 +74,7 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
         JLabel fwLabel;
         JLabel portLabel;
         JLabel baudLabel;
+        JButton refreshButton;
         FirmwareComboBox fwComboBox;
         PortComboBox portComboBox;
         BaudComboBox baudComboBox;
@@ -102,6 +104,7 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
             fwComboBox = new FirmwareComboBox();
             portComboBox = new PortComboBox();
             baudComboBox = new BaudComboBox();
+            refreshButton = new JButton();
 
             fwComboBox.setEditable(false);
             portComboBox.setEditable(true);
@@ -114,11 +117,17 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
             portLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Port.text"));
             baudLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Baud.text"));
 
+            refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/refresh.gif")));
+            refreshButton.addActionListener((java.awt.event.ActionEvent evt) -> {
+                portComboBox.initComboBox();
+            });
+
             JPanel p = new JPanel();
             p.setLayout(new MigLayout("insets 0 0 0 0"));
             p.add(fwLabel, "gapleft 5");
             p.add(fwComboBox, "gapright 20");
             p.add(portLabel);
+            p.add(refreshButton);
             p.add(portComboBox, "gapright 20");
             p.add(baudLabel);
             p.add(baudComboBox, "gapright 10");

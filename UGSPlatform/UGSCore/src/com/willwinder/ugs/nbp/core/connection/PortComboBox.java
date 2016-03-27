@@ -46,7 +46,7 @@ public class PortComboBox extends ComboWithPreferences {
     }
     
     @Override
-    protected void initComboBox() {
+    public void initComboBox() {
         this.removeAllItems();
 
         // Add serial ports
