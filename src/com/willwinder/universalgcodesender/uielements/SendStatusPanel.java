@@ -192,6 +192,8 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                 case COMM_SENDING:
                     beginSend();
                     break;
+                default:
+                    break;
             }
         }
 
@@ -206,6 +208,8 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                             resetSentRowLabels(gsr.getNumRows());
                         }
                     } catch (IOException ex) {}
+                    break;
+                default:
                     break;
             }
         }

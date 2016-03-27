@@ -175,6 +175,9 @@ public class Overlay {
           x = drawable.getSurfaceWidth() - width - offset;
           y = offset;
           break;
+
+        default:
+          break;
       }
       
       renderer.draw(text, x, y);

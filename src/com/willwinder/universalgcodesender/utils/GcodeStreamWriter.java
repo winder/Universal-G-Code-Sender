@@ -78,6 +78,8 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
                 case COL_COMMAND_NUMBER:
                     fileWriter.append(Integer.toString(commandNumber));
                     break;
+                default:
+                    break;
             }
             sep = separator;
         }
