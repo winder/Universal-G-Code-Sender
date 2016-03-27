@@ -24,13 +24,11 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.Icon;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -47,10 +45,8 @@ import org.openide.util.Utilities;
 )
 @ActionReference(path = "Toolbars/Connection", position = 1)
 @NbBundle.Messages("CTL_Connect=Connect")
-
 //@NbBundle.Messages("CTL_Disconnect=Disconnect")
-
-public final class ConnectDisconnectAction extends AbstractAction implements ContextAwareAction, UGSEventListener {
+public final class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
     BackendAPI backend;
     final private String CONNECT_ICON_PATH = "resources/disconnect.gif";
     final private String DISCONNECT_ICON_PATH = "resources/connect.png";
@@ -61,19 +57,17 @@ public final class ConnectDisconnectAction extends AbstractAction implements Con
     
     public ConnectDisconnectAction(Lookup lookup) {
         Icon icon = ImageUtilities.image2Icon(ImageUtilities.loadImage(CONNECT_ICON_PATH));
-        putValue(SMALL_ICON, icon);
+        super.putValue(SMALL_ICON, icon);
  
-        this.setEnabled(true);
+        super.setEnabled(true);
         
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
     }
     
-    @Override
-    public Action createContextAwareInstance(Lookup actionContext) {
-        return new ConnectDisconnectAction(actionContext);
-    }
-
+    /**
+     * Update icon when the connection state changes.
+     */
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (cse.isStateChangeEvent()) {

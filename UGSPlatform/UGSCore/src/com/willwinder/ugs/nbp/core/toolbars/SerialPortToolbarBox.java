@@ -23,11 +23,14 @@ import com.willwinder.ugs.nbp.core.connection.FirmwareComboBox;
 import com.willwinder.ugs.nbp.core.connection.PortComboBox;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.AbstractAction;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -111,38 +114,17 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
             portLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Port.text"));
             baudLabel.setText(org.openide.util.NbBundle.getMessage(MyToolbarPresenter.class, "SerialPortToolbarBox.Baud.text"));
 
-            javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-            this.setLayout(layout);
-            layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addComponent(fwLabel)
-                    .addGap(2)
-                    .addComponent(fwComboBox)
-                    .addGap(20)
-                    .addComponent(portLabel)
-                    .addGap(2)
-                    .addComponent(portComboBox, 100, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(20)
-                    .addComponent(baudLabel)
-                    .addGap(2)
-                    .addComponent(baudComboBox)
-                    .addContainerGap())
-            );
-            
-            layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(fwLabel)
-                        .addComponent(fwComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(portLabel)
-                        .addComponent(portComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(baudLabel)
-                        .addComponent(baudComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            );
-        }
+            JPanel p = new JPanel();
+            p.setLayout(new MigLayout("insets 0 0 0 0"));
+            p.add(fwLabel, "gapleft 5");
+            p.add(fwComboBox, "gapright 20");
+            p.add(portLabel);
+            p.add(portComboBox, "gapright 20");
+            p.add(baudLabel);
+            p.add(baudComboBox, "gapright 10");
 
+            setLayout(new BorderLayout());
+            add(p);
+        }
     }
 }
