@@ -1,5 +1,5 @@
 /*
- * MainWindow.java
+ * ExperimentalWindow.java
  *
  * Created on Jun 26, 2012, 3:04:38 PM
  */
@@ -77,8 +77,8 @@ import org.apache.commons.lang3.SystemUtils;
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
-    private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
+public class ExperimentalWindow extends JFrame implements ControllerListener, UGSEventListener {
+    private static final Logger logger = Logger.getLogger(ExperimentalWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
 
@@ -103,11 +103,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // Duration timer
     private Timer timer;
 
-    /** Creates new form MainWindow */
-    public MainWindow(BackendAPI backend) {
+    /** Creates new form ExperimentalWindow */
+    public ExperimentalWindow(BackendAPI backend) {
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
-        if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
+        if (settings.isShowNightlyWarning() && ExperimentalWindow.VERSION.contains("nightly")) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 String message =
                         "This version of Universal Gcode Sender is a nightly build.\n"
@@ -189,13 +189,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ExperimentalWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ExperimentalWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ExperimentalWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ExperimentalWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -226,9 +226,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         
          /* Create the form */
         GUIBackend backend = new GUIBackend();
-        final MainWindow mw = new MainWindow(backend);
+        final ExperimentalWindow mw = new ExperimentalWindow(backend);
         
-        /* Apply the settings to the MainWindow bofore showing it */
+        /* Apply the settings to the ExperimentalWindow bofore showing it */
         mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
         mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
         boolean unitsAreMM = mw.settings.getDefaultUnits().equals("mm");
@@ -413,8 +413,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
         stopPendantServerButton = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
-        launchExperimentalWindowMenuItem = new javax.swing.JMenuItem();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -1311,18 +1309,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         mainMenuBar.add(PendantMenu);
 
-        jMenu1.setText("Experimental");
-
-        launchExperimentalWindowMenuItem.setText("Launch Experimental UI");
-        launchExperimentalWindowMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                launchExperimentalWindowMenuItemActionPerformed(evt);
-            }
-        });
-        jMenu1.add(launchExperimentalWindowMenuItem);
-
-        mainMenuBar.add(jMenu1);
-
         setJMenuBar(mainMenuBar);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -1557,7 +1543,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (this.vw == null) {
             this.vw = new VisualizerWindow(settings.getVisualizerWindowSettings());
             
-            final MainWindow mw = this;
+            final ExperimentalWindow mw = this;
             vw.addComponentListener(new ComponentListener() {
                 @Override
                 public void componentResized(ComponentEvent ce) {
@@ -1897,18 +1883,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
         macroActionPanel.doLayout();
     }//GEN-LAST:event_machineControlPanelComponentShownHandler
-
-    private void launchExperimentalWindowMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_launchExperimentalWindowMenuItemActionPerformed
-        ExperimentalWindow ew = new ExperimentalWindow(backend);
-        /* Display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                ew.setVisible(true);
-            }
-        });
-    }//GEN-LAST:event_launchExperimentalWindowMenuItemActionPerformed
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
@@ -2476,7 +2450,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JRadioButton inchRadioButton;
-    private javax.swing.JMenu jMenu1;
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
@@ -2488,7 +2461,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JButton killAlarmLock;
     private javax.swing.JLabel latestCommentLabel;
     private javax.swing.JLabel latestCommentValueLabel;
-    private javax.swing.JMenuItem launchExperimentalWindowMenuItem;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JPanel machineControlPanel;
     private javax.swing.JLabel machinePosition;
