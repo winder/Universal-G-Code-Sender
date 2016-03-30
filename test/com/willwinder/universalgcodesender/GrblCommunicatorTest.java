@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,14 +18,13 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.AbstractCommunicator;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.LinkedBlockingDeque;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +35,8 @@ import org.junit.Test;
  */
 public class GrblCommunicatorTest {
     MockGrbl mg;
-    LinkedList<String> cb;
-    LinkedList<String> asl;
+    LinkedBlockingDeque<String> cb;
+    LinkedBlockingDeque<GcodeCommand> asl;
     
     public GrblCommunicatorTest() {
     }
@@ -45,33 +44,8 @@ public class GrblCommunicatorTest {
     @Before
     public void setUp() {
         this.mg = new MockGrbl();
-        this.cb = new LinkedList<String>();
-        this.asl = new LinkedList<String>();
-    }
-
-    /**
-     * Test of setLineTerminator method, of class GrblCommunicator.
-     */
-    @Test
-    public void testSetLineTerminator() {
-        System.out.println("setLineTerminator");
-        GrblCommunicator instance = new GrblCommunicator();
-        
-        //((AbstractCommunicator)instance).addConnectionType(conn);
-        
-        String defaultTerminator = AbstractCommunicator.DEFAULT_TERMINATOR;
-        
-        // Initial value.
-        assertEquals(defaultTerminator, instance.getLineTerminator());
-        
-        instance.setLineTerminator("tada");
-        assertEquals("tada", instance.getLineTerminator());
-        
-        instance.setLineTerminator(null);
-        assertEquals(defaultTerminator, instance.getLineTerminator());
-        
-        instance.setLineTerminator("");
-        assertEquals(defaultTerminator, instance.getLineTerminator());
+        this.cb = new LinkedBlockingDeque<>();
+        this.asl = new LinkedBlockingDeque<>();
     }
 
     /**
@@ -109,7 +83,8 @@ public class GrblCommunicatorTest {
             assertEquals(1, cb.size());
             
             // Test that instance adds newline to improperly formed command.
-            assertEquals(input + "\n", cb.peek());
+            String next = cb.peek();
+            assertEquals(input, cb.peek());
             
             instance.queueStringForComm(input);
             instance.queueStringForComm(input);
@@ -117,12 +92,11 @@ public class GrblCommunicatorTest {
             // Test that instance continues to queue inputs.
             assertEquals(3, cb.size());
             
-            input = "someCommand\n";
-            cb = new LinkedList<String>();
+            input = "someCommand";
+            cb = new LinkedBlockingDeque<>();
             mc = new MockConnection(mg.in, mg.out);
             instance = new GrblCommunicator(cb, asl, mc);
 
-            
             instance.queueStringForComm(input);
             // Test that instance doesn't add superfluous newlines.
             assertEquals(input, cb.peek());
@@ -164,7 +138,7 @@ public class GrblCommunicatorTest {
         
         try {
             instance.sendByteImmediately(b);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail("sendByteImmediately threw an exception: " + e.getMessage());
         }
 
@@ -180,7 +154,7 @@ public class GrblCommunicatorTest {
             instance.sendByteImmediately((byte)0x19);
             instance.sendByteImmediately((byte)0x20);
             instance.sendByteImmediately((byte)0x21);
-        } catch (IOException e) {
+        } catch (Exception e) {
             fail("sendByteImmediately threw an exception: " + e.getMessage());
         }
 
@@ -239,13 +213,14 @@ public class GrblCommunicatorTest {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        String term = "\n";
         String thirtyNineCharString = "thirty-nine character command here.....";
 
         boolean result;
         boolean expResult;
         
         // Make sure CommUtil is still an overly cautious jerk.
-        LinkedList<GcodeCommand> l = new LinkedList<GcodeCommand>();
+        LinkedList<GcodeCommand> l = new LinkedList<>();
         l.add(new GcodeCommand("12characters"));
         assertEquals(13, CommUtils.getSizeOfBuffer(l));
 
@@ -273,8 +248,8 @@ public class GrblCommunicatorTest {
 
         // Check with MockGrbl to verify the fourth command wasn't sent.
         String output = mg.readStringFromGrblBuffer();
-        assertEquals(thirtyNineCharString+"\n"+thirtyNineCharString+"\n"+thirtyNineCharString+"\n",
-                        output);
+        String goal = thirtyNineCharString+term+thirtyNineCharString+term+thirtyNineCharString+term;
+        assertEquals(goal, output);
         
         // Make room for the next command.
         mc.sendResponse("ok");
@@ -284,7 +259,7 @@ public class GrblCommunicatorTest {
         
         // Make sure the queued command was sent.
         output = mg.readStringFromGrblBuffer();
-        assertEquals(thirtyNineCharString+"\n", output);
+        assertEquals(thirtyNineCharString+term, output);
   
         // Wrap up.
         mc.sendResponse("ok");
@@ -325,8 +300,7 @@ public class GrblCommunicatorTest {
         expectedInt = GrblUtils.GRBL_RX_BUFFER_SIZE / (twentyCharString.length()+1);
         assertEquals(expectedInt, arr.length);
 
-        // Process 'ok' messages.
-        for (int i=0; i <arr.length; i++) {
+        for (String arr1 : arr) {
             mc.sendResponse("ok");
         }
 
@@ -390,8 +364,7 @@ public class GrblCommunicatorTest {
         expectedInt = GrblUtils.GRBL_RX_BUFFER_SIZE / (twentyCharString.length()+1);
         assertEquals(expectedInt, arr.length);
 
-        // Wrap up the active commands.
-        for (int i=0; i <arr.length; i++) {
+        for (String arr1 : arr) {
             mc.sendResponse("ok");
         }
             

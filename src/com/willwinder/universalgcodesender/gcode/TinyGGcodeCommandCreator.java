@@ -22,7 +22,6 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 

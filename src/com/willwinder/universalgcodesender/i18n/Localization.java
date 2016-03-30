@@ -38,15 +38,25 @@ public class Localization {
 
     private static ResourceBundle bundle = null;
 
+    public static void initialize(String language) {
+        String[] lang = language.split("_");
+        initialize(lang[0], lang[1]);
+    }
+    
     public static void initialize(String language, String region) {
         Locale locale = new Locale(language, region);
         bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
     }
     
     public static String getString(String id) {
-        if (bundle == null) {
-            Localization.initialize("en", "US");
+        try {
+            if (bundle == null) {
+                Localization.initialize("en", "US");
+            }
+            String val = bundle.getString(id);
+            return new String(val.getBytes("ISO-8859-1"), "UTF-8");
+        } catch (Exception e) {
+            return "<" + id + ">";
         }
-        return bundle.getString(id);
     }
 }

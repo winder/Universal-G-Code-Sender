@@ -1,6 +1,9 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.GrblUtils;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import javax.vecmath.Point3d;
@@ -21,7 +24,7 @@ public class GrblSettingsListener implements ControllerListener {
     public boolean sending = false;
     private Object refreshLock = new Object();
 
-    public final List<String> settings = new ArrayList<String>();
+    public final List<String> settings = new ArrayList<>();
 
     private AbstractController controller;
 
@@ -45,7 +48,7 @@ public class GrblSettingsListener implements ControllerListener {
     public void refreshSettings() {
         try {
             this.sending = true;
-            boolean ready = false;
+            boolean ready;
             do {
                 try {
                     this.controller.isReadyToStreamFile();
@@ -56,7 +59,8 @@ public class GrblSettingsListener implements ControllerListener {
 
             } while(!ready);
 
-            controller.queueStringForComm("$$");
+            GcodeCommand command = controller.createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND);
+            controller.sendCommandImmediately(command);
             while (this.sending) {
                 Thread.sleep(10);
             }
@@ -76,7 +80,7 @@ public class GrblSettingsListener implements ControllerListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
 
     }
 
@@ -116,7 +120,7 @@ public class GrblSettingsListener implements ControllerListener {
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
     }
 
     @Override

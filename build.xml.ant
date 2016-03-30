@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="Universal_G-Code_Sender" default="default" basedir=".">
+    <description>Builds, tests, and runs the project Universal G-Code Sender.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    <property name="resources.dir" value="${basedir}/src/resources"/>
+    <!-- provide a path where executable distros should be saved  -->
+    <property name="release.dir" value="${basedir}/release"/>
+    <!-- provide the path to the shared native libraries directory -->
+    <property name="natives.dir" value="${basedir}/lib/natives/"/>
+    <!-- provide a base name for your executable. -->
+    <property name="standalone.jar.name" value="UniversalGcodeSender"/>
+    
+    <import file="one-jar-ant-task.xml" />
+
+    <target name="-pre-init">
+       <!--
+       <property name="project.name" value="My Library" />
+       <property name="version.num" value="1.4.1" />
+       -->
+       <tstamp>
+          <format property="NOW" pattern="yyyy-MM-dd HH:mm:ss z" />
+       </tstamp>
+     
+        <propertyfile file="${resources.dir}/build.properties">
+          <entry key="Build-Date" value="${NOW}" />
+        </propertyfile>
+       <manifest file="UGS_MANIFEST.MF">
+          <attribute name="Build-Date" value="${NOW}" />
+          <!--<attribute name="Bundle-Revision" value="${svna.version}" />-->
+          <!--
+          <attribute name="Bundle-Name" value="${project.name}" />           
+          <attribute name="Bundle-Version" value="${version.num}" />
+          <attribute name="Implementation-Title" value="${project.name}" />
+          <attribute name="Implementation-Version" value="${version.num}" />
+          <attribute name="Implementation-URL" value="http://www.example.com" />
+          -->
+       </manifest>
+    </target>
+
+    <target depends="init,compile,-pre-jar,-do-jar,-post-jar" description="Build JAR." name="jar">
+
+    </target>
+
+    <!-- One-Jar release to be manually edited. -->
+    <target name="onejar-build-release" depends="jar"
+            description="Creating ZIP archives of the standalone OneJAR for windows, mac, linux">
+        <mkdir  dir="${release.dir}" />
+
+        <echo>Release Build: OneJAR is preparing ${standalone.jar.name}.jar</echo>
+        <one-jar destfile="${dist.jar.dir}/${standalone.jar.name}.jar" manifest="onejar.mf" update="true">
+            <!-- Use my jar file, which has the build timestamp. -->
+            <main jar="${dist.jar.dir}/*.jar" />
+
+            <fileset dir="${basedir}/src/" includes="resources/**" />
+            <fileset dir="${basedir}/" includes="build.properties" />
+            <lib>
+                <fileset file="${basedir}/lib/*.*">
+                    <!-- Switch to native jars when JOGL fixes One-Jar bug. -->
+                    <exclude name="*-natives-*" />
+                </fileset>
+            </lib>
+            <binlib>
+                <fileset file="${natives.dir}/**" />
+            </binlib>
+        </one-jar>
+        <echo>Bundling: OneJAR is done.</echo>
+
+        <!-- static files, scripts, localization -->
+        <echo>Release Build: Copying in support files.</echo>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/README.txt"/>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/start-windows.bat"/>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+               file="${basedir}/release_files/start.sh"/>
+
+        <echo>Release Build: Creating JAR.</echo>
+        <copy todir="${release.dir}/${standalone.jar.name}/"
+                file="${dist.jar.dir}/${standalone.jar.name}.jar" />
+        
+        <echo>Release Build: Creating zip file.</echo>
+        <zip destfile="${release.dir}/${standalone.jar.name}.zip"  
+            basedir="${release.dir}/${standalone.jar.name}" update="true" />
+        
+        <echo>Release Build: Cleaning up temporary files</echo>
+        <delete dir="${dist.jar.dir}" />
+        <delete dir="${release.dir}/${standalone.jar.name}" />
+        <delete file="${dist.jar.dir}/${standalone.jar.name}.jar" />
+    </target>
+
+    <target name="-post-clean">
+        <delete dir="${release.dir}" />
+    </target>
+
+    <target name="-post-jar">
+      <delete file="UGS_MANIFEST.MF"/>
+
+      <copy todir="UGSPlatform/UGSLib/release/modules/ext/ugs/"
+             file="${dist.jar}"/>
+    </target>
+
+    <target name="platform" depends="jar">
+      <ant dir="UGSPlatform" target="build-zip" />
+    </target>
+
+    <target name="run-platform" depends="jar">
+      <ant dir="UGSPlatform" target="run" />
+    </target>
+
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="Universal_G-Code_Sender-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+</project>

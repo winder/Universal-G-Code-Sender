@@ -1,8 +1,6 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import javax.vecmath.Point3d;
-
-import com.willwinder.universalgcodesender.MainWindow.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 
 public class SystemStateBean {
 	private ControlState controlState = ControlState.COMM_DISCONNECTED;

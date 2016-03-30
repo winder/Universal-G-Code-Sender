@@ -88,7 +88,7 @@ public class GrblSimulator extends Simulator {
             int ci = line.indexOf(',');
             if (ci > 0) {
                 String secondsString = line.substring(0, ci);
-                Double seconds = 0.0;
+                Double seconds;
                 try {
                     seconds = Double.parseDouble(secondsString);
                 } catch (Exception e) {
@@ -151,7 +151,7 @@ public class GrblSimulator extends Simulator {
 
             int size = list.size();
 
-            List<String> result = new ArrayList<String>(size);
+            List<String> result = new ArrayList<>(size);
             for (int i = 0; i < size; i++) {
                 result.add(list.get(i));
             }
@@ -161,10 +161,10 @@ public class GrblSimulator extends Simulator {
 
         @Override
         public void run() {
-            outList = new ArrayList<String>();
+            outList = new ArrayList<>();
             List<String> syncList = Collections.synchronizedList(outList);
-            stderrList = new ArrayList<String>();
-            stdoutList = new ArrayList<String>();
+            stderrList = new ArrayList<>();
+            stdoutList = new ArrayList<>();
             Thread errReader = new Thread(new Buffer(process.getErrorStream(), stderrList, syncList));
             Thread stdReader = new Thread(new Buffer(process.getInputStream(), stdoutList, syncList));
 

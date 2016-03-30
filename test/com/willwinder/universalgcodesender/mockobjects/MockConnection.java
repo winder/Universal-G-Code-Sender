@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2015 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,11 +23,7 @@
 
 package com.willwinder.universalgcodesender.mockobjects;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
-import com.willwinder.universalgcodesender.Connection;
-import gnu.io.NoSuchPortException;
-import gnu.io.PortInUseException;
-import gnu.io.UnsupportedCommOperationException;
+import com.willwinder.universalgcodesender.connection.Connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,10 +37,12 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 public class MockConnection extends Connection {
-    protected InputStream in;   // protected for unit testing.
-    protected OutputStream out; // protected for unit testing.
+    protected final InputStream in;   // protected for unit testing.
+    protected final OutputStream out; // protected for unit testing.
 
     public MockConnection() {
+        in = null;
+        out = null;
     }
     
     public MockConnection(final InputStream in, final OutputStream out) {
@@ -57,12 +55,17 @@ public class MockConnection extends Connection {
     }
     
     @Override
-    public boolean openPort(String name, int baud) throws NoSuchPortException, PortInUseException, UnsupportedCommOperationException, IOException, TooManyListenersException, Exception {
+    public boolean openPort(String name, int baud) throws Exception {
         return true;
     }
 
     @Override
     public void closePort() {
+    }
+
+    @Override
+    public boolean isOpen() {
+        return true;
     }
 
     @Override
@@ -79,7 +82,6 @@ public class MockConnection extends Connection {
         }
     }
 
-    @Override
     public boolean supports(String portname) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

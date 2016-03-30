@@ -4,7 +4,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,6 +50,7 @@ public class GcodeParser {
     private double smallArcThreshold = 1.0;
     // Not configurable outside, but maybe it should be.
     private double smallArcSegmentLength = 0.3;
+    private int maxCommandLength = 50;
     
     // The gcode.
     List<PointSegment> points;
@@ -109,28 +110,35 @@ public class GcodeParser {
     // Resets the current state.
     final public void reset() {
         this.currentPoint = new Point3d();
-        this.points = new ArrayList<PointSegment>();
+        this.points = new ArrayList<>();
         // The unspoken home location.
         this.points.add(new PointSegment(this.currentPoint, -1));
     }
     
     /**
-     * Add a command to be processed.
+     * Add a command to be processed with no line number association.
      */
     public PointSegment addCommand(String command) {
+        return addCommand(command, this.commandNumber++);
+    }
+
+    /**
+     * Add a command to be processed with a line number.
+     */
+    public PointSegment addCommand(String command, int line) {
         String stripped = GcodePreprocessorUtils.removeComment(command);
         List<String> args = GcodePreprocessorUtils.splitCommand(stripped);
-        return this.addCommand(args);
+        return this.addCommand(args, line);
     }
     
     /**
      * Add a command which has already been broken up into its arguments.
      */
-    public PointSegment addCommand(List<String> args) {
+    public PointSegment addCommand(List<String> args, int line) {
         if (args.isEmpty()) {
             return null;
         }
-        return processCommand(args);
+        return processCommand(args, line);
     }
 
     /**
@@ -182,18 +190,17 @@ public class GcodeParser {
         }
         
         // Remove the last point now that we're about to expand it.
-        this.points.remove(this.points.size() - 1);
-        commandNumber--;        
+        int num = this.points.remove(this.points.size() - 1).getLineNumber();
                 
         // Initialize return value
-        List<PointSegment> psl = new ArrayList<PointSegment>();
+        List<PointSegment> psl = new ArrayList<>();
 
         // Create line segments from points.
         PointSegment temp;
         // skip first element.
         Iterator<Point3d> psi = expandedPoints.listIterator(1);
         while (psi.hasNext()) {
-            temp = new PointSegment(psi.next(), commandNumber++);
+            temp = new PointSegment(psi.next(), num);
             temp.setIsMetric(lastSegment.isMetric());
 
             // Add new points.
@@ -211,7 +218,7 @@ public class GcodeParser {
         return this.points;
     }
 
-    private PointSegment processCommand(List<String> args) {
+    private PointSegment processCommand(List<String> args, int line) {
         List<String> gCodes;
         PointSegment ps = null;
         
@@ -228,14 +235,14 @@ public class GcodeParser {
         }
         
         for (String i : gCodes) {
-            ps = handleGCode(i, args);
+            ps = handleGCode(i, args, line);
         }
         
         return ps;
     }
 
-    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse) {
-        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line) {
+        PointSegment ps = new PointSegment(nextPoint, line);
 
         boolean zOnly = false;
 
@@ -256,8 +263,8 @@ public class GcodeParser {
         return ps;
     }
 
-    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args) {
-        PointSegment ps = new PointSegment(nextPoint, commandNumber++);
+    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line) {
+        PointSegment ps = new PointSegment(nextPoint, line);
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
@@ -284,7 +291,7 @@ public class GcodeParser {
         return ps;
     }
 
-    private PointSegment handleGCode(String code, List<String> args) {
+    private PointSegment handleGCode(String code, List<String> args, int line) {
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
@@ -295,18 +302,18 @@ public class GcodeParser {
 
         switch (code) {
             case "0":
-                ps = addLinearPointSegment(nextPoint, true);
+                ps = addLinearPointSegment(nextPoint, true, line);
                 break;
             case "1":
-                ps = addLinearPointSegment(nextPoint, false);
+                ps = addLinearPointSegment(nextPoint, false, line);
                 break;
 
             // Arc command.
             case "2":
-                ps = addArcPointSegment(nextPoint, true, args);
+                ps = addArcPointSegment(nextPoint, true, args, line);
                 break;
             case "3":
-                ps = addArcPointSegment(nextPoint, false, args);
+                ps = addArcPointSegment(nextPoint, false, args, line);
                 break;
 
             case "20":
@@ -336,28 +343,38 @@ public class GcodeParser {
         return ps;
     }
 
-    public List<String> preprocessCommands(Collection<String> commands) {
-        List<String> result = new ArrayList<>(commands.size());
+    public List<String> preprocessCommands(Collection<String> commands) throws Exception {
+        int count = commands.size();
+        int interval = count / 1000;
+        List<String> result = new ArrayList<>(count);
 
+        int i = 0;
+        double row = 0;
         for (String command : commands) {
+            i++;
+            row++;
+            if (i >= interval) {
+                System.out.println("row " + (int)row + " of " + count);
+                i = 0;
+            }
             result.addAll(preprocessCommand(command));
         }
 
         return result;
     }
 
-    public List<String> preprocessCommand(String command) {
+    public List<String> preprocessCommand(String command) throws Exception {
         List<String> result = new ArrayList<>();
-        boolean hasComment = false;
 
         // Remove comments from command.
         String newCommand = GcodePreprocessorUtils.removeComment(command);
         String rawCommand = newCommand;
-        hasComment = (newCommand.length() != command.length());
 
         if (removeAllWhitespace) {
             newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
         }
+        
+        newCommand = GcodePreprocessorUtils.removeM30(newCommand);
 
         if (newCommand.length() > 0) {
 
@@ -378,18 +395,17 @@ public class GcodeParser {
                 } else {
                     result.add(newCommand);
                 }
-            } else if (hasComment) {
-                // Maintain line level comment.
-                result.add(command.replace(rawCommand, newCommand));
             } else {
                 result.add(newCommand);
             }
-        } else if (hasComment) {
-            // Reinsert comment-only lines.
-            result.add(command);
         }
 
-
+        // Check command length
+        for (String c : result) {
+            if (c.length() > maxCommandLength) {
+                throw new Exception ("Command '"+c+"' is too long: " + c.length() + " > " + maxCommandLength);
+            }
+        }
 
         return result;
     }
@@ -417,7 +433,7 @@ public class GcodeParser {
         StringBuilder sb;
 
         // Create the commands...
-        result = new ArrayList<String>(psl.size());
+        result = new ArrayList<>(psl.size());
 
 
         // Setup decimal formatter.

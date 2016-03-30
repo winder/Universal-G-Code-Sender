@@ -38,7 +38,7 @@ public class GcodeCommandBuffer {
     private int numCommands = 0;
     
     public GcodeCommandBuffer() {
-        this.commandQueue = new LinkedList<GcodeCommand>();
+        this.commandQueue = new LinkedList<>();
     }
     
     public int size() {

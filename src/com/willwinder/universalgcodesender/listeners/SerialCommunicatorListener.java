@@ -4,7 +4,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,6 +24,8 @@
 
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+
 /**
  *
  * @author wwinder
@@ -32,7 +34,8 @@ public interface SerialCommunicatorListener {
     //void capabilitiesListener(CommUtils.Capabilities capability);
     void rawResponseListener(String response);
     
-    void commandSent(String command);
+    void commandSent(GcodeCommand command);
+    void commandSkipped(GcodeCommand command);
     void messageForConsole(String msg);
     void verboseMessageForConsole(String msg);
     void errorMessageForConsole(String msg);

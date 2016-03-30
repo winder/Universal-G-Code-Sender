@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,10 +28,11 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
@@ -45,17 +46,11 @@ public class VisualizerWindow extends javax.swing.JFrame
 implements ControllerListener, WindowListener {
 
     private static String TITLE = Localization.getString("visualizer.title");  // window's title
-    private static final int CANVAS_WIDTH = 640;  // width of the drawable
-    private static final int CANVAS_HEIGHT = 480; // height of the drawable
     private static final int FPS = 20; // animator's target frames per second
     
     // OpenGL Control
     FPSAnimator animator;
     
-    // Interactive members.
-    private Point3d machineCoordinate;
-    private Point3d workCoordinate;
-    private int completedCommandNumber = -1;
     private String gcodeFile = null;
     private VisualizerCanvas canvas = null;
     
@@ -95,9 +90,13 @@ implements ControllerListener, WindowListener {
         this.gcodeFile = file;
         canvas.setGcodeFile(this.gcodeFile);
     }
+
+    public void setProcessedGcodeFile(String file) {
+        this.gcodeFile = file;
+        canvas.setProcessedGcodeFile(this.gcodeFile);
+    }
     
     public void setCompletedCommandNumber(int num) {
-        this.completedCommandNumber = num;
         this.canvas.setCurrentCommandNumber(num);
     }
 
@@ -118,13 +117,10 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void statusStringListener(String state, Point3d machineCoord, Point3d workCoord) {
-        machineCoordinate = machineCoord;
-        workCoordinate = workCoord;
-        
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
         // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(this.machineCoordinate);
-        this.canvas.setWorkCoordinate(this.workCoordinate);
+        this.canvas.setMachineCoordinate(machineCoord);
+        this.canvas.setWorkCoordinate(workCoord);
     }
     
     @Override
@@ -133,7 +129,7 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void commandQueued(GcodeCommand command) {
+    public void commandSkipped(GcodeCommand command) {
         // TODO: When canned cycles are handled in the controller I'll need to
         //       update the visualizer to use commands sniffed from this queue.
     }

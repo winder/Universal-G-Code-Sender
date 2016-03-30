@@ -36,21 +36,32 @@ import javax.vecmath.Point3d;
  */
 public class VisualizerUtils {
     
-    enum Color {
-        RED, 
-        BLUE, 
-        PURPLE, 
-        YELLOW, 
-        OTHER_YELLOW, 
-        GREEN, 
-        WHITE,
-        GRAY,
+    public enum Color {
+        RED(255,100,100), 
+        BLUE(0,255,255), 
+        PURPLE(242,0,255), 
+        YELLOW(237,255,0), 
+        OTHER_YELLOW(234,212,7), 
+        GREEN(33,255,0), 
+        WHITE(255,255,255),
+        GRAY(80,80,80),
+        BLACK(0,0,0);
+
+        final byte[] rgb;
+
+        private Color(int r, int g, int b) {
+            rgb = new byte[]{(byte)r,(byte)g,(byte)b};
+        }
+
+        public byte[] getBytes() {
+            return rgb;
+        }
     }
     
     /**
      * Returns the maximum side dimension of a box containing two points.
      */
-    static double findMaxSide(Point3d min, Point3d max) {
+    public static double findMaxSide(Point3d min, Point3d max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         double z = Math.abs(min.z) + Math.abs(max.z);
@@ -60,7 +71,7 @@ public class VisualizerUtils {
     /**
      * Returns the aspect ratio from two points.
      */
-    static double findAspectRatio(Point3d min, Point3d max) {
+    public static double findAspectRatio(Point3d min, Point3d max) {
         double x = Math.abs(min.x) + Math.abs(max.x);
         double y = Math.abs(min.y) + Math.abs(max.y);
         return x / y;
@@ -69,7 +80,7 @@ public class VisualizerUtils {
     /**
      * Returns the center point on a line.
      */
-    static Point3d findCenter(Point3d min, Point3d max) {
+    public static Point3d findCenter(Point3d min, Point3d max) {
         Point3d center = new Point3d();
         center.x = (min.x + max.x) / 2.0;
         center.y = (min.y + max.y) / 2.0;
@@ -80,7 +91,7 @@ public class VisualizerUtils {
     /**
      * Find a factor to scale an object by so that it fits in the window.
      */
-    static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
+    public static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
         final double bufferFactor = 0.9;
         
         if (y == 0 || x == 0 || min == null || max == null) {
@@ -99,9 +110,8 @@ public class VisualizerUtils {
 
     /** Constructor to setup the GUI for this Component */
     public static ArrayList<String> readFiletoArrayList(String gCode) throws IOException {
-        ArrayList<String> vect = null;
+        ArrayList<String> vect = new ArrayList<>();
         File gCodeFile = new File(gCode);
-        vect = new ArrayList<String>();
         FileInputStream fstream = new FileInputStream(gCodeFile);
         DataInputStream dis = new DataInputStream(fstream);
         BufferedReader fileStream = new BufferedReader(new InputStreamReader(dis));
@@ -113,39 +123,6 @@ public class VisualizerUtils {
         return vect;
     }
 
-    static byte[] getVertexColor(Color color) {
-        byte[] ret;
-        switch (color) {
-            case RED:
-                ret = new byte[]{(byte) 255, (byte) 100, (byte) 100};
-                break;
-            case BLUE:
-                ret = new byte[]{(byte) 0, (byte) 255, (byte) 255};
-                break;
-            case PURPLE:
-                ret = new byte[]{(byte) 242, (byte) 0, (byte) 255};
-                break;
-            case YELLOW:
-                ret = new byte[]{(byte) 237, (byte) 255, (byte) 0};
-                break;
-            case OTHER_YELLOW:
-                ret = new byte[]{(byte) 234, (byte) 212, (byte) 7};
-                break;
-            case GREEN:
-                ret = new byte[]{(byte) 33, (byte) 255, (byte) 0};
-                break;
-            case WHITE:
-                ret = new byte[]{(byte) 255, (byte) 255, (byte) 255};
-                break;
-            case GRAY:
-                ret = new byte[]{(byte) 80, (byte) 80, (byte) 80};
-                break;
-            default:
-                ret = new byte[]{(byte) 255, (byte) 255, (byte) 255};
-        }
-        return ret;
-    }
-
     /**
      * Determine the ratio of mouse movement to model movement for panning operations on a single axis.
      * @param objectMin The lowest value on the axis from the model's size.
@@ -153,7 +130,7 @@ public class VisualizerUtils {
      * @param movementRange The length of the axis in the window displaying the model.
      * @return the ratio of the model size to the display size on that axis.
      */
-    static double getRelativeMovementMultiplier(double objectMin, double objectMax, int movementRange) {
+    public static double getRelativeMovementMultiplier(double objectMin, double objectMax, int movementRange) {
         if (movementRange == 0)
             return 0;
 

@@ -7,7 +7,7 @@
  */
 
 /*
-    Copywrite 2012 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
  */
 public class GcodeCommand {
     private String command;
+    private String originalCommand;
     private String response;
     private String responseType;
     private Boolean sent = false;
@@ -46,6 +47,7 @@ public class GcodeCommand {
     private boolean isComment = false;
     private boolean hasComment = false;
     private String comment;
+    private boolean isTemporaryParserModalChange = false;
 
     public GcodeCommand(String command) {
         this(command, -1);
@@ -55,14 +57,20 @@ public class GcodeCommand {
         this.command = command;
         this.commandNum = num;
         this.comment = GcodePreprocessorUtils.parseComment(command);
-        this.hasComment = (this.comment.length() > 0);
-        if (this.hasComment) {
-            String strippedCommand = GcodePreprocessorUtils.removeComment(command);
-            if (strippedCommand.trim().length() == 0)
+        if (this.hasComment()) {
+            this.command = GcodePreprocessorUtils.removeComment(command);
+            if (this.command.trim().length() == 0)
                 this.isComment = true;
         }
     }
-    
+
+    public GcodeCommand(String command, String originalCommand, String comment, int num) {
+        this.command = command;
+        this.originalCommand = originalCommand;
+        this.comment = comment;
+        this.commandNum = num;
+    }
+
     /** Setters. */
     public void setCommand(String command) {
         this.command = command;
@@ -95,7 +103,11 @@ public class GcodeCommand {
     public String getCommandString() {
         return this.command;
     }
-    
+
+    public String getOriginalCommandString() {
+        return this.originalCommand;
+    }
+
     public int getCommandNumber() {
         return this.commandNum;
     }
@@ -125,11 +137,25 @@ public class GcodeCommand {
     }
 
     public boolean hasComment() {
-        return this.hasComment;
+        return this.comment != null && this.comment.length() != 0;
     }
 
     public String getComment() {
         return this.comment;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public boolean isTemporaryParserModalChange() {
+        return isTemporaryParserModalChange;
+    }
+
+    /**
+     * True for things like Jogging, false for commands from a gcode file
+     */
+    public void setTemporaryParserModalChange(boolean isGUICommand) {
+        this.isTemporaryParserModalChange = isGUICommand;
     }
 
     public Boolean parseResponse() {

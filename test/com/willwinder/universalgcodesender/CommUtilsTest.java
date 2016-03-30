@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class CommUtilsTest {
         Boolean expResult;
         Boolean result;
 
-        List<GcodeCommand> list = new LinkedList<GcodeCommand>();
+        List<GcodeCommand> list = new LinkedList<>();
         list.add(new GcodeCommand("twenty characters...", 0));
         list.add(new GcodeCommand("twenty characters...", 1));
         list.add(new GcodeCommand("twenty characters...", 2));
@@ -72,7 +73,7 @@ public class CommUtilsTest {
         
         // This command should just barely fit.
         nextCommand = new GcodeCommand(biggestString.toString(), 5);
-        result = CommUtils.checkRoomInBuffer(list, nextCommand);
+        result = CommUtils.checkRoomInBuffer(list, nextCommand, GrblUtils.GRBL_RX_BUFFER_SIZE);
         expResult = true;
         assertEquals(expResult, result);
         
@@ -80,7 +81,7 @@ public class CommUtilsTest {
         nextCommand = new GcodeCommand(biggestString.toString(), 5);
 
         expResult = false;
-        result = CommUtils.checkRoomInBuffer(list, nextCommand);
+        result = CommUtils.checkRoomInBuffer(list, nextCommand, GrblUtils.GRBL_RX_BUFFER_SIZE);
         assertEquals(expResult, result);
     }
 
@@ -90,7 +91,7 @@ public class CommUtilsTest {
     @Test
     public void testGetSizeOfBuffer() {
         System.out.println("getSizeOfBuffer");
-        List<GcodeCommand> list = new LinkedList<GcodeCommand>();
+        List<GcodeCommand> list = new LinkedList<>();
         list.add(new GcodeCommand("twenty characters...", 0));
         list.add(new GcodeCommand("twenty characters...", 1));
         list.add(new GcodeCommand("twenty characters...", 2));

@@ -56,13 +56,14 @@ public class GcodeCommandCreator {
     }
     
     public GcodeCommand createCommand(String commandString) throws Exception {
-
-
-        if (commandString.length() > this.maxCommandLength) {
+        GcodeCommand gc = new GcodeCommand(commandString, this.numCommands++);
+        
+        if (gc.getCommandString().length() > this.maxCommandLength) {
             throw new Exception(
                     String.format("Command #%d too long: (%d > %d) '%s'",
                             this.numCommands, commandString.length(), maxCommandLength, commandString));
         }
-        return new GcodeCommand(commandString, this.numCommands++);
+        
+        return gc;
     }
 }

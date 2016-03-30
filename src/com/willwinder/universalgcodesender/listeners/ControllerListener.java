@@ -21,6 +21,8 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import javax.vecmath.Point3d;
 
@@ -32,9 +34,9 @@ public interface ControllerListener {
     void fileStreamComplete(String filename, boolean success);
     
     /**
-     * A command has been added to the output queue.
+     * A command in the stream has been skipped.
      */
-    void commandQueued(GcodeCommand command);
+    void commandSkipped(GcodeCommand command);
     
     /**
      * A command has successfully been sent to the controller.
@@ -59,7 +61,7 @@ public interface ControllerListener {
     /**
      * Controller status information.
      */
-    void statusStringListener(String state, Point3d machineCoord, Point3d workCoord);
+    void statusStringListener(String state, Position machineCoord, Position workCoord);
     
     /**
      * Data gathered while preprocessing commands for queue.

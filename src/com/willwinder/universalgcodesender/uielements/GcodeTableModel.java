@@ -1,9 +1,10 @@
-/*
- * This class is mainly to satiet netbeans and its automatic code generation.
+/**
+ * A table model which persists data to a file, this is an attempt to have an
+ * arbitrary sized table. It seems to add too much overhead though.
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,42 +23,93 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.AbstractTableModel;
+import third_party.PersistentVector;
 
 /**
  *
  * @author wwinder
  */
-public class GcodeTableModel extends DefaultTableModel {
-    private Class[] types = new Class [] {
-        java.lang.String.class, java.lang.Boolean.class, java.lang.Boolean.class, java.lang.String.class
-    };
-    private boolean[] canEdit = new boolean [] {
-        false, false, false, false
-    };
+class GcodeTableModel extends AbstractTableModel {
+    PersistentVector modelData;
+    String[] header;
+    Class[] types;
     
-    public GcodeTableModel() {
-        super(new Object [][] {
+    /**
+     * A TableModel which persists old data to the disk.
+     * @param obj
+     * @param header
+     * @param types 
+     */
+    GcodeTableModel(Object[][] obj, String[] header, Class[] types) {
+        // save the header
+        this.header = header;	
+        // save the types
+        this.types = types;
+        // and the rows
+        modelData = new PersistentVector();
 
-            },
-            new String [] {
-                Localization.getString("gcodeTable.command"),
-                Localization.getString("gcodeTable.sent"),
-                Localization.getString("gcodeTable.done"),
-                Localization.getString("gcodeTable.response")
+        // copy the rows into the ArrayList
+        if (obj != null) {
+            for(int i = 0; i < obj.length; ++i) {
+                //modelData.add(obj[i]);
+                modelData.addElement(obj[i]);
             }
-        );
-    }      
+        }
+    }
+
+    // method that needs to be overload. The row count is the size of the ArrayList
+    @Override
+    public int getRowCount() {
+        return modelData.size();
+    }
+
+    // method that needs to be overload. The column count is the size of our header
+    @Override
+    public int getColumnCount() {
+        return header.length;
+    }
+
+    // method that needs to be overload. The object is in the arrayList at rowIndex
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        return ((Object[])modelData.elementAt(rowIndex))[columnIndex];
+        //return modelData.get(rowIndex)[columnIndex];
+    }
+    
+    // a method to return the column name 
+    @Override
+    public String getColumnName(int index) {
+        return header[index];
+    }
 
     @Override
     public Class getColumnClass(int columnIndex) {
         return types [columnIndex];
     }
+    
+    void addRow(Object[] row) {
+        int rowCount = getRowCount();
+        modelData.addElement(row);
+        fireTableRowsInserted(rowCount, rowCount);
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int row, int column) {
+        Object[] r = (Object[]) modelData.elementAt(row);
+        r[column] = aValue;
+        modelData.setElementAt(r, row);
+        fireTableCellUpdated(row, column);
+    }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return canEdit [columnIndex];
+        return false;
     }
 
+    void dropData() {
+        modelData = new PersistentVector();
+        // inform the GUI that I have change
+        fireTableDataChanged();
+    }
 }

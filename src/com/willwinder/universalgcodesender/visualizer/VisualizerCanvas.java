@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,26 +26,37 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.util.FPSAnimator;
+import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
+import static com.jogamp.opengl.GL.GL_LEQUAL;
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.jogamp.opengl.GL.GL_NICEST;
+import com.jogamp.opengl.GL2;
+import static com.jogamp.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLEventListener;
+import com.jogamp.opengl.awt.GLCanvas;
+import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import com.jogamp.opengl.glu.GLU;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
+import com.willwinder.universalgcodesender.uielements.Overlay;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.text.DecimalFormat;
 import java.util.List;
-import javax.media.opengl.GL;
-import static javax.media.opengl.GL.*;
-import javax.media.opengl.GL2;
-import static javax.media.opengl.GL2ES1.GL_PERSPECTIVE_CORRECTION_HINT;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.awt.GLCanvas;
-import static javax.media.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static javax.media.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
-import javax.media.opengl.glu.GLU;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
 
@@ -56,10 +67,14 @@ import javax.vecmath.Vector3d;
  */
 @SuppressWarnings("serial")
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
+    private static final Logger logger = Logger.getLogger(VisualizerCanvas.class.getName());
+    
     static boolean ortho = true;
     static double orthoRotation = -45;
     static boolean forceOldStyle = false;
     static boolean debugCoordinates = false; // turn on coordinate debug output
+    
+    final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
     private Point3d machineCoord;
@@ -67,6 +82,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     
     // Gcode file data
     private String gcodeFile = null;
+    private boolean processedGcodeFile = false; // True if the file should be loaded with a GcodeStreamReader
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
@@ -118,6 +134,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private boolean vertexArrayDirty = false;
     
     private FPSCounter fpsCounter;
+    private Overlay overlay;
+    private String dimensionsLabel;
     
     /**
      * Constructor.
@@ -157,24 +175,33 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         return this.lastCommandNumber;
     }
     
+    public void setProcessedGcodeFile(String file) {
+        this.processedGcodeFile = true;
+        setFile(file);
+    }
     /**
      * Assign a gcode file to drawing.
      */
     public void setGcodeFile(String file) {
+        this.processedGcodeFile = false;
+        setFile(file);
+    }
+
+    private void setFile(String file) {
         this.gcodeFile = file;
         this.isDrawable = false;
         this.currentCommandNumber = 0;
         this.lastCommandNumber = 0;
-
+        
         generateObject();
     }
     
-    public void setWorkCoordinate(Point3d p) {
-        this.workCoord.set(p);
+    public void setWorkCoordinate(Position p) {
+        this.workCoord.set(p.getPositionIn(Utils.Units.MM));
     }
     
-    public void setMachineCoordinate(Point3d p) {
-        this.machineCoord.set(p);
+    public void setMachineCoordinate(Position p) {
+        this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
     }
 
     // ------ Implement methods declared in GLEventListener ------
@@ -186,7 +213,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void init(GLAutoDrawable drawable) {
+        logger.log(Level.INFO, "Initializing OpenGL context.");
+
+        generateObject();
+
         this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay.setColor(127, 127, 127, 100);
+        this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 
         // Parse random gcode file and generate something to draw.
         GL2 gl = drawable.getGL().getGL2();      // get the OpenGL graphics context
@@ -206,6 +240,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
+        logger.log(Level.INFO, "Reshaping OpenGL context.");
+        if (!isDrawable) return;
+        
         this.xSize = width;
         this.ySize = height;
 
@@ -229,6 +266,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void display(GLAutoDrawable drawable) {
+        if (!isDrawable) return;
+        
         this.setupPerpective(this.xSize, this.ySize, drawable, ortho);
 
         final GL2 gl = drawable.getGL().getGL2();
@@ -260,8 +299,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
         gl.glPopMatrix();
         
-        this.fpsCounter.draw();
-        //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        if (isDrawable) {
+            this.fpsCounter.draw();
+            this.overlay.draw(this.dimensionsLabel);
+            //this(drawable, new Font("SansSerif", Font.BOLD, 12));
+        }
         
         update();
     }
@@ -311,7 +353,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         
         gl.glLineWidth(8.0f);
         byte []color;
-        color = VisualizerUtils.getVertexColor(VisualizerUtils.Color.YELLOW);
+        color = VisualizerUtils.Color.YELLOW.getBytes();
         int verts = 0;
         int colors = 0;
         
@@ -337,6 +379,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 && gl.isFunctionAvailable( "glBindBuffer" )
                 && gl.isFunctionAvailable( "glBufferData" )
                 && gl.isFunctionAvailable( "glDeleteBuffers" ) ) {
+            
             // Initialize OpenGL arrays if required.
             if (this.colorArrayDirty) {
                 this.updateGLColorArray(drawable);
@@ -347,7 +390,6 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 this.vertexArrayDirty = false;
             }
             gl.glLineWidth(1.0f);
-
             gl.glEnableClientState(GL2.GL_VERTEX_ARRAY);
             gl.glEnableClientState(GL2.GL_COLOR_ARRAY);
             gl.glDrawArrays( GL.GL_LINES, 0, numberOfVertices);
@@ -356,6 +398,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         }
         // Traditional OpenGL
         else {
+
             // TODO: By using a GL_LINE_STRIP I can easily use half the number of
             //       verticies. May lose some control over line colors though.
             //gl.glEnable(GL2.GL_LINE_SMOOTH);
@@ -389,12 +432,10 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             gl.glDisable(GL_DEPTH_TEST);
             //gl.glDisable(GL_LIGHTING);
             gl.glMatrixMode(GL_PROJECTION);
-            gl.glPushMatrix();
             gl.glLoadIdentity();
             // Object's longest dimension is 1, make window slightly larger.
             gl.glOrtho(-0.51*this.aspectRatio,0.51*this.aspectRatio,-0.51,0.51,-10,10);
             gl.glMatrixMode(GL_MODELVIEW);
-            gl.glPushMatrix();
             gl.glLoadIdentity();
         } else {
             gl.glEnable(GL.GL_DEPTH_TEST);
@@ -424,39 +465,56 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (this.gcodeFile == null){ return; }
         
         try {
+            GcodeViewParse gcvp = new GcodeViewParse();
 
-        GcodeViewParse gcvp = new GcodeViewParse();
-        List<String> linesInFile;
-        linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
-        gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
-        
-        this.objectMin = gcvp.getMinimumExtremes();
-        this.objectMax = gcvp.getMaximumExtremes();
+            // Load from stream
+            if (this.processedGcodeFile) {
+                GcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile));
+                gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
+            }
+            // Load raw file
+            else {
+                List<String> linesInFile;
+                linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
+                gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
+            }
+            
+            this.objectMin = gcvp.getMinimumExtremes();
+            this.objectMax = gcvp.getMaximumExtremes();
 
-        // Grab the line number off the last line.
-        this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
-        
-        System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
-        System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
-        System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
-        
-        this.center = VisualizerUtils.findCenter(objectMin, objectMax);
-        System.out.println("Center = " + center.toString());
-        System.out.println("Num Line Segments :" + gcodeLineList.size());
+            if (gcodeLineList.size() == 0) {
+                return;
+            }
+            
+            // Grab the line number off the last line.
+            this.lastCommandNumber = gcodeLineList.get(gcodeLineList.size() - 1).getLineNumber();
+            
+            System.out.println("Object bounds: X ("+objectMin.x+", "+objectMax.x+")");
+            System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
+            System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
+            
+            this.center = VisualizerUtils.findCenter(objectMin, objectMax);
+            System.out.println("Center = " + center.toString());
+            System.out.println("Num Line Segments :" + gcodeLineList.size());
 
-        this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
-        
-        this.scaleFactorBase = 1.0/this.maxSide;
-        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
-        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
+            this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
+            
+            this.scaleFactorBase = 1.0/this.maxSide;
+            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+            this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
-        this.isDrawable = true;
-        
-        // Now that the object is known, fill the buffers.
-        this.createVertexBuffers();
-        this.colorArrayDirty = true;
-        this.vertexArrayDirty = true;
-        
+            this.isDrawable = true;
+            
+            double objectWidth = this.objectMax.x-this.objectMin.x;
+            double objectHeight = this.objectMax.y-this.objectMin.y;
+            this.dimensionsLabel = Localization.getString("VisualizerCanvas.dimensions") + ": " 
+                    + Localization.getString("VisualizerCanvas.width") + "=" + format.format(objectWidth) + " " 
+                    + Localization.getString("VisualizerCanvas.height") + "=" + format.format(objectHeight);
+            
+            // Now that the object is known, fill the buffers.
+            this.createVertexBuffers();
+            this.colorArrayDirty = true;
+            this.vertexArrayDirty = true;
         } catch (IOException e) {
             System.out.println("Error opening file: " + e.getLocalizedMessage());
         }
@@ -496,7 +554,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 {
                     Point3d p1 = ls.getStart();
                     Point3d p2 = ls.getEnd();
-                    byte[] c = VisualizerUtils.getVertexColor(color);
+                    byte[] c = color.getBytes();
 
                     // colors
                     //p1
@@ -601,8 +659,13 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
      */
     @Override
     public void dispose(GLAutoDrawable drawable) { 
+        logger.log(Level.INFO, "Disposing OpenGL context.");
+
         this.lineColorBuffer = null;
         this.lineVertexBuffer = null;
+        this.gcodeLineList = null;
+        this.isDrawable = false;
+        this.numberOfVertices = 0;
     }
 
     /**

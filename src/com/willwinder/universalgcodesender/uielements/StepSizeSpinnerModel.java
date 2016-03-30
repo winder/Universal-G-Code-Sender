@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -87,7 +87,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         Double num;
         this.setStepSize(getNextStepSize());
 
-        num = new Double(this.getNumber().doubleValue() + this.getStepSize().doubleValue());
+        num = this.getNumber().doubleValue() + this.getStepSize().doubleValue();
 
         // check upper bound if set
         if ((this.getMaximum() != null) && this.getMaximum().compareTo(num) < 0) {
@@ -112,7 +112,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         Double num;
         this.setStepSize(getPreviousStepSize());
 
-        num = new Double(this.getNumber().doubleValue() - this.getStepSize().doubleValue());
+        num = this.getNumber().doubleValue() - this.getStepSize().doubleValue();
 
         // check lower bound if set
         if ((this.getMinimum() != null) && this.getMinimum().compareTo(num) > 0) {

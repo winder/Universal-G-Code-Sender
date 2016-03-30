@@ -1,10 +1,14 @@
 Universal GcodeSender is a Java based GRBL compatible cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
+Online documentation available here: http://winder.github.io/ugs_website/
+<br />
+Documentation contributions can be made here: https://github.com/winder/ugs_website
+
 To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run an included start script.
 
 Note for MAC users:
-You may need to create a "/var/lock" directory on OSX to fix a bug in the serial
+For version 1.0.8 and earlier you may need to create a "/var/lock" directory on OSX to fix a bug in the serial
 library. To do this open the Terminal application and run the following two
 commands:
 <br />
@@ -15,6 +19,17 @@ commands:
 
 Downloads
 ---------
+<b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
+* Currently under heavy development, feedback and suggestions are helpful!
+* [classic GUI](http://bit.ly/1hftIhy) - The classic UGS GUI.
+* [UGS Platform](http://bit.ly/1DkClRW) - This is a work in progress. The next generation platform-based GUI utilizing the UGS API.
+
+<b>Stable builds</b>
+<br />
+[1.0.9](http://bit.ly/1M6z2ys)
+<br />
+[1.0.8](http://bit.ly/1BSKon6)
+<br />
 [1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
 <br />
 [1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
@@ -22,27 +37,61 @@ Downloads
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
+
 ![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_command_table.png "Command table tab during a file send.")
 ![3D Visualizer Window](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_visualizer.png "Visualizer window during a file send.")
 ![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_job_finished.png "Popup after finishing a file send.")
 ![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_advanced_machine_control.png "Advanced GRBL control buttons.")
 
 Technical details:
-* RXTX for serial communication.
+* JSSC for serial communication (RXTX was used up through v1.0.8)
 * JogAmp for OpenGL.
-* Utilizes One-Jar to bundle all dependencies into a single runnable .jar file.
-* Developed with NetBeans 7.2.1 or later.
-* For development you will need to install RXTX.
-* To build a release using Netbeans open the 'Files' pane and right click build.xml,
-  then select 'Run Target' > 'onejar-build-release'. A new directory named 'release'
-  will contain the .zip file.
+* Developed with NetBeans 8.0.2 or later.
+
+Development
+-----------
+
+For development the [Maven](http://maven.apache.org) build tool is used.
+
+#### Run main class from command line
+
+```mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow"```
+
+
+#### Execute all tests
+
+```mvn test```
+
+
+#### Just build a self-running uber-jar:
+
+```mvn package```
+
+
+#### Build a UniversalGcodeSender.zip release file
+
+```mvn package assembly:assembly```
+
 
 Changelog
 ---------
-1.0.7 -> 1.0.8 (Unreleased)
-* (BETA) TinyG support!
-* Accurate GRBL job estimates. (michmerr)
+1.0.9 -> 2.0
+* Constant memory! Optimized every part of UGS to run in a fixed amount of memory, no more slowness because a file is too large.
+
+1.0.8 -> 1.0.9
+* Many performance improvements.
+* New serial library: JSSC
+* Updated 3D library.
+* Maven build script (Thanks nitram509!)
+* TinyG support enabled.
+* XLCD support.
+* Bug fixes: INCH/MM jog units, visualizer fixes (crashes and OSX support), "Null stream" error, localization crashes, 
+* Translations: French, Greek, Dutch, Italian
+
+1.0.7 -> 1.0.8
 * PendantUI server - connect to UGS with your smartphone or tablet. (jvabob)
+* Translations: German, Spanish, Italian, Afrikaans
+* Many bugfixes and stability improvements.
 
 1.0.6 -> 1.0.7
 * Many improvements to code architecture to allow future support for multiple firmwares (TinyG, Marlin, Smoothie, etc).
