@@ -72,7 +72,6 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 
 ```mvn package assembly:assembly```
 
-
 Changelog
 ---------
 1.0.9 -> 2.0
