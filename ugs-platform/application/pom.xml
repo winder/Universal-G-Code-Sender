@@ -47,11 +47,6 @@
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ugs-platform-sample</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-central-lookup</artifactId>
             <version>${project.version}</version>
         </dependency>

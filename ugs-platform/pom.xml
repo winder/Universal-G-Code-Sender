@@ -58,7 +58,6 @@
     <modules>
         <module>branding</module>
         <module>application</module>
-        <module>ugs-platform-sample</module>
         <module>ugs-platform-ugslib</module>
         <module>ugs-platform-central-lookup</module>
         <module>ugs-platform-ugscore</module>
