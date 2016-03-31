@@ -190,6 +190,8 @@ public class FPSCounter {
           x = drawable.getSurfaceWidth() - fpsWidth - fpsOffset;
           y = fpsOffset;
           break;
+        default:
+          break;
       }
 
       renderer.draw(fpsText, x, y);

@@ -70,6 +70,8 @@ public class FirmwareUtils {
                 return new GrblController(new LoopBackCommunicator());
             case LOOPBACK2:
                 return new GrblController(new LoopBackCommunicator(10));
+            default:
+                break;
         }
         
         return null;

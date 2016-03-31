@@ -338,6 +338,8 @@ public class GcodeParser {
             case "91.1":
                 this.inAbsoluteIJKMode = false;
                 break;
+            default:
+                break;
         }
         this.lastGcodeCommand = code;
         return ps;

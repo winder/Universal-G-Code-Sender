@@ -1988,6 +1988,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                                 resetCoordinatesButtonActionPerformed(null);
                                 e.consume();
                                 return true;
+                            default:
+                                break;
                         }
                     }
                     
@@ -2408,6 +2410,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                             resetSentRowLabels(gsr.getNumRows());
                         }
                     } catch (IOException ex) {}
+                    break;
+                default:
                     break;
             }
 
