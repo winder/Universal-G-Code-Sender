@@ -63,6 +63,8 @@
         <module>ugs-platform-central-lookup</module>
         <module>ugs-platform-ugscore</module>
         <module>ugs-platform-wrapped-ugs-jar</module>
+        <module>ugs-platform-visualizer</module>
+        <module>ugs-platform-plugin-workflow</module>
     </modules>
 
     <properties>
