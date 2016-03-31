@@ -42,12 +42,16 @@ public class Utils {
                 switch(to) {
                     case MM: return 1.0;
                     case INCH: return 1.0 / mmPerInch;
+                    default: break;
                 }
             case INCH:
                 switch(to) {
                     case MM: return 25.4;
                     case INCH: return 1.0;
+                    default: break;
                 }
+                default:
+                    break;
         }
         return 1.0;
     }

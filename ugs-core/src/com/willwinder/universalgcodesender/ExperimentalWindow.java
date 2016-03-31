@@ -1,5 +1,5 @@
 /*
- * ExperimentalWindow.java
+ * MainWindow.java
  *
  * Created on Jun 26, 2012, 3:04:38 PM
  */
@@ -342,6 +342,19 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         resetZButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, backend);
+        keyboardMovementPanel = new javax.swing.JPanel();
+        stepSizeSpinner = new javax.swing.JSpinner();
+        arrowMovementEnabled = new javax.swing.JCheckBox();
+        movementButtonPanel = new javax.swing.JPanel();
+        zMinusButton = new javax.swing.JButton();
+        yMinusButton = new javax.swing.JButton();
+        xPlusButton = new javax.swing.JButton();
+        xMinusButton = new javax.swing.JButton();
+        zPlusButton = new javax.swing.JButton();
+        yPlusButton = new javax.swing.JButton();
+        stepSizeLabel = new javax.swing.JLabel();
+        inchRadioButton = new javax.swing.JRadioButton();
+        mmRadioButton = new javax.swing.JRadioButton();
         macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
         connectionPanel = new javax.swing.JPanel();
@@ -392,19 +405,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         remainingRowsValueLabel = new javax.swing.JLabel();
         sentRowsLabel = new javax.swing.JLabel();
         rowsLabel = new javax.swing.JLabel();
-        keyboardMovementPanel = new javax.swing.JPanel();
-        stepSizeSpinner = new javax.swing.JSpinner();
-        arrowMovementEnabled = new javax.swing.JCheckBox();
-        movementButtonPanel = new javax.swing.JPanel();
-        zMinusButton = new javax.swing.JButton();
-        yMinusButton = new javax.swing.JButton();
-        xPlusButton = new javax.swing.JButton();
-        xMinusButton = new javax.swing.JButton();
-        zPlusButton = new javax.swing.JButton();
-        yPlusButton = new javax.swing.JButton();
-        stepSizeLabel = new javax.swing.JLabel();
-        inchRadioButton = new javax.swing.JRadioButton();
-        mmRadioButton = new javax.swing.JRadioButton();
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -499,7 +499,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 machineControlPanelComponentShownHandler(evt);
             }
         });
-        machineControlPanel.setLayout(new java.awt.GridBagLayout());
 
         helpButtonMachineControl.setText("Help");
         helpButtonMachineControl.addActionListener(new java.awt.event.ActionListener() {
@@ -507,12 +506,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 helpButtonMachineControlActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 2, 0, 0);
-        machineControlPanel.add(helpButtonMachineControl, gridBagConstraints);
 
         resetYButton.setText("Reset Y Axis");
         resetYButton.setEnabled(false);
@@ -521,12 +514,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 resetYCoordinateButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
-        machineControlPanel.add(resetYButton, gridBagConstraints);
 
         softResetMachineControl.setText("Soft Reset");
         softResetMachineControl.setEnabled(false);
@@ -535,14 +522,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 softResetMachineControlActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipadx = 76;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
-        machineControlPanel.add(softResetMachineControl, gridBagConstraints);
 
         requestStateInformation.setText("$G");
         requestStateInformation.setEnabled(false);
@@ -551,13 +530,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 requestStateInformationActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 4;
-        gridBagConstraints.ipadx = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
-        machineControlPanel.add(requestStateInformation, gridBagConstraints);
 
         returnToZeroButton.setText("Return to Zero");
         returnToZeroButton.setEnabled(false);
@@ -566,14 +538,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 returnToZeroButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipadx = 56;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
-        machineControlPanel.add(returnToZeroButton, gridBagConstraints);
 
         toggleCheckMode.setText("$C");
         toggleCheckMode.setEnabled(false);
@@ -582,13 +546,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 toggleCheckModeActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.ipadx = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
-        machineControlPanel.add(toggleCheckMode, gridBagConstraints);
 
         resetCoordinatesButton.setText("Reset Zero");
         resetCoordinatesButton.setEnabled(false);
@@ -597,13 +554,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 resetCoordinatesButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.ipadx = 74;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        machineControlPanel.add(resetCoordinatesButton, gridBagConstraints);
 
         performHomingCycleButton.setText("$H");
         performHomingCycleButton.setEnabled(false);
@@ -612,13 +562,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 performHomingCycleButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.ipadx = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 0, 0, 0);
-        machineControlPanel.add(performHomingCycleButton, gridBagConstraints);
 
         killAlarmLock.setText("$X");
         killAlarmLock.setEnabled(false);
@@ -627,13 +570,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 killAlarmLockActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.ipadx = 4;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
-        machineControlPanel.add(killAlarmLock, gridBagConstraints);
 
         resetXButton.setText("Reset X Axis");
         resetXButton.setEnabled(false);
@@ -642,12 +578,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 resetXCoordinateButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(0, 6, 0, 0);
-        machineControlPanel.add(resetXButton, gridBagConstraints);
 
         resetZButton.setText("Reset Z Axis");
         resetZButton.setEnabled(false);
@@ -656,14 +586,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 resetZCoordinateButtonActionPerformed(evt);
             }
         });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(6, 6, 0, 0);
-        machineControlPanel.add(resetZButton, gridBagConstraints);
 
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setAutoscrolls(true);
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(50, 1000));
+        jScrollPane1.setRequestFocusEnabled(false);
 
         org.jdesktop.layout.GroupLayout macroActionPanelLayout = new org.jdesktop.layout.GroupLayout(macroActionPanel);
         macroActionPanel.setLayout(macroActionPanelLayout);
@@ -678,18 +605,218 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         jScrollPane1.setViewportView(macroActionPanel);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 4;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 6;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 372;
-        gridBagConstraints.ipady = 244;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(0, 9, 0, 0);
-        machineControlPanel.add(jScrollPane1, gridBagConstraints);
+        keyboardMovementPanel.setPreferredSize(new java.awt.Dimension(247, 180));
+
+        stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
+        stepSizeSpinner.setEnabled(false);
+        stepSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                stepSizeSpinnerStateChanged(evt);
+            }
+        });
+
+        arrowMovementEnabled.setText("Enable Keyboard Movement");
+        arrowMovementEnabled.setEnabled(false);
+
+        zMinusButton.setText("Z-");
+        zMinusButton.setEnabled(false);
+        zMinusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zMinusButtonActionPerformed(evt);
+            }
+        });
+
+        yMinusButton.setText("Y-");
+        yMinusButton.setEnabled(false);
+        yMinusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                yMinusButtonActionPerformed(evt);
+            }
+        });
+
+        xPlusButton.setText("X+");
+        xPlusButton.setEnabled(false);
+        xPlusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xPlusButtonActionPerformed(evt);
+            }
+        });
+
+        xMinusButton.setText("X-");
+        xMinusButton.setEnabled(false);
+        xMinusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                xMinusButtonActionPerformed(evt);
+            }
+        });
+
+        zPlusButton.setText("Z+");
+        zPlusButton.setEnabled(false);
+        zPlusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zPlusButtonActionPerformed(evt);
+            }
+        });
+
+        yPlusButton.setText("Y+");
+        yPlusButton.setEnabled(false);
+        yPlusButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                yPlusButtonActionPerformed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout movementButtonPanelLayout = new org.jdesktop.layout.GroupLayout(movementButtonPanel);
+        movementButtonPanel.setLayout(movementButtonPanelLayout);
+        movementButtonPanelLayout.setHorizontalGroup(
+            movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(movementButtonPanelLayout.createSequentialGroup()
+                .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+        );
+        movementButtonPanelLayout.setVerticalGroup(
+            movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(movementButtonPanelLayout.createSequentialGroup()
+                    .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(movementButtonPanelLayout.createSequentialGroup()
+                    .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        stepSizeLabel.setText("Step size:");
+        stepSizeLabel.setEnabled(false);
+
+        jogUnitsGroup.add(inchRadioButton);
+        inchRadioButton.setText("inch");
+        inchRadioButton.setEnabled(false);
+        inchRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inchRadioButtonActionPerformed(evt);
+            }
+        });
+
+        jogUnitsGroup.add(mmRadioButton);
+        mmRadioButton.setText("millimeters");
+        mmRadioButton.setEnabled(false);
+        mmRadioButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                mmRadioButtonActionPerformed(evt);
+            }
+        });
+
+        org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
+        keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
+        keyboardMovementPanelLayout.setHorizontalGroup(
+            keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(keyboardMovementPanelLayout.createSequentialGroup()
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(arrowMovementEnabled)
+                    .add(keyboardMovementPanelLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(keyboardMovementPanelLayout.createSequentialGroup()
+                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(inchRadioButton)
+                                    .add(stepSizeLabel))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                    .add(mmRadioButton)))
+                            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(19, Short.MAX_VALUE))
+        );
+        keyboardMovementPanelLayout.setVerticalGroup(
+            keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(keyboardMovementPanelLayout.createSequentialGroup()
+                .add(arrowMovementEnabled)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(stepSizeLabel)
+                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
+                    .add(inchRadioButton)
+                    .add(mmRadioButton))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
+
+        org.jdesktop.layout.GroupLayout machineControlPanelLayout = new org.jdesktop.layout.GroupLayout(machineControlPanel);
+        machineControlPanel.setLayout(machineControlPanelLayout);
+        machineControlPanelLayout.setHorizontalGroup(
+            machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(machineControlPanelLayout.createSequentialGroup()
+                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(machineControlPanelLayout.createSequentialGroup()
+                        .add(requestStateInformation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(helpButtonMachineControl))
+                    .add(resetCoordinatesButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(returnToZeroButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(softResetMachineControl, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 159, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(machineControlPanelLayout.createSequentialGroup()
+                        .add(performHomingCycleButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(6, 6, 6)
+                        .add(killAlarmLock, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(6, 6, 6)
+                        .add(toggleCheckMode, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(6, 6, 6)
+                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(resetXButton)
+                    .add(resetYButton)
+                    .add(resetZButton))
+                .add(9, 9, 9)
+                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+        );
+        machineControlPanelLayout.setVerticalGroup(
+            machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(machineControlPanelLayout.createSequentialGroup()
+                .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(machineControlPanelLayout.createSequentialGroup()
+                        .add(resetCoordinatesButton)
+                        .add(6, 6, 6)
+                        .add(returnToZeroButton)
+                        .add(6, 6, 6)
+                        .add(softResetMachineControl)
+                        .add(6, 6, 6)
+                        .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(performHomingCycleButton)
+                            .add(killAlarmLock)
+                            .add(toggleCheckMode))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(machineControlPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(requestStateInformation)
+                            .add(helpButtonMachineControl)))
+                    .add(machineControlPanelLayout.createSequentialGroup()
+                        .add(resetXButton)
+                        .add(6, 6, 6)
+                        .add(resetYButton)
+                        .add(6, 6, 6)
+                        .add(resetZButton)))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+        );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
@@ -1110,160 +1237,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(fileRunPanel, gridBagConstraints);
 
-        keyboardMovementPanel.setPreferredSize(new java.awt.Dimension(247, 180));
-
-        stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
-        stepSizeSpinner.setEnabled(false);
-        stepSizeSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                stepSizeSpinnerStateChanged(evt);
-            }
-        });
-
-        arrowMovementEnabled.setText("Enable Keyboard Movement");
-        arrowMovementEnabled.setEnabled(false);
-
-        zMinusButton.setText("Z-");
-        zMinusButton.setEnabled(false);
-        zMinusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                zMinusButtonActionPerformed(evt);
-            }
-        });
-
-        yMinusButton.setText("Y-");
-        yMinusButton.setEnabled(false);
-        yMinusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yMinusButtonActionPerformed(evt);
-            }
-        });
-
-        xPlusButton.setText("X+");
-        xPlusButton.setEnabled(false);
-        xPlusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                xPlusButtonActionPerformed(evt);
-            }
-        });
-
-        xMinusButton.setText("X-");
-        xMinusButton.setEnabled(false);
-        xMinusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                xMinusButtonActionPerformed(evt);
-            }
-        });
-
-        zPlusButton.setText("Z+");
-        zPlusButton.setEnabled(false);
-        zPlusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                zPlusButtonActionPerformed(evt);
-            }
-        });
-
-        yPlusButton.setText("Y+");
-        yPlusButton.setEnabled(false);
-        yPlusButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                yPlusButtonActionPerformed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout movementButtonPanelLayout = new org.jdesktop.layout.GroupLayout(movementButtonPanel);
-        movementButtonPanel.setLayout(movementButtonPanelLayout);
-        movementButtonPanelLayout.setHorizontalGroup(
-            movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(movementButtonPanelLayout.createSequentialGroup()
-                .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-        );
-        movementButtonPanelLayout.setVerticalGroup(
-            movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
-                .add(xMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(movementButtonPanelLayout.createSequentialGroup()
-                    .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(movementButtonPanelLayout.createSequentialGroup()
-                    .add(zPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 46, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 45, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-        );
-
-        stepSizeLabel.setText("Step size:");
-        stepSizeLabel.setEnabled(false);
-
-        jogUnitsGroup.add(inchRadioButton);
-        inchRadioButton.setText("inch");
-        inchRadioButton.setEnabled(false);
-        inchRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                inchRadioButtonActionPerformed(evt);
-            }
-        });
-
-        jogUnitsGroup.add(mmRadioButton);
-        mmRadioButton.setText("millimeters");
-        mmRadioButton.setEnabled(false);
-        mmRadioButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mmRadioButtonActionPerformed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
-        keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
-        keyboardMovementPanelLayout.setHorizontalGroup(
-            keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(keyboardMovementPanelLayout.createSequentialGroup()
-                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(arrowMovementEnabled)
-                    .add(keyboardMovementPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(keyboardMovementPanelLayout.createSequentialGroup()
-                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(inchRadioButton)
-                                    .add(stepSizeLabel))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(mmRadioButton)))
-                            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(23, Short.MAX_VALUE))
-        );
-        keyboardMovementPanelLayout.setVerticalGroup(
-            keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(keyboardMovementPanelLayout.createSequentialGroup()
-                .add(arrowMovementEnabled)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(stepSizeLabel)
-                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
-                    .add(inchRadioButton)
-                    .add(mmRadioButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
-
         settingsMenu.setText("Settings");
 
         grblConnectionSettingsMenuItem.setText("Sender Settings");
@@ -1320,8 +1293,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                         .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1332,7 +1304,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(18, 18, 18)
                         .add(showCommandTableCheckBox)
                         .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 671, Short.MAX_VALUE)))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -1355,8 +1327,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 203, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+                        .add(0, 0, Short.MAX_VALUE))
                     .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE))
                 .add(4, 4, 4))
         );
@@ -1712,94 +1683,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             this.stopPendantServerButton.setEnabled(false);
         }//GEN-LAST:event_stopPendantServerButtonActionPerformed
 
-    private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
-        try {
-            this.backend.resetCoordinateToZero('Z');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_resetZCoordinateButtonActionPerformed
-
-    private void resetYCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetYCoordinateButtonActionPerformed
-        try {
-            this.backend.resetCoordinateToZero('Y');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_resetYCoordinateButtonActionPerformed
-
-    private void resetXCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetXCoordinateButtonActionPerformed
-        try {
-            this.backend.resetCoordinateToZero('X');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_resetXCoordinateButtonActionPerformed
-
-    private void requestStateInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestStateInformationActionPerformed
-        try {
-            this.backend.requestParserState();
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_requestStateInformationActionPerformed
-
-    private void softResetMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_softResetMachineControlActionPerformed
-        try {
-            this.backend.issueSoftReset();
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_softResetMachineControlActionPerformed
-
-    private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
-        StringBuilder message = new StringBuilder()
-        .append(Localization.getString("mainWindow.resetZero")).append("\n")
-        .append(Localization.getString("mainWindow.returnToZero")).append("\n")
-        .append(Localization.getString("mainWindow.softReset")).append("\n")
-        .append(Localization.getString("mainWindow.homing")).append("\n")
-        .append(Localization.getString("mainWindow.alarmLock")).append("\n")
-        .append(Localization.getString("mainWindow.checkMode")).append("\n")
-        .append(Localization.getString("mainWindow.getState")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyboard")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyX")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyY")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyPlusMinus")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyDivMul")).append("\n")
-        .append(Localization.getString("mainWindow.helpKeyZero")).append("\n")
-        ;
-
-        JOptionPane.showMessageDialog(new JFrame(),
-            message,
-            Localization.getString("mainWindow.helpDialog"),
-            JOptionPane.INFORMATION_MESSAGE);
-    }//GEN-LAST:event_helpButtonMachineControlActionPerformed
-
-    private void toggleCheckModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleCheckModeActionPerformed
-        try {
-            this.backend.toggleCheckMode();
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_toggleCheckModeActionPerformed
-
-    private void killAlarmLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killAlarmLockActionPerformed
-        try {
-            this.backend.killAlarmLock();
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_killAlarmLockActionPerformed
-
-    private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
-        try {
-            this.backend.performHomingCycle();
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_performHomingCycleButtonActionPerformed
-
     private Units getSelectedUnits() {
         if (this.inchRadioButton.isSelected()) {
             return Units.INCH;
@@ -1817,6 +1700,30 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             displayErrorDialog(e.getMessage());
         }
     }
+    private void showCommandTableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCommandTableCheckBoxActionPerformed
+        showCommandTable(showCommandTableCheckBox.isSelected());
+    }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
+
+    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_commandTextFieldActionPerformed
+
+    private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
+        // TODO add your handling code here:
+    }//GEN-LAST:event_controlContextTabbedPaneComponentShown
+
+    private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
+        macroActionPanel.doLayout();
+    }//GEN-LAST:event_machineControlPanelComponentShownHandler
+
+    private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
+
+    }//GEN-LAST:event_mmRadioButtonActionPerformed
+
+    private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
+
+    }//GEN-LAST:event_inchRadioButtonActionPerformed
+
     private void yPlusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_yPlusButtonActionPerformed
         this.adjustManualLocation(0, 1, 0);
     }//GEN-LAST:event_yPlusButtonActionPerformed
@@ -1845,14 +1752,37 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
-    private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
+    private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
         try {
-            backend.returnToZero();
+            this.backend.resetCoordinateToZero('Z');
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
+    }//GEN-LAST:event_resetZCoordinateButtonActionPerformed
 
-    }//GEN-LAST:event_returnToZeroButtonActionPerformed
+    private void resetXCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetXCoordinateButtonActionPerformed
+        try {
+            this.backend.resetCoordinateToZero('X');
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_resetXCoordinateButtonActionPerformed
+
+    private void killAlarmLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killAlarmLockActionPerformed
+        try {
+            this.backend.killAlarmLock();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_killAlarmLockActionPerformed
+
+    private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
+        try {
+            this.backend.performHomingCycle();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_performHomingCycleButtonActionPerformed
 
     private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
         try {
@@ -1862,27 +1792,69 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
     }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
 
-    private void inchRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inchRadioButtonActionPerformed
-    }//GEN-LAST:event_inchRadioButtonActionPerformed
+    private void toggleCheckModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleCheckModeActionPerformed
+        try {
+            this.backend.toggleCheckMode();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_toggleCheckModeActionPerformed
 
-    private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
-    }//GEN-LAST:event_mmRadioButtonActionPerformed
+    private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
+        try {
+            backend.returnToZero();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_returnToZeroButtonActionPerformed
 
-    private void showCommandTableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCommandTableCheckBoxActionPerformed
-        showCommandTable(showCommandTableCheckBox.isSelected());
-    }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
+    private void requestStateInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestStateInformationActionPerformed
+        try {
+            this.backend.requestParserState();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_requestStateInformationActionPerformed
 
-    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_commandTextFieldActionPerformed
+    private void softResetMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_softResetMachineControlActionPerformed
+        try {
+            this.backend.issueSoftReset();
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_softResetMachineControlActionPerformed
 
-    private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
-        // TODO add your handling code here:
-    }//GEN-LAST:event_controlContextTabbedPaneComponentShown
+    private void resetYCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetYCoordinateButtonActionPerformed
+        try {
+            this.backend.resetCoordinateToZero('Y');
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
+        }
+    }//GEN-LAST:event_resetYCoordinateButtonActionPerformed
 
-    private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
-        macroActionPanel.doLayout();
-    }//GEN-LAST:event_machineControlPanelComponentShownHandler
+    private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
+        StringBuilder message = new StringBuilder()
+        .append(Localization.getString("mainWindow.resetZero")).append("\n")
+        .append(Localization.getString("mainWindow.returnToZero")).append("\n")
+        .append(Localization.getString("mainWindow.softReset")).append("\n")
+        .append(Localization.getString("mainWindow.homing")).append("\n")
+        .append(Localization.getString("mainWindow.alarmLock")).append("\n")
+        .append(Localization.getString("mainWindow.checkMode")).append("\n")
+        .append(Localization.getString("mainWindow.getState")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyboard")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyX")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyY")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyPlusMinus")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyDivMul")).append("\n")
+        .append(Localization.getString("mainWindow.helpKeyZero")).append("\n")
+        ;
+
+        JOptionPane.showMessageDialog(new JFrame(),
+            message,
+            Localization.getString("mainWindow.helpDialog"),
+            JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_helpButtonMachineControlActionPerformed
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
@@ -1991,6 +1963,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                                 resetCoordinatesButtonActionPerformed(null);
                                 e.consume();
                                 return true;
+                            default:
+                                break;
                         }
                     }
                     
@@ -2411,6 +2385,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                             resetSentRowLabels(gsr.getNumRows());
                         }
                     } catch (IOException ex) {}
+                    break;
+                default:
                     break;
             }
 

@@ -715,6 +715,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 this.rotation.x = 0;
                 this.rotation.y = -30;
                 this.rotation.z = 0;
+            default:
+                break;
         }
         
         switch(ke.getKeyChar()) {
@@ -745,6 +747,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             case '+':
                 if (ke.isControlDown())
                     this.zoomIn(1);
+                break;
+            default:
                 break;
         }
         
