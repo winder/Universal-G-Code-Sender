@@ -6,6 +6,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.util.List;
@@ -62,6 +63,21 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
         }
+
+        initComponents();
+    }
+
+    private void initComponents() {
+        // MigLayout... 3rd party layout library.
+        setLayout(new MigLayout("fill, wrap"));
+        add(portLabel);
+        add(portCombo, "wrap");
+        add(baudLabel);
+        add(baudCombo, "wrap");
+        add(refreshButton);
+        add(openCloseButton, "wrap");
+        add(firmwareLabel);
+        add(firmwareCombo);
     }
 
     @Override
@@ -87,56 +103,56 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         }
     }
 
-    @Override
-    public void doLayout() {
-        org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(connectionPanelLayout);
-        connectionPanelLayout.setHorizontalGroup(
-                connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(connectionPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                                .add(connectionPanelLayout.createSequentialGroup()
-                                                        .add(portLabel)
-                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                        .add(portCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                                .add(connectionPanelLayout.createSequentialGroup()
-                                                        .add(baudLabel)
-                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                        .add(baudCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                        .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                        .add(openCloseButton)))
-                                        .add(connectionPanelLayout.createSequentialGroup()
-                                                .add(firmwareLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(firmwareCombo, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                .addContainerGap())
-        );
-        connectionPanelLayout.setVerticalGroup(
-                connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(connectionPanelLayout.createSequentialGroup()
-                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                        .add(portCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(portLabel))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                                .add(baudLabel)
-                                                .add(baudCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                        .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(openCloseButton))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                                        .add(firmwareLabel)
-                                        .add(firmwareCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        super.doLayout();
-    }
+//    @Override
+//    public void doLayout() {
+//        org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(this);
+//        this.setLayout(connectionPanelLayout);
+//        connectionPanelLayout.setHorizontalGroup(
+//                connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+//                        .add(connectionPanelLayout.createSequentialGroup()
+//                                .addContainerGap()
+//                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+//                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+//                                                .add(connectionPanelLayout.createSequentialGroup()
+//                                                        .add(portLabel)
+//                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                                        .add(portCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+//                                                .add(connectionPanelLayout.createSequentialGroup()
+//                                                        .add(baudLabel)
+//                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                                        .add(baudCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+//                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                                        .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+//                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                                        .add(openCloseButton)))
+//                                        .add(connectionPanelLayout.createSequentialGroup()
+//                                                .add(firmwareLabel)
+//                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                                .add(firmwareCombo, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+//                                .addContainerGap())
+//        );
+//        connectionPanelLayout.setVerticalGroup(
+//                connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+//                        .add(connectionPanelLayout.createSequentialGroup()
+//                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+//                                        .add(portCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+//                                        .add(portLabel))
+//                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+//                                        .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+//                                                .add(baudLabel)
+//                                                .add(baudCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+//                                        .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+//                                        .add(openCloseButton))
+//                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+//                                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+//                                        .add(firmwareLabel)
+//                                        .add(firmwareCombo, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+//                                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+//        );
+//
+//        super.doLayout();
+//    }
 
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if (this.openCloseButton.getText().equalsIgnoreCase(Localization.getString("open"))) {

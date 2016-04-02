@@ -117,9 +117,11 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="fileModePanel" min="-2" max="-2" attributes="0"/>
-                  <Component id="connectionPanel" alignment="1" min="-2" max="-2" attributes="0"/>
-                  <Component id="machineStatusPanel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                      <Component id="connectionPanel" max="32767" attributes="0"/>
+                      <Component id="fileModePanel" alignment="0" max="32767" attributes="0"/>
+                  </Group>
+                  <Component id="machineStatusPanel1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -140,36 +142,27 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
-                      <Component id="controlContextTabbedPane" min="-2" pref="283" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
-                      <Component id="machineStatusPanel" min="-2" max="-2" attributes="0"/>
-                  </Group>
-              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Component id="controlContextTabbedPane" min="-2" pref="283" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="scrollWindowCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="3" attributes="0">
-                              <Component id="showVerboseOutputCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                              <Component id="showCommandTableCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                      <Component id="bottomTabbedPane" pref="199" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" attributes="0">
-                      <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                  <Component id="scrollWindowCheckBox" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="showVerboseOutputCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="showCommandTableCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
+              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+              <Component id="bottomTabbedPane" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+          </Group>
+          <Group type="102" alignment="0" attributes="0">
+              <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="machineStatusPanel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="124" max="32767" attributes="0"/>
+              <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="161" max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -895,7 +888,7 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="235" max="32767" attributes="0"/>
+              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
@@ -905,23 +898,7 @@
         </DimensionLayout>
       </Layout>
     </Container>
-    <Container class="com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel" name="machineStatusPanel">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend)"/>
-      </AuxValues>
-
-      <Layout>
-        <DimensionLayout dim="0">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="235" max="32767" attributes="0"/>
-          </Group>
-        </DimensionLayout>
-        <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="137" max="32767" attributes="0"/>
-          </Group>
-        </DimensionLayout>
-      </Layout>
-    </Container>
+    <Component class="com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel" name="machineStatusPanel1">
+    </Component>
   </SubComponents>
 </Form>
