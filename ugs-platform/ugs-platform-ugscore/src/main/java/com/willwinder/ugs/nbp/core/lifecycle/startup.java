@@ -20,18 +20,65 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 
 import com.willwinder.ugs.nbp.core.control.JogService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
+import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import org.netbeans.api.sendopts.CommandException;
+import org.netbeans.spi.sendopts.Env;
+import org.netbeans.spi.sendopts.Option;
+import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.modules.OnStart;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  *
  * @author wwinder
  */
+@ServiceProvider(service=OptionProcessor.class)
 @OnStart
-public class startup implements Runnable {
+public class startup extends OptionProcessor implements Runnable {
     @Override
     public void run() {
         Lookup.getDefault().lookup(JogService.class);
         Lookup.getDefault().lookup(MacroService.class);
+    }
+
+    private final Option openOption = Option.additionalArguments('o', "open");
+
+    @Override       
+    public Set getOptions() {
+        HashSet set = new HashSet();
+        set.add(openOption);
+        return set;
+    }
+
+    @Override
+    protected void process(Env env, Map<Option, String[]> maps) throws CommandException {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        String inputFile = null;
+        int count = 0;
+        for (String[] files : maps.values()) {
+            for (String file : files) {
+                count++;
+                inputFile = file;
+            }
+        }
+
+        if (count == 0 || count > 1) {
+            throw new CommandException(1, "Too many input files provided.");
+        }
+
+        System.out.println("File to open: " + inputFile);
+        try {
+            backend.setGcodeFile(new File(inputFile));
+        } catch (Exception e) {
+            throw new CommandException(1, "Unable to open input file: " + e.getMessage());
+        }
     }
 }
