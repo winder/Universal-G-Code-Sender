@@ -2,15 +2,17 @@ package com.willwinder.universalgcodesender.uielements.machinestatus;
 
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class MachineStatusPanel extends JPanel implements UGSEventListener {
+public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
 
     private final javax.swing.JLabel activeStateLabel  = new javax.swing.JLabel("Active State:");
     private final javax.swing.JLabel activeStateValueLabel = new javax.swing.JLabel(" ");
@@ -50,12 +52,86 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener {
         this.backend = backend;
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
+            this.backend.addControllerListener(this);
         }
     }
 
     @Override
     public void UGSEvent(UGSEvent evt) {
+        if (evt.isStateChangeEvent()) {
+            updateControls();
+        }
+    }
 
+    private void updateControls() {
+
+        switch (backend.getControlState()) {
+            case COMM_DISCONNECTED:
+                this.setStatusColorForState("");
+                break;
+            case COMM_IDLE:
+//                this.setStatusColorForState("");
+                break;
+            case COMM_SENDING:
+                break;
+            case COMM_SENDING_PAUSED:
+                break;
+            default:
+        }
+    }
+
+
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void commandComment(String comment) {
+        latestCommentValueLabel.setText(comment);
+    }
+
+    @Override
+    public void commandComplete(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void messageForConsole(String msg, Boolean verbose) {
+
+    }
+
+    @Override
+    public void postProcessData(int numRows) {
+
+    }
+
+    @Override
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+        this.activeStateValueLabel.setText( state );
+        this.setStatusColorForState( state );
+
+        if (machineCoord != null) {
+            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation );
+            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation );
+            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation );
+        }
+
+        if (workCoord != null) {
+            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation );
+            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation );
+            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation );
+        }
     }
 
     @Override
@@ -186,25 +262,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener {
         }
     }
 
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        this.activeStateValueLabel.setText( state );
-        this.setStatusColorForState( state );
 
-        if (machineCoord != null) {
-            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation );
-            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation );
-            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation );
-        }
 
-        if (workCoord != null) {
-            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation );
-            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation );
-            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation );
-        }
-    }
 
-    public void commandComment(String comment) {
-        latestCommentValueLabel.setText(comment);
-    }
 
 }

@@ -347,25 +347,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
         showVerboseOutputCheckBox = new javax.swing.JCheckBox();
-        statusPanel = new javax.swing.JPanel();
-        activeStateLabel = new javax.swing.JLabel();
-        activeStateValueLabel = new javax.swing.JLabel();
-        machinePosition = new javax.swing.JLabel();
-        machinePositionXLabel = new javax.swing.JLabel();
-        machinePositionYLabel = new javax.swing.JLabel();
-        machinePositionZLabel = new javax.swing.JLabel();
-        workPositionLabel = new javax.swing.JLabel();
-        workPositionXLabel = new javax.swing.JLabel();
-        workPositionYLabel = new javax.swing.JLabel();
-        workPositionZLabel = new javax.swing.JLabel();
-        machinePositionXValueLabel = new javax.swing.JLabel();
-        machinePositionYValueLabel = new javax.swing.JLabel();
-        machinePositionZValueLabel = new javax.swing.JLabel();
-        workPositionXValueLabel = new javax.swing.JLabel();
-        workPositionYValueLabel = new javax.swing.JLabel();
-        workPositionZValueLabel = new javax.swing.JLabel();
-        latestCommentValueLabel = new javax.swing.JLabel();
-        latestCommentLabel = new javax.swing.JLabel();
         showCommandTableCheckBox = new javax.swing.JCheckBox();
         fileModePanel = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
@@ -374,18 +355,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         visualizeButton = new javax.swing.JButton();
         browseButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
-        fileRunPanel = new javax.swing.JPanel();
-        remainingTimeValueLabel = new javax.swing.JLabel();
-        sentRowsValueLabel = new javax.swing.JLabel();
-        remainingRowsLabel = new javax.swing.JLabel();
-        rowsValueLabel = new javax.swing.JLabel();
-        remainingTimeLabel = new javax.swing.JLabel();
-        durationValueLabel = new javax.swing.JLabel();
-        durationLabel = new javax.swing.JLabel();
-        remainingRowsValueLabel = new javax.swing.JLabel();
-        sentRowsLabel = new javax.swing.JLabel();
-        rowsLabel = new javax.swing.JLabel();
+        sendStatusPanel = new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
+        machineStatusPanel = new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -807,147 +779,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         showVerboseOutputCheckBox.setText("Show verbose output");
 
-        statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine status"));
-        statusPanel.setMinimumSize(new java.awt.Dimension(247, 160));
-        statusPanel.setPreferredSize(new java.awt.Dimension(247, 160));
-
-        activeStateLabel.setText("Active State:");
-        activeStateLabel.setOpaque(true);
-
-        activeStateValueLabel.setText(" ");
-        activeStateValueLabel.setOpaque(true);
-
-        machinePosition.setText("Machine Position:");
-
-        machinePositionXLabel.setText("X:");
-
-        machinePositionYLabel.setText("Y:");
-
-        machinePositionZLabel.setText("Z:");
-
-        workPositionLabel.setText("Work Position:");
-
-        workPositionXLabel.setText("X:");
-
-        workPositionYLabel.setText("Y:");
-
-        workPositionZLabel.setText("Z:");
-
-        machinePositionXValueLabel.setText("0");
-
-        machinePositionYValueLabel.setText("0");
-
-        machinePositionZValueLabel.setText("0");
-
-        workPositionXValueLabel.setText("0");
-
-        workPositionYValueLabel.setText("0");
-
-        workPositionZValueLabel.setText("0");
-
-        latestCommentValueLabel.setText(" ");
-
-        latestCommentLabel.setText("Latest Comment:");
-
-        org.jdesktop.layout.GroupLayout statusPanelLayout = new org.jdesktop.layout.GroupLayout(statusPanel);
-        statusPanel.setLayout(statusPanelLayout);
-        statusPanelLayout.setHorizontalGroup(
-            statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statusPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(statusPanelLayout.createSequentialGroup()
-                        .add(latestCommentLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(latestCommentValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(statusPanelLayout.createSequentialGroup()
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(statusPanelLayout.createSequentialGroup()
-                                .add(activeStateLabel)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(activeStateValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 120, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(statusPanelLayout.createSequentialGroup()
-                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(workPositionLabel)
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(17, 17, 17)
-                                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(workPositionZLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(workPositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(workPositionYLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(workPositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(workPositionXLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(workPositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(machinePosition)
-                                    .add(statusPanelLayout.createSequentialGroup()
-                                        .add(17, 17, 17)
-                                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(machinePositionZLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(machinePositionZValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(machinePositionYLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(machinePositionYValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                            .add(statusPanelLayout.createSequentialGroup()
-                                                .add(machinePositionXLabel)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(machinePositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))))
-                        .add(0, 13, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        statusPanelLayout.setVerticalGroup(
-            statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(statusPanelLayout.createSequentialGroup()
-                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(activeStateLabel)
-                    .add(activeStateValueLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(latestCommentLabel)
-                    .add(latestCommentValueLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(statusPanelLayout.createSequentialGroup()
-                        .add(workPositionLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(workPositionXLabel)
-                            .add(workPositionXValueLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(workPositionYLabel)
-                            .add(workPositionYValueLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(workPositionZLabel)
-                            .add(workPositionZValueLabel)))
-                    .add(statusPanelLayout.createSequentialGroup()
-                        .add(machinePosition)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(machinePositionXLabel)
-                            .add(machinePositionXValueLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(machinePositionYLabel)
-                            .add(machinePositionYValueLabel))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(machinePositionZLabel)
-                            .add(machinePositionZValueLabel))))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         showCommandTableCheckBox.setSelected(true);
         showCommandTableCheckBox.setText("Enable command table");
         showCommandTableCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -956,8 +787,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             }
         });
 
-        fileModePanel.setMinimumSize(new java.awt.Dimension(389, 150));
-        fileModePanel.setPreferredSize(new java.awt.Dimension(247, 258));
+        fileModePanel.setMaximumSize(new java.awt.Dimension(247, 350));
+        fileModePanel.setMinimumSize(new java.awt.Dimension(247, 350));
+        fileModePanel.setPreferredSize(new java.awt.Dimension(247, 350));
         fileModePanel.setLayout(new java.awt.GridBagLayout());
 
         sendButton.setText("Send");
@@ -1045,95 +877,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(saveButton, gridBagConstraints);
-
-        remainingTimeValueLabel.setText("--:--:--");
-
-        sentRowsValueLabel.setText("0");
-
-        remainingRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        remainingRowsLabel.setText("Remaining Rows:");
-        remainingRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        remainingRowsLabel.setMaximumSize(null);
-        remainingRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        remainingRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        rowsValueLabel.setText("0");
-
-        remainingTimeLabel.setText("Estimated Time Remaining:");
-
-        durationValueLabel.setText("00:00:00");
-
-        durationLabel.setText("Duration:");
-
-        remainingRowsValueLabel.setText("0");
-
-        sentRowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        sentRowsLabel.setText("Sent Rows:");
-        sentRowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        sentRowsLabel.setMaximumSize(null);
-        sentRowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        sentRowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        rowsLabel.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        rowsLabel.setText("Rows In File:");
-        rowsLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
-        rowsLabel.setMinimumSize(new java.awt.Dimension(106, 14));
-        rowsLabel.setPreferredSize(new java.awt.Dimension(106, 14));
-
-        org.jdesktop.layout.GroupLayout fileRunPanelLayout = new org.jdesktop.layout.GroupLayout(fileRunPanel);
-        fileRunPanel.setLayout(fileRunPanelLayout);
-        fileRunPanelLayout.setHorizontalGroup(
-            fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(fileRunPanelLayout.createSequentialGroup()
-                .add(0, 0, 0)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, remainingTimeLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, durationLabel)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(durationValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(remainingRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(remainingTimeValueLabel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 56, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        fileRunPanelLayout.setVerticalGroup(
-            fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(fileRunPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(rowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(sentRowsValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(sentRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(remainingRowsValueLabel)
-                    .add(remainingRowsLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(remainingTimeLabel)
-                    .add(remainingTimeValueLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileRunPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(durationLabel)
-                    .add(durationValueLabel))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
         gridBagConstraints.gridwidth = 3;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(fileRunPanel, gridBagConstraints);
+        fileModePanel.add(sendStatusPanel, gridBagConstraints);
 
         org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
         connectionPanel.setLayout(connectionPanelLayout);
@@ -1144,6 +893,17 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         connectionPanelLayout.setVerticalGroup(
             connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(0, 107, Short.MAX_VALUE)
+        );
+
+        org.jdesktop.layout.GroupLayout machineStatusPanelLayout = new org.jdesktop.layout.GroupLayout(machineStatusPanel);
+        machineStatusPanel.setLayout(machineStatusPanelLayout);
+        machineStatusPanelLayout.setHorizontalGroup(
+            machineStatusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 235, Short.MAX_VALUE)
+        );
+        machineStatusPanelLayout.setVerticalGroup(
+            machineStatusPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 137, Short.MAX_VALUE)
         );
 
         settingsMenu.setText("Settings");
@@ -1199,9 +959,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(statusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1217,27 +977,28 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(layout.createSequentialGroup()
+                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                                 .add(showVerboseOutputCheckBox)
-                                .add(showCommandTableCheckBox))))
+                                .add(showCommandTableCheckBox)))
+                        .add(4, 4, 4)
+                        .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 199, Short.MAX_VALUE)
+                        .add(4, 4, 4))
                     .add(layout.createSequentialGroup()
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(29, 29, 29)
-                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .add(4, 4, 4)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 203, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 0, Short.MAX_VALUE))
-                    .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(4, 4, 4))
+                        .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
 
         pack();
@@ -1459,12 +1220,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     @Override
                     public void run() {
                         try {
-                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
-                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
-
-                            //sentRowsValueLabel.setText(""+sentRows);
-                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
-                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
+//                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
+//                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
+//
+//                            //sentRowsValueLabel.setText(""+sentRows);
+//                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
+//                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
 
                             if (backend.isSending()) {
                                 if (vw != null) {
@@ -1480,7 +1241,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             }
         };
 
-        this.resetTimerLabels();
+//        this.resetTimerLabels();
 
         if (timer != null){ timer.stop(); }
         timer = new Timer(1000, actionListener);
@@ -1490,7 +1251,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         try {
             this.backend.send();
-            this.resetSentRowLabels(backend.getNumRows());
+//            this.resetSentRowLabels(backend.getNumRows());
             timer.start();
         } catch (Exception e) {
             timer.stop();
@@ -1862,30 +1623,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         val = bd.doubleValue();
         this.stepSizeSpinner.setValue(val);
     }
-    
-    private void setStatusColorForState(String state) {
-        if (settings.isDisplayStateColor()) {
-            java.awt.Color color = null; // default to a transparent background.
-            if (state.equals(Localization.getString("mainWindow.status.alarm"))) {
-                color = Color.RED;
-            } else if (state.equals(Localization.getString("mainWindow.status.hold"))) {
-                color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.queue"))) {
-                color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.run"))) {
-                color = Color.GREEN;
-            } else {
-                color = Color.WHITE;
-            }
 
-            this.activeStateLabel.setBackground(color);
-            this.activeStateValueLabel.setBackground(color);
-        } else {
-            this.activeStateLabel.setBackground(null);
-            this.activeStateValueLabel.setBackground(null);
-        }
-    }
-    
     private void updateControls() {
         this.cancelButton.setEnabled(backend.canCancel());
         this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
@@ -1902,7 +1640,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             case COMM_DISCONNECTED:
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
-                this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
                 this.updateManualControls(true);
@@ -1954,28 +1691,28 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.requestStateInformation.setEnabled(enabled);
     }
     
-    private void resetTimerLabels() {
-        // Reset labels
-        this.durationValueLabel.setText("00:00:00");
-        if (this.backend.isConnected()) {
-            if (this.backend.getSendDuration() < 0) {
-                this.remainingTimeValueLabel.setText("estimating...");
-            } else if (this.backend.getSendDuration() == 0) {
-                this.remainingTimeValueLabel.setText("--:--:--");
-            } else {
-                this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
-            }
-        }
-    }
-
-    private void resetSentRowLabels(long numRows) {
-        // Reset labels
-        String totalRows =  String.valueOf(numRows);
-        resetTimerLabels();
-        this.sentRowsValueLabel.setText("0");
-        this.remainingRowsValueLabel.setText(totalRows);
-        this.rowsValueLabel.setText(totalRows);
-    }
+//    private void resetTimerLabels() {
+//        // Reset labels
+//        this.durationValueLabel.setText("00:00:00");
+//        if (this.backend.isConnected()) {
+//            if (this.backend.getSendDuration() < 0) {
+//                this.remainingTimeValueLabel.setText("estimating...");
+//            } else if (this.backend.getSendDuration() == 0) {
+//                this.remainingTimeValueLabel.setText("--:--:--");
+//            } else {
+//                this.remainingTimeValueLabel.setText(Utils.formattedMillis(this.backend.getSendDuration()));
+//            }
+//        }
+//    }
+//
+//    private void resetSentRowLabels(long numRows) {
+//        // Reset labels
+//        String totalRows =  String.valueOf(numRows);
+//        resetTimerLabels();
+//        this.sentRowsValueLabel.setText("0");
+//        this.remainingRowsValueLabel.setText(totalRows);
+//        this.rowsValueLabel.setText(totalRows);
+//    }
     
     /**
      * Updates all text labels in the GUI with localized labels.
@@ -1987,7 +1724,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
-        this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
+//        this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
         this.keyboardMovementPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
         this.firmwareSettingsMenu.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
@@ -1995,27 +1732,23 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
         this.helpButtonMachineControl.setText(Localization.getString("help"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
-        this.statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.statusPanel")));
         this.bottomTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.bottomTabbedPane.console"));
         this.bottomTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.bottomTabbedPane.table"));
-        this.latestCommentLabel.setText(Localization.getString("mainWindow.swing.latestCommentLabel"));
-        this.machinePosition.setText(Localization.getString("mainWindow.swing.machinePosition"));
         this.pauseButton.setText(Localization.getString("mainWindow.swing.pauseButton"));
-        this.remainingRowsLabel.setText(Localization.getString("mainWindow.swing.remainingRowsLabel"));
-        this.remainingTimeLabel.setText(Localization.getString("mainWindow.swing.remainingTimeLabel"));
+//        this.remainingRowsLabel.setText(Localization.getString("mainWindow.swing.remainingRowsLabel"));
+//        this.remainingTimeLabel.setText(Localization.getString("mainWindow.swing.remainingTimeLabel"));
         this.resetCoordinatesButton.setText(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
         this.returnToZeroButton.setText(Localization.getString("mainWindow.swing.returnToZeroButton"));
-        this.rowsLabel.setText(Localization.getString("mainWindow.swing.rowsLabel"));
+//        this.rowsLabel.setText(Localization.getString("mainWindow.swing.rowsLabel"));
         this.saveButton.setText(Localization.getString("save"));
         this.scrollWindowCheckBox.setText(Localization.getString("mainWindow.swing.scrollWindowCheckBox"));
         this.sendButton.setText(Localization.getString("mainWindow.swing.sendButton"));
-        this.sentRowsLabel.setText(Localization.getString("mainWindow.swing.sentRowsLabel"));
+//        this.sentRowsLabel.setText(Localization.getString("mainWindow.swing.sentRowsLabel"));
         this.showVerboseOutputCheckBox.setText(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
         this.showCommandTableCheckBox.setText(Localization.getString("mainWindow.swing.showCommandTableCheckBox"));
         this.softResetMachineControl.setText(Localization.getString("mainWindow.swing.softResetMachineControl"));
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
-        this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
         this.macroPane.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
@@ -2041,10 +1774,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        remainingTimeValueLabel.setText(Utils.formattedMillis(0));
-        remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-
-        final String durationLabelCopy = this.durationValueLabel.getText();
+        final String durationLabelCopy = sendStatusPanel.getDuration();
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 JOptionPane.showMessageDialog(new JFrame(),
@@ -2082,7 +1812,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void commandComment(String comment) {
-        latestCommentValueLabel.setText(comment);
+
     }
     
     @Override
@@ -2124,20 +1854,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        this.activeStateValueLabel.setText( state );
-        this.setStatusColorForState( state );
 
-        if (machineCoord != null) {
-            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation );
-            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation );
-            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation );
-        }
-        
-        if (workCoord != null) {
-            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation );
-            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation );
-            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation );
-        }
     }
     
     @Override
@@ -2174,11 +1891,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     break;
                 case FILE_LOADED:
                     processedGcodeFile = evt.getFile();
-                    try {
-                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-                            resetSentRowLabels(gsr.getNumRows());
-                        }
-                    } catch (IOException ex) {}
+//                    try {
+//                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+//                            resetSentRowLabels(gsr.getNumRows());
+//                        }
+//                    } catch (IOException ex) {}
                     break;
                 default:
                     break;
@@ -2191,8 +1908,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu PendantMenu;
-    private javax.swing.JLabel activeStateLabel;
-    private javax.swing.JLabel activeStateValueLabel;
     private javax.swing.JCheckBox arrowMovementEnabled;
     private javax.swing.JTabbedPane bottomTabbedPane;
     private javax.swing.JButton browseButton;
@@ -2206,10 +1921,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
-    private javax.swing.JLabel durationLabel;
-    private javax.swing.JLabel durationValueLabel;
     private javax.swing.JPanel fileModePanel;
-    private javax.swing.JPanel fileRunPanel;
     private javax.swing.JMenu firmwareSettingsMenu;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
@@ -2224,17 +1936,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
     private javax.swing.JButton killAlarmLock;
-    private javax.swing.JLabel latestCommentLabel;
-    private javax.swing.JLabel latestCommentValueLabel;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JPanel machineControlPanel;
-    private javax.swing.JLabel machinePosition;
-    private javax.swing.JLabel machinePositionXLabel;
-    private javax.swing.JLabel machinePositionXValueLabel;
-    private javax.swing.JLabel machinePositionYLabel;
-    private javax.swing.JLabel machinePositionYValueLabel;
-    private javax.swing.JLabel machinePositionZLabel;
-    private javax.swing.JLabel machinePositionZValueLabel;
+    private com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel machineStatusPanel;
     private com.willwinder.universalgcodesender.uielements.MacroActionPanel macroActionPanel;
     private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
@@ -2243,41 +1947,26 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JPanel movementButtonPanel;
     private javax.swing.JButton pauseButton;
     private javax.swing.JButton performHomingCycleButton;
-    private javax.swing.JLabel remainingRowsLabel;
-    private javax.swing.JLabel remainingRowsValueLabel;
-    private javax.swing.JLabel remainingTimeLabel;
-    private javax.swing.JLabel remainingTimeValueLabel;
     private javax.swing.JButton requestStateInformation;
     private javax.swing.JButton resetCoordinatesButton;
     private javax.swing.JButton resetXButton;
     private javax.swing.JButton resetYButton;
     private javax.swing.JButton resetZButton;
     private javax.swing.JButton returnToZeroButton;
-    private javax.swing.JLabel rowsLabel;
-    private javax.swing.JLabel rowsValueLabel;
     private javax.swing.JButton saveButton;
     private javax.swing.JCheckBox scrollWindowCheckBox;
     private javax.swing.JButton sendButton;
-    private javax.swing.JLabel sentRowsLabel;
-    private javax.swing.JLabel sentRowsValueLabel;
+    private com.willwinder.universalgcodesender.uielements.SendStatusPanel sendStatusPanel;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JCheckBox showCommandTableCheckBox;
     private javax.swing.JCheckBox showVerboseOutputCheckBox;
     private javax.swing.JButton softResetMachineControl;
     private javax.swing.JMenuItem startPendantServerButton;
-    private javax.swing.JPanel statusPanel;
     private javax.swing.JLabel stepSizeLabel;
     private javax.swing.JSpinner stepSizeSpinner;
     private javax.swing.JMenuItem stopPendantServerButton;
     private javax.swing.JButton toggleCheckMode;
     private javax.swing.JButton visualizeButton;
-    private javax.swing.JLabel workPositionLabel;
-    private javax.swing.JLabel workPositionXLabel;
-    private javax.swing.JLabel workPositionXValueLabel;
-    private javax.swing.JLabel workPositionYLabel;
-    private javax.swing.JLabel workPositionYValueLabel;
-    private javax.swing.JLabel workPositionZLabel;
-    private javax.swing.JLabel workPositionZValueLabel;
     private javax.swing.JButton xMinusButton;
     private javax.swing.JButton xPlusButton;
     private javax.swing.JButton yMinusButton;

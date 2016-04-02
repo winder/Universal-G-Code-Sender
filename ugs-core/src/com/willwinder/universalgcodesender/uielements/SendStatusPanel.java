@@ -40,7 +40,7 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class SendStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
-    BackendAPI backend;
+    private final BackendAPI backend;
 
     private JLabel rowsValue;
     private JLabel sentRowsValue;
@@ -50,10 +50,16 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     Timer timer;
 
+    public SendStatusPanel() {
+        this(null);
+    }
+    
     public SendStatusPanel(BackendAPI b) {
         backend = b;
-        backend.addUGSEventListener(this);
-        backend.addControllerListener(this);
+        if (backend != null) {
+            backend.addUGSEventListener(this);
+            backend.addControllerListener(this);
+        }
         initComponents();
         resetSentRowLabels(0);
     }
@@ -114,7 +120,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     private void resetTimerLabels() {
         // Reset labels
         this.durationValue.setText("00:00:00");
-        if (this.backend.isConnected()) {
+        if (this.backend != null && this.backend.isConnected()) {
             if (this.backend.getSendDuration() < 0) {
                 this.remainingTimeValue.setText("estimating...");
             } else if (this.backend.getSendDuration() == 0) {
@@ -125,6 +131,10 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         } else {
             this.remainingTimeValue.setText("--:--:--");
         }
+    }
+
+    public String getDuration() {
+        return this.durationValue.getText();
     }
 
     private void resetSentRowLabels(long numRows) {
