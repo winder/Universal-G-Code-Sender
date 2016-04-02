@@ -130,19 +130,15 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         mmRadioButton.setSelected(unitsAreMM);
         inchRadioButton.setSelected(!unitsAreMM);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
-        commPortComboBox.setSelectedItem(settings.getPort());
-        baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
         scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
         checkScrollWindow();
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
         showCommandTableCheckBox.setSelected(settings.isCommandTableEnabled());
-        firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
-//        macroPanel.initMacroButtons(settings);
 
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
-//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
 
+        connectionPanel.loadSettings();
         initFileChooser();
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -155,13 +151,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 settings.setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
                 settings.setManualModeStepSize(getStepSize());
                 settings.setManualModeEnabled(arrowMovementEnabled.isSelected());
-                settings.setPort(commPortComboBox.getSelectedItem().toString());
-                settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
                 settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
                 settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
-                settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
 
+                connectionPanel.saveSettings();
                 SettingsFactory.saveSettings(settings);
                 
                 if(pendantUI!=null){
@@ -235,13 +229,10 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         mw.mmRadioButton.setSelected(unitsAreMM);
         mw.inchRadioButton.setSelected(!unitsAreMM);
         mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
-        mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
-        mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
         mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
         mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
         mw.showCommandTableCheckBox.setSelected(mw.settings.isCommandTableEnabled());
         mw.showCommandTableCheckBoxActionPerformed(null);
-        mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
 
         mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
         mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
@@ -286,14 +277,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
                 mw.settings.setManualModeStepSize(mw.getStepSize());
                 mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
-                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
                 mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
                 mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
-                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings(mw.settings);
-                
+
+                mw.connectionPanel.saveSettings();
+
                 if(mw.pendantUI!=null){
                     mw.pendantUI.stop();
                 }
@@ -357,15 +346,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         mmRadioButton = new javax.swing.JRadioButton();
         macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
-        connectionPanel = new javax.swing.JPanel();
-        commPortComboBox = new javax.swing.JComboBox();
-        baudrateSelectionComboBox = new javax.swing.JComboBox();
-        opencloseButton = new javax.swing.JButton();
-        refreshButton = new javax.swing.JButton();
-        baudLabel = new javax.swing.JLabel();
-        portLabel = new javax.swing.JLabel();
-        firmwareLabel = new javax.swing.JLabel();
-        firmwareComboBox = new javax.swing.JComboBox();
         showVerboseOutputCheckBox = new javax.swing.JCheckBox();
         statusPanel = new javax.swing.JPanel();
         activeStateLabel = new javax.swing.JLabel();
@@ -405,6 +385,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         remainingRowsValueLabel = new javax.swing.JLabel();
         sentRowsLabel = new javax.swing.JLabel();
         rowsLabel = new javax.swing.JLabel();
+        connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -824,89 +805,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         controlContextTabbedPane.addTab("Macros", macroPane);
 
-        connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
-        connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
-        connectionPanel.setMinimumSize(new java.awt.Dimension(247, 100));
-        connectionPanel.setName("Connection"); // NOI18N
-        connectionPanel.setPreferredSize(new java.awt.Dimension(247, 100));
-
-        commPortComboBox.setEditable(true);
-
-        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
-        baudrateSelectionComboBox.setSelectedIndex(2);
-        baudrateSelectionComboBox.setToolTipText("Select baudrate to use for the serial port.");
-        baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                baudrateSelectionComboBoxActionPerformed(evt);
-            }
-        });
-
-        opencloseButton.setText("Open");
-        opencloseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                opencloseButtonActionPerformed(evt);
-            }
-        });
-
-        refreshButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/refresh.gif"))); // NOI18N
-        refreshButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshButtonActionPerformed(evt);
-            }
-        });
-
-        baudLabel.setText("Baud:");
-
-        portLabel.setText("Port:");
-
-        firmwareLabel.setText("Firmware:");
-
-        org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
-        connectionPanel.setLayout(connectionPanelLayout);
-        connectionPanelLayout.setHorizontalGroup(
-            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(connectionPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(connectionPanelLayout.createSequentialGroup()
-                            .add(portLabel)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 183, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(connectionPanelLayout.createSequentialGroup()
-                            .add(baudLabel)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(baudrateSelectionComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 25, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(opencloseButton)))
-                    .add(connectionPanelLayout.createSequentialGroup()
-                        .add(firmwareLabel)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(firmwareComboBox, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
-        );
-        connectionPanelLayout.setVerticalGroup(
-            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(connectionPanelLayout.createSequentialGroup()
-                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(commPortComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(portLabel))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(baudLabel)
-                        .add(baudrateSelectionComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(refreshButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(opencloseButton))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(firmwareLabel)
-                    .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
         showVerboseOutputCheckBox.setText("Show verbose output");
 
         statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine status"));
@@ -1004,7 +902,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                                                 .add(machinePositionXLabel)
                                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                                 .add(machinePositionXValueLabel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 65, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))))
-                        .add(0, 0, Short.MAX_VALUE)))
+                        .add(0, 13, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         statusPanelLayout.setVerticalGroup(
@@ -1237,6 +1135,17 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
         fileModePanel.add(fileRunPanel, gridBagConstraints);
 
+        org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
+        connectionPanel.setLayout(connectionPanelLayout);
+        connectionPanelLayout.setHorizontalGroup(
+            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 235, Short.MAX_VALUE)
+        );
+        connectionPanelLayout.setVerticalGroup(
+            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 107, Short.MAX_VALUE)
+        );
+
         settingsMenu.setText("Settings");
 
         grblConnectionSettingsMenuItem.setText("Sender Settings");
@@ -1290,10 +1199,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(statusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1304,31 +1212,31 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(18, 18, 18)
                         .add(showCommandTableCheckBox)
                         .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
-                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
                         .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(scrollWindowCheckBox)
                             .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                                 .add(showVerboseOutputCheckBox)
-                                .add(showCommandTableCheckBox)))))
+                                .add(showCommandTableCheckBox))))
+                    .add(layout.createSequentialGroup()
+                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(29, 29, 29)
+                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .add(4, 4, 4)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 203, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(0, 0, Short.MAX_VALUE))
-                    .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 407, Short.MAX_VALUE))
+                    .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .add(4, 4, 4))
         );
 
@@ -1342,39 +1250,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
         checkScrollWindow();
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
-
-    private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
-        if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
-            this.commandTable.clear();
-            this.sentRowsValueLabel.setText("0");
-
-            String firmware = this.firmwareComboBox.getSelectedItem().toString();
-            String port = commPortComboBox.getSelectedItem().toString();
-            int baudRate = Integer.parseInt(baudrateSelectionComboBox.getSelectedItem().toString());
-            
-            try {
-                this.backend.connect(firmware, port, baudRate);
-                
-                // Let the command field grab focus.
-                commandTextField.grabFocus();
-            } catch (Exception e) {
-                displayErrorDialog(e.getMessage());
-            }
-        } else {
-            try {
-                this.backend.disconnect();
-            } catch (Exception e) {
-                displayErrorDialog(e.getMessage());
-            }
-        }
-    }//GEN-LAST:event_opencloseButtonActionPerformed
-
-    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
-        loadPortSelector();
-    }//GEN-LAST:event_refreshButtonActionPerformed
-
-    private void baudrateSelectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_baudrateSelectionComboBoxActionPerformed
-    }//GEN-LAST:event_baudrateSelectionComboBoxActionPerformed
 
 
     private void increaseStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
@@ -1889,10 +1764,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
         
         this.setLocalLabels();
-        this.loadPortSelector();
         this.checkScrollWindow();
-        this.loadFirmwareSelector();
-        this.setTitle(Localization.getString("title") + " (" 
+        this.setTitle(Localization.getString("title") + " ("
                 + Localization.getString("version") + " " + VERSION + ")");
 
         // Command History
@@ -2027,13 +1900,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
-                this.updateConnectionControlsStateOpen(false);
                 this.updateManualControls(false);
                 this.updateWorkflowControls(false);
                 this.setStatusColorForState("");
                 break;
             case COMM_IDLE:
-                this.updateConnectionControlsStateOpen(true);
                 this.updateManualControls(true);
                 this.updateWorkflowControls(true);
                 break;
@@ -2049,23 +1920,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 break;
             default:
                 
-        }
-    }
-    
-    /**
-     * Enable/disable connection frame based on connection state.
-     */
-    private void updateConnectionControlsStateOpen(boolean isOpen) {
-
-        this.commPortComboBox.setEnabled(!isOpen);
-        this.baudrateSelectionComboBox.setEnabled(!isOpen);
-        this.refreshButton.setEnabled(!isOpen);
-        this.commandTextField.setEnabled(isOpen);
-
-        if (isOpen) {
-            this.opencloseButton.setText(Localization.getString("close"));
-        } else {
-            this.opencloseButton.setText(Localization.getString("open"));
         }
     }
     
@@ -2100,18 +1954,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.requestStateInformation.setEnabled(enabled);
     }
     
-//    private void updateCustomGcodeControls(boolean enabled) {
-//        for(JButton button : customGcodeButtons) {
-//            button.setEnabled(enabled);
-//        }
-//    }
-
-//    private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
-//        //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
-//        Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
-//        executeCustomGcode(macro.getGcode());
-//    }
-
     private void resetTimerLabels() {
         // Reset labels
         this.durationValueLabel.setText("00:00:00");
@@ -2140,17 +1982,14 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
      */
     private void setLocalLabels() {
         this.arrowMovementEnabled.setText(Localization.getString("mainWindow.swing.arrowMovementEnabled"));
-        this.baudLabel.setText(Localization.getString("mainWindow.swing.baudLabel"));
         this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
         this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
         this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
-        this.connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.connectionPanel")));
         this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
         this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
         this.keyboardMovementPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
-        this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
         this.firmwareSettingsMenu.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
@@ -2161,9 +2000,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.bottomTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.bottomTabbedPane.table"));
         this.latestCommentLabel.setText(Localization.getString("mainWindow.swing.latestCommentLabel"));
         this.machinePosition.setText(Localization.getString("mainWindow.swing.machinePosition"));
-        this.opencloseButton.setText(Localization.getString("mainWindow.swing.opencloseButton"));
         this.pauseButton.setText(Localization.getString("mainWindow.swing.pauseButton"));
-        this.portLabel.setText(Localization.getString("mainWindow.swing.portLabel"));
         this.remainingRowsLabel.setText(Localization.getString("mainWindow.swing.remainingRowsLabel"));
         this.remainingTimeLabel.setText(Localization.getString("mainWindow.swing.remainingTimeLabel"));
         this.resetCoordinatesButton.setText(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
@@ -2183,46 +2020,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
     }
-    
-    // Scans for comm ports and puts them in the comm port combo box.
-    private void loadPortSelector() {
-        commPortComboBox.removeAllItems();
-        
-        String[] portList = CommUtils.getSerialPortList();
 
-        if (portList.length < 1) {
-            if (settings.isShowSerialPortWarning()) {
-                displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
-            }
-        } else {
-            // Sort?
-            //java.util.Collections.sort(portList);
-
-            for (String port : portList) {
-                commPortComboBox.addItem(port);
-            }
-
-            commPortComboBox.setSelectedIndex(0);
-
-
-
-        }
-    }
-    
-    private void loadFirmwareSelector() {
-        firmwareComboBox.removeAllItems();
-        List<String> firmwareList = FirmwareUtils.getFirmwareList();
-        
-        if (firmwareList.size() < 1) {
-            displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
-        } else {
-            java.util.Iterator<String> iter = firmwareList.iterator();
-            while ( iter.hasNext() ) {
-                firmwareComboBox.addItem(iter.next());
-            }
-        }
-    }
-    
     private void checkScrollWindow() {
         // Console output.
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
@@ -2236,11 +2034,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         // Command table.
         this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
     }
-    
-    void clearTable() {
-        this.commandTable.clear();
-    }
-        
+
     /** 
      * SerialCommunicatorListener implementation.
      */
@@ -2400,18 +2194,15 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JLabel activeStateLabel;
     private javax.swing.JLabel activeStateValueLabel;
     private javax.swing.JCheckBox arrowMovementEnabled;
-    private javax.swing.JLabel baudLabel;
-    private javax.swing.JComboBox baudrateSelectionComboBox;
     private javax.swing.JTabbedPane bottomTabbedPane;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
     private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
     private javax.swing.JScrollPane commandTableScrollPane;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JPanel commandsPanel;
-    private javax.swing.JPanel connectionPanel;
+    private com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel connectionPanel;
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
@@ -2419,8 +2210,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JLabel durationValueLabel;
     private javax.swing.JPanel fileModePanel;
     private javax.swing.JPanel fileRunPanel;
-    private javax.swing.JComboBox firmwareComboBox;
-    private javax.swing.JLabel firmwareLabel;
     private javax.swing.JMenu firmwareSettingsMenu;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
@@ -2452,11 +2241,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
-    private javax.swing.JButton opencloseButton;
     private javax.swing.JButton pauseButton;
     private javax.swing.JButton performHomingCycleButton;
-    private javax.swing.JLabel portLabel;
-    private javax.swing.JButton refreshButton;
     private javax.swing.JLabel remainingRowsLabel;
     private javax.swing.JLabel remainingRowsValueLabel;
     private javax.swing.JLabel remainingTimeLabel;
