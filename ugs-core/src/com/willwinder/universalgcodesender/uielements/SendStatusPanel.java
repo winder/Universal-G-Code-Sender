@@ -42,11 +42,17 @@ import net.miginfocom.swing.MigLayout;
 public class SendStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
     private final BackendAPI backend;
 
-    private JLabel rowsValue;
-    private JLabel sentRowsValue;
-    private JLabel remainingRowsValue;
-    private JLabel remainingTimeValue;
-    private JLabel durationValue;
+    private final JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
+    private final JLabel sentRowsLabel = new JLabel(Localization.getString("mainWindow.swing.sentRowsLabel"));
+    private final JLabel remainingRowsLabel = new JLabel(Localization.getString("mainWindow.swing.remainingRowsLabel"));
+    private final JLabel remainingTimeLabel = new JLabel(Localization.getString("mainWindow.swing.remainingTimeLabel"));
+    private final JLabel durationLabel = new JLabel(Localization.getString("mainWindow.swing.durationLabel"));
+
+    private final JLabel rowsValue = new JLabel();
+    private final JLabel sentRowsValue = new JLabel();
+    private final JLabel remainingRowsValue = new JLabel();
+    private final JLabel remainingTimeValue = new JLabel();
+    private final JLabel durationValue = new JLabel();
 
     Timer timer;
 
@@ -74,9 +80,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                     public void run() {
                         try {
                             durationValue.setText(Utils.formattedMillis(backend.getSendDuration()));
-                            remainingTimeValue.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
-
-                            //sentRowsValueLabel.setText(""+sentRows);
+                            setRemainingTime(backend.getSendRemainingDuration());
                             sentRowsValue.setText(""+backend.getNumSentRows());
                             remainingRowsValue.setText("" + backend.getNumRemainingRows());
                         } catch (Exception e) {
@@ -104,7 +108,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     }
 
     private void endSend() {
-        remainingTimeValue.setText(Utils.formattedMillis(0));
+        setRemainingTime(Utils.formattedMillis(0));
         remainingRowsValue.setText("" + backend.getNumRemainingRows());
 
         java.awt.EventQueue.invokeLater(() -> {
@@ -121,16 +125,24 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         // Reset labels
         this.durationValue.setText("00:00:00");
         if (this.backend != null && this.backend.isConnected()) {
-            if (this.backend.getSendDuration() < 0) {
-                this.remainingTimeValue.setText("estimating...");
-            } else if (this.backend.getSendDuration() == 0) {
-                this.remainingTimeValue.setText("--:--:--");
-            } else {
-                this.remainingTimeValue.setText(Utils.formattedMillis(this.backend.getSendDuration()));
-            }
+            setRemainingTime(backend.getSendDuration());
         } else {
-            this.remainingTimeValue.setText("--:--:--");
+            setRemainingTime("--:--:--");
         }
+    }
+
+    private void setRemainingTime(long millis) {
+        if (millis < 0) {
+            setRemainingTime("estimating...");
+        } else if (millis == 0) {
+            setRemainingTime("--:--:--");
+        } else {
+            setRemainingTime(Utils.formattedMillis(millis));
+        }
+    }
+
+    private void setRemainingTime(String text) {
+        this.remainingTimeValue.setText(text);
     }
 
     public String getDuration() {
@@ -147,38 +159,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     }
 
     private void initComponents() {
-        // Components
-        JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
-        JLabel sentRowsLabel = new JLabel(Localization.getString("mainWindow.swing.sentRowsLabel"));
-        JLabel remainingRowsLabel = new JLabel(Localization.getString("mainWindow.swing.remainingRowsLabel"));
-        JLabel remainingTimeLabel = new JLabel(Localization.getString("mainWindow.swing.remainingTimeLabel"));
-        JLabel durationLabel = new JLabel(Localization.getString("mainWindow.swing.durationLabel"));
-
-        rowsValue = new JLabel();
-        sentRowsValue = new JLabel();
-        remainingRowsValue = new JLabel();
-        remainingTimeValue = new JLabel();
-        durationValue = new JLabel();
-
-        /*
-        // This didn't seem to be needed...
-        int minSizeLeft = 0;
-        minSizeLeft = Math.max(minSizeLeft, rowsLabel.getWidth());
-        minSizeLeft = Math.max(minSizeLeft, sentRowsLabel.getWidth());
-        minSizeLeft = Math.max(minSizeLeft, remainingRowsLabel.getWidth());
-        minSizeLeft = Math.max(minSizeLeft, remainingTimeLabel.getWidth());
-        minSizeLeft = Math.max(minSizeLeft, durationLabel.getWidth());
-
-        int minSizeRight = 0;
-        minSizeRight = Math.max(minSizeRight, rowsValue.getWidth());
-        minSizeRight = Math.max(minSizeRight, sentRowsValue.getWidth());
-        minSizeRight = Math.max(minSizeRight, remainingRowsValue.getWidth());
-        minSizeRight = Math.max(minSizeRight, remainingTimeValue.getWidth());
-        minSizeRight = Math.max(minSizeRight, durationValue.getWidth());
-
-        int minSize = minSizeLeft + minSizeRight;
-        */
-
         // MigLayout... 3rd party layout library.
         setLayout(new MigLayout("fill, wrap 2"));
         add(rowsLabel, "al right");
