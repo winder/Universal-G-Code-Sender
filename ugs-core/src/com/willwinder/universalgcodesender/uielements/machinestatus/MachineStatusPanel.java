@@ -63,7 +63,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void initComponents() {
         // MigLayout... 3rd party layout library.
-        MigLayout layout = new MigLayout("debug, fill, wrap 4");
+        MigLayout layout = new MigLayout("fill, wrap 4");
         setLayout(layout);
         add(activeStateLabel, "al right, span 2");
         add(activeStateValueLabel, "span 2");

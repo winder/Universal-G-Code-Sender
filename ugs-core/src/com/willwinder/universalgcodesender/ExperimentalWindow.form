@@ -117,11 +117,9 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                      <Component id="connectionPanel" max="32767" attributes="0"/>
-                      <Component id="fileModePanel" alignment="0" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="machineStatusPanel1" min="-2" max="-2" attributes="0"/>
+                  <Component id="fileModePanel" alignment="0" min="-2" max="-2" attributes="0"/>
+                  <Component id="machineStatusPanel" min="-2" max="-2" attributes="0"/>
+                  <Component id="connectionPanel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -159,7 +157,7 @@
           <Group type="102" alignment="0" attributes="0">
               <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="machineStatusPanel1" min="-2" max="-2" attributes="0"/>
+              <Component id="machineStatusPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace pref="124" max="32767" attributes="0"/>
               <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="161" max="-2" attributes="0"/>
@@ -504,7 +502,7 @@
               <SubComponents>
                 <Container class="com.willwinder.universalgcodesender.uielements.MacroActionPanel" name="macroActionPanel">
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, backend)"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroActionPanel(backend.getSettings(), backend)"/>
                   </AuxValues>
 
                   <Layout>
@@ -741,7 +739,7 @@
           <SubComponents>
             <Container class="com.willwinder.universalgcodesender.uielements.MacroPanel" name="macroPanel">
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend)"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend)"/>
               </AuxValues>
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
@@ -880,25 +878,15 @@
         </Component>
       </SubComponents>
     </Container>
-    <Container class="com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel" name="connectionPanel">
+    <Component class="com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel" name="machineStatusPanel">
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend)"/>
+      </AuxValues>
+    </Component>
+    <Component class="com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel" name="connectionPanel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend)"/>
       </AuxValues>
-
-      <Layout>
-        <DimensionLayout dim="0">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-          </Group>
-        </DimensionLayout>
-        <DimensionLayout dim="1">
-          <Group type="103" groupAlignment="0" attributes="0">
-              <EmptySpace min="0" pref="107" max="32767" attributes="0"/>
-          </Group>
-        </DimensionLayout>
-      </Layout>
-    </Container>
-    <Component class="com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel" name="machineStatusPanel1">
     </Component>
   </SubComponents>
 </Form>

@@ -25,7 +25,8 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
@@ -33,13 +34,10 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -83,8 +81,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
 
     private PendantUI pendantUI;
-    public Settings settings;
-    
+
     BackendAPI backend;
     
     // My Variables
@@ -104,10 +101,15 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private Timer timer;
 
     /** Creates new form ExperimentalWindow */
-    public ExperimentalWindow(BackendAPI backend) {
-        this.backend = backend;
-        this.settings = SettingsFactory.loadSettings();
-        if (settings.isShowNightlyWarning() && ExperimentalWindow.VERSION.contains("nightly")) {
+    public ExperimentalWindow() {
+        this.backend = new GUIBackend();
+        try {
+            backend.applySettings(SettingsFactory.loadSettings());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (backend.getSettings().isShowNightlyWarning() && ExperimentalWindow.VERSION.contains("nightly")) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 String message =
                         "This version of Universal Gcode Sender is a nightly build.\n"
@@ -124,19 +126,19 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
         
-        arrowMovementEnabled.setSelected(settings.isManualModeEnabled());
-        stepSizeSpinner.setValue(settings.getManualModeStepSize());
-        boolean unitsAreMM = settings.getDefaultUnits().equals("mm");
+        arrowMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
+        stepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         mmRadioButton.setSelected(unitsAreMM);
         inchRadioButton.setSelected(!unitsAreMM);
-        fileChooser = new JFileChooser(settings.getLastOpenedFilename());
-        scrollWindowCheckBox.setSelected(settings.isScrollWindowEnabled());
+        fileChooser = new JFileChooser(backend.getSettings().getLastOpenedFilename());
+        scrollWindowCheckBox.setSelected(backend.getSettings().isScrollWindowEnabled());
         checkScrollWindow();
-        showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
-        showCommandTableCheckBox.setSelected(settings.isCommandTableEnabled());
+        showVerboseOutputCheckBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
+        showCommandTableCheckBox.setSelected(backend.getSettings().isCommandTableEnabled());
 
-        setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
-        setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
+        setSize(backend.getSettings().getMainWindowSettings().width, backend.getSettings().getMainWindowSettings().height);
+        setLocation(backend.getSettings().getMainWindowSettings().xLocation, backend.getSettings().getMainWindowSettings().yLocation);
 
         connectionPanel.loadSettings();
         initFileChooser();
@@ -145,18 +147,18 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             @Override
             public void run() {
                 if (fileChooser.getSelectedFile() != null ) {
-                    settings.setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
+                    backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                settings.setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
-                settings.setManualModeStepSize(getStepSize());
-                settings.setManualModeEnabled(arrowMovementEnabled.isSelected());
-                settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
-                settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
-                settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
+                backend.getSettings().setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
+                backend.getSettings().setManualModeStepSize(getStepSize());
+                backend.getSettings().setManualModeEnabled(arrowMovementEnabled.isSelected());
+                backend.getSettings().setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
+                backend.getSettings().setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+                backend.getSettings().setCommandTableEnabled(showCommandTableCheckBox.isSelected());
 
                 connectionPanel.saveSettings();
-                SettingsFactory.saveSettings(settings);
+                SettingsFactory.saveSettings(backend.getSettings());
                 
                 if(pendantUI!=null){
                     pendantUI.stop();
@@ -219,35 +221,35 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
         
          /* Create the form */
-        GUIBackend backend = new GUIBackend();
-        final ExperimentalWindow mw = new ExperimentalWindow(backend);
+//        GUIBackend backend = new GUIBackend();
+        final ExperimentalWindow mw = new ExperimentalWindow();
         
         /* Apply the settings to the ExperimentalWindow bofore showing it */
-        mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
-        mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
-        boolean unitsAreMM = mw.settings.getDefaultUnits().equals("mm");
+        mw.arrowMovementEnabled.setSelected(mw.backend.getSettings().isManualModeEnabled());
+        mw.stepSizeSpinner.setValue(mw.backend.getSettings().getManualModeStepSize());
+        boolean unitsAreMM = mw.backend.getSettings().getDefaultUnits().equals("mm");
         mw.mmRadioButton.setSelected(unitsAreMM);
         mw.inchRadioButton.setSelected(!unitsAreMM);
-        mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
-        mw.scrollWindowCheckBox.setSelected(mw.settings.isScrollWindowEnabled());
-        mw.showVerboseOutputCheckBox.setSelected(mw.settings.isVerboseOutputEnabled());
-        mw.showCommandTableCheckBox.setSelected(mw.settings.isCommandTableEnabled());
+        mw.fileChooser = new JFileChooser(mw.backend.getSettings().getLastOpenedFilename());
+        mw.scrollWindowCheckBox.setSelected(mw.backend.getSettings().isScrollWindowEnabled());
+        mw.showVerboseOutputCheckBox.setSelected(mw.backend.getSettings().isVerboseOutputEnabled());
+        mw.showCommandTableCheckBox.setSelected(mw.backend.getSettings().isCommandTableEnabled());
         mw.showCommandTableCheckBoxActionPerformed(null);
 
-        mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
-        mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
+        mw.setSize(mw.backend.getSettings().getMainWindowSettings().width, mw.backend.getSettings().getMainWindowSettings().height);
+        mw.setLocation(mw.backend.getSettings().getMainWindowSettings().xLocation, mw.backend.getSettings().getMainWindowSettings().yLocation);
 
         mw.addComponentListener(new ComponentListener() {
             @Override
             public void componentResized(ComponentEvent ce) {
-                mw.settings.getMainWindowSettings().height = ce.getComponent().getSize().height;
-                mw.settings.getMainWindowSettings().width = ce.getComponent().getSize().width;
+                mw.backend.getSettings().getMainWindowSettings().height = ce.getComponent().getSize().height;
+                mw.backend.getSettings().getMainWindowSettings().width = ce.getComponent().getSize().width;
             }
 
             @Override
             public void componentMoved(ComponentEvent ce) {
-                mw.settings.getMainWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                mw.settings.getMainWindowSettings().yLocation = ce.getComponent().getLocation().y;
+                mw.backend.getSettings().getMainWindowSettings().xLocation = ce.getComponent().getLocation().x;
+                mw.backend.getSettings().getMainWindowSettings().yLocation = ce.getComponent().getLocation().y;
             }
 
             @Override
@@ -271,15 +273,15 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             @Override
             public void run() {
                 if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
+                    mw.backend.getSettings().setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
-                mw.settings.setManualModeStepSize(mw.getStepSize());
-                mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
-                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
+                mw.backend.getSettings().setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
+                mw.backend.getSettings().setManualModeStepSize(mw.getStepSize());
+                mw.backend.getSettings().setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
+                mw.backend.getSettings().setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
+                mw.backend.getSettings().setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+                mw.backend.getSettings().setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
 
                 mw.connectionPanel.saveSettings();
 
@@ -330,7 +332,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         resetXButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, backend);
+        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(backend.getSettings(), backend);
         keyboardMovementPanel = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
         arrowMovementEnabled = new javax.swing.JCheckBox();
@@ -345,7 +347,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
         macroPane = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend);
         showVerboseOutputCheckBox = new javax.swing.JCheckBox();
         showCommandTableCheckBox = new javax.swing.JCheckBox();
         fileModePanel = new javax.swing.JPanel();
@@ -356,8 +358,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         browseButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
         sendStatusPanel = new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend);
+        machineStatusPanel = new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
-        machineStatusPanel1 = new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel();
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -884,17 +886,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         fileModePanel.add(sendStatusPanel, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout connectionPanelLayout = new org.jdesktop.layout.GroupLayout(connectionPanel);
-        connectionPanel.setLayout(connectionPanelLayout);
-        connectionPanelLayout.setHorizontalGroup(
-            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 0, Short.MAX_VALUE)
-        );
-        connectionPanelLayout.setVerticalGroup(
-            connectionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 107, Short.MAX_VALUE)
-        );
-
         settingsMenu.setText("Settings");
 
         grblConnectionSettingsMenuItem.setText("Sender Settings");
@@ -948,10 +939,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(fileModePanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .add(machineStatusPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -981,7 +971,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             .add(layout.createSequentialGroup()
                 .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineStatusPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 124, Short.MAX_VALUE)
                 .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(161, 161, 161))
@@ -1066,46 +1056,46 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
         
         // Set initial values.
-        gcsd.setSpeedOverrideEnabled(settings.isOverrideSpeedSelected());
-        gcsd.setSpeedOverridePercent((int) settings.getOverrideSpeedValue());
-        gcsd.setMaxCommandLength(settings.getMaxCommandLength());
-        gcsd.setTruncateDecimalLength(settings.getTruncateDecimalLength());
-        gcsd.setSingleStepModeEnabled(settings.isSingleStepMode());
-        gcsd.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-        gcsd.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
-        gcsd.setStatusUpdatesRate(settings.getStatusUpdateRate());
-        gcsd.setStateColorDisplayEnabled(settings.isDisplayStateColor());
-        gcsd.setConvertArcsToLines(settings.isConvertArcsToLines());
-        gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
-        gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
-        gcsd.setselectedLanguage(settings.getLanguage());
-        gcsd.setAutoConnectEnabled(settings.isAutoConnectEnabled());
-        gcsd.setAutoReconnect(settings.isAutoReconnect());
+        gcsd.setSpeedOverrideEnabled(backend.getSettings().isOverrideSpeedSelected());
+        gcsd.setSpeedOverridePercent((int) backend.getSettings().getOverrideSpeedValue());
+        gcsd.setMaxCommandLength(backend.getSettings().getMaxCommandLength());
+        gcsd.setTruncateDecimalLength(backend.getSettings().getTruncateDecimalLength());
+        gcsd.setSingleStepModeEnabled(backend.getSettings().isSingleStepMode());
+        gcsd.setRemoveAllWhitespace(backend.getSettings().isRemoveAllWhitespace());
+        gcsd.setStatusUpdatesEnabled(backend.getSettings().isStatusUpdatesEnabled());
+        gcsd.setStatusUpdatesRate(backend.getSettings().getStatusUpdateRate());
+        gcsd.setStateColorDisplayEnabled(backend.getSettings().isDisplayStateColor());
+        gcsd.setConvertArcsToLines(backend.getSettings().isConvertArcsToLines());
+        gcsd.setSmallArcThreshold(backend.getSettings().getSmallArcThreshold());
+        gcsd.setSmallArcSegmentLengthSpinner(backend.getSettings().getSmallArcSegmentLength());
+        gcsd.setselectedLanguage(backend.getSettings().getLanguage());
+        gcsd.setAutoConnectEnabled(backend.getSettings().isAutoConnectEnabled());
+        gcsd.setAutoReconnect(backend.getSettings().isAutoReconnect());
 
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
-            settings.setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
-            settings.setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
-            settings.setMaxCommandLength(gcsd.getMaxCommandLength());
-            settings.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
-            settings.setSingleStepMode(gcsd.getSingleStepModeEnabled());
-            settings.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
-            settings.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
-            settings.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
-            settings.setDisplayStateColor(gcsd.getDisplayStateColor());
-            settings.setConvertArcsToLines(gcsd.getConvertArcsToLines());
-            settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
-            settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
-            settings.setLanguage(gcsd.getLanguage());
-            settings.setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
-            settings.setAutoReconnect(gcsd.getAutoReconnect());
+            backend.getSettings().setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
+            backend.getSettings().setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
+            backend.getSettings().setMaxCommandLength(gcsd.getMaxCommandLength());
+            backend.getSettings().setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
+            backend.getSettings().setSingleStepMode(gcsd.getSingleStepModeEnabled());
+            backend.getSettings().setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
+            backend.getSettings().setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
+            backend.getSettings().setStatusUpdateRate(gcsd.getStatusUpdatesRate());
+            backend.getSettings().setDisplayStateColor(gcsd.getDisplayStateColor());
+            backend.getSettings().setConvertArcsToLines(gcsd.getConvertArcsToLines());
+            backend.getSettings().setSmallArcThreshold(gcsd.getSmallArcThreshold());
+            backend.getSettings().setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
+            backend.getSettings().setLanguage(gcsd.getLanguage());
+            backend.getSettings().setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
+            backend.getSettings().setAutoReconnect(gcsd.getAutoReconnect());
 
-            try {
-                backend.applySettings(settings);
-            } catch (Exception e) {
-                displayErrorDialog(e.getMessage());
-            }
+//            try {
+//                backend.applySettings(backend.getSettings());
+//            } catch (Exception e) {
+//                displayErrorDialog(e.getMessage());
+//            }
 
             if (this.vw != null) {
                 vw.setMinArcLength(gcsd.getSmallArcThreshold());
@@ -1134,20 +1124,20 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
         // Create new object if it is null.
         if (this.vw == null) {
-            this.vw = new VisualizerWindow(settings.getVisualizerWindowSettings());
+            this.vw = new VisualizerWindow(backend.getSettings().getVisualizerWindowSettings());
             
             final ExperimentalWindow mw = this;
             vw.addComponentListener(new ComponentListener() {
                 @Override
                 public void componentResized(ComponentEvent ce) {
-                    mw.settings.getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
-                    mw.settings.getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
+                    mw.backend.getSettings().getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
+                    mw.backend.getSettings().getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
                 }
 
                 @Override
                 public void componentMoved(ComponentEvent ce) {
-                    mw.settings.getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                    mw.settings.getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
+                    mw.backend.getSettings().getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
+                    mw.backend.getSettings().getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
                 }
 
                 @Override
@@ -1156,8 +1146,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 public void componentHidden(ComponentEvent ce) {}
             });
 
-            vw.setMinArcLength(settings.getSmallArcThreshold());
-            vw.setArcLength(settings.getSmallArcSegmentLength());
+            vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
+            vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
             setVisualizerFile();
 
             // Add listener
@@ -1270,7 +1260,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             try {
                 File newFile = fileChooser.getSelectedFile();
                 AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
-                backend.applySettingsToController(settings, control);
+                backend.applySettingsToController(backend.getSettings(), control);
                 
                 backend.preprocessAndExportToFile(newFile);
             } catch (FileNotFoundException ex) {
@@ -1499,13 +1489,13 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */
     private void initFileChooser() {
-        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename()); 
+        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(backend.getSettings().getLastOpenedFilename());
     }
         
     private void initProgram() {
-        Localization.initialize(this.settings.getLanguage());
+        Localization.initialize(this.backend.getSettings().getLanguage());
         try {
-            backend.applySettings(settings);
+            backend.applySettings(backend.getSettings());
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }
@@ -1924,7 +1914,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JButton killAlarmLock;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JPanel machineControlPanel;
-    private com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel machineStatusPanel1;
+    private com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel machineStatusPanel;
     private com.willwinder.universalgcodesender.uielements.MacroActionPanel macroActionPanel;
     private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
