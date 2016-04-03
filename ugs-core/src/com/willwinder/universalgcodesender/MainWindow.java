@@ -299,6 +299,22 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 }
             }
         });
+
+        // Check command line for a file to open.
+        boolean open = false;
+        for (String arg : args) {
+            if (open) {
+                try {
+                    backend.setGcodeFile(new File(arg));
+                } catch (Exception ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
+            }
+            if (arg.equals("--open") || arg.equals("-o")) {
+                open = true;
+            }
+        }
     }
 
     /** This method is called from within the constructor to
