@@ -45,9 +45,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     public MachineStatusPanel(BackendAPI backend) {
-        setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.statusPanel")));
-        setMinimumSize(new java.awt.Dimension(247, 160));
-        setPreferredSize(new java.awt.Dimension(247, 160));
+//        setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.statusPanel")));
+//        setMinimumSize(new java.awt.Dimension(247, 160));
+//        setPreferredSize(new java.awt.Dimension(247, 160));
         activeStateLabel.setOpaque(true);
         activeStateValueLabel.setOpaque(true);
 

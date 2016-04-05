@@ -1,30 +1,31 @@
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.MainWindow;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
 
-    private BackendAPI backend;
-    private Settings settings;
+    private final BackendAPI backend;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
 
     public MacroActionPanel() {
-
+        this(null, null);
     }
 
     public MacroActionPanel(Settings settings, BackendAPI backend) {
-        this.settings = settings;
+        setMinimumSize(new Dimension(50,0));
         this.backend = backend;
-        backend.addUGSEventListener(this);
+        if (this.backend != null) {
+            backend.addUGSEventListener(this);
+        }
     }
 
     @Override
@@ -39,12 +40,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     private void initMacroButtons() {
-        if (settings == null) {
+        if (backend == null) {
             //I suppose this should be in a text field.
             System.err.println("settings is null!  Cannot init buttons!");
             return;
         }
-        Integer lastMacroIndex = settings.getLastMacroIndex()+1;
+        Integer lastMacroIndex = backend.getSettings().getLastMacroIndex()+1;
 
         for (int i = customGcodeButtons.size(); i <= lastMacroIndex; i++) {
             JButton button = createMacroButton(i);
@@ -52,7 +53,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             JButton button = customGcodeButtons.get(i);
-            Macro macro = settings.getMacro(i);
+            Macro macro = backend.getSettings().getMacro(i);
             if (macro != null) {
                 if (macro.getName() != null) {
                     button.setText(macro.getName());
@@ -111,12 +112,11 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     private void customGcodeButtonActionPerformed(int i) {
-        Macro macro = settings.getMacro(i);
-
         //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
         if (backend == null) {
             System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
         } else {
+            Macro macro = backend.getSettings().getMacro(i);
             MacroPanel.executeCustomGcode(macro.getGcode(), backend);
         }
     }

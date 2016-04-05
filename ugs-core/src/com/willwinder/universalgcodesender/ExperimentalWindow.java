@@ -358,7 +358,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         browseButton = new javax.swing.JButton();
         saveButton = new javax.swing.JButton();
         sendStatusPanel = new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend);
-        machineStatusPanel = new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
@@ -443,6 +442,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
+        controlContextTabbedPane.setPreferredSize(new java.awt.Dimension(2000, 283));
         controlContextTabbedPane.addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentShown(java.awt.event.ComponentEvent evt) {
                 controlContextTabbedPaneComponentShown(evt);
@@ -551,7 +551,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         macroActionPanel.setLayout(macroActionPanelLayout);
         macroActionPanelLayout.setHorizontalGroup(
             macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 643, Short.MAX_VALUE)
+            .add(0, 1452, Short.MAX_VALUE)
         );
         macroActionPanelLayout.setVerticalGroup(
             macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -886,6 +886,10 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         fileModePanel.add(sendStatusPanel, gridBagConstraints);
 
+        connectionPanel.setMaximumSize(new java.awt.Dimension(247, 200));
+        connectionPanel.setMinimumSize(new java.awt.Dimension(247, 130));
+        connectionPanel.setPreferredSize(new java.awt.Dimension(247, 130));
+
         settingsMenu.setText("Settings");
 
         grblConnectionSettingsMenuItem.setText("Sender Settings");
@@ -940,11 +944,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             .add(layout.createSequentialGroup()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
                         .add(scrollWindowCheckBox)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -952,7 +954,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(18, 18, 18)
                         .add(showCommandTableCheckBox)
                         .addContainerGap())
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -966,15 +969,13 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(showVerboseOutputCheckBox)
                         .add(showCommandTableCheckBox)))
                 .add(4, 4, 4)
-                .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 231, Short.MAX_VALUE)
                 .add(4, 4, 4))
             .add(layout.createSequentialGroup()
-                .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(machineStatusPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 124, Short.MAX_VALUE)
                 .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(161, 161, 161))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -1914,7 +1915,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JButton killAlarmLock;
     private javax.swing.ButtonGroup lineBreakGroup;
     private javax.swing.JPanel machineControlPanel;
-    private com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel machineStatusPanel;
     private com.willwinder.universalgcodesender.uielements.MacroActionPanel macroActionPanel;
     private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;

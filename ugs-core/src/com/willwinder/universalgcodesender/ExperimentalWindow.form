@@ -118,12 +118,10 @@
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="fileModePanel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="machineStatusPanel" min="-2" max="-2" attributes="0"/>
                   <Component id="connectionPanel" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="bottomTabbedPane" alignment="1" max="32767" attributes="0"/>
                   <Group type="102" attributes="0">
                       <Component id="scrollWindowCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
@@ -132,7 +130,8 @@
                       <Component id="showCommandTableCheckBox" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="32767" attributes="0"/>
                   </Group>
-                  <Component id="controlContextTabbedPane" pref="612" max="32767" attributes="0"/>
+                  <Component id="controlContextTabbedPane" alignment="1" max="32767" attributes="0"/>
+                  <Component id="bottomTabbedPane" alignment="1" max="32767" attributes="0"/>
               </Group>
           </Group>
       </Group>
@@ -151,16 +150,14 @@
                   </Group>
               </Group>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-              <Component id="bottomTabbedPane" max="32767" attributes="0"/>
+              <Component id="bottomTabbedPane" pref="231" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
+              <Component id="connectionPanel" max="32767" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="machineStatusPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="124" max="32767" attributes="0"/>
               <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
-              <EmptySpace min="-2" pref="161" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -298,6 +295,9 @@
         </Property>
         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
           <Dimension value="[395, 175]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[2000, 283]"/>
         </Property>
       </Properties>
       <Events>
@@ -508,7 +508,7 @@
                   <Layout>
                     <DimensionLayout dim="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <EmptySpace min="0" pref="643" max="32767" attributes="0"/>
+                          <EmptySpace min="0" pref="1452" max="32767" attributes="0"/>
                       </Group>
                     </DimensionLayout>
                     <DimensionLayout dim="1">
@@ -878,12 +878,18 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel" name="machineStatusPanel">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel(backend)"/>
-      </AuxValues>
-    </Component>
     <Component class="com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel" name="connectionPanel">
+      <Properties>
+        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[247, 200]"/>
+        </Property>
+        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[247, 130]"/>
+        </Property>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[247, 130]"/>
+        </Property>
+      </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend)"/>
       </AuxValues>

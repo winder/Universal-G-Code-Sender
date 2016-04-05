@@ -4,6 +4,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
@@ -26,6 +27,9 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
     private final JButton refreshButton = new JButton(new javax.swing.ImageIcon(getClass().getResource("/resources/refresh.gif")));
     private final JButton openCloseButton = new JButton(Localization.getString("mainWindow.swing.opencloseButton"));
 
+    private final JPanel connection = new JPanel();
+    private final MachineStatusPanel machineStatus;
+
     private final BackendAPI backend;
 
     public ConnectionPanel() {
@@ -33,11 +37,13 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
     }
 
     public ConnectionPanel(BackendAPI backend) {
+        machineStatus = new MachineStatusPanel(backend);
+        machineStatus.setVisible(false);
         setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.connectionPanel")));
-        setMaximumSize(new java.awt.Dimension(247, 130));
-        setMinimumSize(new java.awt.Dimension(247, 130));
+//        setMaximumSize(new java.awt.Dimension(247, 200));
+//        setMinimumSize(new java.awt.Dimension(247, 200));
+//        setPreferredSize(new java.awt.Dimension(247, 200));
         setName(Localization.getString("mainWindow.swing.connectionPanel"));
-        setPreferredSize(new java.awt.Dimension(247, 130));
 
         portCombo.setEditable(true);
 
@@ -69,15 +75,19 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
 
     private void initComponents() {
         // MigLayout... 3rd party layout library.
-        setLayout(new MigLayout("fill, wrap 4"));
-        add(portLabel, "al right");
-        add(portCombo, "span 3");
-        add(baudLabel, "al right");
-        add(baudCombo);
-        add(refreshButton, "w 25!");
+        setLayout(new MigLayout("flowy, hidemode 3"));
         add(openCloseButton);
-        add(firmwareLabel, "al right");
-        add(firmwareCombo, "span 3");
+
+        connection.setLayout(new MigLayout("fill, wrap 3"));
+        connection.add(portLabel, "al right");
+        connection.add(portCombo, "span 3");
+        connection.add(baudLabel, "al right");
+        connection.add(baudCombo);
+        connection.add(refreshButton);
+        connection.add(firmwareLabel, "al right");
+        connection.add(firmwareCombo, "span 3");
+        add(connection);
+        add(machineStatus);
     }
 
     @Override
@@ -171,10 +181,12 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
     }
 
     public void updateConnectionControlsStateOpen(boolean isOpen) {
-        this.portCombo.setEnabled(!isOpen);
-        this.baudCombo.setEnabled(!isOpen);
-        this.refreshButton.setEnabled(!isOpen);
-        this.firmwareCombo.setEnabled(!isOpen);
+//        this.portCombo.setEnabled(!isOpen);
+//        this.baudCombo.setEnabled(!isOpen);
+//        this.refreshButton.setEnabled(!isOpen);
+//        this.firmwareCombo.setEnabled(!isOpen);
+        connection.setVisible(!isOpen);
+        machineStatus.setVisible(isOpen);
 
         if (isOpen) {
             this.openCloseButton.setText(Localization.getString("close"));
