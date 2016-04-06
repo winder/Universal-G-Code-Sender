@@ -7,6 +7,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+import net.miginfocom.swing.MigLayout;
 import org.jdesktop.layout.*;
 
 import javax.swing.*;
@@ -19,19 +20,22 @@ import java.util.*;
 
 public class MacroPanel extends JPanel implements UGSEventListener {
 
-    private BackendAPI backend;
-    private Settings settings;
-    private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
-    private java.util.List<JTextField> customGcodeTextFields = new ArrayList<JTextField>();
-    private java.util.List<JTextField> customGcodeNameFields = new ArrayList<JTextField>();
-    private java.util.List<JTextField> customGcodeDescriptionFields = new ArrayList<JTextField>();
+    private final BackendAPI backend;
+    private final java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
+    private final java.util.List<JTextField> customGcodeTextFields = new ArrayList<JTextField>();
+    private final java.util.List<JTextField> customGcodeNameFields = new ArrayList<JTextField>();
+    private final java.util.List<JTextField> customGcodeDescriptionFields = new ArrayList<JTextField>();
+
+    private final JLabel buttonLabel = new JLabel(Localization.getString("macroPanel.button"));
+    private final JLabel nameLabel = new JLabel(Localization.getString("macroPanel.name"));
+    private final JLabel gcodeLabel = new JLabel(Localization.getString("macroPanel.text"));
+    private final JLabel decriptionLabel = new JLabel(Localization.getString("macroPanel.description"));
 
     public MacroPanel() {
-
+        this(null, null);
     }
 
     public MacroPanel(Settings settings, BackendAPI backend) {
-        this.settings = settings;
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
@@ -45,17 +49,12 @@ public class MacroPanel extends JPanel implements UGSEventListener {
 
     @Override
     public void doLayout() {
-        initMacroButtons();
-        super.doLayout();
-    }
-
-    private void initMacroButtons() {
-        if (settings == null) {
+        if (backend == null) {
             //I suppose this should be in a text field.
             System.err.println("settings is null!  Cannot init buttons!");
             return;
         }
-        Integer lastMacroIndex = settings.getLastMacroIndex()+1;
+        Integer lastMacroIndex = backend.getSettings().getLastMacroIndex()+1;
 
         for (int i = customGcodeButtons.size(); i <= lastMacroIndex; i++) {
             JButton button = createMacroButton(i);
@@ -63,7 +62,7 @@ public class MacroPanel extends JPanel implements UGSEventListener {
             JTextField nameField = createMacroNameField(i);
             JTextField descriptionField = createMacroDescriptionField(i);
 
-            Macro macro = settings.getMacro(i);
+            Macro macro = backend.getSettings().getMacro(i);
             if (macro != null) {
                 textField.setText(macro.getGcode());
                 if (macro.getName() != null) {
@@ -75,70 +74,39 @@ public class MacroPanel extends JPanel implements UGSEventListener {
             }
         }
 
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(this);
-
-        org.jdesktop.layout.GroupLayout.ParallelGroup parallelGroup = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING);
-
-        org.jdesktop.layout.GroupLayout.SequentialGroup sequentialGroup = macroPanelLayout.createSequentialGroup();
-        parallelGroup.add(sequentialGroup);
-
-        sequentialGroup.addContainerGap();
-        org.jdesktop.layout.GroupLayout.ParallelGroup parallelGroup1 = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING);
-        sequentialGroup.add(parallelGroup1);
+        MigLayout layout = new MigLayout("fill, wrap 4", "[fill, sg 1]r[fill]r[fill, grow 50]r[fill, grow 50]");
+        setLayout(layout);
+//        add(buttonLabel, "sg 1");
+//        add(nameLabel, "w 75!");
+//        add(gcodeLabel);
+//        add(decriptionLabel);
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
-            org.jdesktop.layout.GroupLayout.SequentialGroup group = macroPanelLayout.createSequentialGroup();
-            if (backend != null) {
-                group.add(customGcodeButtons.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 49, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED);
-            }
-            group
-                .add(customGcodeNameFields.get(i))
-                .add(customGcodeTextFields.get(i))
-                .add(customGcodeDescriptionFields.get(i));
-            parallelGroup1.add(group);
+            add(customGcodeButtons.get(i), "sg 1");
+            add(customGcodeNameFields.get(i), "w 75!");
+            add(customGcodeTextFields.get(i));
+            add(customGcodeDescriptionFields.get(i));
         }
 
-        macroPanelLayout.setHorizontalGroup( parallelGroup );
-        org.jdesktop.layout.GroupLayout.SequentialGroup sequentialGroup1 = macroPanelLayout.createSequentialGroup();
-        macroPanelLayout.setVerticalGroup(
-                macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(sequentialGroup1
-                                        .add(8, 8, 8)
-                        ));
-
-
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-            org.jdesktop.layout.GroupLayout.ParallelGroup pg = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE);
-            if (backend != null) {
-                pg.add(customGcodeButtons.get(i));
-            }
-            pg
-                .add(customGcodeNameFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(customGcodeTextFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(customGcodeDescriptionFields.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE);
-            sequentialGroup1.add(pg);
-        }
-
-        setLayout(macroPanelLayout);
+        super.doLayout();
     }
 
     private JTextField createMacroTextField(int index) {
-        JTextField textField = new MacroTextField(index, settings);
+        JTextField textField = new MacroTextField(index, backend.getSettings());
 
         customGcodeTextFields.add(textField);
         return textField;
     }
 
     private JTextField createMacroNameField(int index) {
-        JTextField textField = new MacroNameField(index, settings);
+        JTextField textField = new MacroNameField(index, backend.getSettings());
 
         customGcodeNameFields.add(textField);
         return textField;
     }
 
     private JTextField createMacroDescriptionField(int index) {
-        JTextField textField = new MacroDescriptionField(index, settings);
+        JTextField textField = new MacroDescriptionField(index, backend.getSettings());
 
         customGcodeDescriptionFields.add(textField);
         return textField;
@@ -160,12 +128,11 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     }
 
     private void customGcodeButtonActionPerformed(int i) {
-        Macro macro = settings.getMacro(i);
-
         //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
         if (backend == null) {
             System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
         } else {
+            Macro macro = backend.getSettings().getMacro(i);
             executeCustomGcode(macro.getGcode(), backend);
         }
     }
