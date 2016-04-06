@@ -331,7 +331,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         killAlarmLock = new javax.swing.JButton();
         resetXButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
         macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(backend.getSettings(), backend);
         keyboardMovementPanel = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
@@ -542,23 +541,16 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             }
         });
 
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane1.setAutoscrolls(true);
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(50, 1000));
-        jScrollPane1.setRequestFocusEnabled(false);
-
         org.jdesktop.layout.GroupLayout macroActionPanelLayout = new org.jdesktop.layout.GroupLayout(macroActionPanel);
         macroActionPanel.setLayout(macroActionPanelLayout);
         macroActionPanelLayout.setHorizontalGroup(
             macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 1452, Short.MAX_VALUE)
+            .add(0, 276, Short.MAX_VALUE)
         );
         macroActionPanelLayout.setVerticalGroup(
             macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 250, Short.MAX_VALUE)
+            .add(0, 0, Short.MAX_VALUE)
         );
-
-        jScrollPane1.setViewportView(macroActionPanel);
 
         keyboardMovementPanel.setPreferredSize(new java.awt.Dimension(247, 180));
 
@@ -738,8 +730,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     .add(resetXButton)
                     .add(resetYButton)
                     .add(resetZButton))
-                .add(9, 9, 9)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(macroActionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
@@ -770,7 +762,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(resetZButton)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .add(macroActionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
@@ -954,7 +946,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(18, 18, 18)
                         .add(showCommandTableCheckBox)
                         .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 802, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
@@ -1908,7 +1900,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;

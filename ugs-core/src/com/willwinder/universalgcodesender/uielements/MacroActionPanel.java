@@ -4,14 +4,20 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
+import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
+
+    private static final int BUTTON_WIDTH = 75;
+    private static final int PADDING = 10;
 
     private final BackendAPI backend;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
@@ -26,20 +32,11 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         if (this.backend != null) {
             backend.addUGSEventListener(this);
         }
-    }
-
-    @Override
-    public void updateUI() {
-        super.updateUI();
+//        initMacroButtons();
     }
 
     @Override
     public void doLayout() {
-        initMacroButtons();
-        super.doLayout();
-    }
-
-    private void initMacroButtons() {
         if (backend == null) {
             //I suppose this should be in a text field.
             System.err.println("settings is null!  Cannot init buttons!");
@@ -64,38 +61,16 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             }
         }
 
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(this);
+        int columns = getWidth() / (BUTTON_WIDTH + PADDING);
 
-        org.jdesktop.layout.GroupLayout.ParallelGroup parallelGroup = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING);
-
-        org.jdesktop.layout.GroupLayout.SequentialGroup sequentialGroup = macroPanelLayout.createSequentialGroup();
-        parallelGroup.add(sequentialGroup);
-
-        sequentialGroup.addContainerGap();
-        org.jdesktop.layout.GroupLayout.ParallelGroup parallelGroup1 = macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING);
-        sequentialGroup.add(parallelGroup1);
-
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-            org.jdesktop.layout.GroupLayout.SequentialGroup group = macroPanelLayout.createSequentialGroup();
-            group.add(customGcodeButtons.get(i), org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, getWidth())
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED);
-            parallelGroup1.add(group);
+        MigLayout layout = new MigLayout("fill, wrap "+columns);
+        setLayout(layout);
+        for (JButton button : customGcodeButtons) {
+//            button.setSize(BUTTON_WIDTH, button.getHeight());
+            add(button, "w "+BUTTON_WIDTH+"!");
         }
 
-        macroPanelLayout.setHorizontalGroup( parallelGroup );
-        org.jdesktop.layout.GroupLayout.SequentialGroup sequentialGroup1 = macroPanelLayout.createSequentialGroup();
-        macroPanelLayout.setVerticalGroup(
-                macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(sequentialGroup1
-                                        .add(8, 8, 8)
-                        ));
-
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-            sequentialGroup1.add(macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(customGcodeButtons.get(i)));
-        }
-
-        setLayout(macroPanelLayout);
+        super.doLayout();
     }
 
     private JButton createMacroButton(int i) {
