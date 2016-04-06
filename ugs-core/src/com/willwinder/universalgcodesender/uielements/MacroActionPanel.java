@@ -63,11 +63,18 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
         int columns = getWidth() / (BUTTON_WIDTH + PADDING);
 
-        MigLayout layout = new MigLayout("fill, wrap "+columns);
+        StringBuilder columnConstraint = new StringBuilder();
+        for (int i = 0; i < columns; i++) {
+            if (i > 0) {
+                columnConstraint.append("unrelated");
+            }
+            columnConstraint.append("[fill, sg 1]");
+        }
+
+        MigLayout layout = new MigLayout("fill, wrap "+columns, columnConstraint.toString());
         setLayout(layout);
         for (JButton button : customGcodeButtons) {
-//            button.setSize(BUTTON_WIDTH, button.getHeight());
-            add(button, "w "+BUTTON_WIDTH+"!");
+            add(button, "sg 1");
         }
 
         super.doLayout();

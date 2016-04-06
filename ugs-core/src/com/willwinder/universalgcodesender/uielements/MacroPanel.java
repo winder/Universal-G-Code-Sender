@@ -76,10 +76,10 @@ public class MacroPanel extends JPanel implements UGSEventListener {
 
         MigLayout layout = new MigLayout("fill, wrap 4", "[fill, sg 1]r[fill]r[fill, grow 50]r[fill, grow 50]");
         setLayout(layout);
-        add(buttonLabel, "sg 1");
-        add(nameLabel, "w 75!");
-        add(gcodeLabel);
-        add(decriptionLabel);
+//        add(buttonLabel, "sg 1");
+//        add(nameLabel, "w 75!");
+//        add(gcodeLabel);
+//        add(decriptionLabel);
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             add(customGcodeButtons.get(i), "sg 1");
