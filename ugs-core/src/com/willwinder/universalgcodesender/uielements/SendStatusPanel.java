@@ -40,6 +40,7 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class SendStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
+    private static final String AL_RIGHT = "al right";
     private final BackendAPI backend;
 
     private final JLabel rowsLabel = new JLabel(Localization.getString("mainWindow.swing.rowsLabel"));
@@ -161,15 +162,15 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     private void initComponents() {
         // MigLayout... 3rd party layout library.
         setLayout(new MigLayout("fill, wrap 2"));
-        add(rowsLabel, "al right");
+        add(rowsLabel, AL_RIGHT);
         add(rowsValue);
-        add(sentRowsLabel, "al right");
+        add(sentRowsLabel, AL_RIGHT);
         add(sentRowsValue);
-        add(remainingRowsLabel, "al right");
+        add(remainingRowsLabel, AL_RIGHT);
         add(remainingRowsValue);
-        add(remainingTimeLabel, "al right");
+        add(remainingTimeLabel, AL_RIGHT);
         add(remainingTimeValue);
-        add(durationLabel, "al right");
+        add(durationLabel, AL_RIGHT);
         add(durationValue);
     }
 

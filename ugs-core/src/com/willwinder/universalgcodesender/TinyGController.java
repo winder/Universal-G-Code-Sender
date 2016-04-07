@@ -39,6 +39,8 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class TinyGController extends AbstractController {
+    private static final String NOT_SUPPORTED_YET = "Not supported yet.";
+
     boolean isReady = false;
     Units units;
     
@@ -64,12 +66,12 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void closeCommBeforeEvent() {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void closeCommAfterEvent() {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
     
     @Override
@@ -80,22 +82,22 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void cancelSendBeforeEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void cancelSendAfterEvent() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void pauseStreamingEvent() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void resumeStreamingEvent() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
 
@@ -147,52 +149,52 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void performHomingCycle() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
     
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
     
     @Override
     public void returnToHome() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     public void killAlarmLock() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     public void toggleCheckMode() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     public void viewParserState() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     public void softReset() throws Exception {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        //throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void statusUpdatesEnabledValueChanged(boolean enabled) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     @Override
     protected void statusUpdatesRateValueChanged(int rate) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
     static class TinyGUtils {
