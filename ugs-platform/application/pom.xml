@@ -70,13 +70,11 @@
             <artifactId>ugs-platform-plugin-workflow</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ugs-platform-gcode-editor</artifactId>
             <version>${project.version}</version>
         </dependency>
-        -->
     </dependencies>
 
     <build>
