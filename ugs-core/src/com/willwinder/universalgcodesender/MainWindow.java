@@ -107,6 +107,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
+        try {
+            backend.applySettings(settings);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 String message =

@@ -451,16 +451,17 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public long getNumSentRows() {
         //logger.log(Level.INFO, "Getting number of sent rows.");
-        return this.controller.rowsSent();
+        return controller == null ? 0 : controller.rowsSent();
     }
 
     @Override
     public long getNumRemainingRows() {
-        return this.controller.rowsRemaining();
+        return controller == null ? 0 : controller.rowsRemaining();
     }
+
     @Override
     public long getSendDuration() {
-        return this.controller.getSendDuration();
+        return controller == null ? 0 : controller.getSendDuration();
     }
     
     @Override
