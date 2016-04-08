@@ -69,9 +69,14 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
         backend.addUGSEventListener(this);
     }
 
+    /**
+     * If an editor is open and the file has changed, close the editor and open
+     * a new one with the new file.
+     */
     @Override
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
         if (backend == null || backend.getGcodeFile() == null) return;
+        if (getCurrentlyOpenedEditors().isEmpty()) return;
 
         if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
             openFile(backend.getGcodeFile());
