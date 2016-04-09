@@ -89,11 +89,17 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="fileModePanel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="connectionPanel" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="jogPanel" min="-2" pref="247" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jogPanel" min="-2" pref="257" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                      <Group type="102" attributes="0">
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="fileModePanel" pref="0" max="32767" attributes="0"/>
+                      </Group>
+                      <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
+                  </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
@@ -125,11 +131,11 @@
                   </Group>
               </Group>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-              <Component id="bottomTabbedPane" pref="287" max="32767" attributes="0"/>
+              <Component id="bottomTabbedPane" pref="323" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
           </Group>
           <Group type="102" alignment="0" attributes="0">
-              <Component id="connectionPanel" min="-2" pref="178" max="-2" attributes="0"/>
+              <Component id="connectionPanel" min="-2" pref="215" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>

@@ -8,6 +8,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -23,10 +24,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private final JSpinner stepSizeSpinner = new JSpinner();
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
 
-    private final JRadioButton inchRadioButton = new JRadioButton(Localization.getString("mainWindow.swing.inchRadioButton"));
-    private final JRadioButton mmRadioButton = new JRadioButton(Localization.getString("mainWindow.swing.mmRadioButton"));
-    private final ButtonGroup jogUnitsGroup = new ButtonGroup();
-
+    private final JButton unitButton = new JButton();
     private final JCheckBox keyboardMovementEnabled = new JCheckBox(Localization.getString("mainWindow.swing.arrowMovementEnabled"));
 
     private final JButton xMinusButton = new JButton("X-");
@@ -36,7 +34,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private final JButton zMinusButton = new JButton("Z-");
     private final JButton zPlusButton = new JButton("Z+");
 
-
     private final BackendAPI backend;
 
     public JogPanel() {
@@ -45,9 +42,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public JogPanel(BackendAPI backend) {
         setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
-        setMinimumSize(new java.awt.Dimension(247, 160));
-        setPreferredSize(new java.awt.Dimension(247, 160));
-        setMaximumSize(new java.awt.Dimension(247, 160));
+        setMinimumSize(new java.awt.Dimension(247, 200));
+        setPreferredSize(new java.awt.Dimension(247, 200));
+        setMaximumSize(new java.awt.Dimension(247, 200));
 
 
         this.backend = backend;
@@ -56,17 +53,14 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
             this.backend.addControllerListener(this);
             loadSettings();
         }
-
-        jogUnitsGroup.add(mmRadioButton);
-        jogUnitsGroup.add(inchRadioButton);
-
+        unitButton.addActionListener(e -> JogPanel.this.unitButtonActionPerformed());
         xPlusButton.addActionListener(e -> JogPanel.this.xPlusButtonActionPerformed());
         xMinusButton.addActionListener(e -> JogPanel.this.xMinusButtonActionPerformed());
         yPlusButton.addActionListener(e -> JogPanel.this.yPlusButtonActionPerformed());
         yMinusButton.addActionListener(e -> JogPanel.this.yMinusButtonActionPerformed());
         zPlusButton.addActionListener(e -> JogPanel.this.zPlusButtonActionPerformed());
         zMinusButton.addActionListener(e -> JogPanel.this.zMinusButtonActionPerformed());
-
+        stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         initComponents();
     }
 
@@ -75,17 +69,16 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         // MigLayout... 3rd party layout library.
         MigLayout layout = new MigLayout("fill, wrap 4");
         setLayout(layout);
-        add(keyboardMovementEnabled, "al left, span 3");
-        add(inchRadioButton, "al left");
+        add(keyboardMovementEnabled, "al left, span 4");
         add(stepSizeLabel, "al right");
         add(stepSizeSpinner, "grow, span 2");
-        add(mmRadioButton, "al left");
-        add(xMinusButton, "spany 2");
-        add(yPlusButton);
-        add(xPlusButton, "spany 2");
-        add(zPlusButton);
-        add(yMinusButton);
-        add(zMinusButton);
+        add(unitButton, "grow");
+        add(xMinusButton, "spany 2, w 50!, h 50!");
+        add(yPlusButton, "w 50!, h 50!");
+        add(xPlusButton, "spany 2, w 50!, h 50!");
+        add(zPlusButton, "w 50!, h 50!");
+        add(yMinusButton, "w 50!, h 50!");
+        add(zMinusButton, "w 50!, h 50!");
     }
 
     @Override
@@ -95,19 +88,24 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
-            updateControls();
-        }
+//        if (evt.isStateChangeEvent()) {
+//            updateControls();
+//        }
     }
 
     private void updateControls() {
-
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        stepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        setStepSize(backend.getSettings().getManualModeStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
-        mmRadioButton.setSelected(unitsAreMM);
-        inchRadioButton.setSelected(!unitsAreMM);
+        updateUnitButton(unitsAreMM);
+    }
 
+    private void updateUnitButton(boolean unitsAreMM) {
+        if (unitsAreMM) {
+            unitButton.setText("mm");
+        } else {
+            unitButton.setText("\"");
+        }
     }
 
 
@@ -151,21 +149,20 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void saveSettings() {
-        backend.getSettings().setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
+        backend.getSettings().setDefaultUnits(unitButton.getText().equals("\"") ? "inch" : "mm");
         backend.getSettings().setManualModeStepSize(getStepSize());
         backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
     }
 
     public void loadSettings() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        stepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        setStepSize(backend.getSettings().getManualModeStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
-        mmRadioButton.setSelected(unitsAreMM);
-        inchRadioButton.setSelected(!unitsAreMM);
+        updateUnitButton(unitsAreMM);
     }
 
     private com.willwinder.universalgcodesender.model.Utils.Units getUnits() {
-        return mmRadioButton.isSelected() ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
+        return unitButton.getText().equals("mm") ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
     }
 
     private double getStepSize() {
@@ -176,10 +173,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
         BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
         return bd.doubleValue();
-        //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
 
     private void setStepSize(double val) {
+        if (val < 0) {
+            val = 0;
+        }
         BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
         val = bd.doubleValue();
         this.stepSizeSpinner.setValue(val);
@@ -290,6 +289,10 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     }
 
+    public void unitButtonActionPerformed() {
+        updateUnitButton(!unitButton.getText().equals("mm"));
+    }
+
     public void updateManualControls(boolean enabled) {
         keyboardMovementEnabled.setEnabled(enabled);
 
@@ -301,8 +304,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zPlusButton.setEnabled(enabled);
         stepSizeLabel.setEnabled(enabled);
         stepSizeSpinner.setEnabled(enabled);
-        inchRadioButton.setEnabled(enabled);
-        mmRadioButton.setEnabled(enabled);
+        unitButton.setEnabled(enabled);
+//        inchRadioButton.setEnabled(enabled);
+//        mmRadioButton.setEnabled(enabled);
     }
 
 
