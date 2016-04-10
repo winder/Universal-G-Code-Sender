@@ -361,8 +361,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         killAlarmLock = new javax.swing.JButton();
         resetXButton = new javax.swing.JButton();
         resetZButton = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(settings, backend);
         keyboardMovementPanel = new javax.swing.JPanel();
         stepSizeSpinner = new javax.swing.JSpinner();
         arrowMovementEnabled = new javax.swing.JCheckBox();
@@ -513,12 +511,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
         });
 
-        machineControlPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentShown(java.awt.event.ComponentEvent evt) {
-                machineControlPanelComponentShownHandler(evt);
-            }
-        });
-
         helpButtonMachineControl.setText("Help");
         helpButtonMachineControl.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -606,24 +598,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
         });
 
-        jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        jScrollPane1.setAutoscrolls(true);
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(50, 1000));
-        jScrollPane1.setRequestFocusEnabled(false);
-
-        org.jdesktop.layout.GroupLayout macroActionPanelLayout = new org.jdesktop.layout.GroupLayout(macroActionPanel);
-        macroActionPanel.setLayout(macroActionPanelLayout);
-        macroActionPanelLayout.setHorizontalGroup(
-            macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 643, Short.MAX_VALUE)
-        );
-        macroActionPanelLayout.setVerticalGroup(
-            macroActionPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 250, Short.MAX_VALUE)
-        );
-
-        jScrollPane1.setViewportView(macroActionPanel);
-
         keyboardMovementPanel.setPreferredSize(new java.awt.Dimension(247, 180));
 
         stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
@@ -696,7 +670,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(yPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(yMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(xPlusButton, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(xPlusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(movementButtonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, zMinusButton, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 50, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -757,7 +731,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                                     .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                     .add(mmRadioButton)))
                             .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         keyboardMovementPanelLayout.setVerticalGroup(
             keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -773,7 +747,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(mmRadioButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
@@ -802,9 +776,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(resetXButton)
                     .add(resetYButton)
                     .add(resetZButton))
-                .add(9, 9, 9)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 65, Short.MAX_VALUE)
                 .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
         machineControlPanelLayout.setVerticalGroup(
@@ -833,8 +805,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         .add(6, 6, 6)
                         .add(resetZButton)))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+            .add(keyboardMovementPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 233, Short.MAX_VALUE)
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
@@ -1331,9 +1302,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 142, Short.MAX_VALUE)
+                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 144, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .add(statusPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 162, Short.MAX_VALUE))
                     .add(layout.createSequentialGroup()
                         .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -1730,10 +1701,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
-
-    private void machineControlPanelComponentShownHandler(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_machineControlPanelComponentShownHandler
-        macroActionPanel.doLayout();
-    }//GEN-LAST:event_machineControlPanelComponentShownHandler
 
     private void mmRadioButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mmRadioButtonActionPerformed
 
@@ -2448,7 +2415,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.ButtonGroup jogUnitsGroup;
     private javax.swing.JPanel keyboardMovementPanel;
@@ -2464,7 +2430,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
-    private com.willwinder.universalgcodesender.uielements.MacroActionPanel macroActionPanel;
     private javax.swing.JScrollPane macroPane;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
