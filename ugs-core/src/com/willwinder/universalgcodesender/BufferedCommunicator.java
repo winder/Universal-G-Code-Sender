@@ -157,9 +157,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     // Helper for determining if commands should be throttled.
     private boolean allowMoreCommands() {
         if (this.singleStepModeEnabled) {
-            if (this.areActiveCommands()) {
-                return false;
-            }
+            return this.activeCommandList.isEmpty();
         }
         return true;
     }
