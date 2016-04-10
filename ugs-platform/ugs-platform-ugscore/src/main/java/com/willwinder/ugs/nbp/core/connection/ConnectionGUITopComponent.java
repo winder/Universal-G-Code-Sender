@@ -50,7 +50,7 @@ import org.openide.util.NbPreferences;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "connection", openAtStartup = true)
+@TopComponent.Registration(mode = "top_left", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.connection.ConnectionGUITopComponent")
 @ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(

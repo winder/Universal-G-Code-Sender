@@ -51,7 +51,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "status", openAtStartup = true)
+@TopComponent.Registration(mode = "middle_left", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.JogControlTopComponent")
 @ActionReference(path = "Menu/Window/Classic" , position = 333 )
 @TopComponent.OpenActionRegistration(
