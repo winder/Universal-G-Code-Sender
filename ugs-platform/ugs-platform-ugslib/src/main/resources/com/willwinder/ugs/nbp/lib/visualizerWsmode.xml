@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><mode version="2.4">
     <name unique="visualizer"/>
-  <kind type="view"/>
+  <kind type="editor"/>
   <state type="joined"/>
   <constraints>
-    <path orientation="horizontal" number="60" weight="0.7"/>
+    <path orientation="horizontal" number="62" weight="0.7"/>
     <path orientation="vertical" number="40" weight="0.7"/>
     <path orientation="horizontal" number="80" weight="0.5115511551155115"/>
     <path orientation="vertical" number="80" weight="0.5"/>
