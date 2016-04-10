@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 
 import com.willwinder.ugs.nbp.core.control.JogService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
+import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.io.File;
@@ -45,6 +46,7 @@ public class startup extends OptionProcessor implements Runnable {
     @Override
     public void run() {
         Lookup.getDefault().lookup(JogService.class);
+        Lookup.getDefault().lookup(RunActionService.class);
         Lookup.getDefault().lookup(MacroService.class);
     }
 
