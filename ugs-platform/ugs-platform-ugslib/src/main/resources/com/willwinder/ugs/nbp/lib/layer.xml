@@ -3,16 +3,10 @@
 <filesystem>
     <folder name="Windows2">
         <folder name="Modes">
-            <file name="bottomSlidingSide.wsmode" url="bottomSlidingSideWsmode.xml"/>
             <file name="bottom_left.wsmode" url="bottom_leftWsmode.xml"/>
             <file name="editor.wsmode" url="editorWsmode.xml"/>
-            <file name="explorer.wsmode" url="explorerWsmode.xml"/>
-            <file name="leftSlidingSide.wsmode" url="leftSlidingSideWsmode.xml"/>
             <file name="middle_left.wsmode" url="middle_leftWsmode.xml"/>
             <file name="output.wsmode" url="outputWsmode.xml"/>
-            <file name="properties.wsmode" url="propertiesWsmode.xml"/>
-            <file name="rightSlidingSide.wsmode" url="rightSlidingSideWsmode.xml"/>
-            <file name="topSlidingSide.wsmode" url="topSlidingSideWsmode.xml"/>
             <file name="top_left.wsmode" url="top_leftWsmode.xml"/>
             <file name="visualizer.wsmode" url="visualizerWsmode.xml"/>
         </folder>
