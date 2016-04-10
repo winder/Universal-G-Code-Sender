@@ -34,6 +34,7 @@ import javax.swing.Action;
 import javax.swing.JEditorPane;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
@@ -56,7 +57,10 @@ import org.openide.windows.WindowManager;
         displayName = "#CTL_EditGcodeFile",
         lazy = false
 )
-@ActionReference(path = "Menu/File", position = 1301)
+@ActionReferences({
+    @ActionReference(path = "Menu/File", position = 1301),
+    @ActionReference(path="Shortcuts", name="M-E")
+})
 @Messages("CTL_EditGcodeFile=Edit Gcode File...")
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
     EditorListener el = new EditorListener();
