@@ -1,10 +1,4 @@
 /*
- * MainWindow.java
- *
- * Created on Jun 26, 2012, 3:04:38 PM
- */
-
-/*
     Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
@@ -25,51 +19,39 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.model.*;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
-import com.willwinder.universalgcodesender.uielements.*;
-import com.willwinder.universalgcodesender.utils.CommUtils;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
+import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.pendantui.PendantUI;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.model.Utils.Units;
-import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
-import java.awt.Color;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.KeyEvent;
+import org.apache.commons.lang3.SystemUtils;
+
+import javax.swing.*;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.ParseException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.text.DefaultCaret;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.awt.Toolkit;
-import javax.swing.text.DefaultEditorKit;
-import org.apache.commons.lang3.SystemUtils;
+
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
  *
@@ -125,17 +107,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         initProgram();
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
-        
-
         fileChooser = new JFileChooser(backend.getSettings().getLastOpenedFilename());
-        scrollWindowCheckBox.setSelected(backend.getSettings().isScrollWindowEnabled());
-        checkScrollWindow();
-        showVerboseOutputCheckBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
-        showCommandTableCheckBox.setSelected(backend.getSettings().isCommandTableEnabled());
 
         setSize(backend.getSettings().getMainWindowSettings().width, backend.getSettings().getMainWindowSettings().height);
         setLocation(backend.getSettings().getMainWindowSettings().xLocation, backend.getSettings().getMainWindowSettings().yLocation);
 
+        commandPanel.loadSettings();
         connectionPanel.loadSettings();
         initFileChooser();
         
@@ -145,12 +122,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 if (fileChooser.getSelectedFile() != null ) {
                     backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
                 }
-                
 
-                backend.getSettings().setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
-                backend.getSettings().setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
-                backend.getSettings().setCommandTableEnabled(showCommandTableCheckBox.isSelected());
-
+                commandPanel.saveSettings();
                 connectionPanel.saveSettings();
                 SettingsFactory.saveSettings(backend.getSettings());
                 
@@ -221,10 +194,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         /* Apply the settings to the ExperimentalWindow bofore showing it */
 
         mw.fileChooser = new JFileChooser(mw.backend.getSettings().getLastOpenedFilename());
-        mw.scrollWindowCheckBox.setSelected(mw.backend.getSettings().isScrollWindowEnabled());
-        mw.showVerboseOutputCheckBox.setSelected(mw.backend.getSettings().isVerboseOutputEnabled());
-        mw.showCommandTableCheckBox.setSelected(mw.backend.getSettings().isCommandTableEnabled());
-        mw.showCommandTableCheckBoxActionPerformed(null);
 
         mw.setSize(mw.backend.getSettings().getMainWindowSettings().width, mw.backend.getSettings().getMainWindowSettings().height);
         mw.setLocation(mw.backend.getSettings().getMainWindowSettings().xLocation, mw.backend.getSettings().getMainWindowSettings().yLocation);
@@ -266,12 +235,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     mw.backend.getSettings().setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                mw.backend.getSettings().setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.backend.getSettings().setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.backend.getSettings().setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
-
                 mw.jogPanel.saveSettings();
                 mw.connectionPanel.saveSettings();
+                mw.commandPanel.saveSettings();
 
                 if(mw.pendantUI!=null){
                     mw.pendantUI.stop();
@@ -290,15 +256,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        scrollWindowCheckBox = new javax.swing.JCheckBox();
-        bottomTabbedPane = new javax.swing.JTabbedPane();
-        commandsPanel = new javax.swing.JPanel();
-        commandLabel = new javax.swing.JLabel();
-        commandTextField = new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend);
-        consoleScrollPane = new javax.swing.JScrollPane();
-        consoleTextArea = new javax.swing.JTextArea();
-        commandTableScrollPane = new javax.swing.JScrollPane();
-        commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         machineControlPanel = new javax.swing.JPanel();
         helpButtonMachineControl = new javax.swing.JButton();
@@ -315,8 +272,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         macroActionPanel = new com.willwinder.universalgcodesender.uielements.MacroActionPanel(backend.getSettings(), backend);
         macroPane = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend);
-        showVerboseOutputCheckBox = new javax.swing.JCheckBox();
-        showCommandTableCheckBox = new javax.swing.JCheckBox();
         fileModePanel = new javax.swing.JPanel();
         sendButton = new javax.swing.JButton();
         pauseButton = new javax.swing.JButton();
@@ -327,6 +282,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         sendStatusPanel = new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
         jogPanel = new com.willwinder.universalgcodesender.uielements.jog.JogPanel(backend);
+        commandPanel = new com.willwinder.universalgcodesender.uielements.command.CommandPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -338,67 +294,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 520));
-
-        scrollWindowCheckBox.setSelected(true);
-        scrollWindowCheckBox.setText("Scroll output window");
-        scrollWindowCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                scrollWindowCheckBoxActionPerformed(evt);
-            }
-        });
-
-        bottomTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
-        bottomTabbedPane.setMinimumSize(new java.awt.Dimension(0, 0));
-        bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
-
-        commandsPanel.setLayout(new java.awt.GridBagLayout());
-
-        commandLabel.setText("Command");
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.VERTICAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        commandsPanel.add(commandLabel, gridBagConstraints);
-
-        commandTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                commandTextFieldActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = java.awt.GridBagConstraints.REMAINDER;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        commandsPanel.add(commandTextField, gridBagConstraints);
-
-        consoleTextArea.setEditable(false);
-        consoleTextArea.setColumns(20);
-        consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
-        consoleTextArea.setRows(5);
-        consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
-        consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
-        consoleScrollPane.setViewportView(consoleTextArea);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        commandsPanel.add(consoleScrollPane, gridBagConstraints);
-
-        bottomTabbedPane.addTab("Commands", commandsPanel);
-
-        commandTable.setMaximumSize(new java.awt.Dimension(32767, 32767));
-        commandTable.getTableHeader().setReorderingAllowed(false);
-        commandTableScrollPane.setViewportView(commandTable);
-
-        bottomTabbedPane.addTab("Command Table", commandTableScrollPane);
 
         controlContextTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         controlContextTabbedPane.setMinimumSize(new java.awt.Dimension(395, 175));
@@ -575,16 +470,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         controlContextTabbedPane.addTab("Macros", macroPane);
 
-        showVerboseOutputCheckBox.setText("Show verbose output");
-
-        showCommandTableCheckBox.setSelected(true);
-        showCommandTableCheckBox.setText("Enable command table");
-        showCommandTableCheckBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                showCommandTableCheckBoxActionPerformed(evt);
-            }
-        });
-
         fileModePanel.setMaximumSize(new java.awt.Dimension(247, 350));
         fileModePanel.setMinimumSize(new java.awt.Dimension(247, 350));
         fileModePanel.setPreferredSize(new java.awt.Dimension(247, 350));
@@ -738,10 +623,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(jogPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 247, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jogPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 247, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                         .add(layout.createSequentialGroup()
                             .addContainerGap()
@@ -749,37 +632,23 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(scrollWindowCheckBox)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(showVerboseOutputCheckBox)
-                        .add(18, 18, 18)
-                        .add(showCommandTableCheckBox)
-                        .addContainerGap())
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+                    .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(scrollWindowCheckBox)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(showVerboseOutputCheckBox)
-                        .add(showCommandTableCheckBox)))
-                .add(4, 4, 4)
-                .add(bottomTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 323, Short.MAX_VALUE)
-                .add(4, 4, 4))
             .add(layout.createSequentialGroup()
                 .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 215, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jogPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(32, Short.MAX_VALUE))
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 283, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -787,12 +656,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     /** End of generated code.
      */
     
-    /** Generated callback functions, hand coded.
-     */
-    private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
-        checkScrollWindow();
-    }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
-
 
 
     // TODO: It would be nice to streamline this somehow...
@@ -940,13 +803,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     @Override
                     public void run() {
                         try {
-//                            durationValueLabel.setText(Utils.formattedMillis(backend.getSendDuration()));
-//                            remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
-//
-//                            //sentRowsValueLabel.setText(""+sentRows);
-//                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
-//                            remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-
                             if (backend.isSending()) {
                                 if (vw != null) {
                                     vw.setCompletedCommandNumber((int)backend.getNumSentRows());
@@ -1038,31 +894,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             this.startPendantServerButton.setEnabled(true);
             this.stopPendantServerButton.setEnabled(false);
         }//GEN-LAST:event_stopPendantServerButtonActionPerformed
-
-//    private Units getSelectedUnits() {
-//        if (this.inchRadioButton.isSelected()) {
-//            return Units.INCH;
-//        } if (this.mmRadioButton.isSelected()) {
-//            return Units.MM;
-//        } else {
-//            return Units.UNKNOWN;
-//        }
-//    }
-    
-//    private void adjustManualLocation(int x, int y, int z) {
-//        try {
-//            this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
-//        } catch (Exception e) {
-//            displayErrorDialog(e.getMessage());
-//        }
-//    }
-    private void showCommandTableCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showCommandTableCheckBoxActionPerformed
-        showCommandTable(showCommandTableCheckBox.isSelected());
-    }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
-
-    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_commandTextFieldActionPerformed
 
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
@@ -1176,23 +1007,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonMachineControlActionPerformed
 
-    private void showCommandTable(Boolean enabled) {
-        if (enabled && (backend.isConnected() && !backend.isIdle())) {
-            displayErrorDialog(Localization.getString("mainWindow.error.showTableActive"));
-            showCommandTableCheckBox.setSelected(false);
-            return;
-        }
-
-        this.commandTable.clear();
-        this.bottomTabbedPane.setEnabledAt(1, enabled);
-        commandTableScrollPane.setEnabled(enabled);
-        if (!enabled) {
-            this.bottomTabbedPane.setSelectedIndex(0);
-        } else {
-            this.bottomTabbedPane.setSelectedIndex(1);
-        }
-    }
-
     /**
      * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
      */
@@ -1209,7 +1023,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
         
         this.setLocalLabels();
-        this.checkScrollWindow();
         this.setTitle(Localization.getString("title") + " ("
                 + Localization.getString("version") + " " + VERSION + ")");
 
@@ -1357,7 +1170,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void setLocalLabels() {
         this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
         this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
-        this.commandLabel.setText(Localization.getString("mainWindow.swing.commandLabel"));
         this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
@@ -1366,40 +1178,17 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
         this.helpButtonMachineControl.setText(Localization.getString("help"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
-        this.bottomTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.bottomTabbedPane.console"));
-        this.bottomTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.bottomTabbedPane.table"));
         this.pauseButton.setText(Localization.getString("mainWindow.swing.pauseButton"));
-//        this.remainingRowsLabel.setText(Localization.getString("mainWindow.swing.remainingRowsLabel"));
-//        this.remainingTimeLabel.setText(Localization.getString("mainWindow.swing.remainingTimeLabel"));
         this.resetCoordinatesButton.setText(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
         this.returnToZeroButton.setText(Localization.getString("mainWindow.swing.returnToZeroButton"));
-//        this.rowsLabel.setText(Localization.getString("mainWindow.swing.rowsLabel"));
         this.saveButton.setText(Localization.getString("save"));
-        this.scrollWindowCheckBox.setText(Localization.getString("mainWindow.swing.scrollWindowCheckBox"));
         this.sendButton.setText(Localization.getString("mainWindow.swing.sendButton"));
-//        this.sentRowsLabel.setText(Localization.getString("mainWindow.swing.sentRowsLabel"));
-        this.showVerboseOutputCheckBox.setText(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
-        this.showCommandTableCheckBox.setText(Localization.getString("mainWindow.swing.showCommandTableCheckBox"));
         this.softResetMachineControl.setText(Localization.getString("mainWindow.swing.softResetMachineControl"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.macroPane.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
     }
 
-    private void checkScrollWindow() {
-        // Console output.
-        DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
-        if (scrollWindowCheckBox.isSelected()) {
-          caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-          consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
-        } else {
-            caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-        }
-        
-        // Command table.
-        this.commandTable.setAutoWindowScroll(scrollWindowCheckBox.isSelected());
-    }
-
-    /** 
+    /**
      * SerialCommunicatorListener implementation.
      */
     
@@ -1430,15 +1219,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
      
     @Override
     public void commandSent(final GcodeCommand command) {
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                // sent
-                if (commandTableScrollPane.isEnabled()) {
-                    commandTable.addRow(command);
-                }
-                //commandTable.updateRow(command);
-            }});
+
     }
     
     @Override
@@ -1448,42 +1229,14 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void commandComplete(final GcodeCommand command) {
-        //String gcodeString = command.getCommandString().toLowerCase();
-        
-        // update gui
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                if (commandTableScrollPane.isEnabled()) {
-                    commandTable.updateRow(command);
-                }
-            }});
+
     }
 
-    // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(final MessageType type, final String msg) {
-        //final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
-        //final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
-        //final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+    public void messageForConsole(MessageType type, String msg) {
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                boolean verbose = type == MessageType.VERBOSE;
-                if (verbose || showVerboseOutputCheckBox.isSelected()) {
-                    String verboseS = "[" + Localization.getString("verbose") + "]";
-                    consoleTextArea.append((verbose ? verboseS : "") + msg);
-
-                    if (consoleTextArea.isVisible() &&
-                            scrollWindowCheckBox.isSelected()) {
-                        consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
-                    }
-                }
-            }
-        });
     }
-    
+
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
 
@@ -1540,17 +1293,10 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu PendantMenu;
-    private javax.swing.JTabbedPane bottomTabbedPane;
     private javax.swing.JButton browseButton;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JLabel commandLabel;
-    private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
-    private javax.swing.JScrollPane commandTableScrollPane;
-    private javax.swing.JTextField commandTextField;
-    private javax.swing.JPanel commandsPanel;
+    private com.willwinder.universalgcodesender.uielements.command.CommandPanel commandPanel;
     private com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel connectionPanel;
-    private javax.swing.JScrollPane consoleScrollPane;
-    private javax.swing.JTextArea consoleTextArea;
     private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JPanel fileModePanel;
     private javax.swing.JMenu firmwareSettingsMenu;
@@ -1573,12 +1319,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JButton resetZButton;
     private javax.swing.JButton returnToZeroButton;
     private javax.swing.JButton saveButton;
-    private javax.swing.JCheckBox scrollWindowCheckBox;
     private javax.swing.JButton sendButton;
     private com.willwinder.universalgcodesender.uielements.SendStatusPanel sendStatusPanel;
     private javax.swing.JMenu settingsMenu;
-    private javax.swing.JCheckBox showCommandTableCheckBox;
-    private javax.swing.JCheckBox showVerboseOutputCheckBox;
     private javax.swing.JButton softResetMachineControl;
     private javax.swing.JMenuItem startPendantServerButton;
     private javax.swing.JMenuItem stopPendantServerButton;
