@@ -1232,12 +1232,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     }
 
-    // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(final String msg, final Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
 
     }
-    
+
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
 

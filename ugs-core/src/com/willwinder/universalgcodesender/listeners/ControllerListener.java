@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -54,9 +55,19 @@ public interface ControllerListener {
     void commandComment(String comment);
     
     enum MessageType {
-        VERBOSE,
-        INFO,
-        ERROR
+        VERBOSE("verbose"),
+        INFO("info"),
+        ERROR("error");
+
+        private final String key;
+
+        private MessageType(String key) {
+            this.key = key;
+        }
+
+        public String getLocalizedString() {
+            return Localization.getString(key);
+        }
     }
 
     /**

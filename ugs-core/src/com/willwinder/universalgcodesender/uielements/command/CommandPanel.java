@@ -106,11 +106,14 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     }
 
     @Override
-    public void messageForConsole(final String msg, final Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
         java.awt.EventQueue.invokeLater(() -> {
+            boolean verbose = MessageType.VERBOSE.equals(type);
             if (!verbose || showVerboseOutputCheckBox.isSelected()) {
-                String verboseS = "[" + Localization.getString("verbose") + "]";
-                consoleTextArea.append((verbose ? verboseS : "") + msg);
+                if (verbose) {
+                    consoleTextArea.append("[" + type.getLocalizedString() + "] ");
+                }
+                consoleTextArea.append(msg);
 
                 if (consoleTextArea.isVisible() && scrollWindowCheckBox.isSelected()) {
                     consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
