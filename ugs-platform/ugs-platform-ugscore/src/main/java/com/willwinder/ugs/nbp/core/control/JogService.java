@@ -49,6 +49,56 @@ public class JogService {
         initActions();
     }
 
+    public void increaseStepSize() {
+        if (stepSize >= 1) {
+            stepSize++;
+        } else if (stepSize >= 0.1) {
+            stepSize = stepSize + 0.1;
+        } else if (stepSize >= 0.01) {
+            stepSize = stepSize + 0.01;
+        } else {
+            stepSize = 0.01;
+        }
+    }
+
+    public void decreaseStepSize() {
+        if (stepSize > 1) {
+            stepSize--;
+        } else if (stepSize > 0.1) {
+            stepSize = stepSize - 0.1;
+        } else if (stepSize > 0.01) {
+            stepSize = stepSize - 0.01;
+        }
+    }
+
+    public void divideStepSize() {
+        if (stepSize > 100) {
+            stepSize = 100;
+        } else if (stepSize <= 100 && stepSize > 10) {
+            stepSize = 10;
+        } else if (stepSize <= 10 && stepSize > 1) {
+            stepSize = 1;
+        } else if (stepSize <= 1 && stepSize > 0.1) {
+            stepSize = 0.1;
+        } else if (stepSize <= 0.1 ) {
+            stepSize = 0.01;
+        }
+    }
+
+    public void multiplyStepSize() {
+        if (stepSize < 0.01) {
+            stepSize = 0.01;
+        } else if (stepSize >= 0.01 && stepSize < 0.1) {
+            stepSize = 0.1;
+        }  else if (stepSize >= 0.1 && stepSize < 1) {
+            stepSize = 1;
+        }  else if (stepSize >= 1 && stepSize < 10) {
+            stepSize = 10;
+        }  else if (stepSize >= 10) {
+            stepSize = 100;
+        }
+    }
+
     public void setStepSize(double size) {
         this.stepSize = size;
     }
@@ -71,28 +121,98 @@ public class JogService {
     }
 
     /**
-     * Create the jog actions.
+     * Create the actions, this makes them available for keymapping and makes
+     * them usable from the drop down menu's.
      */
     private void initActions() {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
         try {
-            String menuPath = "Menu/Machine/Jog";
+            String jogMenu = "Jog";
+            String category = "Machine";
+            String menuPath = "Menu/" + category + "/" + jogMenu;
             
             ars.registerAction(getMessage(this.getClass(), "JogService.xPlus") ,
-                    "Machine", "M-RIGHT" , menuPath, new JogAction(this, 1, 0, 0));
+                    category, "M-RIGHT" , menuPath, new JogAction(this, 1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.xMinus"),
-                    "Machine", "M-LEFT"  , menuPath, new JogAction(this,-1, 0, 0));
+                    category, "M-LEFT"  , menuPath, new JogAction(this,-1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yPlus") ,
-                    "Machine", "M-UP"    , menuPath, new JogAction(this, 0, 1, 0));
+                    category, "M-UP"    , menuPath, new JogAction(this, 0, 1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yMinus"),
-                    "Machine", "M-DOWN"  , menuPath, new JogAction(this, 0,-1, 0));
+                    category, "M-DOWN"  , menuPath, new JogAction(this, 0,-1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.zPlus") ,
-                    "Machine", "SM-UP"   , menuPath, new JogAction(this, 0, 0, 1));
+                    category, "SM-UP"   , menuPath, new JogAction(this, 0, 0, 1));
             ars.registerAction(getMessage(this.getClass(), "JogService.zMinus"),
-                    "Machine", "SM-DOWN" , menuPath, new JogAction(this, 0, 0,-1));
+                    category, "SM-DOWN" , menuPath, new JogAction(this, 0, 0,-1));
+
+            String jogSizeMenu = "Step Size";
+            menuPath = menuPath + "/" + jogSizeMenu;
+            ars.registerAction("10",
+                    category, "" , menuPath, new JogSizeAction(this, 10));
+            ars.registerAction("1",
+                    category, "" , menuPath, new JogSizeAction(this, 1));
+            ars.registerAction("0.1",
+                    category, "" , menuPath, new JogSizeAction(this, 0.1));
+            ars.registerAction("0.01",
+                    category, "" , menuPath, new JogSizeAction(this, 0.01));
+            ars.registerAction("0.001",
+                    category, "" , menuPath, new JogSizeAction(this, 0.001));
+
+            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.divide"),
+                    category, "" , menuPath, new JogSizeAction(this, '/'));
+            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.multiply"),
+                    category, "" , menuPath, new JogSizeAction(this, '*'));
+            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.decrease"),
+                    category, "" , menuPath, new JogSizeAction(this, '-'));
+            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.increase"),
+                    category, "" , menuPath, new JogSizeAction(this, '+'));
+
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
+        }
+    }
+
+    protected class JogSizeAction extends AbstractAction {
+        JogService js;
+        double size = 0;
+        char operation;
+        public JogSizeAction(JogService service, char op) {
+            js = service;
+            operation = op;
+        }
+
+        public JogSizeAction(JogService service, double size) {
+            js = service;
+            this.size = size;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (size != 0)
+                js.setStepSize(size);
+            else {
+                switch (operation) {
+                    case '*':
+                        js.multiplyStepSize();
+                        break;
+                    case '/':
+                        js.divideStepSize();
+                        break;
+                    case '+':
+                        js.increaseStepSize();
+                        break;
+                    case '-':
+                        js.decreaseStepSize();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return true;
         }
     }
 
