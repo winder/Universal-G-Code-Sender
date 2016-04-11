@@ -81,6 +81,7 @@ public interface IController {
     public int rowsInSend();
     public int rowsSent();
     public int rowsRemaining();
+    public GcodeCommand getActiveCommand();
     
     /*
     Stream control
@@ -89,6 +90,7 @@ public interface IController {
     public void pauseStreaming() throws Exception;
     public void resumeStreaming() throws Exception;
     public void cancelSend();
+
     /**
      * In case a controller reset is detected.
      */

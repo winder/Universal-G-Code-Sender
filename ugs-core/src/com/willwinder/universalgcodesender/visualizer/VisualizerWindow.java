@@ -150,7 +150,7 @@ implements ControllerListener, WindowListener {
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }
     

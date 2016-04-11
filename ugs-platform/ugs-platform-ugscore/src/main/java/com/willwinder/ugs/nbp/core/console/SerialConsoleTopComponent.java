@@ -197,7 +197,8 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void messageForConsole(final String msg, final Boolean verbose) {
+    public void messageForConsole(final MessageType type, final String msg) {
+        boolean verbose = MessageType.VERBOSE == type;
         if (!verbose || verboseMenuItem.isSelected()) {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override

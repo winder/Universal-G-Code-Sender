@@ -37,7 +37,6 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -90,8 +89,19 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void rawResponseHandler(String response) {
-        if (GcodeCommand.isOkErrorResponse(response)) {            
+        if (GcodeCommand.isOkErrorResponse(response)) {
             try {
+                // If there is an error, pause the stream.
+                if (response.startsWith("error:")) {
+                    this.pauseStreaming();
+                    GcodeCommand command = getActiveCommand();
+                    String error =
+                            String.format(Localization.getString("controller.exception.sendError"),
+                                    command.getOriginalCommandString(),
+                                    response);
+                    this.errorMessageForConsole(error);
+                }
+
                 this.commandComplete(response);
             } catch (Exception e) {
                 this.errorMessageForConsole(Localization.getString("controller.error.response")

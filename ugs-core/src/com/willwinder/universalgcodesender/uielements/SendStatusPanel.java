@@ -228,7 +228,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
     }
 
     @Override

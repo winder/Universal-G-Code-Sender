@@ -1026,7 +1026,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             this.pendantUI = new PendantUI(backend);
             Collection<PendantURLBean> results = this.pendantUI.start();
             for (PendantURLBean result : results) {
-                this.messageForConsole("Pendant URL: " + result.getUrlString(), false);
+                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
             }
             this.startPendantServerButton.setEnabled(false);
             this.stopPendantServerButton.setEnabled(true);
@@ -1462,7 +1462,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(final String msg, final Boolean verbose) {
+    public void messageForConsole(final MessageType type, final String msg) {
         //final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
         //final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
         //final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
@@ -1470,7 +1470,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+                boolean verbose = type == MessageType.VERBOSE;
+                if (verbose || showVerboseOutputCheckBox.isSelected()) {
                     String verboseS = "[" + Localization.getString("verbose") + "]";
                     consoleTextArea.append((verbose ? verboseS : "") + msg);
 

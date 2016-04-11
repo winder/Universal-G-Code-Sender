@@ -375,7 +375,7 @@ public final class LocationStatusTopComponent extends TopComponent implements Co
     }
 
     @Override
-    public void messageForConsole(String string, Boolean bln) {
+    public void messageForConsole(MessageType type, String string) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

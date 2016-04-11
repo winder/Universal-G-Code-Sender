@@ -657,7 +657,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
+        if (type == MessageType.ERROR) {
+            GUIHelpers.displayErrorDialog(msg);
+        }
     }
 
     @Override

@@ -134,7 +134,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
 
     }
 
