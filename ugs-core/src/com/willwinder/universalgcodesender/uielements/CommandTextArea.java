@@ -44,6 +44,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     protected boolean focusNotNeeded = false;
 
     public CommandTextArea() {
+        this(null);
     }
 
     public CommandTextArea(BackendAPI backend) {
@@ -52,11 +53,14 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
 
     public final void init(BackendAPI backend) {
         this.backend = backend;
-        this.backend.addUGSEventListener(this);
+        if (backend != null) {
+            this.backend.addUGSEventListener(this);
+            this.setEnabled(backend.isConnected());
+        }
+
         this.addActionListener((ActionEvent evt) -> action(evt));
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
             .addKeyEventDispatcher(this);
-        this.setEnabled(backend.isConnected());
     }
 
     /**
