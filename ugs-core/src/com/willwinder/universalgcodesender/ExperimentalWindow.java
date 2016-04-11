@@ -882,7 +882,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             this.pendantUI = new PendantUI(backend);
             Collection<PendantURLBean> results = this.pendantUI.start();
             for (PendantURLBean result : results) {
-                this.messageForConsole("Pendant URL: " + result.getUrlString(), false);
+                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
             }
             this.startPendantServerButton.setEnabled(false);
             this.stopPendantServerButton.setEnabled(true);

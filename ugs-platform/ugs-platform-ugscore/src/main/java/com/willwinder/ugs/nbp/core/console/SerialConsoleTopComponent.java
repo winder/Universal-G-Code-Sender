@@ -52,7 +52,7 @@ import org.openide.util.NbPreferences;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "console", openAtStartup = true)
+@TopComponent.Registration(mode = "output", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.console.SerialConsoleTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -197,7 +197,8 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void messageForConsole(final String msg, final Boolean verbose) {
+    public void messageForConsole(final MessageType type, final String msg) {
+        boolean verbose = MessageType.VERBOSE == type;
         if (!verbose || verboseMenuItem.isSelected()) {
             java.awt.EventQueue.invokeLater(new Runnable() {
                 @Override

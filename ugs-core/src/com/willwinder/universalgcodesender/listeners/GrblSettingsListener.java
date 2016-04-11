@@ -106,8 +106,8 @@ public class GrblSettingsListener implements ControllerListener {
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
-        if (verbose)
+    public void messageForConsole(MessageType type, String msg) {
+        if (type == MessageType.VERBOSE)
             return;
         if (this.inParsingMode) {
             if (firstSettingReceived && msg.startsWith("ok")) {

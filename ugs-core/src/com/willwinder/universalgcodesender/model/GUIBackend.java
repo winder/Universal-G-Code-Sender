@@ -597,6 +597,35 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         this.controller.viewParserState();
     }
 
+    @Override
+    public void performAction(ACTIONS action) throws Exception {
+        switch (action) {
+            case RETURN_TO_ZERO:
+                returnToZero();
+                break;
+            case RESET_COORDINATES_TO_ZERO:
+                resetCoordinatesToZero();
+                break;
+            case KILL_ALARM_LOCK:
+                killAlarmLock();
+                break;
+            case HOMING_CYCLE:
+                performHomingCycle();
+                break;
+            case TOGGLE_CHECK_MODE:
+                toggleCheckMode();
+                break;
+            case ISSUE_SOFT_RESET:
+                issueSoftReset();
+                break;
+            case REQUEST_PARSER_STATE:
+                requestParserState();
+                break;
+            default:
+                break;
+        }
+    }
+
     //////////////////
     // Controller Listener
     //////////////////
@@ -628,7 +657,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
+        if (type == MessageType.ERROR) {
+            GUIHelpers.displayErrorDialog(msg);
+        }
     }
 
     @Override

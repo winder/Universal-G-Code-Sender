@@ -24,7 +24,10 @@
 package com.willwinder.ugs.nbp.lookup;
 
 import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 
@@ -44,8 +47,16 @@ public class CentralLookup extends AbstractLookup {
     
     public CentralLookup() {
         this(new InstanceContent());
-        this.add(new GUIBackend());
-        this.add(SettingsFactory.loadSettings());
+        try {
+            GUIBackend backend = new GUIBackend();
+            Settings settings = SettingsFactory.loadSettings();
+            backend.applySettings(settings);
+            this.add(backend);
+            this.add(settings);
+        } catch (Exception ex) {
+            Logger.getLogger(CentralLookup.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(1);
+        }
     }
     
     final public void add(Object instance) {

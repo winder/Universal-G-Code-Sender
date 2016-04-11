@@ -100,7 +100,6 @@ public class JogService {
         JogService js;
         int x,y,z;
         public JogAction(JogService service, int x, int y, int z) {
-            //super(name);
             js = service;
             this.x = x;
             this.y = y;

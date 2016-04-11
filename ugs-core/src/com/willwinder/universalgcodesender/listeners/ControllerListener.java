@@ -53,10 +53,16 @@ public interface ControllerListener {
      */
     void commandComment(String comment);
     
+    enum MessageType {
+        VERBOSE,
+        INFO,
+        ERROR
+    }
+
     /**
      * A console message from the controller.
      */
-    void messageForConsole(String msg, Boolean verbose);
+    void messageForConsole(MessageType type, String msg);
     
     /**
      * Controller status information.

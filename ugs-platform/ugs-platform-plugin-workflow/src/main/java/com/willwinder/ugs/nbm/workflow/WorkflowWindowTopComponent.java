@@ -55,7 +55,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "visualizer", openAtStartup = false)
+@TopComponent.Registration(mode = "editor", openAtStartup = false)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent")
 @ActionReference(path = "Menu/Window/Plugins" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(

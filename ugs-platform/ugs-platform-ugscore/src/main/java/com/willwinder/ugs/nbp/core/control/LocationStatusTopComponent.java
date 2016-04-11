@@ -49,7 +49,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "status", openAtStartup = true)
+@TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
 @ActionID(category = "Window", id = "com.willwinder.ugs.nbp.control.StatusTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -375,7 +375,7 @@ public final class LocationStatusTopComponent extends TopComponent implements Co
     }
 
     @Override
-    public void messageForConsole(String string, Boolean bln) {
+    public void messageForConsole(MessageType type, String string) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

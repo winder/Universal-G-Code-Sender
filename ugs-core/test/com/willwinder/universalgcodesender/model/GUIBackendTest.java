@@ -599,7 +599,7 @@ public class GUIBackendTest {
         String msg = "";
         Boolean verbose = null;
         GUIBackend instance = new GUIBackend();
-        instance.messageForConsole(msg, verbose);
+        //instance.messageForConsole(msg, verbose);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

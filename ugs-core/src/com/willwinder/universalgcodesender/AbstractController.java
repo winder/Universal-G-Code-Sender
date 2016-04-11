@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
@@ -32,13 +33,16 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.*;
 import java.util.*;
-import javax.vecmath.Point3d;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author wwinder
  */
 public abstract class AbstractController implements SerialCommunicatorListener, IController {;
+    private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
+
     public class UnexpectedCommand extends Exception {
         
     }
@@ -393,6 +397,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public int rowsRemaining() {
         return getRowStat(RowStat.ROWS_REMAINING);
     }
+
+    @Override
+    public GcodeCommand getActiveCommand() {
+        return activeCommands.get(0);
+    }
     
     /**
      * Creates a gcode command and queues it for send immediately.
@@ -653,17 +662,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public void messageForConsole(String msg) {
-        dispatchConsoleMessage(msg, Boolean.FALSE);
+        dispatchConsoleMessage(MessageType.INFO, msg);
     }
     
     @Override
     public void verboseMessageForConsole(String msg) {
-        dispatchConsoleMessage(msg, Boolean.TRUE);
+        dispatchConsoleMessage(MessageType.VERBOSE, msg);
     }
     
     @Override
     public void errorMessageForConsole(String msg) {
-        dispatchConsoleMessage("[Error] " + msg, Boolean.TRUE);
+        dispatchConsoleMessage(MessageType.ERROR, msg);
     }
 
 
@@ -688,10 +697,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
     
-    protected void dispatchConsoleMessage(String message, Boolean verbose) {
+    protected void dispatchConsoleMessage(MessageType type, String message) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
-                c.messageForConsole(message, verbose);
+                c.messageForConsole(type, message);
             }
         }
     }

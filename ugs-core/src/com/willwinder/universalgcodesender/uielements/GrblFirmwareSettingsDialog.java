@@ -136,7 +136,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
      * We are interested in settings.
      */
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
         // Initially we are in load-settings mode, looking for results to "$$".
         if (this.loadingSettings) {
             if ("ok".equals(msg)) {

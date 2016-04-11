@@ -309,7 +309,7 @@ public class RendererInputHandler implements
     }
 
     @Override
-    public void messageForConsole(String msg, Boolean verbose) {
+    public void messageForConsole(MessageType type, String msg) {
     }
 
     @Override

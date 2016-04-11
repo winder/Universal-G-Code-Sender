@@ -22,8 +22,11 @@
 package com.willwinder.ugs.nbp.editor;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.swing.AbstractAction;
@@ -31,6 +34,7 @@ import javax.swing.Action;
 import javax.swing.JEditorPane;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
@@ -53,18 +57,34 @@ import org.openide.windows.WindowManager;
         displayName = "#CTL_EditGcodeFile",
         lazy = false
 )
-@ActionReference(path = "Menu/File", position = 1301)
+@ActionReferences({
+    @ActionReference(path = "Menu/File", position = 1301),
+    @ActionReference(path="Shortcuts", name="M-E")
+})
 @Messages("CTL_EditGcodeFile=Edit Gcode File...")
-//public final class EditGcodeFile implements ActionListener {
-public final class EditGcodeFile extends AbstractAction implements ContextAwareAction {
+public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
     EditorListener el = new EditorListener();
     BackendAPI backend;
     
     public EditGcodeFile() {
         putValue(Action.NAME, org.openide.util.NbBundle.getMessage(EditGcodeFile.class, "EditGcodeFile.action.name")); // NOI18N
 
-
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
+    }
+
+    /**
+     * If an editor is open and the file has changed, close the editor and open
+     * a new one with the new file.
+     */
+    @Override
+    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+        if (backend == null || backend.getGcodeFile() == null) return;
+        if (getCurrentlyOpenedEditors().isEmpty()) return;
+
+        if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
+            openFile(backend.getGcodeFile());
+        }
     }
 
     @Override
@@ -82,6 +102,14 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
     public void actionPerformed(ActionEvent e) {
         if (backend == null || backend.getGcodeFile() == null) return;
 
+        openFile(backend.getGcodeFile());
+    }
+
+    /**
+     * Open an Editor Window in the application, ensuring that only one editor
+     * is ever opened at the same time.
+     */
+    private void openFile(File f) {
         // Close any opened file.
         closeOpenFile();
 

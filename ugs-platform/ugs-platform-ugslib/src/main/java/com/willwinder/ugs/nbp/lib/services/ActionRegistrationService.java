@@ -59,7 +59,7 @@ public class ActionRegistrationService {
         /////////////////////
         // Add/Update Menu //
         /////////////////////
-        if (menuPath != null && name != null) {
+        if (menuPath != null && name != null && menuPath.length() > 0 && name.length() > 0) {
             in = getFolderAt(menuPath);
             obj = in.getFileObject(name, "shadow");
             // Create if missing.
@@ -72,7 +72,7 @@ public class ActionRegistrationService {
         /////////////////////////
         // Add/Update Shortcut //
         /////////////////////////
-        if (shortcut != null) {
+        if (shortcut != null && shortcut.length() > 0) {
             in = getFolderAt("Shortcuts");
             obj = in.getFileObject(shortcut, "shadow");
             if (obj == null) {

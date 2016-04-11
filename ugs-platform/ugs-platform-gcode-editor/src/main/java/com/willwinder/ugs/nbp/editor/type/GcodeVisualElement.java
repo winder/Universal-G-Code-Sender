@@ -18,6 +18,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 /*
+// Uncomment this when the visual gcode editor is implemented.
 @MultiViewElement.Registration(
         displayName = "#LBL_Gcode_VISUAL",
         iconBase = "com/willwinder/ugs/nbp/editor/type/edit.png",

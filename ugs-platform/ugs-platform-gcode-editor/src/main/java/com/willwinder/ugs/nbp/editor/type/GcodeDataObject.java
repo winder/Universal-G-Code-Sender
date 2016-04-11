@@ -27,7 +27,8 @@ import org.openide.windows.TopComponent;
 @MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_Gcode_LOADER",
         mimeType = "text/xgcode",
-        extension = {"gcode", "GCODE", "cnc", "CNC", "nc", "NC", "ngc", "NGC", "tap", "TAP", "txt", "TXT", "gc", "GC"}
+        extension = {"gcode", "GCODE", "cnc", "CNC", "nc", "NC", "ngc", "NGC", "tap", "TAP", "txt", "TXT", "gc", "GC"},
+        position = 1
 )
 @DataObject.Registration(
         mimeType = "text/xgcode",

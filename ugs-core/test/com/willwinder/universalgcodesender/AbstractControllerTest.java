@@ -36,6 +36,7 @@ import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
 import static org.easymock.EasyMock.anyBoolean;
+import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.capture;
 import static org.easymock.EasyMock.expect;
@@ -126,7 +127,7 @@ public class AbstractControllerTest {
     public void openInstanceExpectUtility(String port, int portRate) throws Exception {
         instance.openCommAfterEvent();
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
-        mockListener.messageForConsole(EasyMock.anyString(), EasyMock.<Boolean>anyObject());
+        mockListener.messageForConsole(anyObject(), EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
         EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
         EasyMock.expect(instance.isCommOpen()).andReturn(false).once();
@@ -177,7 +178,7 @@ public class AbstractControllerTest {
 
         instance.openCommAfterEvent();
         EasyMock.expect(EasyMock.expectLastCall()).once();
-        mockListener.messageForConsole(EasyMock.anyString(), EasyMock.<Boolean>anyObject());
+        mockListener.messageForConsole(anyObject(), anyString());
         EasyMock.expect(EasyMock.expectLastCall()).once();
         EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
         EasyMock.replay(instance, mockCommunicator, mockListener);
@@ -217,7 +218,7 @@ public class AbstractControllerTest {
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // Message for open and close.
-        mockListener.messageForConsole(EasyMock.anyString(), EasyMock.<Boolean>anyObject());
+        mockListener.messageForConsole(anyObject(), anyString());
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
         EasyMock.expect(mockCommunicator.openCommPort(port, baud)).andReturn(true).once();
         mockCommunicator.closeCommPort();
@@ -683,7 +684,7 @@ public class AbstractControllerTest {
         mockListener.commandComplete(capture(gc2));
         expect(expectLastCall());
         expect(expectLastCall());
-        mockListener.messageForConsole(anyString(), anyBoolean());
+        mockListener.messageForConsole(anyObject(), anyString());
         expect(expectLastCall());
         mockListener.fileStreamComplete("queued commands", true);
         expect(expectLastCall());
@@ -693,13 +694,17 @@ public class AbstractControllerTest {
 
         replay(instance, mockCommunicator, mockListener);
 
+        GcodeCommand first = instance.getActiveCommand();
         instance.commandComplete("ok");
+        GcodeCommand second = instance.getActiveCommand();
         instance.commandComplete("ok");
 
         assertEquals(true, gc1.getValue().isDone());
         assertEquals(true, gc2.getValue().isDone());
         assertEquals("ok", gc1.getValue().getResponse());
         assertEquals("ok", gc2.getValue().getResponse());
+        assertEquals(first, gc1.getValue());
+        assertEquals(second, gc2.getValue());
 
         EasyMock.verify(mockListener);
     }

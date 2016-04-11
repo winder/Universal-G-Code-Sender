@@ -29,7 +29,7 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.io.File;
 import java.io.IOException;
 
-public interface BackendAPI extends BackendAPIReadOnly {
+public abstract interface BackendAPI extends BackendAPIReadOnly {
     // Config options
     public void setGcodeFile(File file) throws Exception;
     public void setTempDir(File file) throws IOException;
@@ -56,6 +56,19 @@ public interface BackendAPI extends BackendAPIReadOnly {
     public void toggleCheckMode() throws Exception;
     public void issueSoftReset() throws Exception;
     public void requestParserState() throws Exception;
+
+    public enum ACTIONS {
+        RETURN_TO_ZERO,
+        RESET_COORDINATES_TO_ZERO,
+        KILL_ALARM_LOCK,
+        HOMING_CYCLE,
+        TOGGLE_CHECK_MODE,
+        ISSUE_SOFT_RESET,
+        REQUEST_PARSER_STATE
+    }
+
+    // Programatically call an action.
+    public void performAction(ACTIONS action) throws Exception;
            
     // Shouldn't be needed often.
     public IController getController();
