@@ -25,12 +25,15 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.UUID;
+import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import static org.openide.util.NbBundle.getMessage;
+import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -46,7 +49,12 @@ public class JogService {
 
     public JogService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
         initActions();
+    }
+
+    private void changed() {
+        NbPreferences.forModule(JogService.class).put("changed", UUID.randomUUID().toString());
     }
 
     public void increaseStepSize() {
@@ -59,6 +67,7 @@ public class JogService {
         } else {
             stepSize = 0.01;
         }
+        changed();
     }
 
     public void decreaseStepSize() {
@@ -69,6 +78,7 @@ public class JogService {
         } else if (stepSize > 0.01) {
             stepSize = stepSize - 0.01;
         }
+        changed();
     }
 
     public void divideStepSize() {
@@ -83,6 +93,7 @@ public class JogService {
         } else if (stepSize <= 0.1 ) {
             stepSize = 0.01;
         }
+        changed();
     }
 
     public void multiplyStepSize() {
@@ -97,14 +108,25 @@ public class JogService {
         }  else if (stepSize >= 10) {
             stepSize = 100;
         }
+        changed();
     }
 
     public void setStepSize(double size) {
         this.stepSize = size;
+        changed();
+    }
+
+    public double getStepSize() {
+        return this.stepSize;
     }
 
     public void setUnits(Units units) {
         this.units = units;
+        changed();
+    }
+    
+    public Units getUnits() {
+        return this.units;
     }
     
     public void adjustManualLocation(int x, int y, int z) {

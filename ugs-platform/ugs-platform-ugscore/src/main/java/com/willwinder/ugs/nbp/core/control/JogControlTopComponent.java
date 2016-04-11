@@ -32,12 +32,16 @@ import java.awt.Component;
 import java.awt.Container;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.prefs.PreferenceChangeEvent;
+import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.NbPreferences;
 
 /**
  * Top component which displays something.
@@ -63,16 +67,33 @@ import org.openide.util.NbBundle.Messages;
     "CTL_JogControlTopComponent=Jog Controller",
     "HINT_JogControlTopComponent=Buttons to send movement commands."
 })
-public final class JogControlTopComponent extends TopComponent implements UGSEventListener {
+public final class JogControlTopComponent extends TopComponent implements UGSEventListener, PreferenceChangeListener {
 
     BackendAPI backend;
     Settings settings;
     JogService jogService;
+    Preferences pref;
 
     public JogControlTopComponent() {
         initComponents();
         setName(Bundle.CTL_JogControlTopComponent());
         setToolTipText(Bundle.HINT_JogControlTopComponent());
+        pref = NbPreferences.forModule(JogService.class);
+        pref.addPreferenceChangeListener(this);
+    }
+
+    private void updateValues() {
+        this.stepSizeSpinner.setValue(jogService.getStepSize());
+        this.mmRadioButton.setSelected(jogService.getUnits() == Units.MM);
+        this.inchRadioButton.setSelected(jogService.getUnits() == Units.INCH);
+    }
+
+    /**
+     * TODO: Move this to the backend with a UGSEvent?
+     */
+    @Override
+    public void preferenceChange(PreferenceChangeEvent evt) {
+        updateValues();
     }
 
     public void enableComponents(Container container, boolean enable) {
