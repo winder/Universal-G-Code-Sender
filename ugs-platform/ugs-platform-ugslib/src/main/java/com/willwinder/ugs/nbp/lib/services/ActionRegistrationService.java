@@ -32,6 +32,9 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service=ActionRegistrationService.class) 
 public class ActionRegistrationService {
+
+    private static final String SHADOW = "shadow";
+
     /**
      * Registers an action with the platform along with optional shortcuts and
      * menu items.
@@ -61,10 +64,10 @@ public class ActionRegistrationService {
         /////////////////////
         if (menuPath != null && name != null && menuPath.length() > 0 && name.length() > 0) {
             in = getFolderAt(menuPath);
-            obj = in.getFileObject(name, "shadow");
+            obj = in.getFileObject(name, SHADOW);
             // Create if missing.
             if (obj == null) {
-                obj = in.createData(name, "shadow");
+                obj = in.createData(name, SHADOW);
                 obj.setAttribute("originalFile", originalFile);
             }
         }
@@ -74,9 +77,9 @@ public class ActionRegistrationService {
         /////////////////////////
         if (shortcut != null && shortcut.length() > 0) {
             in = getFolderAt("Shortcuts");
-            obj = in.getFileObject(shortcut, "shadow");
+            obj = in.getFileObject(shortcut, SHADOW);
             if (obj == null) {
-                obj = in.createData(shortcut, "shadow");
+                obj = in.createData(shortcut, SHADOW);
                 obj.setAttribute("originalFile", originalFile);
             }
         }

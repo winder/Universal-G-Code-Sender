@@ -79,6 +79,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         add(zPlusButton, "w 50!, h 50!");
         add(yMinusButton, "w 50!, h 50!");
         add(zMinusButton, "w 50!, h 50!");
+
+        updateManualControls(false);
     }
 
     @Override
@@ -305,8 +307,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         stepSizeLabel.setEnabled(enabled);
         stepSizeSpinner.setEnabled(enabled);
         unitButton.setEnabled(enabled);
-//        inchRadioButton.setEnabled(enabled);
-//        mmRadioButton.setEnabled(enabled);
     }
 
 

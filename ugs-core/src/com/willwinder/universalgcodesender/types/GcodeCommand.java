@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
  * @author wwinder
  */
 public class GcodeCommand {
+    private static final String ERROR = "error";
     private String command;
     private String originalCommand;
     private String response;
@@ -169,7 +170,7 @@ public class GcodeCommand {
         if (response.toLowerCase().equals("ok")) {
             this.isOk = true;
             this.isError = false;
-        } else if (response.toLowerCase().startsWith("error")) {
+        } else if (response.toLowerCase().startsWith(ERROR)) {
             this.isOk = false;
             this.isError = true;
         }
@@ -188,7 +189,7 @@ public class GcodeCommand {
             returnString = "ok" + number;
         }
         else if (this.isError) {
-            returnString = "error"+number+"["+response.substring("error: ".length()) + "]";
+            returnString = ERROR+number+"["+response.substring("error: ".length()) + "]";
         }
         
         return returnString;
@@ -201,7 +202,7 @@ public class GcodeCommand {
     public static Boolean isOkErrorResponse(String response) {
         if (response.toLowerCase().equals("ok")) {
             return true;
-        } else if (response.toLowerCase().startsWith("error")) {
+        } else if (response.toLowerCase().startsWith(ERROR)) {
             return true;
         }
         return false;
