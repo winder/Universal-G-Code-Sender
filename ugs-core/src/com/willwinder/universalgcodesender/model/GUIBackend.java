@@ -48,6 +48,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
  */
 public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
+    private static final String NEW_LINE = "\n    ";
     public static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
     private IController controller = null;
@@ -718,12 +719,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             StringBuilder message = new StringBuilder()
                     .append(Localization.getString("mainWindow.error.firmwareSetting"))
                     .append(": \n    ")
-                    .append(Localization.getString("firmware.feature.maxCommandLength")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.truncateDecimal")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.singleStep")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.removeWhitespace")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.linesToArc")).append("\n    ")
-                    .append(Localization.getString("firmware.feature.statusUpdates")).append("\n    ")
+                    .append(Localization.getString("firmware.feature.maxCommandLength")).append(NEW_LINE)
+                    .append(Localization.getString("firmware.feature.truncateDecimal")).append(NEW_LINE)
+                    .append(Localization.getString("firmware.feature.singleStep")).append(NEW_LINE)
+                    .append(Localization.getString("firmware.feature.removeWhitespace")).append(NEW_LINE)
+                    .append(Localization.getString("firmware.feature.linesToArc")).append(NEW_LINE)
+                    .append(Localization.getString("firmware.feature.statusUpdates")).append(NEW_LINE)
                     .append(Localization.getString("firmware.feature.statusUpdateRate"));
             
             throw new Exception(message.toString());

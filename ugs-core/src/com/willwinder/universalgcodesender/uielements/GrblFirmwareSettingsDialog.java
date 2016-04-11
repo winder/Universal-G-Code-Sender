@@ -45,6 +45,7 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements ControllerListener {
+    private static final String ERROR = "Error";
     // Controller object to fetch settings from.
     private BackendAPI grblController;
     private TableCellListener tcl;
@@ -321,7 +322,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
             JOptionPane.showMessageDialog(new JFrame(),
                 "Cannot close dialog until settings have finished being saved."
                 + "\nIf we got here by mistake open a bug report on github.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                ERROR, JOptionPane.ERROR_MESSAGE);
         } else {
             this.setVisible(false);
         }
@@ -333,7 +334,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         if (this.grblController.isSending()) {
             JOptionPane.showMessageDialog(new JFrame(),
                 "Cannot update firmware while it is busy.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                ERROR, JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -363,7 +364,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(new JFrame(),
                 "Error from firmware while saving settings: " + ex.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+                ERROR, JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_saveButtonActionPerformed
 

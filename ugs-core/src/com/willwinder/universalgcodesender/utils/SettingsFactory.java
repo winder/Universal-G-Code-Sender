@@ -39,6 +39,8 @@ import org.apache.commons.lang3.SystemUtils;
  */
 public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
+    private static final String USER_HOME = "user.home";
+    private static final String FALSE = "false";
     public static final String PROPERTIES_FILENAME = "UniversalGcodeSender.properties";
     public static final String JSON_FILENAME = "UniversalGcodeSender.json";
     public static final String MAC_LIBRARY = "/Library/Preferences/";
@@ -47,7 +49,7 @@ public class SettingsFactory {
         File properties = null;
         File json = null;
 
-        String homeDir = System.getProperty("user.home");
+        String homeDir = System.getProperty(USER_HOME);
         String osName = System.getProperty("os.name").toLowerCase();
 
         if (osName.contains("mac")) {
@@ -80,9 +82,9 @@ public class SettingsFactory {
 
     @Deprecated
     private static File getSettingsFolder(){
-        File settingsFolder = new File(System.getProperty("user.home"));
+        File settingsFolder = new File(System.getProperty(USER_HOME));
         if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            settingsFolder = new File(System.getProperty("user.home")+MAC_LIBRARY);
+            settingsFolder = new File(System.getProperty(USER_HOME)+MAC_LIBRARY);
         }
         return settingsFolder;
     }
@@ -102,24 +104,24 @@ public class SettingsFactory {
                     logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
                     Properties properties = new Properties();
                     properties.load(new FileInputStream(settingsFile));
-                    out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty("user.home")));
+                    out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty(USER_HOME)));
                     out.setPort(properties.getProperty("port", ""));
                     out.setPortRate(properties.getProperty("port.rate", "9600"));
-                    out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", "false")));
+                    out.setManualModeEnabled(Boolean.valueOf(properties.getProperty("manualMode.enabled", FALSE)));
                     out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
                     out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
-                    out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", "false")));
-                    out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", "false")));
+                    out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", FALSE)));
+                    out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", FALSE)));
                     out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
                     out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
-                    out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", "false")));
+                    out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                     out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
                     out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
                     out.setRemoveAllWhitespace(Boolean.valueOf(properties.getProperty("removeAllWhitespace", "true")));
                     out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                     out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
                     out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
-                    out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", "false")));
+                    out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", FALSE)));
                     out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
                     out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
                     out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
