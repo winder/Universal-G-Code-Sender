@@ -46,8 +46,8 @@ import javax.vecmath.Point3d;
  */
 public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements ControllerListener {
     // Controller object to fetch settings from.
-    private BackendAPI grblController;
-    private TableCellListener tcl;
+    private final BackendAPI grblController;
+    private final TableCellListener tcl;
     private int numberOfSettings = 0;
     //private List<String> commandList;
     private boolean loadingSettings;
@@ -63,9 +63,9 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private static final String settingValueRegex = "\\=(\\d*\\.?\\d*)";
     private static final String commentRegex = "\\(.*\\)";
     
-    private Pattern settingNumPattern;
-    private Pattern settingValuePattern;
-    private Pattern commentPattern;
+    private final Pattern settingNumPattern;
+    private final Pattern settingValuePattern;
+    private final Pattern commentPattern;
 
     // These guys are used to save initial settings and determine when they can
     // be restored.

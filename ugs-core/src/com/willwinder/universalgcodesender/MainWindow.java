@@ -92,7 +92,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private final int consoleSize = 1024 * 1024;
 
     // TODO: Move command history box into a self contained object.
-    private int commandNum = -1;
+    private final int commandNum = -1;
     private List<String> manualCommandHistory;
 
     // Other windows

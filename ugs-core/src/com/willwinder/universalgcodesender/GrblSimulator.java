@@ -194,7 +194,7 @@ public class GrblSimulator extends Simulator {
 
     public class Buffer implements Runnable {
 
-        private BufferedReader reader;
+        private final BufferedReader reader;
         List<String> buffer;
         List<String> globalBuffer;
 

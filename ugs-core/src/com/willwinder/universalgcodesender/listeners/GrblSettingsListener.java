@@ -22,11 +22,11 @@ public class GrblSettingsListener implements ControllerListener {
     public boolean inParsingMode = false;
     private boolean firstSettingReceived = false;
     public boolean sending = false;
-    private Object refreshLock = new Object();
+    private final Object refreshLock = new Object();
 
     public final List<String> settings = new ArrayList<>();
 
-    private AbstractController controller;
+    private final AbstractController controller;
 
     public GrblSettingsListener(AbstractController controller) {
         this.controller = controller;

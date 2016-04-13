@@ -9,9 +9,9 @@ package com.willwinder.universalgcodesender.i18n;
  * @author Christian Moll
  */
 public class Language {
-        private String language;
-        private String region;
-        private String nameEnglish;
+        private final String language;
+        private final String region;
+        private final String nameEnglish;
 
         public Language(String language, String region, String nameEnglish) {
             this.language = language;

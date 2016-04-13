@@ -43,16 +43,16 @@ public class GcodeViewParse {
     static boolean absoluteIJK = false;
 
     // Parsed object
-    private Point3d min;
-    private Point3d max;
-    private List<LineSegment> lines;
+    private final Point3d min;
+    private final Point3d max;
+    private final List<LineSegment> lines;
     
     // Parsing state.
-    private Point3d lastPoint;
-    private int currentLine = 0;    // for assigning line numbers to segments.
+    private final Point3d lastPoint;
+    private final int currentLine = 0;    // for assigning line numbers to segments.
       
     // Debug
-    private boolean debug = true;
+    private final boolean debug = true;
     
     public GcodeViewParse()
     {

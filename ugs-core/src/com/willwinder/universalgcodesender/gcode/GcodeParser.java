@@ -50,7 +50,7 @@ public class GcodeParser {
     private double smallArcThreshold = 1.0;
     // Not configurable outside, but maybe it should be.
     private double smallArcSegmentLength = 0.3;
-    private int maxCommandLength = 50;
+    private final int maxCommandLength = 50;
     
     // The gcode.
     List<PointSegment> points;

@@ -20,7 +20,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     private static final int PADDING = 10;
 
     private final BackendAPI backend;
-    private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
+    private final java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
 
     public MacroActionPanel() {
         this(null, null);

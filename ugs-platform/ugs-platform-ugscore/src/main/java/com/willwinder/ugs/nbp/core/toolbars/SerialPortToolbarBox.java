@@ -79,7 +79,7 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
         PortComboBox portComboBox;
         BaudComboBox baudComboBox;
         
-        private boolean initializing = true;
+        private final boolean initializing = true;
         
         MyToolbarPresenter() {
             initComponents();

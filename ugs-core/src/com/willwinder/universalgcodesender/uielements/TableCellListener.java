@@ -18,7 +18,7 @@ import javax.swing.*;
  */
 public class TableCellListener implements PropertyChangeListener, Runnable
 {
-	private JTable table;
+	private final JTable table;
 	private Action action;
 
 	private int row;
