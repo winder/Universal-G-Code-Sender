@@ -70,9 +70,9 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
 
     // These guys are used to save initial settings and determine when they can
     // be restored.
-    boolean initialSingleStepMode;
-    boolean statusUpdatesEnabled;
-    boolean savingSettings;
+    private boolean initialSingleStepMode;
+    private boolean statusUpdatesEnabled;
+    private boolean savingSettings;
     
     /**
      * Creates new form GrblFirmwareSettingsDialog
@@ -270,10 +270,10 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                 "Setting", "Value", "Description"
             }
         ) {
-            Class[] types = new Class [] {
+            private Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
-            boolean[] canEdit = new boolean [] {
+            private boolean[] canEdit = new boolean [] {
                 false, true, false
             };
 

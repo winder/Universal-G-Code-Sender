@@ -69,10 +69,10 @@ import javax.vecmath.Vector3d;
 public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyListener, MouseMotionListener, MouseWheelListener {
     private static final Logger logger = Logger.getLogger(VisualizerCanvas.class.getName());
     
-    static boolean ortho = true;
-    static double orthoRotation = -45;
-    static boolean forceOldStyle = false;
-    static boolean debugCoordinates = false; // turn on coordinate debug output
+    private static boolean ortho = true;
+    private static double orthoRotation = -45;
+    private static boolean forceOldStyle = false;
+    private static boolean debugCoordinates = false; // turn on coordinate debug output
     
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
@@ -118,8 +118,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private Vector3d translationVectorV;
 
     // Mouse rotation data
-    Point last;
-    Point current;
+    private Point last;
+    private Point current;
     private Point3d rotation;
 
     // OpenGL Object Buffer Variables

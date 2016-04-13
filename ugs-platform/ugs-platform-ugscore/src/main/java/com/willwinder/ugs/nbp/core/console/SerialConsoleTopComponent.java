@@ -66,13 +66,13 @@ import org.openide.util.NbPreferences;
 })
 public final class SerialConsoleTopComponent extends TopComponent implements ControllerListener, MouseListener {
 
-    static String verboseString = "[" + Localization.getString("verbose") + "] ";
-    
-    BackendAPI backend;
-    Settings settings;
-    
-    JPopupMenu menu = new JPopupMenu();
-    JCheckBoxMenuItem verboseMenuItem = new JCheckBoxMenuItem("Show verbose messages.");
+    private static String verboseString = "[" + Localization.getString("verbose") + "] ";
+
+    private BackendAPI backend;
+    private Settings settings;
+
+    private JPopupMenu menu = new JPopupMenu();
+    private JCheckBoxMenuItem verboseMenuItem = new JCheckBoxMenuItem("Show verbose messages.");
     
     public SerialConsoleTopComponent() {
         initComponents();
