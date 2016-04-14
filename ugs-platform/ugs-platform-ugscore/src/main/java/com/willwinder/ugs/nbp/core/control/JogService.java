@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -35,6 +36,7 @@ import org.openide.util.Lookup;
 import static org.openide.util.NbBundle.getMessage;
 import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
+import static org.openide.util.NbBundle.getMessage;
 
 /**
  *
@@ -42,7 +44,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service=JogService.class) 
 public class JogService {
-    private double stepSize;
+    private double stepSize = 1;
     private Units units;
 
     BackendAPI backend;
@@ -150,44 +152,49 @@ public class JogService {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
         try {
-            String jogMenu = "Jog";
+            String localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.jog"));
             String category = "Machine";
-            String menuPath = "Menu/" + category + "/" + jogMenu;
+            String menuPath = "Menu/" + category + "/Jog";
             
             ars.registerAction(getMessage(this.getClass(), "JogService.xPlus") ,
-                    category, "M-RIGHT" , menuPath, new JogAction(this, 1, 0, 0));
+                    category, "M-RIGHT" , menuPath, localized, new JogAction(this, 1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.xMinus"),
-                    category, "M-LEFT"  , menuPath, new JogAction(this,-1, 0, 0));
+                    category, "M-LEFT"  , menuPath, localized, new JogAction(this,-1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yPlus") ,
-                    category, "M-UP"    , menuPath, new JogAction(this, 0, 1, 0));
+                    category, "M-UP"    , menuPath, localized, new JogAction(this, 0, 1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yMinus"),
-                    category, "M-DOWN"  , menuPath, new JogAction(this, 0,-1, 0));
+                    category, "M-DOWN"  , menuPath, localized, new JogAction(this, 0,-1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.zPlus") ,
-                    category, "SM-UP"   , menuPath, new JogAction(this, 0, 0, 1));
+                    category, "SM-UP"   , menuPath, localized, new JogAction(this, 0, 0, 1));
             ars.registerAction(getMessage(this.getClass(), "JogService.zMinus"),
-                    category, "SM-DOWN" , menuPath, new JogAction(this, 0, 0,-1));
+                    category, "SM-DOWN" , menuPath, localized, new JogAction(this, 0, 0,-1));
 
-            String jogSizeMenu = "Step Size";
-            menuPath = menuPath + "/" + jogSizeMenu;
+            localized = String.format("Menu/%s/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.jog"),
+                    Localization.getString("platform.menu.jog.size"));
+            menuPath = menuPath + "/Step Size";
             ars.registerAction("10",
-                    category, "" , menuPath, new JogSizeAction(this, 10));
+                    category, "" , menuPath, localized, new JogSizeAction(this, 10));
             ars.registerAction("1",
-                    category, "" , menuPath, new JogSizeAction(this, 1));
+                    category, "" , menuPath, localized, new JogSizeAction(this, 1));
             ars.registerAction("0.1",
-                    category, "" , menuPath, new JogSizeAction(this, 0.1));
+                    category, "" , menuPath, localized, new JogSizeAction(this, 0.1));
             ars.registerAction("0.01",
-                    category, "" , menuPath, new JogSizeAction(this, 0.01));
+                    category, "" , menuPath, localized, new JogSizeAction(this, 0.01));
             ars.registerAction("0.001",
-                    category, "" , menuPath, new JogSizeAction(this, 0.001));
+                    category, "" , menuPath, localized, new JogSizeAction(this, 0.001));
 
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.divide"),
-                    category, "" , menuPath, new JogSizeAction(this, '/'));
+                    category, "" , menuPath, localized, new JogSizeAction(this, '/'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.multiply"),
-                    category, "" , menuPath, new JogSizeAction(this, '*'));
+                    category, "" , menuPath, localized, new JogSizeAction(this, '*'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.decrease"),
-                    category, "" , menuPath, new JogSizeAction(this, '-'));
+                    category, "" , menuPath, localized, new JogSizeAction(this, '-'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.increase"),
-                    category, "" , menuPath, new JogSizeAction(this, '+'));
+                    category, "" , menuPath, localized, new JogSizeAction(this, '+'));
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

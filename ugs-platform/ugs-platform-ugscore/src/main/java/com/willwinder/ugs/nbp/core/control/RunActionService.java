@@ -64,23 +64,26 @@ public class RunActionService {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
         try {
+            String localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.actions"));
             String menuPath = "Menu/Machine/Actions";
             String machine = "Machine";
             
             ars.registerAction(Localization.getString("mainWindow.swing.returnToZeroButton"),
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
             ars.registerAction(Localization.getString("mainWindow.swing.softResetMachineControl"),
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.ISSUE_SOFT_RESET));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.ISSUE_SOFT_RESET));
             ars.registerAction(Localization.getString("mainWindow.swing.resetCoordinatesButton"),
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
             ars.registerAction("$X",
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
             ars.registerAction("$C",
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
             ars.registerAction("$G",
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
             ars.registerAction(Localization.getString("mainWindow.swing.homeMachine"),
-                    machine, null , menuPath, new GcodeAction(this, ACTIONS.HOMING_CYCLE));
+                    machine, null , menuPath, localized, new GcodeAction(this, ACTIONS.HOMING_CYCLE));
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
