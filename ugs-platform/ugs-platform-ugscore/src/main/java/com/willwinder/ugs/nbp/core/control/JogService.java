@@ -47,7 +47,7 @@ public class JogService {
     private double stepSize = 1;
     private Units units;
 
-    BackendAPI backend;
+    private BackendAPI backend;
 
     public JogService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -246,8 +246,8 @@ public class JogService {
     }
 
     protected class JogAction extends AbstractAction {
-        JogService js;
-        int x,y,z;
+        private JogService js;
+        private int x,y,z;
         public JogAction(JogService service, int x, int y, int z) {
             js = service;
             this.x = x;

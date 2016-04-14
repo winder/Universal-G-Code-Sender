@@ -55,7 +55,7 @@ import java.util.Vector;
  */
 
 public class PersistentVector {
-	static int objNum = 0;
+	private static int objNum = 0;
 
 	/**
 	 * allow for header rows
@@ -70,28 +70,28 @@ public class PersistentVector {
 	 * for comparisons) For other uses, it can be set to 0 which puts all values
 	 * on disk.
 	 */
-	int inMemoryNum = 200;
+	private int inMemoryNum = 200;
 
 	/*
 	 * a vector that contains either the object or a long pointer to the
 	 * position of the object in a random access file
 	 */
-	Vector objectList;
+	private Vector objectList;
 
 	/*
 	 * the ObjectFile where objects are actually stored
 	 */
-	ObjectFile obj;
+	private ObjectFile obj;
 
 	/*
 	 * the name of the ObjectFile
 	 */
-	String objName = "ObjectFile";
+	private String objName = "ObjectFile";
 
 	/*
 	 * field delimiter string
 	 */
-	String field_delimiter = "#x09";
+	private String field_delimiter = "#x09";
 
 	/*
 	 * header line vector

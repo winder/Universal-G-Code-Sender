@@ -39,14 +39,15 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class TinyGController extends AbstractController {
+
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
 
-    boolean isReady = false;
-    Units units;
-    
-    String state = "";
-    Position machineLocation = new Position();
-    Position workLocation = new Position();
+    private boolean isReady = false;
+    private Units units;
+
+    private String state = "";
+    private Position machineLocation = new Position();
+    private Position workLocation = new Position();
     
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
@@ -198,7 +199,7 @@ public class TinyGController extends AbstractController {
     }
 
     static class TinyGUtils {
-        static JsonParser parser = new JsonParser();
+        private static JsonParser parser = new JsonParser();
         
         private static JsonObject jsonToObject(String response) {            
             return parser.parse(response).getAsJsonObject();
@@ -251,9 +252,9 @@ public class TinyGController extends AbstractController {
         }
         
         private static class StatusResult {
-            Point3d machine = new Point3d();
-            Point3d work = new Point3d();
-            String state;
+            private Point3d machine = new Point3d();
+            private Point3d work = new Point3d();
+            private String state;
         }
         private static StatusResult updateStatus(JsonObject response) {
             StatusResult result = new StatusResult();

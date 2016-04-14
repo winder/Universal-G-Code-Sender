@@ -47,8 +47,8 @@ import javax.vecmath.Point3d;
 public class GcodeModel extends Renderable {
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
 
-    boolean forceOldStyle = false;
-    boolean colorArrayDirty, vertexArrayDirty;
+    private boolean forceOldStyle = false;
+    private boolean colorArrayDirty, vertexArrayDirty;
 
     // Gcode file data
     private String gcodeFile = null;
@@ -68,11 +68,11 @@ public class GcodeModel extends Renderable {
     private Point3d objectMin, objectMax, objectSize, center;
 
     // Preferences
-    Color linearColor;
-    Color rapidColor;
-    Color arcColor;
-    Color plungeColor;
-    Color completedColor;
+    private Color linearColor;
+    private Color rapidColor;
+    private Color arcColor;
+    private Color plungeColor;
+    private Color completedColor;
 
     public GcodeModel() {
         super(10);

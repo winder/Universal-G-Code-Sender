@@ -31,11 +31,11 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class Grid extends Renderable {
-    float[] gridLineColor;
-    float[] gridPlaneColor;
-    float[] xAxisColor;
-    float[] yAxisColor;
-    float[] zAxisColor;
+    private float[] gridLineColor;
+    private float[] gridPlaneColor;
+    private float[] xAxisColor;
+    private float[] yAxisColor;
+    private float[] zAxisColor;
 
     public Grid() {
         super(5);
