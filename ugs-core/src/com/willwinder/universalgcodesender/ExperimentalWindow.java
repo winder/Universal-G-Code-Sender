@@ -71,7 +71,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private final int consoleSize = 1024 * 1024;
 
     // TODO: Move command history box into a self contained object.
-    private int commandNum = -1;
+    private final int commandNum = -1;
     private List<String> manualCommandHistory;
 
     // Other windows

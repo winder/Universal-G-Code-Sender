@@ -38,8 +38,8 @@ import java.io.PrintStream;
  */
 
 public class SerialWriter implements Runnable {
-    private StringBuffer lineBuffer;
-    private OutputStream out;
+    private final StringBuffer lineBuffer;
+    private final OutputStream out;
     public boolean exit = false;
 
     // For synchronized operations
