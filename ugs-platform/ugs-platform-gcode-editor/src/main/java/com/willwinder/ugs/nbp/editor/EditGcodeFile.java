@@ -24,6 +24,7 @@ package com.willwinder.ugs.nbp.editor;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -78,12 +79,15 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
      * a new one with the new file.
      */
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {
         if (backend == null || backend.getGcodeFile() == null) return;
-        if (getCurrentlyOpenedEditors().isEmpty()) return;
 
         if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
-            openFile(backend.getGcodeFile());
+            java.awt.EventQueue.invokeLater(() -> {
+                if (getCurrentlyOpenedEditors().isEmpty()) return;
+
+                openFile(backend.getGcodeFile());
+            });
         }
     }
 
