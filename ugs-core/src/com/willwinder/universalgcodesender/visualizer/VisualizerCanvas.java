@@ -77,8 +77,8 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
-    private Point3d machineCoord;
-    private Point3d workCoord;
+    private final Point3d machineCoord;
+    private final Point3d workCoord;
     
     // Gcode file data
     private String gcodeFile = null;
@@ -104,14 +104,14 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     private double scaleFactor;
     private double scaleFactorBase;
     private double zoomMultiplier = 1;
-    private boolean invertZoom = false; // TODO: Make configurable
+    private final boolean invertZoom = false; // TODO: Make configurable
     // const values until added to settings
     private final double minZoomMultiplier = 1;
     private final double maxZoomMultiplier = 30;
     private final double zoomIncrement = 0.2;
 
     // Movement
-    private int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
+    private final int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
     private double panMultiplierX = 1;
     private double panMultiplierY = 1;
     private Vector3d translationVectorH;

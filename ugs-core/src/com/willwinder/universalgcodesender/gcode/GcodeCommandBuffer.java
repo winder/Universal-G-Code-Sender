@@ -33,7 +33,7 @@ import java.util.*;
  * @author wwinder
  */
 public class GcodeCommandBuffer {
-    private Queue<GcodeCommand> commandQueue;
+    private final Queue<GcodeCommand> commandQueue;
     private GcodeCommand currentCommand = null;
     private int numCommands = 0;
     

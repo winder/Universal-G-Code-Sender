@@ -31,8 +31,8 @@ import org.openide.windows.TopComponent;
 */
 public final class GcodeVisualElement extends JPanel implements MultiViewElement {
 
-    private GcodeDataObject obj;
-    private JToolBar toolbar = new JToolBar();
+    private final GcodeDataObject obj;
+    private final JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
 
     public GcodeVisualElement(Lookup lkp) {
