@@ -30,9 +30,7 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
@@ -41,14 +39,12 @@ import org.apache.commons.lang3.SystemUtils;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -66,22 +62,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     BackendAPI backend;
     
-    // My Variables
-    private javax.swing.JFileChooser fileChooser;
-    private final int consoleSize = 1024 * 1024;
-
-    // TODO: Move command history box into a self contained object.
-    private final int commandNum = -1;
-    private List<String> manualCommandHistory;
-
     // Other windows
     VisualizerWindow vw = null;
     String gcodeFile = null;
     String processedGcodeFile = null;
     
-    // Duration timer
-    private Timer timer;
-
     /** Creates new form ExperimentalWindow */
     public ExperimentalWindow() {
         this.backend = new GUIBackend();
@@ -107,22 +92,16 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         initProgram();
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
-        fileChooser = new JFileChooser(backend.getSettings().getLastOpenedFilename());
 
         setSize(backend.getSettings().getMainWindowSettings().width, backend.getSettings().getMainWindowSettings().height);
         setLocation(backend.getSettings().getMainWindowSettings().xLocation, backend.getSettings().getMainWindowSettings().yLocation);
 
         commandPanel.loadSettings();
         connectionPanel.loadSettings();
-        initFileChooser();
-        
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (fileChooser.getSelectedFile() != null ) {
-                    backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
-                }
-
                 commandPanel.saveSettings();
                 connectionPanel.saveSettings();
                 SettingsFactory.saveSettings(backend.getSettings());
@@ -193,8 +172,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         
         /* Apply the settings to the ExperimentalWindow bofore showing it */
 
-        mw.fileChooser = new JFileChooser(mw.backend.getSettings().getLastOpenedFilename());
-
         mw.setSize(mw.backend.getSettings().getMainWindowSettings().width, mw.backend.getSettings().getMainWindowSettings().height);
         mw.setLocation(mw.backend.getSettings().getMainWindowSettings().xLocation, mw.backend.getSettings().getMainWindowSettings().yLocation);
 
@@ -226,16 +203,10 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             }
         });
         
-        mw.initFileChooser();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.backend.getSettings().setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
-                mw.jogPanel.saveSettings();
                 mw.connectionPanel.saveSettings();
                 mw.commandPanel.saveSettings();
 
@@ -254,22 +225,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         actionPanel = new com.willwinder.universalgcodesender.uielements.action.ActionPanel(backend);
         macroEditPanel = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend);
-        fileModePanel = new javax.swing.JPanel();
-        sendButton = new javax.swing.JButton();
-        pauseButton = new javax.swing.JButton();
-        cancelButton = new javax.swing.JButton();
-        visualizeButton = new javax.swing.JButton();
-        browseButton = new javax.swing.JButton();
-        saveButton = new javax.swing.JButton();
-        sendStatusPanel = new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
-        jogPanel = new com.willwinder.universalgcodesender.uielements.jog.JogPanel(backend);
         commandPanel = new com.willwinder.universalgcodesender.uielements.command.CommandPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
@@ -297,106 +258,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         controlContextTabbedPane.addTab("Macros", macroEditPanel);
 
-        fileModePanel.setMaximumSize(new java.awt.Dimension(247, 350));
-        fileModePanel.setMinimumSize(new java.awt.Dimension(247, 350));
-        fileModePanel.setPreferredSize(new java.awt.Dimension(247, 350));
-        fileModePanel.setLayout(new java.awt.GridBagLayout());
-
-        sendButton.setText("Send");
-        sendButton.setEnabled(false);
-        sendButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                sendButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(sendButton, gridBagConstraints);
-
-        pauseButton.setText("Pause");
-        pauseButton.setEnabled(false);
-        pauseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                pauseButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.ipadx = 6;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(pauseButton, gridBagConstraints);
-
-        cancelButton.setText("Cancel");
-        cancelButton.setEnabled(false);
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(cancelButton, gridBagConstraints);
-
-        visualizeButton.setText("Visualize");
-        visualizeButton.setEnabled(false);
-        visualizeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                visualizeButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(visualizeButton, gridBagConstraints);
-
-        browseButton.setText("Browse");
-        browseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                browseButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(browseButton, gridBagConstraints);
-
-        saveButton.setText("Save");
-        saveButton.setEnabled(false);
-        saveButton.setMaximumSize(new java.awt.Dimension(88, 29));
-        saveButton.setMinimumSize(new java.awt.Dimension(88, 29));
-        saveButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        fileModePanel.add(saveButton, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        fileModePanel.add(sendStatusPanel, gridBagConstraints);
-
-        connectionPanel.setMaximumSize(new java.awt.Dimension(247, 200));
-        connectionPanel.setMinimumSize(new java.awt.Dimension(247, 130));
-        connectionPanel.setPreferredSize(new java.awt.Dimension(247, 130));
+        connectionPanel.setMinimumSize(new java.awt.Dimension(1, 1));
+        connectionPanel.setPreferredSize(new java.awt.Dimension(275, 130));
 
         settingsMenu.setText("Settings");
 
@@ -450,31 +313,19 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jogPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 247, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                        .add(layout.createSequentialGroup()
-                            .addContainerGap()
-                            .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 792, Short.MAX_VALUE)
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 764, Short.MAX_VALUE)
                     .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 215, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(fileModePanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 191, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jogPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(32, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
                 .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 294, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE))
+            .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -524,144 +375,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             backend.getSettings().setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
             backend.getSettings().setAutoReconnect(gcsd.getAutoReconnect());
 
-//            try {
-//                backend.applySettings(backend.getSettings());
-//            } catch (Exception e) {
-//                displayErrorDialog(e.getMessage());
-//            }
-
             if (this.vw != null) {
                 vw.setMinArcLength(gcsd.getSmallArcThreshold());
                 vw.setArcLength(gcsd.getSmallArcSegmentLength());
             }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
-
-    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
-        int returnVal = fileChooser.showOpenDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + fileChooser.getSelectedFile().getName()));
-                fileModePanel.setToolTipText(fileChooser.getSelectedFile().getAbsolutePath());
-                File gcodeFile = fileChooser.getSelectedFile();
-                backend.setGcodeFile(gcodeFile);
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Problem while browsing.", ex);
-                displayErrorDialog(ex.getMessage());
-            }
-        } else {
-            // Canceled file open.
-        }
-    }//GEN-LAST:event_browseButtonActionPerformed
-
-    private void visualizeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visualizeButtonActionPerformed
-        // Create new object if it is null.
-        if (this.vw == null) {
-            this.vw = new VisualizerWindow(backend.getSettings().getVisualizerWindowSettings());
-            
-            final ExperimentalWindow mw = this;
-            vw.addComponentListener(new ComponentListener() {
-                @Override
-                public void componentResized(ComponentEvent ce) {
-                    mw.backend.getSettings().getVisualizerWindowSettings().height = ce.getComponent().getSize().height;
-                    mw.backend.getSettings().getVisualizerWindowSettings().width = ce.getComponent().getSize().width;
-                }
-
-                @Override
-                public void componentMoved(ComponentEvent ce) {
-                    mw.backend.getSettings().getVisualizerWindowSettings().xLocation = ce.getComponent().getLocation().x;
-                    mw.backend.getSettings().getVisualizerWindowSettings().yLocation = ce.getComponent().getLocation().y;
-                }
-
-                @Override
-                public void componentShown(ComponentEvent ce) {}
-                @Override
-                public void componentHidden(ComponentEvent ce) {}
-            });
-
-            vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
-            vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
-            setVisualizerFile();
-
-            // Add listener
-            this.backend.addControllerListener(vw);
-        }
-
-        // Display the form
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                vw.setVisible(true);
-            }
-        });
-    }//GEN-LAST:event_visualizeButtonActionPerformed
-
-    public void cancelButtonActionPerformed() {
-        try {
-            backend.cancel();
-        } catch (Exception e) {
-            displayErrorDialog(e.getMessage());
-        }
-    }
-    
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        cancelButtonActionPerformed();
-    }//GEN-LAST:event_cancelButtonActionPerformed
-
-    public void pauseButtonActionPerformed() {
-        try {
-            this.backend.pauseResume();
-        } catch (Exception e) {
-            displayErrorDialog(e.getMessage());
-        }
-    }
-    
-    private void pauseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pauseButtonActionPerformed
-        pauseButtonActionPerformed();
-    }//GEN-LAST:event_pauseButtonActionPerformed
-    
-    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-        // Timer for updating duration labels.
-        ActionListener actionListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (backend.isSending()) {
-                                if (vw != null) {
-                                    vw.setCompletedCommandNumber((int)backend.getNumSentRows());
-                                }
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-            }
-        };
-
-//        this.resetTimerLabels();
-
-        if (timer != null){ timer.stop(); }
-        timer = new Timer(1000, actionListener);
-
-        // Note: there is a divide by zero error in the timer because it uses
-        //       the rowsValueLabel that was just reset.
-
-        try {
-            this.backend.send();
-//            this.resetSentRowLabels(backend.getNumRows());
-            timer.start();
-        } catch (Exception e) {
-            timer.stop();
-            logger.log(Level.INFO, "Exception in sendButtonActionPerformed.", e);
-            displayErrorDialog(e.getMessage());
-        }
-        
-    }//GEN-LAST:event_sendButtonActionPerformed
 
     private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
         try {
@@ -677,32 +396,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
-
-    private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
-        //displayErrorDialog("Disabled for refactoring.");
-        
-        int returnVal = fileChooser.showSaveDialog(this);
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            try {
-                File newFile = fileChooser.getSelectedFile();
-                AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
-                backend.applySettingsToController(backend.getSettings(), control);
-                
-                backend.preprocessAndExportToFile(newFile);
-            } catch (FileNotFoundException ex) {
-                displayErrorDialog(Localization.getString("mainWindow.error.openingFile")
-                        + ": " + ex.getMessage());
-            } catch (IOException e) {
-                displayErrorDialog(Localization.getString("mainWindow.error.processingFile")
-                        + ": "+e.getMessage());
-            } catch (Exception e) {
-                logger.log(Level.INFO, "Exception in saveButtonActionPerformed.", e);
-                displayErrorDialog(Localization.getString("mainWindow.error.duringSave") +
-                        ": " + e.getMessage());
-            }
-        }
-        
-    }//GEN-LAST:event_saveButtonActionPerformed
 
         private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
             this.pendantUI = new PendantUI(backend);
@@ -726,14 +419,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
 
 
-
-    /**
-     * FileChooser has to be initialized after JFrame is opened, otherwise the settings will not be applied.
-     */
-    private void initFileChooser() {
-        this.fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(backend.getSettings().getLastOpenedFilename());
-    }
-        
     private void initProgram() {
         Localization.initialize(this.backend.getSettings().getLanguage());
         try {
@@ -746,117 +431,25 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.setTitle(Localization.getString("title") + " ("
                 + Localization.getString("version") + " " + VERSION + ")");
 
-        // Command History
-        this.manualCommandHistory = new ArrayList<>();
-        
         // Add keyboard listener for manual controls.
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .addKeyEventDispatcher(new KeyEventDispatcher() {
-                @Override
-                public boolean dispatchKeyEvent(KeyEvent e) {
-                    // Check context.
-                    if (((jogPanel.isKeyboardMovementEnabled()) &&
-                            e.getID() == KeyEvent.KEY_PRESSED)) {
-                        switch (e.getKeyCode()) {
-                            case KeyEvent.VK_RIGHT:
-                            case KeyEvent.VK_KP_RIGHT:
-                            case KeyEvent.VK_NUMPAD6:
-                                jogPanel.xPlusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_LEFT:
-                            case KeyEvent.VK_KP_LEFT:
-                            case KeyEvent.VK_NUMPAD4:
-                                jogPanel.xMinusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_UP:
-                            case KeyEvent.VK_KP_UP:
-                            case KeyEvent.VK_NUMPAD8:
-                                jogPanel.yPlusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_DOWN:
-                            case KeyEvent.VK_KP_DOWN:
-                            case KeyEvent.VK_NUMPAD2:                                                                                                                        
-                                jogPanel.yMinusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_PAGE_UP:
-                            case KeyEvent.VK_NUMPAD9:
-                                jogPanel.zPlusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_PAGE_DOWN:
-                            case KeyEvent.VK_NUMPAD3:
-                                jogPanel.zMinusButtonActionPerformed();
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_ADD:
-                                jogPanel.increaseStepActionPerformed(null);
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_SUBTRACT:
-                                jogPanel.decreaseStepActionPerformed(null);
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_DIVIDE:
-                                jogPanel.divideStepActionPerformed(null);
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_MULTIPLY:
-                                jogPanel.multiplyStepActionPerformed(null);
-                                e.consume();
-                                return true;
-                            case KeyEvent.VK_INSERT:
-                            case KeyEvent.VK_NUMPAD0:
-                                //resetCoordinatesButtonActionPerformed(null);
-                                e.consume();
-                                return true;
-                            default:
-                                break;
-                        }
-                    }
-                    
-                    return false;
-                }
-            });
+
     }
 
 
 
 
 
-    private void updateControls() {
-        this.cancelButton.setEnabled(backend.canCancel());
-        this.pauseButton.setEnabled(backend.canPause() || backend.isPaused());
-        this.pauseButton.setText(backend.getPauseResumeText());
-        this.sendButton.setEnabled(backend.canSend());
-        
-        boolean hasFile = backend.getGcodeFile() != null;
-        if (hasFile) {
-                this.saveButton.setEnabled(true);
-                this.visualizeButton.setEnabled(true);
-        }
-    }
-    
+
     /**
      * Updates all text labels in the GUI with localized labels.
      */
     private void setLocalLabels() {
-        this.browseButton.setText(Localization.getString("mainWindow.swing.browseButton"));
-        this.cancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
         this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
-        this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
         this.firmwareSettingsMenu.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
-        this.pauseButton.setText(Localization.getString("mainWindow.swing.pauseButton"));
-        this.saveButton.setText(Localization.getString("save"));
-        this.sendButton.setText(Localization.getString("mainWindow.swing.sendButton"));
-        this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.macroEditPanel.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
     }
 
@@ -866,9 +459,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        final String durationLabelCopy = sendStatusPanel.getDuration();
+        final String durationLabelCopy = connectionPanel.getDuration();
         if (success) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+            java.awt.EventQueue.invokeLater(() -> {
                 JOptionPane.showMessageDialog(new JFrame(),
                         Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
@@ -876,9 +469,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {}
 
-                // Stop the timer after a delay to make sure it is updated.
-                timer.stop();
-            }});
+            });
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
@@ -937,23 +528,17 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
-            this.updateControls();
-        }
         if (evt.isFileChangeEvent()) {
             switch(evt.getFileState()) {
                 case FILE_LOADING:
                     processedGcodeFile = null;
                     gcodeFile = evt.getFile();
                     break;
+
                 case FILE_LOADED:
                     processedGcodeFile = evt.getFile();
-//                    try {
-//                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-//                            resetSentRowLabels(gsr.getNumRows());
-//                        }
-//                    } catch (IOException ex) {}
                     break;
+
                 default:
                     break;
             }
@@ -966,27 +551,18 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu PendantMenu;
     private com.willwinder.universalgcodesender.uielements.action.ActionPanel actionPanel;
-    private javax.swing.JButton browseButton;
-    private javax.swing.JButton cancelButton;
     private com.willwinder.universalgcodesender.uielements.command.CommandPanel commandPanel;
     private com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel connectionPanel;
     private javax.swing.JTabbedPane controlContextTabbedPane;
-    private javax.swing.JPanel fileModePanel;
     private javax.swing.JMenu firmwareSettingsMenu;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
-    private com.willwinder.universalgcodesender.uielements.jog.JogPanel jogPanel;
     private javax.swing.JScrollPane macroEditPanel;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
-    private javax.swing.JButton pauseButton;
-    private javax.swing.JButton saveButton;
-    private javax.swing.JButton sendButton;
-    private com.willwinder.universalgcodesender.uielements.SendStatusPanel sendStatusPanel;
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JMenuItem startPendantServerButton;
     private javax.swing.JMenuItem stopPendantServerButton;
-    private javax.swing.JButton visualizeButton;
     // End of variables declaration//GEN-END:variables
 
 }
