@@ -135,8 +135,8 @@
           </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="tab2">
-                <Property name="tabTitle" type="java.lang.String" value="tab2"/>
+              <JTabbedPaneConstraints tabName="Machine Control">
+                <Property name="tabTitle" type="java.lang.String" value="Machine Control"/>
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
@@ -154,13 +154,25 @@
           <SubComponents>
             <Container class="com.willwinder.universalgcodesender.uielements.MacroPanel" name="macroPanel">
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend)"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(backend)"/>
               </AuxValues>
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
             </Container>
           </SubComponents>
         </Container>
+        <Component class="com.willwinder.universalgcodesender.visualizer.VisualizerPanel" name="visualizerPanel">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.visualizer.VisualizerPanel(backend)"/>
+          </AuxValues>
+          <Constraints>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Visualizer">
+                <Property name="tabTitle" type="java.lang.String" value="Visualizer"/>
+              </JTabbedPaneConstraints>
+            </Constraint>
+          </Constraints>
+        </Component>
       </SubComponents>
     </Container>
     <Component class="com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel" name="connectionPanel">

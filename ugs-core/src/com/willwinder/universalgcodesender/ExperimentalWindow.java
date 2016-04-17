@@ -62,11 +62,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     BackendAPI backend;
     
-    // Other windows
-    VisualizerWindow vw = null;
-    String gcodeFile = null;
-    String processedGcodeFile = null;
-    
     /** Creates new form ExperimentalWindow */
     public ExperimentalWindow() {
         this.backend = new GUIBackend();
@@ -98,6 +93,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         commandPanel.loadSettings();
         connectionPanel.loadSettings();
+        visualizerPanel.loadSettings();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -229,7 +225,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         actionPanel = new com.willwinder.universalgcodesender.uielements.action.ActionPanel(backend);
         macroEditPanel = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
+        visualizerPanel = new com.willwinder.universalgcodesender.visualizer.VisualizerPanel(backend);
         connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
         commandPanel = new com.willwinder.universalgcodesender.uielements.command.CommandPanel(backend);
         mainMenuBar = new javax.swing.JMenuBar();
@@ -252,11 +249,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 controlContextTabbedPaneComponentShown(evt);
             }
         });
-        controlContextTabbedPane.addTab("tab2", actionPanel);
+        controlContextTabbedPane.addTab("Machine Control", actionPanel);
 
         macroEditPanel.setViewportView(macroPanel);
 
         controlContextTabbedPane.addTab("Macros", macroEditPanel);
+        controlContextTabbedPane.addTab("Visualizer", visualizerPanel);
 
         connectionPanel.setMinimumSize(new java.awt.Dimension(1, 1));
         connectionPanel.setPreferredSize(new java.awt.Dimension(275, 130));
@@ -374,11 +372,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             backend.getSettings().setLanguage(gcsd.getLanguage());
             backend.getSettings().setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
             backend.getSettings().setAutoReconnect(gcsd.getAutoReconnect());
-
-            if (this.vw != null) {
-                vw.setMinArcLength(gcsd.getSmallArcThreshold());
-                vw.setArcLength(gcsd.getSmallArcSegmentLength());
-            }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
 
@@ -435,17 +428,14 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     }
 
-
-
-
-
-
     /**
      * Updates all text labels in the GUI with localized labels.
      */
     private void setLocalLabels() {
         this.controlContextTabbedPane.setTitleAt(0, Localization.getString("mainWindow.swing.controlContextTabbedPane.machineControl"));
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
+        this.controlContextTabbedPane.setTitleAt(2, Localization.getString("mainWindow.swing.visualizeButton"));
+
         this.firmwareSettingsMenu.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
@@ -477,7 +467,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void commandSkipped(GcodeCommand command) {
-        commandSent(command);
+
     }
      
     @Override
@@ -509,42 +499,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     public void postProcessData(int numRows) {
     }
     
-    /**
-     * Updates the visualizer with the processed gcode file if it is available,
-     * otherwise uses the unprocessed file.
-     */
-    private void setVisualizerFile() {
-        if (vw == null) return;
-
-        if (processedGcodeFile == null) {
-            if (gcodeFile == null) {
-                return;
-            }
-            vw.setGcodeFile(gcodeFile);
-        } else {
-            vw.setProcessedGcodeFile(processedGcodeFile);
-        }
-    }
-
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent()) {
-            switch(evt.getFileState()) {
-                case FILE_LOADING:
-                    processedGcodeFile = null;
-                    gcodeFile = evt.getFile();
-                    break;
-
-                case FILE_LOADED:
-                    processedGcodeFile = evt.getFile();
-                    break;
-
-                default:
-                    break;
-            }
-
-            setVisualizerFile();
-        }
     }
 
     // Generated variables.
@@ -563,6 +519,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JMenu settingsMenu;
     private javax.swing.JMenuItem startPendantServerButton;
     private javax.swing.JMenuItem stopPendantServerButton;
+    private com.willwinder.universalgcodesender.visualizer.VisualizerPanel visualizerPanel;
     // End of variables declaration//GEN-END:variables
 
 }
