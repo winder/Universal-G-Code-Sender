@@ -70,19 +70,19 @@ import javax.vecmath.Vector3d;
 public class GcodeRenderer implements GLEventListener {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
     
-    static boolean ortho = true;
-    static double orthoRotation = -45;
-    static boolean forceOldStyle = false;
-    static boolean debugCoordinates = false; // turn on coordinate debug output
+    private static boolean ortho = true;
+    private static double orthoRotation = -45;
+    private static boolean forceOldStyle = false;
+    private static boolean debugCoordinates = false; // turn on coordinate debug output
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
-    private Point3d machineCoord;
-    private Point3d workCoord;
+    private final Point3d machineCoord;
+    private final Point3d workCoord;
     
     // GL Utility
     private GLU glu;
-    GLAutoDrawable drawable = null;
+    private GLAutoDrawable drawable = null;
     
     // Projection variables
     private Point3d center, eye;
@@ -96,33 +96,33 @@ public class GcodeRenderer implements GLEventListener {
     private double scaleFactor = 1;
     private double scaleFactorBase = 1;
     private double zoomMultiplier = 1;
-    private boolean invertZoom = false; // TODO: Make configurable
+    private final boolean invertZoom = false; // TODO: Make configurable
     // const values until added to settings
     private final double minZoomMultiplier = 1;
     private final double maxZoomMultiplier = 30;
     private final double zoomIncrement = 0.2;
 
     // Movement
-    private int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
+    private final int panMouseButton = InputEvent.BUTTON2_MASK; // TODO: Make configurable
     private double panMultiplierX = 1;
     private double panMultiplierY = 1;
     private Vector3d translationVectorH;
     private Vector3d translationVectorV;
 
     // Mouse rotation data
-    Point last;
-    Point current;
+    private Point last;
+    private Point current;
     private Point3d rotation;
     
     private FPSCounter fpsCounter;
     private Overlay overlay;
-    private String dimensionsLabel = "";
+    private final String dimensionsLabel = "";
 
-    private ArrayList<Renderable> objects;
+    private final ArrayList<Renderable> objects;
     private boolean idle = true;
 
     // Preferences
-    java.awt.Color clearColor;
+    private java.awt.Color clearColor;
     
     /**
      * Constructor.

@@ -69,17 +69,17 @@ public final class SerialPortToolbarBox extends AbstractAction implements Action
     }
 
     private class MyToolbarPresenter extends TopComponent {
-        BackendAPI backend;
+        private BackendAPI backend;
 
-        JLabel fwLabel;
-        JLabel portLabel;
-        JLabel baudLabel;
-        JButton refreshButton;
-        FirmwareComboBox fwComboBox;
-        PortComboBox portComboBox;
-        BaudComboBox baudComboBox;
+        private JLabel fwLabel;
+        private JLabel portLabel;
+        private JLabel baudLabel;
+        private JButton refreshButton;
+        private FirmwareComboBox fwComboBox;
+        private PortComboBox portComboBox;
+        private BaudComboBox baudComboBox;
         
-        private boolean initializing = true;
+        private final boolean initializing = true;
         
         MyToolbarPresenter() {
             initComponents();

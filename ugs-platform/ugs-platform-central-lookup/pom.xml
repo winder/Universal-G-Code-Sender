@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ugs-platform-wrapped-ugs-jar</artifactId>
+            <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

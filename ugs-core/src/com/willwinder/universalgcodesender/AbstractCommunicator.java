@@ -55,11 +55,11 @@ public abstract class AbstractCommunicator {
         VERBOSE_CONSOLE_MESSAGE
     }
     // Callback interfaces
-    ArrayList<SerialCommunicatorListener> commandEventListeners;
-    ArrayList<SerialCommunicatorListener> commConsoleListeners;
-    ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
-    ArrayList<SerialCommunicatorListener> commRawResponseListener;
-    HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
+    private ArrayList<SerialCommunicatorListener> commandEventListeners;
+    private ArrayList<SerialCommunicatorListener> commConsoleListeners;
+    private ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
+    private ArrayList<SerialCommunicatorListener> commRawResponseListener;
+    private HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
 
     public AbstractCommunicator() {
         this.commandEventListeners       = new ArrayList<>();
@@ -267,9 +267,9 @@ public abstract class AbstractCommunicator {
      * prevent that from happening we use a blocking queue to add events in the
      * main thread, and process them in order a single event thread.
      */
-    private LinkedBlockingDeque<EventData> eventQueue = new LinkedBlockingDeque<>();
-    boolean stop = false;
-    Thread eventThread = new Thread(() -> {
+    private final LinkedBlockingDeque<EventData> eventQueue = new LinkedBlockingDeque<>();
+    private boolean stop = false;
+    private Thread eventThread = new Thread(() -> {
         while (!stop) {
             try {
                 EventData e = eventQueue.take();

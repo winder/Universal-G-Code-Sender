@@ -30,8 +30,8 @@ import javax.swing.table.TableCellRenderer;
  * @author wwinder
  */
 public class OptionTable extends JTable {
-    private DefaultTableModel model;
-    private List<Class> types;
+    private final DefaultTableModel model;
+    private final List<Class> types;
 
     // Class type of cell being edited.
     private Class editingClass = null;

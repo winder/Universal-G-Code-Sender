@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -60,6 +61,10 @@ public final class MacroService {
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
             int numMacros = settings.getLastMacroIndex() + 1;
+            String localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.macros"));
+
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
 
@@ -71,7 +76,7 @@ public final class MacroService {
                     }
                 }
 
-                ars.registerAction(m.getName(), actionCategory, null, menuPath, new MacroAction(settings, backend, i));
+                ars.registerAction(m.getName(), actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
 
             // Remove anything that doesn't exist.

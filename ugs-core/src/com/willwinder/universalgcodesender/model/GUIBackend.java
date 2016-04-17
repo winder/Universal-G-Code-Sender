@@ -53,31 +53,31 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     private IController controller = null;
     private Settings settings = null;
-    Position machineCoord = null;
-    Position workCoord = null;
-    Units reportUnits = Units.UNKNOWN;
+    private Position machineCoord = null;
+    private Position workCoord = null;
+    private Units reportUnits = Units.UNKNOWN;
 
-    String state;
-    Collection<ControllerListener> controllerListeners = new ArrayList<>();
-    Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
+    private String state;
+    private Collection<ControllerListener> controllerListeners = new ArrayList<>();
+    private Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
 
     // GUI State
-    File gcodeFile = null;
-    File processedGcodeFile = null;
-    File tempDir = null;
-    String lastComment;
-    String activeState;
-    ControlState controlState = ControlState.COMM_DISCONNECTED;
-    long sendStartTime = 0;
-    long estimatedSendDuration = -1L;
-    long estimatedSendTimeRemaining = 0;
-    long rowsInFile = 0;
-    String openCloseButtonText;
-    boolean openCloseButtonEnabled;
-    String pauseButtonText;
-    boolean pauseButtonEnabled;
-    String cancelButtonText;
-    boolean cancelButtonEnabled;
+    private File gcodeFile = null;
+    private File processedGcodeFile = null;
+    private File tempDir = null;
+    private String lastComment;
+    private String activeState;
+    private ControlState controlState = ControlState.COMM_DISCONNECTED;
+    private long sendStartTime = 0;
+    private long estimatedSendDuration = -1L;
+    private long estimatedSendTimeRemaining = 0;
+    private long rowsInFile = 0;
+    private String openCloseButtonText;
+    private boolean openCloseButtonEnabled;
+    private String pauseButtonText;
+    private boolean pauseButtonEnabled;
+    private String cancelButtonText;
+    private boolean cancelButtonEnabled;
 
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;

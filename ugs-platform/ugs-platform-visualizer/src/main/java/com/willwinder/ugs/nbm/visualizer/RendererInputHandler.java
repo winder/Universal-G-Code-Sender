@@ -55,8 +55,8 @@ public class RendererInputHandler implements
         ControllerListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
-    private GcodeModel gcodeModel;
-    private Highlight highlight;
+    private final GcodeModel gcodeModel;
+    private final Highlight highlight;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a) {
         gcodeRenderer = gr;

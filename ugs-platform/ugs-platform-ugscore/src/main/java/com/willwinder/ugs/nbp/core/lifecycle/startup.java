@@ -32,7 +32,6 @@ import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
 import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.modules.OnStart;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
@@ -45,9 +44,13 @@ import org.openide.util.lookup.ServiceProvider;
 public class startup extends OptionProcessor implements Runnable {
     @Override
     public void run() {
+        System.out.println("Loading JogService...");
         Lookup.getDefault().lookup(JogService.class);
+        System.out.println("Loading ActionService...");
         Lookup.getDefault().lookup(RunActionService.class);
+        System.out.println("Loading MacroService...");
         Lookup.getDefault().lookup(MacroService.class);
+        System.out.println("Services loaded!");
     }
 
     private final Option openOption = Option.additionalArguments('o', "open");

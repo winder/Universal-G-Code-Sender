@@ -47,8 +47,8 @@ import javax.vecmath.Point3d;
 public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements ControllerListener {
     private static final String ERROR = "Error";
     // Controller object to fetch settings from.
-    private BackendAPI grblController;
-    private TableCellListener tcl;
+    private final BackendAPI grblController;
+    private final TableCellListener tcl;
     private int numberOfSettings = 0;
     //private List<String> commandList;
     private boolean loadingSettings;
@@ -64,15 +64,15 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private static final String settingValueRegex = "\\=(\\d*\\.?\\d*)";
     private static final String commentRegex = "\\(.*\\)";
     
-    private Pattern settingNumPattern;
-    private Pattern settingValuePattern;
-    private Pattern commentPattern;
+    private final Pattern settingNumPattern;
+    private final Pattern settingValuePattern;
+    private final Pattern commentPattern;
 
     // These guys are used to save initial settings and determine when they can
     // be restored.
-    boolean initialSingleStepMode;
-    boolean statusUpdatesEnabled;
-    boolean savingSettings;
+    private boolean initialSingleStepMode;
+    private boolean statusUpdatesEnabled;
+    private boolean savingSettings;
     
     /**
      * Creates new form GrblFirmwareSettingsDialog
@@ -270,10 +270,10 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                 "Setting", "Value", "Description"
             }
         ) {
-            Class[] types = new Class [] {
+            private Class[] types = new Class [] {
                 java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
-            boolean[] canEdit = new boolean [] {
+            private boolean[] canEdit = new boolean [] {
                 false, true, false
             };
 

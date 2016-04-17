@@ -5,7 +5,15 @@
         <folder name="File">
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
         </folder>
-        <folder name="Machine"/>
+        <!--
+        <folder name="Machine">
+            <folder name="Jog"/>
+            <folder name="Actions"/>
+            <folder name="Macros"/>
+            <attr name="position" intvalue="20001"/>
+            <attr name="displayName" bundlevalue="resources.MessagesBundle#platform.menu.machine"/>
+        </folder>
+        -->
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>
             <file name="Separator2.instance_hidden"/>

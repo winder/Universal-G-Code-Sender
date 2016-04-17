@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.lib.services;
 
 import com.google.common.base.Joiner;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.Action;
@@ -41,16 +42,20 @@ public class ActionRegistrationService {
      * @param name Display name of the action.
      * @param category Category in the Keymap tool.
      * @param shortcut Default shortcut, use an empty string or null for none.
-     * @param menuPath Menu location starting with "Menu", like "Menu/File"
+     * @param menuPath Menu location starting with "Menu", like "Menu/Head/Hats"
+     * @param localMenu Localized menu location starting with "Menu", like "Menu/Cabeza/Sombreros"
      * @param action an action object to attach to the action entry.
      * @throws IOException 
      */
-    public void registerAction(String name, String category, String shortcut, String menuPath, Action action) throws IOException {
+    public void registerAction(String name, String category, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
         ///////////////////////
         // Add/Update Action //
         ///////////////////////
         String originalFile = "Actions/" + category + "/" + name + ".instance";
-        FileObject in = getFolderAt("Actions/" + category);
+        FileObject root = FileUtil.getConfigRoot();
+        FileObject in = FileUtil.createFolder(root, "Actions/" + category);
+        in.refresh();
+
         FileObject obj = in.getFileObject(name, "instance");
         if (obj == null) {
             obj = in.createData(name, "instance");
@@ -63,7 +68,8 @@ public class ActionRegistrationService {
         // Add/Update Menu //
         /////////////////////
         if (menuPath != null && name != null && menuPath.length() > 0 && name.length() > 0) {
-            in = getFolderAt(menuPath);
+            in = createAndLocalizeMenu(menuPath, localMenu);
+
             obj = in.getFileObject(name, SHADOW);
             // Create if missing.
             if (obj == null) {
@@ -76,7 +82,7 @@ public class ActionRegistrationService {
         // Add/Update Shortcut //
         /////////////////////////
         if (shortcut != null && shortcut.length() > 0) {
-            in = getFolderAt("Shortcuts");
+            in = FileUtil.createFolder(root, "Shortcuts");
             obj = in.getFileObject(shortcut, SHADOW);
             if (obj == null) {
                 obj = in.createData(shortcut, SHADOW);
@@ -85,24 +91,32 @@ public class ActionRegistrationService {
         }
     }
 
-    private FileObject getFolderAt(String inputPath) throws IOException {
-        FileObject existing = FileUtil.getConfigFile(inputPath);
-        if (existing != null)
-            return existing;
-
-        String parts[] = inputPath.split("/");
-        FileObject base = FileUtil.getConfigFile(parts[0]);
-        if (base == null) return null;
-
-        for (int i = 1; i < parts.length; i++) {
-            String path = Joiner.on('/').join(Arrays.copyOfRange(parts,0,i+1));
-            FileObject next = FileUtil.getConfigFile(path);
-            if (next == null) {
-                next = base.createFolder(parts[i]);
-            }
-            base = next;
+    /**
+     * Creates a folder path in the netbeans filesystem and sets a localized
+     * display name or each level of the path.
+     */
+    private FileObject createAndLocalizeMenu(String path, String localizedPath) throws IOException {
+        FileObject root = FileUtil.getConfigRoot();
+        String[] paths = path.split("/");
+        String[] names = localizedPath.split("/");
+        if (paths.length != names.length) {
+            throw new IllegalArgumentException("Path length must equal localized path length: " + path + ", " + localizedPath);
+        }
+        if (! paths[0].equals(names[0])) {
+            throw new IllegalArgumentException(
+                    "Path and localized path must be in the same top level directory. Found: "
+                            + paths[0] + " and " + names[0]);
         }
 
-        return FileUtil.getConfigFile(inputPath);
+        String fullPath = paths[0];
+        FileObject in = FileUtil.createFolder(root, fullPath);
+        for (int i = 1; i < paths.length; i++) {
+            fullPath = fullPath + "/" + paths[i];
+            in = FileUtil.createFolder(root, fullPath);
+            in.setAttribute("displayName", names[i]);
+            in.refresh();
+        }
+
+        return in;
     }
 }

@@ -37,11 +37,11 @@ import javax.swing.table.TableColumn;
  * @author wwinder
  */
 public class GcodeTable extends JTable {
-    static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
+    private static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
     //GcodeTableModel model = null;
-    DefaultTableModel model = null;
-    int maxLines = -1;
+    private DefaultTableModel model = null;
+    private int maxLines = -1;
 
     private boolean autoWindowScroll = false;
     private int offset = 0;
@@ -53,14 +53,14 @@ public class GcodeTable extends JTable {
     final private static int COL_INDEX_DONE          = 3;
     final private static int COL_INDEX_RESPONSE      = 4;
 
-    static String[] columnNames = {
+    private static String[] columnNames = {
         Localization.getString("gcodeTable.command"),
         Localization.getString("gcodeTable.originalCommand"),
         Localization.getString("gcodeTable.sent"),
         Localization.getString("gcodeTable.done"),
         Localization.getString("gcodeTable.response")
     };
-    static Class[] columnTypes =  {
+    private static Class[] columnTypes =  {
         String.class,
         String.class,
         Boolean.class,
