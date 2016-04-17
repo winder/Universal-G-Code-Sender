@@ -90,9 +90,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-//        if (evt.isStateChangeEvent()) {
-//            updateControls();
-//        }
+        if (evt.isStateChangeEvent()) {
+            updateControls();
+        }
     }
 
     private void updateControls() {
@@ -100,6 +100,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         setStepSize(backend.getSettings().getManualModeStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
+
+        updateManualControls(backend.isConnected());
     }
 
     private void updateUnitButton(boolean unitsAreMM) {

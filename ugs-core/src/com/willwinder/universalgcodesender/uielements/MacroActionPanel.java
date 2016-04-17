@@ -22,17 +22,23 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     private final BackendAPI backend;
     private java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
 
+    @Deprecated
     public MacroActionPanel() {
-        this(null, null);
+        this(null);
     }
 
-    public MacroActionPanel(Settings settings, BackendAPI backend) {
+    public MacroActionPanel(BackendAPI backend) {
         setMinimumSize(new Dimension(50,0));
         this.backend = backend;
         if (this.backend != null) {
             backend.addUGSEventListener(this);
         }
 //        initMacroButtons();
+    }
+
+    @Deprecated
+    public MacroActionPanel(Settings settings, BackendAPI backend) {
+        this(backend);
     }
 
     @Override
