@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -42,9 +43,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public JogPanel(BackendAPI backend) {
         setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
-        setMinimumSize(new java.awt.Dimension(247, 200));
-        setPreferredSize(new java.awt.Dimension(247, 200));
-        setMaximumSize(new java.awt.Dimension(247, 200));
+//        setMinimumSize(new java.awt.Dimension(247, 200));
+//        setPreferredSize(new java.awt.Dimension(247, 200));
+//        setMaximumSize(new java.awt.Dimension(247, 200));
 
 
         this.backend = backend;
@@ -62,8 +63,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zMinusButton.addActionListener(e -> JogPanel.this.zMinusButtonActionPerformed());
         stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         initComponents();
+        addKeyboardListener();
     }
-
 
     private void initComponents() {
         // MigLayout... 3rd party layout library.
@@ -83,16 +84,86 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         updateManualControls(false);
     }
 
-    @Override
-    public void doLayout() {
-        super.doLayout();
+    private void addKeyboardListener() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .addKeyEventDispatcher(new KeyEventDispatcher() {
+                    @Override
+                    public boolean dispatchKeyEvent(KeyEvent e) {
+                        // Check context.
+                        if (((isKeyboardMovementEnabled()) &&
+                                e.getID() == KeyEvent.KEY_PRESSED)) {
+                            switch (e.getKeyCode()) {
+                                case KeyEvent.VK_RIGHT:
+                                case KeyEvent.VK_KP_RIGHT:
+                                case KeyEvent.VK_NUMPAD6:
+                                    xPlusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_LEFT:
+                                case KeyEvent.VK_KP_LEFT:
+                                case KeyEvent.VK_NUMPAD4:
+                                    xMinusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_UP:
+                                case KeyEvent.VK_KP_UP:
+                                case KeyEvent.VK_NUMPAD8:
+                                    yPlusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_DOWN:
+                                case KeyEvent.VK_KP_DOWN:
+                                case KeyEvent.VK_NUMPAD2:
+                                    yMinusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_PAGE_UP:
+                                case KeyEvent.VK_NUMPAD9:
+                                    zPlusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_PAGE_DOWN:
+                                case KeyEvent.VK_NUMPAD3:
+                                    zMinusButtonActionPerformed();
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_ADD:
+                                    increaseStepActionPerformed(null);
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_SUBTRACT:
+                                    decreaseStepActionPerformed(null);
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_DIVIDE:
+                                    divideStepActionPerformed(null);
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_MULTIPLY:
+                                    multiplyStepActionPerformed(null);
+                                    e.consume();
+                                    return true;
+                                case KeyEvent.VK_INSERT:
+                                case KeyEvent.VK_NUMPAD0:
+                                    //resetCoordinatesButtonActionPerformed(null);
+                                    e.consume();
+                                    return true;
+                                default:
+                                    break;
+                            }
+                        }
+
+                        return false;
+                    }
+                });
     }
+
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-//        if (evt.isStateChangeEvent()) {
-//            updateControls();
-//        }
+        if (evt.isStateChangeEvent()) {
+            updateControls();
+        }
     }
 
     private void updateControls() {
@@ -100,6 +171,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         setStepSize(backend.getSettings().getManualModeStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
+
+        updateManualControls(backend.isConnected());
     }
 
     private void updateUnitButton(boolean unitsAreMM) {

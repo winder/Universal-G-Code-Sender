@@ -1,20 +1,27 @@
 package com.willwinder.universalgcodesender.uielements.connection;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.uielements.SendStatusPanel;
+import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+import java.awt.*;
+import java.io.File;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
-public class ConnectionPanel extends JPanel implements UGSEventListener {
+public class ConnectionPanel extends JPanel implements UGSEventListener, ControllerListener {
 
     private final JLabel portLabel = new JLabel(Localization.getString("mainWindow.swing.portLabel"));
     private final JLabel baudLabel = new JLabel(Localization.getString("mainWindow.swing.baudLabel"));
@@ -27,8 +34,18 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
     private final JButton refreshButton = new JButton(new javax.swing.ImageIcon(getClass().getResource("/resources/refresh.gif")));
     private final JButton openCloseButton = new JButton(Localization.getString("mainWindow.swing.opencloseButton"));
 
+    private final JButton sendPauseResumeButton = new JButton(Localization.getString("mainWindow.swing.sendButton"));
+    private final JButton browseCancelButton = new JButton(Localization.getString("mainWindow.swing.browseButton"));
+
+    private final javax.swing.JFileChooser fileChooser;
+
     private final JPanel connection = new JPanel();
     private final MachineStatusPanel machineStatus;
+
+    private final JLabel currentFile = new JLabel();
+    private final SendStatusPanel sendStatusPanel;
+
+    private final JogPanel jogPanel;
 
     private final BackendAPI backend;
 
@@ -37,13 +54,25 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
     }
 
     public ConnectionPanel(BackendAPI backend) {
+        this.backend = backend;
+        if (this.backend != null) {
+            this.backend.addUGSEventListener(this);
+        }
+
         machineStatus = new MachineStatusPanel(backend);
         machineStatus.setVisible(false);
-        setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.connectionPanel")));
-//        setMaximumSize(new java.awt.Dimension(247, 200));
-//        setMinimumSize(new java.awt.Dimension(247, 200));
-//        setPreferredSize(new java.awt.Dimension(247, 200));
+        sendStatusPanel = new SendStatusPanel(backend);
         setName(Localization.getString("mainWindow.swing.connectionPanel"));
+
+        fileChooser = new JFileChooser();
+
+        jogPanel = new JogPanel(backend);
+
+        initComponents();
+    }
+
+    private void initComponents() {
+        loadFirmwareSelector();
 
         portCombo.setEditable(true);
 
@@ -51,32 +80,23 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         baudCombo.setSelectedIndex(2);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
 
-        openCloseButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                opencloseButtonActionPerformed(evt);
-            }
-        });
+        openCloseButton.addActionListener(evt -> opencloseButtonActionPerformed(evt));
+        refreshButton.addActionListener(evt -> loadPortSelector());
+        sendPauseResumeButton.addActionListener(evt -> sendPauseResumeButtonActionPerformed(evt));
+        browseCancelButton.addActionListener(evt -> browseCancelButtonActionPerformed(evt));
 
-        refreshButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshButtonActionPerformed(evt);
-            }
-        });
+        Font f = currentFile.getFont();
+        currentFile.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
 
-        loadFirmwareSelector();
+        sendStatusPanel.setBorder(BorderFactory.createTitledBorder(""));
 
-        this.backend = backend;
-        if (this.backend != null) {
-            this.backend.addUGSEventListener(this);
-        }
+        this.updateConnectionControlsStateOpen(false);
 
-        initComponents();
-    }
-
-    private void initComponents() {
         // MigLayout... 3rd party layout library.
         setLayout(new MigLayout("flowy, hidemode 3"));
-        add(openCloseButton);
+        add(openCloseButton, "wmin button, grow, flowx, split 3");
+        add(sendPauseResumeButton, "r, wmin button, grow");
+        add(browseCancelButton, "r, wmin button, grow");
 
         connection.setLayout(new MigLayout("fill, wrap 3"));
         connection.add(portLabel, "al right");
@@ -88,29 +108,94 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         connection.add(firmwareCombo, "span 3");
         add(connection);
         add(machineStatus);
+        add(currentFile, "grow");
+        add(sendStatusPanel, "grow");
+        add(jogPanel, "grow");
     }
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
-            updateControls();
+        if (evt.isFileChangeEvent()) {
+           switch(evt.getFileState()) {
+               case FILE_LOADED:
+                   updateConnectionControlsStateOpen(backend.isConnected());
+                   updateCurrentFileLabel(new File(evt.getFile()));
+                   break;
+
+               case FILE_LOADING:
+                   sendPauseResumeButton.setEnabled(false);
+                   currentFile.setText("Loading...");
+                   currentFile.setToolTipText("");
+                   break;
+           }
+        }
+
+
+        if (evt.isStateChangeEvent()) {
+            switch (evt.getControlState()) {
+                case COMM_DISCONNECTED:
+                    this.updateConnectionControlsStateOpen(false);
+                    break;
+
+                case COMM_IDLE:
+                    this.updateConnectionControlsStateOpen(true);
+                    sendPauseResumeButton.setText(Localization.getString("mainWindow.swing.sendButton"));
+                    browseCancelButton.setText(Localization.getString("mainWindow.swing.browseButton"));
+                    break;
+
+                case COMM_SENDING:
+                    sendPauseResumeButton.setText(Localization.getString("mainWindow.swing.pauseButton"));
+                    browseCancelButton.setText(Localization.getString("mainWindow.swing.cancelButton"));
+                    break;
+
+                case COMM_SENDING_PAUSED:
+                    sendPauseResumeButton.setText(Localization.getString("mainWindow.ui.resumeButton"));
+                    break;
+
+                default:
+            }
         }
     }
 
-    private void updateControls() {
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
-                this.updateConnectionControlsStateOpen(false);
-                break;
-            case COMM_IDLE:
-                this.updateConnectionControlsStateOpen(true);
-                break;
-            case COMM_SENDING:
-                break;
-            case COMM_SENDING_PAUSED:
-                break;
-            default:
-        }
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+        sendPauseResumeButton.setText(Localization.getString("mainWindow.swing.sendButton"));
+        browseCancelButton.setText(Localization.getString("mainWindow.swing.browseButton"));
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void commandComplete(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void commandComment(String comment) {
+
+    }
+
+    @Override
+    public void messageForConsole(MessageType type, String msg) {
+
+    }
+
+    @Override
+    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+
+    }
+
+    @Override
+    public void postProcessData(int numRows) {
+
     }
 
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
@@ -133,9 +218,6 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         }
     }
 
-    private void refreshButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshButtonActionPerformed
-        loadPortSelector();
-    }
 
     private void loadPortSelector() {
         portCombo.removeAllItems();
@@ -172,21 +254,40 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
         backend.getSettings().setPort(portCombo.getSelectedItem().toString());
         backend.getSettings().setPortRate(baudCombo.getSelectedItem().toString());
         backend.getSettings().setFirmwareVersion(firmwareCombo.getSelectedItem().toString());
+        backend.getSettings().setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
+        jogPanel.saveSettings();
     }
 
     public void loadSettings() {
         portCombo.setSelectedItem(backend.getSettings().getPort());
         baudCombo.setSelectedItem(backend.getSettings().getPortRate());
         firmwareCombo.setSelectedItem(backend.getSettings().getFirmwareVersion());
+
+        String lastOpenedFilename = backend.getSettings().getLastOpenedFilename();
+        if (lastOpenedFilename != null && !lastOpenedFilename.isEmpty()) {
+            fileChooser.setSelectedFile(new File(lastOpenedFilename));
+        }
+
+        updateCurrentFileLabel(backend.getGcodeFile());
+        jogPanel.loadSettings();
     }
 
-    public void updateConnectionControlsStateOpen(boolean isOpen) {
-//        this.portCombo.setEnabled(!isOpen);
-//        this.baudCombo.setEnabled(!isOpen);
-//        this.refreshButton.setEnabled(!isOpen);
-//        this.firmwareCombo.setEnabled(!isOpen);
+    private void updateCurrentFileLabel(File lastOpenedFilename) {
+        if (lastOpenedFilename != null) {
+            currentFile.setText(lastOpenedFilename.getName());
+            currentFile.setToolTipText(lastOpenedFilename.getAbsolutePath());
+        } else {
+            currentFile.setText("");
+            currentFile.setToolTipText("");
+        }
+    }
+
+    private void updateConnectionControlsStateOpen(boolean isOpen) {
         connection.setVisible(!isOpen);
         machineStatus.setVisible(isOpen);
+
+        sendPauseResumeButton.setEnabled(isOpen && backend != null && backend.getGcodeFile() != null);
+        browseCancelButton.setEnabled(isOpen);
 
         if (isOpen) {
             this.openCloseButton.setText(Localization.getString("close"));
@@ -194,5 +295,49 @@ public class ConnectionPanel extends JPanel implements UGSEventListener {
             this.openCloseButton.setText(Localization.getString("open"));
         }
     }
+
+    private void sendPauseResumeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+        try {
+            if (sendPauseResumeButton.getText().equals(Localization.getString("mainWindow.swing.sendButton"))) {
+                this.backend.send();
+            } else {
+                this.backend.pauseResume();
+            }
+        } catch (Exception e) {
+            displayErrorDialog(e.getMessage());
+        }
+    }
+
+    private void browseCancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            if (browseCancelButton.getText().equals(Localization.getString("mainWindow.swing.browseButton"))) {
+                openFileChooser();
+            } else {
+                backend.cancel();
+
+            }
+        } catch (Exception e) {
+            displayErrorDialog(e.getMessage());
+        }
+    }
+
+    private void openFileChooser() {
+        int returnVal = fileChooser.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                File gcodeFile = fileChooser.getSelectedFile();
+                backend.setGcodeFile(gcodeFile);
+            } catch (Exception ex) {
+                displayErrorDialog(ex.getMessage());
+            }
+        } else {
+            // Canceled file open.
+        }
+    }
+
+    public String getDuration() {
+        return sendStatusPanel.getDuration();
+    }
+
 
 }

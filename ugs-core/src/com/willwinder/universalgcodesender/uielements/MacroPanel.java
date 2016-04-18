@@ -31,20 +31,21 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     private final JLabel gcodeLabel = new JLabel(Localization.getString("macroPanel.text"));
     private final JLabel decriptionLabel = new JLabel(Localization.getString("macroPanel.description"));
 
+    @Deprecated
     public MacroPanel() {
-        this(null, null);
+        this(null);
     }
 
-    public MacroPanel(Settings settings, BackendAPI backend) {
+    public MacroPanel(BackendAPI backend) {
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
         }
     }
 
-    @Override
-    public void updateUI() {
-        super.updateUI();
+    @Deprecated
+    public MacroPanel(Settings settings, BackendAPI backend) {
+        this(backend);
     }
 
     @Override

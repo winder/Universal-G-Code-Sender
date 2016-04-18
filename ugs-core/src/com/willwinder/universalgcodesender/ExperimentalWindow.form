@@ -88,19 +88,10 @@
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
-              <Group type="103" groupAlignment="1" attributes="0">
-                  <Component id="jogPanel" min="-2" pref="247" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="fileModePanel" pref="0" max="32767" attributes="0"/>
-                      </Group>
-                      <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
-                  </Group>
-              </Group>
+              <Component id="connectionPanel" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="controlContextTabbedPane" pref="792" max="32767" attributes="0"/>
+                  <Component id="controlContextTabbedPane" pref="764" max="32767" attributes="0"/>
                   <Component id="commandPanel" max="32767" attributes="0"/>
               </Group>
           </Group>
@@ -109,19 +100,11 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" attributes="0">
-              <Component id="connectionPanel" min="-2" pref="215" max="-2" attributes="0"/>
+              <Component id="controlContextTabbedPane" min="-2" pref="294" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="fileModePanel" min="-2" pref="191" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jogPanel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="32" max="32767" attributes="0"/>
+              <Component id="commandPanel" pref="350" max="32767" attributes="0"/>
           </Group>
-          <Group type="102" attributes="0">
-              <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="controlContextTabbedPane" min="-2" pref="283" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="commandPanel" max="32767" attributes="0"/>
-          </Group>
+          <Component id="connectionPanel" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
@@ -146,10 +129,10 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
       <SubComponents>
-        <Container class="javax.swing.JPanel" name="machineControlPanel">
-          <Events>
-            <EventHandler event="componentShown" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="machineControlPanelComponentShownHandler"/>
-          </Events>
+        <Component class="com.willwinder.universalgcodesender.uielements.action.ActionPanel" name="actionPanel">
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.action.ActionPanel(backend)"/>
+          </AuxValues>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Machine Control">
@@ -157,195 +140,8 @@
               </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="requestStateInformation" min="-2" pref="49" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="helpButtonMachineControl" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <Component id="resetCoordinatesButton" min="-2" pref="159" max="-2" attributes="0"/>
-                          <Component id="returnToZeroButton" min="-2" pref="159" max="-2" attributes="0"/>
-                          <Component id="softResetMachineControl" min="-2" pref="159" max="-2" attributes="0"/>
-                          <Group type="102" attributes="0">
-                              <Component id="performHomingCycleButton" min="-2" pref="49" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="killAlarmLock" min="-2" pref="49" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="toggleCheckMode" min="-2" pref="49" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="resetXButton" min="-2" max="-2" attributes="0"/>
-                          <Component id="resetYButton" min="-2" max="-2" attributes="0"/>
-                          <Component id="resetZButton" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="macroActionPanel" max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Component id="resetCoordinatesButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="returnToZeroButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="softResetMachineControl" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="performHomingCycleButton" min="-2" max="-2" attributes="0"/>
-                                  <Component id="killAlarmLock" min="-2" max="-2" attributes="0"/>
-                                  <Component id="toggleCheckMode" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="requestStateInformation" min="-2" max="-2" attributes="0"/>
-                                  <Component id="helpButtonMachineControl" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Component id="resetXButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="resetYButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="resetZButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                      </Group>
-                      <EmptySpace min="111" max="32767" attributes="0"/>
-                  </Group>
-                  <Component id="macroActionPanel" alignment="0" max="32767" attributes="0"/>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Component class="javax.swing.JButton" name="helpButtonMachineControl">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Help"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="helpButtonMachineControlActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="resetYButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Reset Y Axis"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetYCoordinateButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="softResetMachineControl">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Soft Reset"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="softResetMachineControlActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="requestStateInformation">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="$G"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="requestStateInformationActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="returnToZeroButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Return to Zero"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnToZeroButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="toggleCheckMode">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="$C"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="toggleCheckModeActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="resetCoordinatesButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Reset Zero"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetCoordinatesButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="performHomingCycleButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="$H"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="performHomingCycleButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="killAlarmLock">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="$X"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="killAlarmLockActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="resetXButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Reset X Axis"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetXCoordinateButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Component class="javax.swing.JButton" name="resetZButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Reset Z Axis"/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="resetZCoordinateButtonActionPerformed"/>
-              </Events>
-            </Component>
-            <Container class="com.willwinder.universalgcodesender.uielements.MacroActionPanel" name="macroActionPanel">
-              <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroActionPanel(backend.getSettings(), backend)"/>
-              </AuxValues>
-
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="519" max="32767" attributes="0"/>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
-            </Container>
-          </SubComponents>
-        </Container>
-        <Container class="javax.swing.JScrollPane" name="macroPane">
+        </Component>
+        <Container class="javax.swing.JScrollPane" name="macroEditPanel">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
               <JTabbedPaneConstraints tabName="Macros">
@@ -358,126 +154,22 @@
           <SubComponents>
             <Container class="com.willwinder.universalgcodesender.uielements.MacroPanel" name="macroPanel">
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(backend.getSettings(), backend)"/>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.MacroPanel(backend)"/>
               </AuxValues>
 
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignFlowLayout"/>
             </Container>
           </SubComponents>
         </Container>
-      </SubComponents>
-    </Container>
-    <Container class="javax.swing.JPanel" name="fileModePanel">
-      <Properties>
-        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 350]"/>
-        </Property>
-        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 350]"/>
-        </Property>
-        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 350]"/>
-        </Property>
-      </Properties>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout"/>
-      <SubComponents>
-        <Component class="javax.swing.JButton" name="sendButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Send"/>
-            <Property name="enabled" type="boolean" value="false"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="0" gridY="1" gridWidth="1" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JButton" name="pauseButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Pause"/>
-            <Property name="enabled" type="boolean" value="false"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pauseButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="1" gridY="1" gridWidth="1" gridHeight="1" fill="1" ipadX="6" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JButton" name="cancelButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Cancel"/>
-            <Property name="enabled" type="boolean" value="false"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="2" gridY="1" gridWidth="1" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JButton" name="visualizeButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Visualize"/>
-            <Property name="enabled" type="boolean" value="false"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="visualizeButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="0" gridY="2" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JButton" name="browseButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Browse"/>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browseButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="1" gridY="2" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="javax.swing.JButton" name="saveButton">
-          <Properties>
-            <Property name="text" type="java.lang.String" value="Save"/>
-            <Property name="enabled" type="boolean" value="false"/>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[88, 29]"/>
-            </Property>
-            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[88, 29]"/>
-            </Property>
-          </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="saveButtonActionPerformed"/>
-          </Events>
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="2" gridY="2" gridWidth="1" gridHeight="1" fill="2" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="18" weightX="0.0" weightY="0.0"/>
-            </Constraint>
-          </Constraints>
-        </Component>
-        <Component class="com.willwinder.universalgcodesender.uielements.SendStatusPanel" name="sendStatusPanel">
+        <Component class="com.willwinder.universalgcodesender.visualizer.VisualizerPanel" name="visualizerPanel">
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.SendStatusPanel(backend)"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.visualizer.VisualizerPanel(backend)"/>
           </AuxValues>
           <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout" value="org.netbeans.modules.form.compat2.layouts.DesignGridBagLayout$GridBagConstraintsDescription">
-              <GridBagConstraints gridX="0" gridY="0" gridWidth="3" gridHeight="1" fill="1" ipadX="0" ipadY="0" insetsTop="0" insetsLeft="0" insetsBottom="0" insetsRight="0" anchor="10" weightX="0.0" weightY="0.0"/>
+            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Visualizer">
+                <Property name="tabTitle" type="java.lang.String" value="Visualizer"/>
+              </JTabbedPaneConstraints>
             </Constraint>
           </Constraints>
         </Component>
@@ -485,23 +177,15 @@
     </Container>
     <Component class="com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel" name="connectionPanel">
       <Properties>
-        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 200]"/>
-        </Property>
         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 130]"/>
+          <Dimension value="[1, 1]"/>
         </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[247, 130]"/>
+          <Dimension value="[275, 130]"/>
         </Property>
       </Properties>
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend)"/>
-      </AuxValues>
-    </Component>
-    <Component class="com.willwinder.universalgcodesender.uielements.jog.JogPanel" name="jogPanel">
-      <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.jog.JogPanel(backend)"/>
       </AuxValues>
     </Component>
     <Component class="com.willwinder.universalgcodesender.uielements.command.CommandPanel" name="commandPanel">
