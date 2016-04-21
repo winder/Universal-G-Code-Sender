@@ -390,22 +390,22 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
-        private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
-            this.pendantUI = new PendantUI(backend);
-            Collection<PendantURLBean> results = this.pendantUI.start();
-            for (PendantURLBean result : results) {
-                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
-            }
-            this.startPendantServerButton.setEnabled(false);
-            this.stopPendantServerButton.setEnabled(true);
-            this.backend.addControllerListener(pendantUI);
-        }//GEN-LAST:event_startPendantServerButtonActionPerformed
-
-        private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
-            this.pendantUI.stop();
-            this.startPendantServerButton.setEnabled(true);
-            this.stopPendantServerButton.setEnabled(false);
-        }//GEN-LAST:event_stopPendantServerButtonActionPerformed
+//        private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
+//            this.pendantUI = new PendantUI(backend);
+//            Collection<PendantURLBean> results = this.pendantUI.start();
+//            for (PendantURLBean result : results) {
+//                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
+//            }
+//            this.startPendantServerButton.setEnabled(false);
+//            this.stopPendantServerButton.setEnabled(true);
+//            this.backend.addControllerListener(pendantUI);
+//        }//GEN-LAST:event_startPendantServerButtonActionPerformed
+//
+//        private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
+//            this.pendantUI.stop();
+//            this.startPendantServerButton.setEnabled(true);
+//            this.stopPendantServerButton.setEnabled(false);
+//        }//GEN-LAST:event_stopPendantServerButtonActionPerformed
 
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
