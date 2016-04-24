@@ -34,29 +34,13 @@
             </Menu>
           </SubComponents>
         </Menu>
-        <Menu class="javax.swing.JMenu" name="PendantMenu">
+        <Menu class="com.willwinder.universalgcodesender.uielements.pendant.PendantMenu" name="pendantMenu">
           <Properties>
             <Property name="text" type="java.lang.String" value="Pendant"/>
           </Properties>
-          <SubComponents>
-            <MenuItem class="javax.swing.JMenuItem" name="startPendantServerButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Start..."/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="startPendantServerButtonActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="stopPendantServerButton">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Stop..."/>
-                <Property name="enabled" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopPendantServerButtonActionPerformed"/>
-              </Events>
-            </MenuItem>
-          </SubComponents>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new com.willwinder.universalgcodesender.uielements.pendant.PendantMenu(backend)"/>
+          </AuxValues>
         </Menu>
       </SubComponents>
     </Menu>

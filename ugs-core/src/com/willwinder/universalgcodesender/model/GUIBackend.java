@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.*;
@@ -51,7 +52,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private static final String NEW_LINE = "\n    ";
     public static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
-    private IController controller = null;
+    private AbstractController controller = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
@@ -728,6 +729,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                     .append(Localization.getString("firmware.feature.statusUpdateRate"));
             
             throw new Exception(message.toString());
+        }
+    }
+
+    @Override
+    public void sendMessageForConsole(String msg) {
+        if (controller != null) {
+            controller.messageForConsole(msg);
+        } else {
+            //should still send!  Controller probably shouldn't ever be null.
         }
     }
     

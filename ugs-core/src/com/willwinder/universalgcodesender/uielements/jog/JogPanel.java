@@ -1,6 +1,5 @@
 package com.willwinder.universalgcodesender.uielements.jog;
 
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -8,21 +7,16 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.ParseException;
 
 public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
 
-    private final JSpinner stepSizeSpinner = new JSpinner();
+    private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
+    private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
 
     private final JButton unitButton = new JButton();
@@ -37,17 +31,17 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private final BackendAPI backend;
 
+    /**
+     * No-Arg constructor to make this control work in the UI builder tools
+     * @deprecated Use constructor with BackendAPI.
+     */
+    @Deprecated
     public JogPanel() {
         this(null);
     }
 
     public JogPanel(BackendAPI backend) {
         setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
-//        setMinimumSize(new java.awt.Dimension(247, 200));
-//        setPreferredSize(new java.awt.Dimension(247, 200));
-//        setMaximumSize(new java.awt.Dimension(247, 200));
-
-
         this.backend = backend;
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
@@ -61,7 +55,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         yMinusButton.addActionListener(e -> JogPanel.this.yMinusButtonActionPerformed());
         zPlusButton.addActionListener(e -> JogPanel.this.zPlusButtonActionPerformed());
         zMinusButton.addActionListener(e -> JogPanel.this.zMinusButtonActionPerformed());
-        stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
         initComponents();
         addKeyboardListener();
     }
@@ -71,9 +64,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         MigLayout layout = new MigLayout("fill, wrap 4");
         setLayout(layout);
         add(keyboardMovementEnabled, "al left, span 4");
-        add(stepSizeLabel, "al right");
-        add(stepSizeSpinner, "grow, span 2");
+
         add(unitButton, "grow");
+//        add(stepSizeLabel, "al right");
+        add(xyStepSizeSpinner, "span 3, split 2, al left, grow");
+        add(zStepSizeSpinner, "grow");
+
         add(xMinusButton, "spany 2, w 50!, h 50!");
         add(yPlusButton, "w 50!, h 50!");
         add(xPlusButton, "spany 2, w 50!, h 50!");
@@ -128,19 +124,19 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_ADD:
-                                    increaseStepActionPerformed(null);
+                                    increaseStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_SUBTRACT:
-                                    decreaseStepActionPerformed(null);
+                                    decreaseStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_DIVIDE:
-                                    divideStepActionPerformed(null);
+                                    divideStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_MULTIPLY:
-                                    multiplyStepActionPerformed(null);
+                                    multiplyStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_INSERT:
@@ -168,11 +164,25 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private void updateControls() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        setStepSize(backend.getSettings().getManualModeStepSize());
+        xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
 
-        updateManualControls(backend.isConnected());
+        switch (backend.getControlState()) {
+            case COMM_DISCONNECTED:
+                updateManualControls(false);
+                break;
+            case COMM_IDLE:
+                updateManualControls(true);
+                break;
+            case COMM_SENDING:
+                updateManualControls(false);
+                break;
+            case COMM_SENDING_PAUSED:
+//                updateManualControls(true);
+                break;
+            default:
+        }
     }
 
     private void updateUnitButton(boolean unitsAreMM) {
@@ -183,6 +193,21 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
+    private void increaseStepActionPerformed() {
+        xyStepSizeSpinner.increaseStep();
+    }
+
+    private void decreaseStepActionPerformed() {
+        xyStepSizeSpinner.decreaseStep();
+    }
+
+    private void multiplyStepActionPerformed() {
+        xyStepSizeSpinner.multiplyStep();
+    }
+
+    private void divideStepActionPerformed() {
+        xyStepSizeSpinner.divideStep();
+    }
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
@@ -225,13 +250,15 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public void saveSettings() {
         backend.getSettings().setDefaultUnits(unitButton.getText().equals("\"") ? "inch" : "mm");
-        backend.getSettings().setManualModeStepSize(getStepSize());
+        backend.getSettings().setManualModeStepSize(getxyStepSize());
+        backend.getSettings().setzJogStepSize(getzStepSize());
         backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
     }
 
     public void loadSettings() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        setStepSize(backend.getSettings().getManualModeStepSize());
+        xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        zStepSizeSpinner.setValue(backend.getSettings().getzJogStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
     }
@@ -240,128 +267,61 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         return unitButton.getText().equals("mm") ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
     }
 
-    private double getStepSize() {
-        try {
-            this.stepSizeSpinner.commitEdit();
-        } catch (ParseException e) {
-            this.stepSizeSpinner.setValue(0.0);
-        }
-        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
-        return bd.doubleValue();
+    private double getxyStepSize() {
+        double stepSize = xyStepSizeSpinner.getValue();
+        backend.getSettings().setManualModeStepSize(stepSize);
+        return stepSize;
     }
 
-    private void setStepSize(double val) {
-        if (val < 0) {
-            val = 0;
-        }
-        BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
-        val = bd.doubleValue();
-        this.stepSizeSpinner.setValue(val);
-    }
-
-    public void increaseStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-        if (stepSize >= 1) {
-            stepSize++;
-        } else if (stepSize >= 0.1) {
-            stepSize = stepSize + 0.1;
-        } else if (stepSize >= 0.01) {
-            stepSize = stepSize + 0.01;
-        } else {
-            stepSize = 0.01;
-        }
-        this.setStepSize(stepSize);
-    }
-
-    public void decreaseStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-        if (stepSize > 1) {
-            stepSize--;
-        } else if (stepSize > 0.1) {
-            stepSize = stepSize - 0.1;
-        } else if (stepSize > 0.01) {
-            stepSize = stepSize - 0.01;
-        }
-        this.setStepSize(stepSize);
-    }
-
-    public void divideStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-
-        if (stepSize > 100) {
-            stepSize = 100;
-        } else if (stepSize <= 100 && stepSize > 10) {
-            stepSize = 10;
-        } else if (stepSize <= 10 && stepSize > 1) {
-            stepSize = 1;
-        } else if (stepSize <= 1 && stepSize > 0.1) {
-            stepSize = 0.1;
-        } else if (stepSize <= 0.1 ) {
-            stepSize = 0.01;
-        }
-
-        this.setStepSize(stepSize);
-    }
-
-    public void multiplyStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-
-        if (stepSize < 0.01) {
-            stepSize = 0.01;
-        } else if (stepSize >= 0.01 && stepSize < 0.1) {
-            stepSize = 0.1;
-        }  else if (stepSize >= 0.1 && stepSize < 1) {
-            stepSize = 1;
-        }  else if (stepSize >= 1 && stepSize < 10) {
-            stepSize = 10;
-        }  else if (stepSize >= 10) {
-            stepSize = 100;
-        }
-
-        this.setStepSize(stepSize);
+    private double getzStepSize() {
+        double stepSize = zStepSizeSpinner.getValue();
+        backend.getSettings().setzJogStepSize(stepSize);
+        return stepSize;
     }
 
     public boolean isKeyboardMovementEnabled() {
         return keyboardMovementEnabled.isSelected() && xPlusButton.isEnabled();
     }
 
-    public void adjustManualLocation(int x, int y, int z) {
+    public void doJog(int x, int y) {
         try {
-            backend.adjustManualLocation(x, y, z, getStepSize(), getUnits());
+            backend.adjustManualLocation(x, y, 0, getxyStepSize(), getUnits());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doJog(int z) {
+        try {
+            backend.adjustManualLocation(0, 0, z, getzStepSize(), getUnits());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     public void xPlusButtonActionPerformed() {
-        adjustManualLocation(1, 0, 0);
+        this.doJog(1, 0);
     }
 
     public void xMinusButtonActionPerformed() {
-        this.adjustManualLocation(-1, 0, 0);
-
+        doJog(-1, 0);
     }
 
 
     public void yPlusButtonActionPerformed() {
-        this.adjustManualLocation(0, 1, 0);
-
+        doJog(0, 1);
     }
 
     public void yMinusButtonActionPerformed() {
-        this.adjustManualLocation(0, -1, 0);
-
+        doJog(0, -1);
     }
 
-
     public void zPlusButtonActionPerformed() {
-        this.adjustManualLocation(0, 0, 1);
-
+        doJog(1);
     }
 
     public void zMinusButtonActionPerformed() {
-        this.adjustManualLocation(0, 0, -1);
-
+        doJog(-1);
     }
 
     public void unitButtonActionPerformed() {
@@ -378,7 +338,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zMinusButton.setEnabled(enabled);
         zPlusButton.setEnabled(enabled);
         stepSizeLabel.setEnabled(enabled);
-        stepSizeSpinner.setEnabled(enabled);
+        xyStepSizeSpinner.setEnabled(enabled);
+        zStepSizeSpinner.setEnabled(enabled);
         unitButton.setEnabled(enabled);
     }
 

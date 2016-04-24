@@ -49,6 +49,11 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
 
     private final BackendAPI backend;
 
+    /**
+     * No-Arg constructor to make this control work in the UI builder tools
+     * @deprecated Use constructor with BackendAPI.
+     */
+    @Deprecated
     public ConnectionPanel() {
         this(null);
     }
