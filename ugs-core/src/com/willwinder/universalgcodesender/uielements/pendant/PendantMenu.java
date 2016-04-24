@@ -12,9 +12,17 @@ import java.util.Collection;
 public class PendantMenu extends JMenu {
 
     private final JMenuItem startServer = new javax.swing.JMenuItem(Localization.getString("PendantMenu.item.StartServer"));
-    private final PendantUI pendantUI;
+    private final JMenuItem stopServer = new javax.swing.JMenuItem(Localization.getString("PendantMenu.item.StopServer"));
 
+    private final PendantUI pendantUI;
+    private final BackendAPI backend;
+
+    public PendantMenu() {
+        this(null);
+    }
+    
     public PendantMenu(BackendAPI backend) {
+        this.backend = backend;
         if (backend != null) {
             pendantUI = new PendantUI(backend);
         } else {
@@ -25,32 +33,30 @@ public class PendantMenu extends JMenu {
     }
 
     private void initComponents() {
-        startServer.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startPendantServerButtonActionPerformed(evt);
-            }
-        });
-
+        startServer.addActionListener(evt -> startPendantServerButtonActionPerformed());
+        stopServer.addActionListener(evt -> stopPendantServerButtonActionPerformed());
+        stopServer.setEnabled(false);
 
         add(startServer);
+        add(stopServer);
     }
 
-    private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
-//        this.pendantUI = new PendantUI(backend);
+    private void startPendantServerButtonActionPerformed() {
         Collection<PendantURLBean> results = this.pendantUI.start();
         for (PendantURLBean result : results) {
-            this.messageForConsole(ControllerListener.MessageType.INFO, "Pendant URL: " + result.getUrlString());
+            backend.sendMessageForConsole("Pendant URL: " + result.getUrlString());
         }
-        this.startPendantServerButton.setEnabled(false);
-        this.stopPendantServerButton.setEnabled(true);
+        startServer.setEnabled(false);
+        stopServer.setEnabled(true);
         this.backend.addControllerListener(pendantUI);
-    }//GEN-LAST:event_startPendantServerButtonActionPerformed
+    }
 
-    private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
+    private void stopPendantServerButtonActionPerformed() {
         this.pendantUI.stop();
-        this.startPendantServerButton.setEnabled(true);
-        this.stopPendantServerButton.setEnabled(false);
-    }//GEN-LAST:event_stopPendantServerButtonActionPerformed
+        backend.sendMessageForConsole("Pendant stopped");
+        this.startServer.setEnabled(true);
+        this.stopServer.setEnabled(false);
+    }
 
 
 }

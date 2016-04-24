@@ -27,9 +27,11 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     private final CommandTextArea commandTextField;
     private final JLabel commandLabel = new JLabel(Localization.getString("mainWindow.swing.commandLabel"));
 
-
-
-
+    /**
+     * No-Arg constructor to make this control work in the UI builder tools
+     * @deprecated Use constructor with BackendAPI.
+     */
+    @Deprecated
     public CommandPanel() {
         this(null);
     }

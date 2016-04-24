@@ -234,9 +234,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
-        PendantMenu = new javax.swing.JMenu();
-        startPendantServerButton = new javax.swing.JMenuItem();
-        stopPendantServerButton = new javax.swing.JMenuItem();
+        pendantMenu = new com.willwinder.universalgcodesender.uielements.pendant.PendantMenu(backend);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 520));
@@ -283,26 +281,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         mainMenuBar.add(settingsMenu);
 
-        PendantMenu.setText("Pendant");
-
-        startPendantServerButton.setText("Start...");
-        startPendantServerButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startPendantServerButtonActionPerformed(evt);
-            }
-        });
-        PendantMenu.add(startPendantServerButton);
-
-        stopPendantServerButton.setText("Stop...");
-        stopPendantServerButton.setEnabled(false);
-        stopPendantServerButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                stopPendantServerButtonActionPerformed(evt);
-            }
-        });
-        PendantMenu.add(stopPendantServerButton);
-
-        mainMenuBar.add(PendantMenu);
+        pendantMenu.setText("Pendant");
+        mainMenuBar.add(pendantMenu);
 
         setJMenuBar(mainMenuBar);
 
@@ -389,24 +369,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
-
-//        private void startPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startPendantServerButtonActionPerformed
-//            this.pendantUI = new PendantUI(backend);
-//            Collection<PendantURLBean> results = this.pendantUI.start();
-//            for (PendantURLBean result : results) {
-//                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
-//            }
-//            this.startPendantServerButton.setEnabled(false);
-//            this.stopPendantServerButton.setEnabled(true);
-//            this.backend.addControllerListener(pendantUI);
-//        }//GEN-LAST:event_startPendantServerButtonActionPerformed
 //
-//        private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
-//            this.pendantUI.stop();
-//            this.startPendantServerButton.setEnabled(true);
-//            this.stopPendantServerButton.setEnabled(false);
-//        }//GEN-LAST:event_stopPendantServerButtonActionPerformed
-
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
@@ -505,7 +468,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     // Generated variables.
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu PendantMenu;
     private com.willwinder.universalgcodesender.uielements.action.ActionPanel actionPanel;
     private com.willwinder.universalgcodesender.uielements.command.CommandPanel commandPanel;
     private com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel connectionPanel;
@@ -516,9 +478,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JScrollPane macroEditPanel;
     private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
+    private com.willwinder.universalgcodesender.uielements.pendant.PendantMenu pendantMenu;
     private javax.swing.JMenu settingsMenu;
-    private javax.swing.JMenuItem startPendantServerButton;
-    private javax.swing.JMenuItem stopPendantServerButton;
     private com.willwinder.universalgcodesender.visualizer.VisualizerPanel visualizerPanel;
     // End of variables declaration//GEN-END:variables
 

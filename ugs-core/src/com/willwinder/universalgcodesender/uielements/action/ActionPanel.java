@@ -29,6 +29,11 @@ public class ActionPanel extends JPanel implements UGSEventListener {
 
     private final MacroActionPanel macroActionPanel;
 
+    /**
+     * No-Arg constructor to make this control work in the UI builder tools
+     * @deprecated Use constructor with BackendAPI.
+     */
+    @Deprecated
     public ActionPanel() {
         this(null);
     }

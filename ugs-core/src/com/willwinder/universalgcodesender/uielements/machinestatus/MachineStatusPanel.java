@@ -40,6 +40,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private final BackendAPI backend;
 
+    /**
+     * No-Arg constructor to make this control work in the UI builder tools
+     * @deprecated Use constructor with BackendAPI.
+     */
+    @Deprecated
     public MachineStatusPanel() {
         this(null);
     }
