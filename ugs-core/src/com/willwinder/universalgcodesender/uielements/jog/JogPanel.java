@@ -22,7 +22,7 @@ import java.text.ParseException;
 
 public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
 
-    private final JSpinner stepSizeSpinner = new JSpinner();
+    private final StepSizeSpinner stepSizeSpinner = new StepSizeSpinner();
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
 
     private final JButton unitButton = new JButton();
@@ -128,19 +128,19 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_ADD:
-                                    increaseStepActionPerformed(null);
+                                    increaseStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_SUBTRACT:
-                                    decreaseStepActionPerformed(null);
+                                    decreaseStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_DIVIDE:
-                                    divideStepActionPerformed(null);
+                                    divideStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_MULTIPLY:
-                                    multiplyStepActionPerformed(null);
+                                    multiplyStepActionPerformed();
                                     e.consume();
                                     return true;
                                 case KeyEvent.VK_INSERT:
@@ -183,6 +183,21 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
+    private void increaseStepActionPerformed() {
+        stepSizeSpinner.increaseStep();
+    }
+
+    private void decreaseStepActionPerformed() {
+        stepSizeSpinner.decreaseStep();
+    }
+
+    private void multiplyStepActionPerformed() {
+        stepSizeSpinner.multiplyStep();
+    }
+
+    private void divideStepActionPerformed() {
+        stepSizeSpinner.divideStep();
+    }
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
@@ -241,84 +256,13 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     private double getStepSize() {
-        try {
-            this.stepSizeSpinner.commitEdit();
-        } catch (ParseException e) {
-            this.stepSizeSpinner.setValue(0.0);
-        }
-        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
-        return bd.doubleValue();
+        double stepSize = stepSizeSpinner.getValue();
+        backend.getSettings().setManualModeStepSize(stepSize);
+        return stepSize;
     }
 
     private void setStepSize(double val) {
-        if (val < 0) {
-            val = 0;
-        }
-        BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
-        val = bd.doubleValue();
-        this.stepSizeSpinner.setValue(val);
-    }
-
-    public void increaseStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-        if (stepSize >= 1) {
-            stepSize++;
-        } else if (stepSize >= 0.1) {
-            stepSize = stepSize + 0.1;
-        } else if (stepSize >= 0.01) {
-            stepSize = stepSize + 0.01;
-        } else {
-            stepSize = 0.01;
-        }
-        this.setStepSize(stepSize);
-    }
-
-    public void decreaseStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-        if (stepSize > 1) {
-            stepSize--;
-        } else if (stepSize > 0.1) {
-            stepSize = stepSize - 0.1;
-        } else if (stepSize > 0.01) {
-            stepSize = stepSize - 0.01;
-        }
-        this.setStepSize(stepSize);
-    }
-
-    public void divideStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-
-        if (stepSize > 100) {
-            stepSize = 100;
-        } else if (stepSize <= 100 && stepSize > 10) {
-            stepSize = 10;
-        } else if (stepSize <= 10 && stepSize > 1) {
-            stepSize = 1;
-        } else if (stepSize <= 1 && stepSize > 0.1) {
-            stepSize = 0.1;
-        } else if (stepSize <= 0.1 ) {
-            stepSize = 0.01;
-        }
-
-        this.setStepSize(stepSize);
-    }
-
-    public void multiplyStepActionPerformed(java.awt.event.ActionEvent evt) {
-        double stepSize = this.getStepSize();
-
-        if (stepSize < 0.01) {
-            stepSize = 0.01;
-        } else if (stepSize >= 0.01 && stepSize < 0.1) {
-            stepSize = 0.1;
-        }  else if (stepSize >= 0.1 && stepSize < 1) {
-            stepSize = 1;
-        }  else if (stepSize >= 1 && stepSize < 10) {
-            stepSize = 10;
-        }  else if (stepSize >= 10) {
-            stepSize = 100;
-        }
-
-        this.setStepSize(stepSize);
+        stepSizeSpinner.setValue(val);
     }
 
     public boolean isKeyboardMovementEnabled() {
