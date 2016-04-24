@@ -14,6 +14,7 @@ public class Settings {
     private String portRate = "9600";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
+    private double zJogStepSize = 1;
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
     private boolean commandTableEnabled = false;
@@ -145,7 +146,15 @@ public class Settings {
 		this.manualModeStepSize = manualModeStepSize;
 	}
 
-	public boolean isScrollWindowEnabled() {
+    public double getzJogStepSize() {
+        return zJogStepSize;
+    }
+
+    public void setzJogStepSize(double zJogStepSize) {
+        this.zJogStepSize = zJogStepSize;
+    }
+
+    public boolean isScrollWindowEnabled() {
 		return scrollWindowEnabled;
 	}
 

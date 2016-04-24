@@ -168,7 +168,21 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
 
-        updateManualControls(backend.isConnected());
+        switch (backend.getControlState()) {
+            case COMM_DISCONNECTED:
+                updateManualControls(false);
+                break;
+            case COMM_IDLE:
+                updateManualControls(true);
+                break;
+            case COMM_SENDING:
+                updateManualControls(false);
+                break;
+            case COMM_SENDING_PAUSED:
+//                updateManualControls(true);
+                break;
+            default:
+        }
     }
 
     private void updateUnitButton(boolean unitsAreMM) {
@@ -237,13 +251,14 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     public void saveSettings() {
         backend.getSettings().setDefaultUnits(unitButton.getText().equals("\"") ? "inch" : "mm");
         backend.getSettings().setManualModeStepSize(getxyStepSize());
+        backend.getSettings().setzJogStepSize(getzStepSize());
         backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
     }
 
     public void loadSettings() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
         xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
-        zStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        zStepSizeSpinner.setValue(backend.getSettings().getzJogStepSize());
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
         updateUnitButton(unitsAreMM);
     }
@@ -260,6 +275,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private double getzStepSize() {
         double stepSize = zStepSizeSpinner.getValue();
+        backend.getSettings().setzJogStepSize(stepSize);
         return stepSize;
     }
 
