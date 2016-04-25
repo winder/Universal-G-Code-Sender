@@ -48,6 +48,10 @@ public final class MacroService {
     public void reInitActions() {
         String menuPath = "Menu/Machine/Macros";
         String actionCategory = "Macro";
+        String localCategory = Localization.getString("platform.menu.macros");
+        String localized = String.format("Menu/%s/%s",
+                Localization.getString("platform.menu.machine"),
+                Localization.getString("platform.menu.macros"));
 
         try {
             FileObject root= FileUtil.getConfigRoot(); 
@@ -61,9 +65,6 @@ public final class MacroService {
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
             int numMacros = settings.getLastMacroIndex() + 1;
-            String localized = String.format("Menu/%s/%s",
-                    Localization.getString("platform.menu.machine"),
-                    Localization.getString("platform.menu.macros"));
 
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
@@ -76,7 +77,7 @@ public final class MacroService {
                     }
                 }
 
-                ars.registerAction(m.getName(), actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
+                ars.registerAction(m.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
 
             // Remove anything that doesn't exist.

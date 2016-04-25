@@ -156,20 +156,21 @@ public class JogService {
                     Localization.getString("platform.menu.machine"),
                     Localization.getString("platform.menu.jog"));
             String category = "Machine";
+            String localCategory = Localization.getString("platform.menu.machine");
             String menuPath = "Menu/" + category + "/Jog";
             
             ars.registerAction(getMessage(this.getClass(), "JogService.xPlus") ,
-                    category, "M-RIGHT" , menuPath, localized, new JogAction(this, 1, 0, 0));
+                    category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(this, 1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.xMinus"),
-                    category, "M-LEFT"  , menuPath, localized, new JogAction(this,-1, 0, 0));
+                    category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(this,-1, 0, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yPlus") ,
-                    category, "M-UP"    , menuPath, localized, new JogAction(this, 0, 1, 0));
+                    category, localCategory, "M-UP"    , menuPath, localized, new JogAction(this, 0, 1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.yMinus"),
-                    category, "M-DOWN"  , menuPath, localized, new JogAction(this, 0,-1, 0));
+                    category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(this, 0,-1, 0));
             ars.registerAction(getMessage(this.getClass(), "JogService.zPlus") ,
-                    category, "SM-UP"   , menuPath, localized, new JogAction(this, 0, 0, 1));
+                    category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(this, 0, 0, 1));
             ars.registerAction(getMessage(this.getClass(), "JogService.zMinus"),
-                    category, "SM-DOWN" , menuPath, localized, new JogAction(this, 0, 0,-1));
+                    category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(this, 0, 0,-1));
 
             localized = String.format("Menu/%s/%s/%s",
                     Localization.getString("platform.menu.machine"),
@@ -177,24 +178,24 @@ public class JogService {
                     Localization.getString("platform.menu.jog.size"));
             menuPath = menuPath + "/Step Size";
             ars.registerAction("10",
-                    category, "" , menuPath, localized, new JogSizeAction(this, 10));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 10));
             ars.registerAction("1",
-                    category, "" , menuPath, localized, new JogSizeAction(this, 1));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 1));
             ars.registerAction("0.1",
-                    category, "" , menuPath, localized, new JogSizeAction(this, 0.1));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.1));
             ars.registerAction("0.01",
-                    category, "" , menuPath, localized, new JogSizeAction(this, 0.01));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.01));
             ars.registerAction("0.001",
-                    category, "" , menuPath, localized, new JogSizeAction(this, 0.001));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.001));
 
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.divide"),
-                    category, "" , menuPath, localized, new JogSizeAction(this, '/'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '/'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.multiply"),
-                    category, "" , menuPath, localized, new JogSizeAction(this, '*'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '*'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.decrease"),
-                    category, "" , menuPath, localized, new JogSizeAction(this, '-'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '-'));
             ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.increase"),
-                    category, "" , menuPath, localized, new JogSizeAction(this, '+'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '+'));
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
