@@ -1431,44 +1431,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
+        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings, this, true);
         
-        // Set initial values.
-        gcsd.setSpeedOverrideEnabled(settings.isOverrideSpeedSelected());
-        gcsd.setSpeedOverridePercent((int) settings.getOverrideSpeedValue());
-        gcsd.setMaxCommandLength(settings.getMaxCommandLength());
-        gcsd.setTruncateDecimalLength(settings.getTruncateDecimalLength());
-        gcsd.setSingleStepModeEnabled(settings.isSingleStepMode());
-        gcsd.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-        gcsd.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
-        gcsd.setStatusUpdatesRate(settings.getStatusUpdateRate());
-        gcsd.setStateColorDisplayEnabled(settings.isDisplayStateColor());
-        gcsd.setConvertArcsToLines(settings.isConvertArcsToLines());
-        gcsd.setSmallArcThreshold(settings.getSmallArcThreshold());
-        gcsd.setSmallArcSegmentLengthSpinner(settings.getSmallArcSegmentLength());
-        gcsd.setselectedLanguage(settings.getLanguage());
-        gcsd.setAutoConnectEnabled(settings.isAutoConnectEnabled());
-        gcsd.setAutoReconnect(settings.isAutoReconnect());
-
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
-            settings.setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
-            settings.setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
-            settings.setMaxCommandLength(gcsd.getMaxCommandLength());
-            settings.setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
-            settings.setSingleStepMode(gcsd.getSingleStepModeEnabled());
-            settings.setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
-            settings.setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
-            settings.setStatusUpdateRate(gcsd.getStatusUpdatesRate());
-            settings.setDisplayStateColor(gcsd.getDisplayStateColor());
-            settings.setConvertArcsToLines(gcsd.getConvertArcsToLines());
-            settings.setSmallArcThreshold(gcsd.getSmallArcThreshold());
-            settings.setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
-            settings.setLanguage(gcsd.getLanguage());
-            settings.setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
-            settings.setAutoReconnect(gcsd.getAutoReconnect());
-
             try {
                 backend.applySettings(settings);
             } catch (Exception e) {
@@ -1476,8 +1443,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
 
             if (this.vw != null) {
-                vw.setMinArcLength(gcsd.getSmallArcThreshold());
-                vw.setArcLength(gcsd.getSmallArcSegmentLength());
+                vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
+                vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
             }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
