@@ -249,7 +249,7 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
                     }
                     String region = settings.getLanguage();
                     for (int i = 0; i < box.getItemCount(); i++) {
-                        if (region.equals(((Language)box.getItemAt(i)).getLocaleCode())) {
+                        if (region.equals(((Language)box.getItemAt(i)).getLanguageCode())) {
                             box.setSelectedIndex(i);
                         }
                     }
@@ -359,7 +359,7 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
 
                 case SENDER_LANGUAGE:
                     Language item = (Language)entry.getValue().getValue();
-                    settings.setLanguage(item.getLocaleCode());
+                    settings.setLanguage(item.getLanguageCode());
                     break;
 
                 default:

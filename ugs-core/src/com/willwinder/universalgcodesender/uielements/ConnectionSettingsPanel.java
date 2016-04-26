@@ -137,7 +137,7 @@ public class ConnectionSettingsPanel extends JPanel {
                 settings.isAutoReconnect());
         add(autoReconnect);
 
-        languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages());
+        languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
         add(languageCombo);
     }
 
