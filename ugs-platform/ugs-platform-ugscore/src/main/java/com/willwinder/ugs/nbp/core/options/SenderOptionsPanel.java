@@ -20,14 +20,18 @@ package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
+import com.willwinder.ugs.nbp.lib.options.ComboRenderer;
 import com.willwinder.ugs.nbp.lib.options.IChanged;
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
+import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
+import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import javax.swing.JComboBox;
 
 /**
  *
@@ -48,6 +52,7 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
     private static final String SENDER_ARCS_LENGTH = "sender.arcs.length";
     private static final String SENDER_AUTOCONNECT = "sender.autoconnect";
     private static final String SENDER_AUTORECONNECT = "sender.autoreconnect";
+    private static final String SENDER_LANGUAGE = "sender.language";
 
     // This is a compatibility thing, because options aren't accessed as a map
     // I need a way to call each of the getter / setter methods. I'm going to
@@ -147,6 +152,11 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         op = new Option<Boolean>(key, localize(key), "", null);
         loadMap.put(key, op);
         storeMap.put(op.localized, op);
+
+        key = SENDER_LANGUAGE;
+        op = new Option<ComboRenderer>(key, localize(key), "", null);
+        loadMap.put(key, op);
+        storeMap.put(op.localized, op);
     }
 
     private String localize(String s) {
@@ -230,8 +240,24 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
                     entry.getValue().setValue(settings.isAutoReconnect());
                     break;
 
+                case SENDER_LANGUAGE:
+                    ComboRenderer box = new ComboRenderer();
+                    box.setEditable(false);
+
+                    for (Language lang : AvailableLanguages.getAvailableLanguages()) {
+                        box.addItem(lang);
+                    }
+                    String region = settings.getLanguage();
+                    for (int i = 0; i < box.getItemCount(); i++) {
+                        if (region.equals(((Language)box.getItemAt(i)).getLocaleCode())) {
+                            box.setSelectedIndex(i);
+                        }
+                    }
+                    entry.getValue().setValue(box);
+                    break;
+
                 default:
-                    throw new IllegalArgumentException("Unknown option in sender options panel.");
+                    throw new IllegalArgumentException("Unknown option in sender options panel: " + entry.getKey());
             }
 
             add(entry.getValue());
@@ -250,6 +276,9 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
         for (int i = 0; i < optionTable.getModel().getRowCount(); i++) {
             String preference = (String) optionTable.getModel().getValueAt(i, 0);
             Option op = storeMap.get(preference);
+            if (i == 14) {
+                System.out.println("here");
+            }
             Object val = optionTable.getModel().getValueAt(i,1);
             op.setValue(val);
         }
@@ -328,8 +357,13 @@ public class SenderOptionsPanel extends AbstractOptionsPanel {
                     settings.setAutoReconnect((Boolean)entry.getValue().getValue());
                     break;
 
+                case SENDER_LANGUAGE:
+                    Language item = (Language)entry.getValue().getValue();
+                    settings.setLanguage(item.getLocaleCode());
+                    break;
+
                 default:
-                    throw new IllegalArgumentException("Unknown option in sender options panel.");
+                    throw new IllegalArgumentException("Unknown option in sender options panel: " + entry.getKey());
             }
         }
         SettingsFactory.saveSettings(settings);

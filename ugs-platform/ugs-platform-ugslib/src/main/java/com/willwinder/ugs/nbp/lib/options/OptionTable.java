@@ -18,8 +18,11 @@
  */
 package com.willwinder.ugs.nbp.lib.options;
 
+import com.willwinder.universalgcodesender.i18n.Language;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -32,6 +35,7 @@ import javax.swing.table.TableCellRenderer;
 public class OptionTable extends JTable {
     private final DefaultTableModel model;
     private final List<Class> types;
+    ArrayList<TableCellRenderer> editors = new ArrayList<>();
 
     // Class type of cell being edited.
     private Class editingClass = null;
@@ -57,6 +61,7 @@ public class OptionTable extends JTable {
     public void addRow(Option o) {
         model.addRow(new Object[]{o.localized, o.getValue()});
         types.add(o.getValue().getClass());
+        editors.add(null);
     }
 
     public void clear() {
@@ -72,11 +77,17 @@ public class OptionTable extends JTable {
 
         int modelColumn = convertColumnIndexToModel(column);
         if (modelColumn == 1) {
+            if (editors.get(row) != null) return editors.get(row);
+
             // TODO: When I have a color type check for that to create a custom
             //       color renderer. Also language combo box?
             Class rowClass = getModel().getValueAt(row, modelColumn).getClass();
             if (rowClass == java.awt.Color.class) {
                 return new ColorRenderer(true);
+            } else if (rowClass == ComboRenderer.class) {
+                ComboRenderer box = (ComboRenderer) getModel().getValueAt(row, modelColumn);
+                editors.set(row, box);
+                return box;
             }
             return getDefaultRenderer(rowClass);
         } else {
@@ -94,6 +105,9 @@ public class OptionTable extends JTable {
             editingClass = getModel().getValueAt(row, modelColumn).getClass();
             if (editingClass == java.awt.Color.class) {
                 return new ColorEditor();
+            } else if (editingClass == ComboRenderer.class) {
+                ComboRenderer box = (ComboRenderer) getModel().getValueAt(row, modelColumn);
+                return new DefaultCellEditor(box);
             }
             return getDefaultEditor(editingClass);
         } else {
@@ -125,6 +139,9 @@ public class OptionTable extends JTable {
             value = v;
         }
         public void setValue(T v) {
+            if (v.getClass() == Language.class) {
+                System.out.println("What?");
+            }
             value = (T)v;
         }
 
