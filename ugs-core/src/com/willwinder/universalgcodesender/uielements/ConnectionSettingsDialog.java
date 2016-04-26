@@ -66,7 +66,7 @@ public class ConnectionSettingsDialog extends JDialog {
     final JButton closeWithoutSave = new JButton(Localization.getString("close"));
     final JButton helpButton = new JButton(Localization.getString("help"));
     final JScrollPane scrollPane = new JScrollPane();
-    ConnectionSettingsPanel settingsPanel;// = new ConnectionSettingsPanel(settings);
+    ConnectionSettingsPanel settingsPanel;
 
     private void initComponents() {
         settingsPanel = new ConnectionSettingsPanel(settings);
