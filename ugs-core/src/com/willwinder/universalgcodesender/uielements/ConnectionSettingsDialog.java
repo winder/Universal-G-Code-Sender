@@ -21,13 +21,9 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
-import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
-import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -69,11 +65,12 @@ public class ConnectionSettingsDialog extends JDialog {
     final JButton closeWithSave = new JButton(Localization.getString("save.close"));
     final JButton closeWithoutSave = new JButton(Localization.getString("close"));
     final JButton helpButton = new JButton(Localization.getString("help"));
-    final JScrollPane jScrollPane1 = new JScrollPane();
+    final JScrollPane scrollPane = new JScrollPane();
     ConnectionSettingsPanel settingsPanel;// = new ConnectionSettingsPanel(settings);
 
     private void initComponents() {
         settingsPanel = new ConnectionSettingsPanel(settings);
+        scrollPane.setViewportView(settingsPanel);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -86,7 +83,7 @@ public class ConnectionSettingsDialog extends JDialog {
 
         setLayout(new MigLayout());
         add(titleLabel, "wrap");
-        add(settingsPanel, "wrap, span 3");
+        add(scrollPane, "wrap, span 3");
         add(helpButton);
         add(closeWithoutSave);
         add(closeWithSave);
