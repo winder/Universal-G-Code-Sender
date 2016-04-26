@@ -67,8 +67,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
         add(unitButton, "grow");
 //        add(stepSizeLabel, "al right");
-        add(xyStepSizeSpinner, "span 3, split 2, al left, grow");
-        add(zStepSizeSpinner, "grow");
+        add(xyStepSizeSpinner, "span 3, split 2, al left, w 75!");
+        add(zStepSizeSpinner, "w 75!");
 
         add(xMinusButton, "spany 2, w 50!, h 50!");
         add(yPlusButton, "w 50!, h 50!");
