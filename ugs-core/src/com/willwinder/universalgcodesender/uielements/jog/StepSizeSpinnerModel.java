@@ -44,34 +44,4 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         return super.getPreviousValue();
     }
 
-    //    @Override
-//    public Double getNextValue() {
-//        double stepSize = getValue();
-//        double increment = MAX_VALUE;
-//        while (increment >= MIN_VALUE) {
-//            if (stepSize >= increment) {
-//                stepSize += increment;
-//                break;
-//            } else {
-//                increment = increment / 10;
-//            }
-//        }
-//        return bound(stepSize);
-//    }
-//
-//    @Override
-//    public Double getPreviousValue() {
-//        double stepSize = getValue();
-//        double increment = MAX_VALUE;
-//        while (increment >= MIN_VALUE) {
-//            if (stepSize > increment) {
-//                stepSize -= increment;
-//                break;
-//            } else {
-//                increment = increment / 10;
-//            }
-//        }
-//        return bound(stepSize);
-//    }
-
 }
