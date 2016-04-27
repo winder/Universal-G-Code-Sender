@@ -37,29 +37,16 @@ final class SenderOptionsPanel extends javax.swing.JPanel {
     }
 
     private void initComponents() {
-        settingsPanel = new ConnectionSettingsPanel(settings);
+        settingsPanel = new ConnectionSettingsPanel(settings, controller);
         setLayout(new BorderLayout());
         add(settingsPanel, BorderLayout.CENTER);
     }
 
     void load() {
-        // TODO read settings and initialize GUI
-        // Example:        
-        // someCheckBox.setSelected(Preferences.userNodeForPackage(SenderOptionsPanel.class).getBoolean("someFlag", false));
-        // or for org.openide.util with API spec. version >= 7.4:
-        // someCheckBox.setSelected(NbPreferences.forModule(SenderOptionsPanel.class).getBoolean("someFlag", false));
-        // or:
-        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
     }
 
     void store() {
-        // TODO store modified settings
-        // Example:
-        // Preferences.userNodeForPackage(SenderOptionsPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or for org.openide.util with API spec. version >= 7.4:
-        // NbPreferences.forModule(SenderOptionsPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or:
-        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
+        settingsPanel.updateSettingsObject();
     }
 
     boolean valid() {

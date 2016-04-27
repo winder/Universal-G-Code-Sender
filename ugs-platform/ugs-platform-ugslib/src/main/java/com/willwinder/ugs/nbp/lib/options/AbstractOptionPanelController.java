@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.lib.options;
 
+import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;

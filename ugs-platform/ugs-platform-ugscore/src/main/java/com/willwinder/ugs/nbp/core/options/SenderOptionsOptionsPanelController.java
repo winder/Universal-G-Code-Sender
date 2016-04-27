@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.options;
 
+import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;
@@ -33,7 +34,7 @@ import org.openide.util.Lookup;
         keywordsCategory = "UGS/SenderOptions"
 )
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_SenderOptions=Sender Options", "AdvancedOption_Keywords_SenderOptions=UGS"})
-public final class SenderOptionsOptionsPanelController extends OptionsPanelController {
+public final class SenderOptionsOptionsPanelController extends OptionsPanelController implements IChanged {
 
     private SenderOptionsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -89,7 +90,7 @@ public final class SenderOptionsOptionsPanelController extends OptionsPanelContr
         return panel;
     }
 
-    void changed() {
+    public void changed() {
         if (!changed) {
             changed = true;
             pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);

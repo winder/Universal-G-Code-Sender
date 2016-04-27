@@ -19,8 +19,8 @@
 package com.willwinder.ugs.nbm.visualizer.options;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
-import com.willwinder.ugs.nbp.lib.options.IChanged;
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
+import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.awt.Color;
 
 final public class VisualizerOptionsPanel extends AbstractOptionsPanel {

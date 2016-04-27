@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.lib.options;
 
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
+import com.willwinder.universalgcodesender.uielements.IChanged;
 import javax.swing.JPanel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
