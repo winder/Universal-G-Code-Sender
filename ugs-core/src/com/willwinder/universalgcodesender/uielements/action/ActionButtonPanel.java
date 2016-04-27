@@ -4,7 +4,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.uielements.MacroActionPanel;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -17,7 +16,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private final JButton resetCoordinatesButton = new JButton(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
     private final JButton returnToZeroButton = new JButton(Localization.getString("mainWindow.swing.returnToZeroButton"));
-    private final JButton softResetMachineControl = new JButton("Soft Reset");
+    private final JButton softResetMachineControl = new JButton(Localization.getString("mainWindow.swing.softReset"));
     private final JButton resetXButton = new JButton("Reset X Axis");
     private final JButton resetYButton = new JButton("Reset Y Axis");
     private final JButton resetZButton = new JButton("Reset Z Axis");
