@@ -30,4 +30,8 @@ public class Language {
         public String getRegion() {
             return region;
         }
+
+        public String getLanguageCode() {
+            return language + "_" + region;
+        }
     }

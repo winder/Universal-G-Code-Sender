@@ -18,10 +18,7 @@
  */
 package com.willwinder.ugs.nbp.lib.services;
 
-import com.google.common.base.Joiner;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.swing.Action;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -47,13 +44,16 @@ public class ActionRegistrationService {
      * @param action an action object to attach to the action entry.
      * @throws IOException 
      */
-    public void registerAction(String name, String category, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
+    public void registerAction(String name, String category, String localCategory, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
         ///////////////////////
         // Add/Update Action //
         ///////////////////////
         String originalFile = "Actions/" + category + "/" + name + ".instance";
         FileObject root = FileUtil.getConfigRoot();
         FileObject in = FileUtil.createFolder(root, "Actions/" + category);
+        //in.setAttribute("displayName", localCategory);
+        //in.setAttribute("SystemFileSystem.localizingBundle", localCategory + "lkhaglk");
+        //in.setAttribute("SystemFileSystem.localizingBundle", localCategory);
         in.refresh();
 
         FileObject obj = in.getFileObject(name, "instance");

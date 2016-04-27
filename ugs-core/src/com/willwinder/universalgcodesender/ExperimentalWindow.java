@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.util.logging.Level;
 
 /**
  *
@@ -315,43 +316,16 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(this, true);
+        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(backend.getSettings(), this, true);
         
-        // Set initial values.
-        gcsd.setSpeedOverrideEnabled(backend.getSettings().isOverrideSpeedSelected());
-        gcsd.setSpeedOverridePercent((int) backend.getSettings().getOverrideSpeedValue());
-        gcsd.setMaxCommandLength(backend.getSettings().getMaxCommandLength());
-        gcsd.setTruncateDecimalLength(backend.getSettings().getTruncateDecimalLength());
-        gcsd.setSingleStepModeEnabled(backend.getSettings().isSingleStepMode());
-        gcsd.setRemoveAllWhitespace(backend.getSettings().isRemoveAllWhitespace());
-        gcsd.setStatusUpdatesEnabled(backend.getSettings().isStatusUpdatesEnabled());
-        gcsd.setStatusUpdatesRate(backend.getSettings().getStatusUpdateRate());
-        gcsd.setStateColorDisplayEnabled(backend.getSettings().isDisplayStateColor());
-        gcsd.setConvertArcsToLines(backend.getSettings().isConvertArcsToLines());
-        gcsd.setSmallArcThreshold(backend.getSettings().getSmallArcThreshold());
-        gcsd.setSmallArcSegmentLengthSpinner(backend.getSettings().getSmallArcSegmentLength());
-        gcsd.setselectedLanguage(backend.getSettings().getLanguage());
-        gcsd.setAutoConnectEnabled(backend.getSettings().isAutoConnectEnabled());
-        gcsd.setAutoReconnect(backend.getSettings().isAutoReconnect());
-
         gcsd.setVisible(true);
         
         if (gcsd.saveChanges()) {
-            backend.getSettings().setOverrideSpeedSelected(gcsd.getSpeedOverrideEnabled());
-            backend.getSettings().setOverrideSpeedValue(gcsd.getSpeedOverridePercent());
-            backend.getSettings().setMaxCommandLength(gcsd.getMaxCommandLength());
-            backend.getSettings().setTruncateDecimalLength(gcsd.getTruncateDecimalLength());
-            backend.getSettings().setSingleStepMode(gcsd.getSingleStepModeEnabled());
-            backend.getSettings().setRemoveAllWhitespace(gcsd.getRemoveAllWhitespace());
-            backend.getSettings().setStatusUpdatesEnabled(gcsd.getStatusUpdatesEnabled());
-            backend.getSettings().setStatusUpdateRate(gcsd.getStatusUpdatesRate());
-            backend.getSettings().setDisplayStateColor(gcsd.getDisplayStateColor());
-            backend.getSettings().setConvertArcsToLines(gcsd.getConvertArcsToLines());
-            backend.getSettings().setSmallArcThreshold(gcsd.getSmallArcThreshold());
-            backend.getSettings().setSmallArcSegmentLength(gcsd.getSmallArcSegmentLength());
-            backend.getSettings().setLanguage(gcsd.getLanguage());
-            backend.getSettings().setAutoConnectEnabled(gcsd.getAutoConnectEnabled());
-            backend.getSettings().setAutoReconnect(gcsd.getAutoReconnect());
+            try {
+                backend.applySettings(backend.getSettings());
+            } catch (Exception e) {
+                displayErrorDialog(e.getMessage());
+            }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
 
