@@ -1,7 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender.uielements;
 
@@ -9,6 +22,10 @@ import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.Settings;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collection;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -16,6 +33,7 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -23,6 +41,8 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class ConnectionSettingsPanel extends JPanel {
+    Collection<Component> components = new ArrayList<>();
+
     Checkbox overrideSpeedEnabled;
     Spinner overrideSpeedPercent;
     Spinner maxCommandLength;
@@ -40,10 +60,44 @@ public class ConnectionSettingsPanel extends JPanel {
     JComboBox languageCombo;
 
     private final Settings settings;
+    private final IChanged changer;
 
-    public ConnectionSettingsPanel(Settings settings) {
+    public ConnectionSettingsPanel(Settings settings, IChanged changer) {
+        this.changer = changer;
         this.settings = settings;
         initComponents();
+        initActions();
+        changer.changed();
+    }
+    public ConnectionSettingsPanel(Settings settings) {
+        this(settings, null);
+    }
+
+    private void initActions() {
+        for (Component c : components) {
+            Class clazz = c.getClass();
+            if (clazz == Spinner.class) {
+                ((Spinner)c).spinner.addChangeListener((ChangeEvent e) -> {
+                    changer.changed();
+                });
+            }
+            else if (clazz == Checkbox.class) {
+                ((Checkbox)c).box.addActionListener((ActionEvent e) -> {
+                    changer.changed();
+                });
+            }
+            else if (clazz == JComboBox.class) {
+                ((JComboBox)c).addActionListener((ActionEvent e) -> {
+                    changer.changed();
+                });
+            }
+        }
+    }
+
+    public Component add(Component comp) {
+        Component ret = super.add(comp);
+        components.add(comp);
+        return ret;
     }
 
     public void updateSettingsObject() {
@@ -65,7 +119,7 @@ public class ConnectionSettingsPanel extends JPanel {
     }
 
     private void initComponents() {
-        setLayout(new MigLayout("wrap 1, debug", "grow, fill", "grow, fill"));
+        setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
 
         overrideSpeedEnabled = new Checkbox(
                 Localization.getString("sender.speed.override"),
@@ -137,7 +191,14 @@ public class ConnectionSettingsPanel extends JPanel {
                 settings.isAutoReconnect());
         add(autoReconnect);
 
-        languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages());
+        languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
+        for (int i = 0; i < languageCombo.getItemCount(); i++) {
+            Language l = (Language)languageCombo.getItemAt(i);
+            if (l.getLanguageCode().equals(settings.getLanguage())) {
+                languageCombo.setSelectedIndex(i);
+                break;
+            }
+        }
         add(languageCombo);
     }
 
@@ -146,7 +207,7 @@ public class ConnectionSettingsPanel extends JPanel {
      */
     private class Spinner extends JPanel {
         JLabel label;
-        JSpinner spinner;
+        public JSpinner spinner;
         public Spinner(String text, SpinnerModel model) {
             label = new JLabel(text);
             spinner = new JSpinner(model);
@@ -159,7 +220,7 @@ public class ConnectionSettingsPanel extends JPanel {
     }
 
     private class Checkbox extends JPanel {
-        JCheckBox box;
+        public JCheckBox box;
         public Checkbox(String text, boolean selected) {
             box = new JCheckBox(text, selected);
             setLayout(new MigLayout("insets 0"));

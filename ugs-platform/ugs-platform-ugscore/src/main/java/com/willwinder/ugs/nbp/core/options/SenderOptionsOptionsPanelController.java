@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.lib.options;
+package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.beans.PropertyChangeListener;
@@ -27,20 +27,24 @@ import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
-public abstract class AbstractOptionPanelController<T extends AbstractOptionsPanel> extends OptionsPanelController implements IChanged {
+@OptionsPanelController.SubRegistration(
+        location = "UGS",
+        displayName = "#AdvancedOption_DisplayName_SenderOptions",
+        keywords = "#AdvancedOption_Keywords_SenderOptions",
+        keywordsCategory = "UGS/SenderOptions"
+)
+@org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_SenderOptions=Sender Options", "AdvancedOption_Keywords_SenderOptions=UGS"})
+public final class SenderOptionsOptionsPanelController extends OptionsPanelController implements IChanged {
 
-    protected T panel;
+    private SenderOptionsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
 
-    @Override
     public void update() {
-        getPanel().clear();
         getPanel().load();
         changed = false;
     }
 
-    @Override
     public void applyChanges() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -51,57 +55,47 @@ public abstract class AbstractOptionPanelController<T extends AbstractOptionsPan
         });
     }
 
-    @Override
     public void cancel() {
         // need not do anything special, if no changes have been persisted yet
     }
 
-    @Override
     public boolean isValid() {
         return getPanel().valid();
     }
 
-    @Override
     public boolean isChanged() {
         return changed;
     }
 
-    @Override
     public HelpCtx getHelpCtx() {
         return null; // new HelpCtx("...ID") if you have a help set
     }
 
-    @Override
     public JComponent getComponent(Lookup masterLookup) {
         return getPanel();
     }
 
-    @Override
     public void addPropertyChangeListener(PropertyChangeListener l) {
         pcs.addPropertyChangeListener(l);
     }
 
-    @Override
     public void removePropertyChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
     }
 
-    public abstract T getPanel();
-    /*
-    {
+    private SenderOptionsPanel getPanel() {
         if (panel == null) {
             panel = new SenderOptionsPanel(this);
         }
         return panel;
     }
-    */
 
     public void changed() {
         if (!changed) {
             changed = true;
-            pcs.firePropertyChange(AbstractOptionPanelController.PROP_CHANGED, false, true);
+            pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
         }
-        pcs.firePropertyChange(AbstractOptionPanelController.PROP_VALID, null, null);
+        pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
     }
 
 }

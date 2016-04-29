@@ -23,7 +23,9 @@ import com.willwinder.ugs.nbp.core.control.Bundle;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
 import com.willwinder.universalgcodesender.utils.Settings;
+import java.awt.BorderLayout;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -61,7 +63,9 @@ public final class ActionsTopComponent extends TopComponent {
     protected BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
     public ActionsTopComponent() {
-        initComponents();
+        this.setLayout(new BorderLayout());
+        this.add(new ActionButtonPanel(backend), BorderLayout.CENTER);
+        //initComponents();
         setName(Bundle.CTL_ActionsTopComponent());
         setToolTipText(Bundle.HINT_ActionsTopComponent());
     }

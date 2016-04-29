@@ -95,13 +95,17 @@ public class SettingsFactory {
 
         File settingsFile = getSettingsFile();
 
-        logger.info(Localization.getString("settings.log.loading"));
+        // Localized setting not available here.
+        //logger.info(Localization.getString("settings.log.loading"));
+        logger.info("Loading settings.");
         try {
             if(settingsFile.getName().endsWith("json") && settingsFile.exists()){
-                logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
                 out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
             } else if(settingsFile.getName().endsWith("properties")){
-                    logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                    //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                    logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
                     Properties properties = new Properties();
                     properties.load(new FileInputStream(settingsFile));
                     out.setLastOpenedFilename(properties.getProperty("last.dir", System.getProperty(USER_HOME)));
@@ -133,7 +137,8 @@ public class SettingsFactory {
             }
             out.finalizeInitialization();
         } catch (Exception e) {
-            logger.warning(Localization.getString("settings.log.error"));
+            //logger.warning(Localization.getString("settings.log.error"));
+            logger.warning("Can't load settings, using defaults.");
         }
         
         if (out == null) return new Settings();

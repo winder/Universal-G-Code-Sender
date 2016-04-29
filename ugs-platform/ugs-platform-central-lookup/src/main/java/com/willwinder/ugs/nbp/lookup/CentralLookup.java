@@ -23,6 +23,7 @@
  */
 package com.willwinder.ugs.nbp.lookup;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -50,6 +51,7 @@ public class CentralLookup extends AbstractLookup {
         try {
             GUIBackend backend = new GUIBackend();
             Settings settings = SettingsFactory.loadSettings();
+            Localization.initialize(settings.getLanguage());
             backend.applySettings(settings);
             this.add(backend);
             this.add(settings);

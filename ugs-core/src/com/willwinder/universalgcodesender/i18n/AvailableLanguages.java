@@ -18,14 +18,15 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
  * @author moll
  */
 public class AvailableLanguages {
-    private static Vector<Language> availableLanguages = new Vector<>();
+    private static Collection<Language> availableLanguages = new ArrayList<>();
     
     static {
         availableLanguages.add(new Language("en", "US", "English"));
@@ -38,7 +39,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("nl", "NL", "Dutch"));
     }
 
-    public static Vector<Language> getAvailableLanguages() {
+    public static Collection<Language> getAvailableLanguages() {
         return availableLanguages;
     }
 
