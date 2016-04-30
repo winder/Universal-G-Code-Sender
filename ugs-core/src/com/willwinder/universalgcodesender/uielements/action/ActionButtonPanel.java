@@ -42,76 +42,32 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
         }
 
         initComponents();
+        updateControls();
     }
 
     private void initComponents() {
 
-        helpButtonMachineControl.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                helpButtonMachineControlActionPerformed(evt);
-            }
-        });
+        helpButtonMachineControl.addActionListener(this::helpButtonMachineControlActionPerformed);
 
-        resetYButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetYCoordinateButtonActionPerformed(evt);
-            }
-        });
+        resetYButton.addActionListener(this::resetYCoordinateButtonActionPerformed);
 
-        softResetMachineControl.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                softResetMachineControlActionPerformed(evt);
-            }
-        });
+        softResetMachineControl.addActionListener(this::softResetMachineControlActionPerformed);
 
-        requestStateInformation.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                requestStateInformationActionPerformed(evt);
-            }
-        });
+        requestStateInformation.addActionListener(this::requestStateInformationActionPerformed);
 
-        returnToZeroButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                returnToZeroButtonActionPerformed(evt);
-            }
-        });
+        returnToZeroButton.addActionListener(this::returnToZeroButtonActionPerformed);
 
+        resetCoordinatesButton.addActionListener(this::resetCoordinatesButtonActionPerformed);
 
-        resetCoordinatesButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetCoordinatesButtonActionPerformed(evt);
-            }
-        });
+        performHomingCycleButton.addActionListener(this::performHomingCycleButtonActionPerformed);
 
-        performHomingCycleButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                performHomingCycleButtonActionPerformed(evt);
-            }
-        });
+        killAlarmLock.addActionListener(this::killAlarmLockActionPerformed);
 
-        killAlarmLock.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                killAlarmLockActionPerformed(evt);
-            }
-        });
+        toggleCheckMode.addActionListener(this::toggleCheckModeActionPerformed);
 
-        toggleCheckMode.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                toggleCheckModeActionPerformed(evt);
-            }
-        });
+        resetXButton.addActionListener(this::resetXCoordinateButtonActionPerformed);
 
-        resetXButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetXCoordinateButtonActionPerformed(evt);
-            }
-        });
-
-        resetZButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resetZCoordinateButtonActionPerformed(evt);
-            }
-        });
+        resetZButton.addActionListener(this::resetZCoordinateButtonActionPerformed);
 
 
         MigLayout layout = new MigLayout("fill, wrap 2", "[fill, sg 1][fill, sg 1][fill, grow]");
