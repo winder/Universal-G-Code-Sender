@@ -17,9 +17,9 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
     private final JButton resetCoordinatesButton = new JButton(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
     private final JButton returnToZeroButton = new JButton(Localization.getString("mainWindow.swing.returnToZeroButton"));
     private final JButton softResetMachineControl = new JButton(Localization.getString("mainWindow.swing.softReset"));
-    private final JButton resetXButton = new JButton("Reset X Axis");
-    private final JButton resetYButton = new JButton("Reset Y Axis");
-    private final JButton resetZButton = new JButton("Reset Z Axis");
+    private final JButton resetXButton = new JButton(Localization.getString("mainWindow.swing.resetX"));
+    private final JButton resetYButton = new JButton(Localization.getString("mainWindow.swing.resetY"));
+    private final JButton resetZButton = new JButton(Localization.getString("mainWindow.swing.resetZ"));
     private final JButton performHomingCycleButton = new JButton("$H");
     private final JButton requestStateInformation = new JButton("$G");
     private final JButton killAlarmLock = new JButton("$X");
