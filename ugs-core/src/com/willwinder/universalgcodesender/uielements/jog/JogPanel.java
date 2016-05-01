@@ -31,6 +31,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private final BackendAPI backend;
 
+    private boolean statusUpdated = false;
+
     /**
      * No-Arg constructor to make this control work in the UI builder tools
      * @deprecated Use constructor with BackendAPI.
@@ -67,8 +69,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
         add(unitButton, "grow");
 //        add(stepSizeLabel, "al right");
-        add(xyStepSizeSpinner, "span 3, split 2, al left, grow");
-        add(zStepSizeSpinner, "grow");
+        add(xyStepSizeSpinner, "span 3, split 2, al left, w 75!");
+        add(zStepSizeSpinner, "w 75!");
 
         add(xMinusButton, "spany 2, w 50!, h 50!");
         add(yPlusButton, "w 50!, h 50!");
@@ -171,15 +173,17 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
                 updateManualControls(false);
+                statusUpdated = false;
                 break;
             case COMM_IDLE:
-                updateManualControls(true);
+                if (statusUpdated) {
+                    updateManualControls(true);
+                }
                 break;
             case COMM_SENDING:
                 updateManualControls(false);
                 break;
             case COMM_SENDING_PAUSED:
-//                updateManualControls(true);
                 break;
             default:
         }
@@ -245,7 +249,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-
+        if (!statusUpdated) {
+            if (backend.isConnected()) {
+                updateManualControls(true);
+            }
+        }
+        statusUpdated = true;
     }
 
     public void saveSettings() {
