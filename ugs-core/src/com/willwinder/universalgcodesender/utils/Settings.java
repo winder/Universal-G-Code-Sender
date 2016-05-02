@@ -330,6 +330,10 @@ public class Settings {
         return macro;
     }
 
+    public Integer getNumMacros() {
+        return macros.size();
+    }
+
     public Integer getLastMacroIndex() {
         //Obviously it would be more efficient to just store the max index value, but this is safer in that it's one less thing
         //to keep in sync.

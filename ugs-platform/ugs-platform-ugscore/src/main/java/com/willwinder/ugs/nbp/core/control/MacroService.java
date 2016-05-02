@@ -64,7 +64,7 @@ public final class MacroService {
             Settings settings = CentralLookup.getDefault().lookup(Settings.class);
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
-            int numMacros = settings.getLastMacroIndex() + 1;
+            int numMacros = settings.getNumMacros();
 
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
