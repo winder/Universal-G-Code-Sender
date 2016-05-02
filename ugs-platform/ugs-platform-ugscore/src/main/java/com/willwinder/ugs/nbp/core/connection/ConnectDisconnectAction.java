@@ -22,10 +22,16 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.Icon;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -33,6 +39,7 @@ import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.NbPreferences;
 import org.openide.util.Utilities;
 
 @ActionID(
@@ -45,8 +52,9 @@ import org.openide.util.Utilities;
 )
 @ActionReference(path = "Toolbars/Connection", position = 1)
 @NbBundle.Messages("CTL_Connect=Connect")
-//@NbBundle.Messages("CTL_Disconnect=Disconnect")
 public final class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
+    private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
+
     BackendAPI backend;
     final private String CONNECT_ICON_PATH = "resources/disconnect.gif";
     final private String DISCONNECT_ICON_PATH = "resources/connect.png";
@@ -90,9 +98,42 @@ public final class ConnectDisconnectAction extends AbstractAction implements UGS
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            ConnectionGUITopComponent.connect();
+            connect();
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }
     }
+
+    public static void connect() {
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+
+        logger.log(Level.INFO, "openclose button, connection open: {0}", backend.isConnected());
+        if( !backend.isConnected() ) {
+            
+            final Preferences pref = NbPreferences.forModule(ConnectionProperty.class);
+            
+            String firmware = pref.get("firmware", "GRBL");
+            String port = pref.get("address", "");
+            int baudRate = Integer.parseInt(pref.get("baud", "115200"));
+            
+            try {
+                backend.applySettings(settings);
+                backend.connect(firmware, port, baudRate);
+                settings.setFirmwareVersion(firmware);
+            } catch (Exception e) {
+                e.printStackTrace();
+                NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            }
+        } else {
+            try {
+                backend.disconnect();
+            } catch (Exception e) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            }
+        }
+    }
+
 }
