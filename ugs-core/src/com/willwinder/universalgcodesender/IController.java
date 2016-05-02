@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -49,6 +50,11 @@ public interface IController {
     public void toggleCheckMode() throws Exception;
     public void viewParserState() throws Exception;
     public void issueSoftReset() throws Exception;
+
+    /*
+    Overrides
+    */
+    public void sendOverrideCommand(Overrides command) throws Exception;
 
     /*
     Behavior

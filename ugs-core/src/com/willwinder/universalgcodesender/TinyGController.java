@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
@@ -195,6 +196,11 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void statusUpdatesRateValueChanged(int rate) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+    }
+
+    @Override
+    public void sendOverrideCommand(Overrides command) throws Exception {
         throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 

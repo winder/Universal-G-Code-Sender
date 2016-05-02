@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.util.ArrayList;
@@ -68,8 +69,9 @@ public class GrblUtils {
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
     
-    public enum Capabilities {
-        REAL_TIME, STATUS_C
+    public static class Capabilities {
+        public boolean REAL_TIME = false;
+        public boolean OVERRIDES = false;
     }
     
     /** 
@@ -229,34 +231,36 @@ public class GrblUtils {
      * Determines version of GRBL position capability.
      */
     static protected Capabilities getGrblStatusCapabilities(final double version, final String letter) {
-        if (version >= 0.8) {
+        Capabilities ret = new Capabilities();
+
+        if (version >= 1.0) {
+            ret.REAL_TIME = true;
+            ret.OVERRIDES = true;
+        }
+
+        else if (version >= 0.8) {
             if (version==0.8 && (letter != null) && letter.equals("c")) {
-                return Capabilities.STATUS_C;
+                ret.REAL_TIME = true;
             } else if (version >= 0.9) {
-                return Capabilities.STATUS_C;
+                ret.REAL_TIME = true;
             }
         }
-        return null;
+        return ret;
     }
     
     /**
      * Check if a string contains a GRBL position string.
      */
+    private static final String STATUS_REGEX = "\\<.*\\>";
+    private static final Pattern STATUS_PATTERN = Pattern.compile(STATUS_REGEX);
     static protected Boolean isGrblStatusString(final String response) {
-        double retValue = -1;
-        final String REGEX = "\\<.*\\>";
-        
-        // Search for a version.
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(response);
-        if (matcher.find()) {
-            return true;
-        }
-        return false;
+        return STATUS_PATTERN.matcher(response).find();
     }
 
+    private static final String FEEDBACK_REGEX = "[.*]";
+    private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
     static protected Boolean isGrblFeedbackMessage(final String response) {
-        return response.startsWith("[") && response.endsWith("]");
+        return FEEDBACK_PATTERN.matcher(response).find();
     }
 
 
@@ -271,7 +275,7 @@ public class GrblUtils {
         String retValue = null;
         String REGEX;
         
-        if (version == Capabilities.STATUS_C) {
+        if (version.REAL_TIME) {
             REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
         } else {
             return null;
@@ -290,7 +294,7 @@ public class GrblUtils {
     
     static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
     static protected Units getUnitsFromStatusString(final String status, final Capabilities version) {
-        if (version == Capabilities.STATUS_C) {
+        if (version.REAL_TIME) {
             if (mmPattern.matcher(status).find()) {
                 return Units.MM;
             } else {
@@ -301,9 +305,9 @@ public class GrblUtils {
         return Units.UNKNOWN;
     }
 
-    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)(?=,WPos:)");
+    static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version == Capabilities.STATUS_C) {
+        if (version.REAL_TIME) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
         } else {
             return null;
@@ -312,7 +316,7 @@ public class GrblUtils {
     
     static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
     static protected Position getWorkPositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version == Capabilities.STATUS_C) {
+        if (version.REAL_TIME) {
             return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
         } else {
             return null;
@@ -328,6 +332,46 @@ public class GrblUtils {
                                 reportingUnits);
         }
         
+        return null;
+    }
+
+    /**
+     * Map version enum to GRBL real time command byte.
+     */
+    static public Byte getOverrideForEnum(final Overrides command, final Capabilities version) {
+        if (version != null && version.OVERRIDES) {
+            switch (command) {
+                //CMD_DEBUG_REPORT, // 0x85 // Only when DEBUG enabled, sends debug report in '{}' braces.
+                case CMD_FEED_OVR_RESET:
+                    return (byte)0x90; // Restores feed override value to 100%.
+                case CMD_FEED_OVR_COARSE_PLUS:
+                    return (byte)0x91;
+                case CMD_FEED_OVR_COARSE_MINUS:
+                    return (byte)0x92;
+                case CMD_FEED_OVR_FINE_PLUS :
+                    return (byte)0x93;
+                case CMD_FEED_OVR_FINE_MINUS :
+                    return (byte)0x94;
+                case CMD_RAPID_OVR_RESET:
+                    return (byte)0x95;
+                case CMD_RAPID_OVR_MEDIUM:
+                    return (byte)0x96;
+                case CMD_RAPID_OVR_LOW:
+                    return (byte)0x97;
+                case CMD_SPINDLE_OVR_RESET:
+                    return (byte)0x99; // Restores spindle override value to 100%.
+                case CMD_SPINDLE_OVR_COARSE_PLUS:
+                    return (byte)0x9A;
+                case CMD_SPINDLE_OVR_COARSE_MINUS:
+                    return (byte)0x9B;
+                case CMD_SPINDLE_OVR_FINE_PLUS:
+                    return (byte)0x9C;
+                case CMD_SPINDLE_OVR_FINE_MINUS:
+                    return (byte)0x9D;
+                case CMD_SPINDLE_OVR_STOP:
+                    return (byte)0x9E;
+            }
+        }
         return null;
     }
 }

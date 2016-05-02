@@ -1,7 +1,6 @@
 package com.willwinder.universalgcodesender.uielements.pendant;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;

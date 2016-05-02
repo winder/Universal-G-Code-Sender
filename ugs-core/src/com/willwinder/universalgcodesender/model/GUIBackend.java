@@ -798,4 +798,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             l.UGSEvent(event);
         }
     }
+
+    @Override
+    public void sendOverrideCommand(Overrides override) throws Exception {
+        this.controller.sendOverrideCommand(override);
+    }
 }

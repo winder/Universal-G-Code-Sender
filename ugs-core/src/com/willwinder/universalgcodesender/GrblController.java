@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -50,7 +51,7 @@ public class GrblController extends AbstractController {
     private GrblSettingsListener settings;
 
     // Grbl status members.
-    private GrblUtils.Capabilities positionMode = null;
+    private GrblUtils.Capabilities capabilities = null;
     private Boolean realTimeCapable = false;
     private String grblState;
     private Position machineLocation;
@@ -123,7 +124,7 @@ public class GrblController extends AbstractController {
             
             this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
-            this.positionMode = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
+            this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
             try {
                 this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
                 this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
@@ -418,7 +419,7 @@ public class GrblController extends AbstractController {
      */
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
-        if (this.positionMode != null && this.getStatusUpdatesEnabled()) {
+        if (this.capabilities != null && this.getStatusUpdatesEnabled()) {
             if (this.positionPollTimer.isRunning() == false) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();
@@ -437,15 +438,15 @@ public class GrblController extends AbstractController {
     
     // No longer a listener event
     private void handlePositionString(final String string) {
-        if (this.positionMode != null) {
-            grblState = GrblUtils.getStateFromStatusString(string, positionMode);
+        if (this.capabilities != null) {
+            grblState = GrblUtils.getStateFromStatusString(string, capabilities);
 
-            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, positionMode, getReportingUnits());
-            workLocation = GrblUtils.getWorkPositionFromStatusString(string, positionMode, getReportingUnits());
+            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, capabilities, getReportingUnits());
+            workLocation = GrblUtils.getWorkPositionFromStatusString(string, capabilities, getReportingUnits());
             
             // Save max Z location
             if (machineLocation != null) {
-                Units u = GrblUtils.getUnitsFromStatusString(string, positionMode);
+                Units u = GrblUtils.getUnitsFromStatusString(string, capabilities);
                 double zLocationMM = machineLocation.z;
                 if (u == Units.INCH)
                     zLocationMM *= 26.4;
@@ -475,6 +476,14 @@ public class GrblController extends AbstractController {
         
         // This will start the timer up again if it is supported and enabled.
         this.beginPollingPosition();
+    }
+
+    @Override
+    public void sendOverrideCommand(Overrides command) throws Exception {
+        Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
+        if (realTimeCommand != null) {
+            this.comm.sendByteImmediately(realTimeCommand);
+        }
     }
 
 }

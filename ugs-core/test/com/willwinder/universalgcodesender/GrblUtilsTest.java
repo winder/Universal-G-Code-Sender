@@ -270,26 +270,32 @@ public class GrblUtilsTest {
         System.out.println("getGrblStatusCapabilities");
         double version;
         String letter;
-        Capabilities expResult;
+        Capabilities expResult = new Capabilities();
         Capabilities result;
 
         version = 0.8;
         letter = "c";
-        expResult = Capabilities.STATUS_C;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertEquals(expResult, result);
+        assertEquals(true, result.REAL_TIME);
+        assertEquals(false, result.OVERRIDES);
         
         version = 0.8;
         letter = "a";
-        expResult = null;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertEquals(expResult, result);
+        assertEquals(false, result.REAL_TIME);
+        assertEquals(false, result.OVERRIDES);
         
         version = 0.9;
         letter = null;
-        expResult = Capabilities.STATUS_C;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertEquals(expResult, result);
+        assertEquals(true, result.REAL_TIME);
+        assertEquals(false, result.OVERRIDES);
+
+        version = 1.0;
+        letter = null;
+        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        assertEquals(true, result.REAL_TIME);
+        assertEquals(true, result.OVERRIDES);
     }
 
     /**
@@ -320,12 +326,12 @@ public class GrblUtilsTest {
     public void testGetStateFromStatusString() {
         System.out.println("getStateFromStatusString");
         String status;
-        Capabilities version;
+        Capabilities version = new Capabilities();
         String expResult;
         String result;
 
         status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
-        version = Capabilities.STATUS_C;
+        version.REAL_TIME = true;
         expResult = "Idle";
         result = GrblUtils.getStateFromStatusString(status, version);
         assertEquals(expResult, result);
@@ -338,7 +344,8 @@ public class GrblUtilsTest {
     public void testGetMachinePositionFromStatusString() {
         System.out.println("getMachinePositionFromStatusString");
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
-        Capabilities version = Capabilities.STATUS_C;
+        Capabilities version = new Capabilities();
+        version.REAL_TIME = true;
         Position expResult = new Position(5.529, 0.560, 7.000, Utils.Units.UNKNOWN);
         Position result = GrblUtils.getMachinePositionFromStatusString(status, version, Utils.Units.UNKNOWN);
         assertEquals(expResult, result);
@@ -351,7 +358,8 @@ public class GrblUtilsTest {
     public void testGetWorkPositionFromStatusString() {
         System.out.println("getWorkPositionFromStatusString");
         String status = "<Idle,MPos:5.529,0.560,7.000,WPos:1.529,-5.440,-0.000>";
-        Capabilities version = Capabilities.STATUS_C;
+        Capabilities version = new Capabilities();
+        version.REAL_TIME = true;
         Position expResult = new Position(1.529, -5.440, -0.000, Utils.Units.UNKNOWN);
         Position result = GrblUtils.getWorkPositionFromStatusString(status, version, Utils.Units.UNKNOWN);
         assertEquals(expResult, result);

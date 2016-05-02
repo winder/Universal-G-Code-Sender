@@ -70,6 +70,9 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
 
     // Programatically call an action.
     public void performAction(ACTIONS action) throws Exception;
+
+    // Programatically call an override.
+    public void sendOverrideCommand(Overrides override) throws Exception;
            
     // Shouldn't be needed often.
     public IController getController();
