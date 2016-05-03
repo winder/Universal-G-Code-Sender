@@ -1,3 +1,6 @@
+/**
+ * Send speed override commands to the backend.
+ */
 /*
     Copywrite 2016 Will Winder
 

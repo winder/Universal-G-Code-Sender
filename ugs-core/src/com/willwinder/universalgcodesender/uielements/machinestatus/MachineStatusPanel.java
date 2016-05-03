@@ -1,3 +1,25 @@
+/**
+ * DRO style display panel with current controller state and most recent gcode
+ * comment.
+ */
+/*
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.uielements.machinestatus;
 
 import com.willwinder.universalgcodesender.Utils;
@@ -10,9 +32,9 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.miginfocom.swing.MigLayout;
 
-
 import javax.swing.*;
 import java.awt.*;
+import java.io.InputStream;
 
 public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
 
@@ -59,32 +81,71 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.backend.addControllerListener(this);
         }
 
+        applyFont();
         initComponents();
     }
 
 
+    private void applyFont() {
+        String fontPath="/resources/";
+        String fontName="LetsGoDigitalRegular.ttf";
+        InputStream is = getClass().getResourceAsStream(fontPath+fontName);
+        Font font;
+        
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, is);
+            font = font.deriveFont(Font.BOLD,28);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.err.println(fontName + " not loaded.  Using serif font.");
+            font = new Font("serif", Font.PLAIN, 24);
+        }
+        
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(font);
+        
+        this.machinePositionXValue.setFont(font);
+        this.machinePositionYValue.setFont(font);
+        this.machinePositionZValue.setFont(font);
+        
+        this.workPositionXValue.setFont(font);
+        this.workPositionYValue.setFont(font);
+        this.workPositionZValue.setFont(font);
+    }
+
     private void initComponents() {
         // MigLayout... 3rd party layout library.
-        MigLayout layout = new MigLayout("fill, wrap 4");
+        MigLayout layout = new MigLayout("fill, wrap 2");
         setLayout(layout);
-        add(activeStateLabel, "al right, span 2");
-        add(activeStateValueLabel, "span 2");
-        add(latestCommentLabel, "al right, span 2");
-        add(latestCommentValueLabel, "span 2");
-        add(workPositionLabel, "al right, span 2");
-        add(machinePositionLabel, "span 2");
-        add(workPositionXLabel, "al right");
-        add(workPositionXValue);
-        add(machinePositionXLabel, "al right");
-        add(machinePositionXValue);
-        add(workPositionYLabel, "al right");
-        add(workPositionYValue);
-        add(machinePositionYLabel, "al right");
-        add(machinePositionYValue);
-        add(workPositionZLabel, "al right");
-        add(workPositionZValue);
-        add(machinePositionZLabel, "al right");
-        add(machinePositionZValue);
+        add(activeStateLabel, "al right");
+        add(activeStateValueLabel);
+        add(latestCommentLabel, "al right");
+        add(latestCommentValueLabel);
+
+        // Subpanels for work/machine read outs.
+        JPanel workPanel = new JPanel();
+        workPanel.setBackground(Color.LIGHT_GRAY);
+        workPanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
+        workPanel.add(workPositionLabel, "span 2, wrap");
+        workPanel.add(workPositionXLabel, "al right");
+        workPanel.add(workPositionXValue, "growx");
+        workPanel.add(workPositionYLabel, "al right");
+        workPanel.add(workPositionYValue, "growx");
+        workPanel.add(workPositionZLabel, "al right");
+        workPanel.add(workPositionZValue, "growx");
+
+        JPanel machinePanel = new JPanel();
+        machinePanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
+        machinePanel.setBackground(Color.LIGHT_GRAY);
+        machinePanel.add(machinePositionLabel, "span 2");
+        machinePanel.add(machinePositionXLabel, "al right");
+        machinePanel.add(machinePositionXValue, "growx");
+        machinePanel.add(machinePositionYLabel, "al right");
+        machinePanel.add(machinePositionYValue, "growx");
+        machinePanel.add(machinePositionZLabel, "al right");
+        machinePanel.add(machinePositionZValue, "growx");
+        add(workPanel, "growx");
+        add(machinePanel, "growx");
     }
 
     @Override
@@ -115,7 +176,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             default:
         }
     }
-
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
@@ -192,9 +252,4 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.activeStateValueLabel.setBackground(null);
         }
     }
-
-
-
-
-
 }
