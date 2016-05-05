@@ -18,13 +18,20 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
 import java.awt.BorderLayout;
+import java.io.IOException;
+import javax.swing.Action;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -32,31 +39,36 @@ import org.openide.util.NbBundle.Messages;
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.ugs.nbp.control//Status//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "StatusTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.ugs.nbp.control.StatusTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionID(category = LocationStatusTopComponent.category, id = LocationStatusTopComponent.actionId)
+@ActionReference(path = LocationStatusTopComponent.windowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_StatusAction",
+        displayName = "<Not localized:LocationStatusTopComponent>",
         preferredID = "StatusTopComponent"
 )
-@Messages({
-    "CTL_StatusAction=Controller State (DRO)",
-    "CTL_StatusTopComponent=Controller State (DRO)",
-    "HINT_StatusTopComponent=Current controller state."
-})
 public final class LocationStatusTopComponent extends TopComponent {
+    public final static String windowPath = "Menu/Window";
+    public final static String actionId = "com.willwinder.ugs.nbp.control.StatusTopComponent";
+    public final static String category = "Window";
     public LocationStatusTopComponent() {
-        setName(Bundle.CTL_StatusTopComponent());
-        setToolTipText(Bundle.HINT_StatusTopComponent());
+        String title = Localization.getString("platform.window.dro");
+        setName(title);
+        setToolTipText(Localization.getString("platform.window.dro.tooltip"));
+        ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
+        ars.overrideActionName(category, actionId, title);
+        
+        /*
+        try {
+            ars.createAndLocalizeFullMenu(windowPath, "Menu/Window");
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        */
         
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());

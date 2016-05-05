@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.swing.Action;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -68,7 +69,7 @@ public class ActionRegistrationService {
         // Add/Update Menu //
         /////////////////////
         if (menuPath != null && name != null && menuPath.length() > 0 && name.length() > 0) {
-            in = createAndLocalizeMenu(menuPath, localMenu);
+            in = createAndLocalizeFullMenu(menuPath, localMenu);
 
             obj = in.getFileObject(name, SHADOW);
             // Create if missing.
@@ -95,7 +96,7 @@ public class ActionRegistrationService {
      * Creates a folder path in the netbeans filesystem and sets a localized
      * display name or each level of the path.
      */
-    private FileObject createAndLocalizeMenu(String path, String localizedPath) throws IOException {
+    public FileObject createAndLocalizeFullMenu(String path, String localizedPath) throws IOException {
         FileObject root = FileUtil.getConfigRoot();
         String[] paths = path.split("/");
         String[] names = localizedPath.split("/");
@@ -118,5 +119,25 @@ public class ActionRegistrationService {
         }
 
         return in;
+    }
+
+    /**
+     * Set the display name of an action for a given category.
+     * @param category which category the key is in.
+     * @param key identifier for the action.
+     * @param name display name to set.
+     */
+    public void overrideActionName(String category, String key, String name) {
+        try {
+            FileObject root = FileUtil.getConfigRoot();
+            FileObject in = FileUtil.createFolder(root, "Actions/" + category);
+            
+            FileObject obj = in.getFileObject(key.replaceAll("\\.", "-"), "instance");
+            if (obj != null) {
+                obj.setAttribute("displayName", name);
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 }
