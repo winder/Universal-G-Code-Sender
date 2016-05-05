@@ -17,6 +17,7 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbp.lib.eventbus</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbp.lib.helper</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.services</publicPackage>
 
@@ -181,6 +182,11 @@
             <artifactId>org-openide-util-lookup</artifactId>
             <version>RELEASE81</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+            <version>RELEASE81</version>
         </dependency>
     </dependencies>
     <properties>

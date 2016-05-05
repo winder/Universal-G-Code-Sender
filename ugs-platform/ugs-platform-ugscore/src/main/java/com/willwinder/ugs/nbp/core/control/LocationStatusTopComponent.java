@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.lib.helper.LocalizableTopComponent;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -51,24 +52,20 @@ import org.openide.util.NbBundle.Messages;
         displayName = "<Not localized:LocationStatusTopComponent>",
         preferredID = "StatusTopComponent"
 )
-public final class LocationStatusTopComponent extends TopComponent {
+public final class LocationStatusTopComponent extends LocalizableTopComponent {
     public final static String windowPath = "Menu/Window";
     public final static String actionId = "com.willwinder.ugs.nbp.control.StatusTopComponent";
     public final static String category = "Window";
+
     public LocationStatusTopComponent() {
-        String title = Localization.getString("platform.window.dro");
-        setName(title);
-        setToolTipText(Localization.getString("platform.window.dro.tooltip"));
-        ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
-        ars.overrideActionName(category, actionId, title);
-        
-        /*
-        try {
-            ars.createAndLocalizeFullMenu(windowPath, "Menu/Window");
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        */
+        super(
+                Localization.getString("platform.window.dro"),
+                Localization.getString("platform.window.dro.tooltip"),
+                category,
+                actionId,
+                null,
+                null
+                );
         
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
@@ -95,9 +92,5 @@ public final class LocationStatusTopComponent extends TopComponent {
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
-    }
-
-    public LocationStatusTopComponent(Lookup lookup) {
-        super(lookup);
     }
 }
