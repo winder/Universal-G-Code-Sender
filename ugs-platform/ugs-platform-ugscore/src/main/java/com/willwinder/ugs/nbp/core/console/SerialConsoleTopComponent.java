@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.core.console;
 
 import com.willwinder.ugs.nbp.core.console.Bundle;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -53,16 +54,13 @@ import org.openide.util.NbPreferences;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "output", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.console.SerialConsoleTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionID(category = LocalizingService.SerialConsoleCategory, id = LocalizingService.SerialConsoleActionId)
+@ActionReference(path = LocalizingService.SerialConsoleWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_SerialConsoleAction",
+        displayName = "<Not localized:SerialConsoleTopComponent>",
         preferredID = "SerialConsoleTopComponent"
 )
 @Messages({
-    "CTL_SerialConsoleAction=Console",
-    "CTL_SerialConsoleTopComponent=Console",
-    "HINT_SerialConsoleTopComponent=The UGS Console"
 })
 public final class SerialConsoleTopComponent extends TopComponent implements ControllerListener, MouseListener {
 
@@ -75,9 +73,10 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     private JCheckBoxMenuItem verboseMenuItem = new JCheckBoxMenuItem("Show verbose messages.");
     
     public SerialConsoleTopComponent() {
+        setName(LocalizingService.SerialConsoleTitle);
+        setToolTipText(LocalizingService.SerialConsoleTooltip);
+
         initComponents();
-        setName(Bundle.CTL_SerialConsoleTopComponent());
-        setToolTipText(Bundle.HINT_SerialConsoleTopComponent());
         
         menu.add(verboseMenuItem);
     }

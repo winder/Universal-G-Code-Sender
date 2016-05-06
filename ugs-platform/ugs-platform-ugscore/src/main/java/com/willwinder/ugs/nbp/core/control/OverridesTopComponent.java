@@ -18,10 +18,10 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.OverridesPanel;
-import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -37,26 +37,24 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.OverridesTopComponent")
-@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
+@ActionID(category = LocalizingService.OverridesCategory, id = LocalizingService.OverridesActionId)
+@ActionReference(path = LocalizingService.OverridesWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_OverridesAction",
+        displayName = "<Not localized:OverridesTopComponent>",
         preferredID = "OverridesTopComponent"
 )
+
 @Messages({
-    "CTL_OverridesAction=Common Overrides",
-    "CTL_OverridesTopComponent=Common Overrides",
-    "HINT_OverridesTopComponent=Common action shortcuts."
 })
 public final class OverridesTopComponent extends TopComponent {
-    protected Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-    protected BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
     public OverridesTopComponent() {
+        setName(LocalizingService.OverridesTitle);
+        setToolTipText(LocalizingService.OverridesTooltip);
+
         this.setLayout(new BorderLayout());
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.add(new OverridesPanel(backend), BorderLayout.CENTER);
-        setName(Bundle.CTL_OverridesTopComponent());
-        setToolTipText(Bundle.HINT_OverridesTopComponent());
     }
 
     @Override

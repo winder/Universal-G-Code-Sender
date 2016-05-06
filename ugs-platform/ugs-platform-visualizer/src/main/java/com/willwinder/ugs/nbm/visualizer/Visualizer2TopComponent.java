@@ -34,6 +34,7 @@ import com.jogamp.opengl.awt.GLJPanel;
 import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -55,11 +56,11 @@ import org.openide.util.NbPreferences;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "visualizer", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionID(category = LocalizingService.VisualizerCategory, id = LocalizingService.VisualizerActionId)
+@ActionReference(path = LocalizingService.VisualizerWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_Visualizer2Action",
-        preferredID = "Visualizer2TopComponent"
+        displayName = "<Not localized:VisualizerTopComponent>",
+        preferredID = "VisualizerTopComponent"
 )
 @Messages({
     "CTL_Visualizer2Action=Visualizer",
@@ -75,6 +76,9 @@ public final class Visualizer2TopComponent extends TopComponent {
     private final BackendAPIReadOnly backend;
     
     public Visualizer2TopComponent() {
+        setName(LocalizingService.VisualizerTitle);
+        setToolTipText(LocalizingService.VisualizerTooltip);
+
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         glCaps = new GLCapabilities(null);
 

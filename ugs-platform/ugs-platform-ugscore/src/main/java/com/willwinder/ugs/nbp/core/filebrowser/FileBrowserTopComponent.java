@@ -20,6 +20,7 @@
 package com.willwinder.ugs.nbp.core.filebrowser;
 
 import com.willwinder.ugs.nbp.core.filebrowser.Bundle;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -43,24 +44,24 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = false)
-@ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.filebrowser.FileBrowserTopComponentTopComponent")
-@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
+@ActionID(category = LocalizingService.FileBrowserCategory, id = LocalizingService.FileBrowserActionId)
+@ActionReference(path = LocalizingService.FileBrowserWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_FileBrowserTopComponentAction",
-        preferredID = "FileBrowserTopComponentTopComponent"
+        displayName = "<Not localized:FileBrowserTopComponent>",
+        preferredID = "FileBrowserTopComponent"
 )
 @Messages({
-    "CTL_FileBrowserTopComponentAction=File browser",
-    "CTL_FileBrowserTopComponentTopComponent=File Browser",
-    "HINT_FileBrowserTopComponentTopComponent=File browers"
 })
+
+
 public final class FileBrowserTopComponent extends TopComponent implements UGSEventListener {
     BackendAPI backend;
     
     public FileBrowserTopComponent() {
+        setName(LocalizingService.FileBrowserTitle);
+        setToolTipText(LocalizingService.FileBrowserTooltip);
+
         initComponents();
-        setName(Bundle.CTL_FileBrowserTopComponentTopComponent());
-        setToolTipText(Bundle.HINT_FileBrowserTopComponentTopComponent());
     }
 
     public static void openGcodeFileDialog() {

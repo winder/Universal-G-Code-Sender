@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.MacroActionPanel;
@@ -42,29 +43,20 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.ugs.nbp.core.control.MacrosTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionID(category = LocalizingService.MacrosCategory, id = LocalizingService.MacrosActionId)
+@ActionReference(path = LocalizingService.MacrosWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_MacrosAction",
+        displayName = "<Not localized:MacrosTopComponent>",
         preferredID = "MacrosTopComponent"
 )
-@Messages({
-    "CTL_MacrosAction=Macros",
-    "CTL_MacrosTopComponent=Macros Window",
-    "HINT_MacrosTopComponent=This is a Macros window"
-})
 public final class MacrosTopComponent extends TopComponent {
-    Settings settings;
-    BackendAPI backend;
-
     public MacrosTopComponent() {
-        settings = CentralLookup.getDefault().lookup(Settings.class);
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        super.setLayout(new BorderLayout());
-        super.add(new MacroActionPanel(settings, backend), BorderLayout.CENTER);
+        setName(LocalizingService.MacrosTitle);
+        setToolTipText(LocalizingService.MacrosTooltip);
 
-        setName(Bundle.CTL_MacrosTopComponent());
-        setToolTipText(Bundle.HINT_MacrosTopComponent());
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        super.setLayout(new BorderLayout());
+        super.add(new MacroActionPanel(backend), BorderLayout.CENTER);
     }
 
     @Override

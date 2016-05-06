@@ -20,6 +20,7 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.core.control.Bundle;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -56,16 +57,14 @@ import org.openide.util.NbPreferences;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.JogControlTopComponent")
-@ActionReference(path = "Menu/Window/Classic" , position = 333 )
+@ActionID(category = LocalizingService.JogControlCategory, id = LocalizingService.JogControlActionId)
+@ActionReference(path = LocalizingService.JogControlWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_JogControlAction",
+        displayName = "<Not localized:JogControlTopComponent>",
         preferredID = "JogControlTopComponent"
 )
+
 @Messages({
-    "CTL_JogControlAction=Jog Controller",
-    "CTL_JogControlTopComponent=Jog Controller",
-    "HINT_JogControlTopComponent=Buttons to send movement commands."
 })
 public final class JogControlTopComponent extends TopComponent implements UGSEventListener, PreferenceChangeListener {
 
@@ -75,9 +74,10 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     Preferences pref;
 
     public JogControlTopComponent() {
+        setName(LocalizingService.JogControlTitle);
+        setToolTipText(LocalizingService.JogControlTooltip);
+
         initComponents();
-        setName(Bundle.CTL_JogControlTopComponent());
-        setToolTipText(Bundle.HINT_JogControlTopComponent());
         pref = NbPreferences.forModule(JogService.class);
         pref.addPreferenceChangeListener(this);
     }

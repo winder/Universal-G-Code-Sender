@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
 import java.awt.BorderLayout;
@@ -48,10 +47,8 @@ import org.openide.windows.TopComponent;
 public final class ActionsTopComponent extends TopComponent {
 
     public ActionsTopComponent() {
-        String title = Localization.getString("platform.window.actions");
-        String toolt = Localization.getString("platform.window.actions.tooltip");
-        setName(title);
-        setToolTipText(toolt);
+        setName(LocalizingService.ActionsTitle);
+        setToolTipText(LocalizingService.ActionsTooltip);
 
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());

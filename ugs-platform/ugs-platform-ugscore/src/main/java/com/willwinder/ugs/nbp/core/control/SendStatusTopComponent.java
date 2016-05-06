@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.uielements.SendStatusPanel;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -41,23 +42,19 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.ugs.nbp.core.control.SendStatusTopComponent")
-@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
+@ActionID(category = LocalizingService.SendStatusCategory, id = LocalizingService.SendStatusActionId)
+@ActionReference(path = LocalizingService.SendStatusWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_SendStatusAction",
+        displayName = "<Not localized:SendStatusTopComponent>",
         preferredID = "SendStatusTopComponent"
 )
-@Messages({
-    "CTL_SendStatusAction=SendStatus",
-    "CTL_SendStatusTopComponent=SendStatus Window",
-    "HINT_SendStatusTopComponent=This is a SendStatus window"
-})
+
 public final class SendStatusTopComponent extends TopComponent {
     BackendAPI backend;
 
     public SendStatusTopComponent() {
-        setName(Bundle.CTL_SendStatusTopComponent());
-        setToolTipText(Bundle.HINT_SendStatusTopComponent());
+        setName(LocalizingService.SendStatusTitle);
+        setToolTipText(LocalizingService.SendStatusTooltip);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
