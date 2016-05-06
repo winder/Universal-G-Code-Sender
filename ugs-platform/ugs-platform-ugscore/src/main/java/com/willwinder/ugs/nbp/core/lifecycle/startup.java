@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 import com.willwinder.ugs.nbp.core.control.JogService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.io.File;
@@ -44,6 +45,8 @@ import org.openide.util.lookup.ServiceProvider;
 public class startup extends OptionProcessor implements Runnable {
     @Override
     public void run() {
+        System.out.println("Loading LocalizingService...");
+        Lookup.getDefault().lookup(LocalizingService.class);
         System.out.println("Loading JogService...");
         Lookup.getDefault().lookup(JogService.class);
         System.out.println("Loading ActionService...");

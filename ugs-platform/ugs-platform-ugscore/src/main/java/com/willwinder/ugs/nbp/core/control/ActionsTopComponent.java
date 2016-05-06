@@ -19,54 +19,43 @@
 
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.core.control.Bundle;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
-import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.BorderLayout;
-import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.universalgcodesender.nbp.control//Actions//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "ActionsTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = "Window", id = "com.willwinder.universalgcodesender.nbp.control.ActionsTopComponent")
-@ActionReference(path = "Menu/Window/Classic" /*, position = 333 */)
+@ActionID(category = LocalizingService.ActionsCategory, id = LocalizingService.ActionsActionId)
+@ActionReference(path = LocalizingService.ActionsWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_ActionsAction",
+        displayName = "<Not localized:ActionsTopComponent>",
         preferredID = "ActionsTopComponent"
 )
-@Messages({
-    "CTL_ActionsAction=Common Actions",
-    "CTL_ActionsTopComponent=Common Actions",
-    "HINT_ActionsTopComponent=Common action shortcuts."
-})
+
 public final class ActionsTopComponent extends TopComponent {
-    protected Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-    protected BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
     public ActionsTopComponent() {
+        String title = Localization.getString("platform.window.actions");
+        String toolt = Localization.getString("platform.window.actions.tooltip");
+        setName(title);
+        setToolTipText(toolt);
+
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());
         this.add(new ActionButtonPanel(backend), BorderLayout.CENTER);
-        setName(Bundle.CTL_ActionsTopComponent());
-        setToolTipText(Bundle.HINT_ActionsTopComponent());
     }
 
     @Override

@@ -23,7 +23,9 @@
 
 package com.willwinder.ugs.nbm.workflow;
 
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -56,17 +58,16 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@ActionID(category = "Window", id = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent")
-@ActionReference(path = "Menu/Window/Plugins" /*, position = 333 */)
+@Messages({
+})
+
+@ActionID(category = LocalizingService.WorkflowWindowCategory, id = LocalizingService.WorkflowWindowActionId)
+@ActionReference(path = LocalizingService.WorkflowWindowWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_WorkflowWindowAction",
+        displayName = "<Not localized:WorkflowWindow>",
         preferredID = "WorkflowWindowTopComponent"
 )
-@Messages({
-    "CTL_WorkflowWindowAction=Workflow Helper",
-    "CTL_WorkflowWindowTopComponent=Workflow Helper",
-    "HINT_WorkflowWindowTopComponent=Multi file job assistant."
-})
+
 /**
  * UGSEventListener - this is how a plugin can listen to UGS lifecycle events.
  * ListSelectionListener - listen for table selections.
@@ -76,6 +77,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
     // These are the UGS backend objects for interacting with the backend.
     private final Settings settings;
     private final BackendAPI backend;
+
 
     // This is used to identify when a stream has completed.
     private boolean wasSending;
@@ -88,9 +90,10 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
      * of the required JTable settings.
      */
     public WorkflowWindowTopComponent() {
+        setName(LocalizingService.WorkflowWindowTitle);
+        setToolTipText(LocalizingService.WorkflowWindowTooltip);
+
         initComponents();
-        setName(Bundle.CTL_WorkflowWindowTopComponent());
-        setToolTipText(Bundle.HINT_WorkflowWindowTopComponent());
 
         // This is how to access the UGS backend and register the listener.
         // CentralLookup is used to get singleton instances of the UGS Settings

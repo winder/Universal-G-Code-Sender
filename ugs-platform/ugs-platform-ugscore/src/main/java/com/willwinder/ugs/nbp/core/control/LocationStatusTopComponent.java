@@ -18,24 +18,15 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.lib.helper.LocalizableTopComponent;
-import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
 import java.awt.BorderLayout;
-import java.io.IOException;
-import javax.swing.Action;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
@@ -46,27 +37,18 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "bottom_left", openAtStartup = true)
-@ActionID(category = LocationStatusTopComponent.category, id = LocationStatusTopComponent.actionId)
-@ActionReference(path = LocationStatusTopComponent.windowPath)
+@ActionID(category = LocalizingService.LocationStatusCategory, id = LocalizingService.LocationStatusActionId)
+@ActionReference(path = LocalizingService.LocationStatusWindowPath)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:LocationStatusTopComponent>",
         preferredID = "StatusTopComponent"
 )
-public final class LocationStatusTopComponent extends LocalizableTopComponent {
-    public final static String windowPath = "Menu/Window";
-    public final static String actionId = "com.willwinder.ugs.nbp.control.StatusTopComponent";
-    public final static String category = "Window";
+public final class LocationStatusTopComponent extends TopComponent {
 
     public LocationStatusTopComponent() {
-        super(
-                Localization.getString("platform.window.dro"),
-                Localization.getString("platform.window.dro.tooltip"),
-                category,
-                actionId,
-                null,
-                null
-                );
-        
+        setName(LocalizingService.LocationStatusTitle);
+        setToolTipText(LocalizingService.LocationStatusTooltip);
+
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
         add(new MachineStatusPanel(backend), BorderLayout.CENTER);
