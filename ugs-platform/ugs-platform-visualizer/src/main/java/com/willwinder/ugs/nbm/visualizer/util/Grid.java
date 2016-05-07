@@ -44,11 +44,11 @@ public class Grid extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        gridLineColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.xy-grid").value);
-        gridPlaneColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.xy-plane").value);
-        yAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.y-axis").value);
-        xAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.x-axis").value);
-        zAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.z-axis").value);
+        gridLineColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.xy-grid").value);
+        gridPlaneColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.xy-plane").value);
+        yAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.y-axis").value);
+        xAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.x-axis").value);
+        zAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.z-axis").value);
     }
 
     @Override

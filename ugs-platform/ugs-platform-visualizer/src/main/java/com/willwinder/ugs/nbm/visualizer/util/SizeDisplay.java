@@ -34,7 +34,7 @@ public class SizeDisplay extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        color = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("visualizer.color.sizedisplay").value);
+        color = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.sizedisplay").value);
         textRendererDirty = true;
     }
 

@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbm.visualizer.options;
 
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.awt.Color;
 import java.util.ArrayList;
 import org.openide.util.NbPreferences;
@@ -43,35 +44,35 @@ public class VisualizerOptions extends ArrayList<Option> {
 
     public VisualizerOptions() {
         // GcodeRenderer clear color
-        add(getOption("visualizer.color.background", "Background Color", "", new Color(220,235,255)));
+        add(getOption("platform.visualizer.color.background", "", new Color(220,235,255)));
 
         // Tool renderable
-        add(getOption("visualizer.color.tool", "Tool Color", "", new Color(237,255,0)));
+        add(getOption("platform.visualizer.color.tool", "", new Color(237,255,0)));
 
         // GcodeModel renderable
-        add(getOption("visualizer.color.linear", "Linear Movement Color (G1)", "", new Color(0,0,158)));
-        add(getOption("visualizer.color.rapid", "Rapid Movement Color (G0)", "", new Color(204,204,0)));
-        add(getOption("visualizer.color.arc", "Arc Movement Color (G2/G3)", "", new Color(178,34,34)));
-        add(getOption("visualizer.color.plunge", "Plunge/Raise Movement Color", "", new Color(0,100,0)));
-        add(getOption("visualizer.color.completed", "Color of lines which have been completed", "", new Color(190,190,190)));
+        add(getOption("platform.visualizer.color.linear", "", new Color(0,0,158)));
+        add(getOption("platform.visualizer.color.rapid", "", new Color(204,204,0)));
+        add(getOption("platform.visualizer.color.arc", "", new Color(178,34,34)));
+        add(getOption("platform.visualizer.color.plunge", "", new Color(0,100,0)));
+        add(getOption("platform.visualizer.color.completed", "", new Color(190,190,190)));
 
         // Highlight renderable
-        add(getOption("visualizer.color.highlight", "Editor Line Highlight Color", "", new Color(237,255,0)));
+        add(getOption("platform.visualizer.color.highlight", "", new Color(237,255,0)));
 
         // Grid renderable
-        add(getOption("visualizer.color.xy-grid", "Color (and opacity) of XY grid lines.", "", new Color(179,179,179)));
-        add(getOption("visualizer.color.xy-plane", "Color (and opacity) of XY plane.", "", new Color(77,77,77,29)));
-        add(getOption("visualizer.color.x-axis", "Color (and opacity) of X-Axis line.", "", new Color(230,0,0)));
-        add(getOption("visualizer.color.y-axis", "Color (and opacity) of Y-Axis line.", "", new Color(0,0,230)));
-        add(getOption("visualizer.color.z-axis", "Color (and opacity) of Z-Axis line.", "", new Color(0,230,0)));
+        add(getOption("platform.visualizer.color.xy-grid", "", new Color(179,179,179)));
+        add(getOption("platform.visualizer.color.xy-plane", "", new Color(77,77,77,29)));
+        add(getOption("platform.visualizer.color.x-axis", "", new Color(230,0,0)));
+        add(getOption("platform.visualizer.color.y-axis", "", new Color(0,0,230)));
+        add(getOption("platform.visualizer.color.z-axis", "", new Color(0,230,0)));
        
         // SizeDisplay renderable
-        add(getOption("visualizer.color.sizedisplay", "Color of size display lines and text.", "", new Color(128,128,128)));
+        add(getOption("platform.visualizer.color.sizedisplay", "", new Color(128,128,128)));
 
     }
 
-    private Option getOption(String op, String loc, String desc, Color def) {
-        return new Option<>(op, loc, desc, getColorOption(op, def));
+    private Option getOption(String op, String desc, Color def) {
+        return new Option<>(op, Localization.getString(op), desc, getColorOption(op, def));
     }
 
     public Option getOptionForKey(String key) {

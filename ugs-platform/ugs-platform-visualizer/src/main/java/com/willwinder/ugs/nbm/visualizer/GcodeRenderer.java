@@ -172,7 +172,7 @@ public class GcodeRenderer implements GLEventListener {
     final public void reloadPreferences() {
         VisualizerOptions vo = new VisualizerOptions();
 
-        clearColor = (Color)vo.getOptionForKey("visualizer.color.background").value;
+        clearColor = (Color)vo.getOptionForKey("platform.visualizer.color.background").value;
 
         for (Renderable r : objects) {
             r.reloadPreferences(vo);

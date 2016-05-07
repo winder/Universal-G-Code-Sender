@@ -52,7 +52,7 @@ public class Highlight extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        highlightColor = (Color)vo.getOptionForKey("visualizer.color.highlight").value;
+        highlightColor = (Color)vo.getOptionForKey("platform.visualizer.color.highlight").value;
 
     }
 

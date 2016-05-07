@@ -82,11 +82,11 @@ public class GcodeModel extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        linearColor = (Color)vo.getOptionForKey("visualizer.color.linear").value;
-        rapidColor = (Color)vo.getOptionForKey("visualizer.color.rapid").value;
-        arcColor = (Color)vo.getOptionForKey("visualizer.color.arc").value;
-        plungeColor = (Color)vo.getOptionForKey("visualizer.color.plunge").value;
-        completedColor = (Color)vo.getOptionForKey("visualizer.color.completed").value;
+        linearColor = (Color)vo.getOptionForKey("platform.visualizer.color.linear").value;
+        rapidColor = (Color)vo.getOptionForKey("platform.visualizer.color.rapid").value;
+        arcColor = (Color)vo.getOptionForKey("platform.visualizer.color.arc").value;
+        plungeColor = (Color)vo.getOptionForKey("platform.visualizer.color.plunge").value;
+        completedColor = (Color)vo.getOptionForKey("platform.visualizer.color.completed").value;
         updateVertexBuffers();
         colorArrayDirty = true;
     }

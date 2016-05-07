@@ -42,7 +42,7 @@ public final class Tool extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        toolColor = (Color)vo.getOptionForKey("visualizer.color.tool").value;
+        toolColor = (Color)vo.getOptionForKey("platform.visualizer.color.tool").value;
     }
 
     @Override
