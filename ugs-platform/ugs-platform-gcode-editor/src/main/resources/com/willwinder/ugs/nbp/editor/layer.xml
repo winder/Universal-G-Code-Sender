@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Edit">
+        <file name="org-openide-actions-FindAction.shadow_hidden"/>
+    </folder>
+    <folder name="Editors">
+        <folder name="Actions_hidden"/>
+    </folder>
+    <folder name="Menu">
+        <file name="Edit_hidden"/>
+        <folder name="File">
+            <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+        </folder>
+        <file name="Source_hidden"/>
+        <file name="GoTo_hidden"/>
+        <file name="View_hidden"/>
+    </folder>
+    <folder name="Actions">
+        <!--
+        <file name="Edit_hidden"/>
+        <folder name="File">
+            <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+        </folder>
+        <file name="View_hidden"/>
+        <file name="System_hidden"/>
+        -->
+        <folder name="Edit">
+            <file name="org-netbeans-core-ui-options-filetypes-OpenAsAction.instance_hidden"/>
+            <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
+            <file name="org-netbeans-modules-editor-ExportHtmlAction.instance_hidden"/>
+            <file name="org-openide-actions-GotoAction.instance_hidden"/>
+        </folder>
+        <folder name="System">
+            <file name="org-netbeans-core-actions-JumpNextAction.instance_hidden"/>
+            <file name="org-netbeans-core-actions-JumpPrevAction.instance_hidden"/>
+            <file name="org-netbeans-core-windows-model-NewMode.instance_hidden"/>
+            <file name="org-openide-actions-InstantiateAction.instance_hidden"/>
+            <file name="org-openide-actions-MoveDownAction.instance_hidden"/>
+            <file name="org-openide-actions-MoveUpAction.instance_hidden"/>
+            <file name="org-openide-actions-NewAction.instance_hidden"/>
+            <file name="org-openide-actions-NewTemplateAction.instance_hidden"/>
+            <file name="org-openide-actions-OpenAction.instance_hidden"/>
+            <file name="org-openide-actions-PageSetupAction.instance_hidden"/>
+            <file name="org-openide-actions-PopupAction.instance_hidden"/>
+            <file name="org-openide-actions-PrintAction.instance_hidden"/>
+            <file name="org-openide-actions-PropertiesAction.instance_hidden"/>
+            <file name="org-openide-actions-RenameAction.instance_hidden"/>
+            <file name="org-openide-actions-ReorderAction.instance_hidden"/>
+        </folder>
+        <folder name="View">
+            <file name="org-netbeans-core-actions-HTMLViewAction.instance_hidden"/>
+            <file name="org-openide-actions-CustomizeAction.instance_hidden"/>
+        </folder>
+    </folder>
+</filesystem>

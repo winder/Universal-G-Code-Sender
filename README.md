@@ -1,5 +1,9 @@
 Universal GcodeSender is a Java based GRBL compatible cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
+Online documentation available here: http://winder.github.io/ugs_website/
+<br />
+Documentation contributions can be made here: https://github.com/winder/ugs_website
+
 To run simply unzip the .zip file and double click the .jar file.
 On some platforms you will need to run an included start script.
 
@@ -67,7 +71,6 @@ For development the [Maven](http://maven.apache.org) build tool is used.
 #### Build a UniversalGcodeSender.zip release file
 
 ```mvn package assembly:assembly```
-
 
 Changelog
 ---------

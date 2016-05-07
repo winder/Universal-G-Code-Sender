@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><mode version="2.4">
+    <name unique="middle_left"/>
+  <kind type="view"/>
+  <state type="joined"/>
+  <constraints>
+    <path orientation="horizontal" number="20" weight="0.24"/>
+    <path orientation="vertical" number="21" weight="0.5"/>
+  </constraints>
+  <bounds x="143" y="192" width="459" height="438"/>
+  <frame state="0"/>
+    
+    <empty-behavior permanent="true"/>
+</mode>

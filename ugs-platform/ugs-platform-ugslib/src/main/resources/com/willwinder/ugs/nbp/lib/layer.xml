@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Windows2">
+        <folder name="Modes">
+            <file name="bottom_left.wsmode" url="bottom_leftWsmode.xml"/>
+            <file name="editor.wsmode" url="editorWsmode.xml"/>
+            <file name="middle_left.wsmode" url="middle_leftWsmode.xml"/>
+            <file name="output.wsmode" url="outputWsmode.xml"/>
+            <file name="top_left.wsmode" url="top_leftWsmode.xml"/>
+            <file name="visualizer.wsmode" url="visualizerWsmode.xml"/>
+        </folder>
+    </folder>
+</filesystem>

@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/platform/gcode/editor/Bundle.properties
+OpenIDE-Module-Layer: com/willwinder/ugs/nbp/editor/layer.xml

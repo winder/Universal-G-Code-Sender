@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/core/Bundle.properties
+OpenIDE-Module-Layer: com/willwinder/ugs/nbp/core/layer.xml
+
