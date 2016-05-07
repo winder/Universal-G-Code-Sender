@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
@@ -44,6 +45,16 @@ public class RunActionService {
     public RunActionService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         initActions();
+    }
+
+    public void runAction(Overrides action) {
+        if (canRunCommand()) {
+            try {
+                backend.sendOverrideCommand(action);
+            } catch (Exception ex) {
+                GUIHelpers.displayErrorDialog(ex.getMessage());
+            }
+        }
     }
 
     public void runAction(ACTIONS action) {
@@ -92,11 +103,42 @@ public class RunActionService {
             ars.registerAction(Localization.getString("mainWindow.swing.homeMachine"),
                     machine, localMachine, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.HOMING_CYCLE));
+
+            /*
+            TODO: Override actions
+            localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.overrides"));
+            menuPath = "Menu/Machine/Overrides";
+            machine = "Machine";
+
+            // Overrides
+            */
+
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
     
+    protected class OverrideAction extends AbstractAction {
+        RunActionService gs;
+        Overrides action;
+
+        public OverrideAction(RunActionService service, Overrides action) {
+            gs = service;
+            this.action = action;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            gs.runAction(action);
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return gs.canRunCommand();
+        }
+    }
     protected class GcodeAction extends AbstractAction {
         RunActionService gs;
         ACTIONS action;
