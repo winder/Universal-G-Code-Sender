@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.miginfocom.swing.MigLayout;
 
@@ -63,6 +64,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private final BackendAPI backend;
     
+    public Units units;
     public DecimalFormat decimalFormatter;
 
     /**
@@ -108,19 +110,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         ge.registerFont(font);
         
         this.machinePositionXValue.setFont(font);
-        this.machinePositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionYValue.setFont(font);
-        this.machinePositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionZValue.setFont(font);
-        this.machinePositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         
         this.workPositionXValue.setFont(font);
-        this.workPositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionYValue.setFont(font);
-        this.workPositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionZValue.setFont(font);
-        this.workPositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-
     }
 
     private void initComponents() {
@@ -138,29 +133,46 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         workPanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
         workPanel.add(workPositionLabel, "span 2, wrap");
         workPanel.add(workPositionXLabel, "al right");
-        workPanel.add(workPositionXValue, "growx");
+        workPanel.add(workPositionXValue, "al right");
         workPanel.add(workPositionYLabel, "al right");
-        workPanel.add(workPositionYValue, "growx");
+        workPanel.add(workPositionYValue, "al right");
         workPanel.add(workPositionZLabel, "al right");
-        workPanel.add(workPositionZValue, "growx");
+        workPanel.add(workPositionZValue, "al right");
 
         JPanel machinePanel = new JPanel();
         machinePanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
         machinePanel.setBackground(Color.LIGHT_GRAY);
         machinePanel.add(machinePositionLabel, "span 2");
         machinePanel.add(machinePositionXLabel, "al right");
-        machinePanel.add(machinePositionXValue, "growx");
+        machinePanel.add(machinePositionXValue, "al right");
         machinePanel.add(machinePositionYLabel, "al right");
-        machinePanel.add(machinePositionYValue, "growx");
+        machinePanel.add(machinePositionYValue, "al right");
         machinePanel.add(machinePositionZLabel, "al right");
-        machinePanel.add(machinePositionZValue, "growx");
-        add(workPanel, "growx");
+        machinePanel.add(machinePositionZValue, "al right");
+        add(workPanel,"growx");
         add(machinePanel, "growx");
         
         if (this.backend.getSettings().getDefaultUnits().equals("mm")) {
-            this.decimalFormatter = new DecimalFormat("0.00");
+            setUnits(Units.MM);
         } else {
-            this.decimalFormatter = new DecimalFormat("0.000");
+            setUnits(Units.INCH);
+        }
+    }
+
+    private void setUnits(Units u) {
+        if (u == null || units == u) return;
+        units = u;
+        switch(u) {
+            case MM:
+                this.decimalFormatter = new DecimalFormat("0.00");
+                break;
+            case INCH:
+                this.decimalFormatter = new DecimalFormat("0.000");
+                break;
+            default:
+                units = Units.MM;
+                this.decimalFormatter = new DecimalFormat("0.00");
+                break;
         }
     }
 
@@ -233,7 +245,10 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.activeStateValueLabel.setText( state );
         this.setStatusColorForState( state );
 
+
         if (machineCoord != null) {
+            this.setUnits(machineCoord.getUnits());
+
             this.setPostionValueColor(this.machinePositionXValue, machineCoord.x);
             this.machinePositionXValue.setText(decimalFormatter.format(machineCoord.x));
             
@@ -245,6 +260,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
 
         if (workCoord != null) {
+            this.setUnits(workCoord.getUnits());
+
             this.setPostionValueColor(this.workPositionXValue, workCoord.x);
             this.workPositionXValue.setText(decimalFormatter.format(workCoord.x));
             
