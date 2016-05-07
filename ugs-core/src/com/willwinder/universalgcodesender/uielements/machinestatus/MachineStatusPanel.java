@@ -35,6 +35,7 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 
 public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
 
@@ -43,24 +44,26 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private final JLabel machinePositionLabel = new JLabel(Localization.getString("mainWindow.swing.machinePosition"));
     private final JLabel machinePositionXLabel = new JLabel("X:");
-    private final JLabel machinePositionXValue = new JLabel("0");
+    private final JLabel machinePositionXValue = new JLabel("0.00");
     private final JLabel machinePositionYLabel = new JLabel("Y:");
-    private final JLabel machinePositionYValue = new JLabel("0");
+    private final JLabel machinePositionYValue = new JLabel("0.00");
     private final JLabel machinePositionZLabel = new JLabel("Z:");
-    private final JLabel machinePositionZValue = new JLabel("0");
+    private final JLabel machinePositionZValue = new JLabel("0.00");
 
     private final JLabel workPositionLabel = new JLabel(Localization.getString("mainWindow.swing.workPositionLabel"));
     private final JLabel workPositionXLabel = new JLabel("X:");
-    private final JLabel workPositionXValue = new JLabel("0");
+    private final JLabel workPositionXValue = new JLabel("0.00");
     private final JLabel workPositionYLabel = new JLabel("Y:");
-    private final JLabel workPositionYValue = new JLabel("0");
+    private final JLabel workPositionYValue = new JLabel("0.00");
     private final JLabel workPositionZLabel = new JLabel("Z:");
-    private final JLabel workPositionZValue = new JLabel("0");
+    private final JLabel workPositionZValue = new JLabel("0.00");
 
     private final JLabel latestCommentLabel = new JLabel(Localization.getString("mainWindow.swing.latestCommentLabel"));
     private final JLabel latestCommentValueLabel = new JLabel(" ");
 
     private final BackendAPI backend;
+    
+    public DecimalFormat decimalFormatter;
 
     /**
      * No-Arg constructor to make this control work in the UI builder tools
@@ -88,13 +91,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void applyFont() {
         String fontPath="/resources/";
-        String fontName="LetsGoDigitalRegular.ttf";
+        String fontName="LED.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath+fontName);
         Font font;
         
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-            font = font.deriveFont(Font.BOLD,28);
+            font = font.deriveFont(Font.PLAIN,28);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.err.println(fontName + " not loaded.  Using serif font.");
@@ -105,12 +108,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         ge.registerFont(font);
         
         this.machinePositionXValue.setFont(font);
+        this.machinePositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionYValue.setFont(font);
+        this.machinePositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionZValue.setFont(font);
+        this.machinePositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         
         this.workPositionXValue.setFont(font);
+        this.workPositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionYValue.setFont(font);
+        this.workPositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionZValue.setFont(font);
+        this.workPositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+
     }
 
     private void initComponents() {
@@ -146,6 +156,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         machinePanel.add(machinePositionZValue, "growx");
         add(workPanel, "growx");
         add(machinePanel, "growx");
+        
+        if (this.backend.getSettings().getDefaultUnits().equals("mm")) {
+            this.decimalFormatter = new DecimalFormat("0.00");
+        } else {
+            this.decimalFormatter = new DecimalFormat("0.000");
+        }
     }
 
     @Override
@@ -218,16 +234,34 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.setStatusColorForState( state );
 
         if (machineCoord != null) {
-            this.machinePositionXValue.setText(Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation);
-            this.machinePositionYValue.setText(Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation);
-            this.machinePositionZValue.setText(Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation);
+            this.setPostionValueColor(this.machinePositionXValue, machineCoord.x);
+            this.machinePositionXValue.setText(decimalFormatter.format(machineCoord.x));
+            
+            this.setPostionValueColor(this.machinePositionYValue, machineCoord.y);
+            this.machinePositionYValue.setText(decimalFormatter.format(machineCoord.y));
+            
+            this.setPostionValueColor(this.machinePositionZValue, machineCoord.z);
+            this.machinePositionZValue.setText(decimalFormatter.format(machineCoord.z));
         }
 
         if (workCoord != null) {
-            this.workPositionXValue.setText(Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation);
-            this.workPositionYValue.setText(Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation);
-            this.workPositionZValue.setText(Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation);
+            this.setPostionValueColor(this.workPositionXValue, workCoord.x);
+            this.workPositionXValue.setText(decimalFormatter.format(workCoord.x));
+            
+            this.setPostionValueColor(this.workPositionYValue, workCoord.y);
+            this.workPositionYValue.setText(decimalFormatter.format(workCoord.y));
+            
+            this.setPostionValueColor(this.workPositionZValue, workCoord.z);
+            this.workPositionZValue.setText(decimalFormatter.format(workCoord.z));
         }
+    }
+    
+    private void setPostionValueColor(JLabel label, double newValue) {
+       if (!label.getText().equals(decimalFormatter.format(newValue))) {
+                label.setForeground(Color.red);
+            } else {
+                label.setForeground(Color.black);
+            } 
     }
 
     private void setStatusColorForState(String state) {
