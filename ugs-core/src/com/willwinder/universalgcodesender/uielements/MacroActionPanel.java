@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
 
-    private static final int BUTTON_WIDTH = 75;
+    private static final int INSET = 10;
     private static final int PADDING = 10;
     private static final int MAX_ROWS = 5;
 
@@ -56,6 +56,8 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             JButton button = createMacroButton(i);
         }
 
+        int maxWidth = 0;
+        int maxHeight = 0;
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             JButton button = customGcodeButtons.get(i);
             Macro macro = backend.getSettings().getMacro(i);
@@ -67,9 +69,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
                     button.setToolTipText(macro.getDescription());
                 }
             }
+            if (button.getPreferredSize().width > maxWidth) maxWidth = button.getPreferredSize().width;
+            if (button.getPreferredSize().height > maxHeight) maxHeight = button.getPreferredSize().height;
         }
 
-        int columns = getWidth() / (BUTTON_WIDTH + PADDING);
+        int columns = (getWidth() - (2 * INSET)) / (maxWidth + PADDING);
+        int rows = (getHeight() - (2 * INSET)) / (maxHeight + PADDING);
 
         StringBuilder columnConstraint = new StringBuilder();
         for (int i = 0; i < columns; i++) {
@@ -79,7 +84,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             columnConstraint.append("[fill, sg 1]");
         }
 
-        MigLayout layout = new MigLayout("fill, wrap "+columns, columnConstraint.toString());
+        MigLayout layout = new MigLayout("fill, wrap "+columns + ", inset " + INSET, columnConstraint.toString());
         setLayout(layout);
         
         int x = 0; int y = 0;
@@ -87,7 +92,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         for (JButton button : customGcodeButtons) {
             add(button, "cell " + x +  " " + y);
             y++;
-            if (y == MAX_ROWS) {
+            if (y == rows) {
                 x++;
                 y = 0;
             }             
