@@ -18,6 +18,8 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     private static final int BUTTON_WIDTH = 75;
     private static final int PADDING = 10;
+    private static final int MAX_ROWS = 5;
+
 
     private final BackendAPI backend;
     private final java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
@@ -79,8 +81,16 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
         MigLayout layout = new MigLayout("fill, wrap "+columns, columnConstraint.toString());
         setLayout(layout);
+        
+        int x = 0; int y = 0;
+        
         for (JButton button : customGcodeButtons) {
-            add(button, "sg 1");
+            add(button, "cell " + x +  " " + y);
+            y++;
+            if (y == MAX_ROWS) {
+                x++;
+                y = 0;
+            }             
         }
 
         super.doLayout();
