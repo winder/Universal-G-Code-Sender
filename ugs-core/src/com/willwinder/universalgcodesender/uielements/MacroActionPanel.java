@@ -23,6 +23,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     private final BackendAPI backend;
     private final java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
+    JPanel macroPanel = new JPanel();
 
     @Deprecated
     public MacroActionPanel() {
@@ -35,7 +36,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         if (this.backend != null) {
             backend.addUGSEventListener(this);
         }
-//        initMacroButtons();
+
+        // Insert a scrollpane in case the buttons wont fit.
+        JScrollPane scrollPane = new JScrollPane(macroPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        setLayout(new BorderLayout());
+        add(scrollPane, BorderLayout.CENTER);
     }
 
     @Deprecated
@@ -76,6 +82,13 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         int columns = (getWidth() - (2 * INSET)) / (maxWidth + PADDING);
         int rows = (getHeight() - (2 * INSET)) / (maxHeight + PADDING);
 
+        columns = Math.max(columns, 1);
+
+        if (columns * rows < customGcodeButtons.size()) {
+            rows = customGcodeButtons.size() / columns;
+            if (customGcodeButtons.size() % columns != 0) rows++;
+        }
+
         StringBuilder columnConstraint = new StringBuilder();
         for (int i = 0; i < columns; i++) {
             if (i > 0) {
@@ -85,12 +98,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         }
 
         MigLayout layout = new MigLayout("fill, wrap "+columns + ", inset " + INSET, columnConstraint.toString());
-        setLayout(layout);
+        macroPanel.setLayout(layout);
         
         int x = 0; int y = 0;
         
         for (JButton button : customGcodeButtons) {
-            add(button, "cell " + x +  " " + y);
+            macroPanel.add(button, "cell " + x +  " " + y);
             y++;
             if (y == rows) {
                 x++;
