@@ -10,25 +10,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     private static final int INSET = 10;
     private static final int PADDING = 10;
-    private static final int MAX_ROWS = 5;
-
 
     private final BackendAPI backend;
-    private final java.util.List<JButton> customGcodeButtons = new ArrayList<JButton>();
+    private final java.util.List<JButton> customGcodeButtons = new ArrayList<>();
     JPanel macroPanel = new JPanel();
-
-    @Deprecated
-    public MacroActionPanel() {
-        this(null);
-    }
 
     public MacroActionPanel(BackendAPI backend) {
         setMinimumSize(new Dimension(50,0));
@@ -42,11 +33,6 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
-    }
-
-    @Deprecated
-    public MacroActionPanel(Settings settings, BackendAPI backend) {
-        this(backend);
     }
 
     @Override
