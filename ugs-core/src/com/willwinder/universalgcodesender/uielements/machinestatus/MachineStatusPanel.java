@@ -108,19 +108,26 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(font);
-        
+
         this.machinePositionXValue.setFont(font);
+        this.machinePositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionYValue.setFont(font);
+        this.machinePositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.machinePositionZValue.setFont(font);
-        
+        this.machinePositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+         
         this.workPositionXValue.setFont(font);
+        this.workPositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionYValue.setFont(font);
+        this.workPositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         this.workPositionZValue.setFont(font);
+        this.workPositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
     }
 
     private void initComponents() {
+        String debug = ""; //debug, ";
         // MigLayout... 3rd party layout library.
-        MigLayout layout = new MigLayout("fill, wrap 2");
+        MigLayout layout = new MigLayout(debug + "fill, wrap 2");
         setLayout(layout);
         add(activeStateLabel, "al right");
         add(activeStateValueLabel);
@@ -130,27 +137,27 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         // Subpanels for work/machine read outs.
         JPanel workPanel = new JPanel();
         workPanel.setBackground(Color.LIGHT_GRAY);
-        workPanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
+        workPanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
         workPanel.add(workPositionLabel, "span 2, wrap");
         workPanel.add(workPositionXLabel, "al right");
-        workPanel.add(workPositionXValue, "al right");
+        workPanel.add(workPositionXValue, "growx");
         workPanel.add(workPositionYLabel, "al right");
-        workPanel.add(workPositionYValue, "al right");
+        workPanel.add(workPositionYValue, "growx");
         workPanel.add(workPositionZLabel, "al right");
-        workPanel.add(workPositionZValue, "al right");
+        workPanel.add(workPositionZValue, "growx");
 
         JPanel machinePanel = new JPanel();
-        machinePanel.setLayout(new MigLayout("fillx, wrap 2, inset 8"));
+        machinePanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
         machinePanel.setBackground(Color.LIGHT_GRAY);
         machinePanel.add(machinePositionLabel, "span 2");
         machinePanel.add(machinePositionXLabel, "al right");
-        machinePanel.add(machinePositionXValue, "al right");
+        machinePanel.add(machinePositionXValue, "growx");
         machinePanel.add(machinePositionYLabel, "al right");
-        machinePanel.add(machinePositionYValue, "al right");
+        machinePanel.add(machinePositionYValue, "growx");
         machinePanel.add(machinePositionZLabel, "al right");
-        machinePanel.add(machinePositionZValue, "al right");
-        add(workPanel,"growx");
-        add(machinePanel, "growx");
+        machinePanel.add(machinePositionZValue, "growx");
+        add(workPanel,"width 50%");
+        add(machinePanel, "width 50%");
         
         if (this.backend.getSettings().getDefaultUnits().equals("mm")) {
             setUnits(Units.MM);

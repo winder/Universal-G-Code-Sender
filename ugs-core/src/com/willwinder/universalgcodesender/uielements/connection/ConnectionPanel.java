@@ -112,7 +112,7 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
         connection.add(firmwareLabel, "al right");
         connection.add(firmwareCombo, "span 3");
         add(connection);
-        add(machineStatus);
+        add(machineStatus, "grow");
         add(currentFile, "grow");
         add(sendStatusPanel, "grow");
         add(jogPanel, "grow");
