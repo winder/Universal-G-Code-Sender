@@ -34,8 +34,8 @@ import java.util.*;
  */
 public class GcodeCommandBuffer {
     private final Queue<GcodeCommand> commandQueue;
-    private GcodeCommand currentCommand = null;
-    private int numCommands = 0;
+    private GcodeCommand currentCommand;
+    private int numCommands;
     
     public GcodeCommandBuffer() {
         this.commandQueue = new LinkedList<>();

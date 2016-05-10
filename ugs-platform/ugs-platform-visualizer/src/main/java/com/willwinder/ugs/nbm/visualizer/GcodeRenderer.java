@@ -72,8 +72,8 @@ public class GcodeRenderer implements GLEventListener {
     
     private static boolean ortho = true;
     private static double orthoRotation = -45;
-    private static boolean forceOldStyle = false;
-    private static boolean debugCoordinates = false; // turn on coordinate debug output
+    private static boolean forceOldStyle;
+    private static boolean debugCoordinates; // turn on coordinate debug output
     final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
@@ -82,7 +82,7 @@ public class GcodeRenderer implements GLEventListener {
     
     // GL Utility
     private GLU glu;
-    private GLAutoDrawable drawable = null;
+    private GLAutoDrawable drawable;
     
     // Projection variables
     private Point3d center, eye;

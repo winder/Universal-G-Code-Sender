@@ -55,12 +55,12 @@ import java.util.Vector;
  */
 
 public class PersistentVector {
-	private static int objNum = 0;
+	private static int objNum;
 
 	/**
 	 * allow for header rows
 	 */
-	public int firstRow = 0;
+	public int firstRow;
 
 	/**
 	 * number of items to be stored in memory This parameter should be as large

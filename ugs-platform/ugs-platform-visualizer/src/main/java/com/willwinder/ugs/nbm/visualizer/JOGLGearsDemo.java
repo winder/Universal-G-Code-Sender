@@ -53,12 +53,12 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     animator.start();
   }
 
-  private float view_rotx = 20.0f, view_roty = 30.0f, view_rotz = 0.0f;
+  private float view_rotx = 20.0f, view_roty = 30.0f, view_rotz;
   private int gear1, gear2, gear3;
-  private float angle = 0.0f;
+  private float angle;
 
   private int prevMouseX, prevMouseY;
-  private boolean mouseRButtonDown = false;
+  private boolean mouseRButtonDown;
 
   public void init(GLAutoDrawable drawable) {
     // Use debug pipeline

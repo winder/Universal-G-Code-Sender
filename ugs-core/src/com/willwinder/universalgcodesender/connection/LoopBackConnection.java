@@ -39,10 +39,10 @@ import jssc.SerialPort;
  */
 public class LoopBackConnection extends Connection {
     private BlockingQueue<String> sent;
-    private boolean exit = false;
-    private boolean open = false;
+    private boolean exit;
+    private boolean open;
     Thread  okThread;
-    private int ms = 0;
+    private int ms;
 
     private static void initialize(AbstractCommunicator comm) {
         comm.responseMessage(" ");

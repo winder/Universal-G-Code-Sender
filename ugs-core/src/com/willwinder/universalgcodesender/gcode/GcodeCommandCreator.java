@@ -29,7 +29,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  * @author wwinder
  */
 public class GcodeCommandCreator {
-    protected int numCommands = 0;
+    protected int numCommands;
     protected int maxCommandLength = 50;
     
     public GcodeCommandCreator() {

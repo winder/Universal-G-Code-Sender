@@ -40,11 +40,11 @@ public class GcodeTable extends JTable {
     private static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
     //GcodeTableModel model = null;
-    private DefaultTableModel model = null;
+    private DefaultTableModel model;
     private int maxLines = -1;
 
-    private boolean autoWindowScroll = false;
-    private int offset = 0;
+    private boolean autoWindowScroll;
+    private int offset;
     private boolean first = true;
     
     final private static int COL_INDEX_COMMAND       = 0;

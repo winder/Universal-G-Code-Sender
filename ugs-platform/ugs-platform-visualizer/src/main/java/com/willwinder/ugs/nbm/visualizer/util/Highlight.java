@@ -36,10 +36,10 @@ public class Highlight extends Renderable {
 
     GcodeModel model;
 
-    private Collection<Integer> highlightedLines = null;
+    private Collection<Integer> highlightedLines;
 
     private int numberOfVertices = -1;
-    private float[] lineVertexData = null;
+    private float[] lineVertexData;
 
     // Preferences
     Color highlightColor;

@@ -28,10 +28,10 @@ package com.willwinder.universalgcodesender.model;
  * @author wwinder
  */
 public class UGSEvent {
-    eventType evt = null;
-    ControlState controlState = null;
-    FileState fileState = null;
-    String file = null;
+    eventType evt;
+    ControlState controlState;
+    FileState fileState;
+    String file;
     
     private enum eventType {
         STATE_EVENT,

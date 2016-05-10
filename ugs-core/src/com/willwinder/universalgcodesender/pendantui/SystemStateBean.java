@@ -19,11 +19,11 @@ public class SystemStateBean {
 	private String estimatedTimeRemaining = "--:--:--";
 	private String duration = "00:00:00";
 	private String sendButtonText = "Send";
-	private boolean sendButtonEnabled = false;
+	private boolean sendButtonEnabled;
 	private String pauseResumeButtonText = "Pause";
-	private boolean pauseResumeButtonEnabled = false;
+	private boolean pauseResumeButtonEnabled;
 	private String cancelButtonText = "Cancel";
-	private boolean cancelButtonEnabled = false;
+	private boolean cancelButtonEnabled;
 	
 	public SystemStateBean() {
 	}

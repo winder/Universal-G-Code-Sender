@@ -8,7 +8,7 @@ public class Version {
     private static final String VERSION = "2.0 [nightly] ";
     private static String TIMESTAMP = "";
 
-    private static boolean initialized = false;
+    private static boolean initialized;
     
     static public String getVersion() {
         return VERSION;

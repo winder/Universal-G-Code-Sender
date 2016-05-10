@@ -204,7 +204,7 @@ public class JogService {
 
     protected class JogSizeAction extends AbstractAction {
         JogService js;
-        double size = 0;
+        double size;
         char operation;
         public JogSizeAction(JogService service, char op) {
             js = service;

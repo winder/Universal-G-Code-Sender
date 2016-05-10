@@ -47,23 +47,23 @@ import javax.vecmath.Point3d;
 public class GcodeModel extends Renderable {
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
 
-    private boolean forceOldStyle = false;
+    private boolean forceOldStyle;
     private boolean colorArrayDirty, vertexArrayDirty;
 
     // Gcode file data
-    private String gcodeFile = null;
-    private boolean processedFile = false; // True if the file should be opened with GcodeStreamReader.
-    private boolean isDrawable = false; //True if a file is loaded; false if not
+    private String gcodeFile;
+    private boolean processedFile; // True if the file should be opened with GcodeStreamReader.
+    private boolean isDrawable; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
-    private int currentCommandNumber = 0;
-    private int lastCommandNumber = 0;
+    private int currentCommandNumber;
+    private int lastCommandNumber;
 
     // OpenGL Object Buffer Variables
     private int numberOfVertices = -1;
-    private float[] lineVertexData = null;
-    private byte[] lineColorData = null;
-    private FloatBuffer lineVertexBuffer = null;
-    private ByteBuffer lineColorBuffer = null;
+    private float[] lineVertexData;
+    private byte[] lineColorData;
+    private FloatBuffer lineVertexBuffer;
+    private ByteBuffer lineColorBuffer;
 
     private Point3d objectMin, objectMax, objectSize, center;
 

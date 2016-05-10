@@ -18,10 +18,10 @@ import java.util.List;
  * To change this template use File | Settings | File Templates.
  */
 public class GrblSettingsListener implements ControllerListener {
-
-    public boolean inParsingMode = false;
-    private boolean firstSettingReceived = false;
-    public boolean sending = false;
+    
+    public boolean inParsingMode;
+    private boolean firstSettingReceived;
+    public boolean sending;
     private final Object refreshLock = new Object();
 
     public final List<String> settings = new ArrayList<>();

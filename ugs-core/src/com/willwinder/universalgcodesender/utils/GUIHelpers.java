@@ -28,7 +28,7 @@ import javax.swing.JOptionPane;
  */
 public class GUIHelpers {
     // Set with reflection in unit tests.
-    private static boolean unitTestMode = false;
+    private static boolean unitTestMode;
 
     public static void invokeLater(Runnable r) {
         if (unitTestMode) {

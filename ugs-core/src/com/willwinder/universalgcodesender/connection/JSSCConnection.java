@@ -36,7 +36,7 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
 
     // General variables
     private SerialPort serialPort;
-    private StringBuilder inputBuffer = null;
+    private StringBuilder inputBuffer;
 
     public JSSCConnection() {
         this("\r\n");

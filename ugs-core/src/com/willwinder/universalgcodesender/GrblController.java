@@ -45,22 +45,22 @@ import javax.swing.Timer;
  */
 public class GrblController extends AbstractController {
     // Grbl state
-    private double grblVersion = 0.0;        // The 0.8 in 'Grbl 0.8c'
-    private String grblVersionLetter = null; // The c in 'Grbl 0.8c'
-    private Boolean isReady = false;         // Not ready until version is received.
+    private double grblVersion;        // The 0.8 in 'Grbl 0.8c'
+    private String grblVersionLetter; // The c in 'Grbl 0.8c'
+    private Boolean isReady;         // Not ready until version is received.
     private GrblSettingsListener settings;
 
     // Grbl status members.
-    private GrblUtils.Capabilities capabilities = null;
-    private Boolean realTimeCapable = false;
+    private GrblUtils.Capabilities capabilities;
+    private Boolean realTimeCapable;
     private String grblState;
     private Position machineLocation;
     private Position workLocation;
     private double maxZLocationMM;
 
     // Polling state
-    private int outstandingPolls = 0;
-    private Timer positionPollTimer = null;  
+    private int outstandingPolls;
+    private Timer positionPollTimer;  
     
     public GrblController(AbstractCommunicator comm) {
         super(comm);

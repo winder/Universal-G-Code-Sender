@@ -40,7 +40,7 @@ public class GcodeViewParse {
 
     // false = incremental; true = absolute
     boolean absoluteMode = true;
-    static boolean absoluteIJK = false;
+    static boolean absoluteIJK;
 
     // Parsed object
     private final Point3d min;
