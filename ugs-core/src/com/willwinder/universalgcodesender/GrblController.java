@@ -211,24 +211,24 @@ public class GrblController extends AbstractController {
     protected void cancelSendBeforeEvent() {
         // Check if we can get fancy with a soft reset.
         if (this.realTimeCapable == true) {
-            // This doesn't seem to work.
-            /*
             try {
-                if (!this.paused) {
-                    this.pauseStreaming();
-                }
-                this.issueSoftReset();
-                this.awaitingResponseQueue.clear();
-            } catch (IOException e) {
+                this.pauseStreamingEvent();
+            } catch (Exception e) {
                 // Oh well, was worth a shot.
                 System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
             }
-            */
         }
     }
     
     @Override
     protected void cancelSendAfterEvent() {
+        try {
+            // This should reset the GRBL buffers and clear out the state.
+            this.issueSoftReset();
+        } catch (Exception e) {
+            // Oh well, was worth a shot.
+            System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
+        }
     }
     
     /**
