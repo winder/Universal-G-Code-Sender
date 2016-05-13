@@ -41,7 +41,7 @@ import java.io.UnsupportedEncodingException;
 public class GcodeStreamWriter extends GcodeStream implements Closeable {
     File file;
     PrintWriter fileWriter;
-    Integer lineCount = 0;
+    Integer lineCount;
     String metadataReservedSize = "                                                  ";
     public GcodeStreamWriter(File f) throws FileNotFoundException {
         file = f;

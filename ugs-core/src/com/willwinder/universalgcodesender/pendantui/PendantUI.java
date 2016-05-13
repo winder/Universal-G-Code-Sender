@@ -46,7 +46,7 @@ import java.util.logging.Level;
 public class PendantUI implements ControllerListener{
     private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
     private BackendAPI mainWindow;
-    private Server server = null;
+    private Server server;
     private int port = 8080;
     private SystemStateBean systemState = new SystemStateBean();
     

@@ -29,14 +29,14 @@ import javax.vecmath.Point3d;
  
 public class LineSegment {
 
-    private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
+    private int toolhead; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
     private final Point3d first, second;
     
     // Line properties
-    private boolean isZMovement = false;
-    private boolean isArc = false;
-    private boolean isFastTraverse = false;
+    private boolean isZMovement;
+    private boolean isArc;
+    private boolean isFastTraverse;
     private final int lineNumber;
     
     public LineSegment (final Point3d a,final Point3d b, int num)

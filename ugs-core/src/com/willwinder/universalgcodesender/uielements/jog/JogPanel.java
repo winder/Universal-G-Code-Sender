@@ -31,7 +31,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private final BackendAPI backend;
 
-    private boolean statusUpdated = false;
+    private boolean statusUpdated;
 
     /**
      * No-Arg constructor to make this control work in the UI builder tools

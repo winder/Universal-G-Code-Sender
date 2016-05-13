@@ -6,8 +6,8 @@ package com.willwinder.universalgcodesender.types;
 public class GrblFeedbackMessage {
     final String message;
 
-    String distanceMode = null;
-    String units = null;
+    String distanceMode;
+    String units;
 
     public GrblFeedbackMessage(String message) {
         this.message = message;

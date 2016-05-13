@@ -50,8 +50,8 @@ import javax.swing.table.TableCellRenderer;
 
 class ColorRenderer extends JLabel
                            implements TableCellRenderer {
-    Border unselectedBorder = null;
-    Border selectedBorder = null;
+    Border unselectedBorder;
+    Border selectedBorder;
     boolean isBordered = true;
 
     public ColorRenderer(boolean isBordered) {

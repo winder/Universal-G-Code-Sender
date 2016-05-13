@@ -41,7 +41,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public abstract class AbstractCommunicator {
     public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
-    private int commandCounter = 0;
+    private int commandCounter;
 
     // Allow events to be sent from same thread for unit tests.
     private boolean launchEventsInDispatchThread = true;
@@ -268,7 +268,7 @@ public abstract class AbstractCommunicator {
      * main thread, and process them in order a single event thread.
      */
     private final LinkedBlockingDeque<EventData> eventQueue = new LinkedBlockingDeque<>();
-    private boolean stop = false;
+    private boolean stop;
     private Thread eventThread = new Thread(() -> {
         while (!stop) {
             try {

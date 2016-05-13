@@ -38,7 +38,7 @@ public class OptionTable extends JTable {
     ArrayList<TableCellRenderer> editors = new ArrayList<>();
 
     // Class type of cell being edited.
-    private Class editingClass = null;
+    private Class editingClass;
 
     public OptionTable() {
         types = new ArrayList<>();

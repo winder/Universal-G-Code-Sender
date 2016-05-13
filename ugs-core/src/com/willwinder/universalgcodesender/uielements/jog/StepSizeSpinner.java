@@ -11,7 +11,7 @@ import java.text.ParseException;
 
 public class StepSizeSpinner extends JSpinner {
 
-    double currentValue = 0.0;
+    double currentValue;
 
     public StepSizeSpinner() {
         setModel(new StepSizeSpinnerModel());

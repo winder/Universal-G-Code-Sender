@@ -37,16 +37,16 @@ public class GcodeParser {
     // Current state
     private boolean isMetric = true;
     private boolean inAbsoluteMode = true;
-    private boolean inAbsoluteIJKMode = false;
+    private boolean inAbsoluteIJKMode;
     private String lastGcodeCommand = "";
-    private Point3d currentPoint = null;
-    private int commandNumber = 0;
+    private Point3d currentPoint;
+    private int commandNumber;
 
     // Settings
     private double speedOverride = -1;
     private int truncateDecimalLength = 40;
     private boolean removeAllWhitespace = true;
-    private boolean convertArcsToLines = false;
+    private boolean convertArcsToLines;
     private double smallArcThreshold = 1.0;
     // Not configurable outside, but maybe it should be.
     private double smallArcSegmentLength = 0.3;

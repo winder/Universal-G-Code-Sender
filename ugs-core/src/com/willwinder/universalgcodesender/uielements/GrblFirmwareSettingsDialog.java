@@ -49,11 +49,11 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     // Controller object to fetch settings from.
     private final BackendAPI grblController;
     private final TableCellListener tcl;
-    private int numberOfSettings = 0;
+    private int numberOfSettings;
     //private List<String> commandList;
     private boolean loadingSettings;
     
-    private String[] commands = null;
+    private String[] commands;
     
     private static final int COL_INDEX_SETTING     = 0;
     private static final int COL_INDEX_VALUE       = 1;

@@ -36,7 +36,7 @@ public class Localization {
     public final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
     static {dfs.setDecimalSeparator('.');}
 
-    private static ResourceBundle bundle = null;
+    private static ResourceBundle bundle;
 
     synchronized public static void initialize(String language) {
         String[] lang = language.split("_");

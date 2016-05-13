@@ -96,9 +96,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private List<String> manualCommandHistory;
 
     // Other windows
-    VisualizerWindow vw = null;
-    String gcodeFile = null;
-    String processedGcodeFile = null;
+    VisualizerWindow vw;
+    String gcodeFile;
+    String processedGcodeFile;
     
     // Duration timer
     private Timer timer;

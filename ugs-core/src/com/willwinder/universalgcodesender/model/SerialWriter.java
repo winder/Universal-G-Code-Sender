@@ -40,7 +40,7 @@ import java.io.PrintStream;
 public class SerialWriter implements Runnable {
     private final StringBuffer lineBuffer;
     private final OutputStream out;
-    public boolean exit = false;
+    public boolean exit;
 
     // For synchronized operations
     private final Object syncObject = new Object();

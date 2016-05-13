@@ -32,22 +32,22 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 final public class PointSegment {
-    private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
+    private int toolhead; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
     private Point3d point;
     
     // Line properties
     private boolean isMetric = true;
-    private boolean isZMovement = false;
-    private boolean isArc = false;
-    private boolean isFastTraverse = false;
+    private boolean isZMovement;
+    private boolean isArc;
+    private boolean isFastTraverse;
     private int lineNumber;
-    private ArcProperties arcProperties = null;
+    private ArcProperties arcProperties;
 
     private class ArcProperties {
         public boolean isClockwise;
-        public double radius = 0.0;
-        public Point3d center = null;
+        public double radius;
+        public Point3d center;
     }
     
     public PointSegment() {

@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  */
 public class XLCDCommunicator extends GrblCommunicator {
 
-    int UGSCommandCount = 0;
+    int UGSCommandCount;
     public XLCDCommunicator() {}
 
     @Override

@@ -39,16 +39,16 @@ public class GcodeCommand {
     private String originalCommand;
     private String response;
     private String responseType;
-    private Boolean sent = false;
-    private Boolean done = false;
-    private Boolean isOk = false;
-    private Boolean isError = false;
+    private Boolean sent;
+    private Boolean done;
+    private Boolean isOk;
+    private Boolean isError;
     private Integer commandNum = -1;
-    private Boolean isSkipped = false;
-    private boolean isComment = false;
-    private boolean hasComment = false;
+    private Boolean isSkipped;
+    private boolean isComment;
+    private boolean hasComment;
     private String comment;
-    private boolean isTemporaryParserModalChange = false;
+    private boolean isTemporaryParserModalChange;
 
     public GcodeCommand(String command) {
         this(command, -1);

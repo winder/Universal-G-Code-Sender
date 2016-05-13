@@ -51,11 +51,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
     public static final int AUTO_DISCONNECT_THRESHOLD = 5000;
-
-    private AbstractController controller = null;
-    private Settings settings = null;
-    private Position machineCoord = null;
-    private Position workCoord = null;
+    
+    private AbstractController controller;
+    private Settings settings;
+    private Position machineCoord;
+    private Position workCoord;
     private Units reportUnits = Units.UNKNOWN;
 
     private String state;
@@ -63,16 +63,16 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
 
     // GUI State
-    private File gcodeFile = null;
-    private File processedGcodeFile = null;
-    private File tempDir = null;
+    private File gcodeFile;
+    private File processedGcodeFile;
+    private File tempDir;
     private String lastComment;
     private String activeState;
     private ControlState controlState = ControlState.COMM_DISCONNECTED;
-    private long sendStartTime = 0;
+    private long sendStartTime;
     private long estimatedSendDuration = -1L;
-    private long estimatedSendTimeRemaining = 0;
-    private long rowsInFile = 0;
+    private long estimatedSendTimeRemaining;
+    private long rowsInFile;
     private String openCloseButtonText;
     private boolean openCloseButtonEnabled;
     private String pauseButtonText;
@@ -82,8 +82,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;
-    private boolean streamFailed = false;
-    private boolean autoconnect = false;
+    private boolean streamFailed;
+    private boolean autoconnect;
     private final java.util.Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
     
     public GcodeParser gcp = new GcodeParser();

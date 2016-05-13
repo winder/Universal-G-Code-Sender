@@ -181,18 +181,18 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private Utils.Units reportingUnits = Utils.Units.UNKNOWN;
     
     // Added value
-    private Boolean isStreaming = false;
-    private Boolean paused = false;
-    private long streamStart = 0;
-    private long streamStop = 0;
+    private Boolean isStreaming;
+    private Boolean paused;
+    private long streamStart;
+    private long streamStop;
     private File gcodeFile;
     
     // This metadata needs to be cached instead of looked up from queues and
     // streams, because those sources may be compromised during a cancel.
-    private int numCommands = 0;
-    private int numCommandsSent = 0;
-    private int numCommandsSkipped = 0;
-    private int numCommandsCompleted = 0;
+    private int numCommands;
+    private int numCommandsSent;
+    private int numCommandsSkipped;
+    private int numCommandsCompleted;
     
     // Commands become active after the Communicator notifies us that they have
     // been sent.
@@ -216,8 +216,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private ArrayList<ControllerListener> listeners;
 
     //Track current mode to restore after jogging
-    private String distanceModeCode = null;
-    private String unitsCode = null;
+    private String distanceModeCode;
+    private String unitsCode;
         
     /**
      * Dependency injection constructor to allow a mock communicator.

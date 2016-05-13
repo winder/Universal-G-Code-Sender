@@ -33,7 +33,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class StepSizeSpinnerModel extends SpinnerNumberModel {
 
-    Double maxStepSize = null;
+    Double maxStepSize;
 
     public StepSizeSpinnerModel(Number value, Comparable min, Comparable max, Number size) {
         super (value, min, max, size);

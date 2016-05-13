@@ -41,7 +41,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
     int commandNum = -1;
 
     // This is needed for unit testing.
-    protected boolean focusNotNeeded = false;
+    protected boolean focusNotNeeded;
 
     public CommandTextArea() {
         this(null);

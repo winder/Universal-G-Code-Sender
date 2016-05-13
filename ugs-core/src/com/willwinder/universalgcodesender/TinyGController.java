@@ -43,7 +43,7 @@ public class TinyGController extends AbstractController {
 
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
 
-    private boolean isReady = false;
+    private boolean isReady;
     private Units units;
 
     private String state = "";

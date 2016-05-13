@@ -51,8 +51,8 @@ implements ControllerListener, WindowListener {
     // OpenGL Control
     FPSAnimator animator;
     
-    private String gcodeFile = null;
-    private VisualizerCanvas canvas = null;
+    private String gcodeFile;
+    private VisualizerCanvas canvas;
     
     /**
      * Creates new form Visualizer

@@ -39,7 +39,7 @@ import org.openide.util.lookup.InstanceContent;
 public class CentralLookup extends AbstractLookup {
     private static CentralLookup def = new CentralLookup();
 
-    private InstanceContent content = null;
+    private InstanceContent content;
     
     public CentralLookup(InstanceContent content) {
         super(content);
