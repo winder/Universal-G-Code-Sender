@@ -24,13 +24,11 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.Icon;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -77,7 +75,7 @@ public final class Stop extends AbstractAction implements UGSEventListener {
     
     @Override
     public boolean isEnabled() {
-        return backend.isSending();
+        return backend.canCancel();
     }
    
     @Override
