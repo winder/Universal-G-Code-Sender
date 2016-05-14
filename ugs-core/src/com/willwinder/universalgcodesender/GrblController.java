@@ -30,8 +30,6 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.EventQueue;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -165,7 +163,7 @@ public class GrblController extends AbstractController {
 
         else if (GrblUtils.isGrblFeedbackMessage(response)) {
             GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
-            this.messageForConsole(grblFeedbackMessage.toString() + "\n");
+            this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
             setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
             setUnitsCode(grblFeedbackMessage.getUnits());
         }

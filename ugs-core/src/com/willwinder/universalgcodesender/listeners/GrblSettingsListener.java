@@ -3,10 +3,8 @@ package com.willwinder.universalgcodesender.listeners;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-import javax.vecmath.Point3d;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +33,9 @@ public class GrblSettingsListener implements ControllerListener {
 
     public List<String> getSettings() {
 
-        if (settings.size() == 0) {
+        if (settings.isEmpty()) {
             synchronized (refreshLock) {
-                if (settings.size() == 0)
+                if (settings.isEmpty())
                     refreshSettings();
             }
         }
