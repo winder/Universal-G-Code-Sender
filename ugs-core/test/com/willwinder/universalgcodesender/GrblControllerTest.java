@@ -204,7 +204,7 @@ public class GrblControllerTest {
         // Noop if called while comm is closed.
         instance.issueSoftReset();
         // Did not send reset command to communicator or issue reset.
-        assertEquals(0x0, mgc.sentByte);
+        assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numSoftResetCalls);
 
         try {
@@ -214,36 +214,35 @@ public class GrblControllerTest {
         }
 
         // Automatic soft reset
-        assertEquals(24, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         assertEquals(0, mgc.numSoftResetCalls);
 
         // Enable real time mode by sending correct GRBL version:
         instance.rawResponseHandler("Grbl 0.8c");
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         assertEquals(1, mgc.numSoftResetCalls);
         
         // GRBL version that might not have the command but I send it to anyway:
         mgc.resetInputsAndFunctionCalls();
         instance.openCommPort("blah", 1234);
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
-        mgc.sentByte = 0;
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.rawResponseHandler("Grbl 0.8a");
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         assertEquals(1, mgc.numSoftResetCalls);
         
         // GRBL version that should not be sent the command:
         mgc.resetInputsAndFunctionCalls();
         instance.openCommPort("blah", 1234);
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
-        mgc.sentByte = 0;
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+        mgc.sentBytes.clear();
         instance.rawResponseHandler("Grbl 0.7");
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
-        assertEquals(0x0, mgc.sentByte);
+        assertEquals(0, mgc.sentBytes.size());
         assertEquals(0, mgc.numSoftResetCalls);
     }
 
@@ -644,21 +643,21 @@ public class GrblControllerTest {
         System.out.println("pauseStreaming");
         GrblController instance = new GrblController(mgc);
         instance.openCommPort("blah", 1234);
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
-        mgc.sentByte = 0;
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
 
         instance.pauseStreaming();
         assertEquals(1, mgc.numPauseSendCalls);
+        mgc.sentBytes.clear();
         
         instance.rawResponseHandler("Grbl 0.7");
         instance.pauseStreaming();
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(0x0, mgc.sentByte);
+        assertEquals(0, mgc.sentBytes.size());
         
         instance.rawResponseHandler("Grbl 0.8c");
         instance.pauseStreaming();
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(GrblUtils.GRBL_PAUSE_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
     }
 
     /**
@@ -669,7 +668,7 @@ public class GrblControllerTest {
         System.out.println("resumeStreaming");
         GrblController instance = new GrblController(mgc);
         instance.openCommPort("blah", 1234);
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
 
         instance.resumeStreaming();
         assertEquals(1, mgc.numResumeSendCalls);
@@ -677,12 +676,12 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.7");
         instance.resumeStreaming();
         assertEquals(2, mgc.numResumeSendCalls);
-        assertEquals(GrblUtils.GRBL_RESET_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
 
         instance.rawResponseHandler("Grbl 0.8c");
         instance.resumeStreaming();
         assertEquals(3, mgc.numResumeSendCalls);
-        assertEquals(GrblUtils.GRBL_RESUME_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_RESUME_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
 
     }
 
@@ -715,10 +714,14 @@ public class GrblControllerTest {
         assertEquals(1, mgc.numCancelSendCalls);
         
         // Test 1.2 Cancel when nothing is running (Grbl 0.8c).
-        //          Check for soft reset??
+        //          Check for soft reset.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.cancelSend();
         assertEquals(2, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.numPauseSendCalls);
+        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+        instance.resumeStreaming();
 
         // Test 2.1 
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
@@ -733,8 +736,6 @@ public class GrblControllerTest {
         }
         instance.cancelSend();
         assertEquals(30, instance.rowsInSend());
-        // Note: It is hoped that one day cancel will proactively clear out the
-        //       in progress commands. But that day is not today.
         assertEquals(30, instance.rowsRemaining());
         
         // Test 2.2
@@ -751,8 +752,12 @@ public class GrblControllerTest {
             fail("Unexpected exception from GrblController: " +ex.getMessage());
         }
         instance.cancelSend();
-        assertEquals(30, instance.rowsInSend());
-        assertEquals(30, instance.rowsRemaining());
+        assertEquals(0, instance.rowsInSend());
+        assertEquals(0, instance.rowsRemaining());
+        assertEquals(2, mgc.numPauseSendCalls);
+        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+        instance.resumeStreaming();
         
         // Test 3.1
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.7)
@@ -797,10 +802,115 @@ public class GrblControllerTest {
         }
         
         instance.cancelSend();
+        assertEquals(15, instance.rowsSent());
+        assertEquals(0, instance.rowsInSend());
+        assertEquals(0, instance.rowsRemaining());
+        assertEquals(3, mgc.numPauseSendCalls);
+        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+        instance.resumeStreaming();
+    }
+
+    @Test
+    public void testPauseAndCancelSend() throws Exception {
+        System.out.println("Pause + cancelSend");
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("blah", 1234);
+
+        // Test 1.1 cancel throws an exception (Grbl 0.7).
+        instance.rawResponseHandler("Grbl 0.7");
+        try {
+            instance.pauseStreaming();
+            instance.cancelSend();
+        } catch (Exception ex) {
+        }
+        assertEquals(0, mgc.numCancelSendCalls);
+        instance.resumeStreaming();
+        
+        // Test 1.2 Cancel when nothing is running (Grbl 0.8c).
+        //          Check for soft reset.
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.pauseStreaming();
+        instance.cancelSend();
+        assertEquals(1, mgc.numCancelSendCalls);
+        assertEquals(1, mgc.numSoftResetCalls);
+        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+        instance.resumeStreaming();
+
+        // Test 2.1 
+        // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
+        instance.rawResponseHandler("Grbl 0.7");
+        for (int i=0; i < 30; i++) {
+            instance.queueCommand(instance.createCommand("G0X" + i));
+        }
+        try {
+            instance.beginStreaming();
+        } catch (Exception ex) {
+            fail("Unexpected exception from GrblController: " +ex.getMessage());
+        }
+        instance.pauseStreaming();
+
+        boolean exceptionThrown = false;
+        try {
+            instance.cancelSend();
+        } catch (Exception e) {
+            exceptionThrown = true;
+        }
+        assertTrue(exceptionThrown);
         assertEquals(30, instance.rowsInSend());
+        // Note: It is hoped that one day cancel will proactively clear out the
+        //       in progress commands. But that day is not today.
+        assertEquals(30, instance.rowsRemaining());
+        instance.resumeStreaming();
+        instance.cancelSend();
+        
+        // Test 2.2
+        // Add 30 commands, start send, cancel before any sending. (Grbl 0.8c)
+        //setUp();
+        //instance = new GrblController(mgc);
+        instance.rawResponseHandler("Grbl 0.8c");
+        for (int i=0; i < 30; i++) {
+            instance.queueCommand(instance.createCommand("G0X" + i));
+        }
+        try {
+            instance.beginStreaming();
+        } catch (Exception ex) {
+            fail("Unexpected exception from GrblController: " +ex.getMessage());
+        }
+        instance.pauseStreaming();
+        instance.cancelSend();
+        assertEquals(0, instance.rowsInSend());
+        assertEquals(0, instance.rowsRemaining());
+        instance.resumeStreaming();
+        
+        // Test 3.1 - N/A, exception thrown.
+        
+        // Test 3.2
+        // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
+        instance.rawResponseHandler("Grbl 0.8c");
+        for (int i=0; i < 30; i++) {
+            instance.queueCommand(instance.createCommand("G0X" + i));
+        }
+        try {
+            instance.beginStreaming();
+            for (int i=0; i < 15; i++) {
+                GcodeCommand command = new GcodeCommand("G0 X1");
+                command.setSent(true);
+                command.setResponse("ok");
+                instance.commandSent(command);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            fail("Unexpected exception from command sent: " + ex.getMessage());
+        }
+        
+        instance.pauseStreaming();
+        instance.cancelSend();
+        assertEquals(15, instance.rowsSent());
+        assertEquals(0, instance.rowsInSend());
         // Left this failing because it should be possible to make it work
         // this way someday.
-        assertEquals(30, instance.rowsRemaining());
+        assertEquals(0, instance.rowsRemaining());
     }
     
     @Ignore("disabled until implementation is finished")
@@ -996,7 +1106,7 @@ public class GrblControllerTest {
         }
         assertTrue(1 <= mgc.numSendByteImmediatelyCalls);
         //assertEquals(1, mgc.numSendByteImmediatelyCalls);
-        assertEquals(GrblUtils.GRBL_STATUS_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         
         // Test 2. Check that another poll is sent shortly after receiving a
         //         status message.
@@ -1008,7 +1118,7 @@ public class GrblControllerTest {
             fail("Unexpected exception while testing rawResponseListener: " +ex.getMessage());
         }
         assertEquals(2, mgc.numSendByteImmediatelyCalls);
-        assertEquals(GrblUtils.GRBL_STATUS_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         
         // Test 3. Check that after a long enough delay, additional polls are
         //         sent even without responses.
@@ -1019,7 +1129,7 @@ public class GrblControllerTest {
             fail("Unexpected exception while testing rawResponseListener: " +ex.getMessage());
         }
         assert(2 < mgc.numSendByteImmediatelyCalls);
-        assertEquals(GrblUtils.GRBL_STATUS_COMMAND, mgc.sentByte);
+        assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
     }
 
     /**

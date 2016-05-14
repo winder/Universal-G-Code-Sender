@@ -83,6 +83,7 @@ public class AbstractControllerTest {
                         "cancelSendAfterEvent",
                         "pauseStreamingEvent",
                         "resumeStreamingEvent",
+                        "isReadyToStreamCommandsEvent",
                         "isReadyToSendCommandsEvent",
                         "rawResponseHandler",
                         "statusUpdatesEnabledValueChanged",
@@ -135,7 +136,7 @@ public class AbstractControllerTest {
     }
     private void streamInstanceExpectUtility() throws Exception {
         EasyMock.expect(mockCommunicator.areActiveCommands()).andReturn(false).anyTimes();
-        instance.isReadyToSendCommandsEvent();
+        instance.isReadyToStreamCommandsEvent();
         EasyMock.expect(EasyMock.expectLastCall()).once();
         mockCommunicator.streamCommands();
         EasyMock.expect(EasyMock.expectLastCall()).once();
@@ -404,7 +405,7 @@ public class AbstractControllerTest {
     public void testIsReadyToStreamFile() throws Exception {
         System.out.println("isReadyToStreamFile");
 
-        instance.isReadyToSendCommandsEvent();
+        instance.isReadyToStreamCommandsEvent();
         expect(expectLastCall()).times(3);
 
         Boolean commPortNotOpen = false;
@@ -618,7 +619,7 @@ public class AbstractControllerTest {
      */
     @Test
     @Ignore
-    public void testCancelSend() {
+    public void testCancelSend() throws Exception {
         // This is covered pretty thoroughly in GrblControllerTest.
         System.out.println("cancelSend");
         instance.cancelSend();

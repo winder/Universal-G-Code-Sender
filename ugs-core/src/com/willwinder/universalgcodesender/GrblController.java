@@ -115,6 +115,12 @@ public class GrblController extends AbstractController {
         else if (GrblUtils.isGrblVersionString(response)) {
             this.isReady = true;
             resetBuffers();
+            positionPollTimer = createPositionPollTimer();
+
+            // In case a reset occurred while streaming.
+            if (this.isStreamingFile()) {
+                checkStreamFinished();
+            }
 
             // Version string goes to console
             this.messageForConsole(response + "\n");
@@ -201,6 +207,14 @@ public class GrblController extends AbstractController {
     }
 
     @Override
+    protected void isReadyToStreamCommandsEvent() throws Exception {
+        isReadyToSendCommandsEvent();
+        if (grblState != null && grblState.equals("Alarm")) {
+            throw new Exception(Localization.getString("controller.exception.notIdle"));
+        }
+    }
+
+    @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
         if (this.isReady == false) {
             throw new Exception(Localization.getString("controller.exception.booting"));
@@ -208,11 +222,18 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void cancelSendBeforeEvent() {
+    protected void cancelSendBeforeEvent() throws Exception {
+        boolean paused = isPaused();
+        // The cancel button is left enabled at all times now, but can only be
+        // used for some versions of GRBL.
+        if (paused && !this.realTimeCapable) {
+            throw new Exception("Cannot cancel while paused with this version of GRBL. Reconnect to reset GRBL.");
+        }
+
         // Check if we can get fancy with a soft reset.
-        if (this.realTimeCapable == true) {
+        if (!paused && this.realTimeCapable == true) {
             try {
-                this.pauseStreamingEvent();
+                this.pauseStreaming();
             } catch (Exception e) {
                 // Oh well, was worth a shot.
                 System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
@@ -222,12 +243,16 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void cancelSendAfterEvent() {
-        try {
-            // This should reset the GRBL buffers and clear out the state.
-            this.issueSoftReset();
-        } catch (Exception e) {
-            // Oh well, was worth a shot.
-            System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
+        if (this.realTimeCapable) {
+            // No need to resume, the soft-reset should ts state.
+            // boolean unpause = isPaused();
+            try {
+                // This should reset the GRBL buffers and clear out the state.
+                this.issueSoftReset();
+            } catch (Exception e) {
+                // Oh well, was worth a shot.
+                System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
+            }
         }
     }
     

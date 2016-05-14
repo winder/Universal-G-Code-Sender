@@ -273,6 +273,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.nextCommand = null;
         this.commandBuffer.clear();
         this.commandStream = null;
+        this.sendPaused = false;
     }
     
     /**

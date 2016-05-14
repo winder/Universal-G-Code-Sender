@@ -25,6 +25,7 @@ package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.TooManyListenersException;
 
 /**
@@ -36,7 +37,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public String portName;
     public int    portRate;
     public String queuedString;
-    public byte   sentByte = 0x0;
+    public ArrayList<Byte>   sentBytes = new ArrayList<>();
     public Boolean open = false;
     public Boolean areActiveCommands = false;
     
@@ -56,7 +57,6 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.portName = "";
         this.portRate = 0;
         this.queuedString = "";
-        this.sentByte = 0x0;
         this.open = false;
         
         this.numOpenCommPortCalls = 0;
@@ -110,7 +110,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public void sendByteImmediately(byte b) throws IOException {
         this.numSendByteImmediatelyCalls++;
 
-        this.sentByte = b;
+        this.sentBytes.add(b);
     }
 
     @Override

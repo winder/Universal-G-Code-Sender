@@ -66,8 +66,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Called before and after a send cancel allowing device specific behavior.
      */
-    abstract protected void cancelSendBeforeEvent();
-    abstract protected void cancelSendAfterEvent();
+    abstract protected void cancelSendBeforeEvent() throws Exception;
+    abstract protected void cancelSendAfterEvent() throws Exception;
     
     /**
      * Called before the comm is paused and before it is resumed. 
@@ -79,6 +79,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * Called prior to sending commands, throw an exception if not ready.
      */
     abstract protected void isReadyToSendCommandsEvent() throws Exception;
+    /**
+     * Called prior to streaming commands, separate in case you need to be more
+     * restrictive about streaming a file vs. sending a command.
+     * throws an exception if not ready.
+     */
+    abstract protected void isReadyToStreamCommandsEvent() throws Exception;
 
     /**
      * Raw responses from the serial communicator.
@@ -197,17 +203,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     // Commands become active after the Communicator notifies us that they have
     // been sent.
     //
-    // The concept of queue'd commands is going away, it was never exposed in
-    // the GUI anyway.
-    //
     // Algorithm:
     //   1) Send all manually queued commands to the Communicator.
     //   2) Queue file stream(s).
     //   3) As commands are sent by the Communicator create a GCodeCommand
     //      (with command number) object and add it to the activeCommands list.
     //   4) As commands are completed remove them from the activeCommand list.
-    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
     private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
+    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
     private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
     private GcodeStreamReader       streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
@@ -429,7 +432,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public Boolean isReadyToStreamFile() throws Exception {
-        isReadyToSendCommandsEvent();
+        isReadyToStreamCommandsEvent();
         
         if (!isCommOpen()) {
             throw new Exception("Cannot begin streaming, comm port is not open.");
@@ -514,7 +517,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
             comm.streamCommands();
         } catch(Exception e) {
-            e.printStackTrace();
             this.isStreaming = false;
             this.streamStart = 0;
             this.comm.cancelSend();
@@ -539,7 +541,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     @Override
-    public void cancelSend() {
+    public Boolean isPaused() {
+        return paused;
+    }
+
+    @Override
+    public void cancelSend() throws Exception {
         this.messageForConsole("\n**** Canceling file transfer. ****\n\n");
 
         cancelSendBeforeEvent();
@@ -579,6 +586,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     // Reset send queue and idx's.
     private void flushSendQueues() {
         this.errorCount = 0;
+        this.numCommands -= this.getRowStat(RowStat.ROWS_REMAINING);
     }
 
     private void updateNumCommands() {
@@ -589,7 +597,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     // No longer a listener event
-    private void fileStreamComplete(String filename, boolean success) {
+    protected void fileStreamComplete(String filename, boolean success) {
         this.messageForConsole("\n**** Finished sending file. ****\n\n");
         this.streamStop = System.currentTimeMillis();
         this.isStreaming = false;

@@ -185,6 +185,11 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    protected void isReadyToStreamCommandsEvent() throws Exception {
+        //throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+    }
+
+    @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
         //throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }

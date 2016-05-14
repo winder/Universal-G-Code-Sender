@@ -541,9 +541,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public boolean canCancel() {
-        // Note: Cannot cancel a send while paused because there are commands
-        //       in the GRBL buffer which can't be un-sent.
-        return this.controlState == ControlState.COMM_SENDING;
+        return canPause() || isPaused();
     }
     
     @Override

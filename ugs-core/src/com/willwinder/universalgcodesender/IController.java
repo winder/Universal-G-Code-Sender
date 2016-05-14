@@ -95,7 +95,8 @@ public interface IController {
     public void beginStreaming() throws Exception;
     public void pauseStreaming() throws Exception;
     public void resumeStreaming() throws Exception;
-    public void cancelSend();
+    public Boolean isPaused();
+    public void cancelSend() throws Exception;
 
     /**
      * In case a controller reset is detected.
