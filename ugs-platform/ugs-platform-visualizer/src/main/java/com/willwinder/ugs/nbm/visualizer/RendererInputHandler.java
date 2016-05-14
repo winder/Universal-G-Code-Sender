@@ -287,6 +287,10 @@ public class RendererInputHandler implements
     }
 
     @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
+    @Override
     public void fileStreamComplete(String filename, boolean success) {
     }
 
