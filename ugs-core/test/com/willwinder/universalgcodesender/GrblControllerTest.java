@@ -22,7 +22,9 @@ import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import org.junit.After;
 import org.junit.Ignore; 
 import static org.junit.Assert.*;
@@ -40,12 +42,21 @@ public class GrblControllerTest {
     }
     
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         this.mgc = new MockGrblCommunicator();
+
+        // Initialize private variable.
+        Field f = GUIHelpers.class.getDeclaredField("unitTestMode");
+        f.setAccessible(true);
+        f.set(null, true);
     }
     
     @After
-    public void tearDown() {
+    public void tearDown() throws Exception {
+        // Initialize private variable.
+        Field f = GUIHelpers.class.getDeclaredField("unitTestMode");
+        f.setAccessible(true);
+        f.set(null, false);
     }
     
     @Test
@@ -719,7 +730,6 @@ public class GrblControllerTest {
         instance.cancelSend();
         assertEquals(2, mgc.numCancelSendCalls);
         assertEquals(1, mgc.numPauseSendCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.resumeStreaming();
 
@@ -755,7 +765,6 @@ public class GrblControllerTest {
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.resumeStreaming();
         
@@ -806,7 +815,6 @@ public class GrblControllerTest {
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(new Byte(GrblUtils.GRBL_PAUSE_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-2));
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.resumeStreaming();
     }

@@ -30,6 +30,8 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import java.awt.EventQueue;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -244,15 +246,19 @@ public class GrblController extends AbstractController {
     @Override
     protected void cancelSendAfterEvent() {
         if (this.realTimeCapable) {
-            // No need to resume, the soft-reset should ts state.
-            // boolean unpause = isPaused();
-            try {
-                // This should reset the GRBL buffers and clear out the state.
-                this.issueSoftReset();
-            } catch (Exception e) {
-                // Oh well, was worth a shot.
-                System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
-            }
+            GUIHelpers.invokeLater(() -> {
+                // No need to resume, the soft-reset should ts state.
+                // boolean unpause = isPaused();
+                try {
+                    // Give GRBL a couple seconds for the feed hold to stick.
+                    Thread.sleep(2000);
+                    // This should reset the GRBL buffers and clear out the state.
+                    this.issueSoftReset();
+                } catch (Exception e) {
+                    // Oh well, was worth a shot.
+                    System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
+                }
+            });
         }
     }
     
