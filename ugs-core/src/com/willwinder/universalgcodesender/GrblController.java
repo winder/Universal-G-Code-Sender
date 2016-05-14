@@ -55,7 +55,7 @@ public class GrblController extends AbstractController {
     // Grbl status members.
     private GrblUtils.Capabilities capabilities = null;
     private Boolean realTimeCapable = false;
-    private String grblState;
+    private String grblState = "";
     private Position machineLocation;
     private Position workLocation;
     private double maxZLocationMM;
@@ -63,6 +63,11 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
+
+    // Canceling state
+    private Boolean isCanceling = false;     // Set for the position polling thread.
+    private int attemptsRemaining;
+    private Position lastLocation;
     
     public GrblController(AbstractCommunicator comm) {
         super(comm);
@@ -212,7 +217,7 @@ public class GrblController extends AbstractController {
     protected void isReadyToStreamCommandsEvent() throws Exception {
         isReadyToSendCommandsEvent();
         if (grblState != null && grblState.equals("Alarm")) {
-            throw new Exception(Localization.getString("controller.exception.notIdle"));
+            throw new Exception(Localization.getString("grbl.exception.Alarm"));
         }
     }
 
@@ -244,21 +249,12 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    protected void cancelSendAfterEvent() {
-        if (this.realTimeCapable) {
-            GUIHelpers.invokeLater(() -> {
-                // No need to resume, the soft-reset should ts state.
-                // boolean unpause = isPaused();
-                try {
-                    // Give GRBL a couple seconds for the feed hold to stick.
-                    Thread.sleep(2000);
-                    // This should reset the GRBL buffers and clear out the state.
-                    this.issueSoftReset();
-                } catch (Exception e) {
-                    // Oh well, was worth a shot.
-                    System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
-                }
-            });
+    protected void cancelSendAfterEvent() throws Exception {
+        if (this.realTimeCapable && this.getStatusUpdatesEnabled()) {
+            // Trigger the position listener to watch for the machine to stop.
+            this.attemptsRemaining = 50;
+            this.isCanceling = true;
+            this.lastLocation = null;
         }
     }
     
@@ -474,6 +470,25 @@ public class GrblController extends AbstractController {
 
             machineLocation = GrblUtils.getMachinePositionFromStatusString(string, capabilities, getReportingUnits());
             workLocation = GrblUtils.getWorkPositionFromStatusString(string, capabilities, getReportingUnits());
+
+
+            if (isCanceling) {
+                if (attemptsRemaining > 0 && lastLocation != null) {
+                    attemptsRemaining--;
+                    if (grblState.equals("Hold") && lastLocation.equals(machineLocation)) {
+                        try {
+                            this.issueSoftReset();
+                        } catch(Exception e) {
+                            this.errorMessageForConsole(e.getMessage());
+                        }
+                        isCanceling = false;
+                    }
+                    if (isCanceling && attemptsRemaining == 0) {
+                        this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset"));
+                    }
+                }
+                lastLocation = new Position(machineLocation);
+            }
             
             // Save max Z location
             if (machineLocation != null) {

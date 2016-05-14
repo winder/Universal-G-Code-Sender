@@ -1,10 +1,10 @@
 ( Made using CamBam - http://www.cambam.co.uk )
 ( Gates_combined_R12 12/7/2012 7:36:26 PM )
 ( T0 : 1.0 )
-G21 G90 G64 G40
+G21 G90 ( G64 ) G40
 G0 Z3.0
 ( T0 : 1.0 )
-T0 M6
+( T0 M6 )
 ( Holes )
 G17
 M3 S1000

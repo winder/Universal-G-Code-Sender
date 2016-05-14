@@ -576,6 +576,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void resetBuffers() {
         this.activeCommands.clear();
         this.comm.resetBuffers();
+        paused = false;
     }
     
     private synchronized void flushQueuedCommands() {
