@@ -27,6 +27,7 @@ import javax.swing.JPanel;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -127,6 +128,10 @@ public class SendStatusLine extends JPanel implements UGSEventListener, Controll
     ///////////////////////////////
     // ControllerListener events //
     ///////////////////////////////
+
+    @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {

@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -206,6 +207,10 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     }
 
     // Controller events below.
+
+    @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {

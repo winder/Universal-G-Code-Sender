@@ -114,6 +114,10 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     }
     
     @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
+    @Override
     public void fileStreamComplete(String filename, boolean success) {
         //throw new UnsupportedOperationException("Not supported yet.");
     }

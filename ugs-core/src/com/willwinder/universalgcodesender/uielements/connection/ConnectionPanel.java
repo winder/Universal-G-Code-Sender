@@ -163,6 +163,10 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
     }
 
     @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
+    @Override
     public void fileStreamComplete(String filename, boolean success) {
         sendPauseResumeButton.setText(Localization.getString("mainWindow.swing.sendButton"));
         browseCancelButton.setText(Localization.getString("mainWindow.swing.browseButton"));

@@ -385,6 +385,10 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
      */
     
     @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
+    @Override
     public void fileStreamComplete(String filename, boolean success) {
         final String durationLabelCopy = connectionPanel.getDuration();
         if (success) {

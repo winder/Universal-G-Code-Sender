@@ -67,6 +67,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.Toolkit;
@@ -2198,6 +2199,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
      * SerialCommunicatorListener implementation.
      */
     
+    @Override
+    public void controlStateChange(ControlState state) {
+
+    }
+
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));

@@ -2,7 +2,7 @@
  * Controler Listener event interface
  */
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,15 +23,23 @@ package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import javax.vecmath.Point3d;
 
 /**
  *
  * @author wwinder
  */
 public interface ControllerListener {
+    /**
+     * The controller has modified the state by itself, such as pausing a job on
+     * an error.
+     */
+    void controlStateChange(ControlState state);
+
+    /**
+     * The file streaming has completed.
+     */
     void fileStreamComplete(String filename, boolean success);
     
     /**

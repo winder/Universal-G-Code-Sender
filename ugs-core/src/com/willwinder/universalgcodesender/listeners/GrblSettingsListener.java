@@ -3,6 +3,7 @@ package com.willwinder.universalgcodesender.listeners;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 import java.util.ArrayList;
@@ -70,6 +71,10 @@ public class GrblSettingsListener implements ControllerListener {
         }
 
         return;
+    }
+
+    @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
     }
 
     @Override

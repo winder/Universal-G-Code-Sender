@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.net.URL;
 import java.util.logging.Level;
@@ -320,6 +321,10 @@ public class PendantUI implements ControllerListener{
 
     public void setMainWindow(BackendAPI mainWindow) {
         this.mainWindow = mainWindow;
+    }
+
+    @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
     }
 
     @Override

@@ -214,6 +214,10 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
+    @Override
     public void fileStreamComplete(String filename, boolean success) {
 
     }

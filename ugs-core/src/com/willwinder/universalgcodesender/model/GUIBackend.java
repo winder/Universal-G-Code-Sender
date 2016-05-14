@@ -629,6 +629,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     //////////////////
     // Controller Listener
     //////////////////
+    @Override
+    public void controlStateChange(ControlState state) {
+        this.sendControlStateEvent(new UGSEvent(state));
+    }
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {

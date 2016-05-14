@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
@@ -375,6 +376,10 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private javax.swing.JScrollPane settingsTableScrollPane;
     // End of variables declaration//GEN-END:variables
     
+    @Override
+    public void controlStateChange(UGSEvent.ControlState state) {
+    }
+
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         //throw new UnsupportedOperationException("Not supported yet.");
