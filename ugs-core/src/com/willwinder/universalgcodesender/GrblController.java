@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
@@ -100,6 +101,7 @@ public class GrblController extends AbstractController {
                 // If there is an error, pause the stream.
                 if (response.startsWith("error:")) {
                     this.pauseStreaming();
+                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
                     GcodeCommand command = getActiveCommand();
                     String error =
                             String.format(Localization.getString("controller.exception.sendError"),
@@ -239,6 +241,7 @@ public class GrblController extends AbstractController {
         if (!paused && this.realTimeCapable == true) {
             try {
                 this.pauseStreaming();
+                this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
             } catch (Exception e) {
                 // Oh well, was worth a shot.
                 System.out.println("Exception while trying to issue a soft reset: " + e.getMessage());
