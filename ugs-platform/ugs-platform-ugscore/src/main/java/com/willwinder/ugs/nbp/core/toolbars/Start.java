@@ -57,10 +57,10 @@ public final class Start extends AbstractAction implements UGSEventListener {
                 ImageUtilities.loadImage("resources/play.png"));
         putValue(SMALL_ICON, icon);
  
-        this.setEnabled(true);
-        
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
+
+        setEnabled(isEnabled());
     }
     
     @Override
@@ -68,7 +68,7 @@ public final class Start extends AbstractAction implements UGSEventListener {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                setEnabled(backend.canSend() || backend.isPaused());
+                setEnabled(isEnabled());
             }
         });
 

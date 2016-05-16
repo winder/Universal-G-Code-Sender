@@ -128,7 +128,7 @@ public final class FileBrowserTopComponent extends TopComponent implements UGSEv
     @Override
     public void componentOpened() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
+        fileTextField.setText(backend.getGcodeFile().getAbsolutePath());
         backend.addUGSEventListener(this);
     }
 

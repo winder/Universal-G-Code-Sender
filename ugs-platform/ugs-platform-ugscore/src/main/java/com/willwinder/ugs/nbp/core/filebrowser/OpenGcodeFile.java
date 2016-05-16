@@ -54,18 +54,28 @@ public final class OpenGcodeFile implements ActionListener {
         openGcodeFileDialog();
     }
 
-    public static void openGcodeFileDialog() {
+    public static void openGcodeFile(File f) {
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        try {
+            backend.setGcodeFile(f);
+            settings.setLastOpenedFilename(f.getAbsolutePath());
+            SettingsFactory.saveSettings(settings);
+        } catch (Exception e) {
+
+        }
+    }
+
+    public static void openGcodeFileDialog() {
+        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         
         JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename());
         int returnVal = fileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setGcodeFile(gcodeFile);
-                settings.setLastOpenedFilename(gcodeFile.getAbsolutePath());
-                SettingsFactory.saveSettings(settings);
+                openGcodeFile(gcodeFile);
             } catch (Exception ex) {
                 //MainWindow.displayErrorDialog(ex.getMessage());
             }
