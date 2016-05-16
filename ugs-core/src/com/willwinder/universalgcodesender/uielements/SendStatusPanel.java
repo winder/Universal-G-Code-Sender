@@ -27,6 +27,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -68,8 +70,20 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
             backend.addUGSEventListener(this);
             backend.addControllerListener(this);
         }
+
         initComponents();
-        resetSentRowLabels(0);
+        resetSentRowLabels();
+
+        if (backend.isSending()) {
+            beginSend();
+        }
+    }
+
+    private void update() {
+        durationValue.setText(Utils.formattedMillis(backend.getSendDuration()));
+        setRemainingTime(backend.getSendRemainingDuration());
+        sentRowsValue.setText(""+backend.getNumSentRows());
+        remainingRowsValue.setText("" + backend.getNumRemainingRows());
     }
 
     private void beginSend() {
@@ -81,10 +95,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                     @Override
                     public void run() {
                         try {
-                            durationValue.setText(Utils.formattedMillis(backend.getSendDuration()));
-                            setRemainingTime(backend.getSendRemainingDuration());
-                            sentRowsValue.setText(""+backend.getNumSentRows());
-                            remainingRowsValue.setText("" + backend.getNumRemainingRows());
+                            update();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -151,7 +162,16 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         return this.durationValue.getText();
     }
 
-    private void resetSentRowLabels(long numRows) {
+    private void resetSentRowLabels() {
+        long numRows = 0;
+        if (backend.getProcessedGcodeFile() != null) {
+            try {
+                try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                    numRows = gsr.getNumRows();
+                    System.out.println("NUM ROWS: " + numRows);
+                }
+            } catch (IOException ex) {}
+        }
         // Reset labels
         String totalRows =  String.valueOf(numRows);
         resetTimerLabels();
@@ -178,31 +198,13 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     @Override
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
         // Look for a send beginning.
-        if (evt.isStateChangeEvent()) {
-            switch (evt.getControlState()) {
-                case COMM_SENDING:
-                    beginSend();
-                    break;
-                default:
-                    break;
-            }
+        if (evt.isStateChangeEvent() && evt.getControlState() == COMM_SENDING) {
+            beginSend();
         }
 
-        // On file event, reset the rows.
-        if (evt.isFileChangeEvent()) {
-            switch(evt.getFileState()) {
-                case FILE_LOADING:
-                    break;
-                case FILE_LOADED:
-                    try {
-                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
-                            resetSentRowLabels(gsr.getNumRows());
-                        }
-                    } catch (IOException ex) {}
-                    break;
-                default:
-                    break;
-            }
+        // On file loaded event, reset the rows.
+        if (evt.isFileChangeEvent() && evt.getFileState() == FILE_LOADED) {
+            resetSentRowLabels();
         }
     }
 
