@@ -313,6 +313,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             if (open) {
                 try {
                     backend.setGcodeFile(new File(arg));
+                    open = false;
                 } catch (Exception ex) {
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
                     System.exit(1);
@@ -1454,8 +1455,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         int returnVal = fileChooser.showOpenDialog(this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
-                fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + fileChooser.getSelectedFile().getName()));
-                fileModePanel.setToolTipText(fileChooser.getSelectedFile().getAbsolutePath());
                 File gcodeFile = fileChooser.getSelectedFile();
                 backend.setGcodeFile(gcodeFile);
             } catch (Exception ex) {
@@ -2335,6 +2334,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (evt.isFileChangeEvent()) {
             switch(evt.getFileState()) {
                 case FILE_LOADING:
+                    File f = backend.getGcodeFile();
+                    fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel") + ": " + backend.getGcodeFile().getName()));
+                    fileModePanel.setToolTipText(backend.getGcodeFile().getAbsolutePath());
                     processedGcodeFile = null;
                     gcodeFile = evt.getFile();
                     break;

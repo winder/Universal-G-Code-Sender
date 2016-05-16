@@ -27,13 +27,11 @@ import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
-import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
-import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.swing.*;
@@ -44,10 +42,10 @@ import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.io.File;
 import java.util.logging.Level;
 
 /**
@@ -164,7 +162,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
         
          /* Create the form */
-//        GUIBackend backend = new GUIBackend();
         final ExperimentalWindow mw = new ExperimentalWindow();
         
         /* Apply the settings to the ExperimentalWindow bofore showing it */
@@ -212,6 +209,23 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 }
             }
         });
+
+        // Check command line for a file to open.
+        boolean open = false;
+        for (String arg : args) {
+            if (open) {
+                try {
+                    mw.backend.setGcodeFile(new File(arg));
+                    open = false;
+                } catch (Exception ex) {
+                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
+            }
+            if (arg.equals("--open") || arg.equals("-o")) {
+                open = true;
+            }
+        }
     }
 
     /** This method is called from within the constructor to
