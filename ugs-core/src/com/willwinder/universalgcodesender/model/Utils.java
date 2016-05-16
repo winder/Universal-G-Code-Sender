@@ -33,6 +33,15 @@ public class Utils {
         Units(String abbreviation) {
             this.abbreviation = abbreviation;
         }
+
+        public static Units getUnit(String abbrev) {
+            for (Units u : values()) {
+                if (u.abbreviation.equals(abbrev)) {
+                    return u;
+                }
+            }
+            return null;
+        }
     }
 
     public static double scaleUnits(Units from, Units to) {

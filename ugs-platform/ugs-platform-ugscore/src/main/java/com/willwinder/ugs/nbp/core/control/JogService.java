@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.Utils.Units;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.UUID;
@@ -31,6 +32,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import static org.openide.util.NbBundle.getMessage;
@@ -42,8 +44,9 @@ import static org.openide.util.NbBundle.getMessage;
  *
  * @author wwinder
  */
-@ServiceProvider(service=JogService.class) 
-public class JogService {
+@ServiceProvider(service=JogService.class, position=1) 
+//@ServiceProvider(service = StatusLineElementProvider.class, position=1)
+public class JogService implements StatusLineElementProvider {
     private double stepSize = 1;
     private Units units;
 
@@ -51,12 +54,20 @@ public class JogService {
 
     public JogService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        String abbr = backend.getSettings().getDefaultUnits();
+        System.out.println("\n\n\n\n\nUnit = " + abbr);
+        this.setUnits(Units.getUnit(abbr));
 
         initActions();
     }
 
     private void changed() {
         NbPreferences.forModule(JogService.class).put("changed", UUID.randomUUID().toString());
+    }
+
+    @Override
+    public Component getStatusLineElement() {
+        return null;
     }
 
     public void increaseStepSize() {
@@ -123,6 +134,7 @@ public class JogService {
     }
 
     public void setUnits(Units units) {
+        System.out.println("Setting units to: " + units);
         this.units = units;
         changed();
     }

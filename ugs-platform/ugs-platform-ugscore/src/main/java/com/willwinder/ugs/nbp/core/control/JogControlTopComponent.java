@@ -118,16 +118,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
     
-    private Units getSelectedUnits() {
-        if (this.inchRadioButton.isSelected()) {
-            return Units.INCH;
-        } if (this.mmRadioButton.isSelected()) {
-            return Units.MM;
-        } else {
-            return Units.UNKNOWN;
-        }
-    }
-
     @Override
     public void UGSEvent(UGSEvent cse) {
         updateComponents();
@@ -140,7 +130,16 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         jogService = Lookup.getDefault().lookup(JogService.class);
 
         jogService.setStepSize(getStepSize());
-        jogService.setUnits(getSelectedUnits());
+        switch (jogService.getUnits()) {
+            case MM:
+                this.mmRadioButton.setSelected(true);
+                break;
+            case INCH:
+                this.inchRadioButton.setSelected(true);
+                break;
+            default:
+                break;
+        }
 
         backend.addUGSEventListener(this);
     }
