@@ -178,23 +178,23 @@ public class Settings {
         commandTableEnabled = enabled;
     }
 
-        public WindowSettings getMainWindowSettings() {
-            return this.mainWindowSettings;
-        }
-        
-        public void setMainWindowSettings(WindowSettings ws) {
-            this.mainWindowSettings = ws;
-        }
+    public WindowSettings getMainWindowSettings() {
+        return this.mainWindowSettings;
+    }
+    
+    public void setMainWindowSettings(WindowSettings ws) {
+        this.mainWindowSettings = ws;
+    }
 
-        public WindowSettings getVisualizerWindowSettings() {
-            return this.visualizerWindowSettings;
-        }
-        
-        public void setVisualizerWindowSettings(WindowSettings vw) {
-            this.visualizerWindowSettings = vw;
-        }
+    public WindowSettings getVisualizerWindowSettings() {
+        return this.visualizerWindowSettings;
+    }
+    
+    public void setVisualizerWindowSettings(WindowSettings vw) {
+        this.visualizerWindowSettings = vw;
+    }
 
-        public boolean isOverrideSpeedSelected() {
+    public boolean isOverrideSpeedSelected() {
 		return overrideSpeedSelected;
 	}
 

@@ -67,10 +67,14 @@ public class ConnectionSettingsPanel extends JPanel {
         this.settings = settings;
         initComponents();
         initActions();
-        changer.changed();
+        change();
     }
     public ConnectionSettingsPanel(Settings settings) {
         this(settings, null);
+    }
+
+    private void change() {
+        if (changer != null) changer.changed();
     }
 
     private void initActions() {
@@ -78,17 +82,17 @@ public class ConnectionSettingsPanel extends JPanel {
             Class clazz = c.getClass();
             if (clazz == Spinner.class) {
                 ((Spinner)c).spinner.addChangeListener((ChangeEvent e) -> {
-                    changer.changed();
+                    change();
                 });
             }
             else if (clazz == Checkbox.class) {
                 ((Checkbox)c).box.addActionListener((ActionEvent e) -> {
-                    changer.changed();
+                    change();
                 });
             }
             else if (clazz == JComboBox.class) {
                 ((JComboBox)c).addActionListener((ActionEvent e) -> {
-                    changer.changed();
+                    change();
                 });
             }
         }
