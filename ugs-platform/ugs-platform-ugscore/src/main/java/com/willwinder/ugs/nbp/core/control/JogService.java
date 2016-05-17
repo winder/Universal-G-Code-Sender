@@ -171,17 +171,17 @@ public class JogService implements StatusLineElementProvider {
             String localCategory = Localization.getString("platform.menu.machine");
             String menuPath = "Menu/" + category + "/Jog";
             
-            ars.registerAction(getMessage(this.getClass(), "JogService.xPlus") ,
+            ars.registerAction(Localization.getString("jogging.xPlus") ,
                     category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(this, 1, 0, 0));
-            ars.registerAction(getMessage(this.getClass(), "JogService.xMinus"),
+            ars.registerAction(Localization.getString("jogging.xMinus"),
                     category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(this,-1, 0, 0));
-            ars.registerAction(getMessage(this.getClass(), "JogService.yPlus") ,
+            ars.registerAction(Localization.getString("jogging.yPlus") ,
                     category, localCategory, "M-UP"    , menuPath, localized, new JogAction(this, 0, 1, 0));
-            ars.registerAction(getMessage(this.getClass(), "JogService.yMinus"),
+            ars.registerAction(Localization.getString("jogging.yMinus"),
                     category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(this, 0,-1, 0));
-            ars.registerAction(getMessage(this.getClass(), "JogService.zPlus") ,
+            ars.registerAction(Localization.getString("jogging.zPlus") ,
                     category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(this, 0, 0, 1));
-            ars.registerAction(getMessage(this.getClass(), "JogService.zMinus"),
+            ars.registerAction(Localization.getString("jogging.zMinus"),
                     category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(this, 0, 0,-1));
 
             localized = String.format("Menu/%s/%s/%s",
@@ -200,14 +200,19 @@ public class JogService implements StatusLineElementProvider {
             ars.registerAction("0.001",
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.001));
 
-            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.divide"),
+            ars.registerAction(Localization.getString("jogging.divide"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '/'));
-            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.multiply"),
+            ars.registerAction(Localization.getString("jogging.multiply"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '*'));
-            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.decrease"),
+            ars.registerAction(Localization.getString("jogging.decrease"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '-'));
-            ars.registerAction(getMessage(this.getClass(), "JogService.stepSize.increase"),
+            ars.registerAction(Localization.getString("jogging.increase"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '+'));
+
+            ars.registerAction(Localization.getString("mainWindow.swing.inchRadioButton"),
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, Units.INCH));
+            ars.registerAction(Localization.getString("mainWindow.swing.mmRadioButton"),
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, Units.MM));
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
@@ -216,8 +221,14 @@ public class JogService implements StatusLineElementProvider {
 
     protected class JogSizeAction extends AbstractAction {
         JogService js;
-        double size = 0;
-        char operation;
+        Double size = null;
+        Character operation = null;
+        Units unit = null;
+
+        public JogSizeAction(JogService service, Units u) {
+            js = service;
+            unit = u;
+        }
         public JogSizeAction(JogService service, char op) {
             js = service;
             operation = op;
@@ -230,9 +241,9 @@ public class JogService implements StatusLineElementProvider {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (size != 0)
+            if (size != null)
                 js.setStepSize(size);
-            else {
+            else if (operation != null) {
                 switch (operation) {
                     case '*':
                         js.multiplyStepSize();
@@ -249,6 +260,8 @@ public class JogService implements StatusLineElementProvider {
                     default:
                         break;
                 }
+            } else if (unit != null) {
+                js.setUnits(unit);
             }
         }
 
