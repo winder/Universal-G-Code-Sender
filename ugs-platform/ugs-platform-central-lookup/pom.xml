@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>${ugs.version}</version>
+        <version>2.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>ugs-platform-central-lookup</artifactId>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>

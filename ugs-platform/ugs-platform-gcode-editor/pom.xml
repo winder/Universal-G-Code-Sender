@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>${ugs.version}</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
     <artifactId>ugs-platform-gcode-editor</artifactId>
     <packaging>nbm</packaging>
@@ -38,19 +38,19 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-text</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-loaders</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
@@ -61,65 +61,65 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-core-multiview</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
 
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-masterfs-ui</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-util</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-editor-plain</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-editor-actions</artifactId>
-            <version>${netbeans.version}</version>
+            <version>RELEASE81</version>
         </dependency>
     </dependencies>
     <properties>

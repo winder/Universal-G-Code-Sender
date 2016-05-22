@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.willwinder</groupId>
         <artifactId>ugs-platform-parent</artifactId>
-        <version>${ugs.version}</version>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>ugs-platform-app</artifactId>
