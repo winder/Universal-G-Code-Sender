@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
 import org.apache.commons.lang3.SystemUtils;
@@ -66,6 +67,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.backend = new GUIBackend();
         try {
             backend.applySettings(SettingsFactory.loadSettings());
+
+            boolean fullyLocalized = Localization.initialize(backend.getSettings().getLanguage());
+            if (!fullyLocalized) {
+                GUIHelpers.displayErrorDialog(Localization.getString("incomplete.localization"));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

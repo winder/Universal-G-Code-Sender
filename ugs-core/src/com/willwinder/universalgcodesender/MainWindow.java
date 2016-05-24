@@ -69,6 +69,7 @@ import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.Toolkit;
 import javax.swing.text.DefaultEditorKit;
@@ -108,6 +109,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
         this.settings = SettingsFactory.loadSettings();
+
+        boolean fullyLocalized = Localization.initialize(settings.getLanguage());
+        if (!fullyLocalized) {
+            GUIHelpers.displayErrorDialog(Localization.getString("incomplete.localization"));
+        }
         try {
             backend.applySettings(settings);
         } catch (Exception e) {

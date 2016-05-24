@@ -25,6 +25,7 @@ package com.willwinder.ugs.nbp.lookup;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.util.logging.Level;
@@ -51,7 +52,14 @@ public class CentralLookup extends AbstractLookup {
         try {
             GUIBackend backend = new GUIBackend();
             Settings settings = SettingsFactory.loadSettings();
-            Localization.initialize(settings.getLanguage());
+            //Localization.initialize(settings.getLanguage());
+
+            boolean fullyLocalized = Localization.initialize(settings.getLanguage());
+            if (!fullyLocalized) {
+                GUIHelpers.displayErrorDialog(Localization.getString("incomplete.localization"));
+            }
+
+
             backend.applySettings(settings);
             this.add(backend);
             this.add(settings);
