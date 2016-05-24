@@ -41,7 +41,6 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     // Control options
     public void connect(String firmware, String port, int baudRate) throws Exception;
     public void disconnect() throws Exception;
-    public void autoconnect();
     public void sendGcodeCommand(String commandText) throws Exception;
     public void sendGcodeCommand(GcodeCommand command) throws Exception;
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception;

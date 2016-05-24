@@ -42,6 +42,10 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import java.awt.AWTException;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Robot;
 
 /**
  *
@@ -50,7 +54,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 public class GUIBackend implements BackendAPI, ControllerListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
-    public static final int AUTO_DISCONNECT_THRESHOLD = 5000;
+    private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
     private AbstractController controller = null;
     private Settings settings = null;
@@ -59,8 +63,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private Units reportUnits = Units.UNKNOWN;
 
     private String state;
-    private Collection<ControllerListener> controllerListeners = new ArrayList<>();
-    private Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
+    private final Collection<ControllerListener> controllerListeners = new ArrayList<>();
+    private final Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
 
     // GUI State
     private File gcodeFile = null;
@@ -69,16 +73,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private String lastComment;
     private String activeState;
     private ControlState controlState = ControlState.COMM_DISCONNECTED;
-    private long sendStartTime = 0;
     private long estimatedSendDuration = -1L;
-    private long estimatedSendTimeRemaining = 0;
-    private long rowsInFile = 0;
+    //private long estimatedSendTimeRemaining = 0;
+    //private long rowsInFile = 0;
     private String openCloseButtonText;
     private boolean openCloseButtonEnabled;
     private String pauseButtonText;
-    private boolean pauseButtonEnabled;
     private String cancelButtonText;
-    private boolean cancelButtonEnabled;
 
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;
@@ -92,11 +93,21 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         scheduleTimers();
     }
 
-    protected void scheduleTimers() {
+    protected final void scheduleTimers() {
         autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
+            private int count = 0;
             @Override
             public void run() {
                 autoconnect();
+
+                // Move the mouse every 30 seconds to prevent sleeping.
+                if (isPaused() || isSending()) {
+                    count++;
+                    if (count % 10 == 0) {
+                        keepAwake();
+                        count = 0;
+                    }
+                }
             }
         }, 1000, 1000);
     }
@@ -189,7 +200,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
 
-    @Override
     public void autoconnect() {
         if (!autoconnect) {
             return;
@@ -245,6 +255,20 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             } catch (Exception e) {
                 logger.log(Level.INFO, "Auto connect failed",e);
             }
+        }
+    }
+
+    public void keepAwake() {
+        logger.log(Level.INFO, "Moving the mouse location slightly to keep the computer awake.");
+        try {
+            Robot hal = new Robot();
+            Point pObj = MouseInfo.getPointerInfo().getLocation();
+            hal.mouseMove(pObj.x + 1, pObj.y + 1);
+            hal.mouseMove(pObj.x - 1, pObj.y - 1);
+            pObj = MouseInfo.getPointerInfo().getLocation();
+            System.out.println(pObj.toString() + "x>>" + pObj.x + "  y>>" + pObj.y);
+        } catch (AWTException ex) {
+            Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -435,7 +459,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
             this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
 
-            this.sendStartTime = System.currentTimeMillis();
             this.controller.beginStreaming();
         } catch (Exception e) {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
