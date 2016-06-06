@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
@@ -100,7 +101,7 @@ public class GcodeViewParse {
     }
 
     public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
-            double arcSegmentLength) throws IOException {
+            double arcSegmentLength) throws IOException, GcodeParserException {
         GcodeParser gp = new GcodeParser();
 
         while (reader.getNumRowsRemaining() > 0) {
@@ -111,7 +112,7 @@ public class GcodeViewParse {
         return getLinesFromParser(gp, arcSegmentLength);
     }
     
-    public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) {
+    public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
         GcodeParser gp = new GcodeParser();
 
         for (String s : gcode) {

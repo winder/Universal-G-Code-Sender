@@ -142,6 +142,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                         logger.log(Level.FINE, "i: " + i);
                     }
                     String comment = GcodePreprocessorUtils.parseComment(line);
+                    // Parse the gcode for the buffer.
                     Collection<String> lines = gcp.preprocessCommand(line);
 
                     // If it is a comment-only line, add the comment,
@@ -154,6 +155,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                             gsw.addLine(line, processedLine, comment, i);
                         }
                     }
+
+                    // Add the command to the parser to update the state.
+                    gcp.addCommand(line);
                 }
             }
         }

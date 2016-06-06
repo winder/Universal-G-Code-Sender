@@ -34,13 +34,9 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GcodeParser {
+
     // Current state
-    private boolean isMetric = true;
-    private boolean inAbsoluteMode = true;
-    private boolean inAbsoluteIJKMode = false;
-    private String lastGcodeCommand = "";
-    private Point3d currentPoint = null;
-    private int commandNumber = 0;
+    private GcodeState state;
 
     // Settings
     private double speedOverride = -1;
@@ -56,6 +52,7 @@ public class GcodeParser {
     List<PointSegment> points;
     
     public GcodeParser() {
+        this.state = new GcodeState();
         this.reset();
     }
 
@@ -108,33 +105,39 @@ public class GcodeParser {
     }
 
     // Resets the current state.
-    final public void reset() {
-        this.currentPoint = new Point3d();
+    private void reset() {
+        this.state.currentPoint = new Point3d();
         this.points = new ArrayList<>();
         // The unspoken home location.
-        this.points.add(new PointSegment(this.currentPoint, -1));
+        this.points.add(new PointSegment(this.state.currentPoint, -1));
     }
     
     /**
      * Add a command to be processed with no line number association.
      */
-    public PointSegment addCommand(String command) {
-        return addCommand(command, this.commandNumber++);
+    public List<PointSegment> addCommand(String command) throws GcodeParserException {
+        return addCommand(command, this.state.commandNumber++);
     }
 
     /**
      * Add a command to be processed with a line number.
+     * @throws Exception If the command is too long throw an exception
      */
-    public PointSegment addCommand(String command, int line) {
-        String stripped = GcodePreprocessorUtils.removeComment(command);
-        List<String> args = GcodePreprocessorUtils.splitCommand(stripped);
-        return this.addCommand(args, line);
+    public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
+        //String stripped = GcodePreprocessorUtils.removeComment(command);
+        List<String> commands = this.preprocessCommand(command);
+        List<PointSegment> results = new ArrayList<>();
+        for (String c: commands) {
+            List<String> args = GcodePreprocessorUtils.splitCommand(c);
+            results.addAll(this.addCommand(args, line));
+        }
+        return results;
     }
     
     /**
      * Add a command which has already been broken up into its arguments.
      */
-    public PointSegment addCommand(List<String> args, int line) {
+    private List<PointSegment> addCommand(List<String> args, int line) {
         if (args.isEmpty()) {
             return null;
         }
@@ -146,21 +149,21 @@ public class GcodeParser {
      * expanding an arc or canned cycle into line segments.
      */
     private void setLastGcodeCommand(String num) {
-        this.lastGcodeCommand = num;
+        this.state.lastGcodeCommand = num;
     }
     
     /**
      * Gets the point at the end of the list.
      */
-    public Point3d getCurrentPoint() {
-        return currentPoint;
+    public GcodeState getCurrentState() {
+        return this.state;
     }
     
     /**
      * Expands the last point in the list if it is an arc according to the
      * the parsers settings.
      */
-    public List<PointSegment> expandArc() {
+    private List<PointSegment> expandArc() {
         PointSegment startSegment = this.points.get(this.points.size() - 2);
         PointSegment lastSegment = this.points.get(this.points.size() - 1);
 
@@ -209,7 +212,7 @@ public class GcodeParser {
         }
 
         // Update the new endpoint.
-        this.currentPoint = this.points.get(this.points.size() - 1).point();
+        this.state.currentPoint = this.points.get(this.points.size() - 1).point();
 
         return psl;
     }
@@ -218,27 +221,37 @@ public class GcodeParser {
         return this.points;
     }
 
-    private PointSegment processCommand(List<String> args, int line) {
-        List<String> gCodes;
-        PointSegment ps = null;
+    private List<PointSegment> processCommand(List<String> args, int line) {
+        List<PointSegment> results = new ArrayList<>();
         
         // handle M codes.
         //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
         //handleMCode(for each codes);
+
+        List<String> fCodes = GcodePreprocessorUtils.parseCodes(args, 'F');
+        if (!fCodes.isEmpty()) {
+            state.speed = Double.parseDouble(fCodes.remove(fCodes.size()-1));
+        }
         
         // handle G codes.
-        gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
+        List<String> gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
         // If there was no command, add the implicit one to the party.
-        if (gCodes.isEmpty() && lastGcodeCommand != null && !lastGcodeCommand.isEmpty()) {
-            gCodes.add(lastGcodeCommand);
+        if (gCodes.isEmpty() && state.lastGcodeCommand != null && !state.lastGcodeCommand.isEmpty()) {
+            gCodes.add(state.lastGcodeCommand);
         }
         
         for (String i : gCodes) {
-            ps = handleGCode(i, args, line);
+            PointSegment ps = handleGCode(i, args, line);
+            // Commands like 'G21' don't return a point segment.
+            if (ps != null) {
+                ps.setSpeed(state.speed);
+                results.add(ps);
+            }
         }
         
-        return ps;
+
+        return results;
     }
 
     private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line) {
@@ -247,19 +260,19 @@ public class GcodeParser {
         boolean zOnly = false;
 
         // Check for z-only
-        if ((this.currentPoint.x == nextPoint.x) &&
-                (this.currentPoint.y == nextPoint.y) &&
-                (this.currentPoint.z != nextPoint.z)) {
+        if ((this.state.currentPoint.x == nextPoint.x) &&
+                (this.state.currentPoint.y == nextPoint.y) &&
+                (this.state.currentPoint.z != nextPoint.z)) {
             zOnly = true;
         }
 
-        ps.setIsMetric(this.isMetric);
+        ps.setIsMetric(this.state.isMetric);
         ps.setIsZMovement(zOnly);
         ps.setIsFastTraverse(fastTraverse);
         this.points.add(ps);
 
         // Save off the endpoint.
-        this.currentPoint = nextPoint;
+        this.state.currentPoint = nextPoint;
         return ps;
     }
 
@@ -268,18 +281,18 @@ public class GcodeParser {
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, this.currentPoint, nextPoint, this.inAbsoluteIJKMode, clockwise);
+                        args, this.state.currentPoint, nextPoint, this.state.inAbsoluteIJKMode, clockwise);
 
         double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
 
         // Calculate radius if necessary.
         if (Double.isNaN(radius)) {
             radius = Math.sqrt(
-                    Math.pow(this.currentPoint.x - center.x, 2.0)
-                            + Math.pow(this.currentPoint.y - center.y, 2.0));
+                    Math.pow(this.state.currentPoint.x - center.x, 2.0)
+                            + Math.pow(this.state.currentPoint.y - center.y, 2.0));
         }
 
-        ps.setIsMetric(this.isMetric);
+        ps.setIsMetric(this.state.isMetric);
         ps.setArcCenter(center);
         ps.setIsArc(true);
         ps.setRadius(radius);
@@ -287,7 +300,7 @@ public class GcodeParser {
         this.points.add(ps);
 
         // Save off the endpoint.
-        this.currentPoint = nextPoint;
+        this.state.currentPoint = nextPoint;
         return ps;
     }
 
@@ -295,7 +308,7 @@ public class GcodeParser {
         PointSegment ps = null;
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
-            args, this.currentPoint, this.inAbsoluteMode);
+            args, this.state.currentPoint, this.state.inAbsoluteMode);
 
         if (code.length() > 1 && code.startsWith("0"))
             code = code.substring(1);
@@ -318,34 +331,34 @@ public class GcodeParser {
 
             case "20":
                 //inch
-                this.isMetric = false;
+                this.state.isMetric = false;
                 break;
             case "21":
                 //mm
-                this.isMetric = true;
+                this.state.isMetric = true;
                 break;
 
             case "90":
-                this.inAbsoluteMode = true;
+                this.state.inAbsoluteMode = true;
                 break;
             case "90.1":
-                this.inAbsoluteIJKMode = true;
+                this.state.inAbsoluteIJKMode = true;
                 break;
 
             case "91":
-                this.inAbsoluteMode = false;
+                this.state.inAbsoluteMode = false;
                 break;
             case "91.1":
-                this.inAbsoluteIJKMode = false;
+                this.state.inAbsoluteIJKMode = false;
                 break;
             default:
                 break;
         }
-        this.lastGcodeCommand = code;
+        this.state.lastGcodeCommand = code;
         return ps;
     }
 
-    public List<String> preprocessCommands(Collection<String> commands) throws Exception {
+    private List<String> preprocessCommands(Collection<String> commands) throws GcodeParserException {
         int count = commands.size();
         int interval = count / 1000;
         List<String> result = new ArrayList<>(count);
@@ -365,7 +378,10 @@ public class GcodeParser {
         return result;
     }
 
-    public List<String> preprocessCommand(String command) throws Exception {
+    /**
+     * Preprocesses a command. Does not update state.
+     */
+    public List<String> preprocessCommand(String command) throws GcodeParserException {
         List<String> result = new ArrayList<>();
 
         // Remove comments from command.
@@ -405,23 +421,23 @@ public class GcodeParser {
         // Check command length
         for (String c : result) {
             if (c.length() > maxCommandLength) {
-                throw new Exception ("Command '"+c+"' is too long: " + c.length() + " > " + maxCommandLength);
+                throw new GcodeParserException("Command '"+c+"' is too long: " + c.length() + " > " + maxCommandLength);
             }
         }
 
         return result;
     }
 
-    public List<String> convertArcsToLines(String command) {
+    private List<String> convertArcsToLines(String command) throws GcodeParserException {
 
         List<String> result = null;
 
         // Save off the start of the arc for later.
-        Point3d start = new Point3d(this.currentPoint);
+        Point3d start = new Point3d(this.state.currentPoint);
 
-        PointSegment ps = addCommand(command);
+        List<PointSegment> ps = addCommand(command);
 
-        if (ps == null || !ps.isArc()) {
+        if (ps == null || ps.size() != 1 || !ps.get(0).isArc()) {
             return result;
         }
 
@@ -450,11 +466,10 @@ public class GcodeParser {
         // Don't add them to the gcode parser since it is who expanded them.
         for (PointSegment segment : psl) {
             Point3d end = segment.point();
-            result.add(GcodePreprocessorUtils.generateG1FromPoints(start, end, this.inAbsoluteMode, df));
+            result.add(GcodePreprocessorUtils.generateG1FromPoints(start, end, this.state.inAbsoluteMode, df));
             start = segment.point();
         }
 
         return result;
-
     }
 }

@@ -60,7 +60,7 @@ public class LoopBackConnection extends Connection {
         initialize(comm);
 
         int count = 0;
-        PointSegment lastCommand = null;
+        Point3d lastCommand = null;
         while (true) {
             GcodeParser gcp = new GcodeParser();
             try {
@@ -71,7 +71,7 @@ public class LoopBackConnection extends Connection {
                 if (command.equals(Byte.toString(GrblUtils.GRBL_STATUS_COMMAND))) {
                     String xyz = "0,0,0";
                     if (lastCommand != null) {
-                        Point3d p = lastCommand.point();
+                        Point3d p = lastCommand;
                         xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
                     }
                     comm.responseMessage(String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz));
@@ -81,7 +81,11 @@ public class LoopBackConnection extends Connection {
                         initialize(comm);
                     }
                     else if (count > 2) {
-                        lastCommand = gcp.addCommand(command);
+                        try {
+                            gcp.addCommand(command);
+                            lastCommand = gcp.getCurrentState().currentPoint;
+                        } catch (Exception e) {
+                        }
                         comm.responseMessage("ok");
                     }
                 }
