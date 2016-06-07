@@ -139,19 +139,4 @@ public class GcodeParserTest {
         assertEquals(true, state.isMetric);
         assertEquals(true, state.inAbsoluteMode);
     }
-
-    /**
-     * Test of getPointSegmentList method, of class GcodeParser.
-     */
-    @Test
-    @Ignore
-    public void testGetPointSegmentList() {
-        System.out.println("getPointSegmentList");
-        GcodeParser instance = new GcodeParser();
-        List<PointSegment> expResult = null;
-        List<PointSegment> result = instance.getPointSegmentList();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 }

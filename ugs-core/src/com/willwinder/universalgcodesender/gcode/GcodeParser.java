@@ -33,7 +33,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class GcodeParser {
+public class GcodeParser implements IGcodeParser {
 
     // Current state
     private GcodeState state;
@@ -48,8 +48,9 @@ public class GcodeParser {
     private double smallArcSegmentLength = 0.3;
     private final int maxCommandLength = 50;
     
-    // The gcode.
-    List<PointSegment> points;
+    // Last two commands.
+    PointSegment latest;
+    PointSegment secondLatest;
     
     public GcodeParser() {
         this.state = new GcodeState();
@@ -107,9 +108,8 @@ public class GcodeParser {
     // Resets the current state.
     private void reset() {
         this.state.currentPoint = new Point3d();
-        this.points = new ArrayList<>();
-        // The unspoken home location.
-        this.points.add(new PointSegment(this.state.currentPoint, -1));
+        latest = new PointSegment(this.state.currentPoint, -1);
+        secondLatest = null;
     }
     
     /**
@@ -164,8 +164,8 @@ public class GcodeParser {
      * the parsers settings.
      */
     private List<PointSegment> expandArc() {
-        PointSegment startSegment = this.points.get(this.points.size() - 2);
-        PointSegment lastSegment = this.points.get(this.points.size() - 1);
+        PointSegment startSegment = secondLatest;
+        PointSegment lastSegment = latest;
 
         // Can only expand arcs.
         if (!lastSegment.isArc()) {
@@ -193,7 +193,9 @@ public class GcodeParser {
         }
         
         // Remove the last point now that we're about to expand it.
-        int num = this.points.remove(this.points.size() - 1).getLineNumber();
+        int num = latest.getLineNumber();
+        latest = secondLatest;
+        secondLatest = null;
                 
         // Initialize return value
         List<PointSegment> psl = new ArrayList<>();
@@ -207,20 +209,17 @@ public class GcodeParser {
             temp.setIsMetric(lastSegment.isMetric());
 
             // Add new points.
-            this.points.add(temp);
+            secondLatest = latest;
+            latest = temp;
             psl.add(temp);
         }
 
         // Update the new endpoint.
-        this.state.currentPoint = this.points.get(this.points.size() - 1).point();
+        this.state.currentPoint = latest.point();
 
         return psl;
     }
     
-    public List<PointSegment> getPointSegmentList() {
-        return this.points;
-    }
-
     private List<PointSegment> processCommand(List<String> args, int line) {
         List<PointSegment> results = new ArrayList<>();
         
@@ -269,7 +268,9 @@ public class GcodeParser {
         ps.setIsMetric(this.state.isMetric);
         ps.setIsZMovement(zOnly);
         ps.setIsFastTraverse(fastTraverse);
-        this.points.add(ps);
+
+        secondLatest = latest;
+        latest = ps;
 
         // Save off the endpoint.
         this.state.currentPoint = nextPoint;
@@ -297,7 +298,9 @@ public class GcodeParser {
         ps.setIsArc(true);
         ps.setRadius(radius);
         ps.setIsClockwise(clockwise);
-        this.points.add(ps);
+
+        secondLatest = latest;
+        latest = ps;
 
         // Save off the endpoint.
         this.state.currentPoint = nextPoint;

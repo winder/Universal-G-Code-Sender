@@ -4,6 +4,7 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.types.PointSegment;
+import java.util.List;
 
 /**
  *
@@ -15,7 +16,7 @@ public interface IGcodeParser {
      * @param command
      * @return PointSegment representing the last command.
      */
-    public PointSegment addCommand(String command) throws GcodeParserException;
+    public List<PointSegment> addCommand(String command) throws GcodeParserException;
 
     /**
      * Add a string of command(s) and a line number associated with that string.
@@ -23,7 +24,7 @@ public interface IGcodeParser {
      * @param lineNumber
      * @return PointSegment representing the last command.
      */
-    public PointSegment addCommand(String command, int lineNumber) throws GcodeParserException;
+    public List<PointSegment> addCommand(String command, int lineNumber) throws GcodeParserException;
 
     /**
      * The state of the machine as of the last command.

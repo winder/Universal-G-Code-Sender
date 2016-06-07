@@ -48,10 +48,6 @@ public class GcodeViewParse {
     private final Point3d max;
     private final List<LineSegment> lines;
     
-    // Parsing state.
-    private final Point3d lastPoint;
-    private final int currentLine = 0;    // for assigning line numbers to segments.
-      
     // Debug
     private final boolean debug = true;
     
@@ -59,8 +55,7 @@ public class GcodeViewParse {
     {
         min = new Point3d();
         max = new Point3d();
-        lastPoint = new Point3d();
-        lines = new ArrayList<LineSegment>();
+        lines = new ArrayList<>();
     }
 
     public Point3d getMinimumExtremes()
@@ -102,74 +97,85 @@ public class GcodeViewParse {
 
     public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
             double arcSegmentLength) throws IOException, GcodeParserException {
+        lines.clear();
         GcodeParser gp = new GcodeParser();
+
+        // Save the state
+        Point3d start = new Point3d();
+        Point3d end = new Point3d();
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand c = reader.getNextCommand();
-            gp.addCommand(c.getCommandString(), c.getCommandNumber());
+            List<PointSegment> points = gp.addCommand(c.getCommandString(), c.getCommandNumber());
+            for (PointSegment p : points) {
+                addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
+            }
         }
 
-        return getLinesFromParser(gp, arcSegmentLength);
+        return lines;
     }
     
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
         GcodeParser gp = new GcodeParser();
+        lines.clear();
+
+        // Save the state
+        Point3d start = new Point3d();
+        Point3d end = new Point3d();
 
         for (String s : gcode) {
             gp.addCommand(s);
-        }
-        
-        return getLinesFromParser(gp, arcSegmentLength);
-    }
-    
-    private List<LineSegment> getLinesFromParser(GcodeParser gp, double arcSegmentLength) {
-        List<PointSegment> psl = gp.getPointSegmentList();
-        // For a line segment list ALL arcs must be converted to lines.
-        double minArcLength = 0;
-
-        Point3d start = null;
-        Point3d end = null;
-        LineSegment ls;
-        for (PointSegment segment : psl) {
-            PointSegment ps = segment;
-            ps.convertToMetric();
-            
-            end = ps.point();
-
-            // start is null for the first iteration.
-            if (start != null) {
-                // Expand arc for graphics.
-                if (ps.isArc()) {
-                    List<Point3d> points =
-                        GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                            start, end, ps.center(), ps.isClockwise(),
-                            ps.getRadius(), minArcLength, arcSegmentLength);
-                    // Create line segments from points.
-                    if (points != null) {
-                        Point3d startPoint = start;
-                        for (Point3d nextPoint : points) {
-                            ls = new LineSegment(startPoint, nextPoint, ps.getLineNumber());
-                            ls.setIsArc(ps.isArc());
-                            ls.setIsFastTraverse(ps.isFastTraverse());
-                            ls.setIsZMovement(ps.isZMovement());
-                            this.testExtremes(nextPoint);
-                            lines.add(ls);
-                            startPoint = nextPoint;
-                        }
-                    }
-                // Line
-                } else {
-                    ls = new LineSegment(start, end, ps.getLineNumber());
-                    ls.setIsArc(ps.isArc());
-                    ls.setIsFastTraverse(ps.isFastTraverse());
-                    ls.setIsZMovement(ps.isZMovement());
-                    this.testExtremes(end);
-                    lines.add(ls);
-                }
+            List<PointSegment> points = gp.addCommand(s);
+            for (PointSegment p : points) {
+                addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
             }
-            start = end;
         }
         
         return lines;
+    }
+    
+    private List<LineSegment> addLinesFromPointSegment(Point3d start, Point3d end, PointSegment segment, double arcSegmentLength, List<LineSegment> ret) {
+        // For a line segment list ALL arcs must be converted to lines.
+        double minArcLength = 0;
+        LineSegment ls;
+        PointSegment ps = segment;
+        ps.convertToMetric();
+        
+        end.set(ps.point());
+
+        // start is null for the first iteration.
+        if (start != null) {
+            // Expand arc for graphics.
+            if (ps.isArc()) {
+                List<Point3d> points =
+                    GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, end, ps.center(), ps.isClockwise(),
+                        ps.getRadius(), minArcLength, arcSegmentLength);
+                // Create line segments from points.
+                if (points != null) {
+                    Point3d startPoint = start;
+                    for (Point3d nextPoint : points) {
+                        ls = new LineSegment(startPoint, nextPoint, ps.getLineNumber());
+                        ls.setIsArc(ps.isArc());
+                        ls.setIsFastTraverse(ps.isFastTraverse());
+                        ls.setIsZMovement(ps.isZMovement());
+                        this.testExtremes(nextPoint);
+                        ret.add(ls);
+                        startPoint = nextPoint;
+                    }
+                }
+            // Line
+            } else {
+                ls = new LineSegment(start, end, ps.getLineNumber());
+                ls.setIsArc(ps.isArc());
+                ls.setIsFastTraverse(ps.isFastTraverse());
+                ls.setIsZMovement(ps.isZMovement());
+                this.testExtremes(end);
+                ret.add(ls);
+            }
+        }
+        start.set(end);
+        
+        return ret;
     }
 }
