@@ -5,6 +5,8 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.Collection;
 import java.util.List;
@@ -138,5 +140,79 @@ public class GcodeParserTest {
         GcodeState state = instance.getCurrentState();
         assertEquals(true, state.isMetric);
         assertEquals(true, state.inAbsoluteMode);
+    }
+
+    /**
+     * Test of addCommandProcessor method, of class GcodeParser.
+     */
+    @Test
+    public void testAddCommandProcessor() {
+        System.out.println("addCommandProcessor");
+        GcodeParser instance = new GcodeParser();
+        instance.addCommandProcessor(new CommentProcessor());
+        assertEquals(1, instance.numCommandProcessors());
+    }
+
+    /**
+     * Test of resetCommandProcessors method, of class GcodeParser.
+     */
+    @Test
+    public void testResetCommandProcessors() {
+        System.out.println("resetCommandProcessors");
+        GcodeParser instance = new GcodeParser();
+        instance.addCommandProcessor(new CommentProcessor());
+        assertEquals(1, instance.numCommandProcessors());
+        instance.resetCommandProcessors();
+        assertEquals(0, instance.numCommandProcessors());
+    }
+
+    /**
+     * Test of preprocessCommand method, of class GcodeParser.
+     */
+    @Test
+    public void testPreprocessCommandGood() throws Exception {
+        System.out.println("preprocessCommandGood");
+        // Tests:
+        // '(comment)' is removed
+        // '; Comment!' is removed
+        // 'M30' is removed
+        // Decimal truncated to 0.88889
+        // Remove spaces
+        String command = "(comment) G01 X0.888888888888888888 M30; Comment!";
+        GcodeParser instance = new GcodeParser();
+        List<String> result = instance.preprocessCommand(command);
+        assertEquals(1, result.size());
+        assertEquals("G01X0.88889", result.get(0));
+    }
+
+    @Test
+    public void testPreprocessCommandException() throws Exception {
+        System.out.println("preprocessCommandException");
+        GcodeParser instance = new GcodeParser();
+        instance.setTruncateDecimalLength(50);
+
+        // Shouldn't throw if exactly 50 characters long.
+        String command = "G01X0.88888888888888888888888888888888888888888888";
+        instance.preprocessCommand(command);
+
+        // Should throw an exception when it is 51 characters long.
+        boolean threw = false;
+        try {
+            command += "8";
+            instance.preprocessCommand(command);
+        } catch (GcodeParserException gpe) {
+            threw = true;
+        }
+        assertEquals(true, threw);
+    }
+
+    @Test
+    public void testPreprocessCommandArc() throws Exception {
+        System.out.println("preprocessCommandArc");
+        GcodeParser instance = new GcodeParser();
+        instance.setConvertArcsToLines(true);
+        instance.addCommand("G0X-1");
+        List<String> commands = instance.preprocessCommand("G2 Y1 X0 I1 J0");
+        System.out.println("num: " + commands.size());
     }
 }
