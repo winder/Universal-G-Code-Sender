@@ -5,8 +5,13 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.Collection;
 import java.util.List;
@@ -180,16 +185,59 @@ public class GcodeParserTest {
         // Remove spaces
         String command = "(comment) G01 X0.888888888888888888 M30; Comment!";
         GcodeParser instance = new GcodeParser();
+        instance.addCommandProcessor(new CommentProcessor());
+        instance.addCommandProcessor(new DecimalProcessor(5));
+        instance.addCommandProcessor(new M30Processor());
+        instance.addCommandProcessor(new WhitespaceProcessor());
+        instance.addCommandProcessor(new CommandLengthProcessor(50));
         List<String> result = instance.preprocessCommand(command);
         assertEquals(1, result.size());
         assertEquals("G01X0.88889", result.get(0));
     }
 
     @Test
-    public void testPreprocessCommandException() throws Exception {
-        System.out.println("preprocessCommandException");
+    public void testPreprocessCommandFeedOverride() throws Exception {
+        System.out.println("preprocessCommandFeedOverride");
+        // Tests:
+        // '(comment)' is removed
+        // '; Comment!' is removed
+        // 'M30' is removed
+        // Decimal truncated to 0.88889
+        // Remove spaces
+        String command = "(comment) G01 X0.888888888888888888 M30 F100; Comment!";
         GcodeParser instance = new GcodeParser();
-        instance.setTruncateDecimalLength(50);
+        instance.addCommandProcessor(new CommentProcessor());
+        instance.addCommandProcessor(new FeedOverrideProcessor(0.));
+        instance.addCommandProcessor(new DecimalProcessor(5));
+        instance.addCommandProcessor(new M30Processor());
+        instance.addCommandProcessor(new WhitespaceProcessor());
+        instance.addCommandProcessor(new CommandLengthProcessor(50));
+        List<String> result = instance.preprocessCommand(command);
+        assertEquals(1, result.size());
+        assertEquals("G01X0.88889F100", result.get(0));
+
+        instance.resetCommandProcessors();
+        instance.addCommandProcessor(new CommentProcessor());
+        instance.addCommandProcessor(new FeedOverrideProcessor(200.));
+        instance.addCommandProcessor(new DecimalProcessor(5));
+        instance.addCommandProcessor(new M30Processor());
+        instance.addCommandProcessor(new WhitespaceProcessor());
+        instance.addCommandProcessor(new CommandLengthProcessor(50));
+        result = instance.preprocessCommand(command);
+        assertEquals(1, result.size());
+        assertEquals("G01X0.88889F200.0", result.get(0));
+    }
+
+    @Test
+    public void testPreprocessCommandException() throws Exception {
+        System.out.println("preprocessCommandException?!");
+        GcodeParser instance = new GcodeParser();
+        instance.addCommandProcessor(new CommentProcessor());
+        // Don't process decimals to make this test easier to create.
+        instance.addCommandProcessor(new DecimalProcessor(0));
+        instance.addCommandProcessor(new M30Processor());
+        instance.addCommandProcessor(new WhitespaceProcessor());
+        instance.addCommandProcessor(new CommandLengthProcessor(50));
 
         // Shouldn't throw if exactly 50 characters long.
         String command = "G01X0.88888888888888888888888888888888888888888888";

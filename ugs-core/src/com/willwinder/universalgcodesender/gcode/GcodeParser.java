@@ -23,6 +23,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
 import java.text.DecimalFormat;
@@ -39,7 +40,6 @@ public class GcodeParser implements IGcodeParser {
     private GcodeState state;
 
     // Settings
-    private double speedOverride = -1;
     private int truncateDecimalLength = 40;
     private boolean removeAllWhitespace = true;
     private boolean convertArcsToLines = false;
@@ -49,12 +49,35 @@ public class GcodeParser implements IGcodeParser {
     private final int maxCommandLength = 50;
     
     // Last two commands.
-    PointSegment latest;
-    PointSegment secondLatest;
+    private PointSegment latest;
+    private PointSegment secondLatest;
+
+    private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
     
     public GcodeParser() {
         this.state = new GcodeState();
         this.reset();
+    }
+
+    /**
+     * @return the number of command processors that have been added.
+     */
+    public int numCommandProcessors() {
+        return this.processors.size();
+    }
+
+    /**
+     * Add a preprocessor to use with the preprocessCommand method.
+     */
+    public void addCommandProcessor(ICommandProcessor p) {
+        this.processors.add(p);
+    }
+
+    /**
+     * Clear out any processors that have been added.
+     */
+    public void resetCommandProcessors() {
+        this.processors.clear();
     }
 
     public boolean getConvertArcsToLines() {
@@ -63,14 +86,6 @@ public class GcodeParser implements IGcodeParser {
 
     public void setConvertArcsToLines(boolean convertArcsToLines) {
         this.convertArcsToLines = convertArcsToLines;
-    }
-
-    public boolean getRemoveAllWhitespace() {
-        return removeAllWhitespace;
-    }
-
-    public void setRemoveAllWhitespace(boolean removeAllWhitespace) {
-        this.removeAllWhitespace = removeAllWhitespace;
     }
 
     public double getSmallArcSegmentLength() {
@@ -89,22 +104,6 @@ public class GcodeParser implements IGcodeParser {
         this.smallArcThreshold = smallArcThreshold;
     }
 
-    public double getSpeedOverride() {
-        return speedOverride;
-    }
-
-    public void setSpeedOverride(double speedOverride) {
-        this.speedOverride = speedOverride;
-    }
-
-    public int getTruncateDecimalLength() {
-        return truncateDecimalLength;
-    }
-
-    public void setTruncateDecimalLength(int truncateDecimalLength) {
-        this.truncateDecimalLength = truncateDecimalLength;
-    }
-
     // Resets the current state.
     private void reset() {
         this.state.currentPoint = new Point3d();
@@ -115,14 +114,16 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Add a command to be processed with no line number association.
      */
+    @Override
     public List<PointSegment> addCommand(String command) throws GcodeParserException {
         return addCommand(command, this.state.commandNumber++);
     }
 
     /**
      * Add a command to be processed with a line number.
-     * @throws Exception If the command is too long throw an exception
+     * @throws GcodeParserException If the command is too long throw an exception
      */
+    @Override
     public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
         //String stripped = GcodePreprocessorUtils.removeComment(command);
         List<String> commands = this.preprocessCommand(command);
@@ -155,6 +156,7 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Gets the point at the end of the list.
      */
+    @Override
     public GcodeState getCurrentState() {
         return this.state;
     }
@@ -221,6 +223,7 @@ public class GcodeParser implements IGcodeParser {
     }
     
     private List<PointSegment> processCommand(List<String> args, int line) {
+
         List<PointSegment> results = new ArrayList<>();
         
         // handle M codes.
@@ -361,32 +364,24 @@ public class GcodeParser implements IGcodeParser {
         return ps;
     }
 
-    private List<String> preprocessCommands(Collection<String> commands) throws GcodeParserException {
-        int count = commands.size();
-        int interval = count / 1000;
-        List<String> result = new ArrayList<>(count);
-
-        int i = 0;
-        double row = 0;
-        for (String command : commands) {
-            i++;
-            row++;
-            if (i >= interval) {
-                System.out.println("row " + (int)row + " of " + count);
-                i = 0;
-            }
-            result.addAll(preprocessCommand(command));
-        }
-
-        return result;
-    }
-
     /**
      * Preprocesses a command. Does not update state.
      */
+    @Override
     public List<String> preprocessCommand(String command) throws GcodeParserException {
         List<String> result = new ArrayList<>();
+        result.add(command);
+        for (ICommandProcessor p : processors) {
+            // Process each command in the list and add results to the end.
+            // Don't re-process the results with the same preprocessor.
+            for (int i = result.size(); i > 0; i--) {
+                result.addAll(p.processCommand(result.remove(0), state));
+            }
+        }
 
+        return result;
+
+        /*
         // Remove comments from command.
         String newCommand = GcodePreprocessorUtils.removeComment(command);
         String rawCommand = newCommand;
@@ -429,6 +424,7 @@ public class GcodeParser implements IGcodeParser {
         }
 
         return result;
+        */
     }
 
     private List<String> convertArcsToLines(String command) throws GcodeParserException {

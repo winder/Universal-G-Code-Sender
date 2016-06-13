@@ -25,6 +25,12 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -724,16 +730,29 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
         autoconnect = settings.isAutoConnectEnabled();
         // Apply settings settings to controller.
-        if (settings.isOverrideSpeedSelected()) {
-            double value = settings.getOverrideSpeedValue();
-            gcp.setSpeedOverride(value);
-        } else {
-            gcp.setSpeedOverride(-1);
-        }
 
         try {
-            gcp.setTruncateDecimalLength(settings.getTruncateDecimalLength());
-            gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+            gcp.resetCommandProcessors();
+
+            //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+            if (settings.isRemoveAllWhitespace()) {
+                gcp.addCommandProcessor(new WhitespaceProcessor());
+            }
+
+            //gcp.setSpeedOverride(value);
+            if (settings.isOverrideSpeedSelected()) {
+                double value = settings.getOverrideSpeedValue();
+                gcp.addCommandProcessor(new FeedOverrideProcessor(value));
+            }
+
+            gcp.addCommandProcessor(new CommentProcessor());
+
+            gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+
+            gcp.addCommandProcessor(new M30Processor());
+
+            gcp.addCommandProcessor(new CommandLengthProcessor(50));
+
             gcp.setConvertArcsToLines(settings.isConvertArcsToLines());
             gcp.setSmallArcThreshold(settings.getSmallArcThreshold());
             gcp.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
