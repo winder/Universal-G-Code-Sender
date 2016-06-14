@@ -258,10 +258,12 @@ public class GcodeParserTest {
     @Ignore // Arc feature disabled for now...
     public void testPreprocessCommandArc() throws Exception {
         System.out.println("preprocessCommandArc");
+        /*
         GcodeParser instance = new GcodeParser();
         instance.setConvertArcsToLines(true);
         instance.addCommand("G0X-1");
         List<String> commands = instance.preprocessCommand("G2 Y1 X0 I1 J0");
         System.out.println("num: " + commands.size());
+        */
     }
 }
