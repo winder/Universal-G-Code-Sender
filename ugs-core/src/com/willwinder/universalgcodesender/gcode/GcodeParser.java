@@ -39,15 +39,6 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    // Settings
-    private int truncateDecimalLength = 40;
-    private boolean removeAllWhitespace = true;
-    private boolean convertArcsToLines = false;
-    private double smallArcThreshold = 1.0;
-    // Not configurable outside, but maybe it should be.
-    private double smallArcSegmentLength = 0.3;
-    private final int maxCommandLength = 50;
-    
     // Last two commands.
     private PointSegment latest;
     private PointSegment secondLatest;
@@ -78,30 +69,6 @@ public class GcodeParser implements IGcodeParser {
      */
     public void resetCommandProcessors() {
         this.processors.clear();
-    }
-
-    public boolean getConvertArcsToLines() {
-        return convertArcsToLines;
-    }
-
-    public void setConvertArcsToLines(boolean convertArcsToLines) {
-        this.convertArcsToLines = convertArcsToLines;
-    }
-
-    public double getSmallArcSegmentLength() {
-        return smallArcSegmentLength;
-    }
-
-    public void setSmallArcSegmentLength(double smallArcSegmentLength) {
-        this.smallArcSegmentLength = smallArcSegmentLength;
-    }
-
-    public double getSmallArcThreshold() {
-        return smallArcThreshold;
-    }
-
-    public void setSmallArcThreshold(double smallArcThreshold) {
-        this.smallArcThreshold = smallArcThreshold;
     }
 
     // Resets the current state.
@@ -159,67 +126,6 @@ public class GcodeParser implements IGcodeParser {
     @Override
     public GcodeState getCurrentState() {
         return this.state;
-    }
-    
-    /**
-     * Expands the last point in the list if it is an arc according to the
-     * the parsers settings.
-     */
-    private List<PointSegment> expandArc() {
-        PointSegment startSegment = secondLatest;
-        PointSegment lastSegment = latest;
-
-        // Can only expand arcs.
-        if (!lastSegment.isArc()) {
-            return null;
-        }
-        
-        // Get precalculated stuff.
-        Point3d start     = startSegment.point();
-        Point3d end       = lastSegment.point();
-        Point3d center    = lastSegment.center();
-        double radius     = lastSegment.getRadius();
-        boolean clockwise = lastSegment.isClockwise();
-
-        //
-        // Start expansion.
-        //
-        List<Point3d> expandedPoints =
-                GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, center, clockwise, radius,
-                        smallArcThreshold, smallArcSegmentLength);
-        
-        // Validate output of expansion.
-        if (expandedPoints == null) {
-            return null;
-        }
-        
-        // Remove the last point now that we're about to expand it.
-        int num = latest.getLineNumber();
-        latest = secondLatest;
-        secondLatest = null;
-                
-        // Initialize return value
-        List<PointSegment> psl = new ArrayList<>();
-
-        // Create line segments from points.
-        PointSegment temp;
-        // skip first element.
-        Iterator<Point3d> psi = expandedPoints.listIterator(1);
-        while (psi.hasNext()) {
-            temp = new PointSegment(psi.next(), num);
-            temp.setIsMetric(lastSegment.isMetric());
-
-            // Add new points.
-            secondLatest = latest;
-            latest = temp;
-            psl.add(temp);
-        }
-
-        // Update the new endpoint.
-        this.state.currentPoint = latest.point();
-
-        return psl;
     }
     
     private List<PointSegment> processCommand(List<String> args, int line) {
@@ -380,51 +286,68 @@ public class GcodeParser implements IGcodeParser {
         }
 
         return result;
+    }
+    
+    /**
+     * Expands the last point in the list if it is an arc according to the
+     * the parsers settings.
+     */
+    /*
+    private List<PointSegment> expandArc() {
+        PointSegment startSegment = secondLatest;
+        PointSegment lastSegment = latest;
 
-        /*
-        // Remove comments from command.
-        String newCommand = GcodePreprocessorUtils.removeComment(command);
-        String rawCommand = newCommand;
-
-        if (removeAllWhitespace) {
-            newCommand = GcodePreprocessorUtils.removeAllWhitespace(newCommand);
+        // Can only expand arcs.
+        if (!lastSegment.isArc()) {
+            return null;
         }
         
-        newCommand = GcodePreprocessorUtils.removeM30(newCommand);
+        // Get precalculated stuff.
+        Point3d start     = startSegment.point();
+        Point3d end       = lastSegment.point();
+        Point3d center    = lastSegment.center();
+        double radius     = lastSegment.getRadius();
+        boolean clockwise = lastSegment.isClockwise();
 
-        if (newCommand.length() > 0) {
+        //
+        // Start expansion.
+        //
+        List<Point3d> expandedPoints =
+                GcodePreprocessorUtils.generatePointsAlongArcBDring(
+                        start, end, center, clockwise, radius,
+                        smallArcThreshold, smallArcSegmentLength);
+        
+        // Validate output of expansion.
+        if (expandedPoints == null) {
+            return null;
+        }
+        
+        // Remove the last point now that we're about to expand it.
+        int num = latest.getLineNumber();
+        latest = secondLatest;
+        secondLatest = null;
+                
+        // Initialize return value
+        List<PointSegment> psl = new ArrayList<>();
 
-            // Override feed speed
-            if (speedOverride > 0) {
-                newCommand = GcodePreprocessorUtils.overrideSpeed(newCommand, speedOverride);
-            }
+        // Create line segments from points.
+        PointSegment temp;
+        // skip first element.
+        Iterator<Point3d> psi = expandedPoints.listIterator(1);
+        while (psi.hasNext()) {
+            temp = new PointSegment(psi.next(), num);
+            temp.setIsMetric(lastSegment.isMetric());
 
-            if (truncateDecimalLength > 0) {
-                newCommand = GcodePreprocessorUtils.truncateDecimals(truncateDecimalLength, newCommand);
-            }
-
-            // If this is enabled we need to parse the gcode as we go along.
-            if (convertArcsToLines) { // || this.expandCannedCycles) {
-                List<String> arcLines = convertArcsToLines(newCommand);
-                if (arcLines != null) {
-                    result.addAll(arcLines);
-                } else {
-                    result.add(newCommand);
-                }
-            } else {
-                result.add(newCommand);
-            }
+            // Add new points.
+            secondLatest = latest;
+            latest = temp;
+            psl.add(temp);
         }
 
-        // Check command length
-        for (String c : result) {
-            if (c.length() > maxCommandLength) {
-                throw new GcodeParserException("Command '"+c+"' is too long: " + c.length() + " > " + maxCommandLength);
-            }
-        }
+        // Update the new endpoint.
+        this.state.currentPoint = latest.point();
 
-        return result;
-        */
+        return psl;
     }
 
     private List<String> convertArcsToLines(String command) throws GcodeParserException {
@@ -471,4 +394,5 @@ public class GcodeParser implements IGcodeParser {
 
         return result;
     }
+    */
 }

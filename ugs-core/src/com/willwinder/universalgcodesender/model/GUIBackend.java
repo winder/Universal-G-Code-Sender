@@ -732,30 +732,29 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         // Apply settings settings to controller.
 
         try {
-            gcp.resetCommandProcessors();
+            {
+                // Configure gcode parser.
+                gcp.resetCommandProcessors();
 
-            //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-            if (settings.isRemoveAllWhitespace()) {
-                gcp.addCommandProcessor(new WhitespaceProcessor());
+                //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+                if (settings.isRemoveAllWhitespace()) {
+                    gcp.addCommandProcessor(new WhitespaceProcessor());
+                }
+
+                //gcp.setSpeedOverride(value);
+                if (settings.isOverrideSpeedSelected()) {
+                    double value = settings.getOverrideSpeedValue();
+                    gcp.addCommandProcessor(new FeedOverrideProcessor(value));
+                }
+
+                gcp.addCommandProcessor(new CommentProcessor());
+
+                gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+
+                gcp.addCommandProcessor(new M30Processor());
+
+                gcp.addCommandProcessor(new CommandLengthProcessor(50));
             }
-
-            //gcp.setSpeedOverride(value);
-            if (settings.isOverrideSpeedSelected()) {
-                double value = settings.getOverrideSpeedValue();
-                gcp.addCommandProcessor(new FeedOverrideProcessor(value));
-            }
-
-            gcp.addCommandProcessor(new CommentProcessor());
-
-            gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
-
-            gcp.addCommandProcessor(new M30Processor());
-
-            gcp.addCommandProcessor(new CommandLengthProcessor(50));
-
-            gcp.setConvertArcsToLines(settings.isConvertArcsToLines());
-            gcp.setSmallArcThreshold(settings.getSmallArcThreshold());
-            gcp.setSmallArcSegmentLength(settings.getSmallArcSegmentLength());
             
             controller.getCommandCreator().setMaxCommandLength(settings.getMaxCommandLength());
             

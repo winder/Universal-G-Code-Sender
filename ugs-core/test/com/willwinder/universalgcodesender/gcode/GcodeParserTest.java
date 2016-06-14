@@ -255,6 +255,7 @@ public class GcodeParserTest {
     }
 
     @Test
+    @Ignore // Arc feature disabled for now...
     public void testPreprocessCommandArc() throws Exception {
         System.out.println("preprocessCommandArc");
         GcodeParser instance = new GcodeParser();

@@ -114,9 +114,9 @@ public class ConnectionSettingsPanel extends JPanel {
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
         settings.setDisplayStateColor(stateColorDisplayEnabled.getValue());
-        settings.setConvertArcsToLines(convertArcsToLines.getValue());
-        settings.setSmallArcSegmentLength((double)smallArcLength.getValue());
-        settings.setSmallArcThreshold((double)smallArcThreshold.getValue());
+        //settings.setConvertArcsToLines(convertArcsToLines.getValue());
+        //settings.setSmallArcSegmentLength((double)smallArcLength.getValue());
+        //settings.setSmallArcThreshold((double)smallArcThreshold.getValue());
         settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setAutoReconnect(autoReconnect.getValue());
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
@@ -170,6 +170,7 @@ public class ConnectionSettingsPanel extends JPanel {
                 settings.isDisplayStateColor());
         add(stateColorDisplayEnabled);
 
+        /*
         convertArcsToLines = new Checkbox(
                 Localization.getString("sender.arcs"),
                 settings.isConvertArcsToLines());
@@ -184,6 +185,7 @@ public class ConnectionSettingsPanel extends JPanel {
                 Localization.getString("sender.arcs.length"),
                 new SpinnerNumberModel(settings.getSmallArcSegmentLength(), 1., null, .1));
         add(smallArcLength);
+        */
 
         autoConnect = new Checkbox(
                 Localization.getString("sender.autoconnect"),
