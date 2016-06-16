@@ -97,7 +97,10 @@ public class GcodeParser implements IGcodeParser {
         List<PointSegment> results = new ArrayList<>();
         for (String c: commands) {
             List<String> args = GcodePreprocessorUtils.splitCommand(c);
-            results.addAll(this.addCommand(args, line));
+            List<PointSegment> points = this.addCommand(args, line);
+            if (points != null) {
+                results.addAll(points);
+            }
         }
         return results;
     }
