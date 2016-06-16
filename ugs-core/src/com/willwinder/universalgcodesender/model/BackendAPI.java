@@ -23,7 +23,6 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.Utils.Units;

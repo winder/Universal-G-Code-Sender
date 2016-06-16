@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -119,7 +120,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
         } else {
             Macro macro = backend.getSettings().getMacro(i);
-            MacroPanel.executeCustomGcode(macro.getGcode(), backend);
+            MacroHelper.executeCustomGcode(macro.getGcode(), backend);
         }
     }
 

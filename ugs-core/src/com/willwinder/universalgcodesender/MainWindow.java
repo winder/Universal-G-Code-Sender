@@ -383,7 +383,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
         macroPane = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(settings, backend);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
