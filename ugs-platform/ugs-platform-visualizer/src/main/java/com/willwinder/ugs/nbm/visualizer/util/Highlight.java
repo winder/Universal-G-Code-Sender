@@ -72,7 +72,7 @@ public class Highlight extends Renderable {
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
-        if (lineVertexData == null || highlightedLines == null || highlightedLines.size() == 0) {
+        if (lineVertexData == null || highlightedLines == null || highlightedLines.isEmpty()) {
             return;
         }
 
