@@ -64,31 +64,31 @@ public class MacroHelper {
     
     /**
      * Interactive substitutions can be made with special characters:
-     *   %machine_x% - The machine X location
-     *   %machine_y% - The machine Y location
-     *   %machine_z% - The machine Z location
-     *   %work_x% - The work X location
-     *   %work_y% - The work Y location
-     *   %work_z% - The work Z location
-     *   %prompt|name% - Prompt the user for a value named 'name'.
+     *   {machine_x} - The machine X location
+     *   {machine_y} - The machine Y location
+     *   {machine_z} - The machine Z location
+     *   {work_x} - The work X location
+     *   {work_y} - The work Y location
+     *   {work_z} - The work Z location
+     *   {prompt|name} - Prompt the user for a value named 'name'.
      * 
      * @param str
      * @param backend
      * @return 
      */
-    static private final Pattern PROMPT_REGEX = Pattern.compile("%prompt\\|([^%]+)%");
+    static private final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^\\}]+)\\}");
     protected static String substituteValues(String str, BackendAPI backend) {
         SystemStateBean bean = new SystemStateBean();
         backend.updateSystemState(bean);
 
         // Do simple substitutions
         String command = str;
-        command = command.replaceAll("%machine_x%", bean.getMachineX());
-        command = command.replaceAll("%machine_y%", bean.getMachineY());
-        command = command.replaceAll("%machine_z%", bean.getMachineZ());
-        command = command.replaceAll("%work_x%", bean.getWorkX());
-        command = command.replaceAll("%work_y%", bean.getWorkY());
-        command = command.replaceAll("%work_z%", bean.getWorkZ());
+        command = command.replaceAll("\\{machine_x\\}", bean.getMachineX());
+        command = command.replaceAll("\\{machine_y\\}", bean.getMachineY());
+        command = command.replaceAll("\\{machine_z\\}", bean.getMachineZ());
+        command = command.replaceAll("\\{work_x\\}", bean.getWorkX());
+        command = command.replaceAll("\\{work_y\\}", bean.getWorkY());
+        command = command.replaceAll("\\{work_z\\}", bean.getWorkZ());
 
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);
@@ -115,7 +115,7 @@ public class MacroHelper {
 
             if (result == JOptionPane.OK_OPTION) {
                 for(int i = 0; i < prompts.size(); i++) {
-                    command = command.replace("%prompt|" + prompts.get(i) + "%", fields.get(i).getText());
+                    command = command.replace("{prompt|" + prompts.get(i) + "}", fields.get(i).getText());
                 }
             } else {
                 command = "";
