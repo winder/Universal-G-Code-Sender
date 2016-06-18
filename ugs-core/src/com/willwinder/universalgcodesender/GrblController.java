@@ -100,13 +100,17 @@ public class GrblController extends AbstractController {
             try {
                 // If there is an error, pause the stream.
                 if (response.startsWith("error:")) {
-                    this.pauseStreaming();
-                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
                     GcodeCommand command = getActiveCommand();
                     String error =
                             String.format(Localization.getString("controller.exception.sendError"),
                                     command.getOriginalCommandString(),
                                     response);
+
+                    // Only pause during a stream, not during manual commands.
+                    if (this.isStreamingFile()) {
+                        this.pauseStreaming();
+                        this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                    }
                     this.errorMessageForConsole(error);
                 }
 

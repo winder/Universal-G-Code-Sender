@@ -106,7 +106,7 @@ public class GcodeCommand {
     }
 
     public String getOriginalCommandString() {
-        return this.originalCommand;
+        return this.originalCommand == null ? this.command : this.originalCommand;
     }
 
     public int getCommandNumber() {
