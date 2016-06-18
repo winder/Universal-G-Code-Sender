@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.options;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.MacroPanel;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -31,14 +32,14 @@ import org.openide.util.Lookup;
 final class MacrosPanel extends AbstractOptionsPanel {
 
     MacroPanel mp;
-    Settings settings;
+    BackendAPI backend;
     MacroService macroService;
 
     MacrosPanel(MacrosOptionsPanelController controller) {
         super(controller);
 
         macroService = Lookup.getDefault().lookup(MacroService.class);
-        settings = CentralLookup.getDefault().lookup(Settings.class);
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
     }
 
@@ -47,14 +48,14 @@ final class MacrosPanel extends AbstractOptionsPanel {
         if (mp != null) {
             this.remove(mp);
         }
-        mp = new MacroPanel(settings, null);
+        mp = new MacroPanel(backend);
         super.add(mp, BorderLayout.CENTER);
         SwingUtilities.invokeLater(() -> changer.changed());
     }
 
     @Override
     public void store() {
-        SettingsFactory.saveSettings(settings);
+        SettingsFactory.saveSettings(backend.getSettings());
         macroService.reInitActions();
     }
 
