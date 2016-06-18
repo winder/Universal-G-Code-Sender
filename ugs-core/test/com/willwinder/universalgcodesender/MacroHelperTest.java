@@ -61,8 +61,9 @@ public class MacroHelperTest {
     }
 
     @Test
+    @Ignore // This test creates a modal dialog.
     public void testSubstitutePrompt() {
-        System.out.println("substituteValues");
+        System.out.println("substituteValuesPrompt");
 
         BackendAPI backend = EasyMock.mock(BackendAPI.class);
 
