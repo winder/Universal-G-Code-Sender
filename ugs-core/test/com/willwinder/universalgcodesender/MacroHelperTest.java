@@ -61,7 +61,7 @@ public class MacroHelperTest {
     }
 
     @Test
-    //@Ignore // This test creates a modal dialog.
+    @Ignore // This test creates a modal dialog.
     public void testSubstitutePrompt() {
         System.out.println("substituteValuesPrompt");
 
