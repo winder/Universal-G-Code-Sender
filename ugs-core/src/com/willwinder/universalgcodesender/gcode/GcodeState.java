@@ -11,6 +11,18 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GcodeState {
+    public GcodeState copy() {
+        GcodeState ret = new GcodeState();
+        ret.isMetric = isMetric;
+        ret.inAbsoluteMode = inAbsoluteMode;
+        ret.inAbsoluteIJKMode = inAbsoluteIJKMode;
+        ret.lastGcodeCommand = lastGcodeCommand;
+        ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
+        ret.speed = speed;
+        ret.commandNumber = commandNumber;
+        return ret;
+    }
+
     // Current state
     public boolean isMetric = true;
     public boolean inAbsoluteMode = true;

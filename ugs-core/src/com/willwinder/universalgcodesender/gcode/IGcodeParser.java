@@ -39,7 +39,8 @@ public interface IGcodeParser {
      * Add a string of command(s) and a line number associated with that string.
      * @param command
      * @param lineNumber
-     * @return PointSegment representing the last command.
+     * @return PointSegment(s) representing the command.
+     * @throws GcodeParserException
      */
     public List<PointSegment> addCommand(String command, int lineNumber) throws GcodeParserException;
 

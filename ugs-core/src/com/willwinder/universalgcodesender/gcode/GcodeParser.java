@@ -26,7 +26,6 @@ package com.willwinder.universalgcodesender.gcode;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import javax.vecmath.Point3d;
 
@@ -44,7 +43,26 @@ public class GcodeParser implements IGcodeParser {
     private PointSegment secondLatest;
 
     private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
+
+
+    /**
+     * An intermediate object with all metadata for a given point.
+     */
+    private static class GcodeMeta {
+        public String command;
+
+        // Gcode state after processing the command.
+        public GcodeState state;
+
+        // There should be a point OR a collection of points. Not both.
+        // PointSegments represent the endpoint of a given command.
+        public PointSegment point;
+        public List<PointSegment> points;
+    }
     
+    /**
+     * Constructor.
+     */
     public GcodeParser() {
         this.state = new GcodeState();
         this.reset();
@@ -53,6 +71,7 @@ public class GcodeParser implements IGcodeParser {
     /**
      * @return the number of command processors that have been added.
      */
+    @Override
     public int numCommandProcessors() {
         return this.processors.size();
     }
@@ -60,6 +79,7 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Add a preprocessor to use with the preprocessCommand method.
      */
+    @Override
     public void addCommandProcessor(ICommandProcessor p) {
         this.processors.add(p);
     }
@@ -67,13 +87,17 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Clear out any processors that have been added.
      */
+    @Override
     public void resetCommandProcessors() {
         this.processors.clear();
     }
 
-    // Resets the current state.
+    /**
+     * Resets the current state.
+     */
     private void reset() {
         this.state.currentPoint = new Point3d();
+        this.state.commandNumber = -1;
         latest = new PointSegment(this.state.currentPoint, -1);
         secondLatest = null;
     }
@@ -83,7 +107,7 @@ public class GcodeParser implements IGcodeParser {
      */
     @Override
     public List<PointSegment> addCommand(String command) throws GcodeParserException {
-        return addCommand(command, this.state.commandNumber++);
+        return addCommand(command, ++this.state.commandNumber);
     }
 
     /**
@@ -92,35 +116,40 @@ public class GcodeParser implements IGcodeParser {
      */
     @Override
     public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
-        //String stripped = GcodePreprocessorUtils.removeComment(command);
-        List<String> commands = this.preprocessCommand(command);
         List<PointSegment> results = new ArrayList<>();
-        for (String c: commands) {
-            List<String> args = GcodePreprocessorUtils.splitCommand(c);
-            List<PointSegment> points = this.addCommand(args, line);
-            if (points != null) {
-                results.addAll(points);
+        // Add command get meta doesn't update the state, so we need to do that
+        // manually.
+        List<String> processedCommands = this.preprocessCommand(command);
+        for (String processedCommand : processedCommands) {
+            Collection<GcodeMeta> metaObjects = addCommandGetMeta(processedCommand, line, state);
+            if (metaObjects != null) {
+                for (GcodeMeta c : metaObjects) {
+                    if (c.point != null)
+                        results.add(c.point);
+                    if (c.points != null)
+                        results.addAll(c.points);
+                    if (c.state != null)
+                        this.state = c.state;
+                }
             }
+        }
+
+        for (PointSegment ps : results) {
+            secondLatest = latest;
+            latest = ps;
         }
         return results;
     }
-    
-    /**
-     * Add a command which has already been broken up into its arguments.
-     */
-    private List<PointSegment> addCommand(List<String> args, int line) {
-        if (args.isEmpty()) {
-            return null;
-        }
-        return processCommand(args, line);
-    }
 
     /**
-     * Warning, this should only be used when modifying live gcode, such as when
-     * expanding an arc or canned cycle into line segments.
+     * Get point segment and corresponding gcode states, does not modify current
+     * state.
      */
-    private void setLastGcodeCommand(String num) {
-        this.state.lastGcodeCommand = num;
+    private static List<GcodeMeta> addCommandGetMeta(String command, int line, final GcodeState state) throws GcodeParserException {
+        List<GcodeMeta> results = new ArrayList<>();
+        List<String> args = GcodePreprocessorUtils.splitCommand(command);
+        if (args.isEmpty()) return null;
+        return processCommand(command, args, line, state);
     }
     
     /**
@@ -131,9 +160,11 @@ public class GcodeParser implements IGcodeParser {
         return this.state;
     }
     
-    private List<PointSegment> processCommand(List<String> args, int line) {
-
-        List<PointSegment> results = new ArrayList<>();
+    private static List<GcodeMeta> processCommand(String command, List<String> args, int line, final GcodeState inputState) {
+        List<GcodeMeta> results = new ArrayList<>();
+        
+        GcodeState state = inputState.copy();
+        state.commandNumber = line;
         
         // handle M codes.
         //codes = GcodePreprocessorUtils.parseCodes(args, 'M');
@@ -153,128 +184,128 @@ public class GcodeParser implements IGcodeParser {
         }
         
         for (String i : gCodes) {
-            PointSegment ps = handleGCode(i, args, line);
+            GcodeMeta meta = handleGCode(i, args, line, state);
+            meta.command = command;
             // Commands like 'G21' don't return a point segment.
-            if (ps != null) {
-                ps.setSpeed(state.speed);
-                results.add(ps);
+            if (meta.point != null) {
+                meta.point.setSpeed(state.speed);
             }
+            results.add(meta);
         }
         
-
         return results;
     }
 
-    private PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line) {
+    private static PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
         PointSegment ps = new PointSegment(nextPoint, line);
 
         boolean zOnly = false;
 
         // Check for z-only
-        if ((this.state.currentPoint.x == nextPoint.x) &&
-                (this.state.currentPoint.y == nextPoint.y) &&
-                (this.state.currentPoint.z != nextPoint.z)) {
+        if ((state.currentPoint.x == nextPoint.x) &&
+                (state.currentPoint.y == nextPoint.y) &&
+                (state.currentPoint.z != nextPoint.z)) {
             zOnly = true;
         }
 
-        ps.setIsMetric(this.state.isMetric);
+        ps.setIsMetric(state.isMetric);
         ps.setIsZMovement(zOnly);
         ps.setIsFastTraverse(fastTraverse);
 
-        secondLatest = latest;
-        latest = ps;
-
         // Save off the endpoint.
-        this.state.currentPoint = nextPoint;
+        state.currentPoint = nextPoint;
         return ps;
     }
 
-    private PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line) {
+    private static PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line, GcodeState state) {
         PointSegment ps = new PointSegment(nextPoint, line);
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, this.state.currentPoint, nextPoint, this.state.inAbsoluteIJKMode, clockwise);
+                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise);
 
         double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
 
         // Calculate radius if necessary.
         if (Double.isNaN(radius)) {
             radius = Math.sqrt(
-                    Math.pow(this.state.currentPoint.x - center.x, 2.0)
-                            + Math.pow(this.state.currentPoint.y - center.y, 2.0));
+                    Math.pow(state.currentPoint.x - center.x, 2.0)
+                            + Math.pow(state.currentPoint.y - center.y, 2.0));
         }
 
-        ps.setIsMetric(this.state.isMetric);
+        ps.setIsMetric(state.isMetric);
         ps.setArcCenter(center);
         ps.setIsArc(true);
         ps.setRadius(radius);
         ps.setIsClockwise(clockwise);
 
-        secondLatest = latest;
-        latest = ps;
-
         // Save off the endpoint.
-        this.state.currentPoint = nextPoint;
+        state.currentPoint = nextPoint;
         return ps;
     }
 
-    private PointSegment handleGCode(String code, List<String> args, int line) {
-        PointSegment ps = null;
+    /**
+     * A copy of the state object should go in the resulting GcodeMeta object.
+     */
+    private static GcodeMeta handleGCode(String code, List<String> args, int line, GcodeState state) {
+        GcodeMeta meta = new GcodeMeta();
+
         Point3d nextPoint = 
             GcodePreprocessorUtils.updatePointWithCommand(
-            args, this.state.currentPoint, this.state.inAbsoluteMode);
+            args, state.currentPoint, state.inAbsoluteMode);
 
         if (code.length() > 1 && code.startsWith("0"))
             code = code.substring(1);
 
         switch (code) {
             case "0":
-                ps = addLinearPointSegment(nextPoint, true, line);
+                meta.point = addLinearPointSegment(nextPoint, true, line, state);
                 break;
             case "1":
-                ps = addLinearPointSegment(nextPoint, false, line);
+                meta.point = addLinearPointSegment(nextPoint, false, line, state);
                 break;
 
             // Arc command.
             case "2":
-                ps = addArcPointSegment(nextPoint, true, args, line);
+                meta.point = addArcPointSegment(nextPoint, true, args, line, state);
                 break;
             case "3":
-                ps = addArcPointSegment(nextPoint, false, args, line);
+                meta.point = addArcPointSegment(nextPoint, false, args, line, state);
                 break;
 
             case "20":
                 //inch
-                this.state.isMetric = false;
+                state.isMetric = false;
                 break;
             case "21":
                 //mm
-                this.state.isMetric = true;
+                state.isMetric = true;
                 break;
 
             case "90":
-                this.state.inAbsoluteMode = true;
+                state.inAbsoluteMode = true;
                 break;
             case "90.1":
-                this.state.inAbsoluteIJKMode = true;
+                state.inAbsoluteIJKMode = true;
                 break;
 
             case "91":
-                this.state.inAbsoluteMode = false;
+                state.inAbsoluteMode = false;
                 break;
             case "91.1":
-                this.state.inAbsoluteIJKMode = false;
+                state.inAbsoluteIJKMode = false;
                 break;
             default:
                 break;
         }
-        this.state.lastGcodeCommand = code;
-        return ps;
+        state.lastGcodeCommand = code;
+        meta.state = state.copy();
+        return meta;
     }
 
     /**
-     * Preprocesses a command. Does not update state.
+     * Applies all command processors to a given command and returns the
+     * resulting GCode. Does not change the parser state.
      */
     @Override
     public List<String> preprocessCommand(String command) throws GcodeParserException {
