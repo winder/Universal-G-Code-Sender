@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -37,12 +37,12 @@ import javax.vecmath.Point3d;
 public class GcodePreprocessorUtils {
 
     public static final String EMPTY = "";
-    private static Pattern COMMENT_PAREN = Pattern.compile("\\([^\\(]*\\)");
-    private static Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
-    private static Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
-    private static Pattern WHITESPACE = Pattern.compile("\\s");
-    private static Pattern M30 = Pattern.compile("[Mm]30");
-    private static Pattern gPattern = Pattern.compile("[Gg]0*(\\d+)");
+    private static final Pattern COMMENT_PAREN = Pattern.compile("\\([^\\(]*\\)");
+    private static final Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
+    private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
+    private static final Pattern WHITESPACE = Pattern.compile("\\s");
+    private static final Pattern M30 = Pattern.compile("[Mm]30");
+    private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
 
     private static int decimalLength = -1;
     private static Pattern decimalPattern;
@@ -177,7 +177,7 @@ public class GcodePreprocessorUtils {
     
 
     static public List<Integer> parseGCodes(String command) {
-        Matcher matcher = gPattern.matcher(command);
+        Matcher matcher = GCODE_PATTERN.matcher(command);
         List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
@@ -189,7 +189,7 @@ public class GcodePreprocessorUtils {
 
     static private Pattern mPattern = Pattern.compile("[Mm]0*(\\d+)");
     static public List<Integer> parseMCodes(String command) {
-        Matcher matcher = gPattern.matcher(command);
+        Matcher matcher = GCODE_PATTERN.matcher(command);
         List<Integer> codes = new ArrayList<>();
         
         while (matcher.find()) {
@@ -376,7 +376,101 @@ public class GcodePreprocessorUtils {
         return l;
     }
     
-    static public Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise) {
+    /**
+     * Generates the points along an arc including the start and end points.
+     */
+    static public List<Point3d> generatePointsAlongArcBDring(
+            final Point3d start,
+            final Point3d end,
+            final Point3d center,
+            boolean clockwise,
+            double R,
+            double minArcLength,
+            double arcSegmentLength) {
+        double radius = R;
+
+        // Calculate radius if necessary.
+        if (radius == 0) {
+            radius = Math.sqrt(Math.pow(start.x - center.x, 2.0) + Math.pow(end.y - center.y, 2.0));
+        }
+
+        double startAngle = GcodePreprocessorUtils.getAngle(center, start);
+        double endAngle = GcodePreprocessorUtils.getAngle(center, end);
+        double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
+
+        // Convert units.
+        double arcLength = sweep * radius;
+
+        // If this arc doesn't meet the minimum threshold, don't expand.
+        if (minArcLength > 0 && arcLength < minArcLength) {
+            return null;
+        }
+
+        int numPoints = 20;
+
+        if (arcSegmentLength <= 0 && minArcLength > 0) {
+            arcSegmentLength = (sweep * radius) / minArcLength;
+        }
+
+        if (arcSegmentLength > 0) {
+            numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
+        }
+
+        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints);
+    }
+
+    /**
+     * Generates the points along an arc including the start and end points.
+     */
+    static private List<Point3d> generatePointsAlongArcBDring(
+            final Point3d p1,
+            final Point3d p2,
+            final Point3d center,
+            boolean isCw,
+            double radius, 
+            double startAngle,
+            double sweep,
+            int numPoints) {
+
+        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
+        List<Point3d> segments = new ArrayList<>();
+        double angle;
+
+        // Calculate radius if necessary.
+        if (radius == 0) {
+            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
+        }
+
+        double zIncrement = (p2.z - p1.z) / numPoints;
+        for(int i=0; i<numPoints; i++)
+        {
+            if (isCw) {
+                angle = (startAngle - i * sweep/numPoints);
+            } else {
+                angle = (startAngle + i * sweep/numPoints);
+            }
+
+            if (angle >= Math.PI * 2) {
+                angle = angle - Math.PI * 2;
+            }
+
+            lineStart.x = Math.cos(angle) * radius + center.x;
+            lineStart.y = Math.sin(angle) * radius + center.y;
+            lineStart.z += zIncrement;
+            
+            segments.add(new Point3d(lineStart));
+        }
+        
+        segments.add(new Point3d(p2));
+
+        return segments;
+    }
+
+    /**
+     * Helper method for to convert IJK syntax to center point.
+     * @return the center of rotation between two points with IJK codes.
+     */
+    static private Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise) {
         double R = radius;
         Point3d center = new Point3d();
         
@@ -415,9 +509,10 @@ public class GcodePreprocessorUtils {
     }
 
     /** 
-     * Return the angle in radians when going from start to end.
+     * Helper method for arc calculation
+     * @return angle in radians of a line going from start to end.
      */
-    static public double getAngle(final Point3d start, final Point3d end) {
+    static private double getAngle(final Point3d start, final Point3d end) {
         double deltaX = end.x - start.x;
         double deltaY = end.y - start.y;
 
@@ -449,7 +544,11 @@ public class GcodePreprocessorUtils {
         return angle;
     }
 
-    static public double calculateSweep(double startAngle, double endAngle, boolean isCw) {
+    /**
+     * Helper method for arc calculation to calculate sweep from two angles.
+     * @returns sweep in radians.
+     */
+    static private double calculateSweep(double startAngle, double endAngle, boolean isCw) {
         double sweep;
 
         // Full circle
@@ -474,80 +573,4 @@ public class GcodePreprocessorUtils {
         return sweep;
     }
 
-    /**
-     * Generates the points along an arc including the start and end points.
-     */
-    static public List<Point3d> generatePointsAlongArcBDring(final Point3d start, final Point3d end, final Point3d center, boolean clockwise, double R, double minArcLength, double arcSegmentLength) {
-        double radius = R;
-
-        // Calculate radius if necessary.
-        if (radius == 0) {
-            radius = Math.sqrt(Math.pow(start.x - center.x, 2.0) + Math.pow(end.y - center.y, 2.0));
-        }
-
-        double startAngle = GcodePreprocessorUtils.getAngle(center, start);
-        double endAngle = GcodePreprocessorUtils.getAngle(center, end);
-        double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
-
-        // Convert units.
-        double arcLength = sweep * radius;
-
-        // If this arc doesn't meet the minimum threshold, don't expand.
-        if (minArcLength > 0 && arcLength < minArcLength) {
-            return null;
-        }
-
-        int numPoints = 20;
-
-        if (arcSegmentLength <= 0 && minArcLength > 0) {
-            arcSegmentLength = (sweep * radius) / minArcLength;
-        }
-
-        if (arcSegmentLength > 0) {
-            numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
-        }
-
-        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints);
-    }
-
-    /**
-     * Generates the points along an arc including the start and end points.
-     */
-    static public List<Point3d> generatePointsAlongArcBDring(final Point3d p1,
-            final Point3d p2, final Point3d center, boolean isCw, double radius, 
-            double startAngle, double sweep, int numPoints) {
-
-        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
-        List<Point3d> segments = new ArrayList<>();
-        double angle;
-
-        // Calculate radius if necessary.
-        if (radius == 0) {
-            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
-        }
-
-        double zIncrement = (p2.z - p1.z) / numPoints;
-        for(int i=0; i<numPoints; i++)
-        {
-            if (isCw) {
-                angle = (startAngle - i * sweep/numPoints);
-            } else {
-                angle = (startAngle + i * sweep/numPoints);
-            }
-
-            if (angle >= Math.PI * 2) {
-                angle = angle - Math.PI * 2;
-            }
-
-            lineStart.x = Math.cos(angle) * radius + center.x;
-            lineStart.y = Math.sin(angle) * radius + center.y;
-            lineStart.z += zIncrement;
-            
-            segments.add(new Point3d(lineStart));
-        }
-        
-        segments.add(new Point3d(p2));
-
-        return segments;
-    }
 }
