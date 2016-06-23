@@ -159,11 +159,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                     else {
                         for(String processedLine : lines) {
                             gsw.addLine(line, processedLine, comment, i);
+                            gcp.addCommand(processedLine);
                         }
                     }
-
-                    // Add the command to the parser to update the state.
-                    gcp.addCommand(line);
                 }
             }
         }
@@ -289,6 +287,28 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }
+
+        // Configure gcode parser.
+        gcp.resetCommandProcessors();
+
+        //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+        if (settings.isRemoveAllWhitespace()) {
+            gcp.addCommandProcessor(new WhitespaceProcessor());
+        }
+
+        //gcp.setSpeedOverride(value);
+        if (settings.isOverrideSpeedSelected()) {
+            double value = settings.getOverrideSpeedValue();
+            gcp.addCommandProcessor(new FeedOverrideProcessor(value));
+        }
+
+        gcp.addCommandProcessor(new CommentProcessor());
+
+        gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+
+        gcp.addCommandProcessor(new M30Processor());
+
+        gcp.addCommandProcessor(new CommandLengthProcessor(50));
     }
 
     @Override
@@ -732,36 +752,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         // Apply settings settings to controller.
 
         try {
-            {
-                // Configure gcode parser.
-                gcp.resetCommandProcessors();
-
-                //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-                if (settings.isRemoveAllWhitespace()) {
-                    gcp.addCommandProcessor(new WhitespaceProcessor());
-                }
-
-                //gcp.setSpeedOverride(value);
-                if (settings.isOverrideSpeedSelected()) {
-                    double value = settings.getOverrideSpeedValue();
-                    gcp.addCommandProcessor(new FeedOverrideProcessor(value));
-                }
-
-                gcp.addCommandProcessor(new CommentProcessor());
-
-                gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
-
-                gcp.addCommandProcessor(new M30Processor());
-
-                gcp.addCommandProcessor(new CommandLengthProcessor(50));
-            }
-            
             controller.getCommandCreator().setMaxCommandLength(settings.getMaxCommandLength());
             
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());
-
         } catch (Exception ex) {
 
             StringBuilder message = new StringBuilder()
