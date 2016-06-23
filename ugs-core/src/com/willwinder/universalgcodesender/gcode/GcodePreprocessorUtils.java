@@ -251,7 +251,7 @@ public class GcodePreprocessorUtils {
         return newPoint;
     }
     
-    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, Point3d nextPoint, boolean absoluteIJKMode, boolean clockwise) {
+    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, Point3d nextPoint, boolean absoluteIJKMode, boolean clockwise, PlaneState plane) {
         double i      = parseCoord(commandArgs, 'I');
         double j      = parseCoord(commandArgs, 'J');
         double k      = parseCoord(commandArgs, 'K');
@@ -260,7 +260,7 @@ public class GcodePreprocessorUtils {
         if (Double.isNaN(i) && Double.isNaN(j) && Double.isNaN(k)) {
             return GcodePreprocessorUtils.convertRToCenter(
                             initial, nextPoint, radius, absoluteIJKMode,
-                            clockwise);
+                            clockwise, plane);
         }
 
         return updatePointWithCommand(initial, i, j, k, absoluteIJKMode);
@@ -386,7 +386,8 @@ public class GcodePreprocessorUtils {
             boolean clockwise,
             double R,
             double minArcLength,
-            double arcSegmentLength) {
+            double arcSegmentLength,
+            PlaneState plane) {
         double radius = R;
 
         // Calculate radius if necessary.
@@ -416,7 +417,7 @@ public class GcodePreprocessorUtils {
             numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
         }
 
-        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints);
+        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints, plane);
     }
 
     /**
@@ -430,7 +431,8 @@ public class GcodePreprocessorUtils {
             double radius, 
             double startAngle,
             double sweep,
-            int numPoints) {
+            int numPoints,
+            PlaneState plane) {
 
         Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
         List<Point3d> segments = new ArrayList<>();
@@ -470,7 +472,7 @@ public class GcodePreprocessorUtils {
      * Helper method for to convert IJK syntax to center point.
      * @return the center of rotation between two points with IJK codes.
      */
-    static private Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise) {
+    static private Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise, PlaneState plane) {
         double R = radius;
         Point3d center = new Point3d();
         

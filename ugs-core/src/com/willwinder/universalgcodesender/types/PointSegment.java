@@ -25,6 +25,7 @@
  */
 package com.willwinder.universalgcodesender.types;
 
+import com.willwinder.universalgcodesender.gcode.PlaneState;
 import javax.vecmath.Point3d;
 
 /**
@@ -48,6 +49,7 @@ final public class PointSegment {
         public boolean isClockwise;
         public double radius = 0.0;
         public Point3d center = null;
+        public PlaneState plane = null;
     }
     
     public PointSegment() {
@@ -78,13 +80,14 @@ final public class PointSegment {
         this.lineNumber = num;
     }
     
-    public PointSegment(final Point3d point, final int num, final Point3d center, final double radius, final boolean clockwise) {
+    public PointSegment(final Point3d point, final int num, final Point3d center, final double radius, final boolean clockwise, PlaneState plane) {
         this(point, num);
         this.isArc = true;
         this.arcProperties = new ArcProperties();
         this.arcProperties.center = new Point3d(center);
         this.arcProperties.radius = radius;
         this.arcProperties.isClockwise = clockwise;
+        this.arcProperties.plane = plane;
     }
     
     public void setPoint(final Point3d point) {
@@ -216,6 +219,14 @@ final public class PointSegment {
             return this.arcProperties.radius;
         }
         return 0;
+    }
+
+    public void setPlaneState(PlaneState plane) {
+        this.arcProperties.plane = plane;
+    }
+
+    public PlaneState getPlaneState() {
+        return this.arcProperties.plane;
     }
     
     public void convertToMetric() {

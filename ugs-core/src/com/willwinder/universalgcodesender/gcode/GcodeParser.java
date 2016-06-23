@@ -223,7 +223,7 @@ public class GcodeParser implements IGcodeParser {
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise);
+                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, state.plane);
 
         double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
 
@@ -239,6 +239,7 @@ public class GcodeParser implements IGcodeParser {
         ps.setIsArc(true);
         ps.setRadius(radius);
         ps.setIsClockwise(clockwise);
+        ps.setPlaneState(state.plane);
 
         // Save off the endpoint.
         state.currentPoint = nextPoint;

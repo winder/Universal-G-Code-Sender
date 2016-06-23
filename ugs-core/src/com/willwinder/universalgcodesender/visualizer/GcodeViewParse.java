@@ -150,7 +150,7 @@ public class GcodeViewParse {
                 List<Point3d> points =
                     GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, end, ps.center(), ps.isClockwise(),
-                        ps.getRadius(), minArcLength, arcSegmentLength);
+                        ps.getRadius(), minArcLength, arcSegmentLength, ps.getPlaneState());
                 // Create line segments from points.
                 if (points != null) {
                     Point3d startPoint = start;
