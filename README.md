@@ -77,6 +77,9 @@ Changelog
 1.0.9 -> 2.0
 * Constant memory! Optimized every part of UGS to run in a fixed amount of memory, no more slowness because a file is too large.
 * 'Cancel' now issue a feed hold and soft reset to stop the machine faster.
+* Macro substitutions. Use {machine_x/y/z} {work_x/y/z} to substitute the current machine/work coordinates, {prompt|name} can be used to ask for values in a popup dialog.
+* UGS now queries GRBL for its current state and settings in order to configure itself in a more intelligent manner. (Thanks Phil!)
+* Improved gcode parser. Heavily refactored and validated with a new suite of unit tests, the gcode parser is now much more powerful than before and can be augmented customizable command processors.
 
 1.0.8 -> 1.0.9
 * Many performance improvements.
