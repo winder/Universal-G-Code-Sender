@@ -52,6 +52,7 @@ final public class PointSegment {
     
     public PointSegment() {
         this.lineNumber = -1;
+        this.point = new Point3d();
     }
     
     public PointSegment(PointSegment ps) {

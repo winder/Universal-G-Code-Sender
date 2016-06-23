@@ -23,6 +23,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import static com.willwinder.universalgcodesender.gcode.PlaneState.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
@@ -271,6 +272,30 @@ public class GcodeParser implements IGcodeParser {
                 break;
             case "3":
                 meta.point = addArcPointSegment(nextPoint, false, args, line, state);
+                break;
+
+            case "17":
+                state.plane = XY;
+                break;
+
+            case "18":
+                state.plane = ZX;
+                break;
+
+            case "19":
+                state.plane = YZ;
+                break;
+
+            case "17.1":
+                state.plane = UV;
+                break;
+
+            case "18.1":
+                state.plane = WU;
+                break;
+
+            case "19.1":
+                state.plane = VW;
                 break;
 
             case "20":
