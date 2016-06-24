@@ -1,6 +1,6 @@
 /*
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.gcode.util;
 
 /**
  *

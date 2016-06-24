@@ -22,6 +22,7 @@
 
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 import javax.vecmath.Point3d;
 
 /**
@@ -43,7 +44,7 @@ public class GcodeState {
     }
 
     // Current state
-    public PlaneState plane;
+    public Plane plane;
     public boolean isMetric = true;
     public boolean inAbsoluteMode = true;
     public boolean inAbsoluteIJKMode = false;

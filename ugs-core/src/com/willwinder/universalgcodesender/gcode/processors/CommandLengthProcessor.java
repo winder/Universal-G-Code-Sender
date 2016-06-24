@@ -3,7 +3,7 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
-import com.willwinder.universalgcodesender.gcode.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import java.util.ArrayList;
 import java.util.List;

@@ -20,13 +20,13 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.gcode.util;
 
 /**
  *
  * @author wwinder
  */
-public enum PlaneState {
+public enum Plane {
     XY,
     ZX,
     YZ,

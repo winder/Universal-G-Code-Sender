@@ -5,6 +5,8 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
@@ -143,7 +145,7 @@ public class GcodeParserTest {
 
         instance.addCommand("G17 G21 G90 G94 G54 M0 M5 M9");
         GcodeState state = instance.getCurrentState();
-        assertEquals(PlaneState.XY, state.plane);
+        assertEquals(Plane.XY, state.plane);
         assertEquals(true, state.isMetric);
         assertEquals(true, state.inAbsoluteMode);
     }

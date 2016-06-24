@@ -22,6 +22,8 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.util.Plane;
+import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -251,7 +253,13 @@ public class GcodePreprocessorUtils {
         return newPoint;
     }
     
-    static public Point3d updateCenterWithCommand(List<String> commandArgs, Point3d initial, Point3d nextPoint, boolean absoluteIJKMode, boolean clockwise, PlaneState plane) {
+    static public Point3d updateCenterWithCommand(
+            List<String> commandArgs,
+            Point3d initial,
+            Point3d nextPoint,
+            boolean absoluteIJKMode,
+            boolean clockwise,
+            PlaneFormatter plane) {
         double i      = parseCoord(commandArgs, 'I');
         double j      = parseCoord(commandArgs, 'J');
         double k      = parseCoord(commandArgs, 'K');
@@ -387,16 +395,16 @@ public class GcodePreprocessorUtils {
             double R,
             double minArcLength,
             double arcSegmentLength,
-            PlaneState plane) {
+            PlaneFormatter plane) {
         double radius = R;
 
         // Calculate radius if necessary.
         if (radius == 0) {
-            radius = Math.sqrt(Math.pow(start.x - center.x, 2.0) + Math.pow(end.y - center.y, 2.0));
+            radius = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center),2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
         }
 
-        double startAngle = GcodePreprocessorUtils.getAngle(center, start);
-        double endAngle = GcodePreprocessorUtils.getAngle(center, end);
+        double startAngle = GcodePreprocessorUtils.getAngle(center, start, plane);
+        double endAngle = GcodePreprocessorUtils.getAngle(center, end, plane);
         double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
 
         // Convert units.
@@ -432,7 +440,7 @@ public class GcodePreprocessorUtils {
             double startAngle,
             double sweep,
             int numPoints,
-            PlaneState plane) {
+            PlaneFormatter plane) {
 
         Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
         List<Point3d> segments = new ArrayList<>();
@@ -440,10 +448,10 @@ public class GcodePreprocessorUtils {
 
         // Calculate radius if necessary.
         if (radius == 0) {
-            radius = Math.sqrt(Math.pow(p1.x - center.x, 2.0) + Math.pow(p1.y - center.y, 2.0));
+            radius = Math.sqrt(Math.pow(plane.axis0(p1) - plane.axis1(center), 2.0) + Math.pow(plane.axis1(p1) - plane.axis1(center), 2.0));
         }
 
-        double zIncrement = (p2.z - p1.z) / numPoints;
+        double zIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
         for(int i=0; i<numPoints; i++)
         {
             if (isCw) {
@@ -456,9 +464,12 @@ public class GcodePreprocessorUtils {
                 angle = angle - Math.PI * 2;
             }
 
-            lineStart.x = Math.cos(angle) * radius + center.x;
-            lineStart.y = Math.sin(angle) * radius + center.y;
-            lineStart.z += zIncrement;
+            //lineStart.x = Math.cos(angle) * radius + center.x;
+            plane.setAxis0(lineStart, Math.cos(angle) * radius + plane.axis0(center));
+            //lineStart.y = Math.sin(angle) * radius + center.y;
+            plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
+            plane.setLinear(lineStart, zIncrement);
+            //lineStart.z += zIncrement;
             
             segments.add(new Point3d(lineStart));
         }
@@ -472,13 +483,19 @@ public class GcodePreprocessorUtils {
      * Helper method for to convert IJK syntax to center point.
      * @return the center of rotation between two points with IJK codes.
      */
-    static private Point3d convertRToCenter(Point3d start, Point3d end, double radius, boolean absoluteIJK, boolean clockwise, PlaneState plane) {
+    static private Point3d convertRToCenter(
+            Point3d start,
+            Point3d end,
+            double radius,
+            boolean absoluteIJK,
+            boolean clockwise,
+            PlaneFormatter plane) {
         double R = radius;
         Point3d center = new Point3d();
         
         // This math is copied from GRBL in gcode.c
-        double x = end.x - start.x;
-        double y = end.y - start.y;
+        double x = plane.axis0(end) - plane.axis0(start);
+        double y = plane.axis1(end) - plane.axis1(start);
 
         double h_x2_div_d = 4 * R*R - x*x - y*y;
         if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
@@ -500,11 +517,11 @@ public class GcodePreprocessorUtils {
         double offsetY = 0.5*(y+(x*h_x2_div_d));
 
         if (!absoluteIJK) {
-            center.x = start.x + offsetX;
-            center.y = start.y + offsetY;
+            plane.setAxis0(center, plane.axis0(start) + offsetX);
+            plane.setAxis1(center, plane.axis1(start) + offsetY);
         } else {
-            center.x = offsetX;
-            center.y = offsetY;
+            plane.setAxis0(center, offsetX);
+            plane.setAxis1(center, offsetY);
         }
 
         return center;
@@ -514,9 +531,9 @@ public class GcodePreprocessorUtils {
      * Helper method for arc calculation
      * @return angle in radians of a line going from start to end.
      */
-    static private double getAngle(final Point3d start, final Point3d end) {
-        double deltaX = end.x - start.x;
-        double deltaY = end.y - start.y;
+    static private double getAngle(final Point3d start, final Point3d end, PlaneFormatter plane) {
+        double deltaX = plane.axis0(end) - plane.axis0(start);
+        double deltaY = plane.axis1(end) - plane.axis1(start);
 
         double angle = 0.0;
 

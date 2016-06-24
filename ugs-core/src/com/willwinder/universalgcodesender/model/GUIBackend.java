@@ -139,6 +139,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
+        gcp.reset();
         try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
                 int i = 0;

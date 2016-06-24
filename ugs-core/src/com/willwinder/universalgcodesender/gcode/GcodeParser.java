@@ -23,8 +23,10 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
-import static com.willwinder.universalgcodesender.gcode.PlaneState.*;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
 import java.util.*;
@@ -96,7 +98,7 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Resets the current state.
      */
-    private void reset() {
+    public void reset() {
         this.state.currentPoint = new Point3d();
         this.state.commandNumber = -1;
         latest = new PointSegment(this.state.currentPoint, -1);
@@ -120,18 +122,16 @@ public class GcodeParser implements IGcodeParser {
         List<PointSegment> results = new ArrayList<>();
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
-        List<String> processedCommands = this.preprocessCommand(command);
-        for (String processedCommand : processedCommands) {
-            Collection<GcodeMeta> metaObjects = addCommandGetMeta(processedCommand, line, state);
-            if (metaObjects != null) {
-                for (GcodeMeta c : metaObjects) {
-                    if (c.point != null)
-                        results.add(c.point);
-                    if (c.points != null)
-                        results.addAll(c.points);
-                    if (c.state != null)
-                        this.state = c.state;
-                }
+        //List<String> processedCommands = this.preprocessCommand(command);
+        Collection<GcodeMeta> metaObjects = addCommandGetMeta(command, line, state);
+        if (metaObjects != null) {
+            for (GcodeMeta c : metaObjects) {
+                if (c.point != null)
+                    results.add(c.point);
+                if (c.points != null)
+                    results.addAll(c.points);
+                if (c.state != null)
+                    this.state = c.state;
             }
         }
 
@@ -223,7 +223,7 @@ public class GcodeParser implements IGcodeParser {
 
         Point3d center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, state.plane);
+                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, new PlaneFormatter(state.plane));
 
         double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
 
