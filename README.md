@@ -80,6 +80,7 @@ Changelog
 * Macro substitutions. Use {machine_x/y/z} {work_x/y/z} to substitute the current machine/work coordinates, {prompt|name} can be used to ask for values in a popup dialog.
 * UGS now queries GRBL for its current state and settings in order to configure itself in a more intelligent manner. (Thanks Phil!)
 * Improved gcode parser. Heavily refactored and validated with a new suite of unit tests, the gcode parser is now much more powerful than before and can be augmented customizable command processors.
+* Plane selection support: G17, G18, G19
 
 1.0.8 -> 1.0.9
 * Many performance improvements.
