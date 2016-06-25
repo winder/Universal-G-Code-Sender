@@ -468,8 +468,8 @@ public class GcodePreprocessorUtils {
             plane.setAxis0(lineStart, Math.cos(angle) * radius + plane.axis0(center));
             //lineStart.y = Math.sin(angle) * radius + center.y;
             plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
-            plane.setLinear(lineStart, zIncrement);
             //lineStart.z += zIncrement;
+            plane.setLinear(lineStart, plane.linear(lineStart) + zIncrement);
             
             segments.add(new Point3d(lineStart));
         }
