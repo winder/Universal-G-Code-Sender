@@ -6,6 +6,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.miginfocom.swing.MigLayout;
 
@@ -167,7 +169,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private void updateControls() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
         xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
-        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
+        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
         updateUnitButton(unitsAreMM);
 
         switch (backend.getControlState()) {
@@ -191,9 +193,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     private void updateUnitButton(boolean unitsAreMM) {
         if (unitsAreMM) {
-            unitButton.setText("mm");
+            unitButton.setText(Units.MM.abbreviation);
         } else {
-            unitButton.setText("\"");
+            unitButton.setText(Units.MM.abbreviation);
         }
     }
 
@@ -262,7 +264,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void saveSettings() {
-        backend.getSettings().setDefaultUnits(unitButton.getText().equals("\"") ? "inch" : "mm");
+        backend.getSettings().setDefaultUnits(unitButton.getText().equals(Units.INCH.abbreviation) ? Units.INCH.abbreviation : Units.MM.abbreviation);
         backend.getSettings().setManualModeStepSize(getxyStepSize());
         backend.getSettings().setzJogStepSize(getzStepSize());
         backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
@@ -272,12 +274,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
         xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
         zStepSizeSpinner.setValue(backend.getSettings().getzJogStepSize());
-        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals("mm");
+        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
         updateUnitButton(unitsAreMM);
     }
 
     private com.willwinder.universalgcodesender.model.Utils.Units getUnits() {
-        return unitButton.getText().equals("mm") ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
+        return unitButton.getText().equals(Units.MM.abbreviation) ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
     }
 
     private double getxyStepSize() {
@@ -338,7 +340,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void unitButtonActionPerformed() {
-        updateUnitButton(!unitButton.getText().equals("mm"));
+        updateUnitButton(!unitButton.getText().equals(Units.MM.abbreviation));
     }
 
     public void updateManualControls(boolean enabled) {

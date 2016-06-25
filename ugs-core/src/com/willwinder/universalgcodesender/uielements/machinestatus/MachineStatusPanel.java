@@ -159,7 +159,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         add(workPanel,"width 50%");
         add(machinePanel, "width 50%");
         
-        if (this.backend.getSettings().getDefaultUnits().equals("mm")) {
+        if (this.backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation)) {
             setUnits(Units.MM);
         } else {
             setUnits(Units.INCH);

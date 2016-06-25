@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.annotations.Expose;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
@@ -33,7 +34,7 @@ public class Settings {
     private boolean convertArcsToLines = false;
     private double smallArcThreshold = 2.0;
     private double smallArcSegmentLength = 1.3;
-    private String defaultUnits = "mm";
+    private String defaultUnits = Units.MM.abbreviation;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
@@ -298,13 +299,18 @@ public class Settings {
 		this.pendantConfig = pendantConfig;
 	}
         
-        public String getDefaultUnits() {
-            return defaultUnits;
+    public String getDefaultUnits() {
+        if (Units.getUnit(defaultUnits) == null) {
+            return Units.MM.abbreviation;
         }
+        return defaultUnits;
+    }
         
-        public void setDefaultUnits(String units) {
+    public void setDefaultUnits(String units) {
+        if (Units.getUnit(defaultUnits) != null) {
             defaultUnits = units;
         }
+    }
 
     public boolean isShowNightlyWarning() {
         return showNightlyWarning;

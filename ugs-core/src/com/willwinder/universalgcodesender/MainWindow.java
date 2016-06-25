@@ -139,7 +139,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         
         arrowMovementEnabled.setSelected(settings.isManualModeEnabled());
         stepSizeSpinner.setValue(settings.getManualModeStepSize());
-        boolean unitsAreMM = settings.getDefaultUnits().equals("mm");
+        boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         mmRadioButton.setSelected(unitsAreMM);
         inchRadioButton.setSelected(!unitsAreMM);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
@@ -165,7 +165,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     settings.setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                settings.setDefaultUnits(inchRadioButton.isSelected() ? "inch" : "mm");
+                settings.setDefaultUnits(inchRadioButton.isSelected() ? Units.INCH.abbreviation : Units.MM.abbreviation);
                 settings.setManualModeStepSize(getStepSize());
                 settings.setManualModeEnabled(arrowMovementEnabled.isSelected());
                 settings.setPort(commPortComboBox.getSelectedItem().toString());
@@ -244,7 +244,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         /* Apply the settings to the MainWindow bofore showing it */
         mw.arrowMovementEnabled.setSelected(mw.settings.isManualModeEnabled());
         mw.stepSizeSpinner.setValue(mw.settings.getManualModeStepSize());
-        boolean unitsAreMM = mw.settings.getDefaultUnits().equals("mm");
+        boolean unitsAreMM = mw.settings.getDefaultUnits().equals(Units.MM.abbreviation);
         mw.mmRadioButton.setSelected(unitsAreMM);
         mw.inchRadioButton.setSelected(!unitsAreMM);
         mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
@@ -296,7 +296,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
                 }
                 
-                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? "inch" : "mm");
+                mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? Units.INCH.abbreviation : Units.MM.abbreviation);
                 mw.settings.setManualModeStepSize(mw.getStepSize());
                 mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
                 mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
