@@ -55,7 +55,6 @@ public class JogService implements StatusLineElementProvider {
     public JogService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         String abbr = backend.getSettings().getDefaultUnits();
-        System.out.println("\n\n\n\n\nUnit = " + abbr);
         this.setUnits(Units.getUnit(abbr));
 
         initActions();
@@ -134,7 +133,6 @@ public class JogService implements StatusLineElementProvider {
     }
 
     public void setUnits(Units units) {
-        System.out.println("Setting units to: " + units);
         this.units = units;
         changed();
     }
