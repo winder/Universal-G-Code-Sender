@@ -10,9 +10,9 @@
 (Optimization is ON)
 (www.PhlatBoyz.com)
 (KJOs defaults)
-G90 G20 G49 G61
+G90 G20 (G49 G61)
 M3 S15000
-G0   Z0.2500    
+G17 G0   Z0.2500    
 (Pass: 1)
    X0.3645       Y0.3782    
 G1   Z-0.1250    F100 
