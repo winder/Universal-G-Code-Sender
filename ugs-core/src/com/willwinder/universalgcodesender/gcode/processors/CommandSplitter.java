@@ -1,5 +1,7 @@
 /**
- * Removes comments from the command.
+ * Splits up any command containing more than one of G, M, S or T commands.
+ * Be sure to apply the command splitter AFTER the comment processor, or else
+ * commands may be split inside a comment.
  */
 /*
     Copywrite 2016 Will Winder
@@ -21,21 +23,35 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author wwinder
  */
-public class CommentProcessor implements ICommandProcessor {
+public class CommandSplitter implements ICommandProcessor {
+    Pattern GROUP_PATTERN = Pattern.compile("([GgMmSsTt].*?)(?=[GgMmSsTtFf]|$)");
 
     @Override
-    public List<String> processCommand(String command, GcodeState state) {
-        ArrayList<String> result = new ArrayList<>();
-        result.add(GcodePreprocessorUtils.removeComment(command));
-        return result;
+    public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
+        List<String> ret = new ArrayList<>();
+        
+        Matcher m = GROUP_PATTERN.matcher(command);
+
+        while (m.find()) {
+            ret.add(m.group(0).trim());
+        }
+
+        if (ret.isEmpty()) {
+            ret.add(command);
+        }
+
+        return ret;
     }
+    
 }
