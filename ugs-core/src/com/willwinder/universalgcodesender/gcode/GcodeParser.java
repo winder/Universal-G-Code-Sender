@@ -1,6 +1,11 @@
-/*
+/**
  * Object to parse gcode one command at a time in a way that can be used by any
  * other class which needs to know about the current state at a given command.
+ * 
+ * This object can be extended by adding in any number of ICommandProcessor
+ * objects which are applied to each command in the order they were inserted
+ * into the parser. These processors can be as simple as removing whitespace to
+ * as complex as expanding a canned cycle or applying an leveling plane.
  */
 
 /*
@@ -146,6 +151,10 @@ public class GcodeParser implements IGcodeParser {
         return this.state;
     }
     
+    /**
+     * Process commend given an initial state. This method will not modify its
+     * input parameters.
+     */
     public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState) {
         List<String> args = GcodePreprocessorUtils.splitCommand(command);
         if (args.isEmpty()) return null;
@@ -185,6 +194,9 @@ public class GcodeParser implements IGcodeParser {
         return results;
     }
 
+    /**
+     * Create a PointSegment representing the linear command.
+     */
     private static PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
         PointSegment ps = new PointSegment(nextPoint, line);
 
@@ -206,6 +218,9 @@ public class GcodeParser implements IGcodeParser {
         return ps;
     }
 
+    /**
+     * Create a PointSegment representing the arc command.
+     */
     private static PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line, GcodeState state) {
         PointSegment ps = new PointSegment(nextPoint, line);
 
@@ -235,6 +250,8 @@ public class GcodeParser implements IGcodeParser {
     }
 
     /**
+     * Branch parser to handle specific gcode command.
+     * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
     private static GcodeMeta handleGCode(String code, List<String> args, int line, GcodeState state) {
@@ -335,112 +352,4 @@ public class GcodeParser implements IGcodeParser {
 
         return result;
     }
-    
-    /**
-     * Expands the last point in the list if it is an arc according to the
-     * the parsers settings.
-     */
-    /*
-    private List<PointSegment> expandArc() {
-        PointSegment startSegment = secondLatest;
-        PointSegment lastSegment = latest;
-
-        // Can only expand arcs.
-        if (!lastSegment.isArc()) {
-            return null;
-        }
-        
-        // Get precalculated stuff.
-        Point3d start     = startSegment.point();
-        Point3d end       = lastSegment.point();
-        Point3d center    = lastSegment.center();
-        double radius     = lastSegment.getRadius();
-        boolean clockwise = lastSegment.isClockwise();
-
-        //
-        // Start expansion.
-        //
-        List<Point3d> expandedPoints =
-                GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, center, clockwise, radius,
-                        smallArcThreshold, smallArcSegmentLength);
-        
-        // Validate output of expansion.
-        if (expandedPoints == null) {
-            return null;
-        }
-        
-        // Remove the last point now that we're about to expand it.
-        int num = latest.getLineNumber();
-        latest = secondLatest;
-        secondLatest = null;
-                
-        // Initialize return value
-        List<PointSegment> psl = new ArrayList<>();
-
-        // Create line segments from points.
-        PointSegment temp;
-        // skip first element.
-        Iterator<Point3d> psi = expandedPoints.listIterator(1);
-        while (psi.hasNext()) {
-            temp = new PointSegment(psi.next(), num);
-            temp.setIsMetric(lastSegment.isMetric());
-
-            // Add new points.
-            secondLatest = latest;
-            latest = temp;
-            psl.add(temp);
-        }
-
-        // Update the new endpoint.
-        this.state.currentPoint = latest.point();
-
-        return psl;
-    }
-
-    private List<String> convertArcsToLines(String command) throws GcodeParserException {
-
-        List<String> result = null;
-
-        // Save off the start of the arc for later.
-        Point3d start = new Point3d(this.state.currentPoint);
-
-        List<PointSegment> ps = addCommand(command);
-
-        if (ps == null || ps.size() != 1 || !ps.get(0).isArc()) {
-            return result;
-        }
-
-        List<PointSegment> psl = expandArc();
-
-        if (psl == null) {
-            return result;
-        }
-
-        int index;
-        StringBuilder sb;
-
-        // Create the commands...
-        result = new ArrayList<>(psl.size());
-
-
-        // Setup decimal formatter.
-        sb = new StringBuilder("#.");
-        for (index = 0; index < truncateDecimalLength; index++) {
-            sb.append("#");
-        }
-        DecimalFormat df = new DecimalFormat(sb.toString());
-        index = 0;
-
-        // Create an array of new commands out of the of the segments in psl.
-        // Don't add them to the gcode parser since it is who expanded them.
-        for (PointSegment segment : psl) {
-            Point3d end = segment.point();
-            result.add(GcodePreprocessorUtils.generateG1FromPoints(start, end, this.state.inAbsoluteMode, df));
-            start = segment.point();
-        }
-
-        return result;
-    }
-    */
 }

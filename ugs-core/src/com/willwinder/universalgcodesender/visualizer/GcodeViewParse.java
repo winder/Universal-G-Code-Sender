@@ -28,12 +28,10 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
@@ -73,11 +71,17 @@ public class GcodeViewParse {
         return max;
     }
     
+    /**
+     * Test a point and update min/max coordinates if appropriate.
+     */
     private void testExtremes(final Point3d p3d)
     {
         testExtremes(p3d.x, p3d.y, p3d.z);
     }
     
+    /**
+     * Test a point and update min/max coordinates if appropriate.
+     */
     private void testExtremes(double x, double y, double z)
     {
         if(x < min.x) {
@@ -100,6 +104,9 @@ public class GcodeViewParse {
         }
     }
 
+    /**
+     * Create a gcode parser with required configuration.
+     */
     private static GcodeParser getParser(double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
         gp.addCommandProcessor(new WhitespaceProcessor());
@@ -109,6 +116,15 @@ public class GcodeViewParse {
         return gp;
     }
 
+    /**
+     * Almost the same as toObjRedux, convert gcode to a LineSegment collection.
+     * I've tried refactoring this, but the function is so small that merging
+     * toObjFromReader and toObjRedux adds more complexity than having these two
+     * methods.
+     * 
+     * @param gcode commands to visualize.
+     * @param arcSegmentLength length of line segments when expanding an arc.
+     */
     public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
             double arcSegmentLength) throws IOException, GcodeParserException {
         lines.clear();
@@ -131,6 +147,11 @@ public class GcodeViewParse {
         return lines;
     }
     
+    /**
+     * The original (working) gcode to LineSegment collection code.
+     * @param gcode commands to visualize.
+     * @param arcSegmentLength length of line segments when expanding an arc.
+     */
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
         GcodeParser gp = getParser(arcSegmentLength);
 
@@ -153,6 +174,10 @@ public class GcodeViewParse {
         return lines;
     }
     
+    /**
+     * Turns a point segment into one or more LineSegment. Arcs are expanded.
+     * Keeps track of the minimum and maximum x/y/z locations.
+     */
     private List<LineSegment> addLinesFromPointSegment(Point3d start, Point3d end, PointSegment segment, double arcSegmentLength, List<LineSegment> ret) {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
