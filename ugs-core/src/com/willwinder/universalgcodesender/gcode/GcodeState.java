@@ -37,7 +37,9 @@ public class GcodeState {
         ret.inAbsoluteMode = inAbsoluteMode;
         ret.inAbsoluteIJKMode = inAbsoluteIJKMode;
         ret.lastGcodeCommand = lastGcodeCommand;
-        ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
+        if (currentPoint != null) {
+            ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
+        }
         ret.speed = speed;
         ret.commandNumber = commandNumber;
         return ret;

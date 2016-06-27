@@ -22,7 +22,6 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
-import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;

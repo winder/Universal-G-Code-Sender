@@ -51,16 +51,14 @@ public class GcodeParser implements IGcodeParser {
     /**
      * An intermediate object with all metadata for a given point.
      */
-    private static class GcodeMeta {
+    public static class GcodeMeta {
         public String command;
 
         // Gcode state after processing the command.
         public GcodeState state;
 
-        // There should be a point OR a collection of points. Not both.
         // PointSegments represent the endpoint of a given command.
         public PointSegment point;
-        public List<PointSegment> points;
     }
     
     /**
@@ -123,13 +121,11 @@ public class GcodeParser implements IGcodeParser {
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
         //List<String> processedCommands = this.preprocessCommand(command);
-        Collection<GcodeMeta> metaObjects = addCommandGetMeta(command, line, state);
+        Collection<GcodeMeta> metaObjects = processCommand(command, line, state);
         if (metaObjects != null) {
             for (GcodeMeta c : metaObjects) {
                 if (c.point != null)
                     results.add(c.point);
-                if (c.points != null)
-                    results.addAll(c.points);
                 if (c.state != null)
                     this.state = c.state;
             }
@@ -141,17 +137,6 @@ public class GcodeParser implements IGcodeParser {
         }
         return results;
     }
-
-    /**
-     * Get point segment and corresponding gcode states, does not modify current
-     * state.
-     */
-    private static List<GcodeMeta> addCommandGetMeta(String command, int line, final GcodeState state) throws GcodeParserException {
-        List<GcodeMeta> results = new ArrayList<>();
-        List<String> args = GcodePreprocessorUtils.splitCommand(command);
-        if (args.isEmpty()) return null;
-        return processCommand(command, args, line, state);
-    }
     
     /**
      * Gets the point at the end of the list.
@@ -161,7 +146,10 @@ public class GcodeParser implements IGcodeParser {
         return this.state;
     }
     
-    private static List<GcodeMeta> processCommand(String command, List<String> args, int line, final GcodeState inputState) {
+    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState) {
+        List<String> args = GcodePreprocessorUtils.splitCommand(command);
+        if (args.isEmpty()) return null;
+
         List<GcodeMeta> results = new ArrayList<>();
         
         GcodeState state = inputState.copy();
