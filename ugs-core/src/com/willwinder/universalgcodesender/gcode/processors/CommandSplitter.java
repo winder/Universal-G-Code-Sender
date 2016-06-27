@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class CommandSplitter implements ICommandProcessor {
-    Pattern GROUP_PATTERN = Pattern.compile("([GgMmSsTt].*?)(?=[GgMmSsTtFf]|$)");
+    Pattern GROUP_PATTERN = Pattern.compile("([GgMmSsTt].*?)(?=[GgMmSsTt]|$)");
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
