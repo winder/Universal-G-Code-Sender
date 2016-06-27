@@ -115,6 +115,7 @@ public class ArcExpander implements ICommandProcessor {
     }
 
     private static boolean hasArcCommand(List<GcodeMeta> commands) {
+        if (commands == null) return false;
         for (GcodeMeta meta : commands) {
             if (meta.point != null && meta.point.isArc()) {
                 return true;
