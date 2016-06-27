@@ -28,6 +28,8 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
+import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
@@ -98,22 +100,31 @@ public class GcodeViewParse {
         }
     }
 
-    public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
-            double arcSegmentLength) throws IOException, GcodeParserException {
-        lines.clear();
+    private static GcodeParser getParser(double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
         gp.addCommandProcessor(new WhitespaceProcessor());
         gp.addCommandProcessor(new CommentProcessor());
+        gp.addCommandProcessor(new CommandSplitter());
+        //gp.addCommandProcessor(new ArcExpander(true, arcSegmentLength, 4));
+        return gp;
+    }
+
+    public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
+            double arcSegmentLength) throws IOException, GcodeParserException {
+        lines.clear();
+        GcodeParser gp = getParser(arcSegmentLength);
 
         // Save the state
         Point3d start = new Point3d();
         Point3d end = new Point3d();
 
         while (reader.getNumRowsRemaining() > 0) {
-            GcodeCommand c = reader.getNextCommand();
-            List<PointSegment> points = gp.addCommand(c.getCommandString(), c.getCommandNumber());
-            for (PointSegment p : points) {
-                addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
+            List<String> commands = gp.preprocessCommand(reader.getNextCommand().getCommandString());
+            for (String command : commands) {
+                List<PointSegment> points = gp.addCommand(command);
+                for (PointSegment p : points) {
+                    addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
+                }
             }
         }
 
@@ -121,9 +132,7 @@ public class GcodeViewParse {
     }
     
     public List<LineSegment> toObjRedux(List<String> gcode, double arcSegmentLength) throws GcodeParserException {
-        GcodeParser gp = new GcodeParser();
-        gp.addCommandProcessor(new WhitespaceProcessor());
-        gp.addCommandProcessor(new CommentProcessor());
+        GcodeParser gp = getParser(arcSegmentLength);
 
         lines.clear();
 
