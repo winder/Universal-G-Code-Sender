@@ -38,11 +38,8 @@ import javax.vecmath.Point3d;
 public class GcodePreprocessorUtils {
 
     public static final String EMPTY = "";
-    private static final Pattern COMMENT_PAREN = Pattern.compile("\\([^\\(]*\\)");
-    private static final Pattern COMMENT_SEMICOLON = Pattern.compile(";.*");
+    public static final Pattern COMMENT = Pattern.compile("\\([^\\(]*\\)|\\s*;.*|%$");
     private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
-    private static final Pattern WHITESPACE = Pattern.compile("\\s");
-    private static final Pattern M30 = Pattern.compile("[Mm]30");
     private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
 
     private static int decimalLength = -1;
@@ -76,18 +73,7 @@ public class GcodePreprocessorUtils {
      * Removes any comments within parentheses or beginning with a semi-colon.
      */
     static public String removeComment(String command) {
-        String newCommand = command;
-
-        // Remove any comments within ( parentheses ) using regex "\([^\(]*\)"
-        newCommand = COMMENT_PAREN.matcher(command).replaceAll(EMPTY);
-        newCommand = COMMENT_SEMICOLON.matcher(newCommand).replaceAll(EMPTY);
-
-        // Don't send these to the controller.
-        if (newCommand.endsWith("%")) {
-            newCommand = newCommand.substring(0, newCommand.length()-1);
-        }
-        
-        return newCommand.trim();
+        return COMMENT.matcher(command).replaceAll(EMPTY);
     }
     
     /**
@@ -154,15 +140,6 @@ public class GcodePreprocessorUtils {
         decimalLength = length;
     }
 
-
-    static public String removeAllWhitespace(String command) {
-        return WHITESPACE.matcher(command).replaceAll(EMPTY);
-    }
-
-    static public String removeM30(String command) {
-        return M30.matcher(command).replaceAll(EMPTY);
-    }
-    
     static public List<String> parseCodes(List<String> args, char code) {
         List<String> l = new ArrayList<>();
         char address = Character.toUpperCase(code);

@@ -63,27 +63,6 @@ public class GcodePreprocessorUtilsTest {
     }
 
     /**
-     * Test of removeComment method, of class GcodePreprocessorUtils.
-     */
-    @Test
-    public void testRemoveComment() {
-        System.out.println("removeComment");
-        String command;
-        String expResult;
-        String result;
-
-        command   = "some command ;comment";
-        expResult = "some command";
-        result = GcodePreprocessorUtils.removeComment(command);
-        assertEquals(expResult, result);
-
-        command   = "some (comment here) command ;comment";
-        expResult = "some  command";
-        result = GcodePreprocessorUtils.removeComment(command);
-        assertEquals(expResult, result);
-    }
-
-    /**
      * Test of parseComment method, of class GrblUtils.
      */
     @Test
@@ -155,29 +134,6 @@ public class GcodePreprocessorUtilsTest {
         command = "G1 X1.23456 Y9.87654 Z104.49443";
         expResult = "G1 X1.235 Y9.877 Z104.494";
         result = GcodePreprocessorUtils.truncateDecimals(length, command);
-        assertEquals(expResult, result);
-    }
-
-    /**
-     * Test of removeAllWhitespace method, of class GcodePreprocessorUtils.
-     */
-    @Test
-    public void testRemoveAllWhitespace() {
-        System.out.println("removeAllWhitespace");
-        String command;
-        String expResult;
-        String result;
-        
-        // Normal case.
-        command = "G1 X1.234 Y0.9994 Z123";
-        expResult = "G1X1.234Y0.9994Z123";
-        result = GcodePreprocessorUtils.removeAllWhitespace(command);
-        assertEquals(expResult, result);
-        
-        // Odd case (newlines, spaces, hard tabs).
-        command = "\nG1 \n    X1.234		Y0.9994   Z123     \n  ";
-        expResult = "G1X1.234Y0.9994Z123";
-        result = GcodePreprocessorUtils.removeAllWhitespace(command);
         assertEquals(expResult, result);
     }
     

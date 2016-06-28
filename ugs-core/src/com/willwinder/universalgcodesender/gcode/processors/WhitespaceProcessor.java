@@ -1,23 +1,32 @@
 /**
  * Removes all unnecessary whitespace.
  */
-package com.willwinder.universalgcodesender.gcode.processors;
+/*
+    Copywrite 2013-2016 Will Winder
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.GcodeState;
-import java.util.ArrayList;
-import java.util.List;
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.willwinder.universalgcodesender.gcode.processors;
 
 /**
  *
  * @author wwinder
  */
-public class WhitespaceProcessor implements ICommandProcessor {
-
-    @Override
-    public List<String> processCommand(String command, GcodeState state) {
-        ArrayList<String> result = new ArrayList<>();
-        result.add(GcodePreprocessorUtils.removeAllWhitespace(command));
-        return result;
+public class WhitespaceProcessor extends PatternRemover {
+    public WhitespaceProcessor() {
+        super("\\s");
     }
 }

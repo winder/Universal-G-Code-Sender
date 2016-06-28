@@ -1,9 +1,5 @@
 /**
- * Removes comments from the command. Comments are defined:
- * 
- * Any text surrounded by parenthesis "G0 (go to x1) X1" -> "G0 X1"
- * Any text following a semi-colon: "G0 X1 ; go to x1" -> "G0 X1"
- * Any percent symbols at the end of a line: "G0 X1%" -> "G0 X1"
+ * Removes a specified regex pattern from the command.
  */
 /*
     Copywrite 2016 Will Winder
@@ -26,13 +22,27 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.EMPTY;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author wwinder
  */
-public class CommentProcessor extends PatternRemover {
-    public CommentProcessor() {
-        super(GcodePreprocessorUtils.COMMENT.pattern());
+public class PatternRemover implements ICommandProcessor {
+    final private Pattern p;
+
+    public PatternRemover(String regexPattern) {
+        p = Pattern.compile(regexPattern);
+    }
+    
+    @Override
+    public List<String> processCommand(String command, GcodeState state) {
+        List<String> ret = new ArrayList<>();
+        ret.add(p.matcher(command).replaceAll(""));
+        return ret;
     }
 }
