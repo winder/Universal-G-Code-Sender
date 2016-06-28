@@ -25,7 +25,9 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
@@ -310,6 +312,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         gcp.addCommandProcessor(new M30Processor());
 
         gcp.addCommandProcessor(new CommandLengthProcessor(50));
+
+        if (settings.isConvertArcsToLines()) {
+            gcp.addCommandProcessor(new CommandSplitter());
+            gcp.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength(), settings.getTruncateDecimalLength()));
+        }
     }
 
     @Override

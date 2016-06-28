@@ -113,9 +113,8 @@ public class ConnectionSettingsDialog extends JDialog {
                 .append(Localization.getString("sender.help.status")).append("\n\n")
                 .append(Localization.getString("sender.help.status.rate")).append("\n\n")
                 .append(Localization.getString("sender.help.state")).append("\n\n")
-                //.append(Localization.getString("sender.help.arcs")).append("\n\n")
-                //.append(Localization.getString("sender.help.arcs.threshold")).append("\n\n")
-                //.append(Localization.getString("sender.help.arcs.length"))
+                .append(Localization.getString("sender.help.arcs")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs.length"))
                 .append(Localization.getString("sender.help.autoconnect"))
                 .append(Localization.getString("sender.help.autoreconnect"));
                 
