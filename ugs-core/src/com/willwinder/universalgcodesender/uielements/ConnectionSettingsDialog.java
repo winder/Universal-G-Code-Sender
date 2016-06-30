@@ -22,7 +22,9 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.Frame;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -46,6 +48,12 @@ public class ConnectionSettingsDialog extends JDialog {
     public ConnectionSettingsDialog(Settings settings, Frame parent, boolean modal) {
         super(parent, modal);
         this.settings = settings;
+
+        // Register callbacks
+        restore.addActionListener(this::restoreDefaultSettings);
+        closeWithSave.addActionListener(this::closeWithSaveActionPerformed);
+        closeWithoutSave.addActionListener(this::closeWithoutSaveActionPerformed);
+        helpButton.addActionListener(this::helpButtonActionPerformed);
         
         initComponents();
         setLocationRelativeTo(parent);
@@ -62,6 +70,7 @@ public class ConnectionSettingsDialog extends JDialog {
     }
 
     final JLabel titleLabel = new JLabel(Localization.getString("sender.header"));
+    final JButton restore = new JButton(Localization.getString("restore"));
     final JButton closeWithSave = new JButton(Localization.getString("save.close"));
     final JButton closeWithoutSave = new JButton(Localization.getString("close"));
     final JButton helpButton = new JButton(Localization.getString("help"));
@@ -76,15 +85,11 @@ public class ConnectionSettingsDialog extends JDialog {
 
         titleLabel.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
 
-        // Register callbacks
-        closeWithSave.addActionListener(this::closeWithSaveActionPerformed);
-        closeWithoutSave.addActionListener(this::closeWithoutSaveActionPerformed);
-        helpButton.addActionListener(this::helpButtonActionPerformed);
-
-        setLayout(new MigLayout());
-        add(titleLabel, "wrap");
-        add(scrollPane, "wrap, span 3");
+        setLayout(new MigLayout("fillx"));
+        add(titleLabel, "wrap, span 4");
+        add(scrollPane, "wrap, span 4, growx");
         add(helpButton);
+        add(restore);
         add(closeWithoutSave);
         add(closeWithSave);
 
@@ -94,6 +99,10 @@ public class ConnectionSettingsDialog extends JDialog {
     private void closeWithoutSaveActionPerformed(java.awt.event.ActionEvent evt) {
         this.saveChanges = false;
         setVisible(false);
+    }
+
+    private void restoreDefaultSettings(java.awt.event.ActionEvent evt) {
+        settingsPanel.initComponents(new Settings());
     }
 
     private void closeWithSaveActionPerformed(java.awt.event.ActionEvent evt) {

@@ -66,7 +66,6 @@ public class ConnectionSettingsPanel extends JPanel {
         this.changer = changer;
         this.settings = settings;
         initComponents();
-        initActions();
         change();
     }
     public ConnectionSettingsPanel(Settings settings) {
@@ -122,82 +121,91 @@ public class ConnectionSettingsPanel extends JPanel {
     }
 
     private void initComponents() {
+        initComponents(settings);
+    }
+
+    public void initComponents(Settings s) {
+        components.clear();
+        this.removeAll();
+
         setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
 
         overrideSpeedEnabled = new Checkbox(
                 Localization.getString("sender.speed.override"),
-                settings.isOverrideSpeedSelected());
+                s.isOverrideSpeedSelected());
         add(overrideSpeedEnabled);
 
         overrideSpeedPercent = new Spinner(
                 Localization.getString("sender.speed.percent"),
-                new SpinnerNumberModel((int)settings.getOverrideSpeedValue(), 1, null, 1));
+                new SpinnerNumberModel((int)s.getOverrideSpeedValue(), 1, null, 1));
         add(overrideSpeedPercent);
 
         maxCommandLength = new Spinner(
                 Localization.getString("sender.command.length"),
-                new SpinnerNumberModel((int)settings.getMaxCommandLength(), 1, null, 1));
+                new SpinnerNumberModel((int)s.getMaxCommandLength(), 1, null, 1));
         add(maxCommandLength);
 
         truncateDecimalDigits = new Spinner(
                 Localization.getString("sender.truncate"),
-                new SpinnerNumberModel((int)settings.getTruncateDecimalLength(), 1, null, 1));
+                new SpinnerNumberModel((int)s.getTruncateDecimalLength(), 1, null, 1));
         add(truncateDecimalDigits);
 
         singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"),
-                settings.isSingleStepMode());
+                s.isSingleStepMode());
         add(singleStepMode);
 
         removeAllWhitespace = new Checkbox(
                 Localization.getString("sender.whitespace"),
-                settings.isRemoveAllWhitespace());
+                s.isRemoveAllWhitespace());
         add(removeAllWhitespace);
 
         statusPollingEnabled = new Checkbox(
                 Localization.getString("sender.status"),
-                settings.isStatusUpdatesEnabled());
+                s.isStatusUpdatesEnabled());
         add(statusPollingEnabled);
 
         statusPollRate = new Spinner(
                 Localization.getString("sender.status.rate"),
-                new SpinnerNumberModel((int)settings.getStatusUpdateRate(), 1, null, 100));
+                new SpinnerNumberModel((int)s.getStatusUpdateRate(), 1, null, 100));
         add(statusPollRate);
 
         stateColorDisplayEnabled = new Checkbox(
                 Localization.getString("sender.state"),
-                settings.isDisplayStateColor());
+                s.isDisplayStateColor());
         add(stateColorDisplayEnabled);
 
         convertArcsToLines = new Checkbox(
                 Localization.getString("sender.arcs"),
-                settings.isConvertArcsToLines());
+                s.isConvertArcsToLines());
         add(convertArcsToLines);
 
         smallArcLength = new Spinner(
                 Localization.getString("sender.arcs.length"),
-                new SpinnerNumberModel(settings.getSmallArcSegmentLength(), 1., null, .1));
+                new SpinnerNumberModel(s.getSmallArcSegmentLength(), 1., null, .1));
         add(smallArcLength);
 
         autoConnect = new Checkbox(
                 Localization.getString("sender.autoconnect"),
-                settings.isAutoConnectEnabled());
+                s.isAutoConnectEnabled());
         add(autoConnect);
 
         autoReconnect = new Checkbox(
                 Localization.getString("sender.autoreconnect"),
-                settings.isAutoReconnect());
+                s.isAutoReconnect());
         add(autoReconnect);
 
         languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = (Language)languageCombo.getItemAt(i);
-            if (l.getLanguageCode().equals(settings.getLanguage())) {
+            if (l.getLanguageCode().equals(s.getLanguage())) {
                 languageCombo.setSelectedIndex(i);
                 break;
             }
         }
         add(languageCombo);
+
+        initActions();
     }
 
     /**
