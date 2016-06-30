@@ -60,6 +60,16 @@ public class CommandProcessorLoaderTest {
             threwException = true;
         }
         assertTrue(threwException);
+
+        array = new JsonArray();
+        array.add(with("DoesNotExist", true));
+        threwException = false;
+        try {
+            GcodeParser result = CommandProcessorLoader.initializeWithProcessors(gcp, array.toString(), new Settings());
+        } catch (IllegalArgumentException e) {
+            threwException = true;
+        }
+        assertTrue(threwException);
     }
 
     @Test
@@ -104,7 +114,6 @@ public class CommandProcessorLoaderTest {
 
         object = new JsonObject();
         object.addProperty("name", "CommandSplitter");
-        object.add("args", null);
         array.add(object);
 
         object = new JsonObject();

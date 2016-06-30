@@ -126,8 +126,8 @@ public class CommandProcessorLoader {
                 default:
                     throw new IllegalArgumentException("Unknown processor: " + name);
             }
-            if (p != null)
-                gcp.addCommandProcessor(p);
+
+            gcp.addCommandProcessor(p);
         }
 
         return gcp;
@@ -223,8 +223,8 @@ public class CommandProcessorLoader {
                 default:
                     throw new IllegalArgumentException("Unknown processor: " + name);
             }
-            if (p != null)
-                gcp.addCommandProcessor(p);
+
+            gcp.addCommandProcessor(p);
         }
 
         return gcp;
