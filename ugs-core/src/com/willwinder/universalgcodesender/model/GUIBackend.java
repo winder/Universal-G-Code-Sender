@@ -307,7 +307,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
         gcp.addCommandProcessor(new CommentProcessor());
 
-        gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
 
         gcp.addCommandProcessor(new M30Processor());
 
@@ -315,8 +314,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
         if (settings.isConvertArcsToLines()) {
             gcp.addCommandProcessor(new CommandSplitter());
-            gcp.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength(), settings.getTruncateDecimalLength()));
+            gcp.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength()));
         }
+
+        gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
     }
 
     @Override

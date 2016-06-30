@@ -28,11 +28,9 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.PointSegment;
-import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,18 +48,13 @@ public class ArcExpander implements ICommandProcessor {
     /**
      * @param convertToLines toggles if smaller lines or arcs are returned.
      * @param length the length of each smaller segment.
-     * @param decimalPlaces max number of digits past the decimal point.
      */
-    public ArcExpander(boolean convertToLines, double length, int decimalPlaces) {
+    public ArcExpander(boolean convertToLines, double length) {
         this.convertToLines = convertToLines;
         this.length = length;
 
-        // Setup decimal formatter.
-        StringBuilder sb = new StringBuilder("#.");
-        for (int index = 0; index < decimalPlaces; index++) {
-            sb.append("#");
-        }
-        df = new DecimalFormat(sb.toString());
+        // Setup decimal formatter
+        df = new DecimalFormat("#.#########");
     }
 
     @Override
