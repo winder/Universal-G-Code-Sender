@@ -159,10 +159,15 @@ public class SettingsFactory {
 
         }
 
-        // Move json file from old location to new location.
+        // Move old json file from old location to new location.
         else if (oldJsonFile.exists()) {
             try {
-                FileUtils.moveFile(oldJsonFile, getSettingsFile());
+                // If the new file doesn't exist, move the old one.
+                if (!getSettingsFile().exists()) {
+                    FileUtils.moveFile(oldJsonFile, getSettingsFile());
+                }
+                // Delete the old settings file if it exists.
+                oldJsonFile.delete();
             } catch (IOException ex) {
                 Logger.getLogger(SettingsFactory.class.getName()).log(Level.SEVERE, null, ex);
             }
