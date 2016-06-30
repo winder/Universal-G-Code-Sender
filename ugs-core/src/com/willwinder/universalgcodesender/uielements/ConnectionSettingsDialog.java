@@ -23,6 +23,7 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.Frame;
@@ -102,7 +103,11 @@ public class ConnectionSettingsDialog extends JDialog {
     }
 
     private void restoreDefaultSettings(java.awt.event.ActionEvent evt) {
-        FirmwareUtils.restoreDefaults();
+        try {
+            FirmwareUtils.restoreDefaults();
+        } catch (Exception e) {
+            GUIHelpers.displayErrorDialog("An error occurred while trying to restore defailts: " + e.getLocalizedMessage());
+        }
         settingsPanel.initComponents(new Settings());
     }
 

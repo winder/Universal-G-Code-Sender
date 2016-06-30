@@ -29,13 +29,25 @@ import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
 import com.willwinder.universalgcodesender.LoopBackCommunicator;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 /**
  *
  * @author wwinder
  */
 public class FirmwareUtils {
+    private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
+    final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
+
     final public static String GRBL     = "GRBL";
     final public static String Smoothie = "SmoothieBoard";
     final public static String TinyG    = "TinyG";
@@ -43,7 +55,10 @@ public class FirmwareUtils {
     final public static String LOOPBACK = "Loopback";
     final public static String LOOPBACK2= "Loopback_Slow";
     
-   
+    static {
+        initializeFiles();
+    }
+    
     public static ArrayList<String> getFirmwareList() {
         ArrayList<String> ret = new ArrayList<>();
         ret.add(GRBL);
@@ -75,5 +90,52 @@ public class FirmwareUtils {
         }
         
         return null;
+    }
+
+    /**
+     * Deletes firmware_config files from the machine then recreates them.
+     */
+    public static void restoreDefaults() throws IOException {
+        File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
+                FIRMWARE_CONFIG_DIRNAME);
+
+        // Delete firmware config directory so it can be re-initialized.
+        FileUtils.deleteDirectory(firmwareConfig);
+
+        initializeFiles();
+    }
+
+    /**
+     * Copy any missing files from the the jar's resources/firmware_config/ dir
+     * into the settings/firmware_config dir.
+     */
+    public static void initializeFiles() {
+        File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
+                FIRMWARE_CONFIG_DIRNAME);
+
+        // Create directory if it's missing.
+        if (!firmwareConfig.exists()) {
+            firmwareConfig.mkdirs();
+        }
+
+        try {
+            // Loop through config files.
+            String dir = "resources/firmware_config/";
+            List<String> files = IOUtils.readLines(FirmwareUtils.
+                    class.getClassLoader()
+                    .getResourceAsStream(dir), Charsets.UTF_8);
+
+            // Create any files which don't exist.
+            for (String file : files) {
+                File fwConfig = new File(firmwareConfig, file);
+                if (!fwConfig.exists()) {
+                    InputStream is = FirmwareUtils.class.getClassLoader().
+                            getResourceAsStream(dir + file);
+                    FileUtils.copyInputStreamToFile(is, new File(firmwareConfig, file));
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }
