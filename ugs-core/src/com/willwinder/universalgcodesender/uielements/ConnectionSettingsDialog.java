@@ -102,6 +102,7 @@ public class ConnectionSettingsDialog extends JDialog {
     }
 
     private void restoreDefaultSettings(java.awt.event.ActionEvent evt) {
+        FirmwareUtils.restoreDefaults();
         settingsPanel.initComponents(new Settings());
     }
 
@@ -123,9 +124,10 @@ public class ConnectionSettingsDialog extends JDialog {
                 .append(Localization.getString("sender.help.status.rate")).append("\n\n")
                 .append(Localization.getString("sender.help.state")).append("\n\n")
                 .append(Localization.getString("sender.help.arcs")).append("\n\n")
-                .append(Localization.getString("sender.help.arcs.length"))
+                .append(Localization.getString("sender.help.arcs.length")).append("\n\n")
                 .append(Localization.getString("sender.help.autoconnect"))
-                .append(Localization.getString("sender.help.autoreconnect"));
+                //.append(Localization.getString("sender.help.autoreconnect"))
+                ;
                 
         
         JOptionPane.showMessageDialog(new JFrame(), 
