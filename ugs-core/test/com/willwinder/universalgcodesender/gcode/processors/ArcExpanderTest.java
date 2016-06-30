@@ -42,7 +42,7 @@ public class ArcExpanderTest {
         System.out.println("arcExpandBadState");
 
         GcodeState state = new GcodeState();
-        ArcExpander instance = new ArcExpander(true, 1, 1);
+        ArcExpander instance = new ArcExpander(true, 1);
         boolean threwException = false;
         try {
             List<String> result = instance.processCommand("G02 X5 Y0 R12", state);
@@ -59,7 +59,7 @@ public class ArcExpanderTest {
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0,0,0);
         state.plane = XY;
-        ArcExpander instance = new ArcExpander(true, 1, 1);
+        ArcExpander instance = new ArcExpander(true, 1);
         boolean threwException = false;
         try {
             List<String> result = instance.processCommand("G17 G02 X5 Y0 R12", state);
@@ -76,7 +76,7 @@ public class ArcExpanderTest {
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0,0,0);
         state.plane = XY;
-        ArcExpander instance = new ArcExpander(true, 1, 1);
+        ArcExpander instance = new ArcExpander(true, 1);
         boolean threwException = false;
         String command = "G17 G0 X12";
         List<String> result = instance.processCommand(command, state);
@@ -95,7 +95,7 @@ public class ArcExpanderTest {
         // Using a unit circle, so I can verify a^2 + b^2 = 1. //
         /////////////////////////////////////////////////////////
         for (double segmentLength = 0.1; segmentLength < 1; segmentLength+=0.1) {
-            ArcExpander instance = new ArcExpander(true, segmentLength, 4);
+            ArcExpander instance = new ArcExpander(true, segmentLength);
 
             // Half circle clockwise, X-1 -> X1, Y0 -> Y1 -> Y0
             String command = "G2 Y0 X1 R1";
@@ -122,7 +122,7 @@ public class ArcExpanderTest {
         // Using a unit circle, so I can verify a^2 + b^2 = 1. //
         /////////////////////////////////////////////////////////
         for (double segmentLength = 0.1; segmentLength < 1; segmentLength+=0.1) {
-            ArcExpander instance = new ArcExpander(true, segmentLength, 4);
+            ArcExpander instance = new ArcExpander(true, segmentLength);
 
             // Half circle clockwise, Z-1 -> Z1, X0 -> X1 -> X0
             String command = "G2 Z1 X0 R1";
@@ -149,7 +149,7 @@ public class ArcExpanderTest {
         // Using a unit circle, so I can verify a^2 + b^2 = 1. //
         /////////////////////////////////////////////////////////
         for (double segmentLength = 0.1; segmentLength < 1; segmentLength+=0.1) {
-            ArcExpander instance = new ArcExpander(true, segmentLength, 4);
+            ArcExpander instance = new ArcExpander(true, segmentLength);
 
             // Half circle clockwise, Y-1 -> Y1, X0 -> X1 -> X0
             String command = "G2 Y1 X0 R1";
