@@ -55,7 +55,7 @@ public class CommandProcessorLoaderTest {
 
         boolean threwException = false;
         try {
-            GcodeParser result = CommandProcessorLoader.initializeWithProcessors(gcp, array.toString());
+            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
         } catch (IllegalArgumentException e) {
             threwException = true;
         }
@@ -65,7 +65,7 @@ public class CommandProcessorLoaderTest {
         array.add(with("DoesNotExist", true));
         threwException = false;
         try {
-            GcodeParser result = CommandProcessorLoader.initializeWithProcessors(gcp, array.toString(), new Settings());
+            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString(), new Settings());
         } catch (IllegalArgumentException e) {
             threwException = true;
         }
@@ -88,7 +88,7 @@ public class CommandProcessorLoaderTest {
 
         boolean threwException = false;
         try {
-            GcodeParser result = CommandProcessorLoader.initializeWithProcessors(gcp, array.toString());
+            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
         } catch (IllegalArgumentException e) {
             threwException = true;
         }
@@ -160,9 +160,8 @@ public class CommandProcessorLoaderTest {
         array.add(object);
 
         String jsonConfig = array.toString();
-        GcodeParser result = CommandProcessorLoader.initializeWithProcessors(new GcodeParser(), jsonConfig);
+        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
 
-        List<ICommandProcessor> processors = getProcessorsFromParser(result);
         assertEquals(9, processors.size());
         assertEquals(ArcExpander.class, processors.get(0).getClass());
         assertEquals(CommandSplitter.class, processors.get(1).getClass());
@@ -202,9 +201,8 @@ public class CommandProcessorLoaderTest {
 
         String jsonConfig = object.toString();
 
-        GcodeParser result = CommandProcessorLoader.initializeWithProcessors(new GcodeParser(), jsonConfig, new Settings());
+        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig, new Settings());
 
-        List<ICommandProcessor> processors = getProcessorsFromParser(result);
         assertEquals(9, processors.size());
         assertEquals(ArcExpander.class, processors.get(0).getClass());
         assertEquals(ArcExpander.class, processors.get(1).getClass());

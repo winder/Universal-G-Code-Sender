@@ -34,6 +34,8 @@ import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.utils.Settings;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 /**
@@ -74,7 +76,8 @@ public class CommandProcessorLoader {
      *     }
      *  ]
      */
-    static GcodeParser initializeWithProcessors(GcodeParser gcp, String jsonConfig, Settings settings) {
+    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
+        List<ICommandProcessor> list = new ArrayList<>();
         JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
         for (JsonElement entry : json) {
             ICommandProcessor p = null;
@@ -127,10 +130,10 @@ public class CommandProcessorLoader {
                     throw new IllegalArgumentException("Unknown processor: " + name);
             }
 
-            gcp.addCommandProcessor(p);
+            list.add(p);
         }
 
-        return gcp;
+        return list;
     }
 
     /**
@@ -177,7 +180,8 @@ public class CommandProcessorLoader {
      *     }
      *  ]
      */
-    static GcodeParser initializeWithProcessors(GcodeParser gcp, String jsonConfig) {
+    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig) {
+        List<ICommandProcessor> list = new ArrayList<>();
         JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
         for (JsonElement entry : json) {
             ICommandProcessor p = null;
@@ -224,9 +228,9 @@ public class CommandProcessorLoader {
                     throw new IllegalArgumentException("Unknown processor: " + name);
             }
 
-            gcp.addCommandProcessor(p);
+            list.add(p);
         }
 
-        return gcp;
+        return list;
     }
 }
