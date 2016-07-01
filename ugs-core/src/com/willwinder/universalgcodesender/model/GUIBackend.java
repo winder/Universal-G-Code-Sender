@@ -307,10 +307,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
         gcp.addCommandProcessor(new CommentProcessor());
 
-
         gcp.addCommandProcessor(new M30Processor());
-
-        gcp.addCommandProcessor(new CommandLengthProcessor(50));
 
         if (settings.isConvertArcsToLines()) {
             gcp.addCommandProcessor(new CommandSplitter());
@@ -318,6 +315,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
 
         gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+
+        gcp.addCommandProcessor(new CommandLengthProcessor(50));
     }
 
     @Override
