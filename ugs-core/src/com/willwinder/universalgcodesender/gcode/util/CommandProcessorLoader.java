@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
@@ -36,7 +35,6 @@ import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 /**
  *
@@ -51,28 +49,36 @@ public class CommandProcessorLoader {
      * [
      *     {
      *         "name":"ArcExpander",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "CommandLenghtProcessor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "CommandSplitter",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "CommentProcessor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "DecimalProcessor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "FeedOverrideProcessor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         "name": "M30Processor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     },{
      *         name: "WhitespaceProcessor",
-     *         "enabled": <enabled>
+     *         "enabled": <enabled>,
+     *         "optional": <optional>
      *     }
      *  ]
      */
@@ -83,8 +89,20 @@ public class CommandProcessorLoader {
             ICommandProcessor p = null;
 
             JsonObject object = entry.getAsJsonObject();
+
+            boolean optional = true;
+            boolean enabled = true;
+
+            if (object.has("optional")) {
+                optional = object.get("optional").getAsBoolean();
+            }
+
+            if (object.has("enabled")) {
+                enabled = object.get("enabled").getAsBoolean();
+            }
+
             // Check if the processor is enabled.
-            if (!object.get("enabled").getAsBoolean()) {
+            if (optional && !enabled) {
                 continue;
             }
 

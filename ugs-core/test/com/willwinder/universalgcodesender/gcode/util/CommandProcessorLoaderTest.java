@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.lang.reflect.Field;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -34,11 +33,6 @@ import static org.junit.Assert.*;
  * @author wwinder
  */
 public class CommandProcessorLoaderTest {
-    private List<ICommandProcessor> getProcessorsFromParser(GcodeParser parser) throws Exception {
-        Field f = GcodeParser.class.getDeclaredField("processors");
-        f.setAccessible(true);
-        return (List<ICommandProcessor>) f.get(parser);
-    }
 
     @Test
     public void testInvalidProcessors() throws Exception {
@@ -181,6 +175,14 @@ public class CommandProcessorLoaderTest {
         return object;
     }
 
+    private static JsonElement with(String name, Boolean enabled, Boolean optional) {
+        JsonObject object = new JsonObject();
+        object.addProperty("name", name);
+        object.addProperty("enabled", enabled);
+        object.addProperty("optional", optional);
+        return object;
+    }
+
     @Test
     public void testAllProcessorsSettingConfig() throws Exception {
         System.out.println("initializeWithProcessorsSettingConfig");
@@ -213,5 +215,69 @@ public class CommandProcessorLoaderTest {
         assertEquals(M30Processor.class, processors.get(6).getClass());
         assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
         assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
+    }
+
+    @Test
+    public void testAllProcessorsSettingConfigOptionals() throws Exception {
+        System.out.println("initializeWithProcessorsSettingConfigOptionals");
+
+        JsonArray object = new JsonArray();
+
+        object.add(with("ArcExpander", true, true));
+        object.add(with("ArcExpander", true, true));
+        object.add(with("ArcExpander", false, false));
+        object.add(with("CommandSplitter", false, true));
+        object.add(with("CommentProcessor", false, false));
+        object.add(with("DecimalProcessor", true, false));
+        object.add(with("FeedOverrideProcessor", true, false));
+        object.add(with("M30Processor", true));
+        object.add(with("CommandLengthProcessor", true));
+        JsonObject o = with("WhitespaceProcessor", true).getAsJsonObject();
+        o.remove("enabled");
+        object.add(o);
+
+        String jsonConfig = object.toString();
+
+        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig, new Settings());
+
+        assertEquals(9, processors.size());
+        assertEquals(ArcExpander.class, processors.get(0).getClass());
+        assertEquals(ArcExpander.class, processors.get(1).getClass());
+        assertEquals(ArcExpander.class, processors.get(1).getClass());
+        assertEquals(CommentProcessor.class, processors.get(3).getClass());
+        assertEquals(DecimalProcessor.class, processors.get(4).getClass());
+        assertEquals(FeedOverrideProcessor.class, processors.get(5).getClass());
+        assertEquals(M30Processor.class, processors.get(6).getClass());
+        assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
+        assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
+    }
+
+    /**
+     * Test of initializeWithProcessors method, of class CommandProcessorLoader.
+     */
+    @Test
+    public void testInitializeWithProcessors_String_Settings() {
+        System.out.println("initializeWithProcessors");
+        String jsonConfig = "";
+        Settings settings = null;
+        List<ICommandProcessor> expResult = null;
+        List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(jsonConfig, settings);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of initializeWithProcessors method, of class CommandProcessorLoader.
+     */
+    @Test
+    public void testInitializeWithProcessors_String() {
+        System.out.println("initializeWithProcessors");
+        String jsonConfig = "";
+        List<ICommandProcessor> expResult = null;
+        List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 }

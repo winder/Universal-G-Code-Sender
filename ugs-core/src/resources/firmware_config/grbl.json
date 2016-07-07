@@ -1,0 +1,50 @@
+{
+    "Name": "GRBL",
+    "Controller": {
+        "name": "GRBL",
+        "args": null
+    },
+    "GcodeParser": {
+        "Front": [
+            {
+                "name": "CommentProcessor",
+                "enabled": true,
+                "optional": false
+            },{
+                "name": "FeedOverrideProcessor",
+                "enabled": false,
+                "optional": true
+            },{
+                "name": "M30Processor",
+                "enabled": true,
+                "optional": false
+            },{
+                "name": "CommandSplitter",
+                "enabled": true,
+                "optional": false
+            },{
+                "ArcExpander":false,
+                "enabled": false,
+                "optional": true
+            }
+        ],
+        "Custom": [
+
+        ],
+        "End": [
+            {
+                "name": "DecimalProcessor",
+                "enabled": true,
+                "optional": true
+            },{
+                "name": "CommandLengthProcessor",
+                "enabled": true,
+                "optional": true
+            },{
+                "name": "WhitespaceProcessor",
+                "enabled": true,
+                "optional": true
+            }
+        ]
+    }
+}
