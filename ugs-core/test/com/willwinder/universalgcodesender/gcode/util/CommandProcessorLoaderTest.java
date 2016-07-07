@@ -251,33 +251,4 @@ public class CommandProcessorLoaderTest {
         assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
         assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
     }
-
-    /**
-     * Test of initializeWithProcessors method, of class CommandProcessorLoader.
-     */
-    @Test
-    public void testInitializeWithProcessors_String_Settings() {
-        System.out.println("initializeWithProcessors");
-        String jsonConfig = "";
-        Settings settings = null;
-        List<ICommandProcessor> expResult = null;
-        List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(jsonConfig, settings);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of initializeWithProcessors method, of class CommandProcessorLoader.
-     */
-    @Test
-    public void testInitializeWithProcessors_String() {
-        System.out.println("initializeWithProcessors");
-        String jsonConfig = "";
-        List<ICommandProcessor> expResult = null;
-        List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
 }
