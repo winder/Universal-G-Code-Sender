@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,19 +42,6 @@ import java.util.List;
  * @author wwinder
  */
 public class CommandProcessorLoader {
-    public static class ProcessorConfig {
-        public String name;
-        public Boolean enabled;
-        public Boolean optional;
-        public JsonObject args;
-        public ProcessorConfig(String name, Boolean enabled, Boolean optional, JsonObject args) {
-            this.name = name;
-            this.enabled = enabled;
-            this.optional = optional;
-            this.args = args;
-        }
-    }
-
     /**
      * Add any ICommandProcessors specified in a JSON string. Processors are
      * initialized using the application settings if they are enabled.
@@ -103,7 +91,7 @@ public class CommandProcessorLoader {
      *     }
      *  ]
      */
-    static public List<ProcessorConfig> getConfigFrom(String jsonConfig) {
+    static private List<ProcessorConfig> getConfigFrom(String jsonConfig) {
         List<ProcessorConfig> list = new ArrayList<>();
         JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
         for (JsonElement entry : json) {
@@ -138,9 +126,12 @@ public class CommandProcessorLoader {
      * provided settings instead.
      */
     static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
+        return initializeWithProcessors(getConfigFrom(jsonConfig), settings);
+    }
+
+    static public List<ICommandProcessor> initializeWithProcessors(List<ProcessorConfig> config, Settings settings) {
         List<ICommandProcessor> list = new ArrayList<>();
-        JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
-        for (ProcessorConfig pc : getConfigFrom(jsonConfig)) {
+        for (ProcessorConfig pc : config) {
             ICommandProcessor p = null;
 
             // Check if the processor is enabled.
@@ -248,9 +239,12 @@ public class CommandProcessorLoader {
      *  ]
      */
     static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig) {
+        return initializeWithProcessors(getConfigFrom(jsonConfig));
+    }
+
+    static public List<ICommandProcessor> initializeWithProcessors(List<ProcessorConfig> config) {
         List<ICommandProcessor> list = new ArrayList<>();
-        JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
-        for (ProcessorConfig pc : getConfigFrom(jsonConfig)) {
+        for (ProcessorConfig pc : config) {
             ICommandProcessor p = null;
 
             // Check if the processor is enabled.

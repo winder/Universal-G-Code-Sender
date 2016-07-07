@@ -65,9 +65,9 @@ public class FirmwareUtils {
      * file it was generated from.
      */
     private static class ConfigTuple {
-        public ControllerConfig loader;
+        public ControllerSettings loader;
         public File file;
-        public ConfigTuple(ControllerConfig l, File f) {
+        public ConfigTuple(ControllerSettings l, File f) {
             this.loader = l;
             this.file = f;
         }
@@ -171,7 +171,7 @@ public class FirmwareUtils {
         configFiles = new HashMap<>();
         for (File f : firmwareConfig.listFiles()) {
             try {
-                ControllerConfig config = new Gson().fromJson(new FileReader(f), ControllerConfig.class);
+                ControllerSettings config = new Gson().fromJson(new FileReader(f), ControllerSettings.class);
                 //ConfigLoader config = new ConfigLoader(f);
                 configFiles.put(config.getName(), new ConfigTuple(config, f));
             } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {

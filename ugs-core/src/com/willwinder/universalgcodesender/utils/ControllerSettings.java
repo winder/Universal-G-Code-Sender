@@ -19,17 +19,23 @@ import java.util.List;
  *
  * @author wwinder
  */
-public class ControllerConfig {
+public class ControllerSettings {
     private class ControllerConfig {
         public String name;
         public JsonElement args;
     }
     
-    public class ProcessorConfig {
+    static public class ProcessorConfig {
         public String name;
         public Boolean enabled = true;
         public Boolean optional = true;
         public JsonObject args = null;
+        public ProcessorConfig(String name, Boolean enabled, Boolean optional, JsonObject args) {
+            this.name = name;
+            this.enabled = enabled;
+            this.optional = optional;
+            this.args = args;
+        }
     }
 
     public class ProcessorGroups {
@@ -40,7 +46,7 @@ public class ControllerConfig {
 
 
     String Name;
-    ControllerConfig Controller;
+    ControllerSettings Controller;
     ProcessorGroups GcodeProcessors;
 
     public enum CONTROLLER {
@@ -66,19 +72,6 @@ public class ControllerConfig {
         }
     }
 
-    /*
-    ConfigLoader2(File configFile) throws FileNotFoundException {
-        this.configFile = configFile;
-
-        BufferedReader br = new BufferedReader(new FileReader(configFile));
-        JsonObject object = new JsonParser().parse(br).getAsJsonObject();
-        this.name = object.get("Name").getAsString();
-
-        controllerConfig = object.get("Controller").getAsJsonObject();
-        commandProcessorConfig = object.get("GcodeParser").getAsJsonObject();
-    }
-    */
-
     public String getName() {
         return Name;
     }
@@ -93,7 +86,7 @@ public class ControllerConfig {
      */
     public AbstractController getController() {
         //String controllerName = controllerConfig.get("name").getAsString();
-        String controllerName = this.Controller.name;
+        String controllerName = this.Controller.Name;
         CONTROLLER controller = CONTROLLER.fromString(controllerName);
         switch (controller) {
             case GRBL:
