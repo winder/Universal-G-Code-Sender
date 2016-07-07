@@ -4,7 +4,7 @@
         "name": "Loopback_Slow",
         "args": null
     },
-    "GcodeParser": {
+    "GcodeProcessors": {
         "Front": [
             {
                 "name": "CommentProcessor",

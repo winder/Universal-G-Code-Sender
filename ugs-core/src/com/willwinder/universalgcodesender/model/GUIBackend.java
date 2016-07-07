@@ -175,7 +175,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         lastConnectAttempt = System.currentTimeMillis();
 
-        this.controller = FirmwareUtils.getControllerFor(firmware);
+        //this.controller = FirmwareUtils.getControllerFor(firmware);
+        Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
+        if (!c.isPresent()) {
+            throw new Exception("Unable to create handler for: " + firmware);
+        }
+        this.controller = c.get();
         applySettingsToController(settings, this.controller);
 
         this.controller.addListener(this);

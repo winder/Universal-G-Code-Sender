@@ -24,16 +24,28 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
 import com.willwinder.universalgcodesender.LoopBackCommunicator;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.Charsets;
@@ -48,48 +60,66 @@ public class FirmwareUtils {
     private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
 
-    final public static String GRBL     = "GRBL";
-    final public static String Smoothie = "SmoothieBoard";
-    final public static String TinyG    = "TinyG";
-    final public static String XLCD     = "XLCD";
-    final public static String LOOPBACK = "Loopback";
-    final public static String LOOPBACK2= "Loopback_Slow";
-    
+    /**
+     * Need a simple way to map the config loader (JSON in POJO format) to the
+     * file it was generated from.
+     */
+    private static class ConfigTuple {
+        public ControllerConfig loader;
+        public File file;
+        public ConfigTuple(ControllerConfig l, File f) {
+            this.loader = l;
+            this.file = f;
+        }
+    }
+
+    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
+
     static {
-        initializeFiles();
+        initialize();
     }
     
     public static ArrayList<String> getFirmwareList() {
         ArrayList<String> ret = new ArrayList<>();
-        ret.add(GRBL);
-        //ret.add(Smoothie);
-        ret.add(TinyG);
-        ret.add(XLCD);
-        ret.add(LOOPBACK);
-        ret.add(LOOPBACK2);
-        
+        for (String fw : configFiles.keySet()) {
+            ret.add(fw);
+        }
         return ret;
     }
     
-    public static AbstractController getControllerFor(String firmware) {
-        switch(firmware) {
-            case GRBL:
-                return new GrblController();
-            case Smoothie:
-                return null;
-            case TinyG:
-                return new TinyGController();
-            case XLCD:
-                return new GrblController(new XLCDCommunicator());
-            case LOOPBACK:
-                return new GrblController(new LoopBackCommunicator());
-            case LOOPBACK2:
-                return new GrblController(new LoopBackCommunicator(10));
-            default:
-                break;
+    /**
+     * Gets a list of command processors initialized with user settings.
+     */
+    public static Optional<List<ICommandProcessor>> getParserFor(String firmware, Settings settings) {
+        if (!configFiles.containsKey(firmware)) {
+            return Optional.empty();
         }
-        
-        return null;
+        return Optional.of(configFiles.get(firmware).loader.getProcessors(settings));
+    }
+
+    /**
+     * Gets a new controller object from a firmware config.
+     * @param firmware
+     * @return 
+     */
+    public static Optional<AbstractController> getControllerFor(String firmware) {
+        if (!configFiles.containsKey(firmware)) {
+            return Optional.empty();
+        }
+
+        /*
+        ConfigLoader config = new Gson().fromJson(new FileReader(configFiles.get(firmware).configFile), ConfigLoader.class);
+        File f = configFiles.get(firmware).configFile;
+        File next = new File(f.getParent(), f.getName() + ".out");
+        try (FileWriter fileWriter = new FileWriter(next)) {
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+             fileWriter.write(gson.toJson(config, ConfigLoader2.class));
+        } catch (IOException ex) {
+            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.out.println("Have config: " + config.toString());
+        */
+        return Optional.of(configFiles.get(firmware).loader.getController());
     }
 
     /**
@@ -102,14 +132,14 @@ public class FirmwareUtils {
         // Delete firmware config directory so it can be re-initialized.
         FileUtils.deleteDirectory(firmwareConfig);
 
-        initializeFiles();
+        initialize();
     }
 
     /**
      * Copy any missing files from the the jar's resources/firmware_config/ dir
      * into the settings/firmware_config dir.
      */
-    public static void initializeFiles() {
+    public static void initialize() {
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -136,6 +166,17 @@ public class FirmwareUtils {
             }
         } catch (IOException ex) {
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        configFiles = new HashMap<>();
+        for (File f : firmwareConfig.listFiles()) {
+            try {
+                ControllerConfig config = new Gson().fromJson(new FileReader(f), ControllerConfig.class);
+                //ConfigLoader config = new ConfigLoader(f);
+                configFiles.put(config.getName(), new ConfigTuple(config, f));
+            } catch (FileNotFoundException | JsonSyntaxException | JsonIOException ex) {
+                GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
+            }
         }
     }
 }

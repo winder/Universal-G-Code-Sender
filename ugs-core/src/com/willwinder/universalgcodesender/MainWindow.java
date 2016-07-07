@@ -1356,6 +1356,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 // Let the command field grab focus.
                 commandTextField.grabFocus();
             } catch (Exception e) {
+                e.printStackTrace();
                 displayErrorDialog(e.getMessage());
             }
         } else {
@@ -1610,7 +1611,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File newFile = fileChooser.getSelectedFile();
-                AbstractController control = FirmwareUtils.getControllerFor(FirmwareUtils.GRBL);
+                AbstractController control = FirmwareUtils.getControllerFor("GRBL").get();
                 backend.applySettingsToController(settings, control);
                 
                 backend.preprocessAndExportToFile(newFile);
