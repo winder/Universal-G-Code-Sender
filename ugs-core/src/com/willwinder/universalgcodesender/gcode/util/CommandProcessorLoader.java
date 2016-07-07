@@ -113,7 +113,7 @@ public class CommandProcessorLoader {
             boolean enabled = true;
             JsonObject args = null;
 
-            if (object.has("optional") && object.get("optional").isJsonNull()) {
+            if (object.has("optional") && !object.get("optional").isJsonNull()) {
                 optional = object.get("optional").getAsBoolean();
             }
 
