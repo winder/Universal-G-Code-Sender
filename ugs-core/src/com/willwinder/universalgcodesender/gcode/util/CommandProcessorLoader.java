@@ -41,6 +41,19 @@ import java.util.List;
  * @author wwinder
  */
 public class CommandProcessorLoader {
+    public static class ProcessorConfig {
+        public String name;
+        public Boolean enabled;
+        public Boolean optional;
+        public JsonObject args;
+        public ProcessorConfig(String name, Boolean enabled, Boolean optional, JsonObject args) {
+            this.name = name;
+            this.enabled = enabled;
+            this.optional = optional;
+            this.args = args;
+        }
+    }
+
     /**
      * Add any ICommandProcessors specified in a JSON string. Processors are
      * initialized using the application settings if they are enabled.
@@ -50,64 +63,92 @@ public class CommandProcessorLoader {
      *     {
      *         "name":"ArcExpander",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "CommandLenghtProcessor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "CommandSplitter",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "CommentProcessor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "DecimalProcessor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "FeedOverrideProcessor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         "name": "M30Processor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     },{
      *         name: "WhitespaceProcessor",
      *         "enabled": <enabled>,
-     *         "optional": <optional>
+     *         "optional": <optional>,
+     *         "args": {}
      *     }
      *  ]
      */
-    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
-        List<ICommandProcessor> list = new ArrayList<>();
+    static public List<ProcessorConfig> getConfigFrom(String jsonConfig) {
+        List<ProcessorConfig> list = new ArrayList<>();
         JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
         for (JsonElement entry : json) {
-            ICommandProcessor p = null;
-
             JsonObject object = entry.getAsJsonObject();
 
             boolean optional = true;
             boolean enabled = true;
+            JsonObject args = null;
 
-            if (object.has("optional")) {
+            if (object.has("optional") && object.get("optional").isJsonNull()) {
                 optional = object.get("optional").getAsBoolean();
             }
 
-            if (object.has("enabled")) {
+            if (object.has("enabled") && !object.get("enabled").isJsonNull()) {
                 enabled = object.get("enabled").getAsBoolean();
             }
 
-            // Check if the processor is enabled.
-            if (optional && !enabled) {
-                continue;
+            if (object.has("args") && !object.get("args").isJsonNull()) {
+                args = object.get("args").getAsJsonObject();
             }
 
             String name = object.get("name").getAsString();
-            switch (name) {
+
+            list.add(new ProcessorConfig(name, enabled, optional, args));
+        }
+
+        return list;
+    }
+
+    /**
+     * Initialize command processors ignoringthe args field, opting for the
+     * provided settings instead.
+     */
+    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
+        List<ICommandProcessor> list = new ArrayList<>();
+        JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
+        for (ProcessorConfig pc : getConfigFrom(jsonConfig)) {
+            ICommandProcessor p = null;
+
+            // Check if the processor is enabled.
+            if (pc.optional && !pc.enabled) {
+                continue;
+            }
+
+            switch (pc.name) {
                 case "ArcExpander": {
                     double length = settings.getSmallArcSegmentLength();
                     p = new ArcExpander(true, length);
@@ -145,7 +186,7 @@ public class CommandProcessorLoader {
                     p = new WhitespaceProcessor();
                     break;
                 default:
-                    throw new IllegalArgumentException("Unknown processor: " + name);
+                    throw new IllegalArgumentException("Unknown processor: " + pc.name);
             }
 
             list.add(p);
@@ -162,60 +203,68 @@ public class CommandProcessorLoader {
      * [   {
      *         "name":"ArcExpander",
      *         "enabled": <enabled>,
+     *         "optional": <optional>,
      *         "args": {
      *             "length": <double>
      *         }
      *     },{
      *         "name": "CommandLenghtProcessor",
      *         "enabled": <enabled>,
+     *         "optional": <optional>,
      *         "args": {
      *             "commandLength": <double>
      *         }
      *     },{
      *         "name": "CommandSplitter",
      *         "enabled": <enabled>
+     *         "optional": <optional>,
      *     },{
      *         "name": "CommentProcessor",
      *         "enabled": <enabled>
+     *         "optional": <optional>,
      *     },{
      *         "name": "DecimalProcessor",
      *         "enabled": <enabled>,
+     *         "optional": <optional>,
      *         "args": {
      *             "decimals": <double>
      *         }
      *     },{
      *         "name": "FeedOverrideProcessor",
      *         "enabled": <enabled>,
+     *         "optional": <optional>,
      *         "args": {
      *             "speed": <double>
      *         }
      *     },{
      *         "name": "M30Processor",
      *         "enabled": <enabled>
+     *         "optional": <optional>,
      *     },{
      *         name: "WhitespaceProcessor",
      *         "enabled": <enabled>
+     *         "optional": <optional>,
      *     }
      *  ]
      */
     static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig) {
         List<ICommandProcessor> list = new ArrayList<>();
         JsonArray json = new JsonParser().parse(jsonConfig).getAsJsonArray();
-        for (JsonElement entry : json) {
+        for (ProcessorConfig pc : getConfigFrom(jsonConfig)) {
             ICommandProcessor p = null;
-            JsonObject object = entry.getAsJsonObject();
-            JsonObject args = null;
-            if (object.has("args") && !object.get("args").isJsonNull()) {
-                args = object.get("args").getAsJsonObject();
+
+            // Check if the processor is enabled.
+            if (pc.optional && !pc.enabled) {
+                continue;
             }
-            String name = object.get("name").getAsString();
-            switch (name) {
+
+            switch (pc.name) {
                 case "ArcExpander":
-                    double length = args.get("length").getAsDouble();
+                    double length = pc.args.get("length").getAsDouble();
                     p = new ArcExpander(true, length);
                     break;
                 case "CommandLengthProcessor":
-                    int commandLength = args.get("commandLength").getAsInt();
+                    int commandLength = pc.args.get("commandLength").getAsInt();
                     p = new CommandLengthProcessor(commandLength);
                     break;
                 case "CommandSplitter":
@@ -225,25 +274,25 @@ public class CommandProcessorLoader {
                     p = new CommentProcessor();
                     break;
                 case "DecimalProcessor":
-                    int decimals = args.get("decimals").getAsInt();
+                    int decimals = pc.args.get("decimals").getAsInt();
                     p = new DecimalProcessor(decimals);
                     break;
                 case "FeedOverrideProcessor":
-                    double override = args.get("speed").getAsDouble();
+                    double override = pc.args.get("speed").getAsDouble();
                     p = new FeedOverrideProcessor(override);
                     break;
                 case "M30Processor":
                     p = new M30Processor();
                     break;
                 case "PatternRemover":
-                    String pattern = args.get("pattern").getAsString();
+                    String pattern = pc.args.get("pattern").getAsString();
                     p = new PatternRemover(pattern);
                     break;
                 case "WhitespaceProcessor":
                     p = new WhitespaceProcessor();
                     break;
                 default:
-                    throw new IllegalArgumentException("Unknown processor: " + name);
+                    throw new IllegalArgumentException("Unknown processor: " + pc.name);
             }
 
             list.add(p);
