@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.uielements.command.CommandPanel;
 import com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -61,7 +62,7 @@ public class WidgetPreviewer {
 
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
-        panel.add(frameLauncherButton("ConnectionSettingsPanel", new ConnectionSettingsPanel(backend.getSettings())));
+        panel.add(frameLauncherButton("ConnectionSettingsPanel", new ConnectionSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles())));
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));
         panel.add(frameLauncherButton("MacroPanel", new MacroPanel(backend)));
         panel.add(frameLauncherButton("OverridesPanel", new OverridesPanel(backend)));

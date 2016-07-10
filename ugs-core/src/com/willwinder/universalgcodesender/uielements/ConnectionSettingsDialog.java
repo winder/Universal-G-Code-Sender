@@ -79,7 +79,7 @@ public class ConnectionSettingsDialog extends JDialog {
     ConnectionSettingsPanel settingsPanel;
 
     private void initComponents() {
-        settingsPanel = new ConnectionSettingsPanel(settings);
+        settingsPanel = new ConnectionSettingsPanel(settings, FirmwareUtils.getConfigFiles());
         scrollPane.setViewportView(settingsPanel);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -108,7 +108,7 @@ public class ConnectionSettingsDialog extends JDialog {
         } catch (Exception e) {
             GUIHelpers.displayErrorDialog("An error occurred while trying to restore defailts: " + e.getLocalizedMessage());
         }
-        settingsPanel.initComponents(new Settings());
+        settingsPanel.updateComponents(new Settings());
     }
 
     private void closeWithSaveActionPerformed(java.awt.event.ActionEvent evt) {
@@ -133,7 +133,6 @@ public class ConnectionSettingsDialog extends JDialog {
                 .append(Localization.getString("sender.help.autoconnect"))
                 //.append(Localization.getString("sender.help.autoreconnect"))
                 ;
-                
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 

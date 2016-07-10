@@ -25,20 +25,13 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.GrblController;
-import com.willwinder.universalgcodesender.TinyGController;
-import com.willwinder.universalgcodesender.XLCDCommunicator;
-import com.willwinder.universalgcodesender.LoopBackCommunicator;
-import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -64,7 +57,7 @@ public class FirmwareUtils {
      * Need a simple way to map the config loader (JSON in POJO format) to the
      * file it was generated from.
      */
-    private static class ConfigTuple {
+    public static class ConfigTuple {
         public ControllerSettings loader;
         public File file;
         public ConfigTuple(ControllerSettings l, File f) {
@@ -74,6 +67,10 @@ public class FirmwareUtils {
     }
 
     private static Map<String,ConfigTuple> configFiles = new HashMap<>();
+
+    public static Map<String,ConfigTuple> getConfigFiles() {
+        return configFiles;
+    }
 
     static {
         initialize();
