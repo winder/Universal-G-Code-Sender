@@ -22,10 +22,10 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.Frame;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -41,14 +41,16 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ConnectionSettingsDialog extends JDialog {
     private boolean saveChanges;
-    Settings settings;
+    final Settings settings;
+    final AbstractUGSSettings settingsPanel;
     
     /**
      * Creates new form GrblSettingsDialog
      */
-    public ConnectionSettingsDialog(Settings settings, Frame parent, boolean modal) {
+    public ConnectionSettingsDialog(Settings settings, AbstractUGSSettings panel, Frame parent, boolean modal) {
         super(parent, modal);
         this.settings = settings;
+        this.settingsPanel = panel;
 
         // Register callbacks
         restore.addActionListener(this::restoreDefaultSettings);
@@ -76,10 +78,8 @@ public class ConnectionSettingsDialog extends JDialog {
     final JButton closeWithoutSave = new JButton(Localization.getString("close"));
     final JButton helpButton = new JButton(Localization.getString("help"));
     final JScrollPane scrollPane = new JScrollPane();
-    ConnectionSettingsPanel settingsPanel;
 
     private void initComponents() {
-        settingsPanel = new ConnectionSettingsPanel(settings, FirmwareUtils.getConfigFiles());
         scrollPane.setViewportView(settingsPanel);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -112,27 +112,13 @@ public class ConnectionSettingsDialog extends JDialog {
     }
 
     private void closeWithSaveActionPerformed(java.awt.event.ActionEvent evt) {
-        this.settingsPanel.updateSettingsObject();
+        this.settingsPanel.save();
         this.saveChanges = true;
         setVisible(false);
     }
 
     private void helpButtonActionPerformed(java.awt.event.ActionEvent evt) {
-        StringBuilder message = new StringBuilder()
-                .append(Localization.getString("sender.help.speed.override")).append("\n\n")
-                .append(Localization.getString("sender.help.speed.percent")).append("\n\n")
-                .append(Localization.getString("sender.help.command.length")).append("\n\n")
-                .append(Localization.getString("sender.help.truncate")).append("\n\n")
-                .append(Localization.getString("sender.help.singlestep")).append("\n\n")
-                .append(Localization.getString("sender.help.whitespace")).append("\n\n")
-                .append(Localization.getString("sender.help.status")).append("\n\n")
-                .append(Localization.getString("sender.help.status.rate")).append("\n\n")
-                .append(Localization.getString("sender.help.state")).append("\n\n")
-                .append(Localization.getString("sender.help.arcs")).append("\n\n")
-                .append(Localization.getString("sender.help.arcs.length")).append("\n\n")
-                .append(Localization.getString("sender.help.autoconnect"))
-                //.append(Localization.getString("sender.help.autoreconnect"))
-                ;
+        String message = settingsPanel.getHelpMessage();
         
         JOptionPane.showMessageDialog(new JFrame(), 
                 message, 

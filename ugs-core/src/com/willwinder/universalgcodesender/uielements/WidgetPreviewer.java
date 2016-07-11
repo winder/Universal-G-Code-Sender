@@ -62,7 +62,8 @@ public class WidgetPreviewer {
 
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
-        panel.add(frameLauncherButton("ConnectionSettingsPanel", new ConnectionSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles())));
+        panel.add(frameLauncherButton("ConnectionSettingsPanel", new ConnectionSettingsPanel(backend.getSettings())));
+        panel.add(frameLauncherButton("ControllerProcessorSettingsPanel", new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles())));
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));
         panel.add(frameLauncherButton("MacroPanel", new MacroPanel(backend)));
         panel.add(frameLauncherButton("OverridesPanel", new OverridesPanel(backend)));

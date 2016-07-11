@@ -23,7 +23,7 @@
                 "enabled": true,
                 "optional": false
             },{
-                "ArcExpander":false,
+                "name": "ArcExpander",
                 "enabled": false,
                 "optional": true
             }

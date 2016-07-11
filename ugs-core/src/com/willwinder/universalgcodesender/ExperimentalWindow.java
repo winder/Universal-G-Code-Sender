@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -336,7 +337,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(backend.getSettings(), this, true);
+        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(
+                backend.getSettings(), 
+                new ConnectionSettingsPanel(backend.getSettings()),
+                this,
+                true);
         
         gcsd.setVisible(true);
         

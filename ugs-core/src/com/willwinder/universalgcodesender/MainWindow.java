@@ -383,7 +383,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
         macroPane = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -437,6 +436,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
+        gcodeProcessorSettings = new javax.swing.JMenuItem();
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
         stopPendantServerButton = new javax.swing.JMenuItem();
@@ -817,9 +817,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
-
-        macroPane.setViewportView(macroPanel);
-
         controlContextTabbedPane.addTab("Macros", macroPane);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
@@ -1257,6 +1254,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         settingsMenu.add(firmwareSettingsMenu);
 
+        gcodeProcessorSettings.setText("Gcode Processor Settings");
+        gcodeProcessorSettings.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gcodeProcessorSettingsActionPerformed(evt);
+            }
+        });
+        settingsMenu.add(gcodeProcessorSettings);
+
         mainMenuBar.add(settingsMenu);
 
         PendantMenu.setText("Pendant");
@@ -1440,7 +1445,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings, this, true);
+        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings,
+                new ConnectionSettingsPanel(settings),
+                this, true);
         
         gcsd.setVisible(true);
         
@@ -1815,6 +1822,30 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             Localization.getString("mainWindow.helpDialog"),
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonMachineControlActionPerformed
+
+    private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
+        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings,
+                new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
+                this, true);
+        
+        gcsd.setVisible(true);
+        
+        if (gcsd.saveChanges()) {
+            // TODO: Reprocess gcode file?
+            /*
+            try {
+                backend.applySettings(settings);
+            } catch (Exception e) {
+                displayErrorDialog(e.getMessage());
+            }
+
+            if (this.vw != null) {
+                vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
+                vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
+            }
+            */
+        }
+    }//GEN-LAST:event_gcodeProcessorSettingsActionPerformed
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
@@ -2391,6 +2422,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
     private javax.swing.JMenu firmwareSettingsMenu;
+    private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
@@ -2414,7 +2446,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
     private javax.swing.JScrollPane macroPane;
-    private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;

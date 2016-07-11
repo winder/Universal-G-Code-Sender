@@ -21,31 +21,17 @@ package com.willwinder.universalgcodesender.uielements;
 import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
-import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfigGroups;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils.ConfigTuple;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.event.ChangeEvent;
 import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author wwinder
  */
-public class ConnectionSettingsPanel extends JPanel {
-    final Collection<Component> components = new ArrayList<>();
+public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     final Checkbox overrideSpeedEnabled = new Checkbox(
                 Localization.getString("sender.speed.override"));
@@ -79,62 +65,38 @@ public class ConnectionSettingsPanel extends JPanel {
     final Checkbox autoReconnect = new Checkbox(
                 Localization.getString("sender.autoreconnect"));
     final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
-    final JComboBox controllerConfigs;
-    final JPanel controllerConfigPanel = new JPanel();
 
-    private final Settings settings;
-    private final Map<String,ConfigTuple> configFiles;
-    private final IChanged changer;
-
-    public ConnectionSettingsPanel(Settings settings, IChanged changer, Map<String,ConfigTuple> configFiles) {
-        this.changer = changer;
-        this.settings = settings;
-        this.configFiles = configFiles;
-        controllerConfigs = new JComboBox(configFiles.keySet().toArray());
-        updateComponents();
-    }
-    public ConnectionSettingsPanel(Settings settings, Map<String,ConfigTuple> configFiles) {
-        this(settings, null, configFiles);
+    public ConnectionSettingsPanel(Settings settings, IChanged changer) {
+        super(settings, changer);
+        super.updateComponents();
     }
 
-    private void change() {
-        if (changer != null) changer.changed();
+    public ConnectionSettingsPanel(Settings settings) {
+        this(settings, null);
     }
 
-    private void initActions() {
-        for (Component c : components) {
-            Class clazz = c.getClass();
-            if (clazz == Spinner.class) {
-                ((Spinner)c).spinner.addChangeListener((ChangeEvent e) -> {
-                    change();
-                });
-            }
-            else if (clazz == Checkbox.class) {
-                ((Checkbox)c).box.addActionListener((ActionEvent e) -> {
-                    change();
-                });
-            }
-            else if (clazz == JComboBox.class) {
-                ((JComboBox)c).addActionListener((ActionEvent e) -> {
-                    change();
-                });
-            }
-        }
+    @Override
+    public String getHelpMessage() {
+        StringBuilder message = new StringBuilder()
+                .append(Localization.getString("sender.help.speed.override")).append("\n\n")
+                .append(Localization.getString("sender.help.speed.percent")).append("\n\n")
+                .append(Localization.getString("sender.help.command.length")).append("\n\n")
+                .append(Localization.getString("sender.help.truncate")).append("\n\n")
+                .append(Localization.getString("sender.help.singlestep")).append("\n\n")
+                .append(Localization.getString("sender.help.whitespace")).append("\n\n")
+                .append(Localization.getString("sender.help.status")).append("\n\n")
+                .append(Localization.getString("sender.help.status.rate")).append("\n\n")
+                .append(Localization.getString("sender.help.state")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs")).append("\n\n")
+                .append(Localization.getString("sender.help.arcs.length")).append("\n\n")
+                .append(Localization.getString("sender.help.autoconnect"))
+                //.append(Localization.getString("sender.help.autoreconnect"))
+                ;
+        return message.toString();
     }
 
-    public Component add(Component comp) {
-        Component ret = super.add(comp);
-        components.add(comp);
-        return ret;
-    }
-
-    public Component add(JPanel panel, Component comp) {
-        Component ret = panel.add(comp);
-        components.add(comp);
-        return ret;
-    }
-
-    public void updateSettingsObject() {
+    @Override
+    public void save() {
         settings.setOverrideSpeedSelected(overrideSpeedEnabled.getValue());
         settings.setOverrideSpeedValue(new Double((int)overrideSpeedPercent.getValue()));
         settings.setMaxCommandLength((int)maxCommandLength.getValue());
@@ -151,12 +113,8 @@ public class ConnectionSettingsPanel extends JPanel {
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
     }
 
-    private void updateComponents() {
-        updateComponents(settings);
-    }
-
-    public void updateComponents(Settings s) {
-        components.clear();
+    @Override
+    protected void updateComponentsInternal(Settings s) {
         this.removeAll();
 
         setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
@@ -208,79 +166,5 @@ public class ConnectionSettingsPanel extends JPanel {
             }
         }
         add(languageCombo);
-
-        super.add(controllerConfigs);
-        super.add(controllerConfigPanel);
-        updateControllerConfigPanel();
-
-        initActions();
-    }
-
-    void updateControllerConfigPanel() {
-        controllerConfigPanel.removeAll();
-        controllerConfigPanel.setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
-
-        ConfigTuple ct = configFiles.get(controllerConfigs.getSelectedItem());
-        ProcessorConfigGroups pcg = ct.loader.getProcessorConfigs();
-        System.out.println(ct.file);
-
-        for (ProcessorConfig pc : pcg.Front) {
-            add(controllerConfigPanel, new ProcessorConfigCheckbox(pc));
-        }
-        for (ProcessorConfig pc : pcg.Custom) {
-            add(controllerConfigPanel, new ProcessorConfigCheckbox(pc));
-        }
-        for (ProcessorConfig pc : pcg.End) {
-            add(controllerConfigPanel, new ProcessorConfigCheckbox(pc));
-        }
-    }
-
-    /**
-     * Helper object to simplify layout.
-     */
-    private class Spinner extends JPanel {
-        JLabel label;
-        public JSpinner spinner;
-        public Spinner(String text, SpinnerModel model) {
-            label = new JLabel(text);
-            spinner = new JSpinner(model);
-            setLayout(new MigLayout("insets 0, wrap 2"));
-            add(spinner, "w 70");
-            add(label);
-        }
-
-        void setValue(Object v) { spinner.setValue(v); }
-        Object getValue() { return spinner.getValue(); }
-    }
-
-    private class Checkbox extends JPanel {
-        public JCheckBox box;
-        public Checkbox(String text) {
-            box = new JCheckBox(text);
-            setLayout(new MigLayout("insets 0"));
-            add(box, "gapleft 50, w 100");
-        }
-
-        void setSelected(Boolean s) {box.setSelected(s); }
-        boolean getValue() { return box.isSelected(); }
-    }
-
-    private class ProcessorConfigCheckbox extends JPanel {
-        public JCheckBox box;
-        private ProcessorConfig pc;
-
-        public ProcessorConfigCheckbox(ProcessorConfig pc) {
-            this.pc = pc;
-            box = new JCheckBox(pc.name);
-            box.setSelected(pc.enabled);
-            if (!pc.optional) {
-                box.setEnabled(false);
-            }
-            setLayout(new MigLayout("insets 0"));
-            add(box, "gapleft 50, w 100");
-        }
-
-        void setSelected(Boolean s) {box.setSelected(s); }
-        boolean getValue() { return box.isSelected(); }
     }
 }
