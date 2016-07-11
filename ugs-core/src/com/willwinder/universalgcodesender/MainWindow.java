@@ -382,7 +382,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         stepSizeLabel = new javax.swing.JLabel();
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
-        macroPane = new javax.swing.JScrollPane();
+        macroEditPanel = new javax.swing.JScrollPane();
+        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -436,7 +437,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
-        gcodeProcessorSettings = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
         stopPendantServerButton = new javax.swing.JMenuItem();
@@ -817,7 +818,21 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
-        controlContextTabbedPane.addTab("Macros", macroPane);
+
+        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
+        macroPanel.setLayout(macroPanelLayout);
+        macroPanelLayout.setHorizontalGroup(
+            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 595, Short.MAX_VALUE)
+        );
+        macroPanelLayout.setVerticalGroup(
+            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 229, Short.MAX_VALUE)
+        );
+
+        macroEditPanel.setViewportView(macroPanel);
+
+        controlContextTabbedPane.addTab("Macros", macroEditPanel);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
         connectionPanel.setMaximumSize(new java.awt.Dimension(247, 100));
@@ -1254,13 +1269,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         settingsMenu.add(firmwareSettingsMenu);
 
-        gcodeProcessorSettings.setText("Gcode Processor Settings");
-        gcodeProcessorSettings.addActionListener(new java.awt.event.ActionListener() {
+        jMenuItem2.setText("Gcode Processor Settings");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                gcodeProcessorSettingsActionPerformed(evt);
+                jMenuItem2ActionPerformed(evt);
             }
         });
-        settingsMenu.add(gcodeProcessorSettings);
+        settingsMenu.add(jMenuItem2);
 
         mainMenuBar.add(settingsMenu);
 
@@ -1823,7 +1838,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonMachineControlActionPerformed
 
-    private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings,
                 new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
                 this, true);
@@ -1845,7 +1860,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
             */
         }
-    }//GEN-LAST:event_gcodeProcessorSettingsActionPerformed
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
@@ -2170,7 +2185,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.stepSizeLabel.setText(Localization.getString("mainWindow.swing.stepSizeLabel"));
         this.visualizeButton.setText(Localization.getString("mainWindow.swing.visualizeButton"));
         this.workPositionLabel.setText(Localization.getString("mainWindow.swing.workPositionLabel"));
-        this.macroPane.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
+        this.macroPanel.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
     }
@@ -2422,12 +2437,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
     private javax.swing.JMenu firmwareSettingsMenu;
-    private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JTabbedPane jTabbedPane1;
@@ -2445,7 +2460,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel machinePositionYValueLabel;
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
-    private javax.swing.JScrollPane macroPane;
+    private javax.swing.JScrollPane macroEditPanel;
+    private javax.swing.JPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JRadioButton mmRadioButton;
     private javax.swing.JPanel movementButtonPanel;
