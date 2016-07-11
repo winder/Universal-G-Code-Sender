@@ -62,7 +62,7 @@ public class ControllerSettings {
     }
 
     String Name;
-    ControllerSettings Controller;
+    ControllerConfig Controller;
     ProcessorConfigGroups GcodeProcessors;
 
     public enum CONTROLLER {
@@ -102,7 +102,7 @@ public class ControllerSettings {
      */
     public AbstractController getController() {
         //String controllerName = controllerConfig.get("name").getAsString();
-        String controllerName = this.Controller.Name;
+        String controllerName = this.Controller.name;
         CONTROLLER controller = CONTROLLER.fromString(controllerName);
         switch (controller) {
             case GRBL:

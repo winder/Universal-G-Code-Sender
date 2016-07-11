@@ -20,8 +20,11 @@ import java.io.File;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ConnectionPanel extends JPanel implements UGSEventListener, ControllerListener {
+    private static final Logger logger = Logger.getLogger(ConnectionPanel.class.getName());
 
     private final JLabel portLabel = new JLabel(Localization.getString("mainWindow.swing.portLabel"));
     private final JLabel baudLabel = new JLabel(Localization.getString("mainWindow.swing.baudLabel"));
@@ -216,6 +219,7 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
             try {
                 this.backend.connect(firmware, port, baudRate);
             } catch (Exception e) {
+                logger.log(Level.WARNING, "Problem during backend.connect.", e);
                 displayErrorDialog(e.getMessage());
             }
         } else {
