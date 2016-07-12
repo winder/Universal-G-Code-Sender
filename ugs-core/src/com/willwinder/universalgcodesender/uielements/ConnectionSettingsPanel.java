@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import javax.swing.JComboBox;
 import javax.swing.SpinnerNumberModel;
 import net.miginfocom.swing.MigLayout;
@@ -111,6 +112,13 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setAutoReconnect(autoReconnect.getValue());
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
+    }
+
+    @Override
+    public void restoreDefaults() throws Exception {
+        updateComponents(new Settings());
+        SettingsFactory.saveSettings(settings);
+        save();
     }
 
     @Override

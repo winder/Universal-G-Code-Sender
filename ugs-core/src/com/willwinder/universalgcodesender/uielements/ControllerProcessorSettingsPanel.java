@@ -3,20 +3,28 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfigGroups;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils.ConfigTuple;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import net.miginfocom.swing.MigLayout;
 
@@ -25,20 +33,23 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
+    private static Logger logger = Logger.getLogger(ControllerProcessorSettingsPanel.class.getName());
+
     private final Map<String,ConfigTuple> configFiles;
-    final JComboBox controllerConfigs;
+    JComboBox controllerConfigs;
     final JTable customRemoverTable;
     final JButton add = new JButton(Localization.getString("settings.processors.add"));
     final JButton remove = new JButton(Localization.getString("settings.processors.remove"));
+    private boolean updatingCombo = false;
 
     public ControllerProcessorSettingsPanel(Settings settings, IChanged changer, Map<String,ConfigTuple> configFiles) {
         super(settings, changer);
         this.configFiles = configFiles;
         this.controllerConfigs = new JComboBox(configFiles.keySet().toArray());
-        this.customRemoverTable = getCustomRemoverTable();
+        this.customRemoverTable = initCustomRemoverTable(new JTable());
         super.updateComponents();
 
-        controllerConfigs.addActionListener(e -> super.updateComponents());
+        controllerConfigs.addActionListener(e -> { if (!updatingCombo) super.updateComponents();});
         add.addActionListener(e -> this.addNewPatternRemover());
         remove.addActionListener(e -> this.removeSelectedPatternRemover());
     }
@@ -65,12 +76,49 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public void save() {
-        throw new UnsupportedOperationException("TODO");
+        ConfigTuple ct = configFiles.get(controllerConfigs.getSelectedItem());
+        ct.loader.getProcessorConfigs().Custom.clear();
+
+        // Roll up the pattern processors.
+        ArrayList<ProcessorConfig> patterns = new ArrayList<>();
+        DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
+        for (int i = 0; i < customRemoverTable.getRowCount(); i++) {
+            JsonObject args = new JsonObject();
+            args.addProperty("pattern", model.getValueAt(i, 1).toString());
+            ProcessorConfig pc = new ProcessorConfig(
+                    "PatternRemover",
+                    (Boolean) model.getValueAt(i, 0),
+                    true,
+                    args);
+            ct.loader.getProcessorConfigs().Custom.add(pc);
+        }
+
+        try {
+            FirmwareUtils.save(ct.file, ct.loader);
+        } catch (IOException ex) {
+            GUIHelpers.displayErrorDialog("Problem saving controller config: " + ex.getMessage());
+            logger.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    synchronized public void restoreDefaults() throws Exception {
+        FirmwareUtils.restoreDefaults((String)controllerConfigs.getSelectedItem());
+
+        updatingCombo = true;
+        String selected = (String) controllerConfigs.getSelectedItem();
+        this.controllerConfigs.removeAllItems();
+        for (String item : configFiles.keySet()) {
+            this.controllerConfigs.addItem(item);
+        }
+        controllerConfigs.setSelectedItem(selected);
+        updatingCombo = false;
+        updateComponentsInternal(settings);
     }
 
     @Override
     public String getHelpMessage() {
-        throw new UnsupportedOperationException("TODO");
+        return Localization.getString("settings.processors.help");
     }
 
     /**
@@ -93,11 +141,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
     @Override
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
-        DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
-        int rowCount = model.getRowCount();
-        model.setRowCount(0);
-
-
+        initCustomRemoverTable(customRemoverTable);
         setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
 
         super.addIgnoreChanges(controllerConfigs);
@@ -121,6 +165,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
         add(buttonPanel, remove);
         addIgnoreChanges(buttonPanel);
 
+        DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
         for (ProcessorConfig pc : pcg.Custom) {
             Boolean enabled = pc.enabled;
             String pattern = "";
@@ -131,19 +176,20 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
             //add(new ProcessorConfigCheckbox(pc));
         }
         addIgnoreChanges(new JScrollPane(customRemoverTable));
+
+        SwingUtilities.updateComponentTreeUI(this);
     }
 
-    private JTable getCustomRemoverTable() {
+    private JTable initCustomRemoverTable(JTable table) {
         final String[] columnNames = {
             Localization.getString("settings.processors.enabled"),
             Localization.getString("settings.processors.pattern")
         };
+
         final Class[] columnTypes =  {
             Boolean.class,
             String.class
         };
-
-        JTable ret = new JTable();
 
         DefaultTableModel model = new DefaultTableModel(null, columnNames) {
             @Override
@@ -152,9 +198,9 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
             }
         };
 
-        ret.setModel(model);
-        ret.getTableHeader().setReorderingAllowed(false);
+        table.setModel(model);
+        table.getTableHeader().setReorderingAllowed(false);
 
-        return ret;
+        return table;
     }
 }

@@ -27,6 +27,8 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Frame;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -40,6 +42,8 @@ import net.miginfocom.swing.MigLayout;
  * @author wwinder
  */
 public class ConnectionSettingsDialog extends JDialog {
+    private static Logger logger = Logger.getLogger(ConnectionSettingsDialog.class.getName());
+
     private boolean saveChanges;
     final Settings settings;
     final AbstractUGSSettings settingsPanel;
@@ -104,11 +108,15 @@ public class ConnectionSettingsDialog extends JDialog {
 
     private void restoreDefaultSettings(java.awt.event.ActionEvent evt) {
         try {
-            FirmwareUtils.restoreDefaults();
+            settingsPanel.restoreDefaults();
+            //FirmwareUtils.restoreDefaults();
+            //settingsPanel.updateComponents(new Settings());
         } catch (Exception e) {
-            GUIHelpers.displayErrorDialog("An error occurred while trying to restore defailts: " + e.getLocalizedMessage());
+            String message = "An error occurred while restoring defaults:"
+                    + e.getLocalizedMessage();
+            logger.log(Level.SEVERE, message, e);
+            GUIHelpers.displayErrorDialog(message);
         }
-        settingsPanel.updateComponents(new Settings());
     }
 
     private void closeWithSaveActionPerformed(java.awt.event.ActionEvent evt) {

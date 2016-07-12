@@ -37,6 +37,7 @@ public abstract class AbstractUGSSettings extends JPanel {
     protected abstract void updateComponentsInternal(Settings s);
     public abstract void save();
     public abstract String getHelpMessage();
+    public abstract void restoreDefaults() throws Exception;
 
     private void change() {
         if (changer != null) changer.changed();
@@ -87,7 +88,6 @@ public abstract class AbstractUGSSettings extends JPanel {
         components.clear();
         updateComponentsInternal(s);
         initActions();
-        SwingUtilities.updateComponentTreeUI(this);
     }
     /**
      * Helper object to simplify layout.
@@ -127,6 +127,9 @@ public abstract class AbstractUGSSettings extends JPanel {
             this.pc = pc;
             box = new JCheckBox(pc.name);
             box.setSelected(pc.enabled);
+            box.addActionListener((ActionEvent e) -> {
+                    pc.enabled = box.isSelected();
+                });
             if (!pc.optional) {
                 box.setEnabled(false);
             }

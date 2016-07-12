@@ -25,6 +25,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
@@ -120,15 +121,14 @@ public class FirmwareUtils {
     }
 
     /**
-     * Deletes firmware_config files from the machine then recreates them.
+     * Deletes firmware_config file from the machine then recreate it.
      */
-    public static void restoreDefaults() throws IOException {
-        File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
-                FIRMWARE_CONFIG_DIRNAME);
+    public static void restoreDefaults(String firmware) throws IOException {
+        ConfigTuple tuple = configFiles.get(firmware);
+        configFiles.remove(firmware);
+        tuple.file.delete();
 
-        // Delete firmware config directory so it can be re-initialized.
-        FileUtils.deleteDirectory(firmwareConfig);
-
+        // Reload missing file.
         initialize();
     }
 
@@ -165,7 +165,7 @@ public class FirmwareUtils {
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        configFiles = new HashMap<>();
+        configFiles.clear();
         for (File f : firmwareConfig.listFiles()) {
             try {
                 ControllerSettings config = new Gson().fromJson(new FileReader(f), ControllerSettings.class);
@@ -175,5 +175,14 @@ public class FirmwareUtils {
                 GUIHelpers.displayErrorDialog("Unable to load configuration files: " + f.getAbsolutePath());
             }
         }
+    }
+
+    public static void save(File f, ControllerSettings cs) throws IOException {
+        if (f.exists()) {
+            f.delete();
+        }
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(cs, ControllerSettings.class);
+        FileUtils.writeStringToFile(f, json);
     }
 }
