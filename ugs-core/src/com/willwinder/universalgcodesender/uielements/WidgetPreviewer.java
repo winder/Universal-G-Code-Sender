@@ -36,6 +36,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
@@ -62,8 +63,18 @@ public class WidgetPreviewer {
 
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
-        panel.add(frameLauncherButton("ConnectionSettingsPanel", new ConnectionSettingsPanel(backend.getSettings())));
-        panel.add(frameLauncherButton("ControllerProcessorSettingsPanel", new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles())));
+        panel.add(dialogLauncherButton("ConnectionSettingsPanel",
+                new ConnectionSettingsDialog(
+                        backend.getSettings(),
+                        new ConnectionSettingsPanel(backend.getSettings()),
+                        frame,
+                        true)));
+        panel.add(dialogLauncherButton("ControllerProcessorSettingsPanel",
+                new ConnectionSettingsDialog(
+                        backend.getSettings(),
+                        new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
+                        frame,
+                        true)));
         panel.add(frameLauncherButton("MacroActionPanel", new MacroActionPanel(backend)));
         panel.add(frameLauncherButton("MacroPanel", new MacroPanel(backend)));
         panel.add(frameLauncherButton("OverridesPanel", new OverridesPanel(backend)));
@@ -79,6 +90,14 @@ public class WidgetPreviewer {
         // Display the main frame.
         frame.pack();
         frame.setVisible(true);
+    }
+
+    private static JButton dialogLauncherButton(String title, JDialog c) {
+        JButton button = new JButton(title);
+        button.addActionListener((ActionEvent e) -> {
+            c.setVisible(true);
+        });
+        return button;
     }
 
     private static JButton frameLauncherButton(String title, Component c) {
