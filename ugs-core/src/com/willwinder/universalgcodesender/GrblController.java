@@ -78,7 +78,12 @@ public class GrblController extends AbstractController {
     }
     
     public GrblController() {
-        this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
+        this(new GrblCommunicator());
+    }
+
+    public GrblController(Boolean isReady) {
+        this(new GrblCommunicator());
+        this.isReady = isReady;
     }
 
     @Override

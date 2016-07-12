@@ -108,7 +108,7 @@ public class ControllerSettings {
             case GRBL:
                 return new GrblController();
             case SMOOTHIE:
-                return new GrblController();
+                return new GrblController(true);
             case TINYG:
                 return new TinyGController();
             case XLCD:
