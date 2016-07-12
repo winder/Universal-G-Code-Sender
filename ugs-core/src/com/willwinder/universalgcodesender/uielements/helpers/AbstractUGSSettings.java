@@ -3,6 +3,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.helpers;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -125,7 +126,7 @@ public abstract class AbstractUGSSettings extends JPanel {
 
         public ProcessorConfigCheckbox(ProcessorConfig pc) {
             this.pc = pc;
-            box = new JCheckBox(pc.name);
+            box = new JCheckBox(Localization.getString(pc.name));
             box.setSelected(pc.enabled);
             box.addActionListener((ActionEvent e) -> {
                     pc.enabled = box.isSelected();

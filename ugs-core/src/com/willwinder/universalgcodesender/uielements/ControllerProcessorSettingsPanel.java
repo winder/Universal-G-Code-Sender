@@ -25,8 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -60,7 +63,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
     private void addNewPatternRemover() {
         DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
-        model.addRow(new Object[]{true, "asdf"});
+        model.addRow(new Object[]{true, ""});
     }
 
     private void removeSelectedPatternRemover() {
@@ -76,21 +79,29 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public void save() {
+        // In case there are in-progress changes.
+        TableCellEditor editor = customRemoverTable.getCellEditor();
+        if (editor != null) {
+            editor.stopCellEditing();
+        }
+
         ConfigTuple ct = configFiles.get(controllerConfigs.getSelectedItem());
         ct.loader.getProcessorConfigs().Custom.clear();
 
         // Roll up the pattern processors.
-        ArrayList<ProcessorConfig> patterns = new ArrayList<>();
         DefaultTableModel model = (DefaultTableModel) this.customRemoverTable.getModel();
         for (int i = 0; i < customRemoverTable.getRowCount(); i++) {
             JsonObject args = new JsonObject();
-            args.addProperty("pattern", model.getValueAt(i, 1).toString());
-            ProcessorConfig pc = new ProcessorConfig(
-                    "PatternRemover",
-                    (Boolean) model.getValueAt(i, 0),
-                    true,
-                    args);
-            ct.loader.getProcessorConfigs().Custom.add(pc);
+            String pattern = model.getValueAt(i, 1).toString();
+            if (!StringUtils.isEmpty(pattern)) {
+                args.addProperty("pattern", pattern);
+                ProcessorConfig pc = new ProcessorConfig(
+                        "PatternRemover",
+                        (Boolean) model.getValueAt(i, 0),
+                        true,
+                        args);
+                ct.loader.getProcessorConfigs().Custom.add(pc);
+            }
         }
 
         try {
@@ -126,16 +137,15 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
      *  |  [      controller      ]  |
      *  | [ ] front processor 1      |
      *  | [ ] front processor 2      |
-     *  |                            |
+     *  | [ ] end processor 1        |
+     *  | [ ] end processor 2        |
+     * 
      *  | [+]                   [-]  |
      *  |  ________________________  |
      *  | | Enabled | Pattern      | |
      *  | |  [y]    | T\d+         | |
      *  | |  [n]    | M30          | |
      *  |  ------------------------  |
-     *  |                            |
-     *  | [ ] end processor 1        |
-     *  | [ ] end processor 2        |
      *  |____________________________|
      */
     @Override
@@ -173,7 +183,6 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
                 pattern = pc.args.get("pattern").getAsString();
             }
             model.addRow(new Object[]{enabled, pattern});
-            //add(new ProcessorConfigCheckbox(pc));
         }
         addIgnoreChanges(new JScrollPane(customRemoverTable));
 
@@ -183,7 +192,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
     private JTable initCustomRemoverTable(JTable table) {
         final String[] columnNames = {
             Localization.getString("settings.processors.enabled"),
-            Localization.getString("settings.processors.pattern")
+            Localization.getString("PatternRemover")
         };
 
         final Class[] columnTypes =  {
