@@ -47,8 +47,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 new SpinnerNumberModel((int)1, 1, null, 1));
     final Checkbox singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"));
-    final Checkbox removeAllWhitespace = new Checkbox(
-                Localization.getString("sender.whitespace"));
     final Checkbox statusPollingEnabled = new Checkbox(
                 Localization.getString("sender.status"));
     final Spinner statusPollRate = new Spinner(
@@ -56,8 +54,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 new SpinnerNumberModel((int)1, 1, null, 100));
     final Checkbox stateColorDisplayEnabled = new Checkbox(
                 Localization.getString("sender.state"));
-    final Checkbox convertArcsToLines = new Checkbox(
-                Localization.getString("sender.arcs"));
     final Spinner smallArcLength = new Spinner(
                 Localization.getString("sender.arcs.length"),
                 new SpinnerNumberModel(1., 1., null, .1));
@@ -84,11 +80,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 .append(Localization.getString("sender.help.command.length")).append("\n\n")
                 .append(Localization.getString("sender.help.truncate")).append("\n\n")
                 .append(Localization.getString("sender.help.singlestep")).append("\n\n")
-                .append(Localization.getString("sender.help.whitespace")).append("\n\n")
                 .append(Localization.getString("sender.help.status")).append("\n\n")
                 .append(Localization.getString("sender.help.status.rate")).append("\n\n")
                 .append(Localization.getString("sender.help.state")).append("\n\n")
-                .append(Localization.getString("sender.help.arcs")).append("\n\n")
                 .append(Localization.getString("sender.help.arcs.length")).append("\n\n")
                 .append(Localization.getString("sender.help.autoconnect"))
                 //.append(Localization.getString("sender.help.autoreconnect"))
@@ -103,11 +97,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setMaxCommandLength((int)maxCommandLength.getValue());
         settings.setTruncateDecimalLength((int)truncateDecimalDigits.getValue());
         settings.setSingleStepMode(singleStepMode.getValue());
-        settings.setRemoveAllWhitespace(removeAllWhitespace.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
         settings.setDisplayStateColor(stateColorDisplayEnabled.getValue());
-        settings.setConvertArcsToLines(convertArcsToLines.getValue());
         settings.setSmallArcSegmentLength((double)smallArcLength.getValue());
         settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setAutoReconnect(autoReconnect.getValue());
@@ -142,9 +134,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         singleStepMode.setSelected(s.isSingleStepMode());
         add(singleStepMode);
 
-        removeAllWhitespace.setSelected(s.isRemoveAllWhitespace());
-        add(removeAllWhitespace);
-
         statusPollingEnabled.setSelected(s.isStatusUpdatesEnabled());
         add(statusPollingEnabled);
 
@@ -153,9 +142,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         stateColorDisplayEnabled.setSelected(s.isDisplayStateColor());
         add(stateColorDisplayEnabled);
-
-        convertArcsToLines.setSelected(s.isConvertArcsToLines());
-        add(convertArcsToLines);
 
         smallArcLength.setValue(s.getSmallArcSegmentLength());
         add(smallArcLength);

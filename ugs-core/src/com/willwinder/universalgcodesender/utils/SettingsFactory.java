@@ -136,11 +136,9 @@ public class SettingsFactory {
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                 out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
                 out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
-                out.setRemoveAllWhitespace(Boolean.valueOf(properties.getProperty("removeAllWhitespace", "true")));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
                 out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
-                out.setConvertArcsToLines(Boolean.valueOf(properties.getProperty("convertArcsToLines", FALSE)));
                 out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
                 out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));

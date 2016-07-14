@@ -328,28 +328,11 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      * This allows us to visualize a file without loading a controller profile.
      */
     private static void initializeWithFallbackProcessors(GcodeParser parser, Settings settings) {
-        //parser.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
-        if (settings.isRemoveAllWhitespace()) {
-            parser.addCommandProcessor(new WhitespaceProcessor());
-        }
-
-        //parser.setSpeedOverride(value);
-        if (settings.isOverrideSpeedSelected()) {
-            double value = settings.getOverrideSpeedValue();
-            parser.addCommandProcessor(new FeedOverrideProcessor(value));
-        }
-
+        parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new CommentProcessor());
-
         parser.addCommandProcessor(new M30Processor());
-
-        if (settings.isConvertArcsToLines()) {
-            parser.addCommandProcessor(new CommandSplitter());
-            parser.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength()));
-        }
-
+        parser.addCommandProcessor(new CommandSplitter());
         parser.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
-
         parser.addCommandProcessor(new CommandLengthProcessor(50));
     }
 

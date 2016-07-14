@@ -27,11 +27,9 @@ public class Settings {
     private boolean singleStepMode = false;
     private int maxCommandLength = 50;
     private int truncateDecimalLength = 4;
-    private boolean removeAllWhitespace = true;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private boolean displayStateColor = true;
-    private boolean convertArcsToLines = false;
     private double smallArcThreshold = 2.0;
     private double smallArcSegmentLength = 1.3;
     private String defaultUnits = Units.MM.abbreviation;
@@ -235,14 +233,6 @@ public class Settings {
 		this.truncateDecimalLength = truncateDecimalLength;
 	}
 
-	public boolean isRemoveAllWhitespace() {
-		return removeAllWhitespace;
-	}
-
-	public void setRemoveAllWhitespace(boolean removeAllWhitespace) {
-		this.removeAllWhitespace = removeAllWhitespace;
-	}
-
 	public boolean isStatusUpdatesEnabled() {
 		return statusUpdatesEnabled;
 	}
@@ -265,14 +255,6 @@ public class Settings {
 
 	public void setDisplayStateColor(boolean displayStateColor) {
 		this.displayStateColor = displayStateColor;
-	}
-
-	public boolean isConvertArcsToLines() {
-		return convertArcsToLines;
-	}
-
-	public void setConvertArcsToLines(boolean convertArcsToLines) {
-		this.convertArcsToLines = convertArcsToLines;
 	}
 
 	public double getSmallArcThreshold() {
