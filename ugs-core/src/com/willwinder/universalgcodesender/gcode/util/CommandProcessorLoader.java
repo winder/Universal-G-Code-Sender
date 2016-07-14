@@ -167,12 +167,10 @@ public class CommandProcessorLoader {
                 case "M30Processor":
                     p = new M30Processor();
                     break;
-                /*
                 case "PatternRemover":
-                    String pattern = entry.getValue().getAsJsonObject().get("pattern").getAsString();
+                    String pattern = pc.args.get("pattern").getAsString();
                     p = new PatternRemover(pattern);
                     break;
-                */
                 case "WhitespaceProcessor":
                     p = new WhitespaceProcessor();
                     break;

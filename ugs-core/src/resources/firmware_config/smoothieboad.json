@@ -37,10 +37,6 @@
                 "enabled": true,
                 "optional": true
             },{
-                "name": "CommandLengthProcessor",
-                "enabled": true,
-                "optional": true
-            },{
                 "name": "WhitespaceProcessor",
                 "enabled": true,
                 "optional": true
@@ -48,6 +44,10 @@
                 "name": "CommandSplitter",
                 "enabled": true,
                 "optional": false
+            },{
+                "name": "CommandLengthProcessor",
+                "enabled": true,
+                "optional": true
             }
         ]
     }

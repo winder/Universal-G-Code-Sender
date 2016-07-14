@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.LoopBackCommunicator;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,9 +123,19 @@ public class ControllerSettings {
         }
     }
     
+    /**
+     * Get the list of processors from the settings in the order they should be
+     * applied.
+     */
     public List<ICommandProcessor> getProcessors(Settings settings) {
-        //return CommandProcessorLoader.initializeWithProcessors(commandProcessorConfig.toString(), settings);
-        return null;
+        List<ICommandProcessor> ret = new ArrayList<>();
+        ret.addAll(
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Front, settings));
+        ret.addAll(
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Custom, settings));
+        ret.addAll(
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.End, settings));
+        return ret;
     }
 
     public ProcessorConfigGroups getProcessorConfigs() {

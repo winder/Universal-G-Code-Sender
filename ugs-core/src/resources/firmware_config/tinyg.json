@@ -37,11 +37,11 @@
                 "enabled": true,
                 "optional": true
             },{
-                "name": "CommandLengthProcessor",
+                "name": "WhitespaceProcessor",
                 "enabled": true,
                 "optional": true
             },{
-                "name": "WhitespaceProcessor",
+                "name": "CommandLengthProcessor",
                 "enabled": true,
                 "optional": true
             }

@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -65,6 +66,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
     private AbstractController controller = null;
+    private List<ICommandProcessor> processors = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
@@ -175,13 +177,22 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         lastConnectAttempt = System.currentTimeMillis();
 
-        //this.controller = FirmwareUtils.getControllerFor(firmware);
+        // Load command processors for this firmware.
+        Optional<List<ICommandProcessor>> processor_ret =
+                FirmwareUtils.getParserFor(firmware, settings);
+        if (!processor_ret.isPresent()) {
+            disconnect();
+            throw new Exception("Bad configuration file for: " + firmware);
+        } else {
+            processors = processor_ret.get();
+        }
+
         Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
         if (!c.isPresent()) {
             throw new Exception("Unable to create handler for: " + firmware);
         }
         this.controller = c.get();
-        applySettingsToController(settings, this.controller);
+        applySettings(settings);
 
         this.controller.addListener(this);
         for (ControllerListener l : controllerListeners) {
@@ -192,6 +203,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
             streamFailed = false;   //reset
         }
+
+        setGcodeFile(this.gcodeFile);
     }
 
     @Override
@@ -288,6 +301,19 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
 
+    private void resetAndApplyCommandProcessors() {
+        // Configure gcode parser.
+        gcp.resetCommandProcessors();
+
+        if (this.processors != null) {
+            for (ICommandProcessor p : processors) {
+                gcp.addCommandProcessor(p);
+            }
+        } else {
+            initializeWithFallbackProcessors(gcp, settings);
+        }
+    }
+
     @Override
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
@@ -295,33 +321,36 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }
+        resetAndApplyCommandProcessors();
+    }
 
-        // Configure gcode parser.
-        gcp.resetCommandProcessors();
-
-        //gcp.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
+    /**
+     * This allows us to visualize a file without loading a controller profile.
+     */
+    private static void initializeWithFallbackProcessors(GcodeParser parser, Settings settings) {
+        //parser.setRemoveAllWhitespace(settings.isRemoveAllWhitespace());
         if (settings.isRemoveAllWhitespace()) {
-            gcp.addCommandProcessor(new WhitespaceProcessor());
+            parser.addCommandProcessor(new WhitespaceProcessor());
         }
 
-        //gcp.setSpeedOverride(value);
+        //parser.setSpeedOverride(value);
         if (settings.isOverrideSpeedSelected()) {
             double value = settings.getOverrideSpeedValue();
-            gcp.addCommandProcessor(new FeedOverrideProcessor(value));
+            parser.addCommandProcessor(new FeedOverrideProcessor(value));
         }
 
-        gcp.addCommandProcessor(new CommentProcessor());
+        parser.addCommandProcessor(new CommentProcessor());
 
-        gcp.addCommandProcessor(new M30Processor());
+        parser.addCommandProcessor(new M30Processor());
 
         if (settings.isConvertArcsToLines()) {
-            gcp.addCommandProcessor(new CommandSplitter());
-            gcp.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength()));
+            parser.addCommandProcessor(new CommandSplitter());
+            parser.addCommandProcessor(new ArcExpander(true, settings.getSmallArcSegmentLength()));
         }
 
-        gcp.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+        parser.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
 
-        gcp.addCommandProcessor(new CommandLengthProcessor(50));
+        parser.addCommandProcessor(new CommandLengthProcessor(50));
     }
 
     @Override
@@ -766,12 +795,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
         try {
             controller.getCommandCreator().setMaxCommandLength(settings.getMaxCommandLength());
-            
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());
         } catch (Exception ex) {
-
             StringBuilder message = new StringBuilder()
                     .append(Localization.getString("mainWindow.error.firmwareSetting"))
                     .append(": \n    ")
