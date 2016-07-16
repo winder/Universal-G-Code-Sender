@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
@@ -135,9 +136,10 @@ public class GcodeViewParse {
         Point3d end = new Point3d();
 
         while (reader.getNumRowsRemaining() > 0) {
-            List<String> commands = gp.preprocessCommand(reader.getNextCommand().getCommandString());
+            GcodeCommand commandObject = reader.getNextCommand();
+            List<String> commands = gp.preprocessCommand(commandObject.getCommandString());
             for (String command : commands) {
-                List<PointSegment> points = gp.addCommand(command);
+                List<PointSegment> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (PointSegment p : points) {
                     addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
                 }

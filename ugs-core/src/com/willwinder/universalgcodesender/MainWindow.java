@@ -1576,12 +1576,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                             //sentRowsValueLabel.setText(""+sentRows);
                             sentRowsValueLabel.setText(""+backend.getNumSentRows());
                             remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
-
-                            if (backend.isSending()) {
-                                if (vw != null) {
-                                    vw.setCompletedCommandNumber((int)backend.getNumSentRows());
-                                }
-                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -2312,6 +2306,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             public void run() {
                 if (commandTableScrollPane.isEnabled()) {
                     commandTable.updateRow(command);
+                }
+
+                if (backend.isSending()) {
+                    if (vw != null) {
+                        vw.setCompletedCommandNumber(command.getCommandNumber());
+                    }
                 }
             }});
     }

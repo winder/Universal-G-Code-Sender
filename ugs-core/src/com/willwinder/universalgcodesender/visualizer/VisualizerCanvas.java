@@ -550,7 +550,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                 }
 
                 // Override color if it is cutoff
-                if (ls.getLineNumber() < this.currentCommandNumber) {
+                if (ls.getLineNumber() <= this.currentCommandNumber) {
                     color = VisualizerUtils.Color.GRAY;
                 }
 

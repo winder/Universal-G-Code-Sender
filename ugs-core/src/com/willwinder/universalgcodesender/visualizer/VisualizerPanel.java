@@ -135,7 +135,7 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
+        canvas.setCurrentCommandNumber(command.getCommandNumber());
     }
 
     @Override
