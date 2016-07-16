@@ -204,7 +204,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             streamFailed = false;   //reset
         }
 
-        setGcodeFile(this.gcodeFile);
+        // Reload gcode file to use the controllers processors.
+        if (this.gcodeFile != null) {
+            setGcodeFile(this.gcodeFile);
+        }
     }
 
     @Override
