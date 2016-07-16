@@ -27,9 +27,11 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -93,6 +95,19 @@ public class FirmwareUtils {
             return Optional.empty();
         }
         return Optional.of(configFiles.get(firmware).loader.getProcessors(settings));
+    }
+
+    public static void addPatternRemoverForFirmware(String firmware, String pattern) throws IOException {
+        if (!configFiles.containsKey(firmware)) {
+            return;
+        }
+        ConfigTuple tuple = configFiles.get(firmware);
+        JsonObject args = new JsonObject();
+        args.addProperty("pattern", pattern);
+        tuple.loader.GcodeProcessors.Custom.add(
+                new ControllerSettings.ProcessorConfig("PatternRemover",
+                        true, true, args));
+        save(tuple.file, tuple.loader);
     }
 
     /**

@@ -55,6 +55,11 @@ import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -90,6 +95,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private boolean openCloseButtonEnabled;
     private String pauseButtonText;
     private String cancelButtonText;
+    private String firmware = null;
 
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;
@@ -175,6 +181,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void connect(String firmware, String port, int baudRate) throws Exception {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
         lastConnectAttempt = System.currentTimeMillis();
+
+        this.firmware = firmware;
 
         // Load command processors for this firmware.
         Optional<List<ICommandProcessor>> processor_ret =
@@ -732,6 +740,36 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         controller.updateParserModalState(command);
         if (isIdle()) {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+        }
+
+        if (command.isError()) {
+            if (this.isSending() && !this.isPaused()) {
+                try {
+                    this.pauseResume();
+                } catch (Exception e) {
+                    GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
+                }
+            }
+            String error =
+                    String.format(Localization.getString("controller.exception.sendError"),
+                            command.getCommandString(),
+                            command.getResponse());
+            messageForConsole(MessageType.INFO, error);
+
+            String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
+            Object[] params = {error, checkboxQuestion};
+            int n = JOptionPane.showConfirmDialog(new JFrame(),
+                    params,
+                    Localization.getString("error"),
+                    JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                try {
+                    FirmwareUtils.addPatternRemoverForFirmware(firmware,
+                            Matcher.quoteReplacement(command.getCommandString()));
+                } catch (IOException ex) {
+                    GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+                }
+            }
         }
     }
 
