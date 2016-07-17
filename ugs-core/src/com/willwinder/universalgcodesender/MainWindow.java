@@ -2259,7 +2259,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 JOptionPane.showMessageDialog(new JFrame(),
-                        Localization.getString("mainWindow.ui.jobComplete") + " " + durationLabelCopy,
+                        Localization.getString("mainWindow.ui.jobComplete") + " " + Utils.formattedMillis(backend.getSendDuration()),
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
                 try {
                     Thread.sleep(1000);

@@ -67,6 +67,13 @@ public class FirmwareUtils {
             this.loader = l;
             this.file = f;
         }
+        public void reload() {
+            try {
+                loader = new Gson().fromJson(new FileReader(file), ControllerSettings.class);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private static Map<String,ConfigTuple> configFiles = new HashMap<>();

@@ -25,12 +25,10 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
@@ -56,8 +54,6 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -71,7 +67,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
     private AbstractController controller = null;
-    private List<ICommandProcessor> processors = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
@@ -96,6 +91,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private String pauseButtonText;
     private String cancelButtonText;
     private String firmware = null;
+    private boolean reprocessFileAfterStreamComplete = false;
 
     private long lastResponse = Long.MIN_VALUE;
     private long lastConnectAttempt = Long.MIN_VALUE;
@@ -177,11 +173,21 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
 
-    @Override
-    public void connect(String firmware, String port, int baudRate) throws Exception {
-        logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
-        lastConnectAttempt = System.currentTimeMillis();
+    private void initGcodeParser() {
+        // Configure gcode parser.
+        gcp.resetCommandProcessors();
 
+        List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElseGet(null);
+        if (processors != null) {
+            for (ICommandProcessor p : processors) {
+                gcp.addCommandProcessor(p);
+            }
+        } else {
+            initializeWithFallbackProcessors(gcp, settings);
+        }
+    }
+
+    private void updateWithFirmware(String firmware) throws Exception {
         this.firmware = firmware;
 
         // Load command processors for this firmware.
@@ -190,9 +196,22 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (!processor_ret.isPresent()) {
             disconnect();
             throw new Exception("Bad configuration file for: " + firmware);
-        } else {
-            processors = processor_ret.get();
         }
+
+        initGcodeParser();
+
+        // Reload gcode file to use the controllers processors.
+        if (this.gcodeFile != null) {
+            setGcodeFile(this.gcodeFile);
+        }
+    }
+
+    @Override
+    public void connect(String firmware, String port, int baudRate) throws Exception {
+        logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
+        lastConnectAttempt = System.currentTimeMillis();
+
+        updateWithFirmware(firmware);
 
         Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
         if (!c.isPresent()) {
@@ -209,11 +228,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (openCommConnection(port, baudRate)) {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
             streamFailed = false;   //reset
-        }
-
-        // Reload gcode file to use the controllers processors.
-        if (this.gcodeFile != null) {
-            setGcodeFile(this.gcodeFile);
         }
     }
 
@@ -311,19 +325,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
     }
 
-    private void resetAndApplyCommandProcessors() {
-        // Configure gcode parser.
-        gcp.resetCommandProcessors();
-
-        if (this.processors != null) {
-            for (ICommandProcessor p : processors) {
-                gcp.addCommandProcessor(p);
-            }
-        } else {
-            initializeWithFallbackProcessors(gcp, settings);
-        }
-    }
-
     @Override
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
@@ -331,7 +332,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }
-        resetAndApplyCommandProcessors();
+        // Reload gcode file to use the controllers processors.
+        if (this.gcodeFile != null) {
+            setGcodeFile(this.gcodeFile);
+        }
     }
 
     /**
@@ -725,6 +729,15 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+
+        // Reprocess file if a custom pattern remover was added while streaming.
+        if (this.reprocessFileAfterStreamComplete) {
+            try {
+                updateWithFirmware(firmware);
+            } catch (Exception ex) {
+                Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     @Override
@@ -766,6 +779,8 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 try {
                     FirmwareUtils.addPatternRemoverForFirmware(firmware,
                             Matcher.quoteReplacement(command.getCommandString()));
+                    initGcodeParser();
+                    this.reprocessFileAfterStreamComplete = true;
                 } catch (IOException ex) {
                     GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
                 }
