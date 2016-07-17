@@ -177,7 +177,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         // Configure gcode parser.
         gcp.resetCommandProcessors();
 
-        List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElseGet(null);
+        List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
         if (processors != null) {
             for (ICommandProcessor p : processors) {
                 gcp.addCommandProcessor(p);
@@ -197,8 +197,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             disconnect();
             throw new Exception("Bad configuration file for: " + firmware);
         }
-
-        initGcodeParser();
 
         // Reload gcode file to use the controllers processors.
         if (this.gcodeFile != null) {
@@ -487,6 +485,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void setGcodeFile(File file) throws Exception {
         logger.log(Level.INFO, "Setting gcode file.");
+        initGcodeParser();
         this.gcodeFile = file;
         this.processedGcodeFile = null;
 
@@ -779,7 +778,6 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 try {
                     FirmwareUtils.addPatternRemoverForFirmware(firmware,
                             Matcher.quoteReplacement(command.getCommandString()));
-                    initGcodeParser();
                     this.reprocessFileAfterStreamComplete = true;
                 } catch (IOException ex) {
                     GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
