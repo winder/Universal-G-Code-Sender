@@ -47,6 +47,7 @@ abstract class UGSOptionsPanel extends javax.swing.JPanel {
     }
 
     void load() {
+        settingsPanel.updateComponents(settings);
     }
 
     void store() {

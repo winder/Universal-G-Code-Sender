@@ -29,7 +29,7 @@ import net.miginfocom.swing.MigLayout;
 public abstract class AbstractUGSSettings extends JPanel {
     final private Collection<Component> components = new ArrayList<>();
     final protected Settings settings;
-    final protected IChanged changer;
+    final private IChanged changer;
 
     public AbstractUGSSettings(Settings settings, IChanged changer) {
         this.settings = settings;
@@ -41,7 +41,7 @@ public abstract class AbstractUGSSettings extends JPanel {
     public abstract String getHelpMessage();
     public abstract void restoreDefaults() throws Exception;
 
-    private void change() {
+    protected void change() {
         if (changer != null) changer.changed();
     }
 

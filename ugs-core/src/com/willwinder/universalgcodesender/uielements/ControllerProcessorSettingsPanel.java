@@ -24,6 +24,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import net.miginfocom.swing.MigLayout;
@@ -207,6 +209,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
 
         table.setModel(model);
         table.getTableHeader().setReorderingAllowed(false);
+        table.getModel().addTableModelListener((TableModelEvent e) -> change());
 
         return table;
     }
