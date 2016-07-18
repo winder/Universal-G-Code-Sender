@@ -64,8 +64,9 @@ public class LoopBackConnection extends Connection {
         while (true) {
             GcodeParser gcp = new GcodeParser();
             try {
-                String command = sent.take();
+                String command = sent.take().trim();
                 Thread.sleep(ms);
+
 
                 String response;
                 if (command.equals(Byte.toString(GrblUtils.GRBL_STATUS_COMMAND))) {
@@ -75,6 +76,8 @@ public class LoopBackConnection extends Connection {
                         xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
                     }
                     comm.responseMessage(String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz));
+                } else if (command.equals("G61")) {
+                    comm.responseMessage("error: G61 not supported.");
                 } else {
                     count++;
                     if (count == 2) {
