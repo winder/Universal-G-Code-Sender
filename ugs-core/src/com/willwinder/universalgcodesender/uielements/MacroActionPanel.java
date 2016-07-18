@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import org.apache.commons.lang3.StringUtils;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
 
@@ -55,10 +56,13 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             JButton button = customGcodeButtons.get(i);
             Macro macro = backend.getSettings().getMacro(i);
             if (macro != null) {
-                if (macro.getName() != null) {
+                if (!StringUtils.isEmpty(macro.getName())) {
                     button.setText(macro.getName());
+                } else if (!StringUtils.isEmpty(macro.getDescription())) {
+                    button.setText(macro.getDescription());
                 }
-                if (macro.getDescription() != null) {
+
+                if (!StringUtils.isEmpty(macro.getDescription())) {
                     button.setToolTipText(macro.getDescription());
                 }
             }
