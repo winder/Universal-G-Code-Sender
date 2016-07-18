@@ -193,14 +193,6 @@ public class Settings {
         this.visualizerWindowSettings = vw;
     }
 
-    public boolean isOverrideSpeedSelected() {
-		return overrideSpeedSelected;
-	}
-
-	public void setOverrideSpeedSelected(boolean overrideSpeedSelected) {
-		this.overrideSpeedSelected = overrideSpeedSelected;
-	}
-
 	public double getOverrideSpeedValue() {
 		return overrideSpeedValue;
 	}

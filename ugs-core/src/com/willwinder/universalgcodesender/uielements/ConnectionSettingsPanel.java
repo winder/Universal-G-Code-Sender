@@ -34,8 +34,6 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
-    final Checkbox overrideSpeedEnabled = new Checkbox(
-                Localization.getString("sender.speed.override"));
     final Spinner overrideSpeedPercent = new Spinner(
                 Localization.getString("sender.speed.percent"),
                 new SpinnerNumberModel((int)1, 1, null, 1));
@@ -92,7 +90,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public void save() {
-        settings.setOverrideSpeedSelected(overrideSpeedEnabled.getValue());
         settings.setOverrideSpeedValue(new Double((int)overrideSpeedPercent.getValue()));
         settings.setMaxCommandLength((int)maxCommandLength.getValue());
         settings.setTruncateDecimalLength((int)truncateDecimalDigits.getValue());
@@ -118,9 +115,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         this.removeAll();
 
         setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
-
-        overrideSpeedEnabled.setSelected(s.isOverrideSpeedSelected());
-        add(overrideSpeedEnabled);
 
         overrideSpeedPercent.setValue((int)s.getOverrideSpeedValue());
         add(overrideSpeedPercent);

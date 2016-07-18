@@ -130,7 +130,6 @@ public class SettingsFactory {
                 out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
                 out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
                 out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", FALSE)));
-                out.setOverrideSpeedSelected(Boolean.valueOf(properties.getProperty("overrideSpeed.enabled", FALSE)));
                 out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
                 out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
