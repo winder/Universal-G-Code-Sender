@@ -75,18 +75,29 @@ public class MacroHelper {
      * @return 
      */
     static private final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^\\}]+)\\}");
+    static private final Pattern MACHINE_X = Pattern.compile("\\{machine_x\\}");
+    static private final Pattern MACHINE_Y = Pattern.compile("\\{machine_y\\}");
+    static private final Pattern MACHINE_Z = Pattern.compile("\\{machine_z\\}");
+    static private final Pattern WORK_X = Pattern.compile("\\{work_x\\}");
+    static private final Pattern WORK_Y = Pattern.compile("\\{work_y\\}");
+    static private final Pattern WORK_Z = Pattern.compile("\\{work_z\\}");
     protected static String substituteValues(String str, BackendAPI backend) {
         SystemStateBean bean = new SystemStateBean();
         backend.updateSystemState(bean);
 
+        // Early exit if there is nothing to match.
+        if (!str.contains("{")) {
+            return str;
+        }
+
         // Do simple substitutions
         String command = str;
-        command = command.replaceAll("\\{machine_x\\}", bean.getMachineX());
-        command = command.replaceAll("\\{machine_y\\}", bean.getMachineY());
-        command = command.replaceAll("\\{machine_z\\}", bean.getMachineZ());
-        command = command.replaceAll("\\{work_x\\}", bean.getWorkX());
-        command = command.replaceAll("\\{work_y\\}", bean.getWorkY());
-        command = command.replaceAll("\\{work_z\\}", bean.getWorkZ());
+        command = MACHINE_X.matcher(command).replaceAll(bean.getMachineX());
+        command = MACHINE_Y.matcher(command).replaceAll(bean.getMachineY());
+        command = MACHINE_Z.matcher(command).replaceAll(bean.getMachineZ());
+        command = WORK_X.matcher(command).replaceAll(bean.getWorkX());
+        command = WORK_Y.matcher(command).replaceAll(bean.getWorkY());
+        command = WORK_Z.matcher(command).replaceAll(bean.getWorkZ());
 
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);
