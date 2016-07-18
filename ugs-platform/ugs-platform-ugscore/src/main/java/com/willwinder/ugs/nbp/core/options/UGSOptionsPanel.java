@@ -19,25 +19,29 @@
 package com.willwinder.ugs.nbp.core.options;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.IChanged;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.BorderLayout;
 
-final class SenderOptionsPanel extends javax.swing.JPanel {
+abstract class UGSOptionsPanel extends javax.swing.JPanel {
 
-    private final SenderOptionsOptionsPanelController controller;
-    private ConnectionSettingsPanel settingsPanel;
-    private final Settings settings;
+    protected final AbstractOptionsPanelController controller;
+    private AbstractUGSSettings settingsPanel;
+    protected final Settings settings;
 
-    SenderOptionsPanel(SenderOptionsOptionsPanelController controller) {
+    UGSOptionsPanel(AbstractOptionsPanelController controller) {
         this.controller = controller;
         settings = CentralLookup.getDefault().lookup(Settings.class);
+        settingsPanel = initPanel(controller);
+
         initComponents();
         // TODO listen to changes in form fields and call controller.changed()
     }
 
+    protected abstract AbstractUGSSettings initPanel(IChanged changer);
+
     private void initComponents() {
-        settingsPanel = new ConnectionSettingsPanel(settings, controller);
         setLayout(new BorderLayout());
         add(settingsPanel, BorderLayout.CENTER);
     }
@@ -46,7 +50,7 @@ final class SenderOptionsPanel extends javax.swing.JPanel {
     }
 
     void store() {
-        settingsPanel.updateSettingsObject();
+        settingsPanel.save();
     }
 
     boolean valid() {

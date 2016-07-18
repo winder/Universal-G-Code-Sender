@@ -27,18 +27,17 @@ import org.netbeans.spi.options.OptionsPanelController;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
-@OptionsPanelController.SubRegistration(
-        location = "UGS",
-        displayName = "#AdvancedOption_DisplayName_SenderOptions",
-        keywords = "#AdvancedOption_Keywords_SenderOptions",
-        keywordsCategory = "UGS/SenderOptions"
-)
-@org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_SenderOptions=Sender Options", "AdvancedOption_Keywords_SenderOptions=UGS"})
-public final class SenderOptionsOptionsPanelController extends OptionsPanelController implements IChanged {
+public abstract class AbstractOptionsPanelController extends OptionsPanelController implements IChanged {
 
-    private SenderOptionsPanel panel;
+    private UGSOptionsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
+
+    public AbstractOptionsPanelController() {
+        panel = initPanel();
+    }
+
+    abstract UGSOptionsPanel initPanel();
 
     public void update() {
         getPanel().load();
@@ -83,10 +82,7 @@ public final class SenderOptionsOptionsPanelController extends OptionsPanelContr
         pcs.removePropertyChangeListener(l);
     }
 
-    private SenderOptionsPanel getPanel() {
-        if (panel == null) {
-            panel = new SenderOptionsPanel(this);
-        }
+    private UGSOptionsPanel getPanel() {
         return panel;
     }
 

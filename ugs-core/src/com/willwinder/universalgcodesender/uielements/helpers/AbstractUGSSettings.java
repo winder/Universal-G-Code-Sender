@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -59,6 +60,11 @@ public abstract class AbstractUGSSettings extends JPanel {
             }
             else if (clazz == JComboBox.class) {
                 ((JComboBox)c).addActionListener((ActionEvent e) -> {
+                    change();
+                });
+            }
+            else if (clazz == JButton.class) {
+                ((JButton)c).addActionListener((ActionEvent e) -> {
                     change();
                 });
             }

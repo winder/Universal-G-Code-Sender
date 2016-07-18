@@ -125,6 +125,7 @@
                         <package>com.willwinder.universalgcodesender.uielements.jog</package>
                         <package>com.willwinder.universalgcodesender.uielements.machinestatus</package>
                         <package>com.willwinder.universalgcodesender.uielements.pendant</package>
+                        <package>com.willwinder.universalgcodesender.uielements.helpers</package>
                         <package>com.willwinder.universalgcodesender.utils</package>
                         <package>com.willwinder.universalgcodesender.utils.SettingsFactory</package>
                         <package>com.willwinder.universalgcodesender.visualizer</package>
