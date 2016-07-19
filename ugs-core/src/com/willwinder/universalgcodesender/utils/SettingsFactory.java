@@ -53,19 +53,23 @@ public class SettingsFactory {
         Settings out = null;
         File settingsFile = getSettingsFile();
 
-        try {
-            //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
-            logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
-            logger.info("Loading settings.");
-            out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
-            out.finalizeInitialization();
-            // Localized setting not available here.
-            //logger.info(Localization.getString("settings.log.loading"));
-        } catch (FileNotFoundException ex) {
-            //logger.warning(Localization.getString("settings.log.error"));
-            logger.warning("Can't load settings, using defaults.");
-            Logger.getLogger(SettingsFactory.class.getName()).log(Level.SEVERE, null, ex);
+        if (!settingsFile.exists()) {
+            out = new Settings();
+        } else {
+            try {
+                //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
+                logger.info("Loading settings.");
+                out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+                // Localized setting not available here.
+                //logger.info(Localization.getString("settings.log.loading"));
+            } catch (FileNotFoundException ex) {
+                //logger.warning(Localization.getString("settings.log.error"));
+                logger.warning("Can't load settings, using defaults.");
+                Logger.getLogger(SettingsFactory.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        out.finalizeInitialization();
         
         if (out == null) return new Settings();
         return out;
