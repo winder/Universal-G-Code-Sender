@@ -83,6 +83,7 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     }
 
     private void updateValues() {
+        if (jogService == null) return;
         this.stepSizeSpinner.setValue(jogService.getStepSize());
         this.mmRadioButton.setSelected(jogService.getUnits() == Units.MM);
         this.inchRadioButton.setSelected(jogService.getUnits() == Units.INCH);
