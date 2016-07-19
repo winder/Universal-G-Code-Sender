@@ -150,6 +150,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
                 int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
+                    i++;
                     if (i % 1000000 == 0) {
                         logger.log(Level.FINE, "i: " + i);
                     }
@@ -159,12 +160,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
                     // If it is a comment-only line, add the comment,
                     if (!comment.isEmpty() && lines.isEmpty()) {
-                        gsw.addLine(line, "", comment, i++);
+                        gsw.addLine(line, "", comment, i);
                     }
                     // Otherwise add each processed line (often just one line).
                     else {
                         for(String processedLine : lines) {
-                            gsw.addLine(line, processedLine, comment, i++);
+                            gsw.addLine(line, processedLine, comment, i);
                             gcp.addCommand(processedLine);
                         }
                     }
