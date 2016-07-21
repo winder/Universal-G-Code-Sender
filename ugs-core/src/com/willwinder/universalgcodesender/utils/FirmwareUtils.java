@@ -37,16 +37,22 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import sun.misc.Launcher;
 
 /**
  *
@@ -167,22 +173,49 @@ public class FirmwareUtils {
             firmwareConfig.mkdirs();
         }
 
+        // Copy firmware config files.
         try {
-            // Loop through config files.
-            String dir = "resources/firmware_config/";
-            List<String> files = IOUtils.readLines(FirmwareUtils.
-                    class.getClassLoader()
-                    .getResourceAsStream(dir), Charsets.UTF_8);
+            final String dir = "resources/firmware_config/";
+            final File jarFile = new File(FirmwareUtils.class
+                    .getProtectionDomain().getCodeSource().getLocation().getPath());
 
-            // Create any files which don't exist.
-            for (String file : files) {
-                File fwConfig = new File(firmwareConfig, file);
-                if (!fwConfig.exists()) {
-                    InputStream is = FirmwareUtils.class.getClassLoader().
-                            getResourceAsStream(dir + file);
-                    FileUtils.copyInputStreamToFile(is, new File(firmwareConfig, file));
+            // Extract file from .jar
+            if(jarFile.isFile()) {
+                final JarFile jar = new JarFile(jarFile);
+                //gives ALL entries in jar
+                final Enumeration<JarEntry> entries = jar.entries();
+                while(entries.hasMoreElements()) {
+                    final String name = entries.nextElement().getName();
+                    //filter according to the path
+                    if (name.startsWith(dir)) {
+                        String entry = name.substring(dir.length());
+                        File fwConfig = new File(firmwareConfig, entry);
+                        if (!fwConfig.exists()) {
+                            InputStream is = FirmwareUtils.class.getClassLoader().
+                                    getResourceAsStream(name);
+                            FileUtils.copyInputStreamToFile(is, fwConfig);
+                        }
+                    }
+                }
+                jar.close();
+            }
+            // Extract files from IDE
+            else {
+                List<String> files = IOUtils.readLines(FirmwareUtils.
+                        class.getClassLoader()
+                        .getResourceAsStream(dir), Charsets.UTF_8);
+
+                // Create any files which don't exist.
+                for (String file : files) {
+                    File fwConfig = new File(firmwareConfig, file);
+                    if (!fwConfig.exists()) {
+                        InputStream is = FirmwareUtils.class.getClassLoader().
+                                getResourceAsStream(dir + file);
+                        FileUtils.copyInputStreamToFile(is, new File(firmwareConfig, file));
+                    }
                 }
             }
+
         } catch (IOException ex) {
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
