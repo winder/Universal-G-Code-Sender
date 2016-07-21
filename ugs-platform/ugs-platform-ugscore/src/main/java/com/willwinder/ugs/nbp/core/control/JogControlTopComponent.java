@@ -28,17 +28,26 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.uielements.StepSizeSpinnerModel;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
 import java.awt.Container;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.ParseException;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import java.util.prefs.Preferences;
+import javax.swing.JFormattedTextField;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.DefaultFormatter;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -78,15 +87,23 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         setToolTipText(LocalizingService.JogControlTooltip);
 
         initComponents();
+        JSpinner.NumberEditor editor = new JSpinner.NumberEditor(this.stepSizeSpinner, "#.####");
+        stepSizeSpinner.setEditor(editor);
+        JFormattedTextField jtf = editor.getTextField();
+        DefaultFormatter formatter = (DefaultFormatter) jtf.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
+        stepSizeSpinner.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                JSpinner s = (JSpinner) e.getSource();
+                BigDecimal bd = new BigDecimal(s.getValue().toString());
+                bd.setScale(3, RoundingMode.HALF_EVEN);
+                jogService.setStepSize(bd.doubleValue());
+            }
+        });
+
         pref = NbPreferences.forModule(JogService.class);
         pref.addPreferenceChangeListener(this);
-    }
-
-    private void updateValues() {
-        if (jogService == null) return;
-        this.stepSizeSpinner.setValue(jogService.getStepSize());
-        this.mmRadioButton.setSelected(jogService.getUnits() == Units.MM);
-        this.inchRadioButton.setSelected(jogService.getUnits() == Units.INCH);
     }
 
     /**
@@ -94,7 +111,10 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
      */
     @Override
     public void preferenceChange(PreferenceChangeEvent evt) {
-        updateValues();
+        if (jogService == null) return;
+        this.stepSizeSpinner.setValue(jogService.getStepSize());
+        this.mmRadioButton.setSelected(jogService.getUnits() == Units.MM);
+        this.inchRadioButton.setSelected(jogService.getUnits() == Units.INCH);
     }
 
     public void enableComponents(Container container, boolean enable) {
@@ -112,11 +132,16 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     }
     
     private double getStepSize() {
+        try {
+            stepSizeSpinner.commitEdit();
+        } catch (ParseException ex) {
+            GUIHelpers.displayErrorDialog("Invalid step size value: " + ex.getLocalizedMessage());
+        }
+
         String value = this.stepSizeSpinner.getValue().toString();
         BigDecimal bd = new BigDecimal(value);
         bd.setScale(3, RoundingMode.HALF_EVEN);
         return bd.doubleValue();
-        //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
     
     @Override
@@ -130,7 +155,8 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
         settings = CentralLookup.getDefault().lookup(Settings.class);
         jogService = Lookup.getDefault().lookup(JogService.class);
 
-        jogService.setStepSize(getStepSize());
+        stepSizeSpinner.setValue(jogService.getStepSize());
+        //jogService.setStepSize(getStepSize());
         switch (jogService.getUnits()) {
             case MM:
                 this.mmRadioButton.setSelected(true);
@@ -335,7 +361,6 @@ public final class JogControlTopComponent extends TopComponent implements UGSEve
     }//GEN-LAST:event_mmRadioButtonActionPerformed
 
     private void stepSizeSpinnerStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_stepSizeSpinnerStateChanged
-        jogService.setStepSize(getStepSize());
     }//GEN-LAST:event_stepSizeSpinnerStateChanged
 
     private void zMinusButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zMinusButtonActionPerformed
