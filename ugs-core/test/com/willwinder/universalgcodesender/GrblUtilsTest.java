@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.Utils;
+import java.util.ArrayList;
 import org.junit.Test;
 
 /**
@@ -138,29 +139,33 @@ public class GrblUtilsTest {
     
     @Test
     public void testGetReturnToHomeCommand() {
-        System.out.println("getReturnToHomeCommand");
+        System.out.println("getReturnToHomeCommands");
         double version;
         String letter;
-        String result;
+        ArrayList<String> result;
         String expResult;
         
         version = 0.7;
         letter = null;
         expResult = "";
-        result = GrblUtils.getReturnToHomeCommand(version, letter);
-        assertEquals(expResult, result);
+        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        assertEquals(0, result.size());
         
         version = 0.8;
         letter = null;
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
-        result = GrblUtils.getReturnToHomeCommand(version, letter);
-        assertEquals(expResult, result);
+        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        assertEquals(1, result.size());
+        assertEquals(expResult, result.get(0));
 
         version = 0.8;
         letter = "c";
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C;
-        result = GrblUtils.getReturnToHomeCommand(version, letter);
-        assertEquals(expResult, result);
+        String expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C;
+        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        assertEquals(2, result.size());
+        assertEquals(expResult, result.get(0));
+        assertEquals(expResult2, result.get(1));
     }
         
     @Test
