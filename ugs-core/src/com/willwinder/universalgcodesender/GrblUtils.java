@@ -267,7 +267,7 @@ public class GrblUtils {
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
     static protected Boolean isGrblSettingMessage(final String response) {
-        return response.startsWith("$") && response.endsWith(")");
+        return SETTING_PATTERN.matcher(response).find();
     }
     
     /**
