@@ -257,13 +257,15 @@ public class GrblUtils {
         return STATUS_PATTERN.matcher(response).find();
     }
 
-    private static final String FEEDBACK_REGEX = "[.*]";
+    private static final String FEEDBACK_REGEX = "\\[.*\\]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
     static protected Boolean isGrblFeedbackMessage(final String response) {
         return FEEDBACK_PATTERN.matcher(response).find();
     }
 
 
+    private static final String SETTING_REGEX = "\\$\\d+=.+";
+    private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
     static protected Boolean isGrblSettingMessage(final String response) {
         return response.startsWith("$") && response.endsWith(")");
     }
