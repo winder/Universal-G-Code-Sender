@@ -165,6 +165,7 @@ public class FirmwareUtils {
      * into the settings/firmware_config dir.
      */
     public static void initialize() {
+        System.out.println("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -176,11 +177,21 @@ public class FirmwareUtils {
         // Copy firmware config files.
         try {
             final String dir = "resources/firmware_config/";
-            final File jarFile = new File(FirmwareUtils.class
-                    .getProtectionDomain().getCodeSource().getLocation().getPath());
+            File jarFile;// = new File(location.getPath());
+
+            URL location = FirmwareUtils.class
+                    .getProtectionDomain().getCodeSource().getLocation();
+            try {
+              jarFile = new File(location.toURI());
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "toURI failed...", e);
+                jarFile = new File(location.getPath());
+            }
+
+            System.out.println(jarFile.getAbsolutePath());
 
             // Extract file from .jar
-            if(jarFile.isFile()) {
+            if(location.toURI().toString().startsWith("jar:")) {
                 final JarFile jar = new JarFile(jarFile);
                 //gives ALL entries in jar
                 final Enumeration<JarEntry> entries = jar.entries();
@@ -217,6 +228,8 @@ public class FirmwareUtils {
             }
 
         } catch (IOException ex) {
+            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (URISyntaxException ex) {
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
