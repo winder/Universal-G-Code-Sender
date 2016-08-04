@@ -28,7 +28,11 @@ public class PlaneFormatter {
     private final Plane plane;
 
     public PlaneFormatter(Plane plane) {
-        this.plane = plane;
+        if (plane == null) {
+            this.plane = Plane.XY;
+        } else {
+            this.plane = plane;
+        }
     }
 
     public double axis0(Point3d point) {
