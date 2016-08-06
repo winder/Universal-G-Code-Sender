@@ -31,28 +31,28 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import sun.misc.Launcher;
 
 /**
  *
@@ -164,7 +164,7 @@ public class FirmwareUtils {
      * Copy any missing files from the the jar's resources/firmware_config/ dir
      * into the settings/firmware_config dir.
      */
-    public static void initialize() {
+    public synchronized static void initialize() {
         System.out.println("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
@@ -176,60 +176,49 @@ public class FirmwareUtils {
 
         // Copy firmware config files.
         try {
-            final String dir = "resources/firmware_config/";
-            File jarFile;// = new File(location.getPath());
+            FileSystem fileSystem = null;
+            try { // 
+                final String dir = "resources/firmware_config/";
 
-            URL location = FirmwareUtils.class
-                    .getProtectionDomain().getCodeSource().getLocation();
-            try {
-              jarFile = new File(location.toURI());
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, "toURI failed...", e);
-                jarFile = new File(location.getPath());
-            }
+                URI location = FirmwareUtils.class.getResource(dir).toURI();
 
-            System.out.println(jarFile.getAbsolutePath());
+                Path myPath;
+                if (location.getScheme().equals("jar")) {
+                    try {
+                        // In case the filesystem already exists.
+                        fileSystem = FileSystems.getFileSystem(location);
+                    } catch (FileSystemNotFoundException e) {
+                        // Otherwise create the new filesystem.
+                        fileSystem = FileSystems.newFileSystem(location,
+                                Collections.<String, String>emptyMap());
+                    }
 
-            // Extract file from .jar
-            if(location.toURI().toString().startsWith("jar:")) {
-                final JarFile jar = new JarFile(jarFile);
-                //gives ALL entries in jar
-                final Enumeration<JarEntry> entries = jar.entries();
-                while(entries.hasMoreElements()) {
-                    final String name = entries.nextElement().getName();
-                    //filter according to the path
-                    if (name.startsWith(dir)) {
-                        String entry = name.substring(dir.length());
-                        File fwConfig = new File(firmwareConfig, entry);
-                        if (!fwConfig.exists()) {
-                            InputStream is = FirmwareUtils.class.getClassLoader().
-                                    getResourceAsStream(name);
+                    myPath = fileSystem.getPath(dir);
+                } else {
+                    myPath = Paths.get(location);
+                }
+
+                Files.walk(myPath, 1).forEach((Path path) -> {
+                    System.out.println(path);
+                    final String name = path.getFileName().toString();
+                    File fwConfig = new File(firmwareConfig, name);
+                    if (!fwConfig.exists()) {
+                        InputStream is;
+                        try {
+                            is = Files.newInputStream(path);
                             FileUtils.copyInputStreamToFile(is, fwConfig);
+                        } catch (IOException ex) {
+                            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
-                }
-                jar.close();
-            }
-            // Extract files from IDE
-            else {
-                List<String> files = IOUtils.readLines(FirmwareUtils.
-                        class.getClassLoader()
-                        .getResourceAsStream(dir), Charsets.UTF_8);
-
-                // Create any files which don't exist.
-                for (String file : files) {
-                    File fwConfig = new File(firmwareConfig, file);
-                    if (!fwConfig.exists()) {
-                        InputStream is = FirmwareUtils.class.getClassLoader().
-                                getResourceAsStream(dir + file);
-                        FileUtils.copyInputStreamToFile(is, new File(firmwareConfig, file));
-                    }
+                });
+            } finally {
+                if (fileSystem != null) {
+                    fileSystem.close();
                 }
             }
-
-        } catch (IOException ex) {
-            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (URISyntaxException ex) {
+        } catch (IOException | URISyntaxException ex) {
+            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations.");
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
