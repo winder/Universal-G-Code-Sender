@@ -218,7 +218,10 @@ public class FirmwareUtils {
                 }
             }
         } catch (IOException | URISyntaxException ex) {
-            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations.");
+            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations: " + ex.getLocalizedMessage());
+            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations: " + ex.getLocalizedMessage());
             Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         }
 
