@@ -178,7 +178,7 @@ public class FirmwareUtils {
         try {
             FileSystem fileSystem = null;
             try { // 
-                final String dir = "resources/firmware_config/";
+                final String dir = "/resources/firmware_config/";
 
                 URI location = FirmwareUtils.class.getResource(dir).toURI();
 
