@@ -202,7 +202,7 @@ public class FirmwareUtils {
                     System.out.println(path);
                     final String name = path.getFileName().toString();
                     File fwConfig = new File(firmwareConfig, name);
-                    if (!fwConfig.exists()) {
+                    if (name.endsWith(".json") && !fwConfig.exists()) {
                         InputStream is;
                         try {
                             is = Files.newInputStream(path);
