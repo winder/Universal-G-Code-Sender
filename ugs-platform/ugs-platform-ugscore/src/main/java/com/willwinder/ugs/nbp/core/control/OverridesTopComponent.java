@@ -36,7 +36,7 @@ import org.openide.util.NbBundle.Messages;
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "top_left", openAtStartup = true)
+@TopComponent.Registration(mode = "top_left", openAtStartup = false)
 @ActionID(category = LocalizingService.OverridesCategory, id = LocalizingService.OverridesActionId)
 @ActionReference(path = LocalizingService.OverridesWindowPath)
 @TopComponent.OpenActionRegistration(
