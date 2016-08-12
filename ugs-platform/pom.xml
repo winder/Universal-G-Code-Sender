@@ -34,6 +34,7 @@
                     <configuration>
                         <brandingToken>${brandingToken}</brandingToken>
                         <cluster>${brandingToken}</cluster>
+                        <etcConfFile>launcher.conf</etcConfFile>
                     </configuration>
                 </plugin>
                 <plugin>
