@@ -223,6 +223,7 @@ public class GcodeModel extends Renderable {
         
         try {
             GcodeViewParse gcvp = new GcodeViewParse();
+            logger.log(Level.INFO, "About to process {}", gcodeFile);
             if (this.processedFile) {
                 GcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
                 gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
