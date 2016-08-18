@@ -54,7 +54,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 Localization.getString("sender.state"));
     final Spinner smallArcLength = new Spinner(
                 Localization.getString("sender.arcs.length"),
-                new SpinnerNumberModel(1., 1., null, .1));
+                new SpinnerNumberModel(1., .0001, null, .1));
     final Checkbox autoConnect = new Checkbox(
                 Localization.getString("sender.autoconnect"));
     final Checkbox autoReconnect = new Checkbox(

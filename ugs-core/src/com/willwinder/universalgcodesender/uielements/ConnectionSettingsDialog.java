@@ -23,7 +23,6 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Frame;
