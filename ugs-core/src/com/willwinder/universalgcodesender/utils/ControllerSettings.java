@@ -133,14 +133,14 @@ public class ControllerSettings {
      * applied.
      */
     // TODO: Remove settings
-    public List<ICommandProcessor> getProcessors(Settings settings) {
+    public List<ICommandProcessor> getProcessors() {
         List<ICommandProcessor> ret = new ArrayList<>();
         ret.addAll(
-                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Front, settings));
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Front));
         ret.addAll(
-                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Custom, settings));
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Custom));
         ret.addAll(
-                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.End, settings));
+                CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.End));
         return ret;
     }
 

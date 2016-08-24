@@ -23,7 +23,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.*;
-import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -54,16 +53,6 @@ public class CommandProcessorLoaderTest {
             threwException = true;
         }
         assertTrue(threwException);
-
-        array = new JsonArray();
-        array.add(with("DoesNotExist", true));
-        threwException = false;
-        try {
-            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString(), new Settings());
-        } catch (IllegalArgumentException e) {
-            threwException = true;
-        }
-        assertTrue(threwException);
     }
 
     @Test
@@ -72,7 +61,7 @@ public class CommandProcessorLoaderTest {
         GcodeParser gcp = new GcodeParser();
 
         JsonObject args = new JsonObject();
-        args.addProperty("length", "NotANumber");
+        args.addProperty("segmentLengthMM", "NotANumber");
         JsonObject object = new JsonObject();
         object.addProperty("name", "ArcExpander");
         object.add("args", args);
@@ -100,7 +89,7 @@ public class CommandProcessorLoaderTest {
         JsonArray array = new JsonArray();
 
         args = new JsonObject();
-        args.addProperty("length", 1.5);
+        args.addProperty("segmentLengthMM", 1.5);
         object = new JsonObject();
         object.addProperty("name", "ArcExpander");
         object.add("args", args);
@@ -123,7 +112,7 @@ public class CommandProcessorLoaderTest {
         array.add(object);
 
         args = new JsonObject();
-        args.addProperty("speed", 4);
+        args.addProperty("speedOverridePercent", 4);
         object = new JsonObject();
         object.addProperty("name", "FeedOverrideProcessor");
         object.add("args", args);
@@ -181,74 +170,5 @@ public class CommandProcessorLoaderTest {
         object.addProperty("enabled", enabled);
         object.addProperty("optional", optional);
         return object;
-    }
-
-    @Test
-    public void testAllProcessorsSettingConfig() throws Exception {
-        System.out.println("initializeWithProcessorsSettingConfig");
-
-        JsonArray object = new JsonArray();
-
-        object.add(with("ArcExpander", true));
-        object.add(with("ArcExpander", true));
-        object.add(with("ArcExpander", false));
-        object.add(with("CommandSplitter", true));
-        object.add(with("CommentProcessor", true));
-        object.add(with("DecimalProcessor", true));
-        object.add(with("FeedOverrideProcessor", true));
-        object.add(with("M30Processor", true));
-        //object.add(with("PatternRemover", true));
-        object.add(with("CommandLengthProcessor", true));
-        object.add(with("WhitespaceProcessor", true));
-
-        String jsonConfig = object.toString();
-
-        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig, new Settings());
-
-        assertEquals(9, processors.size());
-        assertEquals(ArcExpander.class, processors.get(0).getClass());
-        assertEquals(ArcExpander.class, processors.get(1).getClass());
-        assertEquals(CommandSplitter.class, processors.get(2).getClass());
-        assertEquals(CommentProcessor.class, processors.get(3).getClass());
-        assertEquals(DecimalProcessor.class, processors.get(4).getClass());
-        assertEquals(FeedOverrideProcessor.class, processors.get(5).getClass());
-        assertEquals(M30Processor.class, processors.get(6).getClass());
-        assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
-        assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
-    }
-
-    @Test
-    public void testAllProcessorsSettingConfigOptionals() throws Exception {
-        System.out.println("initializeWithProcessorsSettingConfigOptionals");
-
-        JsonArray object = new JsonArray();
-
-        object.add(with("ArcExpander", true, true));
-        object.add(with("ArcExpander", true, true));
-        object.add(with("ArcExpander", false, false));
-        object.add(with("CommandSplitter", false, true));
-        object.add(with("CommentProcessor", false, false));
-        object.add(with("DecimalProcessor", true, false));
-        object.add(with("FeedOverrideProcessor", true, false));
-        object.add(with("M30Processor", true));
-        object.add(with("CommandLengthProcessor", true));
-        JsonObject o = with("WhitespaceProcessor", true).getAsJsonObject();
-        o.remove("enabled");
-        object.add(o);
-
-        String jsonConfig = object.toString();
-
-        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig, new Settings());
-
-        assertEquals(9, processors.size());
-        assertEquals(ArcExpander.class, processors.get(0).getClass());
-        assertEquals(ArcExpander.class, processors.get(1).getClass());
-        assertEquals(ArcExpander.class, processors.get(1).getClass());
-        assertEquals(CommentProcessor.class, processors.get(3).getClass());
-        assertEquals(DecimalProcessor.class, processors.get(4).getClass());
-        assertEquals(FeedOverrideProcessor.class, processors.get(5).getClass());
-        assertEquals(M30Processor.class, processors.get(6).getClass());
-        assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
-        assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
     }
 }

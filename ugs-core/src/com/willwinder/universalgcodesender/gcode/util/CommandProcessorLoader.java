@@ -33,7 +33,6 @@ import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
-import com.willwinder.universalgcodesender.utils.Settings;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,71 +121,6 @@ public class CommandProcessorLoader {
     }
 
     /**
-     * Initialize command processors ignoringthe args field, opting for the
-     * provided settings instead.
-     */
-    @Deprecated
-    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
-        return initializeWithProcessors(getConfigFrom(jsonConfig), settings);
-    }
-
-    @Deprecated
-    static public List<ICommandProcessor> initializeWithProcessors(List<ProcessorConfig> config, Settings settings) {
-        List<ICommandProcessor> list = new ArrayList<>();
-        for (ProcessorConfig pc : config) {
-            ICommandProcessor p = null;
-
-            // Check if the processor is enabled.
-            if (pc.optional && !pc.enabled) {
-                continue;
-            }
-
-            switch (pc.name) {
-                case "ArcExpander": {
-                    double length = settings.getSmallArcSegmentLength();
-                    p = new ArcExpander(true, length);
-                    break;
-                }
-                case "CommandLengthProcessor":
-                    int commandLength = settings.getMaxCommandLength();
-                    p = new CommandLengthProcessor(commandLength);
-                    break;
-                case "CommandSplitter":
-                    p = new CommandSplitter();
-                    break;
-                case "CommentProcessor":
-                    p = new CommentProcessor();
-                    break;
-                case "DecimalProcessor": {
-                    int decimalPlaces = settings.getTruncateDecimalLength();
-                    p = new DecimalProcessor(decimalPlaces);
-                    break;
-                }
-                case "FeedOverrideProcessor":
-                    double override = settings.getOverrideSpeedValue();
-                    p = new FeedOverrideProcessor(override);
-                    break;
-                case "M30Processor":
-                    p = new M30Processor();
-                    break;
-                case "PatternRemover":
-                    String pattern = pc.args.get("pattern").getAsString();
-                    p = new PatternRemover(pattern);
-                    break;
-                case "WhitespaceProcessor":
-                    p = new WhitespaceProcessor();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown processor: " + pc.name);
-            }
-
-            list.add(p);
-        }
-
-        return list;
-    }
-
-    /**
      * Add any ICommandProcessors specified in a JSON string. Processors are
      * configured by properties in the JSON file.
      * 
@@ -196,7 +130,7 @@ public class CommandProcessorLoader {
      *         "enabled": <enabled>,
      *         "optional": <optional>,
      *         "args": {
-     *             "length": <double>
+     *             "segmentLengthMM": <double>
      *         }
      *     },{
      *         "name": "CommandLenghtProcessor",

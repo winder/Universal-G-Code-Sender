@@ -113,7 +113,7 @@ public class FirmwareUtils {
         if (!configFiles.containsKey(firmware)) {
             return Optional.empty();
         }
-        return Optional.of(configFiles.get(firmware).loader.getProcessors(settings));
+        return Optional.of(configFiles.get(firmware).loader.getProcessors());
     }
 
     public static void addPatternRemoverForFirmware(String firmware, String pattern) throws IOException {
