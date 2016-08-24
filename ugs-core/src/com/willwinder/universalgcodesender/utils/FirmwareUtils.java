@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2014 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,13 +31,17 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
@@ -52,6 +56,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
+import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -77,7 +83,7 @@ public class FirmwareUtils {
             try {
                 loader = new Gson().fromJson(new FileReader(file), ControllerSettings.class);
             } catch (FileNotFoundException ex) {
-                Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, null, ex);
             }
         }
     }
@@ -141,7 +147,7 @@ public class FirmwareUtils {
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
              fileWriter.write(gson.toJson(config, ConfigLoader2.class));
         } catch (IOException ex) {
-            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, null, ex);
         }
         System.out.println("Have config: " + config.toString());
         */
@@ -160,10 +166,19 @@ public class FirmwareUtils {
         initialize();
     }
 
+    private static ControllerSettings getSettingsForStream(InputStream is)
+            throws IOException {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            return new Gson().fromJson(br, ControllerSettings.class);
+        }
+    }
+
     /**
      * Copy any missing files from the the jar's resources/firmware_config/ dir
      * into the settings/firmware_config dir.
      */
+    static boolean userNotified = false;
+    static boolean overwriteOldFiles = false;
     public synchronized static void initialize() {
         System.out.println("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
@@ -174,55 +189,86 @@ public class FirmwareUtils {
             firmwareConfig.mkdirs();
         }
 
+        FileSystem fileSystem = null;
+
         // Copy firmware config files.
         try {
-            FileSystem fileSystem = null;
-            try { // 
-                final String dir = "/resources/firmware_config/";
+            final String dir = "/resources/firmware_config/";
 
-                URI location = FirmwareUtils.class.getResource(dir).toURI();
+            URI location = FirmwareUtils.class.getResource(dir).toURI();
 
-                Path myPath;
-                if (location.getScheme().equals("jar")) {
-                    try {
-                        // In case the filesystem already exists.
-                        fileSystem = FileSystems.getFileSystem(location);
-                    } catch (FileSystemNotFoundException e) {
-                        // Otherwise create the new filesystem.
-                        fileSystem = FileSystems.newFileSystem(location,
-                                Collections.<String, String>emptyMap());
-                    }
-
-                    myPath = fileSystem.getPath(dir);
-                } else {
-                    myPath = Paths.get(location);
+            Path myPath;
+            if (location.getScheme().equals("jar")) {
+                try {
+                    // In case the filesystem already exists.
+                    fileSystem = FileSystems.getFileSystem(location);
+                } catch (FileSystemNotFoundException e) {
+                    // Otherwise create the new filesystem.
+                    fileSystem = FileSystems.newFileSystem(location,
+                            Collections.<String, String>emptyMap());
                 }
 
-                Files.walk(myPath, 1).forEach((Path path) -> {
-                    System.out.println(path);
-                    final String name = path.getFileName().toString();
-                    File fwConfig = new File(firmwareConfig, name);
-                    if (name.endsWith(".json") && !fwConfig.exists()) {
-                        InputStream is;
-                        try {
-                            is = Files.newInputStream(path);
-                            FileUtils.copyInputStreamToFile(is, fwConfig);
-                        } catch (IOException ex) {
-                            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+                myPath = fileSystem.getPath(dir);
+            } else {
+                myPath = Paths.get(location);
+            }
+
+            Stream<Path> files = Files.walk(myPath, 1);
+            for (Path path : (Iterable<Path>) () -> files.iterator()) {
+                System.out.println(path);
+                final String name = path.getFileName().toString();
+                File fwConfig = new File(firmwareConfig, name);
+                if (name.endsWith(".json")) {
+                    boolean copyFile = !fwConfig.exists();
+                    ControllerSettings jarSetting = 
+                            getSettingsForStream(Files.newInputStream(path));
+
+                    // If the file is outdated... ask the user (once).
+                    if (fwConfig.exists()) {
+                        ControllerSettings current =
+                                getSettingsForStream(new FileInputStream(fwConfig));
+                        boolean outOfDate =
+                                current.getVersion() < jarSetting.getVersion();
+                        if (outOfDate && !userNotified && !overwriteOldFiles) { 
+                            int result = NarrowOptionPane.showNarrowConfirmDialog(
+                                    200,
+                                    Localization.getString("settings.file.outOfDate.message"),
+                                    Localization.getString("settings.file.outOfDate.title"),
+                                    JOptionPane.YES_NO_OPTION,
+                                    JOptionPane.QUESTION_MESSAGE);
+                            if (result == JOptionPane.OK_OPTION) {
+                                copyFile = true;
+                                jarSetting.getProcessorConfigs().Custom
+                                        = current.getProcessorConfigs().Custom;
+                            }
+                            userNotified = true;
                         }
                     }
-                });
-            } finally {
-                if (fileSystem != null) {
-                    fileSystem.close();
+
+                    // Copy file from jar to firmware_config directory.
+                    if (copyFile) {
+                        try {
+                            save(fwConfig, jarSetting);
+                        } catch (IOException ex) {
+                            logger.log(Level.SEVERE, null, ex);
+                        }
+                    }
                 }
             }
-        } catch (IOException | URISyntaxException ex) {
-            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations: " + ex.getLocalizedMessage());
-            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            GUIHelpers.displayErrorDialog("An error has occurred while initializing firmware configurations: " + ex.getLocalizedMessage());
-            Logger.getLogger(FirmwareUtils.class.getName()).log(Level.SEVERE, null, ex);
+            String errorMessage = String.format("%s %s",
+                    Localization.getString("settings.file.generalError"),
+                    ex.getLocalizedMessage());
+            GUIHelpers.displayErrorDialog(errorMessage);
+            logger.log(Level.SEVERE, errorMessage, ex);
+        } finally {
+            if (fileSystem != null) {
+                try {
+                    fileSystem.close();
+                } catch (IOException ex) {
+                    logger.log(Level.SEVERE, "Problem closing filesystem.", ex);
+                }
+            }
         }
 
         configFiles.clear();

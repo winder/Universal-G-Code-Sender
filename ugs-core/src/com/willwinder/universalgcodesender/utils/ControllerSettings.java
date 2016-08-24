@@ -63,6 +63,7 @@ public class ControllerSettings {
     }
 
     String Name;
+    Integer Version = 0;
     ControllerConfig Controller;
     ProcessorConfigGroups GcodeProcessors;
 
@@ -91,6 +92,10 @@ public class ControllerSettings {
 
     public String getName() {
         return Name;
+    }
+
+    public Integer getVersion() {
+        return Version;
     }
 
     /**
@@ -127,6 +132,7 @@ public class ControllerSettings {
      * Get the list of processors from the settings in the order they should be
      * applied.
      */
+    // TODO: Remove settings
     public List<ICommandProcessor> getProcessors(Settings settings) {
         List<ICommandProcessor> ret = new ArrayList<>();
         ret.addAll(

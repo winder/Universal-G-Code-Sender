@@ -125,26 +125,4 @@ public abstract class AbstractUGSSettings extends JPanel {
         public void setSelected(Boolean s) {box.setSelected(s); }
         public boolean getValue() { return box.isSelected(); }
     }
-
-    protected class ProcessorConfigCheckbox extends JPanel {
-        final public JCheckBox box;
-        final private ProcessorConfig pc;
-
-        public ProcessorConfigCheckbox(ProcessorConfig pc) {
-            this.pc = pc;
-            box = new JCheckBox(Localization.getString(pc.name));
-            box.setSelected(pc.enabled);
-            box.addActionListener((ActionEvent e) -> {
-                    pc.enabled = box.isSelected();
-                });
-            if (!pc.optional) {
-                box.setEnabled(false);
-            }
-            setLayout(new MigLayout("insets 0"));
-            add(box, "gapleft 50, w 100");
-        }
-
-        public void setSelected(Boolean s) {box.setSelected(s); }
-        public boolean getValue() { return box.isSelected(); }
-    }
 }

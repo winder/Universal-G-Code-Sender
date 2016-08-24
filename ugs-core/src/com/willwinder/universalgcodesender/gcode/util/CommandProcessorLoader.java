@@ -125,10 +125,12 @@ public class CommandProcessorLoader {
      * Initialize command processors ignoringthe args field, opting for the
      * provided settings instead.
      */
+    @Deprecated
     static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig, Settings settings) {
         return initializeWithProcessors(getConfigFrom(jsonConfig), settings);
     }
 
+    @Deprecated
     static public List<ICommandProcessor> initializeWithProcessors(List<ProcessorConfig> config, Settings settings) {
         List<ICommandProcessor> list = new ArrayList<>();
         for (ProcessorConfig pc : config) {
