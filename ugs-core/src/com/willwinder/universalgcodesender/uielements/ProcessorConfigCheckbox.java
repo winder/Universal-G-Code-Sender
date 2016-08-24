@@ -59,11 +59,11 @@ public class ProcessorConfigCheckbox extends JPanel {
         JButton edit = new JButton("edit");
         edit.addActionListener(evt -> editArgs());
 
-        setLayout(new MigLayout("insets 0, fillx"));
-        add(box, "gapleft 50, w 100");
+        setLayout(new MigLayout("insets 0 50 0 0", "[grow]20[]"));
+        add(box, "growx");
 
         if (pc.args != null) {
-            add(edit);
+            add(edit, "w 100");
         }
     }
 
