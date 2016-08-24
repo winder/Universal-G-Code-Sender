@@ -1,5 +1,6 @@
 {
     "Name": "Testing (Delay)",
+    "Version": 2,
     "Controller": {
         "name": "Loopback_Slow",
         "args": null
@@ -13,7 +14,10 @@
             },{
                 "name": "FeedOverrideProcessor",
                 "enabled": false,
-                "optional": true
+                "optional": true,
+                "args": {
+                    "speedOverridePercent": 60
+                }
             },{
                 "name": "M30Processor",
                 "enabled": true,
@@ -25,7 +29,10 @@
             },{
                 "name": "ArcExpander",
                 "enabled": false,
-                "optional": true
+                "optional": true,
+                "args": {
+                    "segmentLengthMM": 1.3
+                }
             }
         ],
         "Custom": [
@@ -35,7 +42,10 @@
             {
                 "name": "DecimalProcessor",
                 "enabled": true,
-                "optional": true
+                "optional": true,
+                "args": {
+                    "decimals":4
+                }
             },{
                 "name": "WhitespaceProcessor",
                 "enabled": true,
@@ -43,7 +53,10 @@
             },{
                 "name": "CommandLengthProcessor",
                 "enabled": true,
-                "optional": true
+                "optional": true,
+                "args": {
+                    "commandLength":50
+                }
             }
         ]
     }

@@ -254,7 +254,7 @@ public class CommandProcessorLoader {
 
             switch (pc.name) {
                 case "ArcExpander":
-                    double length = pc.args.get("length").getAsDouble();
+                    double length = pc.args.get("segmentLengthMM").getAsDouble();
                     p = new ArcExpander(true, length);
                     break;
                 case "CommandLengthProcessor":
@@ -272,7 +272,7 @@ public class CommandProcessorLoader {
                     p = new DecimalProcessor(decimals);
                     break;
                 case "FeedOverrideProcessor":
-                    double override = pc.args.get("speed").getAsDouble();
+                    double override = pc.args.get("speedOverridePercent").getAsDouble();
                     p = new FeedOverrideProcessor(override);
                     break;
                 case "M30Processor":
