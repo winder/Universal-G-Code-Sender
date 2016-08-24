@@ -113,7 +113,11 @@ public class FirmwareUtils {
         if (!configFiles.containsKey(firmware)) {
             return Optional.empty();
         }
-        return Optional.of(configFiles.get(firmware).loader.getProcessors());
+        try {
+            return Optional.of(configFiles.get(firmware).loader.getProcessors());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public static void addPatternRemoverForFirmware(String firmware, String pattern) throws IOException {
@@ -236,12 +240,14 @@ public class FirmwareUtils {
                                     Localization.getString("settings.file.outOfDate.title"),
                                     JOptionPane.YES_NO_OPTION,
                                     JOptionPane.QUESTION_MESSAGE);
-                            if (result == JOptionPane.OK_OPTION) {
-                                copyFile = true;
-                                jarSetting.getProcessorConfigs().Custom
-                                        = current.getProcessorConfigs().Custom;
-                            }
+                            overwriteOldFiles = result == JOptionPane.OK_OPTION;
                             userNotified = true;
+                        }
+
+                        if (overwriteOldFiles) {
+                            copyFile = true;
+                            jarSetting.getProcessorConfigs().Custom
+                                    = current.getProcessorConfigs().Custom;
                         }
                     }
 
