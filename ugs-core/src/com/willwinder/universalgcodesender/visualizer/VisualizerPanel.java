@@ -85,25 +85,12 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
         add(canvas);
     }
 
-    public void loadSettings() {
-        setMinArcLength(backend.getSettings().getSmallArcThreshold());
-        setArcLength(backend.getSettings().getSmallArcSegmentLength());
-    }
-
     public void setGcodeFile(String file) {
         canvas.setGcodeFile(file);
     }
 
     public void setProcessedGcodeFile(String file) {
         canvas.setProcessedGcodeFile(file);
-    }
-    
-    private void setMinArcLength(double minArcLength) {
-        this.canvas.setMinArcLength(minArcLength);
-    }
-
-    private void setArcLength(double arcLength) {
-        this.canvas.setArcLength(arcLength);
     }
 
     @Override

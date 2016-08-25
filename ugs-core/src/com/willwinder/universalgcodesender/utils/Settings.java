@@ -22,16 +22,10 @@ public class Settings {
     // Sender Settings
     private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
-    private boolean overrideSpeedSelected = false;
-    private double overrideSpeedValue = 60;
     private boolean singleStepMode = false;
-    private int maxCommandLength = 50;
-    private int truncateDecimalLength = 4;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private boolean displayStateColor = true;
-    private double smallArcThreshold = 2.0;
-    private double smallArcSegmentLength = 1.3;
     private String defaultUnits = Units.MM.abbreviation;
 
     private boolean showNightlyWarning = true;
@@ -193,36 +187,12 @@ public class Settings {
         this.visualizerWindowSettings = vw;
     }
 
-	public double getOverrideSpeedValue() {
-		return overrideSpeedValue;
-	}
-
-	public void setOverrideSpeedValue(double overrideSpeedValue) {
-		this.overrideSpeedValue = overrideSpeedValue;
-	}
-
 	public boolean isSingleStepMode() {
 		return singleStepMode;
 	}
 
 	public void setSingleStepMode(boolean singleStepMode) {
 		this.singleStepMode = singleStepMode;
-	}
-
-	public int getMaxCommandLength() {
-		return maxCommandLength;
-	}
-
-	public void setMaxCommandLength(int maxCommandLength) {
-		this.maxCommandLength = maxCommandLength;
-	}
-
-	public int getTruncateDecimalLength() {
-		return truncateDecimalLength;
-	}
-
-	public void setTruncateDecimalLength(int truncateDecimalLength) {
-		this.truncateDecimalLength = truncateDecimalLength;
 	}
 
 	public boolean isStatusUpdatesEnabled() {
@@ -247,22 +217,6 @@ public class Settings {
 
 	public void setDisplayStateColor(boolean displayStateColor) {
 		this.displayStateColor = displayStateColor;
-	}
-
-	public double getSmallArcThreshold() {
-		return smallArcThreshold;
-	}
-
-	public void setSmallArcThreshold(double smallArcThreshold) {
-		this.smallArcThreshold = smallArcThreshold;
-	}
-
-	public double getSmallArcSegmentLength() {
-		return smallArcSegmentLength;
-	}
-
-	public void setSmallArcSegmentLength(double smallArcSegmentLength) {
-		this.smallArcSegmentLength = smallArcSegmentLength;
 	}
 
 	public PendantConfigBean getPendantConfig() {

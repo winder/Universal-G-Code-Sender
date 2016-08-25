@@ -184,7 +184,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 gcp.addCommandProcessor(p);
             }
         } else {
-            initializeWithFallbackProcessors(gcp, settings);
+            initializeWithFallbackProcessors(gcp);
         }
     }
 
@@ -340,12 +340,12 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     /**
      * This allows us to visualize a file without loading a controller profile.
      */
-    private static void initializeWithFallbackProcessors(GcodeParser parser, Settings settings) {
+    private static void initializeWithFallbackProcessors(GcodeParser parser) {
         parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new CommentProcessor());
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new CommandSplitter());
-        parser.addCommandProcessor(new DecimalProcessor(settings.getTruncateDecimalLength()));
+        parser.addCommandProcessor(new DecimalProcessor(4));
         parser.addCommandProcessor(new CommandLengthProcessor(50));
     }
 
@@ -831,7 +831,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         // Apply settings settings to controller.
 
         try {
-            controller.getCommandCreator().setMaxCommandLength(settings.getMaxCommandLength());
+            controller.getCommandCreator();
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());

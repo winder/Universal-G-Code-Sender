@@ -1472,11 +1472,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             } catch (Exception e) {
                 displayErrorDialog(e.getMessage());
             }
-
-            if (this.vw != null) {
-                vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
-                vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
-            }
         }
     }//GEN-LAST:event_grblConnectionSettingsMenuItemActionPerformed
 
@@ -1520,8 +1515,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 public void componentHidden(ComponentEvent ce) {}
             });
 
-            vw.setMinArcLength(settings.getSmallArcThreshold());
-            vw.setArcLength(settings.getSmallArcSegmentLength());
             setVisualizerFile();
 
             // Add listener

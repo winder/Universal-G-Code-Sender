@@ -101,7 +101,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
         commandPanel.loadSettings();
         connectionPanel.loadSettings();
-        visualizerPanel.loadSettings();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override

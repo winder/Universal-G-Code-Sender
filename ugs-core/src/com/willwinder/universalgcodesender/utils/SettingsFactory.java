@@ -134,16 +134,11 @@ public class SettingsFactory {
                 out.setManualModeStepSize(Double.valueOf(properties.getProperty("manualMode.stepsize", "1")));
                 out.setScrollWindowEnabled(Boolean.valueOf(properties.getProperty("scrollWindow.enabled", "true")));
                 out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", FALSE)));
-                out.setOverrideSpeedValue(Double.valueOf(properties.getProperty("overrideSpeed.value", "60")));
                 out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
-                out.setMaxCommandLength(Integer.valueOf(properties.getProperty("maxCommandLength", "50")));
-                out.setTruncateDecimalLength(Integer.valueOf(properties.getProperty("truncateDecimalLength", "4")));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
                 out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
-                out.setSmallArcThreshold(Double.valueOf(properties.getProperty("smallArcThreshold", "2.0")));
-                out.setSmallArcSegmentLength(Double.valueOf(properties.getProperty("smallArcSegmentLength", "1.3")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
                 out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
                 out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));
