@@ -49,7 +49,6 @@ public class UGSSettingsDialog extends JDialog {
     private final Settings settings;
     private final AbstractUGSSettings settingsPanel;
 
-    private final JLabel titleLabel = new JLabel();
     private final JButton restore = new JButton(Localization.getString("restore"));
     private final JButton closeWithSave = new JButton(Localization.getString("save.close"));
     private final JButton closeWithoutSave = new JButton(Localization.getString("close"));
@@ -60,7 +59,7 @@ public class UGSSettingsDialog extends JDialog {
      */
     public UGSSettingsDialog(String settingsTitle, Settings settings, AbstractUGSSettings panel, Frame parent, boolean modal) {
         super(parent, modal);
-        this.titleLabel.setText(settingsTitle);
+        this.setTitle(settingsTitle);
         this.settings = settings;
         this.settingsPanel = panel;
 
@@ -90,10 +89,7 @@ public class UGSSettingsDialog extends JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        titleLabel.setFont(new java.awt.Font("Dialog", 0, 18)); // NOI18N
-
         setLayout(new MigLayout("fillx"));
-        add(titleLabel, "wrap, span 4");
         add(scrollPane, "wrap, growx, span 4");
         add(helpButton);
         add(restore);
