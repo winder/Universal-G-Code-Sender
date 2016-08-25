@@ -37,7 +37,7 @@ public class NarrowOptionPane extends JOptionPane
             throws HeadlessException {
         return JOptionPane.showConfirmDialog(
                 new JPanel(),
-                String.format(pattern, message),
+                String.format(pattern, message.replaceAll("\n", "<br>")),
                 title,
                 optionType,
                 messageType);

@@ -23,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -39,15 +40,26 @@ import net.miginfocom.swing.MigLayout;
 public class ProcessorConfigCheckbox extends JPanel {
     final public JCheckBox box;
     final private ProcessorConfig pc;
-    private final static Gson gson;
-    private final static JsonParser parser = new JsonParser();
+
+    private final static Gson GSON;
+    private final static JsonParser PARSER = new JsonParser();
 
     static {
-        gson = new GsonBuilder().setPrettyPrinting().create();
+        GSON = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    public ProcessorConfigCheckbox(ProcessorConfig pc) {
+    public ProcessorConfigCheckbox(ProcessorConfig pc, String helpMessage) {
         this.pc = pc;
+
+        if (helpMessage == null)
+            throw new RuntimeException("Help message was not provided.");
+
+        JButton help = new JButton("?");
+        help.addActionListener((ActionEvent e) -> {
+            GUIHelpers.displayHelpDialog(helpMessage);
+        });
+        add(help, "w 25");
+
         box = new JCheckBox(Localization.getString(pc.name));
         box.setSelected(pc.enabled);
         box.addActionListener((ActionEvent e) -> {
@@ -59,20 +71,20 @@ public class ProcessorConfigCheckbox extends JPanel {
         JButton edit = new JButton("edit");
         edit.addActionListener(evt -> editArgs());
 
-        setLayout(new MigLayout("insets 0 50 0 0", "[grow]20[]"));
+        setLayout(new MigLayout("insets 0 50 0 0", "[][grow]20[]25"));
         add(box, "growx");
 
         if (pc.args != null) {
-            add(edit, "w 100");
+            add(edit, "w 45");
         }
     }
 
     public void editArgs() {
         JTextArea ta = new JTextArea(20, 20);
-        ta.setText(gson.toJson(pc.args));
+        ta.setText(GSON.toJson(pc.args));
         switch (JOptionPane.showConfirmDialog(null, new JScrollPane(ta))) {
             case JOptionPane.OK_OPTION:
-                pc.args = parser.parse(ta.getText()).getAsJsonObject();
+                pc.args = PARSER.parse(ta.getText()).getAsJsonObject();
                 System.out.println(ta.getText());
                 break;
         }

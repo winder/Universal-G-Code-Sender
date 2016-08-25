@@ -75,6 +75,10 @@ public abstract class AbstractUGSSettings extends JPanel {
         return super.add(comp);
     }
 
+    public void addIgnoreChanges(Component comp, Object constraints) {
+        super.add(comp, constraints);
+    }
+
     public Component add(Component comp) {
         Component ret = super.add(comp);
         components.add(comp);

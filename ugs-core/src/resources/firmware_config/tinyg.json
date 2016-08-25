@@ -2,7 +2,7 @@
     "Name": "TinyG",
     "Version": 2,
     "Controller": {
-        "name": "",
+        "name": "TinyG",
         "args": null
     },
     "GcodeProcessors": {

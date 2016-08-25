@@ -22,6 +22,7 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.google.gson.JsonObject;
+import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
@@ -43,7 +44,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import net.miginfocom.swing.MigLayout;
@@ -171,7 +171,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
         initCustomRemoverTable(customRemoverTable);
-        setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
+        setLayout(new MigLayout("wrap 1, inset 5", "fill"));
 
         super.addIgnoreChanges(controllerConfigs);
 
@@ -180,15 +180,17 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
         System.out.println(ct.file);
 
         for (ProcessorConfig pc : pcg.Front) {
-            add(new ProcessorConfigCheckbox(pc));
+            add(new ProcessorConfigCheckbox(pc,
+                    CommandProcessorLoader.getHelpForConfig(pc)));
         }
 
         for (ProcessorConfig pc : pcg.End) {
-            add(new ProcessorConfigCheckbox(pc));
+            add(new ProcessorConfigCheckbox(pc,
+                    CommandProcessorLoader.getHelpForConfig(pc)));
         }
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new MigLayout("wrap 3", "grow, fill", "grow, fill"));
+        buttonPanel.setLayout(new MigLayout("wrap 3", "grow, fill", ""));
         add(buttonPanel, add);
         add(buttonPanel, new JLabel());
         add(buttonPanel, remove);
@@ -203,7 +205,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
             }
             model.addRow(new Object[]{enabled, pattern});
         }
-        addIgnoreChanges(new JScrollPane(customRemoverTable));
+        addIgnoreChanges(new JScrollPane(customRemoverTable), "height 100");
 
         SwingUtilities.updateComponentTreeUI(this);
     }

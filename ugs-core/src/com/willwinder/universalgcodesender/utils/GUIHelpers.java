@@ -45,4 +45,12 @@ public class GUIHelpers {
         });
     }
 
+    public static void displayHelpDialog(final String helpMessage) {
+        java.awt.EventQueue.invokeLater(() -> {
+            //NarrowOptionPane.showNarrowConfirmDialog(600, helpMessage, Localization.getString("help"),
+                    //JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(new JFrame(), helpMessage, 
+                    Localization.getString("help"), JOptionPane.INFORMATION_MESSAGE);
+        });
+    }
 }
