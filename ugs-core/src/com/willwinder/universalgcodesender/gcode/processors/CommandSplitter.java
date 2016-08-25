@@ -40,7 +40,7 @@ public class CommandSplitter implements ICommandProcessor {
 
     @Override
     public String getHelp() {
-        return Localization.getString("sender.commandSplitter");
+        return Localization.getString("sender.help.commandSplitter");
     }
 
     @Override
