@@ -23,6 +23,7 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,12 @@ public class DecimalProcessor implements ICommandProcessor {
 
     public DecimalProcessor(int numDecimals) {
         this.numDecimals = numDecimals;
+    }
+
+    @Override
+    public String getHelp() {
+        return Localization.getString("sender.help.truncate") + "\n"
+                + Localization.getString("sender.truncate") + ": " + numDecimals;
     }
 
     @Override

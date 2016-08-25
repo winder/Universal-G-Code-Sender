@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender.gcode.processors;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import static com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.EMPTY;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -39,6 +40,12 @@ public class PatternRemover implements ICommandProcessor {
         p = Pattern.compile(regexPattern);
     }
     
+    @Override
+    public String getHelp() {
+        return Localization.getString("sender.help.patternRemover")
+                + ": \"" + p.pattern() + "\"";
+    }
+
     @Override
     public List<String> processCommand(String command, GcodeState state) {
         List<String> ret = new ArrayList<>();

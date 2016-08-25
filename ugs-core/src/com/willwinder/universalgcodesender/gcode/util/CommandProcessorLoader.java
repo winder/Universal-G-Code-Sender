@@ -228,4 +228,50 @@ public class CommandProcessorLoader {
 
         return list;
     }
+
+    /**
+     * Helper to instantiate a processor by name and call the getHelp method.
+     * @param pc
+     * @return 
+     */
+    static public String getHelpForConfig(ProcessorConfig pc) {
+        ICommandProcessor p;
+        switch (pc.name) {
+            case "ArcExpander":
+                double length = pc.args.get("segmentLengthMM").getAsDouble();
+                p = new ArcExpander(true, length);
+                break;
+            case "CommandLengthProcessor":
+                int commandLength = pc.args.get("commandLength").getAsInt();
+                p = new CommandLengthProcessor(commandLength);
+                break;
+            case "CommandSplitter":
+                p = new CommandSplitter();
+                break;
+            case "CommentProcessor":
+                p = new CommentProcessor();
+                break;
+            case "DecimalProcessor":
+                int decimals = pc.args.get("decimals").getAsInt();
+                p = new DecimalProcessor(decimals);
+                break;
+            case "FeedOverrideProcessor":
+                double override = pc.args.get("speedOverridePercent").getAsDouble();
+                p = new FeedOverrideProcessor(override);
+                break;
+            case "M30Processor":
+                p = new M30Processor();
+                break;
+            case "PatternRemover":
+                String pattern = pc.args.get("pattern").getAsString();
+                p = new PatternRemover(pattern);
+                break;
+            case "WhitespaceProcessor":
+                p = new WhitespaceProcessor();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown processor: " + pc.name);
+        }
+        return p.getHelp();
+    }
 }

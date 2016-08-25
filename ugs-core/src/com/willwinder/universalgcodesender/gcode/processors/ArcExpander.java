@@ -45,6 +45,13 @@ public class ArcExpander implements ICommandProcessor {
     final private double length;
     final private DecimalFormat df;
 
+    @Override
+    public String getHelp() {
+        return Localization.getString("sender.help.arcs") + "\n"
+                + Localization.getString("sender.arcs.length")
+                + ": " + df.format(length);
+    }
+
     /**
      * @param convertToLines toggles if smaller lines or arcs are returned.
      * @param length the length of each smaller segment.

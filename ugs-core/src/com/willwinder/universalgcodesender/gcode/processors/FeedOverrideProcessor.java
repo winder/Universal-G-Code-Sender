@@ -23,6 +23,7 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,14 @@ public class FeedOverrideProcessor implements ICommandProcessor {
 
     public FeedOverrideProcessor(double percentOverride) {
         this.percentOverride = percentOverride;
+    }
+
+    @Override
+    public String getHelp() {
+        return Localization.getString("sender.help.speed.override") + "\n"
+                + Localization.getString("sender.help.speed.percent") + "\n"
+                + Localization.getString("sender.speed.percent")
+                + ": " + percentOverride;
     }
 
     @Override

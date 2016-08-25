@@ -38,4 +38,10 @@ public interface ICommandProcessor {
      * @return One or more gcode commands to replace the original command with.
      */
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException;
+
+    /**
+     * Returns information about the current command and its configuration.
+     * @return 
+     */
+    public String getHelp();
 }
