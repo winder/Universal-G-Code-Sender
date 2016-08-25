@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.LoopBackCommunicator;
+import com.willwinder.universalgcodesender.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
@@ -114,7 +115,7 @@ public class ControllerSettings {
             case GRBL:
                 return new GrblController();
             case SMOOTHIE:
-                return new GrblController(true);
+                return new SmoothieController();
             case TINYG:
                 return new TinyGController();
             case XLCD:
