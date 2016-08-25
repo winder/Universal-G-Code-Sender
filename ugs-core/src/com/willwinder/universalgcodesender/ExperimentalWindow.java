@@ -28,7 +28,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
@@ -340,7 +340,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(
+        UGSSettingsDialog gcsd = new UGSSettingsDialog(
+                Localization.getString("sender.header"),
                 backend.getSettings(), 
                 new ConnectionSettingsPanel(backend.getSettings()),
                 this,
@@ -373,7 +374,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(backend.getSettings(),
+        UGSSettingsDialog gcsd = new UGSSettingsDialog(
+                Localization.getString("settings.processors.header"),
+                backend.getSettings(),
                 new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                 this, true);
         

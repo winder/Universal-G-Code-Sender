@@ -64,13 +64,15 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
         panel.add(dialogLauncherButton("ConnectionSettingsPanel",
-                new ConnectionSettingsDialog(
+                new UGSSettingsDialog(
+                        "ConnectionSettingsPanel",
                         backend.getSettings(),
                         new ConnectionSettingsPanel(backend.getSettings()),
                         frame,
                         true)));
         panel.add(dialogLauncherButton("ControllerProcessorSettingsPanel",
-                new ConnectionSettingsDialog(
+                new UGSSettingsDialog(
+                        "ControllerProcessorSettingsPanel",
                         backend.getSettings(),
                         new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                         frame,

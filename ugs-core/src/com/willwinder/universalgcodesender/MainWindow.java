@@ -1460,7 +1460,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     // TODO: It would be nice to streamline this somehow...
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings,
+        UGSSettingsDialog gcsd = new UGSSettingsDialog(
+                Localization.getString("sender.header"),
+                settings,
                 new ConnectionSettingsPanel(settings),
                 this, true);
         
@@ -1826,7 +1828,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }//GEN-LAST:event_helpButtonMachineControlActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        ConnectionSettingsDialog gcsd = new ConnectionSettingsDialog(settings,
+        UGSSettingsDialog gcsd = new UGSSettingsDialog(
+                Localization.getString("settings.processors.header"),
+                settings,
                 new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
                 this, true);
         
