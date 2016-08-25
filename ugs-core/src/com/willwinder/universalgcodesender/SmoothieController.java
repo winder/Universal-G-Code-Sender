@@ -23,12 +23,19 @@ package com.willwinder.universalgcodesender;
  * @author wwinder
  */
 public class SmoothieController extends GrblController {
-    public SmoothieController() {
-        super(true);
-    }
 
     @Override
     protected void openCommAfterEvent() throws Exception {
         this.sendCommandImmediately(createCommand("version"));
+    }
+
+    @Override
+    protected void rawResponseHandler(String response) {
+        if (response.contains("Smoothie")){
+              this.isReady = true;
+        }
+        else {
+            super.rawResponseHandler(response);
+        }
     }
 }

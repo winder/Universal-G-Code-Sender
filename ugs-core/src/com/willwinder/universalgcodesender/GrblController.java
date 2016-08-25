@@ -48,7 +48,7 @@ public class GrblController extends AbstractController {
     // Grbl state
     private double grblVersion = 0.0;        // The 0.8 in 'Grbl 0.8c'
     private String grblVersionLetter = null; // The c in 'Grbl 0.8c'
-    private Boolean isReady = false;         // Not ready until version is received.
+    protected Boolean isReady = false;         // Not ready until version is received.
     private GrblSettingsListener settings;
 
     // Grbl status members.
@@ -79,11 +79,6 @@ public class GrblController extends AbstractController {
     
     public GrblController() {
         this(new GrblCommunicator());
-    }
-
-    public GrblController(Boolean isReady) {
-        this(new GrblCommunicator());
-        this.isReady = isReady;
     }
 
     @Override
