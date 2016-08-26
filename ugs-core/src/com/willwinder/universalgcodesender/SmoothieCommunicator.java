@@ -18,37 +18,13 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-
 /**
  *
  * @author wwinder
  */
-public class SmoothieController extends GrblController {
-
-    public SmoothieController() {
-        super(new SmoothieCommunicator());
-    }
-
+public class SmoothieCommunicator extends GrblCommunicator {
     @Override
-    protected void openCommAfterEvent() throws Exception {
-        //this.sendCommandImmediately(createCommand("version"));
-    }
-
-    @Override
-    protected void isReadyToSendCommandsEvent() throws Exception {
-        if (this.isReady == false) {
-            throw new Exception(Localization.getString("controller.smoothie.exception.booting"));
-        }
-    }
-
-    @Override
-    protected void rawResponseHandler(String response) {
-        if (response.contains("Smoothie")){
-              this.isReady = true;
-        }
-        else {
-            super.rawResponseHandler(response);
-        }
+    public String getLineTerminator() {
+        return "\n";
     }
 }
