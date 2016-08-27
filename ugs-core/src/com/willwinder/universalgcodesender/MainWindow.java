@@ -2179,6 +2179,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.macroPanel.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
         this.inchRadioButton.setText(Localization.getString("mainWindow.swing.inchRadioButton"));
         this.mmRadioButton.setText(Localization.getString("mainWindow.swing.mmRadioButton"));
+        this.resetXButton.setText(Localization.getString("mainWindow.swing.resetX"));
+        this.resetYButton.setText(Localization.getString("mainWindow.swing.resetY"));
+        this.resetZButton.setText(Localization.getString("mainWindow.swing.resetZ"));
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
