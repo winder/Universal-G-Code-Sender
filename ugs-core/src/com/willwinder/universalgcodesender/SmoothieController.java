@@ -24,10 +24,16 @@ import com.willwinder.universalgcodesender.i18n.Localization;
  *
  * @author wwinder
  */
-public class SmoothieController extends GrblController {
+final public class SmoothieController extends GrblController {
 
     public SmoothieController() {
         super(new SmoothieCommunicator());
+        setSingleStepMode(true);
+    }
+
+    @Override
+    public void setSingleStepMode(boolean ignored) {
+        super.setSingleStepMode(true);
     }
 
     @Override
