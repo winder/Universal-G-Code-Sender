@@ -433,6 +433,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
         this.macroEditPanel.setToolTipText(Localization.getString("mainWindow.swing.macroInstructions"));
+        this.pendantMenu.setText(Localization.getString("mainWindow.swing.pendant"));
+        this.gcodeProcessorSettings.setText(Localization.getString("settings.processors.header"));
     }
 
     /**

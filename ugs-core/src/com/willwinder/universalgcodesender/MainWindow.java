@@ -437,7 +437,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
-        jMenuItem2 = new javax.swing.JMenuItem();
+        gcodeProcessorSettings = new javax.swing.JMenuItem();
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
         stopPendantServerButton = new javax.swing.JMenuItem();
@@ -1269,13 +1269,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         settingsMenu.add(firmwareSettingsMenu);
 
-        jMenuItem2.setText("Gcode Processor Settings");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        gcodeProcessorSettings.setText("Gcode Processor Settings");
+        gcodeProcessorSettings.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                gcodeProcessorSettingsActionPerformed(evt);
             }
         });
-        settingsMenu.add(jMenuItem2);
+        settingsMenu.add(gcodeProcessorSettings);
 
         mainMenuBar.add(settingsMenu);
 
@@ -1827,7 +1827,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_helpButtonMachineControlActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
                 settings,
@@ -1851,7 +1851,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
             */
         }
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_gcodeProcessorSettingsActionPerformed
 
     private void showCommandTable(Boolean enabled) {
         if (enabled && (backend.isConnected() && !backend.isIdle())) {
@@ -2182,6 +2182,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.resetXButton.setText(Localization.getString("mainWindow.swing.resetX"));
         this.resetYButton.setText(Localization.getString("mainWindow.swing.resetY"));
         this.resetZButton.setText(Localization.getString("mainWindow.swing.resetZ"));
+        this.activeStateLabel.setText(Localization.getString("mainWindow.swing.activeStateLabel"));
+        this.PendantMenu.setText(Localization.getString("mainWindow.swing.pendant"));
+        this.gcodeProcessorSettings.setText(Localization.getString("settings.processors.header"));
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
@@ -2437,12 +2440,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
     private javax.swing.JMenu firmwareSettingsMenu;
+    private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JTabbedPane jTabbedPane1;
