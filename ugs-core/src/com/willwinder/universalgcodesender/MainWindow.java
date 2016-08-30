@@ -2185,6 +2185,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.activeStateLabel.setText(Localization.getString("mainWindow.swing.activeStateLabel"));
         this.PendantMenu.setText(Localization.getString("mainWindow.swing.pendant"));
         this.gcodeProcessorSettings.setText(Localization.getString("settings.processors.header"));
+        this.startPendantServerButton.setText(Localization.getString("PendantMenu.item.StartServer"));
+        this.stopPendantServerButton.setText(Localization.getString("PendantMenu.item.StopServer"));
     }
     
     // Scans for comm ports and puts them in the comm port combo box.
