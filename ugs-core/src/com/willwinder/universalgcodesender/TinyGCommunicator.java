@@ -46,6 +46,14 @@ public class TinyGCommunicator extends BufferedCommunicator {
         return TinyGGcodeCommand.isOkErrorResponse(response);
     }
 
+    /**
+     * Allows detecting errors and pausing the stream.
+     */
+    @Override
+    protected boolean processedCommandIsError(String response) {
+        return false;
+    }
+
     @Override
     protected void sendingCommand(String response) {
         // no-op for this protocol.

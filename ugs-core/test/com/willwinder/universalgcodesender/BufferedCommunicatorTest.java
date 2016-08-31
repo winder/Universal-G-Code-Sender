@@ -438,7 +438,12 @@ public class BufferedCommunicatorTest {
         }
 
         public boolean processedCommand(String response) {
-            return (response != null && "ok".equals(response));
+            return (response != null &&
+                    ("ok".equals(response) || response.startsWith("error")));
+        }
+
+        public boolean processedCommandIsError(String response) {
+            return (response != null && response.startsWith("error"));
         }
 
         @Override

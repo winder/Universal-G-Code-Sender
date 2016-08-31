@@ -299,6 +299,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @return true if a command has completed.
      */
     abstract protected boolean processedCommand(String response);
+
+    /**
+     * Returns whether or not a completed command had an error based on a
+     * response from the controller.
+     * @param response
+     * @return true if a command has completed.
+     */
+    abstract protected boolean processedCommandIsError(String response);
     
     /** 
      * Processes message from GRBL. This should only be called from the
@@ -309,6 +317,15 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     public void responseMessage(String response) {
         // Send this information back up to the Controller.
         dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
+
+
+        // Pause if there is an error.
+        // FIXME: This prevents more commands from being sent, but does not
+        //        issue a FEED HOLD event. The GUI will appear to hang if the
+        //        controller does not detect the error and update the GUI.
+        if (processedCommandIsError(response)) {
+            this.sendPaused = true;
+        }
 
         // Keep the data flow going in case of an "ok/error".
         if (processedCommand(response)) {

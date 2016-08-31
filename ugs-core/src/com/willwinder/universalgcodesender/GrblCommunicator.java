@@ -60,6 +60,11 @@ public class GrblCommunicator extends BufferedCommunicator {
     }
 
     @Override
+    protected boolean processedCommandIsError(String response) {
+        return response.startsWith("error");
+    }
+
+    @Override
     protected void sendingCommand(String response) {
         // no-op for this protocol.
     }

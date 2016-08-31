@@ -33,6 +33,8 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 
 /**

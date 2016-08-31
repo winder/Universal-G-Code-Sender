@@ -171,6 +171,7 @@ public class GrblController extends AbstractController {
             this.messageForConsole(response + "\n");
         }
     }
+
     @Override
     protected void pauseStreamingEvent() throws Exception {
         if (this.realTimeCapable) {
