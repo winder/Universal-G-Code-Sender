@@ -206,7 +206,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      */
     @Override
     synchronized public void streamCommands() {
-        Optional.of(this);
         // If there are no commands to send, exit.
         if (this.getNextCommand() == null) {
             return;

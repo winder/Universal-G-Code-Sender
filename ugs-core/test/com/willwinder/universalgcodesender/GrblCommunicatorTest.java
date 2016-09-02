@@ -400,4 +400,46 @@ public class GrblCommunicatorTest {
         expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());
     }
+
+    /**
+     * Test of sendStringToComm method, of class GrblCommunicator.
+     */
+    @Test
+    public void testErrorResponse() {
+        System.out.println("streamCommands");
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        instance.setSingleStepMode(true);
+        String term = "\n";
+        String thirtyNineCharString = "thirty-nine character command here.....";
+
+        boolean result;
+        boolean expResult;
+        
+        // Make sure CommUtil is still an overly cautious jerk.
+        LinkedList<GcodeCommand> l = new LinkedList<>();
+        l.add(new GcodeCommand("12characters"));
+
+        // Add a bunch of commands so that the buffer is full.
+        // 39*3 + 3 newlines + 3 CommUtils caution  = 123 == buffer size.
+        instance.queueStringForComm(thirtyNineCharString);
+        instance.queueStringForComm(thirtyNineCharString);
+        instance.queueStringForComm(thirtyNineCharString);
+        instance.queueStringForComm(thirtyNineCharString);
+
+        // First command activated, next loaded (not tested) and two queued.
+        instance.streamCommands();
+        assertEquals(1, asl.size());
+        assertEquals(2, cb.size());
+
+        // Complete one command, next becomes active, one left in the queue.
+        mc.sendResponse("ok");
+        assertEquals(1, asl.size());
+        assertEquals(1, cb.size());
+
+        // After an error the active command completes but queue is not changed.
+        mc.sendResponse("error");
+        assertEquals(0, asl.size());
+        assertEquals(1, cb.size());
+    }
 }
