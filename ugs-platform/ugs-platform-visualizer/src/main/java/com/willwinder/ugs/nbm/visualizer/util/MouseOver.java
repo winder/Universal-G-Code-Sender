@@ -1,6 +1,8 @@
 /**
  * Draws a vertical line along the Z axis at the (X,Y) coordinate where the
  * mouse is considered to be.
+ * 
+ * Ray - Plane intersection: http://stackoverflow.com/a/21114992/204023
  */
 /*
     Copywrite 2016 Will Winder
@@ -68,7 +70,10 @@ public class MouseOver extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
-    public Point3d findGridLocation(GLAutoDrawable drawable, Point3d rotation, Point mouseCoordinates) {
+    /**
+     * Get the near/far mouse locations in world space coordinates.
+     */
+    private Vector3[] getRayFromMouse(GLAutoDrawable drawable, Point mouseCoordinates) {
 
         String formatMouseCoords = "Mouse coords before (%d,%d), mouse coords after (%d, %d), translate coords (%d,%d)";
         String formatWorldCoords = "World coords at z=%s are (%f,%f,%f)";
@@ -106,8 +111,12 @@ public class MouseOver extends Renderable {
         int realy = viewPort[3] - (int)mouseY - 1;
         //realy = viewport[3] - (GLint) y - 1;
 
-        double nearDepth = 0.0;
-        double farDepth = 1.0;
+        double farDepth = 0.0;
+        double nearDepth = 1.0;
+
+        ///////////////////
+        // Calculate Ray //
+        ///////////////////
 
         // FAR
         GLU.gluUnProject((double)mouseX, (double)realy, farDepth,
@@ -127,50 +136,71 @@ public class MouseOver extends Renderable {
         System.out.println(String.format(formatWorldCoords, nearDepth,
                 wcoordNear[0], wcoordNear[1], wcoordNear[2]));
 
+        return new Vector3[]{
+                new Vector3(wcoordNear[0], wcoordNear[1], wcoordNear[2]),
+                new Vector3(wcoordFar[0], wcoordFar[1], wcoordFar[2])};
+    }
+
+    public static boolean intersectRayWithSquare(Vector3 R1, Vector3 R2,
+                                     Vector3 S1, Vector3 S2, Vector3 S3) {
+        // 1.
+        Vector3 dS21 = S2.sub(S1);
+        Vector3 dS31 = S3.sub(S1);
+        Vector3 n = dS21.cross(dS31);
+
+        // 2.
+        Vector3 dR = R1.sub(R2);
+
+        double ndotdR = n.dot(dR);
+
+        if (Math.abs(ndotdR) < 1e-6f) { // Choose your tolerance
+            return false;
+        }
+
+        double t = -n.dot(R1.sub(S1)) / ndotdR;
+        Vector3 M = R1.add(dR.scale(t));
+
+        // 3.
+        Vector3 dMS1 = M.sub(S1);
+        double u = dMS1.dot(dS21);
+        double v = dMS1.dot(dS31);
+
+        // 4.
+        return (u >= 0.0f && u <= dS21.dot(dS21)
+             && v >= 0.0f && v <= dS31.dot(dS31));
+    }
+
+    @Override
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
+        if (mouseCoordinates == null) return;
+
+        Vector3[] mouseRay = getRayFromMouse(drawable, mouseCoordinates);
+        Vector3 R1 = mouseRay[0];
+        Vector3 R2 = mouseRay[1];
+
+        Vector3 S1 = new Vector3(objectMin.x, objectMax.y, 0);
+        Vector3 S2 = new Vector3(objectMax.x, objectMax.y, 0);
+        Vector3 S3 = new Vector3(objectMin.x, objectMin.y, 0);
+
+        boolean hit = this.intersectRayWithSquare(R1, R2, S1, S2, S3);
+
+        ///////////////////
+        // Debug spheres //
+        ///////////////////
+        GL2 gl2 = drawable.getGL().getGL2();
+
         gl2.glPushMatrix();
-            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(Color.CYAN), 0);
-            gl2.glTranslated(wcoordFar[0], wcoordFar[1], wcoordFar[2]);
+            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(hit ? Color.CYAN : Color.BLACK), 0);
+            gl2.glTranslated(R1.x, R1.y, R1.z);
             GLU.gluSphere(GQ, 0.5, 10, 10);
         gl2.glPopMatrix();
 
 
         gl2.glPushMatrix();
-            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(Color.MAGENTA), 0);
-            gl2.glTranslated(wcoordNear[0], wcoordNear[1], wcoordNear[2]);
+            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(hit ? Color.MAGENTA : Color.BLACK), 0);
+            gl2.glTranslated(R2.x, R2.y, R2.z);
             GLU.gluSphere(GQ, 0.25, 10, 10);
         gl2.glPopMatrix();
-
-        
-
-        /*
-        gl2.glColor4fv(VisualizerOptions.colorToFloatArray(Color.GRAY), 0);
-        gl2.glPushMatrix();
-        gl2.glBegin(GL_LINES);
-            gl2.glVertex3dv(wcoordFar, 0);
-            gl2.glVertex3dv(wcoordNear, 0);
-            //gl2.glVertex3d(0,0,0);
-        gl2.glPopMatrix();
-        */
-        
-        
-        /*
-        gl2.glColor4fv(VisualizerOptions.colorToFloatArray(Color.BLACK), 0);
-        gl2.glPushMatrix();
-            gl2.glTranslated(wcoordNear[0], wcoordNear[1], wcoordFar[2]);
-            GLU.gluSphere(GQ, 10, 10, 10);
-        gl2.glPopMatrix();
-        */
-        
-
-        return null;
-    }
-
-    @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
-        if (mouseCoordinates == null) return;
-
-        findGridLocation(drawable, rotation, mouseCoordinates);
-        
 
         /*
         GL2 gl = drawable.getGL().getGL2();
@@ -189,5 +219,37 @@ public class MouseOver extends Renderable {
         gl.glPopMatrix();
         */
 
+    }
+
+    static class Vector3 {
+        public double x, y, z;
+
+        public Vector3(double x, double y, double z) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public Vector3 add(Vector3 other) {
+            return new Vector3(x + other.x, y + other.y, z + other.z);
+        }
+
+        public Vector3 sub(Vector3 other) {
+            return new Vector3(x - other.x, y - other.y, z - other.z);
+        }
+
+        public Vector3 scale(double f) {
+            return new Vector3(x * f, y * f, z * f);
+        }
+
+        public Vector3 cross(Vector3 other) {
+            return new Vector3(y * other.z - z * other.y,
+                               z - other.x - x * other.z,
+                               x - other.y - y * other.x);
+        }
+
+        public double dot(Vector3 other) {
+            return x * other.x + y * other.y + z * other.z;
+        }
     }
 }
