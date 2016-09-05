@@ -24,6 +24,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
+import java.awt.Point;
 import javax.vecmath.Point3d;
 
 /**
@@ -95,7 +96,7 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         double buffer = maxSide * 0.05;
         Point3d bottomLeft = new Point3d(focusMin);

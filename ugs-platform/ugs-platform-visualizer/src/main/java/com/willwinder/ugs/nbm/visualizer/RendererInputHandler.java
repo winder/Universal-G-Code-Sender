@@ -138,6 +138,7 @@ public class RendererInputHandler implements
         int y = e.getY();
 
         gcodeRenderer.mouseMoved(new Point(x, y));
+        gcodeRenderer.forceRedraw();
     }
 
     /**

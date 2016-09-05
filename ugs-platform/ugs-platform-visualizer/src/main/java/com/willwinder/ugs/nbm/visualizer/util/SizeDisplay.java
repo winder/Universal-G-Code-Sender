@@ -12,6 +12,7 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import javax.vecmath.Point3d;
@@ -56,7 +57,7 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
         if (idle) return;
 
         if (textRendererDirty) init(drawable);
@@ -91,8 +92,7 @@ public class SizeDisplay extends Renderable {
 
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
-                gl.glTranslated(
-                        (focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
+                gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
                         focusMin.y-offset, 0);
                 renderer.draw3D(text,
                         0f, 0f,
@@ -126,8 +126,7 @@ public class SizeDisplay extends Renderable {
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
                 gl.glRotated(90,0,0,1);
-                gl.glTranslated(
-                        (focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
+                gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
                         -focusMin.x+buffer*1.1, 0);
                 renderer.draw3D(text,
                         0f, 0f,
@@ -161,8 +160,7 @@ public class SizeDisplay extends Renderable {
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
                 gl.glRotated(90,1,0,0);
-                gl.glTranslated(
-                        focusMax.x + buffer*1.1,
+                gl.glTranslated(focusMax.x + buffer*1.1,
                         (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
                         //focusMin.y-offset,
                         -focusMin.y);

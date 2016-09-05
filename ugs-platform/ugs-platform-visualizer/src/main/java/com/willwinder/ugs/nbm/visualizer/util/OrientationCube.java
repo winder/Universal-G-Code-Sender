@@ -31,6 +31,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import javax.vecmath.Point3d;
 
@@ -76,7 +77,7 @@ public class OrientationCube extends Renderable {
   }
 
   @Override
-  public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+  public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
     GL2 gl = drawable.getGL().getGL2();
 
     int ySize = drawable.getDelegatedDrawable().getSurfaceHeight();

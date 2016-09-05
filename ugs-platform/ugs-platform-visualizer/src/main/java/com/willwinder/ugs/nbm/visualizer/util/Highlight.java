@@ -24,6 +24,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Color;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.vecmath.Point3d;
@@ -71,7 +72,7 @@ public class Highlight extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
         if (lineVertexData == null || highlightedLines == null || highlightedLines.isEmpty()) {
             return;
         }

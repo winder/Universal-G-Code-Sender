@@ -24,6 +24,7 @@ import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.awt.Color;
+import java.awt.Point;
 import javax.vecmath.Point3d;
 
 /**
@@ -62,12 +63,12 @@ public final class Tool extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
         GL2 gl = drawable.getGL().getGL2();
 
-        gl.glEnable(GL2.GL_LIGHTING); 
         
         gl.glPushMatrix();
+            gl.glEnable(GL2.GL_LIGHTING); 
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
             gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
@@ -76,8 +77,8 @@ public final class Tool extends Renderable {
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
+            gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
-        gl.glDisable(GL2.GL_LIGHTING); 
 
         /*
         // The ugly yellow line. RIP.

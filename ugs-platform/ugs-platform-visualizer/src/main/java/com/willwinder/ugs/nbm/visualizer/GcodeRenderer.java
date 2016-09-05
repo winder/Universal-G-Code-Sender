@@ -40,6 +40,7 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.util.Grid;
+import com.willwinder.ugs.nbm.visualizer.util.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.util.Renderable;
 import com.willwinder.ugs.nbm.visualizer.util.SizeDisplay;
@@ -142,6 +143,7 @@ public class GcodeRenderer implements GLEventListener {
 
         objects = new ArrayList<>();
         objects.add(new Tool());
+        objects.add(new MouseOver());
         objects.add(new OrientationCube(0.5f));
         objects.add(new Grid());
         objects.add(new SizeDisplay());
@@ -308,7 +310,7 @@ public class GcodeRenderer implements GLEventListener {
                 if (r.center()) {
                     gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
                 }
-                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor);
+                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor, rotation, last);
             gl.glPopMatrix();
         }
         
