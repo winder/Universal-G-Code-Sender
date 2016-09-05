@@ -36,6 +36,8 @@ import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.awt.Color;
 import java.awt.Point;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 import jogamp.nativewindow.macosx.OSXUtil;
 
@@ -44,6 +46,8 @@ import jogamp.nativewindow.macosx.OSXUtil;
  * @author wwinder
  */
 public class MouseOver extends Renderable {
+    private static final Logger logger = Logger.getLogger(MouseOver.class.getName());
+
     private static final GLU GLU = new GLU();
     private static GLUquadric GQ;
 
@@ -72,29 +76,11 @@ public class MouseOver extends Renderable {
 
     /**
      * Get the near/far mouse locations in world space coordinates.
+     * 
+     * Utilize gluUnProject to get the points.
      */
-    private Vector3[] getRayFromMouse(GLAutoDrawable drawable, Point mouseCoordinates) {
+    private static Vector3[] getRayFromMouse(GLAutoDrawable drawable, int mouseX, int mouseY) {
 
-        String formatMouseCoords = "Mouse coords before (%d,%d), mouse coords after (%d, %d), translate coords (%d,%d)";
-        String formatWorldCoords = "World coords at z=%s are (%f,%f,%f)";
-
-        int[] raw= {mouseCoordinates.x, mouseCoordinates.y};
-        int[] coords = drawable.getNativeSurface().convertToPixelUnits(raw);
-        int mouseX = coords[0];
-        int mouseY = coords[1];
-        int width = drawable.getSurfaceWidth();
-        int height = drawable.getSurfaceHeight();
-
-        //System.out.println("native width: " + panel.getNativeSurface().getSurfaceWidth());
-
-        int translateX = mouseX - width/2;
-        int translateY = mouseY - height/2;
-        System.out.println("Width: " + width + ", Height: " + height);
-        System.out.println(String.format(formatMouseCoords,
-                mouseCoordinates.x, mouseCoordinates.y,
-                mouseX, mouseY,
-                translateX, translateY));
-        GL gl1 = drawable.getGL();
         GL2 gl2 = drawable.getGL().getGL2();
 
         int[] viewPort = new int[4];
@@ -124,25 +110,34 @@ public class MouseOver extends Renderable {
                 projectionMatrix, 0,
                 viewPort, 0,
                 wcoordFar, 0);
-        System.out.println(String.format(formatWorldCoords, farDepth,
-                wcoordFar[0], wcoordFar[1], wcoordFar[2]));
-
         // NEAR
         GLU.gluUnProject((double)mouseX, (double)realy, nearDepth,
                 modelViewMatrix, 0,
                 projectionMatrix, 0,
                 viewPort, 0,
                 wcoordNear, 0);
-        System.out.println(String.format(formatWorldCoords, nearDepth,
-                wcoordNear[0], wcoordNear[1], wcoordNear[2]));
 
         return new Vector3[]{
                 new Vector3(wcoordNear[0], wcoordNear[1], wcoordNear[2]),
                 new Vector3(wcoordFar[0], wcoordFar[1], wcoordFar[2])};
     }
 
-    public static boolean intersectRayWithSquare(Vector3 R1, Vector3 R2,
+    /**
+     * Returns a point where a ray intersects with the XY plane.
+     * @param R1 Start point of the mouse ray
+     * @param R2 End point of the mouse ray
+     * @param S1 Top-left corner of a box on the plane.
+     * @param S2 Top-right corner of a box on the plane.
+     * @param S3 Bottom-left corner of a box on the plane.
+     * @return The X, Y coordinate at Z=0
+     */
+    private static Point3d intersectPointWithPlane(Vector3 R1, Vector3 R2,
                                      Vector3 S1, Vector3 S2, Vector3 S3) {
+
+        // TODO: The plane S1, S2, S3 is the XY plane by definition, so this
+        //       could be simplified if I spent more time understanding the
+        //       trig. 
+
         // 1.
         Vector3 dS21 = S2.sub(S1);
         Vector3 dS31 = S3.sub(S1);
@@ -153,12 +148,21 @@ public class MouseOver extends Renderable {
 
         double ndotdR = n.dot(dR);
 
+        // If the ray is parallel to the plane return 0
         if (Math.abs(ndotdR) < 1e-6f) { // Choose your tolerance
-            return false;
+            return new Point3d(0,0,0);
         }
 
         double t = -n.dot(R1.sub(S1)) / ndotdR;
         Vector3 M = R1.add(dR.scale(t));
+        logger.log(Level.INFO, String.format("Intersection at: (%f,%f)", M.x, M.y));
+
+        return new Point3d(M.x, M.y, 0);
+
+        /*
+        // The below will calculate if the intersection is also within the
+        // bounds of the plane. Since our plane is along the XY plane it is not
+        // necessary to do any of this.
 
         // 3.
         Vector3 dMS1 = M.sub(S1);
@@ -168,13 +172,25 @@ public class MouseOver extends Renderable {
         // 4.
         return (u >= 0.0f && u <= dS21.dot(dS21)
              && v >= 0.0f && v <= dS31.dot(dS31));
+        */
+    }
+
+    static private boolean inBounds(Point3d point, Point3d bottomLeft, Point3d topRight) {
+        if (point.x > topRight.x || point.x < bottomLeft.x) return false;
+        if (point.y > topRight.y || point.y < bottomLeft.y) return false;
+        return true;
     }
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
         if (mouseCoordinates == null) return;
 
-        Vector3[] mouseRay = getRayFromMouse(drawable, mouseCoordinates);
+        int[] raw = {mouseCoordinates.x, mouseCoordinates.y};
+        int[] coords = drawable.getNativeSurface().convertToPixelUnits(raw);
+        int mouseX = coords[0];
+        int mouseY = coords[1];
+
+        Vector3[] mouseRay = getRayFromMouse(drawable, mouseX, mouseY);
         Vector3 R1 = mouseRay[0];
         Vector3 R2 = mouseRay[1];
 
@@ -182,43 +198,26 @@ public class MouseOver extends Renderable {
         Vector3 S2 = new Vector3(objectMax.x, objectMax.y, 0);
         Vector3 S3 = new Vector3(objectMin.x, objectMin.y, 0);
 
-        boolean hit = this.intersectRayWithSquare(R1, R2, S1, S2, S3);
+        Point3d hit = intersectPointWithPlane(R1, R2, S1, S2, S3);
 
-        ///////////////////
-        // Debug spheres //
-        ///////////////////
-        GL2 gl2 = drawable.getGL().getGL2();
+        if (inBounds(hit, objectMin, objectMax)) {
+            GL2 gl = drawable.getGL().getGL2();
 
-        gl2.glPushMatrix();
-            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(hit ? Color.CYAN : Color.BLACK), 0);
-            gl2.glTranslated(R1.x, R1.y, R1.z);
-            GLU.gluSphere(GQ, 0.5, 10, 10);
-        gl2.glPopMatrix();
+            double scale = scaleFactor * 2;
 
+            gl.glPushMatrix();
+                gl.glEnable(GL2.GL_LIGHTING); 
+                gl.glTranslated(hit.x, hit.y, hit.z);
+                gl.glScaled(1./scale, 1./scale, 1./scale);
 
-        gl2.glPushMatrix();
-            gl2.glColor4fv(VisualizerOptions.colorToFloatArray(hit ? Color.MAGENTA : Color.BLACK), 0);
-            gl2.glTranslated(R2.x, R2.y, R2.z);
-            GLU.gluSphere(GQ, 0.25, 10, 10);
-        gl2.glPopMatrix();
-
-        /*
-        GL2 gl = drawable.getGL().getGL2();
-        gl.glPushMatrix();
-            gl.glLineWidth(1.5f);
-            // grid
-            //gl.glTranslated(mouseCoordinates.x-width, mouseCoordinates.y-height, workCoord.z);
-            gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
-            gl.glBegin(GL_LINES);
-                // Z Axis Line
-                gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.BLACK), 0);
-                gl.glVertex3d(0, 0, -1000);
-                gl.glVertex3d(0, 0,1000);
-            gl.glEnd();
-        
-        gl.glPopMatrix();
-        */
-
+                gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.LIGHT_GRAY), 0);
+                GLU.gluQuadricNormals(GQ, GLU.GLU_SMOOTH);
+                GLU.gluCylinder(GQ, 0f, .03f, .2, 16, 1);
+                gl.glTranslated(0, 0, 0.2);
+                GLU.gluCylinder(GQ, 0.03f, .0f, .01, 16, 1);
+                gl.glDisable(GL2.GL_LIGHTING); 
+            gl.glPopMatrix();
+        }
     }
 
     static class Vector3 {
