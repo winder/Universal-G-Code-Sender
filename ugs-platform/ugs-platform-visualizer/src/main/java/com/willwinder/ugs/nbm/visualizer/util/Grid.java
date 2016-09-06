@@ -96,7 +96,7 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d rotation, Point mouseCoordinates) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         double buffer = maxSide * 0.05;
         Point3d bottomLeft = new Point3d(focusMin);

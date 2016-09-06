@@ -69,5 +69,5 @@ public abstract class Renderable implements Comparable<Renderable> {
 
     abstract public void init(GLAutoDrawable drawable);
     abstract public void reloadPreferences(VisualizerOptions vo);
-    abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d rotation, Point mouseCoordinates);
+    abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates);
 }
