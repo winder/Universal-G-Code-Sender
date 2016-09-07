@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_LINES;
@@ -34,7 +34,6 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.Color;
-import java.awt.Point;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;

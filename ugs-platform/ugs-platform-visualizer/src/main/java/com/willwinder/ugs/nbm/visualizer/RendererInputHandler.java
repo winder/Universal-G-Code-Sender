@@ -23,8 +23,8 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.ugs.nbm.visualizer.util.GcodeModel;
-import com.willwinder.ugs.nbm.visualizer.util.Highlight;
+import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
+import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -44,6 +44,7 @@ import java.awt.event.WindowListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import javax.swing.SwingUtilities;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -57,10 +58,14 @@ public class RendererInputHandler implements
     final private FPSAnimator animator;
     private final GcodeModel gcodeModel;
     private final Highlight highlight;
+    private final VisualizerPopupMenu visualizerPopupMenu;
 
-    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a) {
+    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
+            VisualizerPopupMenu popup) {
         gcodeRenderer = gr;
         animator = a;
+        visualizerPopupMenu = popup;
+
         gcodeModel = new GcodeModel();
         highlight = new Highlight(gcodeModel);
         gr.addRenderable(gcodeModel);
@@ -160,12 +165,7 @@ public class RendererInputHandler implements
         // Run this on another thread than the AWT event queue to
         // make sure the call to Animator.stop() completes before
         // exiting
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                animator.stop();
-            }
-        }).start();
+        new Thread(animator::stop).start();
     }
 
     @Override
@@ -198,6 +198,19 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        System.out.println("HERE");
+        if (e.isPopupTrigger()) {
+            System.out.println("is popup trigger");
+            Point3d coords = gcodeRenderer.getMouseWorldLocation();
+            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
+            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
+        else if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
+            System.out.println("swing utils or ctrl down");
+            Point3d coords = gcodeRenderer.getMouseWorldLocation();
+            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
+            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        }
     }
 
     @Override

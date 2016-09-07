@@ -21,7 +21,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import static com.jogamp.opengl.GL.GL_CULL_FACE;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
@@ -31,7 +31,6 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import java.awt.Font;
-import java.awt.Point;
 import java.awt.geom.Rectangle2D;
 import javax.vecmath.Point3d;
 

@@ -73,7 +73,7 @@ public final class Visualizer2TopComponent extends TopComponent {
     private GLJPanel panel;
     private GcodeRenderer renderer;
     private FPSAnimator animator;
-    private final BackendAPIReadOnly backend;
+    private final BackendAPI backend;
     
     public Visualizer2TopComponent() {
         setName(LocalizingService.VisualizerTitle);
@@ -130,7 +130,8 @@ public final class Visualizer2TopComponent extends TopComponent {
         renderer = new GcodeRenderer();
         
         animator = new FPSAnimator(p, 15);
-        RendererInputHandler rih = new RendererInputHandler(renderer, animator);
+        RendererInputHandler rih = new RendererInputHandler(renderer, animator,
+                new VisualizerPopupMenu(backend));
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(rih);

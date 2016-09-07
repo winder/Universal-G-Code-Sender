@@ -39,12 +39,12 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.util.Grid;
-import com.willwinder.ugs.nbm.visualizer.util.MouseOver;
-import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
-import com.willwinder.ugs.nbm.visualizer.util.Renderable;
-import com.willwinder.ugs.nbm.visualizer.util.SizeDisplay;
-import com.willwinder.ugs.nbm.visualizer.util.Tool;
+import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
+import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
+import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
+import com.willwinder.ugs.nbm.visualizer.renderables.Renderable;
+import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
@@ -163,6 +163,13 @@ public class GcodeRenderer implements GLEventListener {
         if (drawable != null) {
             drawable.display();
         }
+    }
+
+    /**
+     * Get the location on the XY plane of the mouse.
+     */
+    public Point3d getMouseWorldLocation() {
+        return this.mouseWorldXY;
     }
 
     public void setWorkCoordinate(Position p) {
@@ -311,6 +318,8 @@ public class GcodeRenderer implements GLEventListener {
                 this.mouseWorldXY = MouseProjectionUtils.intersectPointWithXYPlane(
                         drawable, mouseLastWindow.x, mouseLastWindow.y);
             gl.glPopMatrix();
+        } else {
+            this.mouseWorldXY = new Point3d(0, 0, 0);
         }
 
         // Render the different parts of the scene.
