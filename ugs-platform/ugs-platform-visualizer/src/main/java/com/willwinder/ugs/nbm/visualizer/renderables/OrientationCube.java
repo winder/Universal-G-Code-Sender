@@ -21,7 +21,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import static com.jogamp.opengl.GL.GL_CULL_FACE;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
@@ -76,7 +76,7 @@ public class OrientationCube extends Renderable {
   }
 
   @Override
-  public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+  public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
     GL2 gl = drawable.getGL().getGL2();
 
     int ySize = drawable.getDelegatedDrawable().getSurfaceHeight();

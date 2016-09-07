@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
@@ -68,5 +68,5 @@ public abstract class Renderable implements Comparable<Renderable> {
 
     abstract public void init(GLAutoDrawable drawable);
     abstract public void reloadPreferences(VisualizerOptions vo);
-    abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor);
+    abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates);
 }

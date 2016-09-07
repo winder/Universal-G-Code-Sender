@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_LINES;
@@ -149,7 +149,7 @@ public class GcodeModel extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();

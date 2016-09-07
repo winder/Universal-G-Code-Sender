@@ -39,15 +39,17 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import com.willwinder.ugs.nbm.visualizer.util.Grid;
-import com.willwinder.ugs.nbm.visualizer.util.OrientationCube;
-import com.willwinder.ugs.nbm.visualizer.util.Renderable;
-import com.willwinder.ugs.nbm.visualizer.util.SizeDisplay;
-import com.willwinder.ugs.nbm.visualizer.util.Tool;
+import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
+import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
+import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
+import com.willwinder.ugs.nbm.visualizer.renderables.Renderable;
+import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
+import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 import java.awt.Font;
@@ -110,8 +112,9 @@ public class GcodeRenderer implements GLEventListener {
     private Vector3d translationVectorV;
 
     // Mouse rotation data
-    private Point last;
-    private Point current;
+    private Point mouseLastWindow;
+    private Point mouseCurrentWindow;
+    private Point3d mouseWorldXY;
     private Point3d rotation;
     
     private FPSCounter fpsCounter;
@@ -142,6 +145,7 @@ public class GcodeRenderer implements GLEventListener {
 
         objects = new ArrayList<>();
         objects.add(new Tool());
+        objects.add(new MouseOver());
         objects.add(new OrientationCube(0.5f));
         objects.add(new Grid());
         objects.add(new SizeDisplay());
@@ -159,6 +163,13 @@ public class GcodeRenderer implements GLEventListener {
         if (drawable != null) {
             drawable.display();
         }
+    }
+
+    /**
+     * Get the location on the XY plane of the mouse.
+     */
+    public Point3d getMouseWorldLocation() {
+        return this.mouseWorldXY;
     }
 
     public void setWorkCoordinate(Position p) {
@@ -298,6 +309,19 @@ public class GcodeRenderer implements GLEventListener {
 
         gl.glEnable(GL_DEPTH_TEST);
 
+        // Setup the current matrix so that the projection can be done.
+        if (mouseLastWindow != null) {
+            gl.glPushMatrix();
+                gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);
+                gl.glRotated(this.rotation.y, 1.0, 0.0, 0.0);
+                gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
+                this.mouseWorldXY = MouseProjectionUtils.intersectPointWithXYPlane(
+                        drawable, mouseLastWindow.x, mouseLastWindow.y);
+            gl.glPopMatrix();
+        } else {
+            this.mouseWorldXY = new Point3d(0, 0, 0);
+        }
+
         // Render the different parts of the scene.
         for (Renderable r : objects) {
             gl.glPushMatrix();
@@ -308,7 +332,7 @@ public class GcodeRenderer implements GLEventListener {
                 if (r.center()) {
                     gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
                 }
-                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor);
+                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY);
             gl.glPopMatrix();
         }
         
@@ -440,14 +464,14 @@ public class GcodeRenderer implements GLEventListener {
     }
 
     public void mouseMoved(Point lastPoint) {
-        last = lastPoint;
+        mouseLastWindow = lastPoint;
     }
     
     public void mouseRotate(Point point) {
-        this.current = point;
-        if (this.last != null) {
-            int dx = this.current.x - this.last.x;
-            int dy = this.current.y - this.last.y;
+        this.mouseCurrentWindow = point;
+        if (this.mouseLastWindow != null) {
+            int dx = this.mouseCurrentWindow.x - this.mouseLastWindow.x;
+            int dy = this.mouseCurrentWindow.y - this.mouseLastWindow.y;
 
             rotation.x = this.rotation.x += dx / 2.0;
             rotation.y = Math.min(0, Math.max(-180, this.rotation.y += dy / 2.0));
@@ -459,13 +483,13 @@ public class GcodeRenderer implements GLEventListener {
         }
         
         // Now that the motion has been accumulated, reset last.
-        this.last = this.current;
+        this.mouseLastWindow = this.mouseCurrentWindow;
     }
     
     public void mousePan(Point point) {
-        this.current = point;
-        int dx = this.current.x - this.last.x;
-        int dy = this.current.y - this.last.y;
+        this.mouseCurrentWindow = point;
+        int dx = this.mouseCurrentWindow.x - this.mouseLastWindow.x;
+        int dy = this.mouseCurrentWindow.y - this.mouseLastWindow.y;
         pan(dx, dy);
     }
 
@@ -481,7 +505,7 @@ public class GcodeRenderer implements GLEventListener {
         }
         
         // Now that the motion has been accumulated, reset last.
-        this.last = this.current;
+        this.mouseLastWindow = this.mouseCurrentWindow;
     }
     
     public void zoom(int delta) {

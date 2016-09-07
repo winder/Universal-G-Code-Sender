@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -62,12 +62,12 @@ public final class Tool extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
         GL2 gl = drawable.getGL().getGL2();
 
-        gl.glEnable(GL2.GL_LIGHTING); 
         
         gl.glPushMatrix();
+            gl.glEnable(GL2.GL_LIGHTING); 
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
             gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
 
@@ -76,8 +76,8 @@ public final class Tool extends Renderable {
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
+            gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
-        gl.glDisable(GL2.GL_LIGHTING); 
 
         /*
         // The ugly yellow line. RIP.

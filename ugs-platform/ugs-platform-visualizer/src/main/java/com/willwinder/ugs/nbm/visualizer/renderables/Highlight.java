@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
@@ -71,7 +71,7 @@ public class Highlight extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
         if (lineVertexData == null || highlightedLines == null || highlightedLines.isEmpty()) {
             return;
         }

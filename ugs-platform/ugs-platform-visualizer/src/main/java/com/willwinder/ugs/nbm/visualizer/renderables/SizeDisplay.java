@@ -1,9 +1,22 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.util;
+package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -56,7 +69,7 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
         if (idle) return;
 
         if (textRendererDirty) init(drawable);
@@ -91,8 +104,7 @@ public class SizeDisplay extends Renderable {
 
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
-                gl.glTranslated(
-                        (focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
+                gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
                         focusMin.y-offset, 0);
                 renderer.draw3D(text,
                         0f, 0f,
@@ -126,8 +138,7 @@ public class SizeDisplay extends Renderable {
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
                 gl.glRotated(90,0,0,1);
-                gl.glTranslated(
-                        (focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
+                gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
                         -focusMin.x+buffer*1.1, 0);
                 renderer.draw3D(text,
                         0f, 0f,
@@ -161,8 +172,7 @@ public class SizeDisplay extends Renderable {
                 float textScaleFactor = (float)(buffer/h);
                 // Center text and move to line.
                 gl.glRotated(90,1,0,0);
-                gl.glTranslated(
-                        focusMax.x + buffer*1.1,
+                gl.glTranslated(focusMax.x + buffer*1.1,
                         (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
                         //focusMin.y-offset,
                         -focusMin.y);
