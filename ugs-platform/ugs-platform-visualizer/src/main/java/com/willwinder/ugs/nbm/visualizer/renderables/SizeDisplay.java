@@ -1,3 +1,6 @@
+/**
+ * Display some lines and measurements for the current objects size.
+ */
 /*
     Copywrite 2016 Will Winder
 
@@ -22,6 +25,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 import java.awt.Font;
@@ -36,13 +41,19 @@ import javax.vecmath.Point3d;
 public class SizeDisplay extends Renderable {
 
     private static final DecimalFormat FORMATTER = new DecimalFormat("#.##");
+    private Units units = Units.MM;
+
     private TextRenderer renderer;
-    float[] color;
-    boolean textRendererDirty = true;
+    private float[] color;
+    private boolean textRendererDirty = true;
 
     public SizeDisplay() {
         super(3);
         reloadPreferences(new VisualizerOptions());
+    }
+
+    public void setUnits(Units units) {
+        this.units = units;
     }
 
     @Override
@@ -66,6 +77,12 @@ public class SizeDisplay extends Renderable {
         renderer = new TextRenderer(new Font("SansSerif", Font.PLAIN, 72));
         renderer.setColor(color[0], color[1], color[2], color[3]);
         textRendererDirty = false;
+    }
+
+    private static String getTextForMM(double mm, Units goal) {
+        Position p = new Position(mm, 0, 0, Units.MM);
+        double converted = p.getPositionIn(goal).x;
+        return FORMATTER.format(converted) + " " + goal.abbreviation;
     }
 
     @Override
@@ -97,7 +114,8 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double xSize = focusMax.x-focusMin.x;
-                String text = FORMATTER.format(xSize) + " mm";
+                String text = this.getTextForMM(xSize, units);
+                //String text = FORMATTER.format(xSize) + " mm";
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();
@@ -130,7 +148,8 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double ySize = focusMax.y-focusMin.y;
-                String text = FORMATTER.format(ySize) + " mm";
+                //String text = FORMATTER.format(ySize) + " mm";
+                String text = this.getTextForMM(ySize, units);
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();
@@ -164,7 +183,8 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double zSize = focusMax.z-focusMin.z;
-                String text = FORMATTER.format(zSize) + " mm";
+                //String text = FORMATTER.format(zSize) + " mm";
+                String text = this.getTextForMM(zSize, units);
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();

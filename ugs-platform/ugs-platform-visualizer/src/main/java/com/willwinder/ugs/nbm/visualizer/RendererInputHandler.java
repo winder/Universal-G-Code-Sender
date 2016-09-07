@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
+import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -58,6 +59,7 @@ public class RendererInputHandler implements
     final private FPSAnimator animator;
     private final GcodeModel gcodeModel;
     private final Highlight highlight;
+    private final SizeDisplay sizeDisplay;
     private final VisualizerPopupMenu visualizerPopupMenu;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
@@ -68,8 +70,10 @@ public class RendererInputHandler implements
 
         gcodeModel = new GcodeModel();
         highlight = new Highlight(gcodeModel);
+        sizeDisplay = new SizeDisplay();
         gr.addRenderable(gcodeModel);
         gr.addRenderable(highlight);
+        gr.addRenderable(sizeDisplay);
     }
 
     @Subscribe
@@ -295,6 +299,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+        sizeDisplay.setUnits(machineCoord.getUnits());
         gcodeRenderer.setMachineCoordinate(machineCoord);
         gcodeRenderer.setWorkCoordinate(workCoord);
         gcodeRenderer.forceRedraw();

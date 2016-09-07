@@ -148,7 +148,6 @@ public class GcodeRenderer implements GLEventListener {
         objects.add(new MouseOver());
         objects.add(new OrientationCube(0.5f));
         objects.add(new Grid());
-        objects.add(new SizeDisplay());
         Collections.sort(objects);
 
         reloadPreferences();
