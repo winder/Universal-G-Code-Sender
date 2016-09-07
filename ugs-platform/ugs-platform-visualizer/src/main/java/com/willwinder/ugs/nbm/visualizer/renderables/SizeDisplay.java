@@ -86,7 +86,7 @@ public class SizeDisplay extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
         if (idle) return;
 
         if (textRendererDirty) init(drawable);
@@ -115,7 +115,6 @@ public class SizeDisplay extends Renderable {
                 renderer.begin3DRendering();
                 double xSize = focusMax.x-focusMin.x;
                 String text = this.getTextForMM(xSize, units);
-                //String text = FORMATTER.format(xSize) + " mm";
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
                 float h = (float) bounds.getHeight();
@@ -124,10 +123,14 @@ public class SizeDisplay extends Renderable {
                 // Center text and move to line.
                 gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
                         focusMin.y-offset, 0);
-                renderer.draw3D(text,
-                        0f, 0f,
-                        0f, textScaleFactor);
-                renderer.end3DRendering();
+                gl.glPushMatrix();
+                    //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
+                    //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+                    renderer.draw3D(text,
+                            0f, 0f,
+                            0f, textScaleFactor);
+                    renderer.end3DRendering();
+                gl.glPopMatrix();
                 }
             gl.glPopMatrix();
 
@@ -148,7 +151,6 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double ySize = focusMax.y-focusMin.y;
-                //String text = FORMATTER.format(ySize) + " mm";
                 String text = this.getTextForMM(ySize, units);
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
@@ -159,10 +161,14 @@ public class SizeDisplay extends Renderable {
                 gl.glRotated(90,0,0,1);
                 gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
                         -focusMin.x+buffer*1.1, 0);
-                renderer.draw3D(text,
-                        0f, 0f,
-                        0f, textScaleFactor);
-                renderer.end3DRendering();
+                gl.glPushMatrix();
+                    //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
+                    //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
+                    renderer.draw3D(text,
+                            0f, 0f,
+                            0f, textScaleFactor);
+                    renderer.end3DRendering();
+                gl.glPopMatrix();
                 }
             gl.glPopMatrix();
 
@@ -183,7 +189,6 @@ public class SizeDisplay extends Renderable {
                 {
                 renderer.begin3DRendering();
                 double zSize = focusMax.z-focusMin.z;
-                //String text = FORMATTER.format(zSize) + " mm";
                 String text = this.getTextForMM(zSize, units);
                 Rectangle2D bounds = renderer.getBounds(text);
                 float w = (float) bounds.getWidth();
@@ -196,10 +201,14 @@ public class SizeDisplay extends Renderable {
                         (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
                         //focusMin.y-offset,
                         -focusMin.y);
-                renderer.draw3D(text,
-                        0f, 0f,
-                        0f, textScaleFactor);
-                renderer.end3DRendering();
+                gl.glPushMatrix();
+                    gl.glRotated(-rotation.y-90, 1.0, 0.0, 0.0);
+                    gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+                    renderer.draw3D(text,
+                            0f, 0f,
+                            0f, textScaleFactor);
+                    renderer.end3DRendering();
+                gl.glPopMatrix();
                 }
             gl.glPopMatrix();
     }

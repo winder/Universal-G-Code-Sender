@@ -331,7 +331,7 @@ public class GcodeRenderer implements GLEventListener {
                 if (r.center()) {
                     gl.glTranslated(-this.eye.x - this.center.x, -this.eye.y - this.center.y, -this.eye.z - this.center.z);
                 }
-                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY);
+                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
             gl.glPopMatrix();
         }
         
