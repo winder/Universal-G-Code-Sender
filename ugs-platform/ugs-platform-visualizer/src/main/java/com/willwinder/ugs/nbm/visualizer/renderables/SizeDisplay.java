@@ -123,14 +123,12 @@ public class SizeDisplay extends Renderable {
                 // Center text and move to line.
                 gl.glTranslated((focusMin.x+focusMax.x)/2-(w*textScaleFactor/2),
                         focusMin.y-offset, 0);
-                gl.glPushMatrix();
-                    //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
-                    //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
-                    renderer.draw3D(text,
-                            0f, 0f,
-                            0f, textScaleFactor);
-                    renderer.end3DRendering();
-                gl.glPopMatrix();
+                //gl.glRotated(-rotation.y, 1.0, 0.0, 0.0);
+                //gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+                renderer.draw3D(text,
+                        0f, 0f,
+                        0f, textScaleFactor);
+                renderer.end3DRendering();
                 }
             gl.glPopMatrix();
 
@@ -161,14 +159,12 @@ public class SizeDisplay extends Renderable {
                 gl.glRotated(90,0,0,1);
                 gl.glTranslated((focusMin.y+focusMax.y)/2-(w*textScaleFactor/2),
                         -focusMin.x+buffer*1.1, 0);
-                gl.glPushMatrix();
-                    //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
-                    //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
-                    renderer.draw3D(text,
-                            0f, 0f,
-                            0f, textScaleFactor);
-                    renderer.end3DRendering();
-                gl.glPopMatrix();
+                //gl.glRotated(rotation.y, 0.0, 1.0, 0.0);
+                //gl.glRotated(-rotation.x, 1.0, 0.0, 0.0);
+                renderer.draw3D(text,
+                        0f, 0f,
+                        0f, textScaleFactor);
+                renderer.end3DRendering();
                 }
             gl.glPopMatrix();
 
@@ -201,14 +197,12 @@ public class SizeDisplay extends Renderable {
                         (focusMin.z+focusMax.z)/2-(h*textScaleFactor/2),
                         //focusMin.y-offset,
                         -focusMin.y);
-                gl.glPushMatrix();
-                    gl.glRotated(-rotation.y-90, 1.0, 0.0, 0.0);
-                    gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
-                    renderer.draw3D(text,
-                            0f, 0f,
-                            0f, textScaleFactor);
-                    renderer.end3DRendering();
-                gl.glPopMatrix();
+                gl.glRotated(-rotation.y-90, 1.0, 0.0, 0.0);
+                gl.glRotated(-rotation.x, 0.0, 1.0, 0.0);
+                renderer.draw3D(text,
+                        0f, 0f,
+                        0f, textScaleFactor);
+                renderer.end3DRendering();
                 }
             gl.glPopMatrix();
     }
