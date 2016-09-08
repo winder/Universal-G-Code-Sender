@@ -202,14 +202,7 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("HERE");
-        if (e.isPopupTrigger()) {
-            System.out.println("is popup trigger");
-            Point3d coords = gcodeRenderer.getMouseWorldLocation();
-            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
-            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
-        }
-        else if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
+        if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
             System.out.println("swing utils or ctrl down");
             Point3d coords = gcodeRenderer.getMouseWorldLocation();
             this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
