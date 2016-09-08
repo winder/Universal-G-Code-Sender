@@ -25,6 +25,7 @@ import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
+import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -60,6 +61,7 @@ public class RendererInputHandler implements
     private final GcodeModel gcodeModel;
     private final Highlight highlight;
     private final SizeDisplay sizeDisplay;
+    private final Selection selection;
     private final VisualizerPopupMenu visualizerPopupMenu;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
@@ -71,9 +73,12 @@ public class RendererInputHandler implements
         gcodeModel = new GcodeModel();
         highlight = new Highlight(gcodeModel);
         sizeDisplay = new SizeDisplay();
+        selection = new Selection();
+
         gr.addRenderable(gcodeModel);
         gr.addRenderable(highlight);
         gr.addRenderable(sizeDisplay);
+        gr.addRenderable(selection);
     }
 
     @Subscribe
@@ -127,6 +132,15 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseDragged(java.awt.event.MouseEvent e) {
+        // Don't rotate if we're making a selection.
+        if (selecting){
+            gcodeRenderer.mouseMoved(new Point(e.getX(), e.getY()));
+            selection.setEnd(gcodeRenderer.getMouseWorldLocation());
+            gcodeRenderer.forceRedraw();
+            return;
+        }
+
+
         if (SwingUtilities.isLeftMouseButton(e)) {
             int x = e.getX();
             int y = e.getY();
@@ -143,10 +157,7 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseMoved(java.awt.event.MouseEvent e) {
-        int x = e.getX();
-        int y = e.getY();
-
-        gcodeRenderer.mouseMoved(new Point(x, y));
+        gcodeRenderer.mouseMoved(new Point(e.getX(), e.getY()));
         gcodeRenderer.forceRedraw();
     }
 
@@ -202,21 +213,44 @@ public class RendererInputHandler implements
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
-            System.out.println("swing utils or ctrl down");
             Point3d coords = gcodeRenderer.getMouseWorldLocation();
             this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
             this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
+    private boolean selecting = false;
+    private Point3d selectionStart = null;
+    private Point3d selectionEnd = null;
+
+    /**
+     * Mouse pressed is called on mouse-down.
+     * Mouse released and mouse clicked are called on mouse-up.
+     */
     @Override
     public void mousePressed(MouseEvent e) {
-        animator.start();
+        // Zoom
+        if (e.getButton() == MouseEvent.BUTTON1 && e.isMetaDown()) {
+            selecting = true;
+            selectionStart = gcodeRenderer.getMouseWorldLocation();
+            selection.setStart(selectionStart);
+        } else {
+            animator.start();
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        // Finish selecting.
+        if (selecting) {
+            selecting = false;
+            selectionEnd = gcodeRenderer.getMouseWorldLocation();
+            gcodeRenderer.zoomToSize(selectionStart, selectionEnd, 1.5);
+            selection.clear();
+            gcodeRenderer.forceRedraw();
+        }
         animator.stop();
     }
 

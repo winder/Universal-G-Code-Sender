@@ -253,7 +253,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
         if (height == 0){ height = 1; }  // prevent divide by zero
         this.aspectRatio = (float)width / height;
 
-        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax, 0.9);
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
         this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);
         this.panMultiplierY = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.y, this.objectMax.y, this.ySize);
@@ -502,7 +502,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             this.maxSide = VisualizerUtils.findMaxSide(objectMin, objectMax);
             
             this.scaleFactorBase = 1.0/this.maxSide;
-            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+            this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax, 0.9);
             this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
 
             this.isDrawable = true;

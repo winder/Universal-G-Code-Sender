@@ -254,27 +254,30 @@ public class GcodeRenderer implements GLEventListener {
         // Set the view port (display area) to cover the entire window
         gl.glViewport(0, 0, xSize, ySize);
 
-        initObjectVariables();
+        zoomToSize(objectMin, objectMax, 0.9);
     }
 
     public void setObjectSize(Point3d min, Point3d max) {
         this.objectMin = min;
         this.objectMax = max;
         idle = false;
-        initObjectVariables();
+        zoomToSize(objectMin, objectMax, 0.9);
         forceRedraw();
     }
 
-    private void initObjectVariables() {
-        if (this.objectMin == null || this.objectMax == null) return;
+    /**
+     * Zoom to display the given region leaving the suggested buffer.
+     */
+    public void zoomToSize(Point3d min, Point3d max, double bufferFactor) {
+        if (min == null || max == null) return;
 
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
 
-        this.center = VisualizerUtils.findCenter(objectMin, objectMax);
-        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
+        this.center = VisualizerUtils.findCenter(min, max);
+        this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, min, max, bufferFactor);
         this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
-        this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.x, this.objectMax.x, this.xSize);
-        this.panMultiplierY = VisualizerUtils.getRelativeMovementMultiplier(this.objectMin.y, this.objectMax.y, this.ySize);
+        this.panMultiplierX = VisualizerUtils.getRelativeMovementMultiplier(min.x, max.x, this.xSize);
+        this.panMultiplierY = VisualizerUtils.getRelativeMovementMultiplier(min.y, max.y, this.ySize);
     }
 
     /**
