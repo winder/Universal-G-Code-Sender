@@ -247,7 +247,7 @@ public class RendererInputHandler implements
         if (selecting) {
             selecting = false;
             selectionEnd = gcodeRenderer.getMouseWorldLocation();
-            gcodeRenderer.zoomToSize(selectionStart, selectionEnd, 1.5);
+            gcodeRenderer.zoomToRegion(selectionStart, selectionEnd, 1.0);
             selection.clear();
             gcodeRenderer.forceRedraw();
         }

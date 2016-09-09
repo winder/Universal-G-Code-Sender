@@ -254,21 +254,43 @@ public class GcodeRenderer implements GLEventListener {
         // Set the view port (display area) to cover the entire window
         gl.glViewport(0, 0, xSize, ySize);
 
-        zoomToSize(objectMin, objectMax, 0.9);
+        resizeForCamera(objectMin, objectMax, 0.9);
     }
 
     public void setObjectSize(Point3d min, Point3d max) {
         this.objectMin = min;
         this.objectMax = max;
         idle = false;
-        zoomToSize(objectMin, objectMax, 0.9);
+        resizeForCamera(objectMin, objectMax, 0.9);
         forceRedraw();
+    }
+
+    /**
+     * Zoom the visualizer to the given region.
+     */
+    public void zoomToRegion(Point3d min, Point3d max, double bufferFactor) {
+        if (min == null || max == null) return;
+
+        if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
+
+        // Figure out offset compared to the current center.
+        Point3d regionCenter = VisualizerUtils.findCenter(min, max);
+        this.eye.x = regionCenter.x - this.center.x;
+        this.eye.y = regionCenter.y - this.center.y;
+
+        // Figure out what the scale factors would be if we reset this object.
+        double _scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, min, max, bufferFactor);
+        double _scaleFactor = _scaleFactorBase * this.zoomMultiplier;
+
+        // Calculate the zoomMultiplier needed to get to that scale, and set it.
+        this.zoomMultiplier = _scaleFactor/this.scaleFactorBase;
+        this.scaleFactor = this.scaleFactorBase * this.zoomMultiplier;
     }
 
     /**
      * Zoom to display the given region leaving the suggested buffer.
      */
-    public void zoomToSize(Point3d min, Point3d max, double bufferFactor) {
+    private void resizeForCamera(Point3d min, Point3d max, double bufferFactor) {
         if (min == null || max == null) return;
 
         if (this.ySize == 0){ this.ySize = 1; }  // prevent divide by zero
