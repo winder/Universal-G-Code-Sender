@@ -90,9 +90,9 @@ public class VisualizerUtils {
 
     /**
      * Find a factor to scale an object by so that it fits in the window.
+     * The buffer factor is how much of a border to leave.
      */
-    public static double findScaleFactor(double x, double y, Point3d min, Point3d max) {
-        final double bufferFactor = 0.9;
+    public static double findScaleFactor(double x, double y, Point3d min, Point3d max, double bufferFactor) {
         
         if (y == 0 || x == 0 || min == null || max == null) {
             return 1;

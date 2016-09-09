@@ -165,14 +165,12 @@ public class Grid extends Renderable {
             gl.glColor4fv(gridPlaneColor, 0);
 
             // floor - cover entire model and a little extra.
-            gl.glPushMatrix();
-                gl.glBegin(GL2.GL_QUADS);
-                    gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
-                    gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
-                    gl.glVertex3d(topRight.x  , topRight.y  , 0);
-                    gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
-                gl.glEnd();
-            gl.glPopMatrix();
+            gl.glBegin(GL2.GL_QUADS);
+                gl.glVertex3d(bottomLeft.x, bottomLeft.y, 0);
+                gl.glVertex3d(bottomLeft.x, topRight.y  , 0);
+                gl.glVertex3d(topRight.x  , topRight.y  , 0);
+                gl.glVertex3d(topRight.x  , bottomLeft.y, 0);
+            gl.glEnd();
         gl.glPopMatrix();
     }
 }
