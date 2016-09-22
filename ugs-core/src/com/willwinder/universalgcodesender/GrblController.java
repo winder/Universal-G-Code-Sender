@@ -23,6 +23,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -375,8 +376,8 @@ public class GrblController extends AbstractController {
         
     /************
      * Helpers.
-     ************
-     */
+     ************/
+
     public String getGrblVersion() {
         if (this.isCommOpen()) {
             StringBuilder str = new StringBuilder();
@@ -493,7 +494,8 @@ public class GrblController extends AbstractController {
                 }
             }
 
-            dispatchStatusString(grblState, machineLocation, workLocation);
+            
+            dispatchStatusString(new ControllerStatus(grblState, machineLocation, workLocation));
         }
     }
     

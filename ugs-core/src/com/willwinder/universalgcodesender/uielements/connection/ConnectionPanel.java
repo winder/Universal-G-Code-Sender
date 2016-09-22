@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.uielements.connection;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -201,7 +202,7 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+    public void statusStringListener(ControllerStatus status) {
 
     }
 

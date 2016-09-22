@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.uielements.jog;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -254,7 +255,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+    public void statusStringListener(ControllerStatus status) {
         if (!statusUpdated) {
             if (backend.isConnected()) {
                 updateManualControls(true);

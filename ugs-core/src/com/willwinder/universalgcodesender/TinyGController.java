@@ -26,6 +26,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -133,7 +134,8 @@ public class TinyGController extends AbstractController {
             machineLocation.set(result.machine);
             workLocation.set(result.work);
             
-            dispatchStatusString(state, this.machineLocation, workLocation);
+            ControllerStatus cs = new ControllerStatus(state, machineLocation, workLocation);
+            dispatchStatusString(cs);
         }
         else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
             try {

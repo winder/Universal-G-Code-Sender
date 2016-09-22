@@ -39,6 +39,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
@@ -2346,20 +2347,20 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }
     
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        this.activeStateValueLabel.setText( state );
-        this.setStatusColorForState( state );
+    public void statusStringListener(ControllerStatus status) {
+        this.activeStateValueLabel.setText( status.getState() );
+        this.setStatusColorForState( status.getState() );
 
-        if (machineCoord != null) {
-            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + machineCoord.getUnits().abbreviation );
-            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + machineCoord.getUnits().abbreviation );
-            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + machineCoord.getUnits().abbreviation );
+        if (status.getMachineCoord() != null) {
+            this.machinePositionXValueLabel.setText( Utils.formatter.format(status.getMachineCoord().x) + status.getMachineCoord().getUnits().abbreviation );
+            this.machinePositionYValueLabel.setText( Utils.formatter.format(status.getMachineCoord().y) + status.getMachineCoord().getUnits().abbreviation );
+            this.machinePositionZValueLabel.setText( Utils.formatter.format(status.getMachineCoord().z) + status.getMachineCoord().getUnits().abbreviation );
         }
         
-        if (workCoord != null) {
-            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + workCoord.getUnits().abbreviation );
-            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + workCoord.getUnits().abbreviation );
-            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + workCoord.getUnits().abbreviation );
+        if (status.getWorkCoord() != null) {
+            this.workPositionXValueLabel.setText( Utils.formatter.format(status.getWorkCoord().x) + status.getWorkCoord().getUnits().abbreviation );
+            this.workPositionYValueLabel.setText( Utils.formatter.format(status.getWorkCoord().y) + status.getWorkCoord().getUnits().abbreviation );
+            this.workPositionZValueLabel.setText( Utils.formatter.format(status.getWorkCoord().z) + status.getWorkCoord().getUnits().abbreviation );
         }
     }
     

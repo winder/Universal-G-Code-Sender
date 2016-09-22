@@ -23,8 +23,8 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import javax.swing.JPanel;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -163,7 +163,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+    public void statusStringListener(ControllerStatus status) {
     }
 
     @Override

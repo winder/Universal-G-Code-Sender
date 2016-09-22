@@ -29,6 +29,7 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -325,10 +326,10 @@ public class RendererInputHandler implements
      * Controller listener methods
      */
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        sizeDisplay.setUnits(machineCoord.getUnits());
-        gcodeRenderer.setMachineCoordinate(machineCoord);
-        gcodeRenderer.setWorkCoordinate(workCoord);
+    public void statusStringListener(ControllerStatus status) {
+        sizeDisplay.setUnits(status.getMachineCoord().getUnits());
+        gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
+        gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
         gcodeRenderer.forceRedraw();
     }
 

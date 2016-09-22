@@ -22,9 +22,9 @@
  */
 package com.willwinder.universalgcodesender.uielements.machinestatus;
 
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -252,35 +252,35 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        this.activeStateValueLabel.setText( state );
-        this.setStatusColorForState( state );
+    public void statusStringListener(ControllerStatus status) {
+        this.activeStateValueLabel.setText( status.getState() );
+        this.setStatusColorForState( status.getState() );
 
 
-        if (machineCoord != null) {
-            this.setUnits(machineCoord.getUnits());
+        if (status.getMachineCoord() != null) {
+            this.setUnits(status.getMachineCoord().getUnits());
 
-            this.setPostionValueColor(this.machinePositionXValue, machineCoord.x);
-            this.machinePositionXValue.setText(decimalFormatter.format(machineCoord.x));
+            this.setPostionValueColor(this.machinePositionXValue, status.getMachineCoord().x);
+            this.machinePositionXValue.setText(decimalFormatter.format(status.getMachineCoord().x));
             
-            this.setPostionValueColor(this.machinePositionYValue, machineCoord.y);
-            this.machinePositionYValue.setText(decimalFormatter.format(machineCoord.y));
+            this.setPostionValueColor(this.machinePositionYValue, status.getMachineCoord().y);
+            this.machinePositionYValue.setText(decimalFormatter.format(status.getMachineCoord().y));
             
-            this.setPostionValueColor(this.machinePositionZValue, machineCoord.z);
-            this.machinePositionZValue.setText(decimalFormatter.format(machineCoord.z));
+            this.setPostionValueColor(this.machinePositionZValue, status.getMachineCoord().z);
+            this.machinePositionZValue.setText(decimalFormatter.format(status.getMachineCoord().z));
         }
 
-        if (workCoord != null) {
-            this.setUnits(workCoord.getUnits());
+        if (status.getWorkCoord() != null) {
+            this.setUnits(status.getWorkCoord().getUnits());
 
-            this.setPostionValueColor(this.workPositionXValue, workCoord.x);
-            this.workPositionXValue.setText(decimalFormatter.format(workCoord.x));
+            this.setPostionValueColor(this.workPositionXValue, status.getWorkCoord().x);
+            this.workPositionXValue.setText(decimalFormatter.format(status.getWorkCoord().x));
             
-            this.setPostionValueColor(this.workPositionYValue, workCoord.y);
-            this.workPositionYValue.setText(decimalFormatter.format(workCoord.y));
+            this.setPostionValueColor(this.workPositionYValue, status.getWorkCoord().y);
+            this.workPositionYValue.setText(decimalFormatter.format(status.getWorkCoord().y));
             
-            this.setPostionValueColor(this.workPositionZValue, workCoord.z);
-            this.workPositionZValue.setText(decimalFormatter.format(workCoord.z));
+            this.setPostionValueColor(this.workPositionZValue, status.getWorkCoord().z);
+            this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
         }
     }
     

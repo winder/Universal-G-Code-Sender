@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -218,7 +219,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
     }
 
     @Override
-    public void statusStringListener(String string, Position pntd, Position pntd1) {
+    public void statusStringListener(ControllerStatus status) {
     }
 
     @Override

@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
@@ -806,10 +807,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
-        this.activeState = state;
-        this.machineCoord = machineCoord;
-        this.workCoord = workCoord;
+    public void statusStringListener(ControllerStatus status) {
+        this.activeState = status.getState();
+        this.machineCoord = status.getMachineCoord();
+        this.workCoord = status.getWorkCoord();
         this.reportUnits = machineCoord.getUnits();
         this.lastResponse = System.currentTimeMillis();
     }

@@ -123,7 +123,7 @@ public class GrblSettingsListener implements ControllerListener {
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+    public void statusStringListener(ControllerStatus status) {
     }
 
     @Override

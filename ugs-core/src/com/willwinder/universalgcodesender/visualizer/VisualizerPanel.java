@@ -28,6 +28,7 @@ package com.willwinder.universalgcodesender.visualizer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -94,10 +95,10 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     }
 
     @Override
-    public void statusStringListener(String state, Position machineCoord, Position workCoord) {
+    public void statusStringListener(ControllerStatus status) {
         // Give coordinates to canvas.
-        this.canvas.setMachineCoordinate(machineCoord);
-        this.canvas.setWorkCoordinate(workCoord);
+        this.canvas.setMachineCoordinate(status.getMachineCoord());
+        this.canvas.setWorkCoordinate(status.getWorkCoord());
     }
     
     @Override

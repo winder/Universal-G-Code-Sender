@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -614,7 +615,7 @@ public class GUIBackendTest {
         Position machineCoord = null;
         Position workCoord = null;
         GUIBackend instance = new GUIBackend();
-        instance.statusStringListener(state, machineCoord, workCoord);
+        instance.statusStringListener(new ControllerStatus(state, machineCoord, workCoord));
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }

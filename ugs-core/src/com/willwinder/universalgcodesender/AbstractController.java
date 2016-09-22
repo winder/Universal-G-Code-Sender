@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -718,10 +719,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.listeners.add(cl);
     }
 
-    protected void dispatchStatusString(String state, Position machine, Position work) {
+    protected void dispatchStatusString(ControllerStatus status) {
         if (listeners != null) {
             for (ControllerListener c : listeners) {
-                c.statusStringListener(state, machine, work);
+                c.statusStringListener(status);
             }
         }
     }
