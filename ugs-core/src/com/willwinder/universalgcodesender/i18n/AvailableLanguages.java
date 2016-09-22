@@ -38,6 +38,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("el", "EL", "Greek"));
         availableLanguages.add(new Language("nl", "NL", "Dutch"));
         availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
+        availableLanguages.add(new Language("ru", "RU", "Russian"));
     }
 
     public static Collection<Language> getAvailableLanguages() {
