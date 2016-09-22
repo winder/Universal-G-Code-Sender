@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -242,12 +243,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void setSingleStepMode(boolean enabled) {
-        this.comm.setSingleStepMode(enabled);
+        if (this.comm != null) {
+            this.comm.setSingleStepMode(enabled);
+        }
     }
 
     @Override
     public boolean getSingleStepMode() {
-        return this.comm.getSingleStepMode();
+        if (this.comm != null) {
+            return this.comm.getSingleStepMode();
+        }
+        return false;
     }
     
     @Override
@@ -430,16 +436,30 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm.queueStringForComm(command + "\n");
     }
     
+    /**
+     * 
+     * @return
+     * @throws Exception 
+     */
+    @Override
+    public Boolean isReadyToReceiveCommands() throws Exception {
+        if (!isCommOpen()) {
+            throw new Exception("Comm port is not open.");
+        }
+
+        if (this.isStreaming) {
+            throw new Exception("Already streaming.");
+        }
+
+        return true;
+    }
+
     @Override
     public Boolean isReadyToStreamFile() throws Exception {
         isReadyToStreamCommandsEvent();
         
-        if (!isCommOpen()) {
-            throw new Exception("Cannot begin streaming, comm port is not open.");
-        }
-        if (this.isStreaming) {
-            throw new Exception("Already streaming.");
-        }
+        isReadyToReceiveCommands();
+
         if (this.comm.areActiveCommands()) {
             throw new Exception("Cannot stream while there are active commands: "
                     + comm.activeCommandSummary());

@@ -20,9 +20,11 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
@@ -31,6 +33,7 @@ import javax.swing.JPopupMenu;
  * @author wwinder
  */
 public class VisualizerPopupMenu extends JPopupMenu {
+    private static final Logger logger = Logger.getLogger(VisualizerPopupMenu.class.getName());
     private final JogToHereAction jogToHereAction;
     private final JMenuItem jogToHere = new JMenuItem();
 
@@ -64,8 +67,12 @@ public class VisualizerPopupMenu extends JPopupMenu {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            try {
+                backend.sendGcodeCommand("G0 X" + x + " Y" + y);
+            } catch (Exception ex) {
+                //logger.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
+                GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+            }
         }
-
     }
 }

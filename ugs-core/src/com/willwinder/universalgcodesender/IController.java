@@ -81,6 +81,7 @@ public interface IController {
     /*
     Stream information
     */
+    public Boolean isReadyToReceiveCommands() throws Exception;
     public Boolean isReadyToStreamFile() throws Exception;
     public Boolean isStreamingFile();
     public long getSendDuration();

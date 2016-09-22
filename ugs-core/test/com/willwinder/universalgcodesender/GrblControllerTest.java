@@ -80,7 +80,7 @@ public class GrblControllerTest {
         String expResult;
         String versionString;
         
-        expResult = "<not connected>";
+        expResult = "<Not connected>";
         result = instance.getGrblVersion();
         assertEquals(expResult, result);
         

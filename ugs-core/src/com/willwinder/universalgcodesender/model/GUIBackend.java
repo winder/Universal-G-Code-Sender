@@ -384,15 +384,21 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
-        GcodeCommand command = controller.createCommand(commandText);
-        sendGcodeCommand(command);
+        if (this.isConnected()) {
+            GcodeCommand command = controller.createCommand(commandText);
+            sendGcodeCommand(command);
+        } else {
+            throw new Exception(Localization.getString("controller.log.notconnected"));
+        }
     }
 
     @Override
     public void sendGcodeCommand(GcodeCommand command) throws Exception {
-        logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
-        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
-        controller.sendCommandImmediately(command);
+        if (this.isConnected()) {
+            logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
+            controller.sendCommandImmediately(command);
+        }
     }
 
     /**
