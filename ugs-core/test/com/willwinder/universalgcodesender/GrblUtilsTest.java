@@ -85,7 +85,7 @@ public class GrblUtilsTest {
         System.out.println("getVersionLetter");
         String response = "Grbl 0.8c";
         String expResult = "c";
-        String result = GrblUtils.getVersionLetter(response);
+        Character result = GrblUtils.getVersionLetter(response);
         assertEquals(expResult, result);
     }
 
@@ -114,7 +114,7 @@ public class GrblUtilsTest {
     public void testGetHomingCommand() {
         System.out.println("getHomingCommand");
         double version;
-        String letter;
+        Character letter;
         String result;
         String expResult;
         
@@ -131,7 +131,7 @@ public class GrblUtilsTest {
         assertEquals(expResult, result);
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         result = GrblUtils.getHomingCommand(version, letter);
         assertEquals(expResult, result);
@@ -141,7 +141,7 @@ public class GrblUtilsTest {
     public void testGetReturnToHomeCommand() {
         System.out.println("getReturnToHomeCommands");
         double version;
-        String letter;
+        Character letter;
         ArrayList<String> result;
         String expResult;
         
@@ -159,7 +159,7 @@ public class GrblUtilsTest {
         assertEquals(expResult, result.get(0));
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C;
         String expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C;
         result = GrblUtils.getReturnToHomeCommands(version, letter);
@@ -172,7 +172,7 @@ public class GrblUtilsTest {
     public void testGetKillAlarmLockCommand() {
         System.out.println("getKillAlarmLockCommand");
         double version;
-        String letter;
+        Character letter;
         String result;
         String expResult;
         
@@ -189,7 +189,7 @@ public class GrblUtilsTest {
         assertEquals(expResult, result);
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         expResult = GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
         result = GrblUtils.getKillAlarmLockCommand(version, letter);
         assertEquals(expResult, result);
@@ -205,7 +205,7 @@ public class GrblUtilsTest {
     public void testToggleCheckModeCommand() {
         System.out.println("getToggleCheckModeCommand");
         double version;
-        String letter;
+        Character letter;
         String result;
         String expResult;
         
@@ -222,7 +222,7 @@ public class GrblUtilsTest {
         assertEquals(expResult, result);
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         expResult = GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
         result = GrblUtils.getToggleCheckModeCommand(version, letter);
         assertEquals(expResult, result);
@@ -238,7 +238,7 @@ public class GrblUtilsTest {
     public void testGetViewParserStateCommand() {
         System.out.println("getViewParserStateCommand");
         double version;
-        String letter;
+        Character letter;
         String result;
         String expResult;
         
@@ -255,7 +255,7 @@ public class GrblUtilsTest {
         assertEquals(expResult, result);
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         expResult = GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
         result = GrblUtils.getViewParserStateCommand(version, letter);
         assertEquals(expResult, result);
@@ -274,18 +274,18 @@ public class GrblUtilsTest {
     public void testGetGrblStatusCapabilities() {
         System.out.println("getGrblStatusCapabilities");
         double version;
-        String letter;
+        Character letter;
         Capabilities expResult = new Capabilities();
         Capabilities result;
 
         version = 0.8;
-        letter = "c";
+        letter = 'c';
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
         assertEquals(true, result.REAL_TIME);
         assertEquals(false, result.OVERRIDES);
         
         version = 0.8;
-        letter = "a";
+        letter = 'a';
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
         assertEquals(false, result.REAL_TIME);
         assertEquals(false, result.OVERRIDES);
@@ -301,6 +301,14 @@ public class GrblUtilsTest {
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
         assertEquals(true, result.REAL_TIME);
         assertEquals(true, result.OVERRIDES);
+        assertEquals(false, result.V1_FORMAT);
+
+        version = 1.0;
+        letter = 'c';
+        result = GrblUtils.getGrblStatusCapabilities(version, letter);
+        assertEquals(true, result.REAL_TIME);
+        assertEquals(true, result.OVERRIDES);
+        assertEquals(true, result.V1_FORMAT);
     }
 
     /**
@@ -375,7 +383,7 @@ public class GrblUtilsTest {
         System.out.println("getResetCoordCommand");
 
         double version = 0.8;
-        String letter = "c";
+        Character letter = 'c';
         String result;
         
         result = GrblUtils.getResetCoordToZeroCommand('X', version, letter);

@@ -23,12 +23,14 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.vecmath.Point3i;
 
 /**
  *
@@ -73,6 +75,7 @@ public class GrblUtils {
     public static class Capabilities {
         public boolean REAL_TIME = false;
         public boolean OVERRIDES = false;
+        public boolean V1_FORMAT = false;
     }
     
     /** 
@@ -100,20 +103,19 @@ public class GrblUtils {
         return retValue;
     }
     
-    static protected String getVersionLetter(final String response) {
-        String retValue = null;
+    static protected Character getVersionLetter(final String response) {
+        Character retValue = null;
         final String VERSION_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
         
         // Search for a version.
         Pattern pattern = Pattern.compile(VERSION_REGEX);
         Matcher matcher = pattern.matcher(response);
         if (matcher.find()) {
-            retValue = matcher.group(0);
+            retValue = matcher.group(0).charAt(0);
             //retValue = Double.parseDouble(matcher.group(0));
         }
         
         return retValue;
-
     }
 
     /** 
@@ -123,8 +125,8 @@ public class GrblUtils {
         return version > 0.7;
     }
     
-    static protected String getHomingCommand(final double version, final String letter) {
-        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+    static protected String getHomingCommand(final double version, final Character letter) {
+        if ((version >= 0.8 && (letter != null) && (letter >= 'c'))
                 || version >= 0.9) {
             return GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         }
@@ -136,11 +138,11 @@ public class GrblUtils {
         }
     }
     
-    static protected String getResetCoordsToZeroCommand(final double version, final String letter) {
+    static protected String getResetCoordsToZeroCommand(final double version, final Character letter) {
         if (version >= 0.9) {
             return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V9;
         }
-        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+        else if (version >= 0.8 && (letter != null) && (letter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
             return GrblUtils.GCODE_RESET_COORDINATES_TO_ZERO_V8;
@@ -153,11 +155,11 @@ public class GrblUtils {
         }
     }
 
-    static protected String getResetCoordToZeroCommand(final char coord, final double version, final String letter) {
+    static protected String getResetCoordToZeroCommand(final char coord, final double version, final Character letter) {
         if (version >= 0.9) {
             return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord);
         }
-        else if ((version >= 0.8 && (letter != null) && letter.equals("c"))) {
+        else if (version >= 0.8 && (letter != null) && (letter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
             return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V8, coord);
@@ -170,9 +172,9 @@ public class GrblUtils {
         }
     }
     
-    static protected ArrayList<String> getReturnToHomeCommands(final double version, final String letter) {
+    static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter) {
         ArrayList<String> commands = new ArrayList<>();    
-        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+        if ((version >= 0.8 && (letter != null) && (letter >= 'c'))
                 || version >= 0.9) {
             commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C);
             commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C);
@@ -184,8 +186,8 @@ public class GrblUtils {
         return commands;
     }
     
-    static protected String getKillAlarmLockCommand(final double version, final String letter) {
-        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+    static protected String getKillAlarmLockCommand(final double version, final Character letter) {
+        if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
         }
@@ -194,8 +196,8 @@ public class GrblUtils {
         }
     }
     
-    static protected String getToggleCheckModeCommand(final double version, final String letter) {
-        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+    static protected String getToggleCheckModeCommand(final double version, final Character letter) {
+        if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
         }
@@ -204,8 +206,8 @@ public class GrblUtils {
         }
     }
     
-    static protected String getViewParserStateCommand(final double version, final String letter) {
-        if ((version >= 0.8 && (letter != null) && letter.equals("c"))
+    static protected String getViewParserStateCommand(final double version, final Character letter) {
+        if ((version >= 0.8 && (letter != null) && letter >= 'c')
                 || version >= 0.9) {
             return GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
         }
@@ -217,21 +219,25 @@ public class GrblUtils {
     /**
      * Determines version of GRBL position capability.
      */
-    static protected Capabilities getGrblStatusCapabilities(final double version, final String letter) {
+    static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
 
-        if (version >= 1.0) {
+        // Check if real time commands are enabled.
+        if (version==0.8 && (letter != null) && (letter >= 'c')) {
             ret.REAL_TIME = true;
+        } else if (version >= 0.9) {
+            ret.REAL_TIME = true;
+        }
+
+        // Check for V1.x features
+        if (version >= 1.1) {
+            ret.REAL_TIME = true;
+
+            // GRBL 1.1
+            ret.V1_FORMAT = true;
             ret.OVERRIDES = true;
         }
 
-        else if (version >= 0.8) {
-            if (version==0.8 && (letter != null) && letter.equals("c")) {
-                ret.REAL_TIME = true;
-            } else if (version >= 0.9) {
-                ret.REAL_TIME = true;
-            }
-        }
         return ret;
     }
     
@@ -257,6 +263,78 @@ public class GrblUtils {
         return SETTING_PATTERN.matcher(response).find();
     }
     
+    /**
+     * Parses a GRBL status string in the legacy format or v1.x format:
+     * legacy: <status,WPos:1,2,3,MPos:1,2,3>
+     * 1.x: <status|WPos:1,2,3|Bf:0,0|WCO:0,0,0>
+     * @param lastStatus required for the 1.x version which requires WCO coords
+     *                   and override status from previous status updates.
+     * @param status the raw status string
+     * @param version capabilities flags
+     * @param units units
+     * @return 
+     */
+    static protected ControllerStatus getStatusFromStatusString(
+            ControllerStatus lastStatus, final String status,
+            final Capabilities version, Units reportingUnits) {
+        // Legacy status.
+        if (!version.V1_FORMAT) {
+            return new ControllerStatus(
+                getStateFromStatusString(status, version),
+                getMachinePositionFromStatusString(status, version, reportingUnits),
+                getWorkPositionFromStatusString(status, version, reportingUnits));
+        } else {
+            String state = "";
+            Position MPos = null;
+            Position WPos = null;
+            Position WCO = null;
+            Point3i overrides = null;
+            Double feed = null;
+
+            // Parse out the status messages.
+            for (String part : status.split("\\|")) {
+                if (part.startsWith("<")) {
+                    int idx = part.indexOf(':');
+                    if (idx == -1)
+                        state = part.substring(1);
+                    else
+                        state = part.substring(1, idx);
+                }
+                else if (part.startsWith("MPos:")) {
+                    MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
+                }
+                else if (part.startsWith("WCO:")) {
+                    WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
+                }
+                else if (part.startsWith("Ov:")) {
+                    String[] overrideParts = part.substring(3).split(",");
+                    overrides = new Point3i(
+                            Integer.parseInt(overrideParts[0]),
+                            Integer.parseInt(overrideParts[0]),
+                            Integer.parseInt(overrideParts[0]));
+                }
+                else if (part.startsWith("F:")) {
+                    feed = Double.parseDouble(part.substring(2));
+                }
+            }
+
+            // Grab WCO from state information if necessary.
+            if (WCO == null) {
+                // Grab the work coordinate offset.
+                if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
+                    WCO = lastStatus.getWorkCoordinateOffset();
+                } else {
+                    WCO = new Position(0,0,0, reportingUnits);
+                }
+            }
+
+            // Calculate WPos
+            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+
+            return new ControllerStatus(state, MPos, WPos, feed, overrides, WCO); 
+        }
+    }
+
     /**
      * Parse state out of position string.
      */
@@ -295,6 +373,8 @@ public class GrblUtils {
     }
 
     static Pattern machinePattern = Pattern.compile("(?<=MPos:)(-?\\d*\\..\\d*),(-?\\d*\\..\\d*),(-?\\d*\\..\\d*)");
+    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
+    static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.REAL_TIME) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -303,7 +383,6 @@ public class GrblUtils {
         }
     }
     
-    static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
     static protected Position getWorkPositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
         if (version.REAL_TIME) {
             return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);

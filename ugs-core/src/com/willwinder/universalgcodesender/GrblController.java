@@ -47,9 +47,9 @@ import javax.swing.Timer;
  */
 public class GrblController extends AbstractController {
     // Grbl state
-    private double grblVersion = 0.0;        // The 0.8 in 'Grbl 0.8c'
-    private String grblVersionLetter = null; // The c in 'Grbl 0.8c'
-    protected Boolean isReady = false;         // Not ready until version is received.
+    private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
+    private Character grblVersionLetter = null; // The c in 'Grbl 0.8c'
+    protected Boolean isReady = false;          // Not ready until version is received.
     private GrblSettingsListener settings;
 
     // Grbl status members.
@@ -63,6 +63,7 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
+    private ControllerStatus controllerStatus = null;
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -458,12 +459,15 @@ public class GrblController extends AbstractController {
     // No longer a listener event
     private void handlePositionString(final String string) {
         if (this.capabilities != null) {
-            grblState = GrblUtils.getStateFromStatusString(string, capabilities);
+            controllerStatus = GrblUtils.getStatusFromStatusString(controllerStatus, string, capabilities, getReportingUnits());
 
-            machineLocation = GrblUtils.getMachinePositionFromStatusString(string, capabilities, getReportingUnits());
-            workLocation = GrblUtils.getWorkPositionFromStatusString(string, capabilities, getReportingUnits());
+            grblState = controllerStatus.getState();
+            machineLocation = controllerStatus.getMachineCoord();
+            workLocation = controllerStatus.getWorkCoord();
 
-
+            // Prior to GRBL v1 the GUI is required to keep checking locations
+            // to verify that the machine has come to a complete stop after
+            // pausing.
             if (isCanceling) {
                 if (attemptsRemaining > 0 && lastLocation != null) {
                     attemptsRemaining--;

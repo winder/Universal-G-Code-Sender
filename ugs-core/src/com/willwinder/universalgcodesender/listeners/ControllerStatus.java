@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
+import javax.vecmath.Point3i;
 
 /**
  *
@@ -28,11 +29,35 @@ public class ControllerStatus {
     private final String state;
     private final Position machineCoord;
     private final Position workCoord;
+    private final Position workCoordinateOffset;
+    private final Double feed;
+    private final Point3i overrides;
 
+    /**
+     * Baseline constructor. This data should always be present. Represents the
+     * controller status.
+     * @param state controller state, i.e. idle/hold/running
+     * @param machineCoord controller machine coordinates
+     * @param workCoord controller work coordinates
+     */
     public ControllerStatus(String state, Position machineCoord, Position workCoord) {
+        this(state, machineCoord, workCoord, null, null, null);
+    }
+
+    /**
+     * Additional parameters
+     * @param state
+     * @param machineCoord
+     * @param workCoord 
+     */
+    public ControllerStatus(String state, Position machineCoord, Position workCoord, 
+            Double feed, Point3i overrides, Position workCoordinateOffset) {
         this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
+        this.workCoordinateOffset = workCoordinateOffset;
+        this.feed = feed;
+        this.overrides = overrides;
     }
 
     public String getState() {
@@ -45,5 +70,17 @@ public class ControllerStatus {
 
     public Position getWorkCoord() {
         return workCoord;
+    }
+
+    public Position getWorkCoordinateOffset() {
+        return workCoordinateOffset;
+    }
+
+    public Double getFeed() {
+        return feed;
+    }
+
+    public Point3i getOverrides() {
+        return overrides;
     }
 }
