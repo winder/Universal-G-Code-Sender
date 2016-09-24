@@ -292,7 +292,7 @@ public class GrblUtils {
             Double feed = null;
 
             // Parse out the status messages.
-            for (String part : status.split("\\|")) {
+            for (String part : status.replace('>', ' ').split("\\|")) {
                 if (part.startsWith("<")) {
                     int idx = part.indexOf(':');
                     if (idx == -1)
@@ -308,10 +308,12 @@ public class GrblUtils {
                 }
                 else if (part.startsWith("Ov:")) {
                     String[] overrideParts = part.substring(3).split(",");
-                    overrides = new Point3i(
-                            Integer.parseInt(overrideParts[0]),
-                            Integer.parseInt(overrideParts[0]),
-                            Integer.parseInt(overrideParts[0]));
+                    if (overrideParts.length == 3) {
+                        overrides = new Point3i(
+                                Integer.parseInt(overrideParts[0]),
+                                Integer.parseInt(overrideParts[1]),
+                                Integer.parseInt(overrideParts[2]));
+                    }
                 }
                 else if (part.startsWith("F:")) {
                     feed = Double.parseDouble(part.substring(2));
