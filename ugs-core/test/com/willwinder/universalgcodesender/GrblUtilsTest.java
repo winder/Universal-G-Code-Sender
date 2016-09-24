@@ -84,7 +84,7 @@ public class GrblUtilsTest {
     public void testGetVersionLetter() {
         System.out.println("getVersionLetter");
         String response = "Grbl 0.8c";
-        String expResult = "c";
+        Character expResult = 'c';
         Character result = GrblUtils.getVersionLetter(response);
         assertEquals(expResult, result);
     }
@@ -296,15 +296,8 @@ public class GrblUtilsTest {
         assertEquals(true, result.REAL_TIME);
         assertEquals(false, result.OVERRIDES);
 
-        version = 1.0;
+        version = 1.1;
         letter = null;
-        result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertEquals(true, result.REAL_TIME);
-        assertEquals(true, result.OVERRIDES);
-        assertEquals(false, result.V1_FORMAT);
-
-        version = 1.0;
-        letter = 'c';
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
         assertEquals(true, result.REAL_TIME);
         assertEquals(true, result.OVERRIDES);
