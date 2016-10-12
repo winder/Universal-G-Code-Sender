@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -102,8 +103,10 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     }
 
     private void endSend() {
-        timer.stop();
-        setText(String.format(COMPLETED_FORMAT, Utils.formattedMillis(backend.getSendDuration())));
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            setText(String.format(COMPLETED_FORMAT, Utils.formattedMillis(backend.getSendDuration())));
+        }
     }
 
     private void setRows() {
@@ -119,8 +122,15 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     @Override
     public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
         // Start/Restart timer when sending starts.
-        if (evt.isStateChangeEvent() && evt.getControlState() == COMM_SENDING) {
-            beginSend();
+        if (evt.isStateChangeEvent()) {
+            switch (evt.getControlState()) {
+                case COMM_SENDING:
+                    beginSend();
+                    break;
+                default:
+                    endSend();
+                    break;
+            }
         }
 
         // Display the number of rows when a file is loaded.
