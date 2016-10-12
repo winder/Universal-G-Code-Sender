@@ -24,7 +24,7 @@ package com.willwinder.universalgcodesender.uielements;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -55,7 +55,7 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
     }
 
     public void updateControls() {
-        boolean enabled = backend.getControlState() == COMM_IDLE;
+        boolean enabled = backend.getControlState() != COMM_DISCONNECTED;
 
         for (Component c : components) { 
             c.setEnabled(enabled);
@@ -106,7 +106,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
             this.command = override;
             this.backend = backend;
         }
-
 
         @Override
         public void actionPerformed(ActionEvent e) {
