@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import static javax.swing.Action.SMALL_ICON;
@@ -88,7 +89,8 @@ public final class Start extends AbstractAction implements UGSEventListener {
                 backend.send();
             }
         } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
+            //Exceptions.printStackTrace(ex);
+            GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }
     }
 }
