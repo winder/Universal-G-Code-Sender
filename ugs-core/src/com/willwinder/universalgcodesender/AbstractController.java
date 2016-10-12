@@ -620,7 +620,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     // No longer a listener event
     protected void fileStreamComplete(String filename, boolean success) {
-        this.messageForConsole("\n**** Finished sending file. ****\n\n");
+
+        String duration = 
+                com.willwinder.universalgcodesender.Utils.
+                        formattedMillis(this.getSendDuration());
+
+        this.messageForConsole("\n**** Finished sending file in "+duration+" ****\n\n");
         this.streamStop = System.currentTimeMillis();
         this.isStreaming = false;
         this.flushSendQueues();
