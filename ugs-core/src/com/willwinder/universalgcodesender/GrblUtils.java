@@ -24,6 +24,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.Utils.Units;
@@ -288,7 +289,7 @@ public class GrblUtils {
             Position MPos = null;
             Position WPos = null;
             Position WCO = null;
-            Point3i overrides = null;
+            OverridePercents overrides = null;
             Double feed = null;
 
             // Parse out the status messages.
@@ -303,13 +304,16 @@ public class GrblUtils {
                 else if (part.startsWith("MPos:")) {
                     MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
                 }
+                else if (part.startsWith("WPos:")) {
+                    MPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
+                }
                 else if (part.startsWith("WCO:")) {
                     WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
                 }
                 else if (part.startsWith("Ov:")) {
-                    String[] overrideParts = part.substring(3).split(",");
+                    String[] overrideParts = part.substring(3).trim().split(",");
                     if (overrideParts.length == 3) {
-                        overrides = new Point3i(
+                        overrides = new OverridePercents(
                                 Integer.parseInt(overrideParts[0]),
                                 Integer.parseInt(overrideParts[1]),
                                 Integer.parseInt(overrideParts[2]));
@@ -330,8 +334,13 @@ public class GrblUtils {
                 }
             }
 
-            // Calculate WPos
-            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+            // Calculate missing coordinate with WCO
+            if (WPos == null) {
+                WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+            }
+            if (MPos == null) {
+                MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
+            }
 
             return new ControllerStatus(state, MPos, WPos, feed, overrides, WCO); 
         }

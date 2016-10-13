@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
-import javax.vecmath.Point3i;
 
 /**
  *
@@ -31,7 +30,7 @@ public class ControllerStatus {
     private final Position workCoord;
     private final Position workCoordinateOffset;
     private final Double feed;
-    private final Point3i overrides;
+    private final OverridePercents overrides;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
@@ -51,7 +50,7 @@ public class ControllerStatus {
      * @param workCoord 
      */
     public ControllerStatus(String state, Position machineCoord, Position workCoord, 
-            Double feed, Point3i overrides, Position workCoordinateOffset) {
+            Double feed, OverridePercents overrides, Position workCoordinateOffset) {
         this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
@@ -80,7 +79,18 @@ public class ControllerStatus {
         return feed;
     }
 
-    public Point3i getOverrides() {
+    public OverridePercents getOverrides() {
         return overrides;
+    }
+
+    public static class OverridePercents {
+        final public int feed;
+        final public int rapid;
+        final public int spindle;
+        public OverridePercents(int f, int r, int s) {
+            feed = f;
+            rapid = r;
+            spindle = s;
+        }
     }
 }

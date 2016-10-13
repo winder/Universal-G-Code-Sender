@@ -21,10 +21,13 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -32,22 +35,41 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author wwinder
  */
-public final class OverridesPanel extends JPanel implements UGSEventListener {
+public final class OverridesPanel extends JPanel implements UGSEventListener, ControllerListener {
     private final BackendAPI backend;
     private ArrayList<Component> components = new ArrayList<>();
+
+    private final JLabel feedSpeed = new JLabel("100%");
+    private final JRadioButton feedRadio = new JRadioButton("Feed");
+
+    private final JLabel spindleSpeed = new JLabel("100%");
+    private final JRadioButton spindleRadio = new JRadioButton("Spindle");
+
+    private final JLabel rapidSpeed = new JLabel("100%");
+    private final JRadioButton rapidRadio = new JRadioButton("Rapid");
+
+    private final JButton adjust1 = new JButton("");
+    private final JButton adjust2 = new JButton("");
+    private final JButton adjust3 = new JButton("");
+    private final JButton adjust4 = new JButton("");
+    private final JButton adjust5 = new JButton("");
+
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
+            backend.addControllerListener(this);
         }
 
         initComponents();
@@ -56,9 +78,14 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
 
     public void updateControls() {
         boolean enabled = backend.getControlState() != COMM_DISCONNECTED;
+        this.setEnabled(enabled);
 
         for (Component c : components) { 
             c.setEnabled(enabled);
+        }
+
+        if (enabled) {
+            radioSelected();
         }
     }
 
@@ -69,33 +96,134 @@ public final class OverridesPanel extends JPanel implements UGSEventListener {
         }
     }
 
+    public void add(Component comp, String str) {
+        super.add(comp, str);
+        if (comp instanceof JButton || comp instanceof JRadioButton)
+            components.add(comp);
+    }
+
     public Component add(Component comp) {
         Component ret = super.add(comp);
-        if (comp instanceof JButton)
+        if (comp instanceof JButton || comp instanceof JRadioButton)
             components.add(comp);
         return ret;
     }
+
+    private void radioSelected() {
+        if (rapidRadio.isSelected()) {
+            adjust2.setEnabled(false);
+            adjust5.setEnabled(false);
+
+            adjust1.setText("low");
+            adjust2.setText("");
+            adjust3.setText("medium");
+            adjust4.setText("full");
+            adjust5.setText("");
+
+            adjust1.setAction(new RealTimeAction("low", Overrides.CMD_RAPID_OVR_LOW, backend));
+            adjust3.setAction(new RealTimeAction("medium", Overrides.CMD_RAPID_OVR_MEDIUM, backend));
+            adjust4.setAction(new RealTimeAction("full", Overrides.CMD_RAPID_OVR_RESET, backend));
+        } else {
+            adjust2.setEnabled(true);
+            adjust5.setEnabled(true);
+
+            adjust1.setText("--");
+            adjust2.setText("-");
+            adjust3.setText("reset");
+            adjust4.setText("+");
+            adjust5.setText("++");
+
+            if (feedRadio.isSelected()) {
+                adjust1.setAction(new RealTimeAction("--", Overrides.CMD_FEED_OVR_COARSE_MINUS, backend));
+                adjust2.setAction(new RealTimeAction("-", Overrides.CMD_FEED_OVR_FINE_MINUS, backend));
+                adjust3.setAction(new RealTimeAction("reset", Overrides.CMD_FEED_OVR_RESET, backend));
+                adjust4.setAction(new RealTimeAction("+", Overrides.CMD_FEED_OVR_FINE_PLUS, backend));
+                adjust5.setAction(new RealTimeAction("++", Overrides.CMD_FEED_OVR_COARSE_PLUS, backend));
+            } else if (spindleRadio.isSelected()) {
+                adjust1.setAction(new RealTimeAction("--", Overrides.CMD_SPINDLE_OVR_COARSE_MINUS, backend));
+                adjust2.setAction(new RealTimeAction("-", Overrides.CMD_SPINDLE_OVR_FINE_MINUS, backend));
+                adjust3.setAction(new RealTimeAction("reset", Overrides.CMD_SPINDLE_OVR_RESET, backend));
+                adjust4.setAction(new RealTimeAction("+", Overrides.CMD_SPINDLE_OVR_FINE_PLUS, backend));
+                adjust5.setAction(new RealTimeAction("++", Overrides.CMD_SPINDLE_OVR_COARSE_PLUS, backend));
+            }
+        }
+    }
     
     private void initComponents() {
-        this.setLayout(new MigLayout("wrap 6"));
+        adjust1.setEnabled(false);
+        adjust2.setEnabled(false);
+        adjust3.setEnabled(false);
+        adjust4.setEnabled(false);
+        adjust5.setEnabled(false);
+
+        this.setLayout(new MigLayout("wrap 4"));
+
+        this.add(feedRadio);
+        this.add(spindleRadio);
+        this.add(rapidRadio, "wrap");
+
         this.add(new JLabel("Feed:"));
-        this.add(new JButton(new RealTimeAction("--", Overrides.CMD_FEED_OVR_COARSE_MINUS, backend)));
-        this.add(new JButton(new RealTimeAction("-", Overrides.CMD_FEED_OVR_FINE_MINUS, backend)));
-        this.add(new JButton(new RealTimeAction("reset", Overrides.CMD_FEED_OVR_RESET, backend)));
-        this.add(new JButton(new RealTimeAction("+", Overrides.CMD_FEED_OVR_FINE_PLUS, backend)));
-        this.add(new JButton(new RealTimeAction("++", Overrides.CMD_FEED_OVR_COARSE_PLUS, backend)));
+        this.add(feedSpeed);
+        this.add(adjust1);
+        this.add(adjust2);
 
         this.add(new JLabel("Spindle:"));
-        this.add(new JButton(new RealTimeAction("--", Overrides.CMD_SPINDLE_OVR_COARSE_MINUS, backend)));
-        this.add(new JButton(new RealTimeAction("-", Overrides.CMD_SPINDLE_OVR_FINE_MINUS, backend)));
-        this.add(new JButton(new RealTimeAction("reset", Overrides.CMD_SPINDLE_OVR_RESET, backend)));
-        this.add(new JButton(new RealTimeAction("+", Overrides.CMD_SPINDLE_OVR_FINE_PLUS, backend)));
-        this.add(new JButton(new RealTimeAction("++", Overrides.CMD_SPINDLE_OVR_COARSE_PLUS, backend)));
-       
+        this.add(spindleSpeed);
+        this.add(adjust3, "span 2");
+
         this.add(new JLabel("Rapid:"));
-        this.add(new JButton(new RealTimeAction("low", Overrides.CMD_RAPID_OVR_LOW, backend)), "span 2");
-        this.add(new JButton(new RealTimeAction("medium", Overrides.CMD_RAPID_OVR_MEDIUM, backend)));
-        this.add(new JButton(new RealTimeAction("full", Overrides.CMD_RAPID_OVR_RESET, backend)), "span 2");
+        this.add(rapidSpeed);
+        this.add(adjust4);
+        this.add(adjust5);
+
+        feedRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        spindleRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(feedRadio);
+        group.add(spindleRadio);
+        group.add(rapidRadio);
+    }
+
+    @Override
+    public void controlStateChange(com.willwinder.universalgcodesender.model.UGSEvent.ControlState state) {
+    }
+
+    @Override
+    public void fileStreamComplete(String filename, boolean success) {
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandComplete(GcodeCommand command) {
+    }
+
+    @Override
+    public void commandComment(String comment) {
+    }
+
+    @Override
+    public void messageForConsole(MessageType type, String msg) {
+    }
+
+    @Override
+    public void statusStringListener(ControllerStatus status) {
+        this.feedSpeed.setText(status.getOverrides().feed + "%");
+        this.spindleSpeed.setText(status.getOverrides().spindle + "%");
+        this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+        System.out.println("feed: " + feedSpeed + ", spindle: " + spindleSpeed + ", rapid: " + rapidSpeed);
+    }
+
+    @Override
+    public void postProcessData(int numRows) {
     }
 
     private static class RealTimeAction extends AbstractAction {

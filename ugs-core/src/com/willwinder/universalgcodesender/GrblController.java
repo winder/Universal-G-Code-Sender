@@ -499,7 +499,8 @@ public class GrblController extends AbstractController {
             }
 
             
-            dispatchStatusString(new ControllerStatus(grblState, machineLocation, workLocation));
+            //dispatchStatusString(new ControllerStatus(grblState, machineLocation, workLocation));
+            dispatchStatusString(controllerStatus);
         }
     }
     
