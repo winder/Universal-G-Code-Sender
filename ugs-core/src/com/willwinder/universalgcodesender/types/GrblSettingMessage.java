@@ -1,15 +1,45 @@
+/*
+    Copywrite 2016 Will Winder, Phil
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.willwinder.universalgcodesender.types;
 
 import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.utils.GrblLookups;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Phil on 1/15/2016.
  */
 public class GrblSettingMessage {
+    final private static GrblLookups lookups = new GrblLookups("setting_codes");
     final String message;
+
+    // Starting in GRBL 1.1 the description is disabled by default.
+    final private static Pattern MESSAGE_REGEX =
+            Pattern.compile("\\$(\\d+)=([^ ]*)\\s?\\(?([^\\)]*)?\\)?");
 
     private String setting;
     private String value;
+    private String units;
+    private String description;
 
 /* Sample settings.
 $0=10 (step pulse, usec)
@@ -50,15 +80,49 @@ $132=200.000 (z max travel, mm)
         parse();
     }
 
-    private void parse() {
-        String substring = message.substring(1, message.length());
+    @Override
+    public String toString() {
+        String descriptionStr = "";
+        if (!StringUtils.isEmpty(description)) {
+            if (!StringUtils.isEmpty(units)) {
+                descriptionStr = " (" + units + ", " + description + ")";
+            } else {
+                descriptionStr = " (" + description + ")";
+            }
+        }
 
-        String[] parts1 = substring.split("=", 2);
-        if (parts1.length == 2) {
-            String[] parts2 = parts1[1].split(" ", 2);
-            if (parts2.length == 2) {
-                setting = parts1[0];
-                value = parts2[0];
+        return String.format("$%s=%s%s", setting, value, descriptionStr);
+    }
+
+    public String getSetting() {
+        return setting;
+    }
+
+    public String getUnits() {
+        return units;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    private void parse() {
+        Matcher m = MESSAGE_REGEX.matcher(message);
+        if (m.find()) {
+            setting = m.group(1);
+            value = m.group(2);
+            if (m.groupCount() == 3 && !StringUtils.isEmpty(m.group(3))) {
+                description = m.group(3);
+            } else {
+                String[] lookup = lookups.lookup(setting);
+                if (lookup != null) {
+                    units = lookup[2];
+                    description = lookup[1] + ": " + lookup[3];
+                }
             }
         }
     }
@@ -76,12 +140,5 @@ $132=200.000 (z max travel, mm)
             }
         }
         return Utils.Units.UNKNOWN;
-    }
-
-    @Override
-    public String toString() {
-        return "GrblFeedbackMessage{" +
-                "message='" + message + '\'' +
-                '}';
     }
 }

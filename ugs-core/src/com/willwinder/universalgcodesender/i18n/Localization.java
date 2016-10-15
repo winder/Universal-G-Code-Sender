@@ -41,6 +41,7 @@ public class Localization {
     private static ResourceBundle english = null;
 
     private static int englishKeyCount = 0;
+    private static Locale locale = null;
 
     /**
      * Loads a given language.
@@ -58,9 +59,13 @@ public class Localization {
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language, String region) {
-        Locale locale = new Locale(language, region);
+        locale = new Locale(language, region);
         bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
         return getKeyCount(bundle) >= getEnglishKeyCount();
+    }
+
+    public static String loadedLocale() {
+        return locale + "";
     }
 
     public static String getString(String id) {

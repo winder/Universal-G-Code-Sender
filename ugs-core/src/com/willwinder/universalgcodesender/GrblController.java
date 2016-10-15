@@ -76,7 +76,11 @@ public class GrblController extends AbstractController {
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
         this.maxZLocationMM = -1;
-        this.settings = new GrblSettingsListener(this);
+
+        // Listen for any setting changes.
+        this.settings = new GrblSettingsListener();
+        this.comm.setListenAll(settings);
+        this.addListener(settings);
     }
     
     public GrblController() {
@@ -165,7 +169,7 @@ public class GrblController extends AbstractController {
 
         else if (GrblUtils.isGrblSettingMessage(response)) {
             GrblSettingMessage message = new GrblSettingMessage(response);
-            this.messageForConsole(response + "\n");
+            this.messageForConsole(message + "\n");
             if (message.isReportingUnits()) {
                 setReportingUnits(message.getReportingUnits());
             }

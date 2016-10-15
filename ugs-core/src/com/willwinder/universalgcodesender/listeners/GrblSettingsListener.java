@@ -1,13 +1,29 @@
+/*
+    Copywrite 2014-2016 Will Winder, MerrellM
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package com.willwinder.universalgcodesender.listeners;
 
-import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.GrblUtils;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.types.GrblSettingMessage;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * Created with IntelliJ IDEA.
@@ -16,62 +32,22 @@ import java.util.List;
  * Time: 3:43 PM
  * To change this template use File | Settings | File Templates.
  */
-public class GrblSettingsListener implements ControllerListener {
+public class GrblSettingsListener implements ControllerListener, SerialCommunicatorListener {
 
     public boolean inParsingMode = false;
     private boolean firstSettingReceived = false;
-    public boolean sending = false;
-    private final Object refreshLock = new Object();
 
-    public final List<String> settings = new ArrayList<>();
+    public final HashMap<String,GrblSettingMessage> settings;
 
-    private final AbstractController controller;
-
-    public GrblSettingsListener(AbstractController controller) {
-        this.controller = controller;
-        this.controller.addListener(this);
+    public GrblSettingsListener() {
+        this.settings = new HashMap<>();
     }
 
-    public List<String> getSettings() {
-
-        if (settings.isEmpty()) {
-            synchronized (refreshLock) {
-                if (settings.isEmpty())
-                    refreshSettings();
-            }
-        }
-
+    public HashMap<String,GrblSettingMessage> getSettings() {
         return settings;
     }
 
-    public void refreshSettings() {
-        try {
-            this.sending = true;
-            boolean ready;
-            do {
-                try {
-                    this.controller.isReadyToStreamFile();
-                    ready = true;
-                } catch (Exception e) {
-                    ready = false;
-                }
-
-            } while(!ready);
-
-            GcodeCommand command = controller.createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND);
-            controller.sendCommandImmediately(command);
-            while (this.sending) {
-                Thread.sleep(10);
-            }
-            while (this.inParsingMode) {
-                Thread.sleep(1);
-            }
-        } catch (Exception e) {
-            return;
-        }
-
-        return;
-    }
+    // ControllerListener
 
     @Override
     public void controlStateChange(UGSEvent.ControlState state) {
@@ -92,8 +68,6 @@ public class GrblSettingsListener implements ControllerListener {
         if (command.getCommandString().startsWith("$$")) {
             this.inParsingMode = true;
             this.firstSettingReceived = false;
-            if (this.sending)
-                this.sending = false;
             settings.clear();
         }
     }
@@ -110,16 +84,6 @@ public class GrblSettingsListener implements ControllerListener {
 
     @Override
     public void messageForConsole(MessageType type, String msg) {
-        if (type == MessageType.VERBOSE)
-            return;
-        if (this.inParsingMode) {
-            if (firstSettingReceived && msg.startsWith("ok")) {
-                this.inParsingMode = false;
-            } else if (msg.startsWith("$"))  {
-                firstSettingReceived = true;
-                settings.add(msg);
-            }
-        }
     }
 
     @Override
@@ -128,5 +92,32 @@ public class GrblSettingsListener implements ControllerListener {
 
     @Override
     public void postProcessData(int numRows) {
+    }
+
+    // SerialCommunicatorListener
+
+    @Override
+    public void rawResponseListener(String response) {
+        if (this.inParsingMode) {
+            if (firstSettingReceived && response.startsWith("ok")) {
+                this.inParsingMode = false;
+            } else if (response.startsWith("$"))  {
+                firstSettingReceived = true;
+                GrblSettingMessage gsm = new GrblSettingMessage(response);
+                settings.put(gsm.getValue(), gsm);
+            }
+        }
+    }
+
+    @Override
+    public void messageForConsole(String msg) {
+    }
+
+    @Override
+    public void verboseMessageForConsole(String msg) {
+    }
+
+    @Override
+    public void errorMessageForConsole(String msg) {
     }
 }
