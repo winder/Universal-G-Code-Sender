@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.model.Utils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
+import com.willwinder.universalgcodesender.utils.GrblLookups;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,12 +41,16 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author wwinder
  */
 public class GrblController extends AbstractController {
+    private static final GrblLookups ALARMS = new GrblLookups("alarm_codes");
+    private static final GrblLookups ERRORS = new GrblLookups("error_codes");
+
     // Grbl state
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
     private Character grblVersionLetter = null; // The c in 'Grbl 0.8c'
@@ -103,14 +108,28 @@ public class GrblController extends AbstractController {
     @Override
     protected void rawResponseHandler(String response) {
         if (GcodeCommand.isOkErrorResponse(response)) {
+            String processed = response;
+            if (response.startsWith("error:")) {
+                String parts[] = response.split(":");
+                if (parts.length == 2) {
+                    String code = parts[1].trim();
+                    if (StringUtils.isNumeric(code)) {
+                        String[] errorParts = ERRORS.lookup(code);
+                        if (errorParts != null && errorParts.length >= 3) {
+                            processed = "error: " + errorParts[1] + ": " +
+                                    errorParts[2];
+                        }
+                    }
+                }
+            }
             try {
-                this.commandComplete(response);
+                this.commandComplete(processed);
             } catch (Exception e) {
                 this.errorMessageForConsole(Localization.getString("controller.error.response")
-                        + " <" + response + ">: " + e.getMessage());
+                        + " <" + processed + ">: " + e.getMessage());
             }
             
-            this.messageForConsole(response + "\n");
+            this.messageForConsole(processed + "\n");
         }
         
         else if (GrblUtils.isGrblVersionString(response)) {
