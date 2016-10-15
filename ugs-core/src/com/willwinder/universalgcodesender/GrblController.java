@@ -2,7 +2,7 @@
  * GRBL Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2015 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -110,9 +110,12 @@ public class GrblController extends AbstractController {
         }
         
         else if (GrblUtils.isGrblVersionString(response)) {
+            this.stopPollingPosition();
+            positionPollTimer = createPositionPollTimer();
+            this.beginPollingPosition();
+
             this.isReady = true;
             resetBuffers();
-            positionPollTimer = createPositionPollTimer();
 
             // In case a reset occurred while streaming.
             if (this.isStreamingFile()) {
@@ -425,6 +428,7 @@ public class GrblController extends AbstractController {
                         } catch (Exception ex) {
                             messageForConsole(Localization.getString("controller.exception.sendingstatus")
                                     + ": " + ex.getMessage() + "\n");
+                            ex.printStackTrace();
                         }
                     }
                 });
@@ -526,6 +530,7 @@ public class GrblController extends AbstractController {
     public void sendOverrideCommand(Overrides command) throws Exception {
         Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
         if (realTimeCommand != null) {
+            this.messageForConsole(String.format(">>> 0x%02x\n", realTimeCommand));
             this.comm.sendByteImmediately(realTimeCommand);
         }
     }
