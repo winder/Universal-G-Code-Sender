@@ -20,9 +20,9 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
-import java.awt.Color;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
@@ -30,6 +30,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -67,22 +68,25 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
      * Detect connection events to enable/disable command text area.
      */
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {
         this.setEnabled(backend.isConnected());
     }
 
     public void action(ActionEvent evt) {
         final String str = getText().replaceAll("(\\r\\n|\\n\\r|\\r|\\n)", "");
-        GUIHelpers.invokeLater(() -> {
-            try {
-                backend.sendGcodeCommand(str);
-            } catch (Exception ex) {
-                displayErrorDialog(ex.getMessage());
-            }
-        });
-        setText("");
-        this.commandHistory.add(str);
-        this.commandNum = -1;
+        if (!StringUtils.isEmpty(str)) {
+            GUIHelpers.invokeLater(() -> {
+                try {
+                    backend.sendGcodeCommand(str);
+                } catch (Exception ex) {
+                    displayErrorDialog(ex.getMessage());
+                }
+            });
+
+            setText("");
+            this.commandHistory.add(str);
+            this.commandNum = -1;
+        }
     }
     
     private boolean isArrowKey(KeyEvent e) {
