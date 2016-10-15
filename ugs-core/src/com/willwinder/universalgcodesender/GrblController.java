@@ -156,7 +156,7 @@ public class GrblController extends AbstractController {
             this.handlePositionString(response);
         }
 
-        else if (GrblUtils.isGrblFeedbackMessage(response)) {
+        else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
             GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
             this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
             setDistanceModeCode(grblFeedbackMessage.getDistanceMode());

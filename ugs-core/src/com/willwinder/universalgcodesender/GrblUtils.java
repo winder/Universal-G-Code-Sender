@@ -253,8 +253,12 @@ public class GrblUtils {
 
     private static final String FEEDBACK_REGEX = "\\[.*\\]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
-    static protected Boolean isGrblFeedbackMessage(final String response) {
-        return FEEDBACK_PATTERN.matcher(response).find();
+    static protected Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
+        if (c.V1_FORMAT) {
+            return response.startsWith("[GC:");
+        } else {
+            return FEEDBACK_PATTERN.matcher(response).find();
+        }
     }
 
 
