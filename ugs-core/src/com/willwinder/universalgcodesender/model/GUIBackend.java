@@ -769,26 +769,27 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 } catch (Exception e) {
                     GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
                 }
-            }
-            String error =
-                    String.format(Localization.getString("controller.exception.sendError"),
-                            command.getCommandString(),
-                            command.getResponse());
-            messageForConsole(MessageType.INFO, error);
 
-            String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
-            Object[] params = {error, checkboxQuestion};
-            int n = JOptionPane.showConfirmDialog(new JFrame(),
-                    params,
-                    Localization.getString("error"),
-                    JOptionPane.YES_NO_OPTION);
-            if (n == JOptionPane.YES_OPTION) {
-                try {
-                    FirmwareUtils.addPatternRemoverForFirmware(firmware,
-                            Matcher.quoteReplacement(command.getCommandString()));
-                    this.reprocessFileAfterStreamComplete = true;
-                } catch (IOException ex) {
-                    GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+                String error =
+                        String.format(Localization.getString("controller.exception.sendError"),
+                                command.getCommandString(),
+                                command.getResponse());
+                messageForConsole(MessageType.INFO, error);
+
+                String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
+                Object[] params = {error, checkboxQuestion};
+                int n = JOptionPane.showConfirmDialog(new JFrame(),
+                        params,
+                        Localization.getString("error"),
+                        JOptionPane.YES_NO_OPTION);
+                if (n == JOptionPane.YES_OPTION) {
+                    try {
+                        FirmwareUtils.addPatternRemoverForFirmware(firmware,
+                                Matcher.quoteReplacement(command.getCommandString()));
+                        this.reprocessFileAfterStreamComplete = true;
+                    } catch (IOException ex) {
+                        GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+                    }
                 }
             }
         }

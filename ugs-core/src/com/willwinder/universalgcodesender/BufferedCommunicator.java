@@ -30,7 +30,6 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Optional;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -266,6 +265,11 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.sendPaused = false;
         this.streamCommands();
     }
+
+    @Override
+    public boolean isPaused() {
+        return sendPaused;
+    }
     
     @Override
     public void cancelSend() {
@@ -322,11 +326,17 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         // FIXME: This prevents more commands from being sent, but does not
         //        issue a FEED HOLD event. The GUI will appear to hang if the
         //        controller does not detect the error and update the GUI.
+        //
+        // This is handled in two ways:
+        //        1) In GUIBackend.java if we were streaming a feed hold command
+        //           is sent to pause whatever command is currently running.
+        //        2) In AbstractController.java commandComplete we reset
+        //           sendPaused if this command wasn't part of a file stream.
         if (processedCommandIsError(response)) {
             this.sendPaused = true;
         }
 
-        // Keep the data flow going in case of an "ok/error".
+        // Keep the data flow going in case of an "ok".
         if (processedCommand(response)) {
             // Pop the front of the active list.
             if (this.activeCommandList != null && this.activeCommandList.size() > 0) {

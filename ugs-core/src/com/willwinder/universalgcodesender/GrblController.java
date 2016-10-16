@@ -101,9 +101,8 @@ public class GrblController extends AbstractController {
     }
 
     /***********************
-     * API Implementation.
-     ***********************
-     */
+     * API Implementation. *
+     ***********************/
     
     @Override
     protected void rawResponseHandler(String response) {
@@ -176,7 +175,7 @@ public class GrblController extends AbstractController {
             // Status string goes to verbose console
             verboseMessageForConsole(response + "\n");
             
-            this.handlePositionString(response);
+            this.handleStatusString(response);
         }
 
         else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
@@ -484,15 +483,16 @@ public class GrblController extends AbstractController {
     }
     
     // No longer a listener event
-    private void handlePositionString(final String string) {
+    private void handleStatusString(final String string) {
         if (this.capabilities != null) {
-            controllerStatus = GrblUtils.getStatusFromStatusString(controllerStatus, string, capabilities, getReportingUnits());
+            controllerStatus = GrblUtils.getStatusFromStatusString(
+                    controllerStatus, string, capabilities, getReportingUnits());
 
             grblState = controllerStatus.getState();
             machineLocation = controllerStatus.getMachineCoord();
             workLocation = controllerStatus.getWorkCoord();
 
-            // Prior to GRBL v1 the GUI is required to keep checking locations
+            // Prior to GRBL v1.1 the GUI is required to keep checking locations
             // to verify that the machine has come to a complete stop after
             // pausing.
             if (isCanceling) {
@@ -525,8 +525,6 @@ public class GrblController extends AbstractController {
                 }
             }
 
-            
-            //dispatchStatusString(new ControllerStatus(grblState, machineLocation, workLocation));
             dispatchStatusString(controllerStatus);
         }
     }
@@ -557,5 +555,4 @@ public class GrblController extends AbstractController {
             this.comm.sendByteImmediately(realTimeCommand);
         }
     }
-
 }

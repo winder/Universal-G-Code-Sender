@@ -25,7 +25,6 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;

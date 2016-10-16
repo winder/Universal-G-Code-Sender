@@ -93,6 +93,7 @@ public abstract class AbstractCommunicator {
     abstract public void streamCommands();
     abstract public void pauseSend();
     abstract public void resumeSend();
+    abstract public boolean isPaused();
     abstract public void cancelSend();
     abstract public void softReset();
     abstract public void responseMessage(String response);
