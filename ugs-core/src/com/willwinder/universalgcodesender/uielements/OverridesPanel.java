@@ -65,6 +65,10 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final JButton adjust4 = new JButton("");
     private final JButton adjust5 = new JButton("");
 
+    private final JButton toggleSpindle = new JButton("Spindle");
+    private final JButton toggleFloodCoolant = new JButton("Flood Coolant");
+    private final JButton toggleMistCoolant = new JButton("Mist Coolant");
+
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
         if (backend != null) {
@@ -156,6 +160,23 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         adjust4.setEnabled(false);
         adjust5.setEnabled(false);
 
+        ButtonGroup group = new ButtonGroup();
+        group.add(feedRadio);
+        group.add(spindleRadio);
+        group.add(rapidRadio);
+
+        // Initialize callbacks
+        // Radio buttons
+        feedRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        spindleRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        // Toggle actions
+        toggleSpindle.setAction(new RealTimeAction("spindle", Overrides.CMD_TOGGLE_SPINDLE, backend));
+        toggleFloodCoolant.setAction(new RealTimeAction("flood", Overrides.CMD_TOGGLE_FLOOD_COOLANT, backend));
+        toggleMistCoolant.setAction(new RealTimeAction("mist", Overrides.CMD_TOGGLE_MIST_COOLANT, backend));
+        
+
+        // Layout components
         this.setLayout(new MigLayout("wrap 4"));
 
         this.add(feedRadio);
@@ -174,16 +195,12 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(new JLabel("Rapid:"));
         this.add(rapidSpeed);
         this.add(adjust4);
-        this.add(adjust5);
+        this.add(adjust5, "wrap");
 
-        feedRadio.addActionListener((ActionEvent ae) -> radioSelected());
-        spindleRadio.addActionListener((ActionEvent ae) -> radioSelected());
-        rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(feedRadio);
-        group.add(spindleRadio);
-        group.add(rapidRadio);
+        this.add(new JLabel("Toggle:"));
+        this.add(toggleSpindle);
+        this.add(toggleFloodCoolant);
+        this.add(toggleMistCoolant);
     }
 
     @Override
@@ -216,10 +233,11 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.feedSpeed.setText(status.getOverrides().feed + "%");
-        this.spindleSpeed.setText(status.getOverrides().spindle + "%");
-        this.rapidSpeed.setText(status.getOverrides().rapid + "%");
-        System.out.println("feed: " + feedSpeed + ", spindle: " + spindleSpeed + ", rapid: " + rapidSpeed);
+        if (status.getOverrides() != null) {
+            this.feedSpeed.setText(status.getOverrides().feed + "%");
+            this.spindleSpeed.setText(status.getOverrides().spindle + "%");
+            this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+        }
     }
 
     @Override

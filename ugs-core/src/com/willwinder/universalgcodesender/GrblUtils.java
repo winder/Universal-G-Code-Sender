@@ -452,8 +452,12 @@ public class GrblUtils {
                     return (byte)0x9C;
                 case CMD_SPINDLE_OVR_FINE_MINUS:
                     return (byte)0x9D;
-                case CMD_SPINDLE_OVR_STOP:
+                case CMD_TOGGLE_SPINDLE:
                     return (byte)0x9E;
+                case CMD_TOGGLE_FLOOD_COOLANT:
+                    return (byte)0xA0;
+                case CMD_TOGGLE_MIST_COOLANT:
+                    return (byte)0xA1;
             }
         }
         return null;
