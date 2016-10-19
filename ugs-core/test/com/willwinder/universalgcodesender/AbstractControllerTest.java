@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -35,7 +36,6 @@ import java.util.Collection;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
-import static org.easymock.EasyMock.anyBoolean;
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.capture;
@@ -68,12 +68,14 @@ public class AbstractControllerTest {
     final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
 
     static AbstractController instance;
+    static AbstractController niceInstance;
+    static IMockBuilder<AbstractController> instanceBuilder;
 
     static File tempDir = null;
 
     //@BeforeClass
     public static void init() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
-        instance = EasyMock
+        instanceBuilder = EasyMock
                 .createMockBuilder(AbstractController.class)
                     .addMockedMethods(
                         "closeCommBeforeEvent",
@@ -90,13 +92,15 @@ public class AbstractControllerTest {
                         "statusUpdatesRateValueChanged",
                         "isCommOpen")
                     .withConstructor(AbstractCommunicator.class)
-                    .withArgs(mockCommunicator)
-                    .createMock();
+                    .withArgs(mockCommunicator);
+        instance = instanceBuilder.createMock();
+        niceInstance = instanceBuilder.createNiceMock();
 
         // Initialize private variable.
         Field f = AbstractController.class.getDeclaredField("commandCreator");
         f.setAccessible(true);
         f.set(instance, gcodeCreator);
+        f.set(niceInstance, gcodeCreator);
         
         instance.addListener(mockListener);
     }
@@ -131,7 +135,7 @@ public class AbstractControllerTest {
         mockListener.messageForConsole(anyObject(), EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
         EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
-        EasyMock.expect(instance.isCommOpen()).andReturn(false).once();
+        //EasyMock.expect(instance.isCommOpen()).andReturn(true).once();
         EasyMock.expect(instance.isCommOpen()).andReturn(true).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {
@@ -710,9 +714,6 @@ public class AbstractControllerTest {
         EasyMock.verify(mockListener);
     }
 
-
-
-
     // Exception tossing unimplemented methods.
     /**
      * Test of rawResponseHandler method, of class AbstractController.
@@ -802,6 +803,37 @@ public class AbstractControllerTest {
     public void testSoftReset() throws Exception {
         System.out.println("softReset");
         System.out.println("-N/A Implementation Specific Function-");
+    }
+
+    /**
+     * Test of jogMachine method, of class AbstractController.
+     */
+    @Test
+    public void testJogMachine() throws Exception {
+        System.out.println("jogMachine");
+
+        EasyMock.expect(niceInstance.isCommOpen()).andReturn(true).anyTimes();
+        mockCommunicator.streamCommands();
+        EasyMock.expect(expectLastCall()).anyTimes();
+
+        // Modal state should be restored.
+        mockCommunicator.queueStringForComm("G90 G21 \n");
+        EasyMock.expect(EasyMock.expectLastCall()).times(2);
+
+        // Making sure the commands get queued.
+        mockCommunicator.queueStringForComm("G20G91G0X-10Z10F11\n");
+        EasyMock.expect(EasyMock.expectLastCall()).times(1);
+
+        mockCommunicator.queueStringForComm("G21G91G0Y10F11\n");
+        EasyMock.expect(EasyMock.expectLastCall()).times(1);
+
+        EasyMock.replay(niceInstance, mockCommunicator);
+
+        niceInstance.setDistanceModeCode("G90");
+        niceInstance.setUnitsCode("G21");
+
+        niceInstance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
+        niceInstance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
     }
 
     /**

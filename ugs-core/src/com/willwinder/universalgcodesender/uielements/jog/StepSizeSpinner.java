@@ -1,10 +1,6 @@
 package com.willwinder.universalgcodesender.uielements.jog;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;

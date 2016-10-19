@@ -22,13 +22,14 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -399,7 +400,24 @@ public class GrblController extends AbstractController {
             this.comm.softReset();
         }
     }
-        
+
+    @Override
+    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
+            double feedRate, Units units) throws Exception {
+        if (capabilities.JOG_MODE) {
+            // Format step size from spinner.
+            String formattedStepSize = Utils.formatter.format(stepSize);
+            String formattedFeedRate = Utils.formatter.format(feedRate);
+
+            String commandString = GcodeUtils.generateXYZ("G91", units,
+                    formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+            GcodeCommand command = createCommand("$J=" + commandString);
+            sendCommandImmediately(command);
+        } else {
+            super.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
+        }
+    }
+
     /************
      * Helpers.
      ************/

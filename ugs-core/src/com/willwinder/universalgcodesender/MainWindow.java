@@ -40,7 +40,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Color;
@@ -63,12 +63,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.Timer;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.Toolkit;
@@ -105,6 +104,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // Duration timer
     private Timer timer;
 
+    // Services
+    private JogService jogService;
+
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
@@ -119,6 +121,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        this.jogService = new JogService(backend);
 
         if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
@@ -166,7 +170,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 }
                 
                 settings.setDefaultUnits(inchRadioButton.isSelected() ? Units.INCH.abbreviation : Units.MM.abbreviation);
-                settings.setManualModeStepSize(getStepSize());
+                settings.setManualModeStepSize(getSpinnerValue(stepSizeSpinner));
+                settings.setJogFeedRate(getSpinnerValue(feedRateSpinner));
                 settings.setManualModeEnabled(arrowMovementEnabled.isSelected());
                 settings.setPort(commPortComboBox.getSelectedItem().toString());
                 settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
@@ -297,7 +302,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 }
                 
                 mw.settings.setDefaultUnits(mw.inchRadioButton.isSelected() ? Units.INCH.abbreviation : Units.MM.abbreviation);
-                mw.settings.setManualModeStepSize(mw.getStepSize());
+                mw.settings.setManualModeStepSize(getSpinnerValue(mw.stepSizeSpinner));
+                mw.settings.setJogFeedRate(getSpinnerValue(mw.feedRateSpinner));
                 mw.settings.setManualModeEnabled(mw.arrowMovementEnabled.isSelected());
                 mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
                 mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
@@ -382,6 +388,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         stepSizeLabel = new javax.swing.JLabel();
         inchRadioButton = new javax.swing.JRadioButton();
         mmRadioButton = new javax.swing.JRadioButton();
+        feedRateLabel = new javax.swing.JLabel();
+        feedRateSpinner = new javax.swing.JSpinner();
         macroEditPanel = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
         connectionPanel = new javax.swing.JPanel();
@@ -721,6 +729,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
         });
 
+        feedRateLabel.setText("Feed rate:");
+
+        feedRateSpinner.setModel(new javax.swing.SpinnerNumberModel(10, null, null, 10));
+
         org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
         keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
         keyboardMovementPanelLayout.setHorizontalGroup(
@@ -732,14 +744,18 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         .addContainerGap()
                         .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(keyboardMovementPanelLayout.createSequentialGroup()
-                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(inchRadioButton)
-                                    .add(stepSizeLabel))
+                                .add(inchRadioButton)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(mmRadioButton))
+                            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(keyboardMovementPanelLayout.createSequentialGroup()
                                 .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 70, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(mmRadioButton)))
-                            .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                    .add(stepSizeLabel)
+                                    .add(feedRateLabel))
+                                .add(25, 25, 25)
+                                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                    .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                                    .add(feedRateSpinner))))))
                 .addContainerGap(23, Short.MAX_VALUE))
         );
         keyboardMovementPanelLayout.setVerticalGroup(
@@ -751,12 +767,16 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(stepSizeLabel)
                     .add(stepSizeSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(feedRateLabel)
+                    .add(feedRateSpinner, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(keyboardMovementPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.CENTER)
                     .add(inchRadioButton)
                     .add(mmRadioButton))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(movementButtonPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         keyboardMovementPanelLayout.linkSize(new java.awt.Component[] {stepSizeLabel, stepSizeSpinner}, org.jdesktop.layout.GroupLayout.VERTICAL);
@@ -1397,7 +1417,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
 
     private void increaseStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        double stepSize = this.getStepSize();
+        double stepSize = getSpinnerValue(stepSizeSpinner);
         if (stepSize >= 1) {
             stepSize++;
         } else if (stepSize >= 0.1) {
@@ -1407,11 +1427,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         } else {
             stepSize = 0.01;
         }
-        this.setStepSize(stepSize);
+        setSpinnerValue(stepSizeSpinner, stepSize);
     }                                            
 
     private void decreaseStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        double stepSize = this.getStepSize();
+        double stepSize = getSpinnerValue(stepSizeSpinner);
         if (stepSize > 1) {            
             stepSize--;
         } else if (stepSize > 0.1) {
@@ -1419,11 +1439,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         } else if (stepSize > 0.01) {
             stepSize = stepSize - 0.01;
         }
-        this.setStepSize(stepSize);
+        setSpinnerValue(stepSizeSpinner, stepSize);
     }                                            
     
     private void divideStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        double stepSize = this.getStepSize();
+        double stepSize = getSpinnerValue(stepSizeSpinner);
 
         if (stepSize > 100) {            
             stepSize = 100;
@@ -1437,11 +1457,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             stepSize = 0.01;
         } 
         
-        this.setStepSize(stepSize);
+        setSpinnerValue(stepSizeSpinner, stepSize);
     }                                            
 
     private void multiplyStepActionPerformed(java.awt.event.ActionEvent evt) {                                             
-        double stepSize = this.getStepSize();
+        double stepSize = getSpinnerValue(stepSizeSpinner);
 
         if (stepSize < 0.01) {            
             stepSize = 0.01;
@@ -1455,7 +1475,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             stepSize = 100;
         }
 
-        this.setStepSize(stepSize);
+        setSpinnerValue(stepSizeSpinner, stepSize);
     }                                            
 
     // TODO: It would be nice to streamline this somehow...
@@ -1670,7 +1690,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     
     private void adjustManualLocation(int x, int y, int z) {
         try {
-            this.backend.adjustManualLocation(x, y, z, this.getStepSize(), getSelectedUnits());
+            this.jogService.setStepSize(getSpinnerValue(stepSizeSpinner));
+            this.jogService.setStepSizeZ(getSpinnerValue(stepSizeSpinner));
+            this.jogService.setUnits(getSelectedUnits());
+            this.jogService.setFeedRate((double)this.feedRateSpinner.getValue());
+            this.jogService.adjustManualLocation(x, y, z);
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }
@@ -1970,21 +1994,20 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             });
     }
 
-    private double getStepSize() {
+    private static double getSpinnerValue(JSpinner spinner) {
         try {
-            this.stepSizeSpinner.commitEdit();
+            spinner.commitEdit();
         } catch (ParseException e) {
-            this.stepSizeSpinner.setValue(0.0);
+            spinner.setValue(0.0);
         }
-        BigDecimal bd = new BigDecimal(this.stepSizeSpinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
+        BigDecimal bd = new BigDecimal(spinner.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
         return bd.doubleValue();
-        //return Double.parseDouble( this.stepSizeSpinner.getValue().toString() );
     }
 
-    private void setStepSize(double val) {
+    private static void setSpinnerValue(JSpinner spinner, double val) {
         BigDecimal bd = new BigDecimal(val).setScale(3, RoundingMode.HALF_EVEN);
         val = bd.doubleValue();
-        this.stepSizeSpinner.setValue(val);
+        spinner.setValue(val);
     }
     
     private void setStatusColorForState(String state) {
@@ -2080,6 +2103,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.zPlusButton.setEnabled(enabled);
         this.stepSizeLabel.setEnabled(enabled);
         this.stepSizeSpinner.setEnabled(enabled);
+        this.feedRateLabel.setEnabled(enabled);
+        this.feedRateSpinner.setEnabled(enabled);
         this.inchRadioButton.setEnabled(enabled);
         this.mmRadioButton.setEnabled(enabled);
     }
@@ -2437,6 +2462,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JLabel durationLabel;
     private javax.swing.JLabel durationValueLabel;
+    private javax.swing.JLabel feedRateLabel;
+    private javax.swing.JSpinner feedRateSpinner;
     private javax.swing.JPanel fileModePanel;
     private javax.swing.JPanel fileRunPanel;
     private javax.swing.JComboBox firmwareComboBox;

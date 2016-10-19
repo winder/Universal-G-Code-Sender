@@ -32,7 +32,7 @@ import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -409,52 +409,14 @@ public class GUIBackend implements BackendAPI, ControllerListener {
      * Direction is specified by the direction param being positive or negative.
      */
     @Override
-    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception {
-        logger.log(Level.INFO, "Adjusting manual location.");
+    public void adjustManualLocation(int dirX, int dirY, int dirZ,
+            double stepSize, double feedRate, Units units) throws Exception {
         // Don't send empty commands.
         if ((dirX == 0) && (dirY == 0) && (dirZ == 0)) {
             return;
         }
 
-        // Format step size from spinner.
-        String formattedStepSize = Utils.formatter.format(stepSize);
-
-        // Build G91 command.
-        StringBuilder builder = new StringBuilder();
-        
-        // Set jog command to the preferred units.
-        if (units == Units.INCH) {
-            builder.append("G20 ");
-        } else if (units == Units.MM) {
-            builder.append("G21 ");
-        }
-
-        builder.append("G91 G0 ");
-        
-        if (dirX != 0) {
-            builder.append(" X");
-            if (dirX < 0) {
-                builder.append('-');
-            }
-            builder.append(formattedStepSize);
-        } if (dirY != 0) {
-            builder.append(" Y");
-            if (dirY < 0) {
-                builder.append('-');
-            }
-            builder.append(formattedStepSize);
-        } if (dirZ != 0) {
-            builder.append(" Z");
-            if (dirZ < 0) {
-                builder.append('-');
-            }
-            builder.append(formattedStepSize);
-        }
-
-        GcodeCommand command = controller.createCommand(builder.toString());
-        command.setTemporaryParserModalChange(true);
-        controller.sendCommandImmediately(command);
-        controller.restoreParserModalState();
+        controller.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
     }
 
     @Override

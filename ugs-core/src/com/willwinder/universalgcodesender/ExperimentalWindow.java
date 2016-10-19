@@ -25,14 +25,18 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.action.ActionPanel;
+import com.willwinder.universalgcodesender.uielements.command.CommandPanel;
+import com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -50,6 +54,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import com.willwinder.universalgcodesender.visualizer.VisualizerPanel;
 import java.io.File;
 import java.util.logging.Level;
 
@@ -64,7 +69,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     private PendantUI pendantUI;
 
-    BackendAPI backend;
+    private final BackendAPI backend;
+
+    private JogService jogService;
     
     /** Creates new form ExperimentalWindow */
     public ExperimentalWindow() {
@@ -92,6 +99,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         "", JOptionPane.INFORMATION_MESSAGE);
             }});
         }
+
         initComponents();
         initProgram();
         backend.addControllerListener(this);
@@ -243,15 +251,18 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     @SuppressWarnings("unchecked")
     private void initComponents() {
 
-        controlContextTabbedPane = new javax.swing.JTabbedPane();
-        actionPanel = new com.willwinder.universalgcodesender.uielements.action.ActionPanel(backend);
-        macroEditPanel = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
-        visualizerPanel = new com.willwinder.universalgcodesender.visualizer.VisualizerPanel(backend);
-        connectionPanel = new com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel(backend);
-        commandPanel = new com.willwinder.universalgcodesender.uielements.command.CommandPanel(backend);
-        mainMenuBar = new javax.swing.JMenuBar();
-        settingsMenu = new javax.swing.JMenu();
+        // Initialize services
+        jogService = new JogService(backend);
+
+        controlContextTabbedPane = new JTabbedPane();
+        actionPanel = new ActionPanel(backend);
+        macroEditPanel = new JScrollPane();
+        macroPanel = new MacroPanel(backend);
+        visualizerPanel = new VisualizerPanel(backend);
+        connectionPanel = new ConnectionPanel(backend, jogService);
+        commandPanel = new CommandPanel(backend);
+        mainMenuBar = new JMenuBar();
+        settingsMenu = new JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();

@@ -16,121 +16,135 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.control;
+package com.willwinder.universalgcodesender.services;
 
-import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.util.UUID;
-import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.awt.StatusLineElementProvider;
-import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
-import org.openide.util.NbPreferences;
-import org.openide.util.lookup.ServiceProvider;
+import com.willwinder.universalgcodesender.uielements.IChanged;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *
  * @author wwinder
  */
-@ServiceProvider(service=JogService.class, position=1) 
-//@ServiceProvider(service = StatusLineElementProvider.class, position=1)
-public class JogService implements StatusLineElementProvider {
-    private double stepSize = 1;
+public class JogService {
+    private double stepSizeXY = 1;
+    private double stepSizeZ = 1;
+    private double feedRate = 1;
     private Units units;
 
     private BackendAPI backend;
+    private final Collection<IChanged> changeListeners = new ArrayList<>();
 
-    public JogService() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        String abbr = backend.getSettings().getDefaultUnits();
-        this.setUnits(Units.getUnit(abbr));
+    public JogService(BackendAPI backend) {
+        this.backend = backend;
 
-        initActions();
+        stepSizeXY = backend.getSettings().getManualModeStepSize();
+        stepSizeZ = backend.getSettings().getzJogStepSize();
+        setUnits(Units.getUnit(backend.getSettings().getDefaultUnits()));
+    }
+
+    public void addChangeListener(IChanged changed) {
+        changeListeners.add(changed);
     }
 
     private void changed() {
-        NbPreferences.forModule(JogService.class).put("changed", UUID.randomUUID().toString());
-    }
-
-    @Override
-    public Component getStatusLineElement() {
-        return null;
+        for (IChanged changed : changeListeners) {
+            changed.changed();
+        }
     }
 
     public void increaseStepSize() {
-        if (stepSize >= 1) {
-            stepSize++;
-        } else if (stepSize >= 0.1) {
-            stepSize = stepSize + 0.1;
-        } else if (stepSize >= 0.01) {
-            stepSize = stepSize + 0.01;
+        if (stepSizeXY >= 1) {
+            stepSizeXY++;
+        } else if (stepSizeXY >= 0.1) {
+            stepSizeXY = stepSizeXY + 0.1;
+        } else if (stepSizeXY >= 0.01) {
+            stepSizeXY = stepSizeXY + 0.01;
         } else {
-            stepSize = 0.01;
+            stepSizeXY = 0.01;
         }
         changed();
     }
 
     public void decreaseStepSize() {
-        if (stepSize > 1) {
-            stepSize--;
-        } else if (stepSize > 0.1) {
-            stepSize = stepSize - 0.1;
-        } else if (stepSize > 0.01) {
-            stepSize = stepSize - 0.01;
+        if (stepSizeXY > 1) {
+            stepSizeXY--;
+        } else if (stepSizeXY > 0.1) {
+            stepSizeXY = stepSizeXY - 0.1;
+        } else if (stepSizeXY > 0.01) {
+            stepSizeXY = stepSizeXY - 0.01;
         }
         changed();
     }
 
     public void divideStepSize() {
-        if (stepSize > 100) {
-            stepSize = 100;
-        } else if (stepSize <= 100 && stepSize > 10) {
-            stepSize = 10;
-        } else if (stepSize <= 10 && stepSize > 1) {
-            stepSize = 1;
-        } else if (stepSize <= 1 && stepSize > 0.1) {
-            stepSize = 0.1;
-        } else if (stepSize <= 0.1 ) {
-            stepSize = 0.01;
+        if (stepSizeXY > 100) {
+            stepSizeXY = 100;
+        } else if (stepSizeXY <= 100 && stepSizeXY > 10) {
+            stepSizeXY = 10;
+        } else if (stepSizeXY <= 10 && stepSizeXY > 1) {
+            stepSizeXY = 1;
+        } else if (stepSizeXY <= 1 && stepSizeXY > 0.1) {
+            stepSizeXY = 0.1;
+        } else if (stepSizeXY <= 0.1 ) {
+            stepSizeXY = 0.01;
         }
         changed();
     }
 
     public void multiplyStepSize() {
-        if (stepSize < 0.01) {
-            stepSize = 0.01;
-        } else if (stepSize >= 0.01 && stepSize < 0.1) {
-            stepSize = 0.1;
-        }  else if (stepSize >= 0.1 && stepSize < 1) {
-            stepSize = 1;
-        }  else if (stepSize >= 1 && stepSize < 10) {
-            stepSize = 10;
-        }  else if (stepSize >= 10) {
-            stepSize = 100;
+        if (stepSizeXY < 0.01) {
+            stepSizeXY = 0.01;
+        } else if (stepSizeXY >= 0.01 && stepSizeXY < 0.1) {
+            stepSizeXY = 0.1;
+        }  else if (stepSizeXY >= 0.1 && stepSizeXY < 1) {
+            stepSizeXY = 1;
+        }  else if (stepSizeXY >= 1 && stepSizeXY < 10) {
+            stepSizeXY = 10;
+        }  else if (stepSizeXY >= 10) {
+            stepSizeXY = 100;
         }
         changed();
     }
 
     public void setStepSize(double size) {
-        this.stepSize = size;
+        this.stepSizeXY = size;
+        backend.getSettings().setManualModeStepSize(getStepSize());
         changed();
     }
 
     public double getStepSize() {
-        return this.stepSize;
+        return this.stepSizeXY;
+    }
+
+    public void setStepSizeZ(double size) {
+        this.stepSizeZ = size;
+        backend.getSettings().setzJogStepSize(getStepSizeZ());
+        changed();
+    }
+
+    public double getStepSizeZ() {
+        return this.stepSizeZ;
+    }
+
+    public void setFeedRate(double rate) {
+        this.feedRate = rate;
+        backend.getSettings().setJogFeedRate(getFeedRate());
+        changed();
+    }
+
+    public double getFeedRate() {
+        return this.feedRate;
     }
 
     public void setUnits(Units units) {
         this.units = units;
+        if (units != null) {
+            backend.getSettings().setDefaultUnits(units.abbreviation);
+        }
         changed();
     }
     
@@ -140,10 +154,10 @@ public class JogService implements StatusLineElementProvider {
     
     public void adjustManualLocation(int x, int y, int z) {
         try {
-            this.backend.adjustManualLocation(x, y, z, stepSize, units);
+            this.backend.adjustManualLocation(x, y, z, stepSizeXY, feedRate, units);
         } catch (Exception e) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
+            //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+            //DialogDisplayer.getDefault().notify(nd);
         }
     }
 
@@ -155,6 +169,7 @@ public class JogService implements StatusLineElementProvider {
      * Create the actions, this makes them available for keymapping and makes
      * them usable from the drop down menu's.
      */
+    /*
     private void initActions() {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
@@ -184,8 +199,6 @@ public class JogService implements StatusLineElementProvider {
                     Localization.getString("platform.menu.jog"),
                     Localization.getString("platform.menu.jog.size"));
             menuPath = menuPath + "/Step Size";
-            ars.registerAction("10",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 10));
             ars.registerAction("1",
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 1));
             ars.registerAction("0.1",
@@ -286,4 +299,6 @@ public class JogService implements StatusLineElementProvider {
             return js.canJog();
         }
     }
+*/
 }
+

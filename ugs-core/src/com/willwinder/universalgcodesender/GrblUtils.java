@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2013 Will Winder
+    Copywrite 2012-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,11 +27,10 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.vecmath.Point3i;
 
 /**
  *
@@ -77,6 +76,7 @@ public class GrblUtils {
         public boolean REAL_TIME = false;
         public boolean OVERRIDES = false;
         public boolean V1_FORMAT = false;
+        public boolean JOG_MODE = false;
     }
     
     /** 
@@ -237,6 +237,7 @@ public class GrblUtils {
             // GRBL 1.1
             ret.V1_FORMAT = true;
             ret.OVERRIDES = true;
+            ret.JOG_MODE = true;
         }
 
         return ret;

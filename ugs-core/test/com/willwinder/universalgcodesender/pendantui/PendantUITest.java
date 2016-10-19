@@ -18,7 +18,7 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.easymock.EasyMock;
@@ -70,7 +70,7 @@ public class PendantUITest {
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 5. Adjust machine location.
-        mockBackend.adjustManualLocation(1, 2, 3, 4.0, Utils.Units.UNKNOWN);
+        mockBackend.adjustManualLocation(1, 2, 3, 4.0, UnitUtils.Units.UNKNOWN);
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 6. Get system state

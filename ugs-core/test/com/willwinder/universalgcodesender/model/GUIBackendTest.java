@@ -157,7 +157,7 @@ public class GUIBackendTest {
         int dirY = 0;
         int dirZ = 0;
         double stepSize = 0.0;
-        Utils.Units units = null;
+        UnitUtils.Units units = null;
         GUIBackend instance = new GUIBackend();
         instance.adjustManualLocation(dirX, dirY, dirZ, stepSize, units);
         // TODO review the generated test code and remove the default call to fail.

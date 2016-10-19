@@ -46,7 +46,7 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Renderable;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
 import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
@@ -172,11 +172,11 @@ public class GcodeRenderer implements GLEventListener {
     }
 
     public void setWorkCoordinate(Position p) {
-        this.workCoord.set(p.getPositionIn(Utils.Units.MM));
+        this.workCoord.set(p.getPositionIn(UnitUtils.Units.MM));
     }
     
     public void setMachineCoordinate(Position p) {
-        this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
+        this.machineCoord.set(p.getPositionIn(UnitUtils.Units.MM));
     }
 
     final public void reloadPreferences() {

@@ -5,17 +5,17 @@ import javax.vecmath.Point3d;
 
 public class Position extends Point3d {
 
-    private final Utils.Units units;
+    private final UnitUtils.Units units;
 
     public Position() {
-        this.units = Utils.Units.UNKNOWN;
+        this.units = UnitUtils.Units.UNKNOWN;
     }
 
     public Position(Position other) {
         this(other.x, other.y, other.z, other.units);
     }
 
-    public Position(double x, double y, double z, Utils.Units units) {
+    public Position(double x, double y, double z, UnitUtils.Units units) {
         super(x, y, z);
         this.units = units;
     }
@@ -36,12 +36,12 @@ public class Position extends Point3d {
         return hash;
     }
 
-    public Utils.Units getUnits() {
+    public UnitUtils.Units getUnits() {
         return units;
     }
 
-    public Position getPositionIn(Utils.Units units) {
-        double scale = Utils.scaleUnits(this.units, units);
+    public Position getPositionIn(UnitUtils.Units units) {
+        double scale = UnitUtils.scaleUnits(this.units, units);
         return new Position(x*scale, y*scale, z*scale, units);
     }
 }

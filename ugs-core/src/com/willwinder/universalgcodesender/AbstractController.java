@@ -22,18 +22,20 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -161,6 +163,24 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     protected void softReset() throws Exception {
         throw new Exception(Localization.getString("controller.exception.softreset"));
     }
+
+    @Override
+    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize,
+            double feedRate, UnitUtils.Units units) throws Exception {
+        logger.log(Level.INFO, "Adjusting manual location.");
+
+        // Format step size from spinner.
+        String formattedStepSize = Utils.formatter.format(stepSize);
+        String formattedFeedRate = Utils.formatter.format(feedRate);
+
+        String commandString = GcodeUtils.generateXYZ("G91G0", units,
+                formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+
+        GcodeCommand command = createCommand(commandString);
+        command.setTemporaryParserModalChange(true);
+        sendCommandImmediately(command);
+        restoreParserModalState();
+    }
     
     /**
      * Listener event for status update values;
@@ -184,7 +204,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     
-    private Utils.Units reportingUnits = Utils.Units.UNKNOWN;
+    private UnitUtils.Units reportingUnits = UnitUtils.Units.UNKNOWN;
     
     // Added value
     private Boolean isStreaming = false;
@@ -423,6 +443,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
+        this.dispatchStateChange(ControlState.COMM_SENDING);
         this.sendStringToComm(command.getCommandString());
         this.comm.streamCommands();
     }
@@ -802,7 +823,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Get current machine reporting units
      */
-    protected Utils.Units getReportingUnits() {
+    protected UnitUtils.Units getReportingUnits() {
         return reportingUnits;
     }
 
@@ -810,7 +831,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * Set current machine reporting units
      * @param units
      */
-    protected void setReportingUnits(Utils.Units units) {
+    protected void setReportingUnits(UnitUtils.Units units) {
         this.reportingUnits = units;
     }
 
@@ -854,6 +875,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
+    @Override
     public void restoreParserModalState() {
         StringBuilder cmd = new StringBuilder();
         if (getDistanceModeCode() != null) {

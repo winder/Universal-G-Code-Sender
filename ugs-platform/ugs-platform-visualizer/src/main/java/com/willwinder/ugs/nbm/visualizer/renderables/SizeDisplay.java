@@ -26,7 +26,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
 import java.awt.Font;

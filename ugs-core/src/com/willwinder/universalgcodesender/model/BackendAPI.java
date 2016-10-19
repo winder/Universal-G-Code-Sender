@@ -25,7 +25,7 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.io.File;
 import java.io.IOException;
 
@@ -42,7 +42,7 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     public void disconnect() throws Exception;
     public void sendGcodeCommand(String commandText) throws Exception;
     public void sendGcodeCommand(GcodeCommand command) throws Exception;
-    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, Units units) throws Exception;
+    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, double feedRate, Units units) throws Exception;
     public void send() throws Exception;
     public void pauseResume() throws Exception;
     public void cancel() throws Exception;
