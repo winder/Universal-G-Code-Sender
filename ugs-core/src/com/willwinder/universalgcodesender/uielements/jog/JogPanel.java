@@ -1,3 +1,21 @@
+/*
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.uielements.jog;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -17,12 +35,17 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.SpinnerNumberModel;
 
 public class JogPanel extends JPanel implements UGSEventListener, ControllerListener, IChanged {
 
     private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
     private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
+    private final JLabel stepSizeLabelZ = new JLabel(Localization.getString("mainWindow.swing.stepSizeZLabel"));
+
+    private final StepSizeSpinner feedRateSpinner = new StepSizeSpinner();
+    private final JLabel feedRateLabel = new JLabel(Localization.getString("mainWindow.swing.feedRateLabel"));
 
     private final JButton unitButton = new JButton();
     private final JCheckBox keyboardMovementEnabled = new JCheckBox(Localization.getString("mainWindow.swing.arrowMovementEnabled"));
@@ -62,6 +85,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         // Update jog service whenever the spinner is changed.
         xyStepSizeSpinner.addChangeListener(cl -> jogService.setStepSize(xyStepSizeSpinner.getValue()));
         zStepSizeSpinner.addChangeListener(cl -> jogService.setStepSize(zStepSizeSpinner.getValue()));
+        feedRateSpinner.addChangeListener(cl -> jogService.setFeedRate(feedRateSpinner.getValue()));
 
         // Hookup buttons to actions.
         unitButton.addActionListener(e -> unitButtonActionPerformed());
@@ -74,6 +98,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     private void initComponents() {
+        feedRateSpinner.setModel(new SpinnerNumberModel(10, null, null, 10));
+
         keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
                 backend.getSettings().isManualModeEnabled():
                 false);
@@ -86,10 +112,19 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
             add(keyboardMovementEnabled, "al left, span 4");
         }
 
+        JPanel panel = new JPanel();
+        panel.setLayout(new MigLayout("ins 0, fill, wrap 2"));
+
+        panel.add(stepSizeLabel);
+        panel.add(xyStepSizeSpinner, "growx");
+        panel.add(stepSizeLabelZ);
+        panel.add(zStepSizeSpinner, "growx");
+        panel.add(feedRateLabel);
+        panel.add(feedRateSpinner, "growx");
+
         add(unitButton, "grow");
-//        add(stepSizeLabel, "al right");
-        add(xyStepSizeSpinner, "span 3, split 2, al left, w 75!");
-        add(zStepSizeSpinner, "w 75!");
+        add(panel, "grow, span 3");
+
 
         add(xMinusButton, "spany 2, w 50!, h 50!");
         add(yPlusButton, "w 50!, h 50!");
@@ -108,9 +143,16 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
+    private void syncWithJogService() {
+        xyStepSizeSpinner.setValue(jogService.getStepSize());// backend.getSettings().getManualModeStepSize());
+        zStepSizeSpinner.setValue(jogService.getStepSizeZ());// backend.getSettings().getzJogStepSize());
+        feedRateSpinner.setValue(jogService.getFeedRate()); //backend.getSettings().getJogFeedRate());
+    }
+
     private void updateControls() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
+        syncWithJogService();
+
         boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
         updateUnitButton(unitsAreMM);
 
@@ -214,9 +256,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void loadSettings() {
+        syncWithJogService();
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        xyStepSizeSpinner.setValue(jogService.getStepSize());
-        zStepSizeSpinner.setValue(jogService.getStepSizeZ());
         boolean unitsAreMM = getUnits() == Units.MM;
         updateUnitButton(unitsAreMM);
     }
@@ -298,6 +339,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zMinusButton.setEnabled(enabled);
         zPlusButton.setEnabled(enabled);
         stepSizeLabel.setEnabled(enabled);
+        stepSizeLabelZ.setEnabled(enabled);
         xyStepSizeSpinner.setEnabled(enabled);
         zStepSizeSpinner.setEnabled(enabled);
         feedRateLabel.setEnabled(enabled);
@@ -307,7 +349,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void changed() {
+        syncWithJogService();
     }
-
-
 }
