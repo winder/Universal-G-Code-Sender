@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class CommandSplitter implements ICommandProcessor {
-    Pattern GROUP_PATTERN = Pattern.compile("(.*?)([GgMmSsTt].*?)(?=[GgMmSsTt]|$)");
+    Pattern GROUP_PATTERN = Pattern.compile("(.*?)([GgMmTt].*?)(?=[GgMmTt]|$)");
 
     @Override
     public String getHelp() {
