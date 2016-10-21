@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.core.control.JogService;
+import com.willwinder.ugs.nbp.core.control.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
@@ -49,7 +49,7 @@ public class startup extends OptionProcessor implements Runnable {
         System.out.println("Loading LocalizingService...");
         Lookup.getDefault().lookup(LocalizingService.class);
         System.out.println("Loading JogService...");
-        Lookup.getDefault().lookup(JogService.class);
+        Lookup.getDefault().lookup(JogActionService.class);
         System.out.println("Loading ActionService...");
         Lookup.getDefault().lookup(RunActionService.class);
         System.out.println("Loading MacroService...");

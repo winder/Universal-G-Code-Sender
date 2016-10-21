@@ -135,7 +135,7 @@ public class AbstractControllerTest {
         mockListener.messageForConsole(anyObject(), EasyMock.anyString());
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
         EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
-        //EasyMock.expect(instance.isCommOpen()).andReturn(true).once();
+        EasyMock.expect(instance.isCommOpen()).andReturn(false).once();
         EasyMock.expect(instance.isCommOpen()).andReturn(true).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {

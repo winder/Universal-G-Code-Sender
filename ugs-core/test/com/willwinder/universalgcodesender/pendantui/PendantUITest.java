@@ -70,7 +70,7 @@ public class PendantUITest {
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 5. Adjust machine location.
-        mockBackend.adjustManualLocation(1, 2, 3, 4.0, UnitUtils.Units.UNKNOWN);
+        mockBackend.adjustManualLocation(1, 2, 3, 4.0, 1.0, UnitUtils.Units.UNKNOWN);
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 6. Get system state

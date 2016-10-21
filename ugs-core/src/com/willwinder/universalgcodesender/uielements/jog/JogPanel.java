@@ -60,7 +60,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private final BackendAPI backend;
     private final JogService jogService;
 
-    private boolean statusUpdated = false;
     private final boolean showKeyboardToggle;
 
     public JogPanel(BackendAPI backend, JogService jogService, boolean showKeyboardToggle) {
@@ -98,6 +97,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     private void initComponents() {
+        unitButton.setText(getUnits().abbreviation);
+
         feedRateSpinner.setModel(new SpinnerNumberModel(10, null, null, 10));
 
         keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
@@ -153,18 +154,14 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
         syncWithJogService();
 
-        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
-        updateUnitButton(unitsAreMM);
+        updateUnitButton();
 
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
                 updateManualControls(false);
-                statusUpdated = false;
                 break;
             case COMM_IDLE:
-                //if (statusUpdated) {
-                    updateManualControls(true);
-                //}
+                updateManualControls(true);
                 break;
             case COMM_SENDING:
                 updateManualControls(false);
@@ -175,12 +172,13 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
-    private void updateUnitButton(boolean unitsAreMM) {
-        if (unitsAreMM) {
-            unitButton.setText(Units.MM.abbreviation);
+    private void updateUnitButton() {
+        if (getUnits() == Units.MM) {
+            jogService.setUnits(Units.INCH);
         } else {
-            unitButton.setText(Units.MM.abbreviation);
+            jogService.setUnits(Units.MM);
         }
+        unitButton.setText(getUnits().abbreviation);
     }
 
     public void increaseStepActionPerformed() {
@@ -243,12 +241,9 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        if (!statusUpdated) {
-            if (backend.isConnected()) {
-                updateManualControls(true);
-            }
+        if (backend.isConnected()) {
+            updateManualControls(true);
         }
-        statusUpdated = true;
     }
 
     public void saveSettings() {
@@ -258,8 +253,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     public void loadSettings() {
         syncWithJogService();
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        boolean unitsAreMM = getUnits() == Units.MM;
-        updateUnitButton(unitsAreMM);
+        updateUnitButton();
     }
 
     private Units getUnits() {
@@ -326,7 +320,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void unitButtonActionPerformed() {
-        updateUnitButton(!unitButton.getText().equals(Units.MM.abbreviation));
+        updateUnitButton();
     }
 
     public void updateManualControls(boolean enabled) {
