@@ -615,6 +615,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
         });
 
+        keyboardMovementPanel.setEnabled(false);
         keyboardMovementPanel.setPreferredSize(new java.awt.Dimension(247, 180));
 
         stepSizeSpinner.setModel(new StepSizeSpinnerModel(1.0, 0.0, null, 1.0));
@@ -730,8 +731,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
 
         feedRateLabel.setText("Feed rate:");
+        feedRateLabel.setEnabled(false);
 
         feedRateSpinner.setModel(new javax.swing.SpinnerNumberModel(10, null, null, 10));
+        feedRateSpinner.setEnabled(false);
 
         org.jdesktop.layout.GroupLayout keyboardMovementPanelLayout = new org.jdesktop.layout.GroupLayout(keyboardMovementPanel);
         keyboardMovementPanel.setLayout(keyboardMovementPanelLayout);
@@ -1693,7 +1696,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.jogService.setStepSize(getSpinnerValue(stepSizeSpinner));
             this.jogService.setStepSizeZ(getSpinnerValue(stepSizeSpinner));
             this.jogService.setUnits(getSelectedUnits());
-            this.jogService.setFeedRate((double)this.feedRateSpinner.getValue());
+            this.jogService.setFeedRate(getSpinnerValue(feedRateSpinner));
             this.jogService.adjustManualLocation(x, y, z);
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
