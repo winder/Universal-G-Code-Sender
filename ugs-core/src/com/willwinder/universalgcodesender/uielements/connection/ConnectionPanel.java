@@ -113,6 +113,8 @@ public class ConnectionPanel extends JPanel implements UGSEventListener, Control
         add(machineStatus, "grow");
         add(currentFile, "grow");
         add(sendStatusPanel, "grow");
+        jogPanel.setBorder(BorderFactory.createTitledBorder(
+                Localization.getString("mainWindow.swing.keyboardMovementPanel")));
         add(jogPanel, "grow");
     }
 

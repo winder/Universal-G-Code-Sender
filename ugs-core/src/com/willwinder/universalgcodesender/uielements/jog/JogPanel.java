@@ -63,8 +63,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private final boolean showKeyboardToggle;
 
     public JogPanel(BackendAPI backend, JogService jogService, boolean showKeyboardToggle) {
-        setBorder(BorderFactory.createTitledBorder(
-                Localization.getString("mainWindow.swing.keyboardMovementPanel")));
         this.backend = backend;
         this.showKeyboardToggle = showKeyboardToggle;
 
