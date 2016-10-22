@@ -24,6 +24,7 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
 import com.willwinder.universalgcodesender.uielements.action.ActionPanel;
 import com.willwinder.universalgcodesender.uielements.command.CommandPanel;
@@ -85,8 +86,9 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("ActionButtonPanel", new ActionButtonPanel(backend)));
         panel.add(frameLauncherButton("ActionPanel", new ActionPanel(backend)));
         panel.add(frameLauncherButton("CommandPanel", new CommandPanel(backend)));
-        panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend)));
-        panel.add(frameLauncherButton("JogPanel", new JogPanel(backend)));
+        panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend, new JogService(backend))));
+        panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
+        panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
 
         // Display the main frame.

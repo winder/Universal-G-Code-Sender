@@ -117,6 +117,7 @@
                         <package>com.willwinder.universalgcodesender.model</package>
                         <package>com.willwinder.universalgcodesender.model.GUIBackend</package>
                         <package>com.willwinder.universalgcodesender.pendantui</package>
+                        <package>com.willwinder.universalgcodesender.services</package>
                         <package>com.willwinder.universalgcodesender.types</package>
                         <package>com.willwinder.universalgcodesender.uielements</package>
                         <package>com.willwinder.universalgcodesender.uielements.action</package>

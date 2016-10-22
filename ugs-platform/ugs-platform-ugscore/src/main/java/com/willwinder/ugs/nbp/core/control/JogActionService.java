@@ -22,136 +22,26 @@ import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.Utils.Units;
-import java.awt.Component;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.services.JogService;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
-import java.util.UUID;
-import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
-import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import static org.openide.util.NbBundle.getMessage;
-import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
-import static org.openide.util.NbBundle.getMessage;
 
 /**
  *
  * @author wwinder
  */
-@ServiceProvider(service=JogService.class, position=1) 
-//@ServiceProvider(service = StatusLineElementProvider.class, position=1)
-public class JogService implements StatusLineElementProvider {
-    private double stepSize = 1;
-    private Units units;
+@ServiceProvider(service=JogActionService.class) 
+public class JogActionService {
+    private JogService jogService;
 
-    private BackendAPI backend;
-
-    public JogService() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        String abbr = backend.getSettings().getDefaultUnits();
-        this.setUnits(Units.getUnit(abbr));
-
+    public JogActionService() {
+        jogService = CentralLookup.getDefault().lookup(JogService.class);
         initActions();
-    }
-
-    private void changed() {
-        NbPreferences.forModule(JogService.class).put("changed", UUID.randomUUID().toString());
-    }
-
-    @Override
-    public Component getStatusLineElement() {
-        return null;
-    }
-
-    public void increaseStepSize() {
-        if (stepSize >= 1) {
-            stepSize++;
-        } else if (stepSize >= 0.1) {
-            stepSize = stepSize + 0.1;
-        } else if (stepSize >= 0.01) {
-            stepSize = stepSize + 0.01;
-        } else {
-            stepSize = 0.01;
-        }
-        changed();
-    }
-
-    public void decreaseStepSize() {
-        if (stepSize > 1) {
-            stepSize--;
-        } else if (stepSize > 0.1) {
-            stepSize = stepSize - 0.1;
-        } else if (stepSize > 0.01) {
-            stepSize = stepSize - 0.01;
-        }
-        changed();
-    }
-
-    public void divideStepSize() {
-        if (stepSize > 100) {
-            stepSize = 100;
-        } else if (stepSize <= 100 && stepSize > 10) {
-            stepSize = 10;
-        } else if (stepSize <= 10 && stepSize > 1) {
-            stepSize = 1;
-        } else if (stepSize <= 1 && stepSize > 0.1) {
-            stepSize = 0.1;
-        } else if (stepSize <= 0.1 ) {
-            stepSize = 0.01;
-        }
-        changed();
-    }
-
-    public void multiplyStepSize() {
-        if (stepSize < 0.01) {
-            stepSize = 0.01;
-        } else if (stepSize >= 0.01 && stepSize < 0.1) {
-            stepSize = 0.1;
-        }  else if (stepSize >= 0.1 && stepSize < 1) {
-            stepSize = 1;
-        }  else if (stepSize >= 1 && stepSize < 10) {
-            stepSize = 10;
-        }  else if (stepSize >= 10) {
-            stepSize = 100;
-        }
-        changed();
-    }
-
-    public void setStepSize(double size) {
-        this.stepSize = size;
-        changed();
-    }
-
-    public double getStepSize() {
-        return this.stepSize;
-    }
-
-    public void setUnits(Units units) {
-        this.units = units;
-        changed();
-    }
-    
-    public Units getUnits() {
-        return this.units;
-    }
-    
-    public void adjustManualLocation(int x, int y, int z) {
-        try {
-            this.backend.adjustManualLocation(x, y, z, stepSize, units);
-        } catch (Exception e) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
-        }
-    }
-
-    public boolean canJog() {
-        return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
     }
 
     /**
@@ -170,17 +60,17 @@ public class JogService implements StatusLineElementProvider {
             String menuPath = "Menu/" + category + "/Jog";
             
             ars.registerAction(Localization.getString("jogging.xPlus") ,
-                    category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(this, 1, 0, 0));
+                    category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(jogService, 1, 0, 0));
             ars.registerAction(Localization.getString("jogging.xMinus"),
-                    category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(this,-1, 0, 0));
+                    category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(jogService,-1, 0, 0));
             ars.registerAction(Localization.getString("jogging.yPlus") ,
-                    category, localCategory, "M-UP"    , menuPath, localized, new JogAction(this, 0, 1, 0));
+                    category, localCategory, "M-UP"    , menuPath, localized, new JogAction(jogService, 0, 1, 0));
             ars.registerAction(Localization.getString("jogging.yMinus"),
-                    category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(this, 0,-1, 0));
+                    category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(jogService, 0,-1, 0));
             ars.registerAction(Localization.getString("jogging.zPlus") ,
-                    category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(this, 0, 0, 1));
+                    category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(jogService, 0, 0, 1));
             ars.registerAction(Localization.getString("jogging.zMinus"),
-                    category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(this, 0, 0,-1));
+                    category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(jogService, 0, 0,-1));
 
             localized = String.format("Menu/%s/%s/%s",
                     Localization.getString("platform.menu.machine"),
@@ -188,29 +78,29 @@ public class JogService implements StatusLineElementProvider {
                     Localization.getString("platform.menu.jog.size"));
             menuPath = menuPath + "/Step Size";
             ars.registerAction("10",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 10));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, 10));
             ars.registerAction("1",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 1));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, 1));
             ars.registerAction("0.1",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.1));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, 0.1));
             ars.registerAction("0.01",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.01));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, 0.01));
             ars.registerAction("0.001",
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, 0.001));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, 0.001));
 
             ars.registerAction(Localization.getString("jogging.divide"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '/'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, '/'));
             ars.registerAction(Localization.getString("jogging.multiply"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '*'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, '*'));
             ars.registerAction(Localization.getString("jogging.decrease"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '-'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, '-'));
             ars.registerAction(Localization.getString("jogging.increase"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, '+'));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, '+'));
 
             ars.registerAction(Localization.getString("mainWindow.swing.inchRadioButton"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, Units.INCH));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, Units.INCH));
             ars.registerAction(Localization.getString("mainWindow.swing.mmRadioButton"),
-                    category, localCategory, "" , menuPath, localized, new JogSizeAction(this, Units.MM));
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, Units.MM));
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

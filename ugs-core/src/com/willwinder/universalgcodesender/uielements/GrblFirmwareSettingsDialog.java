@@ -29,7 +29,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;

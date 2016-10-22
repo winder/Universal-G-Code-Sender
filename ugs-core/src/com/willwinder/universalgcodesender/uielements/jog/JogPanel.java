@@ -1,3 +1,21 @@
+/*
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.uielements.jog;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -5,22 +23,29 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.Utils;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.uielements.IChanged;
+import javax.swing.BorderFactory;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.KeyEvent;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.SpinnerNumberModel;
 
-public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
+public class JogPanel extends JPanel implements UGSEventListener, ControllerListener, IChanged {
 
     private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
     private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
     private final JLabel stepSizeLabel = new JLabel(Localization.getString("mainWindow.swing.stepSizeLabel"));
+    private final JLabel stepSizeLabelZ = new JLabel(Localization.getString("mainWindow.swing.stepSizeZLabel"));
+
+    private final StepSizeSpinner feedRateSpinner = new StepSizeSpinner();
+    private final JLabel feedRateLabel = new JLabel(Localization.getString("mainWindow.swing.feedRateLabel"));
 
     private final JButton unitButton = new JButton();
     private final JCheckBox keyboardMovementEnabled = new JCheckBox(Localization.getString("mainWindow.swing.arrowMovementEnabled"));
@@ -33,47 +58,72 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private final JButton zPlusButton = new JButton("Z+");
 
     private final BackendAPI backend;
+    private final JogService jogService;
 
-    private boolean statusUpdated = false;
+    private final boolean showKeyboardToggle;
 
-    /**
-     * No-Arg constructor to make this control work in the UI builder tools
-     * @deprecated Use constructor with BackendAPI.
-     */
-    @Deprecated
-    public JogPanel() {
-        this(null);
-    }
-
-    public JogPanel(BackendAPI backend) {
-        setBorder(BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
+    public JogPanel(BackendAPI backend, JogService jogService, boolean showKeyboardToggle) {
         this.backend = backend;
+        this.showKeyboardToggle = showKeyboardToggle;
+
+        this.jogService = jogService;
+        if (jogService != null) {
+            jogService.addChangeListener(this);
+        }
+
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
             this.backend.addControllerListener(this);
             loadSettings();
         }
-        unitButton.addActionListener(e -> JogPanel.this.unitButtonActionPerformed());
-        xPlusButton.addActionListener(e -> JogPanel.this.xPlusButtonActionPerformed());
-        xMinusButton.addActionListener(e -> JogPanel.this.xMinusButtonActionPerformed());
-        yPlusButton.addActionListener(e -> JogPanel.this.yPlusButtonActionPerformed());
-        yMinusButton.addActionListener(e -> JogPanel.this.yMinusButtonActionPerformed());
-        zPlusButton.addActionListener(e -> JogPanel.this.zPlusButtonActionPerformed());
-        zMinusButton.addActionListener(e -> JogPanel.this.zMinusButtonActionPerformed());
+
         initComponents();
-        addKeyboardListener();
+
+        // Update jog service whenever the spinner is changed.
+        xyStepSizeSpinner.addChangeListener(cl -> jogService.setStepSize(xyStepSizeSpinner.getValue()));
+        zStepSizeSpinner.addChangeListener(cl -> jogService.setStepSize(zStepSizeSpinner.getValue()));
+        feedRateSpinner.addChangeListener(cl -> jogService.setFeedRate(feedRateSpinner.getValue()));
+
+        // Hookup buttons to actions.
+        unitButton.addActionListener(e -> unitButtonActionPerformed());
+        xPlusButton.addActionListener(e -> xPlusButtonActionPerformed());
+        xMinusButton.addActionListener(e -> xMinusButtonActionPerformed());
+        yPlusButton.addActionListener(e -> yPlusButtonActionPerformed());
+        yMinusButton.addActionListener(e -> yMinusButtonActionPerformed());
+        zPlusButton.addActionListener(e -> zPlusButtonActionPerformed());
+        zMinusButton.addActionListener(e -> zMinusButtonActionPerformed());
     }
 
     private void initComponents() {
+        unitButton.setText(getUnits().abbreviation);
+
+        feedRateSpinner.setModel(new SpinnerNumberModel(10, null, null, 10));
+
+        keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
+                backend.getSettings().isManualModeEnabled():
+                false);
+
         // MigLayout... 3rd party layout library.
         MigLayout layout = new MigLayout("fill, wrap 4");
         setLayout(layout);
-        add(keyboardMovementEnabled, "al left, span 4");
+
+        if (showKeyboardToggle) {
+            add(keyboardMovementEnabled, "al left, span 4");
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new MigLayout("ins 0, fill, wrap 2"));
+
+        panel.add(stepSizeLabel);
+        panel.add(xyStepSizeSpinner, "growx");
+        panel.add(stepSizeLabelZ);
+        panel.add(zStepSizeSpinner, "growx");
+        panel.add(feedRateLabel);
+        panel.add(feedRateSpinner, "growx");
 
         add(unitButton, "grow");
-//        add(stepSizeLabel, "al right");
-        add(xyStepSizeSpinner, "span 3, split 2, al left, w 75!");
-        add(zStepSizeSpinner, "w 75!");
+        add(panel, "grow, span 3");
+
 
         add(xMinusButton, "spany 2, w 50!, h 50!");
         add(yPlusButton, "w 50!, h 50!");
@@ -85,81 +135,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         updateManualControls(false);
     }
 
-    private void addKeyboardListener() {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .addKeyEventDispatcher(new KeyEventDispatcher() {
-                    @Override
-                    public boolean dispatchKeyEvent(KeyEvent e) {
-                        // Check context.
-                        if (((isKeyboardMovementEnabled()) &&
-                                e.getID() == KeyEvent.KEY_PRESSED)) {
-                            switch (e.getKeyCode()) {
-                                case KeyEvent.VK_RIGHT:
-                                case KeyEvent.VK_KP_RIGHT:
-                                case KeyEvent.VK_NUMPAD6:
-                                    xPlusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_LEFT:
-                                case KeyEvent.VK_KP_LEFT:
-                                case KeyEvent.VK_NUMPAD4:
-                                    xMinusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_UP:
-                                case KeyEvent.VK_KP_UP:
-                                case KeyEvent.VK_NUMPAD8:
-                                    yPlusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_DOWN:
-                                case KeyEvent.VK_KP_DOWN:
-                                case KeyEvent.VK_NUMPAD2:
-                                    yMinusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_PAGE_UP:
-                                case KeyEvent.VK_NUMPAD9:
-                                    zPlusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_PAGE_DOWN:
-                                case KeyEvent.VK_NUMPAD3:
-                                    zMinusButtonActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_ADD:
-                                    increaseStepActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_SUBTRACT:
-                                    decreaseStepActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_DIVIDE:
-                                    divideStepActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_MULTIPLY:
-                                    multiplyStepActionPerformed();
-                                    e.consume();
-                                    return true;
-                                case KeyEvent.VK_INSERT:
-                                case KeyEvent.VK_NUMPAD0:
-                                    //resetCoordinatesButtonActionPerformed(null);
-                                    e.consume();
-                                    return true;
-                                default:
-                                    break;
-                            }
-                        }
-
-                        return false;
-                    }
-                });
-    }
-
-
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isStateChangeEvent()) {
@@ -167,21 +142,24 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
+    private void syncWithJogService() {
+        xyStepSizeSpinner.setValue(jogService.getStepSize());// backend.getSettings().getManualModeStepSize());
+        zStepSizeSpinner.setValue(jogService.getStepSizeZ());// backend.getSettings().getzJogStepSize());
+        feedRateSpinner.setValue(jogService.getFeedRate()); //backend.getSettings().getJogFeedRate());
+    }
+
     private void updateControls() {
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
-        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
-        updateUnitButton(unitsAreMM);
+        syncWithJogService();
+
+        updateUnitButton();
 
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
                 updateManualControls(false);
-                statusUpdated = false;
                 break;
             case COMM_IDLE:
-                if (statusUpdated) {
-                    updateManualControls(true);
-                }
+                updateManualControls(true);
                 break;
             case COMM_SENDING:
                 updateManualControls(false);
@@ -192,28 +170,33 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
-    private void updateUnitButton(boolean unitsAreMM) {
-        if (unitsAreMM) {
-            unitButton.setText(Units.MM.abbreviation);
+    private void updateUnitButton() {
+        if (getUnits() == Units.MM) {
+            jogService.setUnits(Units.INCH);
         } else {
-            unitButton.setText(Units.MM.abbreviation);
+            jogService.setUnits(Units.MM);
         }
+        unitButton.setText(getUnits().abbreviation);
     }
 
-    private void increaseStepActionPerformed() {
-        xyStepSizeSpinner.increaseStep();
+    public void increaseStepActionPerformed() {
+        jogService.increaseStepSize();
+        xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
-    private void decreaseStepActionPerformed() {
-        xyStepSizeSpinner.decreaseStep();
+    public void decreaseStepActionPerformed() {
+        jogService.decreaseStepSize();
+        xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
-    private void multiplyStepActionPerformed() {
-        xyStepSizeSpinner.multiplyStep();
+    public void multiplyStepActionPerformed() {
+        jogService.multiplyStepSize();
+        xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
-    private void divideStepActionPerformed() {
-        xyStepSizeSpinner.divideStep();
+    public void divideStepActionPerformed() {
+        jogService.divideStepSize();
+        xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
     @Override
@@ -256,31 +239,23 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        if (!statusUpdated) {
-            if (backend.isConnected()) {
-                updateManualControls(true);
-            }
+        if (backend.isConnected()) {
+            updateManualControls(true);
         }
-        statusUpdated = true;
     }
 
     public void saveSettings() {
-        backend.getSettings().setDefaultUnits(unitButton.getText().equals(Units.INCH.abbreviation) ? Units.INCH.abbreviation : Units.MM.abbreviation);
-        backend.getSettings().setManualModeStepSize(getxyStepSize());
-        backend.getSettings().setzJogStepSize(getzStepSize());
         backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
     }
 
     public void loadSettings() {
+        syncWithJogService();
         keyboardMovementEnabled.setSelected(backend.getSettings().isManualModeEnabled());
-        xyStepSizeSpinner.setValue(backend.getSettings().getManualModeStepSize());
-        zStepSizeSpinner.setValue(backend.getSettings().getzJogStepSize());
-        boolean unitsAreMM = backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation);
-        updateUnitButton(unitsAreMM);
+        updateUnitButton();
     }
 
-    private com.willwinder.universalgcodesender.model.Utils.Units getUnits() {
-        return unitButton.getText().equals(Units.MM.abbreviation) ? com.willwinder.universalgcodesender.model.Utils.Units.MM : com.willwinder.universalgcodesender.model.Utils.Units.INCH;
+    private Units getUnits() {
+        return jogService.getUnits();
     }
 
     private double getxyStepSize() {
@@ -301,7 +276,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public void doJog(int x, int y) {
         try {
-            backend.adjustManualLocation(x, y, 0, getxyStepSize(), getUnits());
+            jogService.adjustManualLocation(x, y, 0);
+            //backend.adjustManualLocation(x, y, 0, getxyStepSize(), getUnits());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -309,7 +285,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public void doJog(int z) {
         try {
-            backend.adjustManualLocation(0, 0, z, getzStepSize(), getUnits());
+            jogService.adjustManualLocation(0, 0, z);
+            //backend.adjustManualLocation(0, 0, z, getzStepSize(), getUnits());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -341,7 +318,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void unitButtonActionPerformed() {
-        updateUnitButton(!unitButton.getText().equals(Units.MM.abbreviation));
+        updateUnitButton();
     }
 
     public void updateManualControls(boolean enabled) {
@@ -354,10 +331,16 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zMinusButton.setEnabled(enabled);
         zPlusButton.setEnabled(enabled);
         stepSizeLabel.setEnabled(enabled);
+        stepSizeLabelZ.setEnabled(enabled);
         xyStepSizeSpinner.setEnabled(enabled);
         zStepSizeSpinner.setEnabled(enabled);
+        feedRateLabel.setEnabled(enabled);
+        feedRateSpinner.setEnabled(enabled);
         unitButton.setEnabled(enabled);
     }
 
-
+    @Override
+    public void changed() {
+        syncWithJogService();
+    }
 }

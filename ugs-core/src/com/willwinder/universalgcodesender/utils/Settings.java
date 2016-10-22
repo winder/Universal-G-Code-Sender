@@ -1,7 +1,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.annotations.Expose;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
@@ -16,6 +16,7 @@ public class Settings {
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
     private double zJogStepSize = 1;
+    private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
     private boolean verboseOutputEnabled = false;
     private boolean commandTableEnabled = false;
@@ -145,6 +146,14 @@ public class Settings {
 
     public void setzJogStepSize(double zJogStepSize) {
         this.zJogStepSize = zJogStepSize;
+    }
+
+    public double getJogFeedRate() {
+        return jogFeedRate;
+    }
+
+    public void setJogFeedRate(double jogFeedRate) {
+        this.jogFeedRate = jogFeedRate;
     }
 
     public boolean isScrollWindowEnabled() {

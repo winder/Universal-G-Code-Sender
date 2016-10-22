@@ -31,7 +31,7 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -244,7 +244,7 @@ public class PendantUI implements ControllerListener{
                 double stepSize = parseDouble(baseRequest.getParameter("stepSize"));
 
                 try {
-                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, Units.UNKNOWN);
+                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, 1, Units.UNKNOWN);
                 } catch (Exception e) {
                     logger.warning(e.getMessage());
                 }

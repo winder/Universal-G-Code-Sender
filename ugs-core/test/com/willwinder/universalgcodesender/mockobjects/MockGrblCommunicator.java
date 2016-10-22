@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013-2015 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,7 @@ package com.willwinder.universalgcodesender.mockobjects;
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.TooManyListenersException;
+import java.util.List;
 
 /**
  *
@@ -37,6 +37,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public String portName;
     public int    portRate;
     public String queuedString;
+    public List<String> queuedStrings = new ArrayList<>();
     public ArrayList<Byte>   sentBytes = new ArrayList<>();
     public Boolean open = false;
     public Boolean areActiveCommands = false;
@@ -56,6 +57,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public void resetInputsAndFunctionCalls() {
         this.portName = "";
         this.portRate = 0;
+        this.queuedStrings.clear();
         this.queuedString = "";
         this.open = false;
         
@@ -104,6 +106,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.numQueueStringForCommCalls++;
         
         this.queuedString = input;
+        this.queuedStrings.add(input);
     }
 
     @Override

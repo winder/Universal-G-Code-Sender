@@ -19,7 +19,7 @@
 
 package com.willwinder.universalgcodesender.types;
 
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -131,14 +131,14 @@ $132=200.000 (z max travel, mm)
         return "13".equals(setting);
     }
 
-    public Utils.Units getReportingUnits() {
+    public UnitUtils.Units getReportingUnits() {
         if (isReportingUnits()) {
             if ("0".equals(value)) {
-                return Utils.Units.MM;
+                return UnitUtils.Units.MM;
             } else if ("1".equals(value)) {
-                return Utils.Units.INCH;
+                return UnitUtils.Units.INCH;
             }
         }
-        return Utils.Units.UNKNOWN;
+        return UnitUtils.Units.UNKNOWN;
     }
 }

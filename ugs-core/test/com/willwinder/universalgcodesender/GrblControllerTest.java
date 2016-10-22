@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.io.IOException;
@@ -1027,15 +1028,11 @@ public class GrblControllerTest {
      * Test of rawResponseListener method, of class GrblController.
      */
     @Test
-    public void testRawResponseListener() {
+    public void testRawResponseListener() throws Exception {
         System.out.println("rawResponseListener");
         String response = "";
         GrblController instance = new GrblController(mgc);
-        try {
-            instance.openCommPort("foo", 2400);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        instance.openCommPort("foo", 2400);
         instance.rawResponseHandler("Grbl 0.8c");
         
         // TODO: Test that ok/error trigger listener events.
@@ -1089,6 +1086,36 @@ public class GrblControllerTest {
         }
         assert(2 < mgc.numSendByteImmediatelyCalls);
         assertEquals(new Byte(GrblUtils.GRBL_STATUS_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
+    }
+
+    /**
+     * Test of jogMachine method, of class AbstractController.
+     */
+    @Test
+    public void testJogMachine() throws Exception {
+        System.out.println("jogMachine");
+        GrblController instance = new GrblController(mgc);
+
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+
+        // Abstract controller should be used when grbl jog mode is disabled.
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
+        assertEquals(mgc.queuedStrings.get(2), "G20G91G0X-10Z10F11\n");
+        assertEquals(mgc.queuedStrings.get(3), "G90 G21 \n");
+
+        instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        assertEquals(mgc.queuedStrings.get(4), "G21G91G0Y10F11\n");
+        assertEquals(mgc.queuedStrings.get(5), "G90 G21 \n");
+
+        instance.rawResponseHandler("Grbl 1.1a");
+        instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
+        assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11\n");
+
+        instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+        assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11\n");
     }
 
     /**

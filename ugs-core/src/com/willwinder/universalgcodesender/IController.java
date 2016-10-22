@@ -21,13 +21,12 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Utils.Units;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.File;
 import java.io.Reader;
-import java.util.Collection;
 
 /**
  *
@@ -50,6 +49,13 @@ public interface IController {
     public void toggleCheckMode() throws Exception;
     public void viewParserState() throws Exception;
     public void issueSoftReset() throws Exception;
+
+    /**
+     * Jog control. Jogs the machine in the direction specified by vector dirX,
+     * dirY, dirZ a distance specified by stepSize * units.
+     */
+    public void jogMachine(int dirX, int dirY, int dirZ,
+            double stepSize, double feedRate, Units units) throws Exception;
 
     /*
     Overrides

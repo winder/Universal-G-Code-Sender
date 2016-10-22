@@ -43,7 +43,7 @@ import com.jogamp.opengl.glu.GLU;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.Utils;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.Overlay;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -199,11 +199,11 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
     }
     
     public void setWorkCoordinate(Position p) {
-        this.workCoord.set(p.getPositionIn(Utils.Units.MM));
+        this.workCoord.set(p.getPositionIn(UnitUtils.Units.MM));
     }
     
     public void setMachineCoordinate(Position p) {
-        this.machineCoord.set(p.getPositionIn(Utils.Units.MM));
+        this.machineCoord.set(p.getPositionIn(UnitUtils.Units.MM));
     }
 
     // ------ Implement methods declared in GLEventListener ------

@@ -22,7 +22,7 @@ package com.willwinder.universalgcodesender.model;
  *
  * @author will
  */
-public class Utils {
+public class UnitUtils {
     public enum Units {
         MM("mm"),
         INCH("\""),
