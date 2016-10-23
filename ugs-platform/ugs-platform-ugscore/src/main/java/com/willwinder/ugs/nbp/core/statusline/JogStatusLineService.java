@@ -18,14 +18,12 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.core.control.JogService;
+import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.services.JogService;
+import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.awt.Component;
-import java.util.prefs.PreferenceChangeEvent;
-import java.util.prefs.PreferenceChangeListener;
 import javax.swing.JLabel;
 import org.openide.awt.StatusLineElementProvider;
-import org.openide.util.Lookup;
-import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -36,20 +34,15 @@ import org.openide.util.lookup.ServiceProvider;
 public class JogStatusLineService implements StatusLineElementProvider {
     @Override
     public Component getStatusLineElement() {
-        return new JogStatusLine(Lookup.getDefault().lookup(JogService.class));
+        return new JogStatusLine(CentralLookup.getDefault().lookup(JogService.class));
     }
 
-    private class JogStatusLine extends JLabel implements PreferenceChangeListener {
+    private class JogStatusLine extends JLabel implements IChanged {
         private static final String format = "Step size: %s%s ";
-        private final JogService jogService;
+        private JogService jogService;
         public JogStatusLine(JogService js) {
             jogService = js;
-            NbPreferences.forModule(JogService.class).addPreferenceChangeListener(this);
-            setText();
-        }
-
-        @Override
-        public void preferenceChange(PreferenceChangeEvent evt) {
+            jogService.addChangeListener(this);
             setText();
         }
 
@@ -57,6 +50,11 @@ public class JogStatusLineService implements StatusLineElementProvider {
             setText(String.format(format,
                     jogService.getStepSize(),
                     jogService.getUnits().abbreviation));
+        }
+
+        @Override
+        public void changed() {
+            setText();
         }
     }
 }

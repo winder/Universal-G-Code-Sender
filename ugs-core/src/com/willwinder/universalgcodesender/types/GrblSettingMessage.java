@@ -36,10 +36,16 @@ public class GrblSettingMessage {
     final private static Pattern MESSAGE_REGEX =
             Pattern.compile("\\$(\\d+)=([^ ]*)\\s?\\(?([^\\)]*)?\\)?");
 
+    // Setting number
     private String setting;
+    // Setting value
     private String value;
+    // Units of setting
     private String units;
+    // Long description of setting
     private String description;
+    // Short description of setting
+    private String shortDescription;
 
 /* Sample settings.
 $0=10 (step pulse, usec)
@@ -85,13 +91,13 @@ $132=200.000 (z max travel, mm)
         String descriptionStr = "";
         if (!StringUtils.isEmpty(description)) {
             if (!StringUtils.isEmpty(units)) {
-                descriptionStr = " (" + units + ", " + description + ")";
+                descriptionStr = " (" + shortDescription + ", " + units + ")";
             } else {
                 descriptionStr = " (" + description + ")";
             }
         }
 
-        return String.format("$%s=%s%s", setting, value, descriptionStr);
+        return String.format("$%s = %s   %s", setting, value, descriptionStr);
     }
 
     public String getSetting() {
@@ -121,7 +127,8 @@ $132=200.000 (z max travel, mm)
                 String[] lookup = lookups.lookup(setting);
                 if (lookup != null) {
                     units = lookup[2];
-                    description = lookup[1] + ": " + lookup[3];
+                    description = lookup[3];
+                    shortDescription = lookup[1];
                 }
             }
         }
