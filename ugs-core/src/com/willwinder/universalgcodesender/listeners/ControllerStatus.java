@@ -29,8 +29,12 @@ public class ControllerStatus {
     private final Position machineCoord;
     private final Position workCoord;
     private final Position workCoordinateOffset;
-    private final Double feed;
+    private final Double feedSpeed;
+    private final Double spindleSpeed;
     private final OverridePercents overrides;
+    private final EnabledPins pins;
+    private final AccessoryStates accessoryStates;
+
 
     /**
      * Baseline constructor. This data should always be present. Represents the
@@ -40,23 +44,25 @@ public class ControllerStatus {
      * @param workCoord controller work coordinates
      */
     public ControllerStatus(String state, Position machineCoord, Position workCoord) {
-        this(state, machineCoord, workCoord, null, null, null);
+        this(state, machineCoord, workCoord, null, null, null, null, null, null);
     }
 
     /**
      * Additional parameters
-     * @param state
-     * @param machineCoord
-     * @param workCoord 
      */
-    public ControllerStatus(String state, Position machineCoord, Position workCoord, 
-            Double feed, OverridePercents overrides, Position workCoordinateOffset) {
+    public ControllerStatus(String state, Position machineCoord,
+            Position workCoord, Double feedSpeed, Double spindleSpeed,
+            OverridePercents overrides, Position workCoordinateOffset,
+            EnabledPins pins, AccessoryStates states) {
         this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
-        this.feed = feed;
+        this.feedSpeed = feedSpeed;
+        this.spindleSpeed = spindleSpeed;
         this.overrides = overrides;
+        this.pins = pins;
+        this.accessoryStates = states;
     }
 
     public String getState() {
@@ -75,12 +81,62 @@ public class ControllerStatus {
         return workCoordinateOffset;
     }
 
-    public Double getFeed() {
-        return feed;
+    public Double getFeedSpeed() {
+        return feedSpeed;
+    }
+
+    public Double getSpindleSpeed() {
+        return spindleSpeed;
     }
 
     public OverridePercents getOverrides() {
         return overrides;
+    }
+
+    public EnabledPins getEnabledPins() {
+        return pins;
+    }
+
+    public AccessoryStates getAccessoryStates() {
+        return accessoryStates;
+    }
+
+    public static class EnabledPins {
+        final public boolean X;
+        final public boolean Y;
+        final public boolean Z;
+        final public boolean Probe;
+        final public boolean Door;
+        final public boolean Hold;
+        final public boolean Reset;
+        final public boolean Start;
+
+        public EnabledPins(String enabled) {
+            String enabledUpper = enabled.toUpperCase();
+            X = enabledUpper.contains("X");
+            Y = enabledUpper.contains("Y");
+            Z = enabledUpper.contains("Z");
+            Probe = enabledUpper.contains("P");
+            Door = enabledUpper.contains("D");
+            Hold = enabledUpper.contains("H");
+            Reset = enabledUpper.contains("R");
+            Start = enabledUpper.contains("S");
+        }
+    }
+
+    public static class AccessoryStates {
+        final public boolean SpindleCW;
+        final public boolean SpindleCCW;
+        final public boolean Flood;
+        final public boolean Mist;
+
+        public AccessoryStates(String enabled) {
+            String enabledUpper = enabled.toUpperCase();
+            SpindleCW = enabledUpper.contains("S");
+            SpindleCCW = enabledUpper.contains("C");
+            Flood = enabledUpper.contains("F");
+            Mist = enabledUpper.contains("M");
+        }
     }
 
     public static class OverridePercents {

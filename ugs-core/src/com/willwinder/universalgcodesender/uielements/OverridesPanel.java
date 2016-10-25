@@ -23,12 +23,16 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -40,6 +44,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -172,9 +178,11 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
         // Toggle actions
         toggleSpindle.setAction(new RealTimeAction("spindle", Overrides.CMD_TOGGLE_SPINDLE, backend));
+        toggleSpindle.setBackground(Color.RED);
         toggleFloodCoolant.setAction(new RealTimeAction("flood", Overrides.CMD_TOGGLE_FLOOD_COOLANT, backend));
+        toggleFloodCoolant.setBackground(Color.RED);
         toggleMistCoolant.setAction(new RealTimeAction("mist", Overrides.CMD_TOGGLE_MIST_COOLANT, backend));
-        
+        toggleMistCoolant.setBackground(Color.RED);
 
         // Layout components
         this.setLayout(new MigLayout("wrap 4"));
@@ -237,6 +245,18 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
             this.feedSpeed.setText(status.getOverrides().feed + "%");
             this.spindleSpeed.setText(status.getOverrides().spindle + "%");
             this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+        }
+        if (status.getAccessoryStates() != null) {
+            Color defaultBackground = UIManager.getColor("Panel.background");
+            AccessoryStates states = status.getAccessoryStates();
+
+            toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
+            toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
+            toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
+
+            toggleSpindle.setOpaque(true);
+            toggleFloodCoolant.setOpaque(true);
+            toggleMistCoolant.setOpaque(true);
         }
     }
 

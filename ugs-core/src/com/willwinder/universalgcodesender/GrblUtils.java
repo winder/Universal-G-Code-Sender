@@ -25,10 +25,13 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -294,11 +297,20 @@ public class GrblUtils {
             Position MPos = null;
             Position WPos = null;
             Position WCO = null;
+            if (status.contains("Ov:")) {
+                System.out.println("blah");
+            }
+
             OverridePercents overrides = null;
-            Double feed = null;
+            EnabledPins pins = null;
+            AccessoryStates accessoryStates = null;
+            Double feedSpeed = null;
+            Double spindleSpeed = null;
+
+            boolean isOverrideReport = false;
 
             // Parse out the status messages.
-            for (String part : status.replace('>', ' ').split("\\|")) {
+            for (String part : status.substring(0, status.length()-1).split("\\|")) {
                 if (part.startsWith("<")) {
                     int idx = part.indexOf(':');
                     if (idx == -1)
@@ -316,6 +328,7 @@ public class GrblUtils {
                     WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
                 }
                 else if (part.startsWith("Ov:")) {
+                    isOverrideReport = true;
                     String[] overrideParts = part.substring(3).trim().split(",");
                     if (overrideParts.length == 3) {
                         overrides = new OverridePercents(
@@ -325,7 +338,20 @@ public class GrblUtils {
                     }
                 }
                 else if (part.startsWith("F:")) {
-                    feed = Double.parseDouble(part.substring(2));
+                    feedSpeed = Double.parseDouble(part.substring(2));
+                }
+                else if (part.startsWith("FS:")) {
+                    String[] parts = part.substring(3).split(",");
+                    feedSpeed = Double.parseDouble(parts[0]);
+                    spindleSpeed = Double.parseDouble(parts[1]);
+                }
+                else if (part.startsWith("Pn:")) {
+                    String value = part.substring(part.indexOf(':')+1);
+                    pins = new EnabledPins(value);
+                }
+                else if (part.startsWith("A:")) {
+                    String value = part.substring(part.indexOf(':')+1);
+                    accessoryStates = new AccessoryStates(value);
                 }
             }
 
@@ -347,7 +373,21 @@ public class GrblUtils {
                 MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
             }
 
-            return new ControllerStatus(state, MPos, WPos, feed, overrides, WCO); 
+            if (!isOverrideReport && lastStatus != null) {
+                overrides = lastStatus.getOverrides();
+                pins = lastStatus.getEnabledPins();
+                accessoryStates = lastStatus.getAccessoryStates();
+            }
+            else if (isOverrideReport) {
+                if (pins == null) {
+                    pins = new EnabledPins("");
+                }
+                if (accessoryStates == null) {
+                    accessoryStates = new AccessoryStates("");
+                }
+            }
+
+            return new ControllerStatus(state, MPos, WPos, feedSpeed, spindleSpeed, overrides, WCO, pins, accessoryStates); 
         }
     }
 

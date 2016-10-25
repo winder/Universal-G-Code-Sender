@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
-import javax.vecmath.Point3d;
 import static org.junit.Assert.*;
 
 import com.willwinder.universalgcodesender.model.*;

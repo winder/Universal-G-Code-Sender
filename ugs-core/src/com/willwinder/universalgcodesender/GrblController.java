@@ -502,49 +502,51 @@ public class GrblController extends AbstractController {
     
     // No longer a listener event
     private void handleStatusString(final String string) {
-        if (this.capabilities != null) {
-            controllerStatus = GrblUtils.getStatusFromStatusString(
-                    controllerStatus, string, capabilities, getReportingUnits());
-
-            grblState = controllerStatus.getState();
-            machineLocation = controllerStatus.getMachineCoord();
-            workLocation = controllerStatus.getWorkCoord();
-
-            // Prior to GRBL v1.1 the GUI is required to keep checking locations
-            // to verify that the machine has come to a complete stop after
-            // pausing.
-            if (isCanceling) {
-                if (attemptsRemaining > 0 && lastLocation != null) {
-                    attemptsRemaining--;
-                    if (grblState.equals("Hold") && lastLocation.equals(machineLocation)) {
-                        try {
-                            this.issueSoftReset();
-                        } catch(Exception e) {
-                            this.errorMessageForConsole(e.getMessage());
-                        }
-                        isCanceling = false;
-                    }
-                    if (isCanceling && attemptsRemaining == 0) {
-                        this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset"));
-                    }
-                }
-                lastLocation = new Position(machineLocation);
-            }
-            
-            // Save max Z location
-            if (machineLocation != null) {
-                Units u = GrblUtils.getUnitsFromStatusString(string, capabilities);
-                double zLocationMM = machineLocation.z;
-                if (u == Units.INCH)
-                    zLocationMM *= 26.4;
-                
-                if (zLocationMM > this.maxZLocationMM) {
-                    maxZLocationMM = zLocationMM;
-                }
-            }
-
-            dispatchStatusString(controllerStatus);
+        if (this.capabilities == null) {
+            return;
         }
+        controllerStatus = GrblUtils.getStatusFromStatusString(
+                controllerStatus, string, capabilities, getReportingUnits());
+
+        grblState = controllerStatus.getState();
+        machineLocation = controllerStatus.getMachineCoord();
+        workLocation = controllerStatus.getWorkCoord();
+
+        // Prior to GRBL v1.1 the GUI is required to keep checking locations
+        // to verify that the machine has come to a complete stop after
+        // pausing.
+        if (isCanceling) {
+            if (attemptsRemaining > 0 && lastLocation != null) {
+                attemptsRemaining--;
+                if (grblState.equals("Hold") && lastLocation.equals(machineLocation)) {
+                    try {
+                        this.issueSoftReset();
+                    } catch(Exception e) {
+                        this.errorMessageForConsole(e.getMessage());
+                    }
+                    isCanceling = false;
+                }
+                if (isCanceling && attemptsRemaining == 0) {
+                    this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset"));
+                }
+            }
+            lastLocation = new Position(machineLocation);
+        }
+        
+        // Save max Z location
+        if (machineLocation != null && this.getUnitsCode() != null) {
+            Units u = this.getUnitsCode().toUpperCase().equals("G21") ?
+                    Units.MM : Units.INCH;
+            double zLocationMM = machineLocation.z;
+            if (u == Units.INCH)
+                zLocationMM *= 26.4;
+            
+            if (zLocationMM > this.maxZLocationMM) {
+                maxZLocationMM = zLocationMM;
+            }
+        }
+
+        dispatchStatusString(controllerStatus);
     }
     
     @Override
