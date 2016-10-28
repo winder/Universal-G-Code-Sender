@@ -34,6 +34,7 @@ public class Settings {
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
+    private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
 
     //vvv deprecated fields, still here to not break the old save files
     @Expose(serialize = false)
@@ -309,13 +310,13 @@ public class Settings {
         }
     }
 
-        public String getLanguage() {
-            return this.language;
-        }
-        
-        public void setLanguage (String language) {
-            this.language = language;
-        }
+    public String getLanguage() {
+        return this.language;
+    }
+    
+    public void setLanguage (String language) {
+        this.language = language;
+    }
 
     public boolean isAutoConnectEnabled() {
         return autoConnect;
@@ -331,5 +332,13 @@ public class Settings {
 
     public void setAutoConnectEnabled(boolean autoConnect) {
         this.autoConnect = autoConnect;
+    }
+
+    public void setToolbarIconSize(int size) {
+        this.toolbarIconSize = size;
+    }
+
+    public int getToolbarIconSize() {
+        return this.toolbarIconSize;
     }
 }

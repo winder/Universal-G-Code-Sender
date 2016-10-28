@@ -45,13 +45,10 @@ import org.openide.windows.TopComponent;
         id = "com.willwinder.ugs.nbp.connectiontoolbar.SerialPortToolbarBox"
 )
 @ActionRegistration(
-        displayName = "#CTL_Port",
+        displayName = "Connection Toolbar",
         lazy = false
 )
 @ActionReference(path = "Toolbars/Connection", position = 0)
-
-@NbBundle.Messages("CTL_Port=Port")
-
 /**
  *
  * @author wwinder

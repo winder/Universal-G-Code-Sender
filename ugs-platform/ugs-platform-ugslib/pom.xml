@@ -121,6 +121,7 @@
                         <package>com.willwinder.universalgcodesender.types</package>
                         <package>com.willwinder.universalgcodesender.uielements</package>
                         <package>com.willwinder.universalgcodesender.uielements.action</package>
+                        <package>com.willwinder.universalgcodesender.uielements.actions</package>
                         <package>com.willwinder.universalgcodesender.uielements.command</package>
                         <package>com.willwinder.universalgcodesender.uielements.connection</package>
                         <package>com.willwinder.universalgcodesender.uielements.jog</package>
