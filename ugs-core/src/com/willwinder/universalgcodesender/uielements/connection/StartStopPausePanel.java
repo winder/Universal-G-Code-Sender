@@ -18,14 +18,12 @@
  */
 package com.willwinder.universalgcodesender.uielements.connection;
 
-import com.google.zxing.pdf417.encoder.Dimensions;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
 import com.willwinder.universalgcodesender.uielements.actions.Start;
 import com.willwinder.universalgcodesender.uielements.actions.Stop;
 import java.awt.Color;
-import java.awt.Dimension;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -105,19 +103,10 @@ public class StartStopPausePanel extends JPanel {
         pause.setIcon(new ImageIcon(getClass().getResource(
                 String.format(PAUSE_RESOURCE, size))));
 
-        //this.setMinimumSize(new Dimension(start.getWidth() * 3, start.getHeight()));
-
         this.revalidate();
-        /*
-        if (size == this.LARGE) {
-            Dimension d = new Dimension(40*3,40);
-            this.setPreferredSize(d);
-        }
-*/
     }
 
     private final void initComponents() {
-        setBackground(Color.red);
         setLayout(new MigLayout("wrap 3, inset 0"));
 
         add(start);
