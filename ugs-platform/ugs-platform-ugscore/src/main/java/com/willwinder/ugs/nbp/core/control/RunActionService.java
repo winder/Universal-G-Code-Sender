@@ -25,13 +25,15 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.uielements.actions.Pause;
+import com.willwinder.universalgcodesender.uielements.actions.Start;
+import com.willwinder.universalgcodesender.uielements.actions.Stop;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import javax.swing.AbstractAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import static org.openide.util.NbBundle.getMessage;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
@@ -75,12 +77,38 @@ public class RunActionService {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
         try {
-            String localized = String.format("Menu/%s/%s",
+            String localized;
+            String menuPath;
+            String machine;
+            String localMachine;
+
+            // Start/Stop/Pause
+            localized = String.format("Menu/%s",
+                    Localization.getString("platform.menu.machine"));
+            menuPath = "Menu/Machine";
+            machine = "Machine";
+            localMachine = Localization.getString("platform.menu.machine");
+
+            ars.registerAction(Localization.getString("mainWindow.swing.sendButton"),
+                    machine, localMachine, null , menuPath, localized,
+                    new Start(backend));
+
+            ars.registerAction(Localization.getString("mainWindow.swing.cancelButton"),
+                    machine, localMachine, null , menuPath, localized,
+                    new Stop(backend));
+
+            ars.registerAction(Localization.getString("mainWindow.ui.pauseButton")
+                    + " or " + Localization.getString("mainWindow.ui.resumeButton"),
+                    machine, localMachine, null , menuPath, localized,
+                    new Pause(backend));
+
+            // Other actions
+            localized = String.format("Menu/%s/%s",
                     Localization.getString("platform.menu.machine"),
                     Localization.getString("platform.menu.actions"));
-            String menuPath = "Menu/Machine/Actions";
-            String machine = "Machine";
-            String localMachine = Localization.getString("platform.menu.machine");
+            menuPath = "Menu/Machine/Actions";
+            machine = "Machine";
+            localMachine = Localization.getString("platform.menu.machine");
             
             ars.registerAction(Localization.getString("mainWindow.swing.returnToZeroButton"),
                     machine, localMachine, null , menuPath, localized,

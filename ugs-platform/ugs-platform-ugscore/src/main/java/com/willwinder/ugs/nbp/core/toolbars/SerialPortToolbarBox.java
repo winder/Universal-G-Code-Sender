@@ -49,9 +49,7 @@ import org.openide.windows.TopComponent;
         lazy = false
 )
 @ActionReference(path = "Toolbars/Connection", position = 0)
-
 @NbBundle.Messages("CTL_Port=Port")
-
 /**
  *
  * @author wwinder
