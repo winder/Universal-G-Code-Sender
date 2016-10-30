@@ -121,7 +121,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
         if (cse.isStateChangeEvent()) {
             if (wasSending && cse.getControlState() == ControlState.COMM_IDLE)
                this.completeFile(backend.getGcodeFile());
-            wasSending = backend.isSending();
+            wasSending = backend.isSendingFile();
         }
         if (cse.isFileChangeEvent()) {
             this.addFileToWorkflow(backend.getGcodeFile());
@@ -426,7 +426,7 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
 
     @Override
     public void componentOpened() {
-        this.wasSending = backend.isSending();
+        this.wasSending = backend.isSendingFile();
         model = (DefaultTableModel)this.fileTable.getModel();
     }
 

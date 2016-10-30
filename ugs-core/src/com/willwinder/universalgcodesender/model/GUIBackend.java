@@ -85,6 +85,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     private String activeState;
     private ControlState controlState = ControlState.COMM_DISCONNECTED;
     private long estimatedSendDuration = -1L;
+    private boolean sendingFile = false;
     //private long estimatedSendTimeRemaining = 0;
     //private long rowsInFile = 0;
     private String openCloseButtonText;
@@ -114,7 +115,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                 autoconnect();
 
                 // Move the mouse every 30 seconds to prevent sleeping.
-                if (isPaused() || isSending()) {
+                if (isPaused() || isActive()) {
                     count++;
                     if (count % 10 == 0) {
                         keepAwake();
@@ -487,6 +488,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         //       the rowsValueLabel that was just reset.
 
         try {
+            this.sendingFile = true;
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
@@ -577,8 +579,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     }
     
     @Override
-    public boolean isSending() {
+    public boolean isActive() {
         return this.controlState == ControlState.COMM_SENDING;
+    }
+
+    @Override
+    public boolean isSendingFile() {
+        return isActive() && sendingFile;
     }
 
     @Override
@@ -597,7 +604,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public boolean canPause() {
-        return this.controlState == ControlState.COMM_SENDING;
+        return this.isActive();
     }
 
     @Override
@@ -697,6 +704,9 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        // If we were sending a file, we aren't anymore.
+        this.sendingFile = false;
+
         this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
 
         // Reprocess file if a custom pattern remover was added while streaming.
@@ -725,7 +735,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
         }
 
         if (command.isError()) {
-            if (this.isSending() && !this.isPaused()) {
+            if (this.isSendingFile() && !this.isPaused()) {
                 try {
                     this.pauseResume();
                 } catch (Exception e) {

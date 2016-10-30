@@ -2341,7 +2341,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     commandTable.updateRow(command);
                 }
 
-                if (backend.isSending()) {
+                if (backend.isSendingFile()) {
                     if (vw != null) {
                         vw.setCompletedCommandNumber(command.getCommandNumber());
                     }

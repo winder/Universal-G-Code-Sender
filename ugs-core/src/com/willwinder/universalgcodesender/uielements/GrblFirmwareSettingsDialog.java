@@ -123,7 +123,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
         if (this.savingSettings) {
             // If the controller is done sending (we just received the final OK)
             // then reset the original user settings.
-            if (!this.grblController.isSending()) {
+            if (!this.grblController.isActive()) {
             //if (this.grblController.rowsRemaining() == 0) {
                 // Reset controller to previous settings.
                 //These should not be re-enabled until all ok arrive
@@ -333,7 +333,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         this.settingsTable.editCellAt(-1, -1);
         // Cannot update firmware if the controller is busy.
-        if (this.grblController.isSending()) {
+        if (this.grblController.isActive()) {
             JOptionPane.showMessageDialog(new JFrame(),
                 "Cannot update firmware while it is busy.",
                 ERROR, JOptionPane.ERROR_MESSAGE);

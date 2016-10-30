@@ -74,7 +74,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         initComponents();
         resetSentRowLabels();
 
-        if (backend.isSending()) {
+        if (backend.isSendingFile()) {
             beginSend();
         }
     }

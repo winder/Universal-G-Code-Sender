@@ -43,7 +43,8 @@ public interface BackendAPIReadOnly {
 
     // Controller status
     public boolean isConnected();
-    public boolean isSending();
+    public boolean isActive();
+    public boolean isSendingFile();
     public boolean isIdle();
     public boolean isPaused();
     public boolean canPause();

@@ -359,11 +359,25 @@ public class GUIBackendTest {
      * Test of isSending method, of class GUIBackend.
      */
     @Test
-    public void testIsSending() {
+    public void testIsActive() {
+        System.out.println("isActive");
+        GUIBackend instance = new GUIBackend();
+        boolean expResult = false;
+        boolean result = instance.isActive();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of isSending method, of class GUIBackend.
+     */
+    @Test
+    public void testIsSendingFile() {
         System.out.println("isSending");
         GUIBackend instance = new GUIBackend();
         boolean expResult = false;
-        boolean result = instance.isSending();
+        boolean result = instance.isSendingFile();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

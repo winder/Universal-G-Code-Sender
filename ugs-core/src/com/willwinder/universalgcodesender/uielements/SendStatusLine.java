@@ -62,7 +62,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
             backend.addControllerListener(this);
         }
 
-        if (backend.isSending()) {
+        if (backend.isSendingFile()) {
             beginSend();
         } else {
             setRows();
