@@ -23,12 +23,16 @@ package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -40,6 +44,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -64,6 +70,10 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final JButton adjust3 = new JButton("");
     private final JButton adjust4 = new JButton("");
     private final JButton adjust5 = new JButton("");
+
+    private final JButton toggleSpindle = new JButton("Spindle");
+    private final JButton toggleFloodCoolant = new JButton("Flood Coolant");
+    private final JButton toggleMistCoolant = new JButton("Mist Coolant");
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
@@ -156,6 +166,25 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         adjust4.setEnabled(false);
         adjust5.setEnabled(false);
 
+        ButtonGroup group = new ButtonGroup();
+        group.add(feedRadio);
+        group.add(spindleRadio);
+        group.add(rapidRadio);
+
+        // Initialize callbacks
+        // Radio buttons
+        feedRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        spindleRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
+        // Toggle actions
+        toggleSpindle.setAction(new RealTimeAction("spindle", Overrides.CMD_TOGGLE_SPINDLE, backend));
+        toggleSpindle.setBackground(Color.RED);
+        toggleFloodCoolant.setAction(new RealTimeAction("flood", Overrides.CMD_TOGGLE_FLOOD_COOLANT, backend));
+        toggleFloodCoolant.setBackground(Color.RED);
+        toggleMistCoolant.setAction(new RealTimeAction("mist", Overrides.CMD_TOGGLE_MIST_COOLANT, backend));
+        toggleMistCoolant.setBackground(Color.RED);
+
+        // Layout components
         this.setLayout(new MigLayout("wrap 4"));
 
         this.add(feedRadio);
@@ -174,16 +203,12 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(new JLabel("Rapid:"));
         this.add(rapidSpeed);
         this.add(adjust4);
-        this.add(adjust5);
+        this.add(adjust5, "wrap");
 
-        feedRadio.addActionListener((ActionEvent ae) -> radioSelected());
-        spindleRadio.addActionListener((ActionEvent ae) -> radioSelected());
-        rapidRadio.addActionListener((ActionEvent ae) -> radioSelected());
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(feedRadio);
-        group.add(spindleRadio);
-        group.add(rapidRadio);
+        this.add(new JLabel("Toggle:"));
+        this.add(toggleSpindle);
+        this.add(toggleFloodCoolant);
+        this.add(toggleMistCoolant);
     }
 
     @Override
@@ -216,10 +241,23 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.feedSpeed.setText(status.getOverrides().feed + "%");
-        this.spindleSpeed.setText(status.getOverrides().spindle + "%");
-        this.rapidSpeed.setText(status.getOverrides().rapid + "%");
-        System.out.println("feed: " + feedSpeed + ", spindle: " + spindleSpeed + ", rapid: " + rapidSpeed);
+        if (status.getOverrides() != null) {
+            this.feedSpeed.setText(status.getOverrides().feed + "%");
+            this.spindleSpeed.setText(status.getOverrides().spindle + "%");
+            this.rapidSpeed.setText(status.getOverrides().rapid + "%");
+        }
+        if (status.getAccessoryStates() != null) {
+            Color defaultBackground = UIManager.getColor("Panel.background");
+            AccessoryStates states = status.getAccessoryStates();
+
+            toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
+            toggleFloodCoolant.setBackground(states.Flood ? Color.GREEN : Color.RED);
+            toggleMistCoolant.setBackground(states.Mist ? Color.GREEN : Color.RED);
+
+            toggleSpindle.setOpaque(true);
+            toggleFloodCoolant.setOpaque(true);
+            toggleMistCoolant.setOpaque(true);
+        }
     }
 
     @Override
