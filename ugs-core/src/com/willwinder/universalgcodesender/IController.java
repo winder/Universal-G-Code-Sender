@@ -89,7 +89,7 @@ public interface IController {
     */
     public Boolean isReadyToReceiveCommands() throws Exception;
     public Boolean isReadyToStreamFile() throws Exception;
-    public Boolean isStreamingFile();
+    public Boolean isStreaming();
     public long getSendDuration();
     public int rowsInSend();
     public int rowsSent();

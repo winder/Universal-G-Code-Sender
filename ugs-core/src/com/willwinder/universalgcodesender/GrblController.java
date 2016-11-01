@@ -60,7 +60,6 @@ public class GrblController extends AbstractController {
 
     // Grbl status members.
     private GrblUtils.Capabilities capabilities = null;
-    private Boolean realTimeCapable = false;
     private String grblState = "";
     private Position machineLocation;
     private Position workLocation;
@@ -141,7 +140,7 @@ public class GrblController extends AbstractController {
             resetBuffers();
 
             // In case a reset occurred while streaming.
-            if (this.isStreamingFile()) {
+            if (this.isStreaming()) {
                 checkStreamFinished();
             }
 
@@ -150,8 +149,6 @@ public class GrblController extends AbstractController {
             
             this.grblVersion = GrblUtils.getVersionDouble(response);
             this.grblVersionLetter = GrblUtils.getVersionLetter(response);
-            
-            this.realTimeCapable = GrblUtils.isRealTimeCapable(this.grblVersion);
             
             this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
             try {
@@ -166,7 +163,7 @@ public class GrblController extends AbstractController {
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                     "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
             Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.realTimeCapable});
+                    "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.REAL_TIME});
         }
         
         else if (GrblUtils.isGrblStatusString(response)) {
@@ -202,14 +199,14 @@ public class GrblController extends AbstractController {
 
     @Override
     protected void pauseStreamingEvent() throws Exception {
-        if (this.realTimeCapable) {
+        if (this.capabilities.REAL_TIME) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         }
     }
     
     @Override
     protected void resumeStreamingEvent() throws Exception {
-        if (this.realTimeCapable) {
+        if (this.capabilities.REAL_TIME) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         }
     }
@@ -250,12 +247,12 @@ public class GrblController extends AbstractController {
         boolean paused = isPaused();
         // The cancel button is left enabled at all times now, but can only be
         // used for some versions of GRBL.
-        if (paused && !this.realTimeCapable) {
+        if (paused && !this.capabilities.REAL_TIME) {
             throw new Exception("Cannot cancel while paused with this version of GRBL. Reconnect to reset GRBL.");
         }
 
         // Check if we can get fancy with a soft reset.
-        if (!paused && this.realTimeCapable == true) {
+        if (!paused && this.capabilities.REAL_TIME) {
             try {
                 this.pauseStreaming();
                 this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
@@ -268,7 +265,7 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void cancelSendAfterEvent() throws Exception {
-        if (this.realTimeCapable && this.getStatusUpdatesEnabled()) {
+        if (this.capabilities.REAL_TIME && this.getStatusUpdatesEnabled()) {
             // Trigger the position listener to watch for the machine to stop.
             this.attemptsRemaining = 50;
             this.isCanceling = true;
@@ -394,7 +391,7 @@ public class GrblController extends AbstractController {
      */
     @Override
     public void softReset() throws Exception {
-        if (this.isCommOpen() && this.realTimeCapable) {
+        if (this.isCommOpen() && this.capabilities.REAL_TIME) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
             this.comm.softReset();
@@ -505,8 +502,39 @@ public class GrblController extends AbstractController {
         if (this.capabilities == null) {
             return;
         }
+
+        String beforeState =  (controllerStatus != null) ?
+                controllerStatus.getState() : "";
+
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getReportingUnits());
+
+        // Make UGS more responsive to the state being reported by GRBL.
+        if (!beforeState.equals(controllerStatus.getState())) {
+            switch (controllerStatus.getState().toLowerCase()) {
+                case "jog":
+                case "run":
+                    this.dispatchStateChange(ControlState.COMM_SENDING);
+                    break;
+                case "hold":
+                case "door":
+                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                    break;
+                case "check":
+                case "alarm":
+                case "idle":
+                    if (isStreaming()){
+                        this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                    } else {
+                        // GRBL 1.1: cancel the send when from jog -> idle.
+                        if (beforeState.toLowerCase().equals("jog")) {
+                            this.comm.cancelSend();
+                        }
+                        this.dispatchStateChange(ControlState.COMM_IDLE);
+                    }
+                    break;
+            }
+        }
 
         grblState = controllerStatus.getState();
         machineLocation = controllerStatus.getMachineCoord();
@@ -518,7 +546,13 @@ public class GrblController extends AbstractController {
         if (isCanceling) {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
-                if (grblState.equals("Hold") && lastLocation.equals(machineLocation)) {
+                // If the machine goes into idle, we no longer need to cancel.
+                if (grblState.equals("Idle")) {
+                    isCanceling = false;
+                }
+                // Otherwise check if the machine is Hold and stopped.
+                else if (grblState.equals("Hold")
+                        && lastLocation.equals(machineLocation)) {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {

@@ -122,13 +122,6 @@ public class GrblUtils {
         return retValue;
     }
 
-    /** 
-     * Determines if the version of GRBL is capable of realtime commands.
-     */
-    static protected Boolean isRealTimeCapable(final double version) {
-        return version > 0.7;
-    }
-    
     static protected String getHomingCommand(final double version, final Character letter) {
         if ((version >= 0.8 && (letter != null) && (letter >= 'c'))
                 || version >= 0.9) {
@@ -297,9 +290,6 @@ public class GrblUtils {
             Position MPos = null;
             Position WPos = null;
             Position WCO = null;
-            if (status.contains("Ov:")) {
-                System.out.println("blah");
-            }
 
             OverridePercents overrides = null;
             EnabledPins pins = null;

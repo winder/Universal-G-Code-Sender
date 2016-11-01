@@ -87,27 +87,6 @@ public class GrblUtilsTest {
         Character result = GrblUtils.getVersionLetter(response);
         assertEquals(expResult, result);
     }
-
-    /**
-     * Test of isRealTimeCapable method, of class GrblUtils.
-     */
-    @Test
-    public void testIsRealTimeCapable() {
-        System.out.println("isRealTimeCapable");
-        double version;
-        Boolean expResult;
-        Boolean result;
-
-        version = 0.8;
-        expResult = true;
-        result = GrblUtils.isRealTimeCapable(version);
-        assertEquals(expResult, result);
-
-        version = 0.7;
-        expResult = false;
-        result = GrblUtils.isRealTimeCapable(version);
-        assertEquals(expResult, result);
-    }
     
     @Test
     public void testGetHomingCommand() {

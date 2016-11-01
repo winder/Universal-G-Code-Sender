@@ -284,12 +284,12 @@ public class AbstractControllerTest {
      * Test of isStreamingFile method, of class AbstractController.
      */
     @Test
-    public void testIsStreamingFile() throws Exception {
-        System.out.println("isStreamingFile");
+    public void testIsStreaming() throws Exception {
+        System.out.println("isStreaming");
 
-        assertEquals(false, instance.isStreamingFile());
+        assertEquals(false, instance.isStreaming());
         testQueueCommands();
-        assertEquals(true, instance.isStreamingFile());
+        assertEquals(true, instance.isStreaming());
     }
 
     /**

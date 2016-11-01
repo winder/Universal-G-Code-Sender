@@ -353,7 +353,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //// File send metadata ////
     
     @Override
-    public Boolean isStreamingFile() {
+    public Boolean isStreaming() {
         return this.isStreaming;
     }
     
@@ -366,7 +366,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public long getSendDuration() {
         // Last send duration.
-        if (this.isStreaming == false) {
+        if (this.isStreaming() == false) {
             return this.streamStop - this.streamStart;
         
         }
@@ -467,7 +467,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Comm port is not open.");
         }
 
-        if (this.isStreaming) {
+        if (this.isStreaming()) {
             throw new Exception("Already streaming.");
         }
 
@@ -653,7 +653,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public void commandSent(GcodeCommand command) {
-        if (this.isStreamingFile()) {
+        if (this.isStreaming()) {
             this.numCommandsSent++;
         }
         
@@ -667,7 +667,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     public void checkStreamFinished() {
-        if (this.isStreamingFile() && !this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
+        if (this.isStreaming() && !this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
             String streamName = "queued commands";
             if (this.gcodeFile != null) {
                 streamName = this.gcodeFile.getName();
@@ -680,7 +680,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void commandSkipped(GcodeCommand command) {
-        if (this.isStreamingFile()) {
+        if (this.isStreaming()) {
             this.numCommandsSkipped++;
         }
         
@@ -701,7 +701,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     public void commandComplete(String response) throws UnexpectedCommand {
         // Auto-paused while we weren't streaming, resume the comm.
-        if (!isStreamingFile() && !isPaused() && comm.isPaused()) {
+        if (!isStreaming() && !isPaused() && comm.isPaused()) {
             comm.resumeSend();
         }
 

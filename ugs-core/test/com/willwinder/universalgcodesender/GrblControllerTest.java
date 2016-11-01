@@ -272,11 +272,11 @@ public class GrblControllerTest {
     }
 
     /**
-     * Test of isStreamingFile method, of class GrblController.
+     * Test of isStreamingmethod, of class GrblController.
      */
     @Test
-    public void testIsStreamingFile() throws Exception {
-        System.out.println("isStreamingFile");
+    public void testIsStreaming() throws Exception {
+        System.out.println("isStreaming");
         GrblController instance = new GrblController(mgc);
         instance.openCommPort("blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
@@ -287,7 +287,7 @@ public class GrblControllerTest {
 
         // By default nothing is streaming.
         Boolean expResult = false;
-        Boolean result = instance.isStreamingFile();
+        Boolean result = instance.isStreaming();
         assertEquals(expResult, result);
         
         // Test begining stream with no data to stream.
@@ -301,7 +301,7 @@ public class GrblControllerTest {
             threwException = true;
         }
         assertTrue(threwException);
-        result = instance.isStreamingFile();
+        result = instance.isStreaming();
         assertEquals(expResult, result);
 
         GcodeCommand cmd = instance.createCommand("G0X1");
@@ -311,7 +311,7 @@ public class GrblControllerTest {
         } catch (Exception ex) {
             fail("Unexpected exception from GrblController: " +ex.getMessage());
         }
-        result = instance.isStreamingFile();
+        result = instance.isStreaming();
         expResult = true;
         assertEquals(expResult, result);
         assertEquals(3, mgc.numQueueStringForCommCalls);
@@ -328,7 +328,7 @@ public class GrblControllerTest {
             ex.printStackTrace();
             fail("Unexpected exception from command complete: " + ex.getMessage());
         }
-        result = instance.isStreamingFile();
+        result = instance.isStreaming();
         expResult = false;
         assertEquals(expResult, result);
     }
@@ -868,16 +868,19 @@ public class GrblControllerTest {
     public void testPauseAndCancelSend() throws Exception {
         System.out.println("Pause + cancelSend");
         GrblController instance = new GrblController(mgc);
-        setState(instance, "Idle");
+        setState(instance, "Run");
         instance.openCommPort("blah", 1234);
 
         // Test 1.1 cancel throws an exception (Grbl 0.7).
         instance.rawResponseHandler("Grbl 0.7");
+        boolean threwException = false;
         try {
             instance.pauseStreaming();
             instance.cancelSend();
         } catch (Exception ex) {
+            threwException = true;
         }
+        assertTrue(threwException);
         assertEquals(0, mgc.numCancelSendCalls);
         instance.resumeStreaming();
         
