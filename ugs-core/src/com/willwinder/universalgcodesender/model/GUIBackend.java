@@ -235,7 +235,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public boolean isConnected() {
         boolean isConnected = this.controlState != ControlState.COMM_DISCONNECTED;
-        logger.log(Level.INFO, "Is connected: {0}", isConnected);
+        logger.log(Level.FINEST, "Is connected: {0}", isConnected);
         return isConnected;
     }
     
@@ -307,7 +307,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                     connect(settings.getFirmwareVersion(), settings.getPort(), Integer.parseInt(settings.getPortRate()));
                 }
             } catch (Exception e) {
-                logger.log(Level.INFO, "Auto connect failed",e);
+                logger.log(Level.WARNING, "Auto connect failed",e);
             }
         }
     }
@@ -353,7 +353,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public void updateSystemState(SystemStateBean systemStateBean) {
-        logger.log(Level.INFO, "Getting system state 'updateSystemState'");
+        logger.log(Level.FINE, "Getting system state 'updateSystemState'");
         if (gcodeFile != null)
             systemStateBean.setFileName(gcodeFile.getAbsolutePath());
         systemStateBean.setLatestComment(lastComment);
@@ -422,19 +422,19 @@ public class GUIBackend implements BackendAPI, ControllerListener {
 
     @Override
     public Settings getSettings() {
-        logger.log(Level.INFO, "Getting settings.");
+        logger.log(Level.FINEST, "Getting settings.");
         return this.settings;
     }
 
     @Override
     public ControlState getControlState() {
-        logger.log(Level.INFO, "Getting control state.");
+        logger.log(Level.FINEST, "Getting control state.");
         return this.controlState;
     }
     
     @Override
     public IController getController() {
-        logger.log(Level.INFO, "Getting controller");
+        logger.log(Level.FINEST, "Getting controller");
         return this.controller;
     }
     
@@ -509,13 +509,13 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     
     @Override
     public long getNumRows() {
-        //logger.log(Level.INFO, "Getting number of rows.");
+        logger.log(Level.FINEST, "Getting number of rows.");
         return this.controller.rowsInSend();
     }
     
     @Override
     public long getNumSentRows() {
-        //logger.log(Level.INFO, "Getting number of sent rows.");
+        logger.log(Level.FINEST, "Getting number of sent rows.");
         return controller == null ? 0 : controller.rowsSent();
     }
 
@@ -565,7 +565,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
                     throw new Exception();
             }
         } catch (Exception e) {
-            logger.log(Level.INFO, "Exception in pauseResume", e);
+            logger.log(Level.SEVERE, "Exception in pauseResume", e);
             throw new Exception(Localization.getString("mainWindow.error.pauseResume"));
         }
     }
