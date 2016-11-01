@@ -255,9 +255,8 @@ public class GrblControllerTest {
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.rawResponseHandler("Grbl 0.8a");
         instance.issueSoftReset();
-        // Sent reset command to communicator and issued reset.
-        assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
-        assertEquals(1, mgc.numSoftResetCalls);
+        // This version doesn't support soft reset.
+        assertEquals(0, mgc.numSoftResetCalls);
         
         // GRBL version that should not be sent the command:
         mgc.resetInputsAndFunctionCalls();

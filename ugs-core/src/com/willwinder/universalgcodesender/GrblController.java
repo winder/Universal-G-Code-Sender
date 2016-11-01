@@ -59,7 +59,7 @@ public class GrblController extends AbstractController {
     private GrblSettingsListener settings;
 
     // Grbl status members.
-    private GrblUtils.Capabilities capabilities = null;
+    private GrblUtils.Capabilities capabilities = new GrblUtils.Capabilities();
     private String grblState = "";
     private Position machineLocation;
     private Position workLocation;
