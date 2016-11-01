@@ -85,7 +85,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         feedRateSpinner.addChangeListener(cl -> jogService.setFeedRate(feedRateSpinner.getValue()));
 
         // Hookup buttons to actions.
-        unitButton.addActionListener(e -> unitButtonActionPerformed());
+        unitButton.addActionListener(e -> toggleUnits());
         xPlusButton.addActionListener(e -> xPlusButtonActionPerformed());
         xMinusButton.addActionListener(e -> xMinusButtonActionPerformed());
         yPlusButton.addActionListener(e -> yPlusButtonActionPerformed());
@@ -170,12 +170,16 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
     }
 
-    private void updateUnitButton() {
+    private void toggleUnits() {
         if (getUnits() == Units.MM) {
             jogService.setUnits(Units.INCH);
         } else {
             jogService.setUnits(Units.MM);
         }
+        updateUnitButton();
+    }
+
+    private void updateUnitButton() {
         unitButton.setText(getUnits().abbreviation);
     }
 
@@ -286,7 +290,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     public void doJog(int z) {
         try {
             jogService.adjustManualLocation(0, 0, z);
-            //backend.adjustManualLocation(0, 0, z, getzStepSize(), getUnits());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -315,10 +318,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     public void zMinusButtonActionPerformed() {
         doJog(-1);
-    }
-
-    public void unitButtonActionPerformed() {
-        updateUnitButton();
     }
 
     public void updateManualControls(boolean enabled) {
