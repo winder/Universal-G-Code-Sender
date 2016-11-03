@@ -30,13 +30,13 @@ import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
-import com.willwinder.universalgcodesender.uielements.ControllerProcessorSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.MacroPanel;
-import com.willwinder.universalgcodesender.uielements.action.ActionPanel;
-import com.willwinder.universalgcodesender.uielements.command.CommandPanel;
-import com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -267,7 +267,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         firmwareSettingsMenu = new javax.swing.JMenu();
         grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
         gcodeProcessorSettings = new javax.swing.JMenuItem();
-        pendantMenu = new com.willwinder.universalgcodesender.uielements.pendant.PendantMenu(backend);
+        pendantMenu = new com.willwinder.universalgcodesender.uielements.components.PendantMenu(backend);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(640, 520));
@@ -513,18 +513,18 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     public void UGSEvent(UGSEvent evt) {
     }
 
-    private com.willwinder.universalgcodesender.uielements.action.ActionPanel actionPanel;
-    private com.willwinder.universalgcodesender.uielements.command.CommandPanel commandPanel;
-    private com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel connectionPanel;
+    private com.willwinder.universalgcodesender.uielements.panels.ActionPanel actionPanel;
+    private com.willwinder.universalgcodesender.uielements.panels.CommandPanel commandPanel;
+    private com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel connectionPanel;
     private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JMenu firmwareSettingsMenu;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JScrollPane macroEditPanel;
-    private com.willwinder.universalgcodesender.uielements.MacroPanel macroPanel;
+    private com.willwinder.universalgcodesender.uielements.macros.MacroPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
-    private com.willwinder.universalgcodesender.uielements.pendant.PendantMenu pendantMenu;
+    private com.willwinder.universalgcodesender.uielements.components.PendantMenu pendantMenu;
     private javax.swing.JMenu settingsMenu;
     private com.willwinder.universalgcodesender.visualizer.VisualizerPanel visualizerPanel;
 }

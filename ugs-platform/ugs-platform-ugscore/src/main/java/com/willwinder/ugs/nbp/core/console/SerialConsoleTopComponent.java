@@ -93,7 +93,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
         consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
         commandLabel = new javax.swing.JLabel();
-        commandTextArea = new com.willwinder.universalgcodesender.uielements.CommandTextArea();
+        commandTextArea = new com.willwinder.universalgcodesender.uielements.components.CommandTextArea();
 
         consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
@@ -130,7 +130,7 @@ public final class SerialConsoleTopComponent extends TopComponent implements Con
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel commandLabel;
-    private com.willwinder.universalgcodesender.uielements.CommandTextArea commandTextArea;
+    private com.willwinder.universalgcodesender.uielements.components.CommandTextArea commandTextArea;
     private javax.swing.JScrollPane consoleScrollPane;
     private javax.swing.JTextArea consoleTextArea;
     // End of variables declaration//GEN-END:variables

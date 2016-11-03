@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;

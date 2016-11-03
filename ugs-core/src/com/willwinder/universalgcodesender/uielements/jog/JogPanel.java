@@ -28,7 +28,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.IChanged;
-import javax.swing.BorderFactory;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JPanel;

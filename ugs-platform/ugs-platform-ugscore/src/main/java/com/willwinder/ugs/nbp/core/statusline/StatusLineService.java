@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.core.statusline;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.SendStatusLine;
+import com.willwinder.universalgcodesender.uielements.toolbars.SendStatusLine;
 import java.awt.Component;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;

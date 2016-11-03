@@ -22,7 +22,7 @@ package com.willwinder.ugs.nbp.core.control;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
 import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;

@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.uielements.SendStatusPanel;
+import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.BorderLayout;

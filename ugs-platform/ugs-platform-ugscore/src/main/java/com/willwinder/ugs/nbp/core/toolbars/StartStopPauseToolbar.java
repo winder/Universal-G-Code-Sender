@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.connection.StartStopPausePanel;
+import com.willwinder.universalgcodesender.uielements.toolbars.StartStopPausePanel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;

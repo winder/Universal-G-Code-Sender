@@ -25,6 +25,10 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.uielements.components.StepSizeSpinnerModel;
+import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
@@ -41,7 +45,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
+import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Color;
 import java.awt.KeyEventDispatcher;
@@ -357,11 +361,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         bottomTabbedPane = new javax.swing.JTabbedPane();
         commandsPanel = new javax.swing.JPanel();
         commandLabel = new javax.swing.JLabel();
-        commandTextField = new com.willwinder.universalgcodesender.uielements.CommandTextArea(backend);
+        commandTextField = new com.willwinder.universalgcodesender.uielements.components.CommandTextArea(backend);
         consoleScrollPane = new javax.swing.JScrollPane();
         consoleTextArea = new javax.swing.JTextArea();
         commandTableScrollPane = new javax.swing.JScrollPane();
-        commandTable = new com.willwinder.universalgcodesender.uielements.GcodeTable();
+        commandTable = new com.willwinder.universalgcodesender.uielements.components.GcodeTable();
         controlContextTabbedPane = new javax.swing.JTabbedPane();
         machineControlPanel = new javax.swing.JPanel();
         helpButtonMachineControl = new javax.swing.JButton();
@@ -391,7 +395,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         feedRateLabel = new javax.swing.JLabel();
         feedRateSpinner = new javax.swing.JSpinner();
         macroEditPanel = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.MacroPanel(backend);
+        macroPanel = new com.willwinder.universalgcodesender.uielements.macros.MacroPanel(backend);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -2455,7 +2459,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JButton cancelButton;
     private javax.swing.JComboBox commPortComboBox;
     private javax.swing.JLabel commandLabel;
-    private com.willwinder.universalgcodesender.uielements.GcodeTable commandTable;
+    private com.willwinder.universalgcodesender.uielements.components.GcodeTable commandTable;
     private javax.swing.JScrollPane commandTableScrollPane;
     private javax.swing.JTextField commandTextField;
     private javax.swing.JPanel commandsPanel;

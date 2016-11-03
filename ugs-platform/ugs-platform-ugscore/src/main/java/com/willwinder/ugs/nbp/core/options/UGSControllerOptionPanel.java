@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.options;
 
-import com.willwinder.universalgcodesender.uielements.ControllerProcessorSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;

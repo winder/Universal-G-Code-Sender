@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.uielements.components.TableCellListener;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;

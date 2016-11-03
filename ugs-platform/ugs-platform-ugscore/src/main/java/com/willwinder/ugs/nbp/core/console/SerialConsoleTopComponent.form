@@ -70,7 +70,7 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="com.willwinder.universalgcodesender.uielements.CommandTextArea" name="commandTextArea">
+    <Component class="com.willwinder.universalgcodesender.uielements.components.CommandTextArea" name="commandTextArea">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
           <ResourceString bundle="com/willwinder/ugs/nbp/console/Bundle.properties" key="SerialConsoleTopComponent.commandTextArea.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>

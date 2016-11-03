@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.options;
 
-import com.willwinder.universalgcodesender.uielements.ConnectionSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 

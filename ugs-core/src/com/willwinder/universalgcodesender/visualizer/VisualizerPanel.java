@@ -35,7 +35,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.WindowSettings;
-import com.willwinder.universalgcodesender.uielements.LengthLimitedDocument;
+import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
