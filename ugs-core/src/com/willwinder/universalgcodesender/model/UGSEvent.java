@@ -28,14 +28,15 @@ package com.willwinder.universalgcodesender.model;
  * @author wwinder
  */
 public class UGSEvent {
-    eventType evt = null;
+    EventType evt = null;
     ControlState controlState = null;
     FileState fileState = null;
     String file = null;
     
-    private enum eventType {
+    public enum EventType {
         STATE_EVENT,
         FILE_EVENT,
+        SETTING_EVENT,
     }
 
     public enum FileState {
@@ -51,11 +52,30 @@ public class UGSEvent {
     };
     
     public boolean isStateChangeEvent() {
-        return evt == eventType.STATE_EVENT;
+        return evt == EventType.STATE_EVENT;
     }
 
     public boolean isFileChangeEvent() {
-        return evt == eventType.FILE_EVENT;
+        return evt == EventType.FILE_EVENT;
+    }
+
+    public boolean isSettingChangeEvent() {
+        return evt == EventType.SETTING_EVENT;
+    }
+
+    /**
+     * Create a new event of given type. STATE_EVENT and FILE_EVENT have
+     * required parameters, so a runtime exception will be thrown if they are
+     * specified with this constructor.
+     * @param type 
+     */
+    public UGSEvent(EventType type) {
+        evt = type;
+        switch (evt) {
+            case STATE_EVENT:
+            case FILE_EVENT:
+                throw new RuntimeException("Missing parameters for " + type + " event.");
+        }
     }
 
     /**
@@ -63,7 +83,7 @@ public class UGSEvent {
      * @param state the new state.
      */
     public UGSEvent(ControlState state) {
-        evt = eventType.STATE_EVENT;
+        evt = EventType.STATE_EVENT;
         controlState = state;
     }
     
@@ -76,7 +96,7 @@ public class UGSEvent {
      * @param filepath the file related to the file event.
      */
     public UGSEvent(FileState state, String filepath) {
-        evt = eventType.FILE_EVENT;
+        evt = EventType.FILE_EVENT;
         fileState = state;
         file = filepath;
     }

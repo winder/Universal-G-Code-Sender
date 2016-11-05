@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,31 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.connection;
+package com.willwinder.universalgcodesender.utils;
 
 /**
  *
  * @author wwinder
  */
-public class BaudComboBox extends ComboWithPreferences {
-    @Override
-    Class getPreferenceClass() {
-        return ConnectionProperty.class;
-    }
-
-    @Override
-    String getPreferenceName() {
-        return "baud";
-    }
-
-    @Override
-    String getDefaultValue() {
-        return "115200";
-    }
-    
-    @Override
-    protected void initComboBox() {
-        String[] values = { "2400", "4800", "9600", "19200", "38400", "57600", "115200" };
-        for (String value : values) this.addItem(value);
-    }
+public interface SettingChangeListener {
+    public void settingChanged();
 }

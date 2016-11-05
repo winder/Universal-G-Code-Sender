@@ -22,15 +22,25 @@
  */
 package com.willwinder.universalgcodesender.uielements;
 
+import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
+import com.willwinder.universalgcodesender.uielements.toolbars.SendStatusLine;
+import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
+import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
+import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.uielements.action.ActionButtonPanel;
-import com.willwinder.universalgcodesender.uielements.action.ActionPanel;
-import com.willwinder.universalgcodesender.uielements.command.CommandPanel;
-import com.willwinder.universalgcodesender.uielements.connection.ConnectionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.uielements.machinestatus.MachineStatusPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
+import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionToolbarPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
@@ -86,10 +96,12 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("ActionButtonPanel", new ActionButtonPanel(backend)));
         panel.add(frameLauncherButton("ActionPanel", new ActionPanel(backend)));
         panel.add(frameLauncherButton("CommandPanel", new CommandPanel(backend)));
-        panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend, new JogService(backend))));
+        panel.add(frameLauncherButton("ConnectionPanelGroup", new ConnectionPanelGroup(backend, new JogService(backend))));
         panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
+        panel.add(frameLauncherButton("ConnectionToolbarPanel", new ConnectionToolbarPanel(backend)));
+        panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend)));
 
         // Display the main frame.
         frame.pack();

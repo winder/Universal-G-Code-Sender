@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
 import com.willwinder.universalgcodesender.uielements.actions.Start;
 import com.willwinder.universalgcodesender.uielements.actions.Stop;
@@ -82,7 +83,7 @@ public class RunActionService {
             String machine;
             String localMachine;
 
-            // Start/Stop/Pause
+            // Start/Stop/Pause and Connect/Disconnect
             localized = String.format("Menu/%s",
                     Localization.getString("platform.menu.machine"));
             menuPath = "Menu/Machine";
@@ -101,6 +102,10 @@ public class RunActionService {
                     + " or " + Localization.getString("mainWindow.ui.resumeButton"),
                     machine, localMachine, null , menuPath, localized,
                     new Pause(backend));
+
+            ars.registerAction(Localization.getString("mainWindow.ui.connectDisconnect"),
+                    machine, localMachine, null , menuPath, localized,
+                    new ConnectDisconnectAction(backend));
 
             // Other actions
             localized = String.format("Menu/%s/%s",
@@ -187,5 +192,4 @@ public class RunActionService {
             return gs.canRunCommand();
         }
     }
-
 }

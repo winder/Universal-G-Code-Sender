@@ -23,7 +23,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
 import com.willwinder.universalgcodesender.uielements.actions.Start;
 import com.willwinder.universalgcodesender.uielements.actions.Stop;
-import java.awt.Color;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,7 +35,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author wwinder
  */
-public class StartStopPausePanel extends JPanel {
+public class StartStopPauseToolbarPanel extends JPanel {
     final BackendAPI backend;
 
     JButton start = new JButton();
@@ -57,7 +56,7 @@ public class StartStopPausePanel extends JPanel {
             Localization.getString("toolbar.icon.large"));
 
 
-    public StartStopPausePanel(BackendAPI backend) {
+    public StartStopPauseToolbarPanel(BackendAPI backend) {
         this.backend = backend;
 
         // popup menu

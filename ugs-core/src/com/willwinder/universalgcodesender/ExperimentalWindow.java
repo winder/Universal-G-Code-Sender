@@ -36,7 +36,7 @@ import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog
 import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
-import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -259,7 +259,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         macroEditPanel = new JScrollPane();
         macroPanel = new MacroPanel(backend);
         visualizerPanel = new VisualizerPanel(backend);
-        connectionPanel = new ConnectionPanel(backend, jogService);
+        connectionPanel = new ConnectionPanelGroup(backend, jogService);
         commandPanel = new CommandPanel(backend);
         mainMenuBar = new JMenuBar();
         settingsMenu = new JMenu();
@@ -515,7 +515,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     private com.willwinder.universalgcodesender.uielements.panels.ActionPanel actionPanel;
     private com.willwinder.universalgcodesender.uielements.panels.CommandPanel commandPanel;
-    private com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel connectionPanel;
+    private com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup connectionPanel;
     private javax.swing.JTabbedPane controlContextTabbedPane;
     private javax.swing.JMenu firmwareSettingsMenu;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;

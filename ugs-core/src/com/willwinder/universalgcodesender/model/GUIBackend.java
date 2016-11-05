@@ -50,6 +50,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -62,7 +63,7 @@ import javax.swing.JOptionPane;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener {
+public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
     private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
@@ -330,6 +331,7 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
         this.settings = settings;
+        this.settings.setSettingChangeListener(this);
         if (this.controller != null) {
             applySettingsToController(this.settings, this.controller);
         }
@@ -901,5 +903,10 @@ public class GUIBackend implements BackendAPI, ControllerListener {
     @Override
     public void sendOverrideCommand(Overrides override) throws Exception {
         this.controller.sendOverrideCommand(override);
+    }
+
+    @Override
+    public void settingChanged() {
+        this.sendControlStateEvent(new UGSEvent(EventType.SETTING_EVENT));
     }
 }

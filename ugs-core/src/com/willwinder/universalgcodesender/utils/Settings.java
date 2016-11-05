@@ -1,6 +1,23 @@
+/*
+    Copywrite 2014-2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.utils;
 
-import com.google.gson.annotations.Expose;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -9,6 +26,24 @@ import com.willwinder.universalgcodesender.types.WindowSettings;
 import java.util.*;
 
 public class Settings {
+    // Transient, don't serialize or deserialize.
+    transient SettingChangeListener listener = null;
+
+    /**
+     * This method should only be called once during setup, a runtime exception
+     * will be thrown if that contract is violated.
+     */
+    public void setSettingChangeListener(SettingChangeListener listener) {
+        //if (this.listener != null) {
+        //    throw new RuntimeException("Only one setting change listener should be set.");
+        //}
+        this.listener = listener;
+    }
+
+    private void changed() {
+        listener.settingChanged();
+    }
+
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
     private String port = "";
@@ -37,20 +72,12 @@ public class Settings {
     private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
 
     //vvv deprecated fields, still here to not break the old save files
-    @Expose(serialize = false)
-    private String customGcode1 = null;
-
-    @Expose(serialize = false)
-    private String customGcode2 = null;
-
-    @Expose(serialize = false)
-    private String customGcode3 = null;
-
-    @Expose(serialize = false)
-    private String customGcode4 = null;
-
-    @Expose(serialize = false)
-    private String customGcode5 = null;
+    // Transient, don't serialize or deserialize.
+    transient private String customGcode1 = null;
+    transient private String customGcode2 = null;
+    transient private String customGcode3 = null;
+    transient private String customGcode4 = null;
+    transient private String customGcode5 = null;
     //^^^ deprecated fields, still here to not break the old save files
 
     private final Map<Integer, Macro> macros = new HashMap() {{
@@ -64,8 +91,9 @@ public class Settings {
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
-	public Settings() {
-	}
+    public Settings() {
+        System.out.println("Initializing...");
+    }
 
     /**
      * Null legacy fields and move data to current data structures
@@ -93,53 +121,59 @@ public class Settings {
         }
     }
 
-	public String getFirmwareVersion() {
-		return firmwareVersion;
-	}
+    public String getFirmwareVersion() {
+        return firmwareVersion;
+    }
 
-	public void setFirmwareVersion(String firmwareVersion) {
-		this.firmwareVersion = firmwareVersion;
-	}
+    public void setFirmwareVersion(String firmwareVersion) {
+        this.firmwareVersion = firmwareVersion;
+        changed();
+    }
 
-	public String getLastOpenedFilename() {
-		return fileName;
-	}
+    public String getLastOpenedFilename() {
+        return fileName;
+    }
 
-	public void setLastOpenedFilename(String fileName) {
-		this.fileName = fileName;
-	}
+    public void setLastOpenedFilename(String fileName) {
+        this.fileName = fileName;
+        changed();
+    }
 
-	public String getPort() {
-		return port;
-	}
+    public String getPort() {
+        return port;
+    }
 
-	public void setPort(String port) {
-		this.port = port;
-	}
+    public void setPort(String port) {
+        this.port = port;
+        changed();
+    }
 
-	public String getPortRate() {
-		return portRate;
-	}
+    public String getPortRate() {
+        return portRate;
+    }
 
-	public void setPortRate(String portRate) {
-		this.portRate = portRate;
-	}
+    public void setPortRate(String portRate) {
+        this.portRate = portRate;
+        changed();
+    }
 
-	public boolean isManualModeEnabled() {
-		return manualModeEnabled;
-	}
+    public boolean isManualModeEnabled() {
+        return manualModeEnabled;
+    }
 
-	public void setManualModeEnabled(boolean manualModeEnabled) {
-		this.manualModeEnabled = manualModeEnabled;
-	}
+    public void setManualModeEnabled(boolean manualModeEnabled) {
+        this.manualModeEnabled = manualModeEnabled;
+        changed();
+    }
 
-	public double getManualModeStepSize() {
-		return manualModeStepSize;
-	}
+    public double getManualModeStepSize() {
+        return manualModeStepSize;
+    }
 
-	public void setManualModeStepSize(double manualModeStepSize) {
-		this.manualModeStepSize = manualModeStepSize;
-	}
+    public void setManualModeStepSize(double manualModeStepSize) {
+        this.manualModeStepSize = manualModeStepSize;
+        changed();
+    }
 
     public double getzJogStepSize() {
         return zJogStepSize;
@@ -147,6 +181,7 @@ public class Settings {
 
     public void setzJogStepSize(double zJogStepSize) {
         this.zJogStepSize = zJogStepSize;
+        changed();
     }
 
     public double getJogFeedRate() {
@@ -155,23 +190,26 @@ public class Settings {
 
     public void setJogFeedRate(double jogFeedRate) {
         this.jogFeedRate = jogFeedRate;
+        changed();
     }
 
     public boolean isScrollWindowEnabled() {
-		return scrollWindowEnabled;
-	}
+        return scrollWindowEnabled;
+    }
 
-	public void setScrollWindowEnabled(boolean scrollWindowEnabled) {
-		this.scrollWindowEnabled = scrollWindowEnabled;
-	}
+    public void setScrollWindowEnabled(boolean scrollWindowEnabled) {
+        this.scrollWindowEnabled = scrollWindowEnabled;
+        changed();
+    }
 
-	public boolean isVerboseOutputEnabled() {
-		return verboseOutputEnabled;
-	}
+    public boolean isVerboseOutputEnabled() {
+        return verboseOutputEnabled;
+    }
 
-	public void setVerboseOutputEnabled(boolean verboseOutputEnabled) {
-		this.verboseOutputEnabled = verboseOutputEnabled;
-	}
+    public void setVerboseOutputEnabled(boolean verboseOutputEnabled) {
+        this.verboseOutputEnabled = verboseOutputEnabled;
+        changed();
+    }
 
     public boolean isCommandTableEnabled() {
         return commandTableEnabled;
@@ -179,6 +217,7 @@ public class Settings {
 
     public void setCommandTableEnabled(boolean enabled) {
         commandTableEnabled = enabled;
+        changed();
     }
 
     public WindowSettings getMainWindowSettings() {
@@ -187,6 +226,7 @@ public class Settings {
     
     public void setMainWindowSettings(WindowSettings ws) {
         this.mainWindowSettings = ws;
+        changed();
     }
 
     public WindowSettings getVisualizerWindowSettings() {
@@ -195,47 +235,53 @@ public class Settings {
     
     public void setVisualizerWindowSettings(WindowSettings vw) {
         this.visualizerWindowSettings = vw;
+        changed();
     }
 
-	public boolean isSingleStepMode() {
-		return singleStepMode;
-	}
+    public boolean isSingleStepMode() {
+        return singleStepMode;
+    }
 
-	public void setSingleStepMode(boolean singleStepMode) {
-		this.singleStepMode = singleStepMode;
-	}
+    public void setSingleStepMode(boolean singleStepMode) {
+        this.singleStepMode = singleStepMode;
+        changed();
+    }
 
-	public boolean isStatusUpdatesEnabled() {
-		return statusUpdatesEnabled;
-	}
+    public boolean isStatusUpdatesEnabled() {
+        return statusUpdatesEnabled;
+    }
 
-	public void setStatusUpdatesEnabled(boolean statusUpdatesEnabled) {
-		this.statusUpdatesEnabled = statusUpdatesEnabled;
-	}
+    public void setStatusUpdatesEnabled(boolean statusUpdatesEnabled) {
+        this.statusUpdatesEnabled = statusUpdatesEnabled;
+        changed();
+    }
 
-	public int getStatusUpdateRate() {
-		return statusUpdateRate;
-	}
+    public int getStatusUpdateRate() {
+        return statusUpdateRate;
+    }
 
-	public void setStatusUpdateRate(int statusUpdateRate) {
-		this.statusUpdateRate = statusUpdateRate;
-	}
+    public void setStatusUpdateRate(int statusUpdateRate) {
+        this.statusUpdateRate = statusUpdateRate;
+        changed();
+    }
 
-	public boolean isDisplayStateColor() {
-		return displayStateColor;
-	}
+    public boolean isDisplayStateColor() {
+        return displayStateColor;
+    }
 
-	public void setDisplayStateColor(boolean displayStateColor) {
-		this.displayStateColor = displayStateColor;
-	}
+    public void setDisplayStateColor(boolean displayStateColor) {
+        this.displayStateColor = displayStateColor;
+        changed();
+    }
 
-	public PendantConfigBean getPendantConfig() {
-		return pendantConfig;
-	}
+    public PendantConfigBean getPendantConfig() {
+        return pendantConfig;
+    }
 
-	public void setPendantConfig(PendantConfigBean pendantConfig) {
-		this.pendantConfig = pendantConfig;
-	}
+    public void setPendantConfig(PendantConfigBean pendantConfig) {
+        this.pendantConfig = pendantConfig;
+        changed();
+    }
         
     public String getDefaultUnits() {
         if (Units.getUnit(defaultUnits) == null) {
@@ -246,6 +292,7 @@ public class Settings {
         
     public void setDefaultUnits(String units) {
         if (Units.getUnit(defaultUnits) != null) {
+        changed();
             defaultUnits = units;
         }
     }
@@ -256,6 +303,7 @@ public class Settings {
 
     public void setShowNightlyWarning(boolean showNightlyWarning) {
         this.showNightlyWarning = showNightlyWarning;
+        changed();
     }
 
     public boolean isShowSerialPortWarning() {
@@ -264,6 +312,7 @@ public class Settings {
 
     public void setShowSerialPortWarning(boolean showSerialPortWarning) {
         this.showSerialPortWarning = showSerialPortWarning;
+        changed();
     }
 
     public Macro getMacro(Integer index) {
@@ -316,6 +365,7 @@ public class Settings {
     
     public void setLanguage (String language) {
         this.language = language;
+        changed();
     }
 
     public boolean isAutoConnectEnabled() {
@@ -328,14 +378,17 @@ public class Settings {
 
     public void setAutoReconnect(boolean autoReconnect) {
         this.autoReconnect = autoReconnect;
+        changed();
     }
 
     public void setAutoConnectEnabled(boolean autoConnect) {
         this.autoConnect = autoConnect;
+        changed();
     }
 
     public void setToolbarIconSize(int size) {
         this.toolbarIconSize = size;
+        changed();
     }
 
     public int getToolbarIconSize() {

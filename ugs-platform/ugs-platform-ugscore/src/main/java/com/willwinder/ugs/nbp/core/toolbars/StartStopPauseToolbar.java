@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.toolbars.StartStopPausePanel;
+import com.willwinder.universalgcodesender.uielements.toolbars.StartStopPauseToolbarPanel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -46,7 +46,7 @@ public class StartStopPauseToolbar extends AbstractAction implements Presenter.T
     @Override
     public Component getToolbarPresenter() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        return new StartStopPausePanel(backend);
+        return new StartStopPauseToolbarPanel(backend);
     }
 
     // Need this to get the toolbar to show up.

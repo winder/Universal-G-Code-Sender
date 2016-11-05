@@ -16,37 +16,37 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.connection;
+package com.willwinder.universalgcodesender.uielements.toolbars;
 
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import org.openide.util.Lookup;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractConnectionPanel;
+import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 
 /**
  *
  * @author wwinder
  */
-public class FirmwareComboBox extends ComboWithPreferences {
-    @Override
-    Class getPreferenceClass() {
-        return ConnectionProperty.class;
+public final class ConnectionToolbarPanel extends AbstractConnectionPanel {
+
+    public ConnectionToolbarPanel(BackendAPI backend) {
+        super(backend);
     }
 
     @Override
-    String getPreferenceName() {
-        return "firmware";
-    }
+    protected void layoutComponents() {
+        // Layout components
+        JPanel p = new JPanel();
+        p.setLayout(new MigLayout("insets 0 0 0 0"));
+        p.add(firmwareLabel, "gapleft 5");
+        p.add(firmwareCombo, "gapright 20");
+        p.add(portLabel);
+        p.add(refreshButton);
+        p.add(portCombo, "gapright 20");
+        p.add(baudLabel);
+        p.add(baudCombo, "gapright 20");
+        p.add(connectDisconnectButton);
 
-    @Override
-    String getDefaultValue() {
-        return "GRBL";
-    }
-    
-    @Override
-    protected void initComboBox() {
-        FirmwareUtils.getFirmwareList().stream().forEach((value) -> {
-            this.addItem(value);
-        });
+        add(p);
     }
 }

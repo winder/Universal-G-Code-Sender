@@ -61,15 +61,16 @@ public class SettingsFactory {
                 logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
                 logger.info("Loading settings.");
                 out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+                if (out != null) {
+                    out.finalizeInitialization();
+                }
                 // Localized setting not available here.
                 //logger.info(Localization.getString("settings.log.loading"));
             } catch (FileNotFoundException ex) {
                 //logger.warning(Localization.getString("settings.log.error"));
-                logger.warning("Can't load settings, using defaults.");
-                Logger.getLogger(SettingsFactory.class.getName()).log(Level.SEVERE, null, ex);
+                logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
             }
         }
-        out.finalizeInitialization();
         
         if (out == null) return new Settings();
         return out;
