@@ -23,19 +23,13 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
 import java.awt.BorderLayout;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.ugs.nbp.core.control//Macros//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "MacrosTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
@@ -50,9 +44,6 @@ import org.openide.util.NbBundle.Messages;
 )
 public final class MacrosTopComponent extends TopComponent {
     public MacrosTopComponent() {
-        setName(LocalizingService.MacrosTitle);
-        setToolTipText(LocalizingService.MacrosTooltip);
-
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
         super.add(new MacroActionPanel(backend), BorderLayout.CENTER);
@@ -60,6 +51,8 @@ public final class MacrosTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
+        setName(LocalizingService.MacrosTitle);
+        setToolTipText(LocalizingService.MacrosTooltip);
     }
 
     @Override

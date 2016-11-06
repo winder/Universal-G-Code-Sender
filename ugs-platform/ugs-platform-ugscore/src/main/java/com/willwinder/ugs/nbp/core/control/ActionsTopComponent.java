@@ -24,8 +24,10 @@ import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
 import java.awt.BorderLayout;
+import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 /**
@@ -43,13 +45,9 @@ import org.openide.windows.TopComponent;
         displayName = "<Not localized:ActionsTopComponent>",
         preferredID = "ActionsTopComponent"
 )
-
 public final class ActionsTopComponent extends TopComponent {
 
     public ActionsTopComponent() {
-        setName(LocalizingService.ActionsTitle);
-        setToolTipText(LocalizingService.ActionsTooltip);
-
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());
         this.add(new ActionButtonPanel(backend), BorderLayout.CENTER);
@@ -57,7 +55,8 @@ public final class ActionsTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        setName(LocalizingService.ActionsTitle);
+        setToolTipText(LocalizingService.ActionsTooltip);
     }
 
     @Override

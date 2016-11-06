@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
 import java.awt.BorderLayout;
@@ -46,9 +45,6 @@ import org.openide.windows.TopComponent;
 public final class LocationStatusTopComponent extends TopComponent {
 
     public LocationStatusTopComponent() {
-        setName(LocalizingService.LocationStatusTitle);
-        setToolTipText(LocalizingService.LocationStatusTooltip);
-
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
         add(new MachineStatusPanel(backend), BorderLayout.CENTER);
@@ -56,7 +52,8 @@ public final class LocationStatusTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        setName(LocalizingService.LocationStatusTitle);
+        setToolTipText(LocalizingService.LocationStatusTooltip);
     }
 
     @Override

@@ -26,7 +26,6 @@ import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
@@ -43,15 +42,9 @@ import org.openide.util.NbBundle.Messages;
         displayName = "<Not localized:OverridesTopComponent>",
         preferredID = "OverridesTopComponent"
 )
-
-@Messages({
-})
 public final class OverridesTopComponent extends TopComponent {
 
     public OverridesTopComponent() {
-        setName(LocalizingService.OverridesTitle);
-        setToolTipText(LocalizingService.OverridesTooltip);
-
         this.setLayout(new BorderLayout());
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.add(new OverridesPanel(backend), BorderLayout.CENTER);
@@ -59,7 +52,8 @@ public final class OverridesTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        setName(LocalizingService.OverridesTitle);
+        setToolTipText(LocalizingService.OverridesTooltip);
     }
 
     @Override

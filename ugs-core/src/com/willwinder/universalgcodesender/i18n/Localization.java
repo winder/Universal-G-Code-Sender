@@ -42,10 +42,11 @@ public class Localization {
 
     private static int englishKeyCount = 0;
     private static Locale locale = null;
+    private static String region = null;
 
     /**
      * Loads a given language.
-     * @param language
+     * @param language IETF language tag with an underscore, like "en_US"
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language) {
@@ -59,6 +60,7 @@ public class Localization {
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language, String region) {
+        Localization.region = region;
         locale = new Locale(language, region);
         bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
         return getKeyCount(bundle) >= getEnglishKeyCount();
@@ -66,6 +68,17 @@ public class Localization {
 
     public static String loadedLocale() {
         return locale + "";
+    }
+
+    /**
+     * When localizing GUI components, sometimes you need to ensure the region
+     * is loaded when getting a string to avoid falling back to English.
+     */
+    public static String getString(String id, String region) {
+        if (region == null || !region.equals(Localization.region)) {
+            initialize(region);
+        }
+        return getString(id);
     }
 
     public static String getString(String id) {

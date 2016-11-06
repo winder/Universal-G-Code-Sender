@@ -23,19 +23,13 @@ import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.BorderLayout;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.ugs.nbp.core.control//SendStatus//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "SendStatusTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
@@ -48,14 +42,10 @@ import org.openide.util.NbBundle.Messages;
         displayName = "<Not localized:SendStatusTopComponent>",
         preferredID = "SendStatusTopComponent"
 )
-
 public final class SendStatusTopComponent extends TopComponent {
     BackendAPI backend;
 
     public SendStatusTopComponent() {
-        setName(LocalizingService.SendStatusTitle);
-        setToolTipText(LocalizingService.SendStatusTooltip);
-
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
         super.add(new SendStatusPanel(backend));
@@ -63,23 +53,12 @@ public final class SendStatusTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        setName(LocalizingService.SendStatusTitle);
+        setToolTipText(LocalizingService.SendStatusTooltip);
     }
 
     @Override
     public void componentClosed() {
         // TODO add custom code on component closing
-    }
-
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
-    }
-
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
     }
 }

@@ -27,7 +27,6 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.BackendAPIReadOnly;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
@@ -35,21 +34,15 @@ import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 import org.openide.util.NbPreferences;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.ugs.nbm.visualizer//Visualizer2//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "Visualizer2TopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
@@ -62,11 +55,6 @@ import org.openide.util.NbPreferences;
         displayName = "<Not localized:VisualizerTopComponent>",
         preferredID = "VisualizerTopComponent"
 )
-@Messages({
-    "CTL_Visualizer2Action=Visualizer",
-    "CTL_Visualizer2TopComponent=Visualizer",
-    "HINT_Visualizer2TopComponent=This is the Visualizer"
-})
 public final class Visualizer2TopComponent extends TopComponent {
     static GLCapabilities glCaps;
 
@@ -76,22 +64,18 @@ public final class Visualizer2TopComponent extends TopComponent {
     private final BackendAPI backend;
     
     public Visualizer2TopComponent() {
-        setName(LocalizingService.VisualizerTitle);
-        setToolTipText(LocalizingService.VisualizerTooltip);
-
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         glCaps = new GLCapabilities(null);
 
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
-
-        setName(Bundle.CTL_Visualizer2TopComponent());
-        setToolTipText(Bundle.HINT_Visualizer2TopComponent());
     }
 
     @Override
     protected void componentOpened() {
+        setName(LocalizingService.VisualizerTitle);
+        setToolTipText(LocalizingService.VisualizerTooltip);
         super.componentOpened();
         panel = makeWindow(glCaps);
         add(panel, BorderLayout.CENTER);

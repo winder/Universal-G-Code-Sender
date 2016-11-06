@@ -435,18 +435,6 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
         // TODO add custom code on component closing
     }
 
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
-    }
-
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
-    }
-
     /**
      * Helper functions.
      */
@@ -484,5 +472,17 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
 
         model.moveRow(row, row, dest);
         return dest;
+    }
+
+    void writeProperties(java.util.Properties p) {
+        // better to version settings since initial version as advocated at
+        // http://wiki.apidesign.org/wiki/PropertyFiles
+        p.setProperty("version", "1.0");
+        // TODO store your settings
+    }
+
+    void readProperties(java.util.Properties p) {
+        String version = p.getProperty("version");
+        // TODO read your settings according to their version
     }
 }

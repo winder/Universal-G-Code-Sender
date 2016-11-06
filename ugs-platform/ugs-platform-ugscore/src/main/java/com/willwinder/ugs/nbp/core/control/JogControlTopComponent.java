@@ -19,26 +19,19 @@
 
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.core.control.Bundle;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import java.awt.BorderLayout;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
  */
-@ConvertAsProperties(
-        dtd = "-//com.willwinder.universalgcodesender.nbp.control//JogControl//EN",
-        autostore = false
-)
 @TopComponent.Description(
         preferredID = "JogControlTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
@@ -51,14 +44,8 @@ import org.openide.util.NbBundle.Messages;
         displayName = "<Not localized:JogControlTopComponent>",
         preferredID = "JogControlTopComponent"
 )
-
-@Messages({
-})
 public final class JogControlTopComponent extends TopComponent {
     public JogControlTopComponent() {
-        setName(LocalizingService.JogControlTitle);
-        setToolTipText(LocalizingService.JogControlTooltip);
-
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         JogService jogService = CentralLookup.getDefault().lookup(JogService.class);
         super.setLayout(new BorderLayout());
@@ -67,6 +54,8 @@ public final class JogControlTopComponent extends TopComponent {
     
     @Override
     public void componentOpened() {
+        setName(LocalizingService.JogControlTitle);
+        setToolTipText(LocalizingService.JogControlTooltip);
     }
 
     @Override

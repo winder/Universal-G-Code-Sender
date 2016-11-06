@@ -60,7 +60,6 @@
         <module>branding</module>
         <module>application</module>
         <module>ugs-platform-ugslib</module>
-        <module>ugs-platform-central-lookup</module>
         <module>ugs-platform-ugscore</module>
         <module>ugs-platform-visualizer</module>
         <module>ugs-platform-plugin-workflow</module>
