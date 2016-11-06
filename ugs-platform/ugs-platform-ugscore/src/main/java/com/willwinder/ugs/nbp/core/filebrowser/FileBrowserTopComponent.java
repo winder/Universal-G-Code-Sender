@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.core.filebrowser;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.FileBrowsePanel;
 import java.awt.BorderLayout;

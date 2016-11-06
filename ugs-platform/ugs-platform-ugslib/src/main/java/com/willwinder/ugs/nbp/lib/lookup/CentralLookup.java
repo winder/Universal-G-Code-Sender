@@ -21,7 +21,7 @@
  * Based on this:
  * http://wadechandler.blogspot.com/2007/12/central-lookup-creating-central.html
  */
-package com.willwinder.ugs.nbp.lookup;
+package com.willwinder.ugs.nbp.lib.lookup;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.GUIBackend;

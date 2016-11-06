@@ -25,7 +25,7 @@ package com.willwinder.ugs.nbm.visualizer;
 import com.google.common.eventbus.EventBus;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;

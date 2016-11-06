@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.core.console;
 
 import com.willwinder.ugs.nbp.core.console.Bundle;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;

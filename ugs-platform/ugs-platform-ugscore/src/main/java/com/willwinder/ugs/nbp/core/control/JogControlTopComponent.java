@@ -20,7 +20,7 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;

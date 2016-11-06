@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.toolbars;
 
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.StartStopPauseToolbarPanel;
 import java.awt.Component;

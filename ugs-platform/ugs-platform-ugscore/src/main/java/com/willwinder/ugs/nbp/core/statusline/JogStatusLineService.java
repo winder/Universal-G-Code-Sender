@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.statusline;
 
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import java.awt.Component;

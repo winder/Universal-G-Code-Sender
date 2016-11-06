@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;

@@ -17,10 +17,9 @@
                 <configuration>
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbp.lib.eventbus</publicPackage>
-                        <publicPackage>com.willwinder.ugs.nbp.lib.helper</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.services</publicPackage>
-                        <publicPackage>com.willwinder.ugs.nbp.lib.services</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbp.lib.lookup</publicPackage>
 
                         <!-- UGS jar public packages. -->
                         <package>com.google.common.annotations</package>

@@ -23,7 +23,7 @@ import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.io.File;
 import java.util.HashSet;
