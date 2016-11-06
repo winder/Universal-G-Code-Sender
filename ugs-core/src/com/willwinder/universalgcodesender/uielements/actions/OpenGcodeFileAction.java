@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copywrite 2015-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,50 +16,38 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.willwinder.universalgcodesender.uielements.actions;
 
-package com.willwinder.ugs.nbp.core.filebrowser;
-
-import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import org.openide.awt.ActionID;
-import org.openide.awt.ActionReference;
-import org.openide.awt.ActionReferences;
-import org.openide.awt.ActionRegistration;
-import org.openide.util.NbBundle.Messages;
-import org.openide.windows.WindowManager;
+import javax.swing.JFrame;
 
-@ActionID(
-        category = "File",
-        id = "com.willwinder.universalgcodesender.nbp.filebrowser.OpenGcodeFile"
-)
-@ActionRegistration(
-        displayName = "#CTL_OpenGcodeFile"
-)
-@ActionReferences({
-    @ActionReference(path = "Menu/File", position = 1300),
-    @ActionReference(path="Shortcuts", name="M-O")
-})
-@Messages("CTL_OpenGcodeFile=Open Gcode File...")
-public final class OpenGcodeFile implements ActionListener {
+/**
+ *
+ * @author wwinder
+ */
+public class OpenGcodeFileAction extends AbstractAction {
+    BackendAPI backend;
+
+    public OpenGcodeFileAction(BackendAPI backend) {
+        this.backend = backend;
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         openGcodeFileDialog();
     }
-
-    public static void openGcodeFile(File f) {
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
+    
+    public void openGcodeFile(File f) {
         try {
             backend.setGcodeFile(f);
+            Settings settings = backend.getSettings();
             settings.setLastOpenedFilename(f.getAbsolutePath());
             SettingsFactory.saveSettings(settings);
         } catch (Exception e) {
@@ -67,11 +55,10 @@ public final class OpenGcodeFile implements ActionListener {
         }
     }
 
-    public static void openGcodeFileDialog() {
-        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
-        
-        JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(settings.getLastOpenedFilename());
-        int returnVal = fileChooser.showOpenDialog(WindowManager.getDefault().getMainWindow());
+    public void openGcodeFileDialog() {
+        JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(
+                backend.getSettings().getLastOpenedFilename());
+        int returnVal = fileChooser.showOpenDialog(new JFrame());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File gcodeFile = fileChooser.getSelectedFile();

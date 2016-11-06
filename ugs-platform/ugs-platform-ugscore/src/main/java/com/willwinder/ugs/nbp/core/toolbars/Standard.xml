@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <!DOCTYPE Configuration PUBLIC "-//NetBeans IDE//DTD toolbar 1.1//EN" "http://www.netbeans.org/dtds/toolbar1_1.dtd">
 <Configuration>
-	<Row>
+    <Row>
         <Toolbar name="Connection" visible="true" draggable="true" align="left"/>
-		<Toolbar name="StartPauseStop" visible="true" draggable="true" align="left"/>
-		<Toolbar name="File" visible="false" draggable="true" align="left"/>
-		<Toolbar name="UndoRedo" visible="false" draggable="true" align="left"/>
-		<Toolbar name="Clipboard" visible="false" draggable="true" align="left"/>
-		<Toolbar name="Memory" visible="false" draggable="true" align="left"/>
-	</Row>
+        <Toolbar name="StartPauseStop" visible="true" draggable="true" align="left"/>
+        <Toolbar name="FileBrowser" visible="true" draggable="true" align="left"/>
+        <Toolbar name="File" visible="false" draggable="true" align="left"/>
+        <Toolbar name="UndoRedo" visible="false" draggable="true" align="left"/>
+        <Toolbar name="Clipboard" sible="false" draggable="true" align="left"/>
+        <Toolbar name="Memory" sible="false" draggable="true" align="left"/>
+    </Row>
 </Configuration>

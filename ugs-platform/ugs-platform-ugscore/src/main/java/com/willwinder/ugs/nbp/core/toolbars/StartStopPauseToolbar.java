@@ -41,7 +41,7 @@ import org.openide.util.actions.Presenter;
         displayName = "Start Stop Pause",
         lazy = false
 )
-@ActionReference(path = "Toolbars/StartPauseStop", position = 0)
+@ActionReference(path = "Toolbars/StartPauseStop")
 public class StartStopPauseToolbar extends AbstractAction implements Presenter.Toolbar {
     @Override
     public Component getToolbarPresenter() {

@@ -43,5 +43,14 @@
     <folder name="Toolbars">
         <folder name="File_hidden"/>
         <folder name="UndoRedo_hidden"/>
+        <folder name="Connection">
+            <attr intvalue="0" name="position"/>
+        </folder>
+        <folder name="StartPauseStop">
+            <attr intvalue="100" name="position"/>
+        </folder>
+        <folder name="FileBrowser">
+            <attr intvalue="200" name="position"/>
+        </folder>
     </folder>
 </filesystem>

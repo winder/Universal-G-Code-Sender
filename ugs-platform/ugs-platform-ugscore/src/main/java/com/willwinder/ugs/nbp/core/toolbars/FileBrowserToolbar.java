@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,7 +20,7 @@ package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionToolbarPanel;
+import com.willwinder.universalgcodesender.uielements.toolbars.FileBrowsePanel;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -29,30 +29,27 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.actions.Presenter;
 
-
 @ActionID(
         category = "Edit",
-        id = "com.willwinder.ugs.nbp.connection.toolbar.SerialPortToolbarBox"
+        id = "com.willwinder.ugs.nbp.core.toolbars.FileBrowserToolbar"
 )
 @ActionRegistration(
-        displayName = "Serial Port Toolbar",
+        displayName = "File Browser Toolbar",
         lazy = false
 )
-@ActionReference(path = "Toolbars/Connection")
+@ActionReference(path = "Toolbars/FileBrowser")
 /**
  *
  * @author wwinder
  */
-public final class SerialPortToolbarBox extends AbstractAction implements Presenter.Toolbar {
+public final class FileBrowserToolbar extends AbstractAction implements Presenter.Toolbar {
     @Override
     public void actionPerformed(ActionEvent e) {
-        //Nothing needs to happen here.
     }
 
-    //Define what will be displayed in the toolbar:
     @Override
     public Component getToolbarPresenter() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        return new ConnectionToolbarPanel(backend);
+        return new FileBrowsePanel(backend);
     }
 }

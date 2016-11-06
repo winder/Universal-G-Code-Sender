@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
+import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
 import com.willwinder.universalgcodesender.uielements.actions.Start;
 import com.willwinder.universalgcodesender.uielements.actions.Stop;
@@ -80,61 +81,74 @@ public class RunActionService {
         try {
             String localized;
             String menuPath;
-            String machine;
-            String localMachine;
+            String category;
+            String localizedCategory;
 
+            // File menu actions.
+            localized = String.format("Menu/%s",
+                    Localization.getString("mainWindow.swing.fileLabel"));
+            menuPath = "Menu/File";
+            category = "File";
+            localizedCategory = Localization.getString("mainWindow.swing.fileLabel");
+
+            ars.registerAction(Localization.getString("platform.menu.open"),
+                    category, localizedCategory, "M-O" , menuPath, localized,
+                    new OpenGcodeFileAction(backend));
+
+            // Machine menu actions.
             // Start/Stop/Pause and Connect/Disconnect
             localized = String.format("Menu/%s",
                     Localization.getString("platform.menu.machine"));
             menuPath = "Menu/Machine";
-            machine = "Machine";
-            localMachine = Localization.getString("platform.menu.machine");
+            category = "Machine";
+            localizedCategory = Localization.getString("platform.menu.machine");
 
             ars.registerAction(Localization.getString("mainWindow.swing.sendButton"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new Start(backend));
 
             ars.registerAction(Localization.getString("mainWindow.swing.cancelButton"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new Stop(backend));
 
             ars.registerAction(Localization.getString("mainWindow.ui.pauseButton")
                     + " or " + Localization.getString("mainWindow.ui.resumeButton"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new Pause(backend));
 
             ars.registerAction(Localization.getString("mainWindow.ui.connectDisconnect"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new ConnectDisconnectAction(backend));
 
+            // Machine/Actions menu items.
             // Other actions
             localized = String.format("Menu/%s/%s",
                     Localization.getString("platform.menu.machine"),
                     Localization.getString("platform.menu.actions"));
             menuPath = "Menu/Machine/Actions";
-            machine = "Machine";
-            localMachine = Localization.getString("platform.menu.machine");
+            category = "Machine";
+            localizedCategory = Localization.getString("platform.menu.machine");
             
             ars.registerAction(Localization.getString("mainWindow.swing.returnToZeroButton"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
             ars.registerAction(Localization.getString("mainWindow.swing.softResetMachineControl"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.ISSUE_SOFT_RESET));
             ars.registerAction(Localization.getString("mainWindow.swing.resetCoordinatesButton"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
             ars.registerAction("$X",
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
             ars.registerAction("$C",
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
             ars.registerAction("$G",
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
             ars.registerAction(Localization.getString("mainWindow.swing.homeMachine"),
-                    machine, localMachine, null , menuPath, localized,
+                    category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.HOMING_CYCLE));
 
             /*

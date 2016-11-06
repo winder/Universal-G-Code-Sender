@@ -91,7 +91,10 @@ public class LocalizingService {
 
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
-        // Menus
+
+        // Update menu's with localized names.
+
+        // Menu Folders
         ars.createAndLocalizeFullMenu("Menu/Window/Classic",
                 String.format("Menu/%s/%s",
                         Localization.getString("platform.menu.window"),
@@ -101,7 +104,7 @@ public class LocalizingService {
                         Localization.getString("platform.menu.window"),
                         Localization.getString("platform.menu.plugins")));
 
-        // Actions
+        // Menu Items
         ars.overrideActionName(WorkflowWindowCategory, WorkflowWindowActionId, WorkflowWindowTitle);
         ars.overrideActionName(ActionsCategory, ActionsActionId, ActionsTitle);
         ars.overrideActionName(LocationStatusCategory, LocationStatusActionId, LocationStatusTitle);
