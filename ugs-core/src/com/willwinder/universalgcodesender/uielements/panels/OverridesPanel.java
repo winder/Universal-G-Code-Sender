@@ -31,8 +31,6 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.CO
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -45,7 +43,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -54,7 +51,7 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class OverridesPanel extends JPanel implements UGSEventListener, ControllerListener {
     private final BackendAPI backend;
-    private ArrayList<Component> components = new ArrayList<>();
+    private final ArrayList<Component> components = new ArrayList<>();
 
     private final JLabel feedSpeed = new JLabel("100%");
     private final JRadioButton feedRadio = new JRadioButton("Feed");

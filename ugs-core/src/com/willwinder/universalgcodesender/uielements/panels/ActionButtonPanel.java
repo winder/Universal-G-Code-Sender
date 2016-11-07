@@ -1,3 +1,21 @@
+/*
+    Copywrite 2016 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -47,27 +65,27 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void initComponents() {
 
-        helpButtonMachineControl.addActionListener(this::helpButtonMachineControlActionPerformed);
+        helpButtonMachineControl.addActionListener(this::helpButtonMachineControl);
 
-        resetYButton.addActionListener(this::resetYCoordinateButtonActionPerformed);
+        resetYButton.addActionListener(this::resetYCoordinateButton);
 
-        softResetMachineControl.addActionListener(this::softResetMachineControlActionPerformed);
+        softResetMachineControl.addActionListener(this::softResetMachineControl);
 
-        requestStateInformation.addActionListener(this::requestStateInformationActionPerformed);
+        requestStateInformation.addActionListener(this::requestStateInformation);
 
-        returnToZeroButton.addActionListener(this::returnToZeroButtonActionPerformed);
+        returnToZeroButton.addActionListener(this::returnToZeroButton);
 
-        resetCoordinatesButton.addActionListener(this::resetCoordinatesButtonActionPerformed);
+        resetCoordinatesButton.addActionListener(this::resetCoordinatesButton);
 
-        performHomingCycleButton.addActionListener(this::performHomingCycleButtonActionPerformed);
+        performHomingCycleButton.addActionListener(this::performHomingCycleButton);
 
-        killAlarmLock.addActionListener(this::killAlarmLockActionPerformed);
+        killAlarmLock.addActionListener(this::killAlarmLock);
 
-        toggleCheckMode.addActionListener(this::toggleCheckModeActionPerformed);
+        toggleCheckMode.addActionListener(this::toggleCheckMode);
 
-        resetXButton.addActionListener(this::resetXCoordinateButtonActionPerformed);
+        resetXButton.addActionListener(this::resetXCoordinateButton);
 
-        resetZButton.addActionListener(this::resetZCoordinateButtonActionPerformed);
+        resetZButton.addActionListener(this::resetZCoordinateButton);
 
 
         MigLayout layout = new MigLayout("fill, wrap 2", "[fill, sg 1][fill, sg 1][fill, grow]");
@@ -124,89 +142,89 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
         this.requestStateInformation.setEnabled(enabled);
     }
 
-    private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
+    private void resetZCoordinateButton(java.awt.event.ActionEvent evt) {
         try {
             this.backend.resetCoordinateToZero('Z');
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_resetZCoordinateButtonActionPerformed
+    }
 
-    private void resetXCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetXCoordinateButtonActionPerformed
+    private void resetXCoordinateButton(java.awt.event.ActionEvent evt) {
         try {
             this.backend.resetCoordinateToZero('X');
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_resetXCoordinateButtonActionPerformed
+    }
 
-    private void killAlarmLockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killAlarmLockActionPerformed
+    private void killAlarmLock(java.awt.event.ActionEvent evt) {
         try {
             this.backend.killAlarmLock();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_killAlarmLockActionPerformed
+    }
 
-    private void performHomingCycleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_performHomingCycleButtonActionPerformed
+    private void performHomingCycleButton(java.awt.event.ActionEvent evt) {
         try {
             this.backend.performHomingCycle();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_performHomingCycleButtonActionPerformed
+    }
 
-    private void resetCoordinatesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetCoordinatesButtonActionPerformed
+    private void resetCoordinatesButton(java.awt.event.ActionEvent evt) {
         try {
             this.backend.resetCoordinatesToZero();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_resetCoordinatesButtonActionPerformed
+    }
 
-    private void toggleCheckModeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleCheckModeActionPerformed
+    private void toggleCheckMode(java.awt.event.ActionEvent evt) {
         try {
             this.backend.toggleCheckMode();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_toggleCheckModeActionPerformed
+    }
 
-    private void returnToZeroButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnToZeroButtonActionPerformed
+    private void returnToZeroButton(java.awt.event.ActionEvent evt) {
         try {
             backend.returnToZero();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_returnToZeroButtonActionPerformed
+    }
 
-    private void requestStateInformationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_requestStateInformationActionPerformed
+    private void requestStateInformation(java.awt.event.ActionEvent evt) {
         try {
             this.backend.requestParserState();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_requestStateInformationActionPerformed
+    }
 
-    private void softResetMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_softResetMachineControlActionPerformed
+    private void softResetMachineControl(java.awt.event.ActionEvent evt) {
         try {
             this.backend.issueSoftReset();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_softResetMachineControlActionPerformed
+    }
 
-    private void resetYCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetYCoordinateButtonActionPerformed
+    private void resetYCoordinateButton(java.awt.event.ActionEvent evt) {
         try {
             this.backend.resetCoordinateToZero('Y');
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
-    }//GEN-LAST:event_resetYCoordinateButtonActionPerformed
+    }
 
 
 
-    private void helpButtonMachineControlActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpButtonMachineControlActionPerformed
+    private void helpButtonMachineControl(java.awt.event.ActionEvent evt) {
         StringBuilder message = new StringBuilder()
                 .append(Localization.getString("mainWindow.resetZero")).append("\n")
                 .append(Localization.getString("mainWindow.returnToZero")).append("\n")
@@ -228,5 +246,5 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
                 message,
                 Localization.getString("mainWindow.helpDialog"),
                 JOptionPane.INFORMATION_MESSAGE);
-    }//GEN-LAST:event_helpButtonMachineControlActionPerformed
+    }
 }
