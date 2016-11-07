@@ -35,6 +35,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
+    final Checkbox verboseConsoleOutput = new Checkbox(
+                Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
     final Checkbox singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"));
     final Checkbox statusPollingEnabled = new Checkbox(
@@ -60,6 +62,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     @Override
     public String getHelpMessage() {
         StringBuilder message = new StringBuilder()
+                .append(Localization.getString("sender.help.verbose.console")).append("\n\n")
                 .append(Localization.getString("sender.help.singlestep")).append("\n\n")
                 .append(Localization.getString("sender.help.status")).append("\n\n")
                 .append(Localization.getString("sender.help.status.rate")).append("\n\n")
@@ -72,6 +75,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public void save() {
+        settings.setVerboseOutputEnabled(verboseConsoleOutput.getValue());
         settings.setSingleStepMode(singleStepMode.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
@@ -92,6 +96,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         this.removeAll();
 
         setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
+
+        verboseConsoleOutput.setSelected(s.isVerboseOutputEnabled());
+        add(verboseConsoleOutput);
 
         singleStepMode.setSelected(s.isSingleStepMode());
         add(singleStepMode);

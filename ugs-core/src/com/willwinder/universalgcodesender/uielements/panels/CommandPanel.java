@@ -37,13 +37,17 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
 
     private final BackendAPI backend;
 
-    private final JCheckBox scrollWindowCheckBox = new JCheckBox(Localization.getString("mainWindow.swing.scrollWindowCheckBox"));
-    private final JCheckBox showVerboseOutputCheckBox = new JCheckBox(Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
-
     private final JScrollPane scrollPane = new JScrollPane();
     private final JTextArea consoleTextArea = new JTextArea();
     private final CommandTextArea commandTextField;
     private final JLabel commandLabel = new JLabel(Localization.getString("mainWindow.swing.commandLabel"));
+
+    private final JPopupMenu menu = new JPopupMenu();
+    private final JCheckBoxMenuItem showVerboseMenuItem = new JCheckBoxMenuItem(
+            Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+    private final JCheckBoxMenuItem scrollWindowMenuItem = new JCheckBoxMenuItem(
+            Localization.getString("mainWindow.swing.scrollWindowCheckBox"));
+
 
     /**
      * No-Arg constructor to make this control work in the UI builder tools
@@ -62,6 +66,7 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         }
         commandTextField = new CommandTextArea(backend);
         initComponents();
+        loadSettings();
     }
 
 
@@ -74,20 +79,23 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
         scrollPane.setViewportView(consoleTextArea);
 
-        scrollWindowCheckBox.addActionListener(e -> checkScrollWindow());
+        scrollWindowMenuItem.addActionListener(e -> checkScrollWindow());
 
-        MigLayout layout = new MigLayout("fill, wrap 1", "", "[min!][][min!]");
-        setLayout(layout);
-        add(scrollWindowCheckBox, "al left, split 2");
-        add(showVerboseOutputCheckBox, "al left");
+        menu.add(showVerboseMenuItem);
+        menu.add(scrollWindowMenuItem);
+        setComponentPopupMenu(menu);
+
+        setLayout(new MigLayout("inset 0 0 5 0, fill, wrap 1", "", "[][min!]"));
         add(scrollPane, "grow, growy");
-        add(commandLabel, "al left, split 2");
-        add(commandTextField, "r, grow");
+        add(commandLabel, "gapleft 5, al left, split 2");
+        add(commandTextField, "gapright 5, r, grow");
     }
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-
+        if (evt.isSettingChangeEvent()) {
+            loadSettings();
+        }
     }
 
     @Override
@@ -133,13 +141,13 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     public void messageForConsole(MessageType type, String msg) {
         java.awt.EventQueue.invokeLater(() -> {
             boolean verbose = MessageType.VERBOSE.equals(type);
-            if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+            if (!verbose || showVerboseMenuItem.isSelected()) {
                 if (verbose) {
                     consoleTextArea.append("[" + type.getLocalizedString() + "] ");
                 }
                 consoleTextArea.append(msg);
 
-                if (consoleTextArea.isVisible() && scrollWindowCheckBox.isSelected()) {
+                if (consoleTextArea.isVisible() && scrollWindowMenuItem.isSelected()) {
                     consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
                 }
             }
@@ -150,7 +158,7 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     private void checkScrollWindow() {
         // Console output.
         DefaultCaret caret = (DefaultCaret)consoleTextArea.getCaret();
-        if (scrollWindowCheckBox.isSelected()) {
+        if (scrollWindowMenuItem.isSelected()) {
             caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
             consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
         } else {
@@ -159,14 +167,14 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     }
 
     public void loadSettings() {
-        scrollWindowCheckBox.setSelected(backend.getSettings().isScrollWindowEnabled());
-        showVerboseOutputCheckBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
+        scrollWindowMenuItem.setSelected(backend.getSettings().isScrollWindowEnabled());
+        showVerboseMenuItem.setSelected(backend.getSettings().isVerboseOutputEnabled());
         checkScrollWindow();
     }
 
     public void saveSettings() {
-        backend.getSettings().setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
-        backend.getSettings().setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+        backend.getSettings().setScrollWindowEnabled(scrollWindowMenuItem.isSelected());
+        backend.getSettings().setVerboseOutputEnabled(showVerboseMenuItem.isSelected());
     }
 
 }
