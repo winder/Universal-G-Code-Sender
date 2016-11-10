@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
 import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
@@ -96,12 +97,16 @@ public class RunActionService {
                     new OpenGcodeFileAction(backend));
 
             // Machine menu actions.
-            // Start/Stop/Pause and Connect/Disconnect
+            // Start/Stop/Pause and Connect/Disconnect and Firmware Settings
             localized = String.format("Menu/%s",
                     Localization.getString("platform.menu.machine"));
             menuPath = "Menu/Machine";
             category = "Machine";
             localizedCategory = Localization.getString("platform.menu.machine");
+
+            ars.registerAction(Localization.getString("mainWindow.swing.firmwareSettingsMenu"),
+                    category, localizedCategory, null , menuPath, localized,
+                    new ConfigureFirmwareAction(backend));
 
             ars.registerAction(Localization.getString("mainWindow.swing.sendButton"),
                     category, localizedCategory, null , menuPath, localized,
