@@ -22,16 +22,14 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.uielements.components.TableCellListener;
-import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +39,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -64,7 +61,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     
     private static final String settingNumRegex = "\\$(\\d*)";
-    private static final String settingValueRegex = "\\=(\\d*\\.?\\d*)";
+    private static final String settingValueRegex = " +\\= +(\\d*\\.?\\d*)";
     private static final String commentRegex = "\\(.*\\)";
     
     private final Pattern settingNumPattern;
@@ -80,7 +77,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     /**
      * Creates new form GrblFirmwareSettingsDialog
      */
-    public GrblFirmwareSettingsDialog(java.awt.Frame parent, boolean modal, BackendAPI backend) throws Exception {
+    public GrblFirmwareSettingsDialog(Frame parent, boolean modal, BackendAPI backend) throws Exception {
         super(parent, modal);
         initComponents();
         initLocalization();
@@ -125,7 +122,6 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
             // If the controller is done sending (we just received the final OK)
             // then reset the original user settings.
             if (!this.grblController.isActive()) {
-            //if (this.grblController.rowsRemaining() == 0) {
                 // Reset controller to previous settings.
                 //These should not be re-enabled until all ok arrive
                 this.grblController.getController().setSingleStepMode(initialSingleStepMode);
@@ -133,7 +129,6 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                 this.savingSettings = false;
             }
         }
-
     }
     
     /**
@@ -384,7 +379,6 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
     
     @Override
@@ -393,26 +387,21 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     
     @Override
     public void commandSkipped(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandSent(GcodeCommand command) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void commandComment(String comment) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public void postProcessData(int numRows) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
 }
