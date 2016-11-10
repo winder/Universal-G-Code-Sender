@@ -2,7 +2,7 @@
  * GRBL Firmware Settings. Dynamically load and save all GRBL settings.
  */
 /*
-    Copywrite 2013 Will Winder
+    Copywrite 2013-2016 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -327,7 +327,12 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
     }//GEN-LAST:event_closeButtonActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
+        // Make sure current cell has been committed by selecting this.
         this.settingsTable.editCellAt(-1, -1);
+
+        // If nothing has been edited, don't do anything.
+        if (this.commands == null) return;
+
         // Cannot update firmware if the controller is busy.
         if (this.grblController.isActive()) {
             JOptionPane.showMessageDialog(new JFrame(),
@@ -359,6 +364,7 @@ public class GrblFirmwareSettingsDialog extends javax.swing.JDialog implements C
                     this.commands[i] = null;
                 }
             }
+            this.commands = null;
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(new JFrame(),
                 "Error from firmware while saving settings: " + ex.getMessage(),

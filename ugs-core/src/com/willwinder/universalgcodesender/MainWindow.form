@@ -40,21 +40,14 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="grblConnectionSettingsMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="firmwareSettingsMenu">
+            <MenuItem class="javax.swing.JMenuItem" name="firmwareSettings">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Firmware Settings"/>
               </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="grblFirmwareSettingsMenuItem">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="GRBL"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="grblFirmwareSettingsMenuItemActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
-            </Menu>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JMenuItem(new com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction(backend))"/>
+              </AuxValues>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="gcodeProcessorSettings">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Gcode Processor Settings"/>

@@ -447,8 +447,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
-        firmwareSettingsMenu = new javax.swing.JMenu();
-        grblFirmwareSettingsMenuItem = new javax.swing.JMenuItem();
+        firmwareSettings = new javax.swing.JMenuItem(new com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction(backend));
         gcodeProcessorSettings = new javax.swing.JMenuItem();
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
@@ -1284,17 +1283,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         settingsMenu.add(grblConnectionSettingsMenuItem);
 
-        firmwareSettingsMenu.setText("Firmware Settings");
-
-        grblFirmwareSettingsMenuItem.setText("GRBL");
-        grblFirmwareSettingsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                grblFirmwareSettingsMenuItemActionPerformed(evt);
-            }
-        });
-        firmwareSettingsMenu.add(grblFirmwareSettingsMenuItem);
-
-        settingsMenu.add(firmwareSettingsMenu);
+        firmwareSettings.setText("Firmware Settings");
+        settingsMenu.add(firmwareSettings);
 
         gcodeProcessorSettings.setText("Gcode Processor Settings");
         gcodeProcessorSettings.addActionListener(new java.awt.event.ActionListener() {
@@ -1626,21 +1616,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         }
         
     }//GEN-LAST:event_sendButtonActionPerformed
-
-    private void grblFirmwareSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblFirmwareSettingsMenuItemActionPerformed
-        try {
-            if (!this.backend.isConnected()) {
-                displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
-            } else if (this.backend.getController() instanceof GrblController) {
-                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
-                    gfsd.setVisible(true);
-            } else {
-                displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
-            }
-        } catch (Exception ex) {
-                displayErrorDialog(ex.getMessage());
-        }
-    }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
     private void saveButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveButtonActionPerformed
         //displayErrorDialog("Disabled for refactoring.");
@@ -2180,9 +2155,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
         this.keyboardMovementPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
         this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
-        this.firmwareSettingsMenu.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
+        this.firmwareSettings.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
-        this.grblFirmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblFirmwareSettingsMenuItem"));
         this.helpButtonMachineControl.setText(Localization.getString("help"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
         this.statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.statusPanel")));
@@ -2475,10 +2449,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JPanel fileRunPanel;
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
-    private javax.swing.JMenu firmwareSettingsMenu;
+    private javax.swing.JMenuItem firmwareSettings;
     private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
-    private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
     private javax.swing.JRadioButton inchRadioButton;
     private javax.swing.JMenuItem jMenuItem1;
