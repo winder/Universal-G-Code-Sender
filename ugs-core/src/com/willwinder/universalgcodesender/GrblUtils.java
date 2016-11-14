@@ -369,9 +369,12 @@ public class GrblUtils {
                 accessoryStates = lastStatus.getAccessoryStates();
             }
             else if (isOverrideReport) {
+                // If this is an override report and the 'Pn:' field wasn't sent
+                // set all pins to a disabled state.
                 if (pins == null) {
                     pins = new EnabledPins("");
                 }
+                // Likewise for accessory states.
                 if (accessoryStates == null) {
                     accessoryStates = new AccessoryStates("");
                 }

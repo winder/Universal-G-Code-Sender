@@ -108,8 +108,8 @@ public class ControllerStatus {
         final public boolean Probe;
         final public boolean Door;
         final public boolean Hold;
-        final public boolean Reset;
-        final public boolean Start;
+        final public boolean SoftReset;
+        final public boolean CycleStart;
 
         public EnabledPins(String enabled) {
             String enabledUpper = enabled.toUpperCase();
@@ -119,8 +119,8 @@ public class ControllerStatus {
             Probe = enabledUpper.contains("P");
             Door = enabledUpper.contains("D");
             Hold = enabledUpper.contains("H");
-            Reset = enabledUpper.contains("R");
-            Start = enabledUpper.contains("S");
+            SoftReset = enabledUpper.contains("R");
+            CycleStart = enabledUpper.contains("S");
         }
     }
 
