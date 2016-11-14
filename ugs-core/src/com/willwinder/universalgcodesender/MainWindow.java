@@ -1672,11 +1672,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     
     private void adjustManualLocation(int x, int y, int z) {
         try {
-            this.jogService.setStepSize(getSpinnerValue(stepSizeSpinner));
-            this.jogService.setStepSizeZ(getSpinnerValue(stepSizeSpinner));
+            double stepSize = getSpinnerValue(stepSizeSpinner);
+            this.jogService.setStepSize(stepSize);
+            this.jogService.setStepSizeZ(stepSize);
             this.jogService.setUnits(getSelectedUnits());
             this.jogService.setFeedRate(getSpinnerValue(feedRateSpinner));
-            this.jogService.adjustManualLocation(x, y, z);
+            this.jogService.adjustManualLocation(x, y, z, stepSize);
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }

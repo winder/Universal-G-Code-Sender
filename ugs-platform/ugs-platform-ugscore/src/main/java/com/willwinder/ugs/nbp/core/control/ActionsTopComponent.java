@@ -24,10 +24,8 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
 import java.awt.BorderLayout;
-import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 /**

@@ -21,7 +21,6 @@ package com.willwinder.ugs.nbp.core.control;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.JogService;
 import java.awt.event.ActionEvent;
@@ -60,17 +59,17 @@ public class JogActionService {
             String menuPath = "Menu/" + category + "/Jog";
             
             ars.registerAction(Localization.getString("jogging.xPlus") ,
-                    category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(jogService, 1, 0, 0));
+                    category, localCategory, "M-RIGHT" , menuPath, localized, new JogAction(jogService, 1, 0));
             ars.registerAction(Localization.getString("jogging.xMinus"),
-                    category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(jogService,-1, 0, 0));
+                    category, localCategory, "M-LEFT"  , menuPath, localized, new JogAction(jogService,-1, 0));
             ars.registerAction(Localization.getString("jogging.yPlus") ,
-                    category, localCategory, "M-UP"    , menuPath, localized, new JogAction(jogService, 0, 1, 0));
+                    category, localCategory, "M-UP"    , menuPath, localized, new JogAction(jogService, 0, 1));
             ars.registerAction(Localization.getString("jogging.yMinus"),
-                    category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(jogService, 0,-1, 0));
+                    category, localCategory, "M-DOWN"  , menuPath, localized, new JogAction(jogService, 0,-1));
             ars.registerAction(Localization.getString("jogging.zPlus") ,
-                    category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(jogService, 0, 0, 1));
+                    category, localCategory, "SM-UP"   , menuPath, localized, new JogAction(jogService, 1));
             ars.registerAction(Localization.getString("jogging.zMinus"),
-                    category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(jogService, 0, 0,-1));
+                    category, localCategory, "SM-DOWN" , menuPath, localized, new JogAction(jogService, -1));
 
             localized = String.format("Menu/%s/%s/%s",
                     Localization.getString("platform.menu.machine"),
@@ -162,16 +161,31 @@ public class JogActionService {
     protected class JogAction extends AbstractAction {
         private JogService js;
         private int x,y,z;
-        public JogAction(JogService service, int x, int y, int z) {
+        private boolean isZ;
+
+        public JogAction(JogService service, int x, int y) {
             js = service;
             this.x = x;
             this.y = y;
+            this.z = 0;
+            this.isZ = false;
+        }
+
+        public JogAction(JogService service, int z) {
+            js = service;
+            this.x = 0;
+            this.y = 0;
             this.z = z;
+            this.isZ = true;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            js.adjustManualLocation(x, y, z);
+            if (isZ) {
+                js.adjustManualLocationZ(z);
+            } else {
+                js.adjustManualLocationXY(x, y);
+            }
         }
 
         @Override
