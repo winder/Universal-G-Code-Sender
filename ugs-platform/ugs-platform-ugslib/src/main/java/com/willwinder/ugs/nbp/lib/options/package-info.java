@@ -16,16 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 @OptionsPanelController.ContainerRegistration(
         id = "UGS",
-        categoryName = "#OptionsCategory_Name_UGS",
+        categoryName = "UGS",
         iconBase = "com/willwinder/ugs/nbp/lib/options/CNC.png",
-        keywords = "#OptionsCategory_Keywords_UGS",
+        keywords = "UGS",
         keywordsCategory = "UGS")
-@NbBundle.Messages(value = {
-    "OptionsCategory_Name_UGS=UGS",
-    "OptionsCategory_Keywords_UGS=UGS"})
 package com.willwinder.ugs.nbp.lib.options;
 
 import org.netbeans.spi.options.OptionsPanelController;
-import org.openide.util.NbBundle;
