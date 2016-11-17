@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import net.miginfocom.swing.MigLayout;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.BorderFactory;
@@ -87,19 +88,21 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
         // Create buttons.
         for (int i = 0; i < macros.size() ; i++) {
+            final int index = i;
             Macro macro = macros.get(i);
             JButton button;
             if (customGcodeButtons.size() <= i) {
                 button = new JButton(i+"");
                 button.setEnabled(false);
                 customGcodeButtons.add(button);
+                // Add action listener
+                button.addActionListener((ActionEvent evt) -> {
+                    customGcodeButtonActionPerformed(index);
+                });
             } else {
                 button = customGcodeButtons.get(i);
             }
 
-            button.addActionListener((ActionEvent evt) -> {
-                customGcodeButtonActionPerformed(macro.getGcode());
-            });
 
             if (!StringUtils.isEmpty(macro.getName())) {
                 button.setText(macro.getName());
@@ -162,8 +165,9 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         super.doLayout();
     }
 
-    private void customGcodeButtonActionPerformed(String gcode) {
-        MacroHelper.executeCustomGcode(gcode, backend);
+    private void customGcodeButtonActionPerformed(int macroIndex) {
+        Macro m = backend.getSettings().getMacro(macroIndex);
+        MacroHelper.executeCustomGcode(m.getGcode(), backend);
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
