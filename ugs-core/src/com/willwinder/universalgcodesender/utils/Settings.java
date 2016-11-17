@@ -340,12 +340,11 @@ public class Settings {
 
     public void clearMacro(Integer index) {
         macros.remove(index);
+        changed();
     }
 
-    @Deprecated
-    public void updateMacro(Integer index, String gcode) {
-        Macro macro = getMacro(index);
-        updateMacro(index, macro.getName(), macro.getDescription(), gcode);
+    public void updateMacro(Integer index, Macro macro) {
+        updateMacro(index, macro.getName(), macro.getDescription(), macro.getGcode());
     }
 
     public void updateMacro(Integer index, String name, String description, String gcode) {
@@ -357,6 +356,7 @@ public class Settings {
             }
             macros.put(index, new Macro(name, description, gcode));
         }
+        changed();
     }
 
     public String getLanguage() {

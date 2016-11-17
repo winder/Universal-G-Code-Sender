@@ -22,87 +22,125 @@ import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.*;
 
 public class MacroPanel extends JPanel implements UGSEventListener {
 
     private final BackendAPI backend;
-    private final java.util.List<JButton> customGcodeButtons = new ArrayList<>();
-    private final java.util.List<JTextField> customGcodeTextFields = new ArrayList<>();
-    private final java.util.List<JTextField> customGcodeNameFields = new ArrayList<>();
-    private final java.util.List<JTextField> customGcodeDescriptionFields = new ArrayList<>();
+    private final List<JButton> customGcodeButtons = new ArrayList<>();
+    private final List<JTextField> macroNameFields = new ArrayList<>();
+    private final List<JTextField> macroGcodeFields = new ArrayList<>();
+    private final List<JTextField> macroDescriptionFields = new ArrayList<>();
+
+    private final String helpText = Localization.getString("mainWindow.swing.macroInstructions");
+    private final JButton helpButton = new JButton(Localization.getString("help"));
+    private final JLabel buttonHeader = new JLabel("");
+    private final JLabel nameHeader = new JLabel(Localization.getString("macroPanel.name"));
+    private final JLabel gcodeHeader = new JLabel(Localization.getString("macroPanel.text"));
+    private final JLabel descriptionHeader = new JLabel(Localization.getString("macroPanel.description"));
+
+    /**
+     * Helper for updating macros and creating the different fields.
+     */
+    private enum MACRO_FIELD {
+        NAME, CODE, DESCRIPTION
+    }
 
     public MacroPanel(BackendAPI backend) {
-        this.backend = backend;
-        if (backend != null) {
-            backend.addUGSEventListener(this);
+        if (backend == null) {
+            throw new RuntimeException();
         }
+        this.backend = backend;
+        backend.addUGSEventListener(this);
+        this.helpButton.addActionListener(l -> {
+            GUIHelpers.displayHelpDialog(helpText);
+        });
     }
 
     @Override
     public void doLayout() {
-        if (backend == null) {
-            //I suppose this should be in a text field.
-            System.err.println("settings is null!  Cannot init buttons!");
-            return;
-        }
         Integer lastMacroIndex = backend.getSettings().getLastMacroIndex()+1;
 
+        // Create components if needed
         for (int i = customGcodeButtons.size(); i <= lastMacroIndex; i++) {
-            customGcodeButtons.add(createMacroButton(i));
-            JTextField textField = createMacroTextField(i);
-            JTextField nameField = createMacroNameField(i);
-            JTextField descriptionField = createMacroDescriptionField(i);
-
             Macro macro = backend.getSettings().getMacro(i);
-            if (macro != null) {
-                textField.setText(macro.getGcode());
-                if (macro.getName() != null) {
-                    nameField.setText(macro.getName());
-                }
-                if (macro.getDescription() != null) {
-                    descriptionField.setText(macro.getDescription());
-                }
-            }
+            customGcodeButtons.add(createMacroButton(i));
+            macroGcodeFields.add(createMacroField(i, MACRO_FIELD.CODE, macro.getGcode()));
+            macroNameFields.add(createMacroField(i, MACRO_FIELD.NAME, macro.getName()));
+            macroDescriptionFields.add(createMacroField(i, MACRO_FIELD.DESCRIPTION, macro.getDescription()));
         }
 
         MigLayout layout = new MigLayout("fill, wrap 4", "[fill, sg 1]r[fill]r[fill, grow 50]r[fill, grow 50]");
         setLayout(layout);
 
+        add(this.helpButton, "span 4");
+        add(buttonHeader, "sg 1");
+        add(nameHeader, "w 75!");
+        add(gcodeHeader);
+        add(descriptionHeader);
+
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             add(customGcodeButtons.get(i), "sg 1");
-            add(customGcodeNameFields.get(i), "w 75!");
-            add(customGcodeTextFields.get(i));
-            add(customGcodeDescriptionFields.get(i));
+            add(macroNameFields.get(i), "w 75!");
+            add(macroGcodeFields.get(i));
+            add(macroDescriptionFields.get(i));
         }
 
         super.doLayout();
     }
 
-    private JTextField createMacroTextField(int index) {
-        JTextField textField = new MacroTextField(index, backend.getSettings());
-
-        customGcodeTextFields.add(textField);
-        return textField;
+    /**
+     * Updates a macro and saves it in the settings.
+     * @param index macro index
+     * @param field field to update
+     * @param text updated text
+     */
+    private void update(int index, MACRO_FIELD field, String text) {
+        Settings s = backend.getSettings();
+        Macro macro = s.getMacro(index);
+        switch (field) {
+            case NAME:
+                macro.setName(text);
+                break;
+            case CODE:
+                macro.setGcode(text);
+                break;
+            case DESCRIPTION:
+                macro.setDescription(text);
+                break;
+        }
+        s.updateMacro(index, macro);
     }
 
-    private JTextField createMacroNameField(int index) {
-        JTextField textField = new MacroNameField(index, backend.getSettings());
+    private JTextField createMacroField(int index, MACRO_FIELD f, String text) {
+        JTextField textField = new JTextField(text);
+        textField.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                update(index, f, textField.getText());
+            }
 
-        customGcodeNameFields.add(textField);
-        return textField;
-    }
+            @Override
+            public void keyPressed(KeyEvent e) {
+                update(index, f, textField.getText());
+            }
 
-    private JTextField createMacroDescriptionField(int index) {
-        JTextField textField = new MacroDescriptionField(index, backend.getSettings());
+            @Override
+            public void keyReleased(KeyEvent e) {
+                update(index, f, textField.getText());
+            }
+        });
 
-        customGcodeDescriptionFields.add(textField);
         return textField;
     }
 
@@ -112,22 +150,15 @@ public class MacroPanel extends JPanel implements UGSEventListener {
         button.setEnabled(false);
         this.setToolTipText(Localization.getString("macroPanel.button"));
 
-        button.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                customGcodeButtonActionPerformed(i);
-            }
+        button.addActionListener((ActionEvent evt) -> {
+            customGcodeButtonActionPerformed(i);
         });
         return button;
     }
 
     private void customGcodeButtonActionPerformed(int i) {
-        //Poor coupling here.  We should probably pull the executeCustomGcode method out into the backend.
-        if (backend == null) {
-            System.err.println("MacroPanel not properly initialized.  Cannot execute custom gcode");
-        } else {
-            Macro macro = backend.getSettings().getMacro(i);
-            MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-        }
+        Macro macro = backend.getSettings().getMacro(i);
+        MacroHelper.executeCustomGcode(macro.getGcode(), backend);
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
@@ -137,7 +168,7 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     }
 
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {
         updateCustomGcodeControls(backend.isIdle());
     }
 }

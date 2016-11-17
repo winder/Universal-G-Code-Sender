@@ -158,7 +158,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         showVerboseOutputCheckBox.setSelected(settings.isVerboseOutputEnabled());
         showCommandTableCheckBox.setSelected(settings.isCommandTableEnabled());
         firmwareComboBox.setSelectedItem(settings.getFirmwareVersion());
-//        macroPanel.initMacroButtons(settings);
 
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
@@ -2105,18 +2104,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.requestStateInformation.setEnabled(enabled);
     }
     
-//    private void updateCustomGcodeControls(boolean enabled) {
-//        for(JButton button : customGcodeButtons) {
-//            button.setEnabled(enabled);
-//        }
-//    }
-
-//    private void customGcodeButtonActionPerformed(java.awt.event.ActionEvent evt) {
-//        //This is probably totally wrong.  Need to get the button out of the event, and from there figure out the macro.
-//        Macro macro = settings.getMacro(Integer.parseInt(evt.getActionCommand()));
-//        executeCustomGcode(macro.getGcode());
-//    }
-
     private void resetTimerLabels() {
         // Reset labels
         this.durationValueLabel.setText("00:00:00");
