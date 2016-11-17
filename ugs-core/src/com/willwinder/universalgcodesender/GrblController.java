@@ -326,7 +326,7 @@ public class GrblController extends AbstractController {
             if (this.maxZLocationMM != -1) {
                 max = this.maxZLocationMM;
             }
-            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter);
+            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.machineLocation.z);
             if (!commands.isEmpty()) {
                 Iterator<String> iter = commands.iterator();
                 // Perform the homing commands

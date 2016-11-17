@@ -69,7 +69,7 @@ public class GrblUtils {
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G91 G0 X0 Y0 Z0";
     //public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G91 G28 X0 Y0 Z4.0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8C = "G90 G0 X0 Y0";
-    public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C = "G90 G0 X0 Y0 Z0";
+    public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C = "G90 G0 Z0";
     public static final String GCODE_RETURN_TO_MAX_Z_LOCATION_V8C = "G90 G0 Z";
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
@@ -169,10 +169,14 @@ public class GrblUtils {
         }
     }
     
-    static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter) {
+    static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter, final double zHeight) {
         ArrayList<String> commands = new ArrayList<>();    
         if ((version >= 0.8 && (letter != null) && (letter >= 'c'))
                 || version >= 0.9) {
+            // If Z is less than zero, raise it before further movement.
+            if (zHeight < 0) {
+                commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C);
+            }
             commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C);
             commands.add(GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C);
         }

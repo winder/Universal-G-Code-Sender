@@ -126,13 +126,13 @@ public class GrblUtilsTest {
         version = 0.7;
         letter = null;
         expResult = "";
-        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        result = GrblUtils.getReturnToHomeCommands(version, letter, 0);
         assertEquals(0, result.size());
         
         version = 0.8;
         letter = null;
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
-        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        result = GrblUtils.getReturnToHomeCommands(version, letter, 0);
         assertEquals(1, result.size());
         assertEquals(expResult, result.get(0));
 
@@ -140,10 +140,21 @@ public class GrblUtilsTest {
         letter = 'c';
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C;
         String expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C;
-        result = GrblUtils.getReturnToHomeCommands(version, letter);
+        result = GrblUtils.getReturnToHomeCommands(version, letter, 0);
         assertEquals(2, result.size());
         assertEquals(expResult, result.get(0));
         assertEquals(expResult2, result.get(1));
+
+        // Check the z-raise command is sent first
+        version = 0.8;
+        letter = 'c';
+        expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8C;
+        expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8C;
+        result = GrblUtils.getReturnToHomeCommands(version, letter, -10);
+        assertEquals(3, result.size());
+        assertEquals(expResult2, result.get(0));
+        assertEquals(expResult, result.get(1));
+        assertEquals(expResult2, result.get(2));
     }
         
     @Test
