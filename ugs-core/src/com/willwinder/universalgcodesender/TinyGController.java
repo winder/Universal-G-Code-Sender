@@ -62,6 +62,11 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    public Boolean handlesAllStateChangeEvents() {
+        return false;
+    }
+
+    @Override
     public long getJobLengthEstimate(File gcodeFile) {
         return 0;
     }

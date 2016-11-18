@@ -50,6 +50,8 @@ public class GrblUtils {
     public static final byte GRBL_PAUSE_COMMAND = '!';
     public static final byte GRBL_RESUME_COMMAND = '~';
     public static final byte GRBL_STATUS_COMMAND = '?';
+    public static final byte GRBL_DOOR_COMMAND = (byte)0x84;
+    public static final byte GRBL_JOG_CANCEL_COMMAND = (byte)0x85;
     public static final byte GRBL_RESET_COMMAND = 0x18;
     // Non real time
     public static final String GRBL_KILL_ALARM_LOCK_COMMAND = "$X";

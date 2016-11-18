@@ -110,6 +110,14 @@ public interface IController {
      */
     public void resetBuffers();
 
+    /**
+     * Indicator to abstract GUIBackend implementation that the contract class
+     * will handle ALL state change events. When this returns true it means
+     * things like completing the final command in a stream will not
+     * automatically re-enable buttons.
+     */
+    public Boolean handlesAllStateChangeEvents();
+    
     /*
     Stream content
     */

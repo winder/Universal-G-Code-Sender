@@ -93,6 +93,11 @@ public class GrblController extends AbstractController {
     }
 
     @Override
+    public Boolean handlesAllStateChangeEvents() {
+        return capabilities.REAL_TIME;
+    }
+
+    @Override
     public long getJobLengthEstimate(File gcodeFile) {
         // Pending update to support cross-platform and multiple GRBL versions.
         return 0;
@@ -251,8 +256,13 @@ public class GrblController extends AbstractController {
             throw new Exception("Cannot cancel while paused with this version of GRBL. Reconnect to reset GRBL.");
         }
 
-        // Check if we can get fancy with a soft reset.
-        if (!paused && this.capabilities.REAL_TIME) {
+        // If we're canceling a "jog" just send the door hold command.
+        if (this.capabilities.JOG_MODE && controllerStatus != null &&
+                "jog".equalsIgnoreCase(controllerStatus.getState())) {
+            this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
+        }
+        // Otherwise, check if we can get fancy with a soft reset.
+        else if (!paused && this.capabilities.REAL_TIME) {
             try {
                 this.pauseStreaming();
                 this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
@@ -509,6 +519,8 @@ public class GrblController extends AbstractController {
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getReportingUnits());
 
+        System.out.println("controller status (before): " + beforeState);
+        System.out.println("controller status  (after): " + controllerStatus.getState());
         // Make UGS more responsive to the state being reported by GRBL.
         if (!beforeState.equals(controllerStatus.getState())) {
             switch (controllerStatus.getState().toLowerCase()) {

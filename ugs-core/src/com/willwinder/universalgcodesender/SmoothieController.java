@@ -32,6 +32,11 @@ final public class SmoothieController extends GrblController {
     }
 
     @Override
+    public Boolean handlesAllStateChangeEvents() {
+        return false;
+    }
+
+    @Override
     public void setSingleStepMode(boolean ignored) {
         super.setSingleStepMode(true);
     }

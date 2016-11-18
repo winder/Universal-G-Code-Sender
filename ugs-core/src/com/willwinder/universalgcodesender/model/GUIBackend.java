@@ -228,7 +228,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
         
         if (openCommConnection(port, baudRate)) {
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
             streamFailed = false;   //reset
         }
     }
@@ -251,7 +251,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         if (this.controller != null) {
             this.controller.closeCommPort();
             this.controller = null;
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED), false);
         }
     }
 
@@ -400,7 +400,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void sendGcodeCommand(GcodeCommand command) throws Exception {
         if (this.isConnected()) {
             logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
             controller.sendCommandImmediately(command);
         }
     }
@@ -463,12 +463,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.processedGcodeFile = null;
 
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADING,
-                file.getAbsolutePath()));
+                file.getAbsolutePath()), false);
 
         initializeProcessedLines(true);
 
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
-                processedGcodeFile.getAbsolutePath()));
+                processedGcodeFile.getAbsolutePath()), false);
     }
     
     @Override
@@ -495,7 +495,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
@@ -503,7 +503,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
             this.controller.beginStreaming();
         } catch (Exception e) {
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
             e.printStackTrace();
             throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
@@ -557,11 +557,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             switch(controlState) {
                 case COMM_SENDING:
                     this.controller.pauseStreaming();
-                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING_PAUSED));
+                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING_PAUSED), false);
                     return;
                 case COMM_SENDING_PAUSED:
                     this.controller.resumeStreaming();
-                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING));
+                    this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
                     return;
                 default:
                     throw new Exception();
@@ -623,7 +623,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void cancel() throws Exception {
         if (this.canCancel()) {
             this.controller.cancelSend();
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
         }
     }
 
@@ -701,7 +701,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     //////////////////
     @Override
     public void controlStateChange(ControlState state) {
-        this.sendControlStateEvent(new UGSEvent(state));
+        // This comes from the boss, force the event change.
+        this.sendControlStateEvent(new UGSEvent(state), true);
     }
 
     @Override
@@ -709,7 +710,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         // If we were sending a file, we aren't anymore.
         this.sendingFile = false;
 
-        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+        this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
 
         // Reprocess file if a custom pattern remover was added while streaming.
         if (this.reprocessFileAfterStreamComplete) {
@@ -733,7 +734,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void commandComplete(GcodeCommand command) {
         controller.updateParserModalState(command);
         if (isIdle()) {
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE));
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
         }
 
         if (command.isError()) {
@@ -889,13 +890,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
     
-    private void sendControlStateEvent(UGSEvent event) {
+    private void sendControlStateEvent(UGSEvent event, boolean force) {
         if (event.isStateChangeEvent()) {
+            if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force){
+                return;
+            }
             this.controlState = event.getControlState();
         }
         
+        logger.info("Sending control state event: " + this.controlState);
         for (UGSEventListener l : controlStateListeners) {
-            logger.info("Sending control state change.");
             l.UGSEvent(event);
         }
     }
@@ -907,6 +911,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void settingChanged() {
-        this.sendControlStateEvent(new UGSEvent(EventType.SETTING_EVENT));
+        this.sendControlStateEvent(new UGSEvent(EventType.SETTING_EVENT), false);
     }
 }
