@@ -280,6 +280,8 @@ public class GrblController extends AbstractController {
             this.attemptsRemaining = 50;
             this.isCanceling = true;
             this.lastLocation = null;
+        } else {
+
         }
     }
     
@@ -519,8 +521,6 @@ public class GrblController extends AbstractController {
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getReportingUnits());
 
-        System.out.println("controller status (before): " + beforeState);
-        System.out.println("controller status  (after): " + controllerStatus.getState());
         // Make UGS more responsive to the state being reported by GRBL.
         if (!beforeState.equals(controllerStatus.getState())) {
             switch (controllerStatus.getState().toLowerCase()) {

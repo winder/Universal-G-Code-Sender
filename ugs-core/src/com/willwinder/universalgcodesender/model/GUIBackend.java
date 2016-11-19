@@ -400,7 +400,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void sendGcodeCommand(GcodeCommand command) throws Exception {
         if (this.isConnected()) {
             logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), true);
             controller.sendCommandImmediately(command);
         }
     }
@@ -495,7 +495,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), true);
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
@@ -738,7 +738,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
 
         if (command.isError()) {
-            if (this.isSendingFile() && !this.isPaused()) {
+            if (this.sendingFile && !this.isPaused()) {
                 try {
                     this.pauseResume();
                 } catch (Exception e) {
