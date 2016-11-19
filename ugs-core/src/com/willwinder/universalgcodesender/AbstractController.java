@@ -46,7 +46,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
 
     public class UnexpectedCommand extends Exception {
-        
+        public UnexpectedCommand(String message) {
+            super(message);
+        }
     }
     
     /** API Interface. */
@@ -706,7 +708,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
 
         if (this.activeCommands.isEmpty()) {
-            throw new UnexpectedCommand();
+            throw new UnexpectedCommand(
+                    Localization.getString("controller.exception.unexpectedCommand"));
         }
         
         GcodeCommand command = this.activeCommands.remove(0);

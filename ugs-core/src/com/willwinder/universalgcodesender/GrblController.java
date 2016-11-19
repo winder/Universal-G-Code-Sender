@@ -128,12 +128,15 @@ public class GrblController extends AbstractController {
             }
             try {
                 this.commandComplete(processed);
+                this.messageForConsole(processed + "\n");
             } catch (Exception e) {
+                String message = "";
+                if (e.getMessage() != null) {
+                    message = ": " + e.getMessage();
+                }
                 this.errorMessageForConsole(Localization.getString("controller.error.response")
-                        + " <" + processed + ">: " + e.getMessage());
+                        + " <" + processed + ">" + message);
             }
-            
-            this.messageForConsole(processed + "\n");
         }
         
         else if (GrblUtils.isGrblVersionString(response)) {
