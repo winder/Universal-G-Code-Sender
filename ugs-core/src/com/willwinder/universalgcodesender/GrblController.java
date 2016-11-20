@@ -511,6 +511,33 @@ public class GrblController extends AbstractController {
             this.positionPollTimer.stop();
         }
     }
+
+    private void sendStateMessage(String beforeState) {
+        switch (controllerStatus.getState().toLowerCase()) {
+            case "jog":
+            case "run":
+                this.dispatchStateChange(ControlState.COMM_SENDING);
+                break;
+            case "hold":
+            case "door":
+                this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                break;
+            case "check":
+            case "alarm":
+            case "idle":
+                if (isStreaming()){
+                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                } else {
+                    // GRBL 1.1: cancel the send when from jog -> idle.
+                    if (beforeState != null &&
+                            beforeState.toLowerCase().equals("jog")) {
+                        this.comm.cancelSend();
+                    }
+                    this.dispatchStateChange(ControlState.COMM_IDLE);
+                }
+                break;
+        }
+    }
     
     // No longer a listener event
     private void handleStatusString(final String string) {
@@ -526,29 +553,7 @@ public class GrblController extends AbstractController {
 
         // Make UGS more responsive to the state being reported by GRBL.
         if (!beforeState.equals(controllerStatus.getState())) {
-            switch (controllerStatus.getState().toLowerCase()) {
-                case "jog":
-                case "run":
-                    this.dispatchStateChange(ControlState.COMM_SENDING);
-                    break;
-                case "hold":
-                case "door":
-                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
-                    break;
-                case "check":
-                case "alarm":
-                case "idle":
-                    if (isStreaming()){
-                        this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
-                    } else {
-                        // GRBL 1.1: cancel the send when from jog -> idle.
-                        if (beforeState.toLowerCase().equals("jog")) {
-                            this.comm.cancelSend();
-                        }
-                        this.dispatchStateChange(ControlState.COMM_IDLE);
-                    }
-                    break;
-            }
+            sendStateMessage(beforeState);
         }
 
         grblState = controllerStatus.getState();

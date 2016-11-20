@@ -34,9 +34,6 @@ public class Settings {
      * will be thrown if that contract is violated.
      */
     public void setSettingChangeListener(SettingChangeListener listener) {
-        //if (this.listener != null) {
-        //    throw new RuntimeException("Only one setting change listener should be set.");
-        //}
         this.listener = listener;
     }
 

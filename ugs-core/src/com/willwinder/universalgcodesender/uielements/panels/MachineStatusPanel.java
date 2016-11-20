@@ -178,23 +178,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         workPanel.add(workPositionZLabel, "al right");
         workPanel.add(workPositionZValue, "growx, bottom");
         workPanel.add(machinePositionZValue, "span 3, al right, wrap");
-        //add(workPanel,"width 50%");
         add(workPanel,"growx, span 2");
 
-        /*
-        JPanel machinePanel = new JPanel();
-        machinePanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
-        machinePanel.setBackground(Color.LIGHT_GRAY);
-        machinePanel.add(machinePositionLabel, "span 2");
-        machinePanel.add(machinePositionXLabel, "al right");
-        machinePanel.add(machinePositionXValue, "growx");
-        machinePanel.add(machinePositionYLabel, "al right");
-        machinePanel.add(machinePositionYValue, "growx");
-        machinePanel.add(machinePositionZLabel, "al right");
-        machinePanel.add(machinePositionZValue, "growx");
-        add(machinePanel, "width 50%");
-        */
-        
         // Enabled pin reporting.
         pinStatusPanel.setLayout(new MigLayout("flowy, wrap 3"));
         pinStatusPanel.add(pinX);

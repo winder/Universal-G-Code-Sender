@@ -400,7 +400,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void sendGcodeCommand(GcodeCommand command) throws Exception {
         if (this.isConnected()) {
             logger.log(Level.INFO, "Sending gcode command: {0}", command.getCommandString());
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), true);
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
             controller.sendCommandImmediately(command);
         }
     }
@@ -495,7 +495,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
 
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), true);
+            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
@@ -555,6 +555,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Pause/Resume");
         try {
             switch(controlState) {
+                case COMM_IDLE:
+                default:
+                    if (!sendingFile) {
+                        throw new Exception("Cannot pause while '" + controlState + "'.");
+                    }
+                    // Fall through if we're really sending a file.
+                    // This can happen at the beginning of a stream when GRBL
+                    // reports an error before we send it a status request.
                 case COMM_SENDING:
                     this.controller.pauseStreaming();
                     this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING_PAUSED), false);
@@ -563,8 +571,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     this.controller.resumeStreaming();
                     this.sendControlStateEvent(new UGSEvent(ControlState.COMM_SENDING), false);
                     return;
-                default:
-                    throw new Exception();
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception in pauseResume", e);
