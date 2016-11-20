@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.uielements.IChanged;
+import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JPanel;
@@ -36,7 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.SpinnerNumberModel;
 
-public class JogPanel extends JPanel implements UGSEventListener, ControllerListener, IChanged {
+public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
 
     private final StepSizeSpinner xyStepSizeSpinner = new StepSizeSpinner();
     private final StepSizeSpinner zStepSizeSpinner = new StepSizeSpinner();
@@ -66,9 +66,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         this.showKeyboardToggle = showKeyboardToggle;
 
         this.jogService = jogService;
-        if (jogService != null) {
-            jogService.addChangeListener(this);
-        }
 
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
@@ -96,7 +93,8 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     private void initComponents() {
         unitButton.setText(getUnits().abbreviation);
 
-        feedRateSpinner.setModel(new SpinnerNumberModel(10, null, null, 10));
+        double feedRate = backend.getSettings().getJogFeedRate();
+        feedRateSpinner.setModel(new SpinnerNumberModel(feedRate, null, null, 10));
 
         keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
                 backend.getSettings().isManualModeEnabled():
@@ -137,14 +135,16 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isStateChangeEvent()) {
+            syncWithJogService();
             updateControls();
         }
     }
 
     private void syncWithJogService() {
-        xyStepSizeSpinner.setValue(jogService.getStepSize());// backend.getSettings().getManualModeStepSize());
-        zStepSizeSpinner.setValue(jogService.getStepSizeZ());// backend.getSettings().getzJogStepSize());
-        feedRateSpinner.setValue(jogService.getFeedRate()); //backend.getSettings().getJogFeedRate());
+        Settings s = backend.getSettings();
+        xyStepSizeSpinner.setValue(s.getManualModeStepSize());
+        zStepSizeSpinner.setValue(s.getzJogStepSize());
+        feedRateSpinner.setValue(s.getJogFeedRate());
     }
 
     private void updateControls() {
@@ -334,10 +334,5 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         feedRateLabel.setEnabled(enabled);
         feedRateSpinner.setEnabled(enabled);
         unitButton.setEnabled(enabled);
-    }
-
-    @Override
-    public void changed() {
-        syncWithJogService();
     }
 }

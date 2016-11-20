@@ -21,9 +21,6 @@ package com.willwinder.universalgcodesender.services;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.uielements.IChanged;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  *
@@ -36,24 +33,15 @@ public class JogService {
     private Units units;
 
     private BackendAPI backend;
-    private final Collection<IChanged> changeListeners = new ArrayList<>();
 
     public JogService(BackendAPI backend) {
         this.backend = backend;
 
+        // Init from settings.
         stepSizeXY = backend.getSettings().getManualModeStepSize();
         stepSizeZ = backend.getSettings().getzJogStepSize();
-        setUnits(Units.getUnit(backend.getSettings().getDefaultUnits()));
-    }
-
-    public void addChangeListener(IChanged changed) {
-        changeListeners.add(changed);
-    }
-
-    private void changed() {
-        for (IChanged changed : changeListeners) {
-            changed.changed();
-        }
+        feedRate = backend.getSettings().getJogFeedRate();
+        units = Units.getUnit(backend.getSettings().getDefaultUnits());
     }
 
     public void increaseStepSize() {
@@ -66,7 +54,7 @@ public class JogService {
         } else {
             stepSizeXY = 0.01;
         }
-        changed();
+        setStepSize(stepSizeXY);
     }
 
     public void decreaseStepSize() {
@@ -77,7 +65,7 @@ public class JogService {
         } else if (stepSizeXY > 0.01) {
             stepSizeXY = stepSizeXY - 0.01;
         }
-        changed();
+        setStepSize(stepSizeXY);
     }
 
     public void divideStepSize() {
@@ -92,7 +80,7 @@ public class JogService {
         } else if (stepSizeXY <= 0.1 ) {
             stepSizeXY = 0.01;
         }
-        changed();
+        setStepSize(stepSizeXY);
     }
 
     public void multiplyStepSize() {
@@ -107,37 +95,22 @@ public class JogService {
         }  else if (stepSizeXY >= 10) {
             stepSizeXY = 100;
         }
-        changed();
+        setStepSize(stepSizeXY);
     }
 
     public void setStepSize(double size) {
         this.stepSizeXY = size;
-        backend.getSettings().setManualModeStepSize(getStepSize());
-        changed();
-    }
-
-    public double getStepSize() {
-        return this.stepSizeXY;
+        backend.getSettings().setManualModeStepSize(stepSizeXY);
     }
 
     public void setStepSizeZ(double size) {
         this.stepSizeZ = size;
-        backend.getSettings().setzJogStepSize(getStepSizeZ());
-        changed();
-    }
-
-    public double getStepSizeZ() {
-        return this.stepSizeZ;
+        backend.getSettings().setzJogStepSize(stepSizeZ);
     }
 
     public void setFeedRate(double rate) {
         this.feedRate = rate;
-        backend.getSettings().setJogFeedRate(getFeedRate());
-        changed();
-    }
-
-    public double getFeedRate() {
-        return this.feedRate;
+        backend.getSettings().setJogFeedRate(feedRate);
     }
 
     public void setUnits(Units units) {
@@ -145,7 +118,6 @@ public class JogService {
         if (units != null) {
             backend.getSettings().setDefaultUnits(units.abbreviation);
         }
-        changed();
     }
     
     public Units getUnits() {

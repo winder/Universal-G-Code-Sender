@@ -19,8 +19,12 @@
 package com.willwinder.ugs.nbp.core.statusline;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.uielements.IChanged;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
 import javax.swing.JLabel;
 import org.openide.awt.StatusLineElementProvider;
@@ -34,27 +38,30 @@ import org.openide.util.lookup.ServiceProvider;
 public class JogStatusLineService implements StatusLineElementProvider {
     @Override
     public Component getStatusLineElement() {
-        return new JogStatusLine(CentralLookup.getDefault().lookup(JogService.class));
+        return new JogStatusLine(CentralLookup.getDefault().lookup(BackendAPI.class));
     }
 
-    private class JogStatusLine extends JLabel implements IChanged {
-        private static final String format = "Step size: %s%s ";
-        private JogService jogService;
-        public JogStatusLine(JogService js) {
-            jogService = js;
-            jogService.addChangeListener(this);
+    private class JogStatusLine extends JLabel implements UGSEventListener {
+        private static final String FORMAT = "Step size: %s%s ";
+        private final BackendAPI backend;
+        public JogStatusLine(BackendAPI backend) {
+            this.backend = backend;
             setText();
         }
 
         private void setText() {
-            setText(String.format(format,
-                    jogService.getStepSize(),
-                    jogService.getUnits().abbreviation));
+            Settings s = backend.getSettings();
+            Units u = UnitUtils.Units.getUnit(s.getDefaultUnits());
+            setText(String.format(FORMAT,
+                    s.getManualModeStepSize(),
+                    u.abbreviation));
         }
 
         @Override
-        public void changed() {
-            setText();
+        public void UGSEvent(UGSEvent evt) {
+            if (evt.isSettingChangeEvent()) {
+                setText();
+            }
         }
     }
 }
