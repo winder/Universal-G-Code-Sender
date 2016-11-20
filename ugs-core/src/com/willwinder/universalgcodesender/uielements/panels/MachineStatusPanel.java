@@ -114,31 +114,35 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         String fontName="LED.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath+fontName);
         Font font;
+        Font big, small;
         
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-            font = font.deriveFont(Font.PLAIN,28);
+            big = font.deriveFont(Font.PLAIN,28);
+            small = font.deriveFont(Font.PLAIN,18);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.err.println(fontName + " not loaded.  Using serif font.");
-            font = new Font("serif", Font.PLAIN, 24);
+            big = new Font("serif", Font.PLAIN, 24);
+            small = new Font("serif", Font.PLAIN, 17);
         }
         
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        ge.registerFont(font);
+        ge.registerFont(big);
+        ge.registerFont(small);
 
-        this.machinePositionXValue.setFont(font);
+        this.machinePositionXValue.setFont(small);
         this.machinePositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        this.machinePositionYValue.setFont(font);
+        this.machinePositionYValue.setFont(small);
         this.machinePositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        this.machinePositionZValue.setFont(font);
+        this.machinePositionZValue.setFont(small);
         this.machinePositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
          
-        this.workPositionXValue.setFont(font);
+        this.workPositionXValue.setFont(big);
         this.workPositionXValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        this.workPositionYValue.setFont(font);
+        this.workPositionYValue.setFont(big);
         this.workPositionYValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        this.workPositionZValue.setFont(font);
+        this.workPositionZValue.setFont(big);
         this.workPositionZValue.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
     }
 
@@ -156,14 +160,20 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         JPanel workPanel = new JPanel();
         workPanel.setBackground(Color.LIGHT_GRAY);
         workPanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
-        workPanel.add(workPositionLabel, "span 2, wrap");
+        //workPanel.add(workPositionLabel, "span 2, wrap");
         workPanel.add(workPositionXLabel, "al right");
         workPanel.add(workPositionXValue, "growx");
+        workPanel.add(machinePositionXValue, "span 2, al right");
         workPanel.add(workPositionYLabel, "al right");
         workPanel.add(workPositionYValue, "growx");
+        workPanel.add(machinePositionYValue, "span 2, al right");
         workPanel.add(workPositionZLabel, "al right");
         workPanel.add(workPositionZValue, "growx");
+        workPanel.add(machinePositionZValue, "span 2, al right");
+        //add(workPanel,"width 50%");
+        add(workPanel,"growx, span 2");
 
+        /*
         JPanel machinePanel = new JPanel();
         machinePanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
         machinePanel.setBackground(Color.LIGHT_GRAY);
@@ -174,8 +184,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         machinePanel.add(machinePositionYValue, "growx");
         machinePanel.add(machinePositionZLabel, "al right");
         machinePanel.add(machinePositionZValue, "growx");
-        add(workPanel,"width 50%");
         add(machinePanel, "width 50%");
+*/
         
         // Enabled pin reporting.
         pinStatusPanel.setVisible(false);
