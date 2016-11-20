@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -73,19 +74,18 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JCheckBox pinSoftReset = new JCheckBox(Localization.getString("machineStatus.pin.softReset"));
     private final JCheckBox pinCycleStart = new JCheckBox(Localization.getString("machineStatus.pin.cycleStart"));
 
+    // Reset individual coordinate buttons.
+    private final JButton resetXButton = new JButton(Localization.getString("mainWindow.swing.reset"));
+    private final JButton resetYButton = new JButton(Localization.getString("mainWindow.swing.reset"));
+    private final JButton resetZButton = new JButton(Localization.getString("mainWindow.swing.reset"));
+
     private final BackendAPI backend;
     
     public Units units;
     public DecimalFormat decimalFormatter;
 
-    /**
-     * No-Arg constructor to make this control work in the UI builder tools
-     * @deprecated Use constructor with BackendAPI.
-     */
-    @Deprecated
-    public MachineStatusPanel() {
-        this(null);
-    }
+    // Don't add the pin status panel until we get a pin status update.
+    private boolean addedPinStatusPanel = false;
 
     public MachineStatusPanel(BackendAPI backend) {
         activeStateLabel.setOpaque(true);
@@ -105,7 +105,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         } else {
             setUnits(Units.INCH);
         }
-
     }
 
 
@@ -118,7 +117,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, is);
-            big = font.deriveFont(Font.PLAIN,28);
+            big = font.deriveFont(Font.PLAIN,30);
             small = font.deriveFont(Font.PLAIN,18);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -147,7 +146,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void initComponents() {
-        String debug = ""; //debug, ";
+        // Hookup the reset buttons.
+        resetXButton.addActionListener(ae -> resetCoordinateButton('X'));
+        resetYButton.addActionListener(ae -> resetCoordinateButton('Y'));
+        resetZButton.addActionListener(ae -> resetCoordinateButton('Z'));
+
+        String debug = "";
+        //String debug = "debug, ";
         // MigLayout... 3rd party layout library.
         MigLayout layout = new MigLayout(debug + "fill, wrap 2");
         setLayout(layout);
@@ -159,17 +164,20 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         // Subpanels for work/machine read outs.
         JPanel workPanel = new JPanel();
         workPanel.setBackground(Color.LIGHT_GRAY);
-        workPanel.setLayout(new MigLayout(debug + "fillx, wrap 2, inset 8"));
+        workPanel.setLayout(new MigLayout(debug + "fillx, wrap 3, inset 8", "[left][right][grow, right]"));
         //workPanel.add(workPositionLabel, "span 2, wrap");
+        workPanel.add(resetXButton);
         workPanel.add(workPositionXLabel, "al right");
-        workPanel.add(workPositionXValue, "growx");
-        workPanel.add(machinePositionXValue, "span 2, al right");
+        workPanel.add(workPositionXValue, "growx, bottom");
+        workPanel.add(machinePositionXValue, "span 3, al right, wrap");
+        workPanel.add(resetYButton);
         workPanel.add(workPositionYLabel, "al right");
-        workPanel.add(workPositionYValue, "growx");
-        workPanel.add(machinePositionYValue, "span 2, al right");
+        workPanel.add(workPositionYValue, "growx, bottom");
+        workPanel.add(machinePositionYValue, "span 3, al right, wrap");
+        workPanel.add(resetZButton);
         workPanel.add(workPositionZLabel, "al right");
-        workPanel.add(workPositionZValue, "growx");
-        workPanel.add(machinePositionZValue, "span 2, al right");
+        workPanel.add(workPositionZValue, "growx, bottom");
+        workPanel.add(machinePositionZValue, "span 3, al right, wrap");
         //add(workPanel,"width 50%");
         add(workPanel,"growx, span 2");
 
@@ -185,10 +193,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         machinePanel.add(machinePositionZLabel, "al right");
         machinePanel.add(machinePositionZValue, "growx");
         add(machinePanel, "width 50%");
-*/
+        */
         
         // Enabled pin reporting.
-        pinStatusPanel.setVisible(false);
         pinStatusPanel.setLayout(new MigLayout("flowy, wrap 3"));
         pinStatusPanel.add(pinX);
         pinX.setEnabled(false);
@@ -206,7 +213,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         pinSoftReset.setEnabled(false);
         pinStatusPanel.add(pinCycleStart);
         pinCycleStart.setEnabled(false);
-        add(pinStatusPanel);
     }
 
     private void setUnits(Units u) {
@@ -238,18 +244,24 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
     }
 
-    private void updateControls() {
+    private void updateResetButtons(boolean enabled) {
+        this.resetXButton.setEnabled(enabled);
+        this.resetYButton.setEnabled(enabled);
+        this.resetZButton.setEnabled(enabled);
+    }
 
+    private void updateControls() {
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
+                // Clear out the status color.
                 this.setStatusColorForState("");
+                // fall through
+            case COMM_SENDING:
+            case COMM_SENDING_PAUSED:
+                updateResetButtons(false);
                 break;
             case COMM_IDLE:
-//                this.setStatusColorForState("");
-                break;
-            case COMM_SENDING:
-                break;
-            case COMM_SENDING_PAUSED:
+                updateResetButtons(true);
                 break;
             default:
         }
@@ -300,8 +312,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.setStatusColorForState( status.getState() );
 
         if (status.getEnabledPins() != null) {
+            if (!addedPinStatusPanel) {
+                addedPinStatusPanel = true;
+                add(pinStatusPanel, "span 2");
+                this.repaint();
+            }
+
             EnabledPins ep = status.getEnabledPins();
-            this.pinStatusPanel.setVisible(true);
 
             pinX.setSelected(ep.X);
             pinY.setSelected(ep.Y);
@@ -368,6 +385,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         } else {
             this.activeStateLabel.setBackground(null);
             this.activeStateValueLabel.setBackground(null);
+        }
+    }
+    private void resetCoordinateButton(char coord) {
+        try {
+            this.backend.resetCoordinateToZero(coord);
+        } catch (Exception ex) {
+            displayErrorDialog(ex.getMessage());
         }
     }
 }

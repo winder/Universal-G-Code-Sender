@@ -35,9 +35,6 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
     private final JButton resetCoordinatesButton = new JButton(Localization.getString("mainWindow.swing.resetCoordinatesButton"));
     private final JButton returnToZeroButton = new JButton(Localization.getString("mainWindow.swing.returnToZeroButton"));
     private final JButton softResetMachineControl = new JButton(Localization.getString("mainWindow.swing.softReset"));
-    private final JButton resetXButton = new JButton(Localization.getString("mainWindow.swing.resetX"));
-    private final JButton resetYButton = new JButton(Localization.getString("mainWindow.swing.resetY"));
-    private final JButton resetZButton = new JButton(Localization.getString("mainWindow.swing.resetZ"));
     private final JButton performHomingCycleButton = new JButton("$H");
     private final JButton requestStateInformation = new JButton("$G");
     private final JButton killAlarmLock = new JButton("$X");
@@ -67,8 +64,6 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
         helpButtonMachineControl.addActionListener(this::helpButtonMachineControl);
 
-        resetYButton.addActionListener(this::resetYCoordinateButton);
-
         softResetMachineControl.addActionListener(this::softResetMachineControl);
 
         requestStateInformation.addActionListener(this::requestStateInformation);
@@ -83,26 +78,18 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
         toggleCheckMode.addActionListener(this::toggleCheckMode);
 
-        resetXButton.addActionListener(this::resetXCoordinateButton);
-
-        resetZButton.addActionListener(this::resetZCoordinateButton);
-
-
-        MigLayout layout = new MigLayout("fill, wrap 2", "[fill, sg 1][fill, sg 1][fill, grow]");
+        MigLayout layout = new MigLayout("fill, wrap 2");
         setLayout(layout);
 
         String constraints = "sg 1";
         add(resetCoordinatesButton, constraints);
-        add(resetXButton, constraints);
         add(returnToZeroButton, constraints);
-        add(resetYButton, constraints);
         add(softResetMachineControl, constraints);
-        add(resetZButton, constraints);
         add(performHomingCycleButton, constraints);
         add(killAlarmLock, constraints);
         add(requestStateInformation, constraints);
-        add(toggleCheckMode, constraints);
-        add(helpButtonMachineControl, constraints+", span 2, right");
+        add(toggleCheckMode, constraints + ", wrap");
+        add(helpButtonMachineControl, "growx, span 2");
     }
 
     @Override
@@ -131,31 +118,12 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void updateWorkflowControls(boolean enabled) {
         this.resetCoordinatesButton.setEnabled(enabled);
-        this.resetXButton.setEnabled(enabled);
-        this.resetYButton.setEnabled(enabled);
-        this.resetZButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
         this.performHomingCycleButton.setEnabled(enabled);
         this.softResetMachineControl.setEnabled(enabled);
         this.killAlarmLock.setEnabled(enabled);
         this.toggleCheckMode.setEnabled(enabled);
         this.requestStateInformation.setEnabled(enabled);
-    }
-
-    private void resetZCoordinateButton(java.awt.event.ActionEvent evt) {
-        try {
-            this.backend.resetCoordinateToZero('Z');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }
-
-    private void resetXCoordinateButton(java.awt.event.ActionEvent evt) {
-        try {
-            this.backend.resetCoordinateToZero('X');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
     }
 
     private void killAlarmLock(java.awt.event.ActionEvent evt) {
@@ -214,16 +182,6 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
         }
     }
 
-    private void resetYCoordinateButton(java.awt.event.ActionEvent evt) {
-        try {
-            this.backend.resetCoordinateToZero('Y');
-        } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
-        }
-    }
-
-
-
     private void helpButtonMachineControl(java.awt.event.ActionEvent evt) {
         StringBuilder message = new StringBuilder()
                 .append(Localization.getString("mainWindow.resetZero")).append("\n")
@@ -234,9 +192,9 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
                 .append(Localization.getString("mainWindow.checkMode")).append("\n")
                 .append(Localization.getString("mainWindow.getState")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyboard")).append("\n")
-                .append(Localization.getString("mainWindow.helpKeyX")).append("\n")
-                .append(Localization.getString("mainWindow.helpKeyY")).append("\n")
-                .append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
+                //.append(Localization.getString("mainWindow.helpKeyX")).append("\n")
+                //.append(Localization.getString("mainWindow.helpKeyY")).append("\n")
+                //.append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyPlusMinus")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyDivMul")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyZero")).append("\n")
