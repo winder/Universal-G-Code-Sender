@@ -25,6 +25,7 @@ package com.willwinder.universalgcodesender.uielements.panels;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -61,6 +62,17 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JLabel latestCommentLabel = new JLabel(Localization.getString("mainWindow.swing.latestCommentLabel"));
     private final JLabel latestCommentValueLabel = new JLabel(" ");
 
+    // Enabled pin reporting
+    private final JPanel pinStatusPanel = new JPanel();
+    private final JCheckBox pinX = new JCheckBox(Localization.getString("machineStatus.pin.x"));
+    private final JCheckBox pinY = new JCheckBox(Localization.getString("machineStatus.pin.y"));
+    private final JCheckBox pinZ = new JCheckBox(Localization.getString("machineStatus.pin.z"));
+    private final JCheckBox pinProbe = new JCheckBox(Localization.getString("machineStatus.pin.probe"));
+    private final JCheckBox pinDoor = new JCheckBox(Localization.getString("machineStatus.pin.door"));
+    private final JCheckBox pinHold = new JCheckBox(Localization.getString("machineStatus.pin.hold"));
+    private final JCheckBox pinSoftReset = new JCheckBox(Localization.getString("machineStatus.pin.softReset"));
+    private final JCheckBox pinCycleStart = new JCheckBox(Localization.getString("machineStatus.pin.cycleStart"));
+
     private final BackendAPI backend;
     
     public Units units;
@@ -87,6 +99,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         applyFont();
         initComponents();
+
+        if (this.backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation)) {
+            setUnits(Units.MM);
+        } else {
+            setUnits(Units.INCH);
+        }
+
     }
 
 
@@ -158,11 +177,26 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         add(workPanel,"width 50%");
         add(machinePanel, "width 50%");
         
-        if (this.backend.getSettings().getDefaultUnits().equals(Units.MM.abbreviation)) {
-            setUnits(Units.MM);
-        } else {
-            setUnits(Units.INCH);
-        }
+        // Enabled pin reporting.
+        pinStatusPanel.setVisible(false);
+        pinStatusPanel.setLayout(new MigLayout("flowy, wrap 3"));
+        pinStatusPanel.add(pinX);
+        pinX.setEnabled(false);
+        pinStatusPanel.add(pinY);
+        pinY.setEnabled(false);
+        pinStatusPanel.add(pinZ);
+        pinZ.setEnabled(false);
+        pinStatusPanel.add(pinProbe);
+        pinProbe.setEnabled(false);
+        pinStatusPanel.add(pinDoor);
+        pinDoor.setEnabled(false);
+        pinStatusPanel.add(pinHold);
+        pinHold.setEnabled(false);
+        pinStatusPanel.add(pinSoftReset);
+        pinSoftReset.setEnabled(false);
+        pinStatusPanel.add(pinCycleStart);
+        pinCycleStart.setEnabled(false);
+        add(pinStatusPanel);
     }
 
     private void setUnits(Units u) {
@@ -255,6 +289,19 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.activeStateValueLabel.setText( status.getState() );
         this.setStatusColorForState( status.getState() );
 
+        if (status.getEnabledPins() != null) {
+            EnabledPins ep = status.getEnabledPins();
+            this.pinStatusPanel.setVisible(true);
+
+            pinX.setSelected(ep.X);
+            pinY.setSelected(ep.Y);
+            pinZ.setSelected(ep.Z);
+            pinProbe.setSelected(ep.Probe);
+            pinDoor.setSelected(ep.Door);
+            pinHold.setSelected(ep.Hold);
+            pinSoftReset.setSelected(ep.SoftReset);
+            pinCycleStart.setSelected(ep.CycleStart);
+        }
 
         if (status.getMachineCoord() != null) {
             this.setUnits(status.getMachineCoord().getUnits());
