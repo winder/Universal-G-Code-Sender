@@ -891,6 +891,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
     
     private void sendControlStateEvent(UGSEvent event, boolean force) {
+        logger.log(Level.FINE, "Sending control state event {0}.", event.evt);
         if (event.isStateChangeEvent()) {
             if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force){
                 return;
@@ -898,7 +899,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             this.controlState = event.getControlState();
         }
         
-        logger.info("Sending control state event: " + this.controlState);
         for (UGSEventListener l : controlStateListeners) {
             l.UGSEvent(event);
         }
