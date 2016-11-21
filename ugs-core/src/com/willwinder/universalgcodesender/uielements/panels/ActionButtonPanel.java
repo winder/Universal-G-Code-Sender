@@ -100,20 +100,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
     }
 
     private void updateControls() {
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
-                this.updateWorkflowControls(false);
-                break;
-            case COMM_IDLE:
-                this.updateWorkflowControls(true);
-                break;
-            case COMM_SENDING:
-                this.updateWorkflowControls(false);
-                break;
-            case COMM_SENDING_PAUSED:
-                break;
-            default:
-        }
+        this.updateWorkflowControls(backend.isIdle());
     }
 
     private void updateWorkflowControls(boolean enabled) {

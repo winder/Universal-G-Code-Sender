@@ -512,30 +512,35 @@ public class GrblController extends AbstractController {
         }
     }
 
-    private void sendStateMessage(String beforeState) {
+    private void sendStateMessageIfChanged(String beforeState, ControlState current) {
+        ControlState state = ControlState.COMM_IDLE;
         switch (controllerStatus.getState().toLowerCase()) {
             case "jog":
             case "run":
-                this.dispatchStateChange(ControlState.COMM_SENDING);
+                state = ControlState.COMM_SENDING;
                 break;
             case "hold":
             case "door":
-                this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                state = ControlState.COMM_SENDING_PAUSED;
                 break;
             case "check":
             case "alarm":
             case "idle":
                 if (isStreaming()){
-                    this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
+                    state = ControlState.COMM_SENDING_PAUSED;
                 } else {
                     // GRBL 1.1: cancel the send when from jog -> idle.
                     if (beforeState != null &&
                             beforeState.toLowerCase().equals("jog")) {
                         this.comm.cancelSend();
                     }
-                    this.dispatchStateChange(ControlState.COMM_IDLE);
+                    state = ControlState.COMM_IDLE;
                 }
                 break;
+        }
+
+        if (current != state) {
+            this.dispatchStateChange(state);
         }
     }
     
@@ -552,9 +557,7 @@ public class GrblController extends AbstractController {
                 controllerStatus, string, capabilities, getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
-        if (!beforeState.equals(controllerStatus.getState())) {
-            sendStateMessage(beforeState);
-        }
+        sendStateMessageIfChanged(beforeState, this.currentState);
 
         grblState = controllerStatus.getState();
         machineLocation = controllerStatus.getMachineCoord();

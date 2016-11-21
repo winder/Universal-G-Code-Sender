@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPin
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -105,6 +106,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         } else {
             setUnits(Units.INCH);
         }
+
+        updateControls();
     }
 
 
@@ -236,19 +239,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void updateControls() {
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
-                // Clear out the status color.
-                this.setStatusColorForState("");
-                // fall through
-            case COMM_SENDING:
-            case COMM_SENDING_PAUSED:
-                updateResetButtons(false);
-                break;
-            case COMM_IDLE:
-                updateResetButtons(true);
-                break;
-            default:
+        updateResetButtons(backend.isIdle());
+
+        if (!backend.isConnected()) {
+            // Clear out the status color.
+            this.setStatusColorForState("");
         }
     }
 

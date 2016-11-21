@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageT
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -243,6 +245,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //Track current mode to restore after jogging
     private String distanceModeCode = null;
     private String unitsCode = null;
+    protected ControlState currentState = COMM_DISCONNECTED;
         
     /**
      * Dependency injection constructor to allow a mock communicator.
@@ -458,11 +461,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm.queueStringForComm(command + "\n");
     }
     
-    /**
-     * 
-     * @return
-     * @throws Exception 
-     */
     @Override
     public Boolean isReadyToReceiveCommands() throws Exception {
         if (!isCommOpen()) {
@@ -471,6 +469,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         if (this.isStreaming()) {
             throw new Exception("Already streaming.");
+        }
+
+        if (this.currentState != COMM_IDLE) {
+            throw new Exception("Not idle.");
         }
 
         return true;
@@ -768,6 +770,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     protected void dispatchStateChange(ControlState state) {
+        currentState = state;
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.controlStateChange(state);

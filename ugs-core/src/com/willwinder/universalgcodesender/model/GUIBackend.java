@@ -322,7 +322,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             hal.mouseMove(pObj.x - 1, pObj.y - 1);
             pObj = MouseInfo.getPointerInfo().getLocation();
             System.out.println(pObj.toString() + "x>>" + pObj.x + "  y>>" + pObj.y);
-        } catch (AWTException ex) {
+        } catch (AWTException | NullPointerException ex) {
             Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -588,18 +588,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean isActive() {
-        return this.controlState == ControlState.COMM_SENDING;
+        return this.controller != null && !isIdle();
     }
 
     @Override
     public boolean isSendingFile() {
-        return isActive() && sendingFile;
+        return sendingFile;
     }
 
     @Override
     public boolean isIdle() {
         try {
-            return this.controller.isReadyToStreamFile();
+            return this.controller != null
+                    && this.controller.isReadyToReceiveCommands();
         } catch(Exception e) {
             return false;
         }
@@ -607,12 +608,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean isPaused() {
-        return this.controlState == ControlState.COMM_SENDING_PAUSED;
+        return this.controller != null && this.controller.isPaused();
     }
     
     @Override
     public boolean canPause() {
-        return this.isActive();
+        return this.controller != null && !isIdle() && !isPaused();
     }
 
     @Override
@@ -622,7 +623,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean canSend() {
-        return (this.controlState == ControlState.COMM_IDLE) && (this.gcodeFile != null);
+        return isIdle() && (this.gcodeFile != null);
     }
     
     @Override
