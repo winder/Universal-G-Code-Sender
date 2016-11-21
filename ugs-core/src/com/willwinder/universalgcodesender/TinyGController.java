@@ -107,6 +107,12 @@ public class TinyGController extends AbstractController {
         throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
+    @Override
+    protected Boolean isIdleEvent() {
+        // Let abstract controller decide
+        return true;
+    }
+
 
     @Override
     protected void rawResponseHandler(String response) {

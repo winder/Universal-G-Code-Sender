@@ -54,6 +54,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     /** API Interface. */
+
+    /**
+     * Called to ask controller if it is idle.
+     */
+    protected abstract Boolean isIdleEvent();
     
     /**
      * Called before and after comm shutdown allowing device specific behavior.
@@ -313,7 +318,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
         
         // No point in checking response, it throws an exception on errors.
-       this.comm.openCommPort(port, portRate);
+        this.comm.openCommPort(port, portRate);
+        this.currentState = COMM_IDLE;
         
         if (isCommOpen()) {
             this.openCommAfterEvent();
@@ -471,10 +477,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Already streaming.");
         }
 
-        if (this.currentState != COMM_IDLE) {
-            throw new Exception("Not idle.");
-        }
-
         return true;
     }
 
@@ -587,6 +589,15 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public Boolean isPaused() {
         return paused;
+    }
+
+    @Override
+    public Boolean isIdle() {
+        try {
+            return !isPaused() && !isStreaming && isIdleEvent();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override

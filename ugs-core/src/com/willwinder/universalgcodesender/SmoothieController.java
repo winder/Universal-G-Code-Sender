@@ -62,4 +62,10 @@ final public class SmoothieController extends GrblController {
             super.rawResponseHandler(response);
         }
     }
+
+    @Override
+    protected Boolean isIdleEvent() {
+        // Let abstract controller decide
+        return true;
+    }
 }

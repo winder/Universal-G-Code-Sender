@@ -598,12 +598,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public boolean isIdle() {
-        try {
-            return this.controller != null
-                    && this.controller.isReadyToReceiveCommands();
-        } catch(Exception e) {
-            return false;
-        }
+        return this.controller != null && controller.isIdle();
     }
     
     @Override

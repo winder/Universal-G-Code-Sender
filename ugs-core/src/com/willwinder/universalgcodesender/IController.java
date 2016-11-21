@@ -103,6 +103,7 @@ public interface IController {
     public void pauseStreaming() throws Exception;
     public void resumeStreaming() throws Exception;
     public Boolean isPaused();
+    public Boolean isIdle();
     public void cancelSend() throws Exception;
 
     /**

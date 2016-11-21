@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
@@ -286,6 +287,15 @@ public class GrblController extends AbstractController {
         } else {
 
         }
+    }
+
+    @Override
+    protected Boolean isIdleEvent() {
+        if (this.capabilities.REAL_TIME) {
+            return this.currentState == COMM_IDLE;
+        }
+        // Otherwise let the abstract controller decide.
+        return true;
     }
     
     /**
