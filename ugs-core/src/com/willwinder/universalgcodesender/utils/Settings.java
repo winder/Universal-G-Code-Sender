@@ -47,6 +47,7 @@ public class Settings {
     private String portRate = "9600";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
+    private boolean useZStepSize = true;
     private double zJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
@@ -169,6 +170,15 @@ public class Settings {
 
     public void setManualModeStepSize(double manualModeStepSize) {
         this.manualModeStepSize = manualModeStepSize;
+        changed();
+    }
+
+    public boolean useZStepSize() {
+        return this.useZStepSize;
+    }
+
+    public void setUseZStepSize(boolean useZStepSize) {
+        this.useZStepSize = useZStepSize;
         changed();
     }
 

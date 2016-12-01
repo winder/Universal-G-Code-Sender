@@ -142,7 +142,11 @@ public class JogService {
      */
     public void adjustManualLocationZ(int z) {
         try {
-            this.backend.adjustManualLocation(0, 0, z, stepSizeZ, feedRate, units);
+            double stepSize = stepSizeZ;
+            if (!this.backend.getSettings().useZStepSize()) {
+                stepSize = stepSizeXY;
+            }
+            this.backend.adjustManualLocation(0, 0, z, stepSize, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);

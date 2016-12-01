@@ -134,7 +134,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent()) {
+        if (evt.isStateChangeEvent() || evt.isSettingChangeEvent()) {
             syncWithJogService();
             updateControls();
         }
@@ -324,9 +324,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         stepSizeLabel.setEnabled(enabled);
         stepSizeLabelZ.setEnabled(enabled);
         xyStepSizeSpinner.setEnabled(enabled);
-        zStepSizeSpinner.setEnabled(enabled);
         feedRateLabel.setEnabled(enabled);
         feedRateSpinner.setEnabled(enabled);
         unitButton.setEnabled(enabled);
+
+        boolean zStepEnabled = enabled && backend.getSettings().useZStepSize();
+        zStepSizeSpinner.setEnabled(zStepEnabled);
+        stepSizeLabelZ.setEnabled(zStepEnabled);
     }
 }

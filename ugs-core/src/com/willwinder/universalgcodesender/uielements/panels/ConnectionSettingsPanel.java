@@ -37,6 +37,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     final Checkbox verboseConsoleOutput = new Checkbox(
                 Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
+    final Checkbox useZStepSize = new Checkbox(
+                Localization.getString("sender.step.separateZ"));
     final Checkbox singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"));
     final Checkbox statusPollingEnabled = new Checkbox(
@@ -76,6 +78,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     @Override
     public void save() {
         settings.setVerboseOutputEnabled(verboseConsoleOutput.getValue());
+        settings.setUseZStepSize(useZStepSize.getValue());
         settings.setSingleStepMode(singleStepMode.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
@@ -99,6 +102,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         verboseConsoleOutput.setSelected(s.isVerboseOutputEnabled());
         add(verboseConsoleOutput);
+
+        useZStepSize.setSelected(s.useZStepSize());
+        add(useZStepSize);
 
         singleStepMode.setSelected(s.isSingleStepMode());
         add(singleStepMode);
