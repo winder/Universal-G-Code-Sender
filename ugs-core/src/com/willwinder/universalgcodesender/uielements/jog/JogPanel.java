@@ -90,6 +90,10 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         zMinusButton.addActionListener(e -> zMinusButtonActionPerformed());
     }
 
+    private void keyboardMovementSelected() {
+        backend.getSettings().setManualModeEnabled(keyboardMovementEnabled.isSelected());
+    }
+
     private void initComponents() {
         unitButton.setText(getUnits().abbreviation);
 
@@ -99,6 +103,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
                 backend.getSettings().isManualModeEnabled():
                 false);
+        keyboardMovementEnabled.addActionListener(al -> keyboardMovementSelected());
 
         // MigLayout... 3rd party layout library.
         MigLayout layout = new MigLayout("fill, wrap 4");
@@ -313,8 +318,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void updateManualControls(boolean enabled) {
-        keyboardMovementEnabled.setEnabled(enabled);
-
         xMinusButton.setEnabled(enabled);
         xPlusButton.setEnabled(enabled);
         yMinusButton.setEnabled(enabled);
