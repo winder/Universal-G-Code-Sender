@@ -167,7 +167,7 @@ public class JogService {
     }
 
     public boolean canJog() {
-        return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
+        return backend.isConnected() && !backend.isSendingFile();
     }
 }
 
