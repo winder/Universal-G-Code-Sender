@@ -18,10 +18,13 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
+import java.text.DecimalFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -36,6 +39,8 @@ public class VisualizerPopupMenu extends JPopupMenu {
     private static final Logger logger = Logger.getLogger(VisualizerPopupMenu.class.getName());
     private final JogToHereAction jogToHereAction;
     private final JMenuItem jogToHere = new JMenuItem();
+    private final DecimalFormat decimalFormatter =
+            new DecimalFormat("#.#####", Localization.dfs);
 
     public VisualizerPopupMenu(BackendAPI backend) {
         jogToHereAction = new JogToHereAction(backend);
@@ -47,20 +52,26 @@ public class VisualizerPopupMenu extends JPopupMenu {
     }
 
     public void setJogLocation(double x, double y) {
-        jogToHereAction.setJogLocation(x, y);
-        jogToHere.setText(String.format(Localization.getString("platform.visualizer.popup.jogToHere"), x, y));
+
+        String strX = decimalFormatter.format(x);
+        String strY = decimalFormatter.format(y);
+
+        jogToHereAction.setJogLocation(strX, strY);
+        String jogToHereString = Localization.getString("platform.visualizer.popup.jogToHere");
+        jogToHereString = jogToHereString.replaceAll("%f", "%s");
+        jogToHere.setText(String.format(jogToHereString, strX, strY));
     }
 
     private static class JogToHereAction extends AbstractAction {
-        private double x = 0;
-        private double y = 0;
+        private String x = "0";
+        private String y = "0";
         private final BackendAPI backend;
 
         JogToHereAction(BackendAPI backend) {
             this.backend = backend;
         }
 
-        public void setJogLocation(double x, double y) {
+        public void setJogLocation(String x, String y) {
             this.x = x;
             this.y = y;
         }
