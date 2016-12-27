@@ -703,7 +703,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         commPortComboBox.setEditable(true);
 
-        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200" }));
+        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400" }));
         baudrateSelectionComboBox.setSelectedIndex(2);
         baudrateSelectionComboBox.setToolTipText("Select baudrate to use for the serial port.");
         baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {

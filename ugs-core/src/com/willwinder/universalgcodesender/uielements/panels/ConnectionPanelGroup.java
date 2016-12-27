@@ -94,7 +94,7 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
         portCombo.setEditable(true);
 
-        baudCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200"}));
+        baudCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
         baudCombo.setSelectedIndex(2);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
 
