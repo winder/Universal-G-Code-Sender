@@ -130,7 +130,9 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
             } catch (InterruptedException ex) {}
 
             // Stop the timer after a delay to make sure it is updated.
-            timer.stop();
+            if (timer != null && timer.isRunning()) {
+                timer.stop();
+            }
         });
     }
 
