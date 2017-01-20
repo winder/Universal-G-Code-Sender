@@ -40,17 +40,20 @@ public class GUIHelpers {
 
     public static void displayErrorDialog(final String errorMessage) {
         java.awt.EventQueue.invokeLater(() -> {
-            JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
-                    Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
+            //JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
+            //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
+            NarrowOptionPane.showNarrowDialog(250, errorMessage.replaceAll("\\.\\.", "\\."),
+                    Localization.getString("error"),
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
         });
     }
 
     public static void displayHelpDialog(final String helpMessage) {
         java.awt.EventQueue.invokeLater(() -> {
-            //NarrowOptionPane.showNarrowConfirmDialog(600, helpMessage, Localization.getString("help"),
-                    //JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            JOptionPane.showMessageDialog(new JFrame(), helpMessage, 
-                    Localization.getString("help"), JOptionPane.INFORMATION_MESSAGE);
+            NarrowOptionPane.showNarrowConfirmDialog(250, helpMessage, Localization.getString("help"),
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            //JOptionPane.showMessageDialog(new JFrame(), helpMessage, 
+            //        Localization.getString("help"), JOptionPane.INFORMATION_MESSAGE);
         });
     }
 }

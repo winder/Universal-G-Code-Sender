@@ -750,11 +750,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 String error =
                         String.format(Localization.getString("controller.exception.sendError"),
                                 command.getCommandString(),
-                                command.getResponse());
+                                command.getResponse()).replaceAll("\\.\\.", "\\.");
                 messageForConsole(MessageType.INFO, error);
 
                 String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
-                Object[] params = {error, checkboxQuestion};
+                Object[] params = {String.format(NarrowOptionPane.pattern, 300, error), checkboxQuestion};
                 int n = JOptionPane.showConfirmDialog(new JFrame(),
                         params,
                         Localization.getString("error"),

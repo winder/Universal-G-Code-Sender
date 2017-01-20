@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -29,15 +30,23 @@ import javax.swing.JPanel;
  */
 public class NarrowOptionPane extends JOptionPane
 {
-    static String pattern = 
-            "<html><body><p style='width: 200px;'>%s</p></body></html>";
+    public static String pattern = 
+            "<html><body><p style='width: %dpx;'>%s</p></body></html>";
+
+    public static void showNarrowDialog(int textWidthInPixels,
+            String message, String title, int optionType, int messageType)
+            throws HeadlessException {
+        JOptionPane.showMessageDialog(new JFrame(),
+                String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")), 
+                title, messageType);
+    }
 
     public static int showNarrowConfirmDialog(int textWidthInPixels,
             String message, String title, int optionType, int messageType)
             throws HeadlessException {
         return JOptionPane.showConfirmDialog(
                 new JPanel(),
-                String.format(pattern, message.replaceAll("\n", "<br>")),
+                String.format(pattern, textWidthInPixels, message.replaceAll("\n", "<br>")),
                 title,
                 optionType,
                 messageType);
