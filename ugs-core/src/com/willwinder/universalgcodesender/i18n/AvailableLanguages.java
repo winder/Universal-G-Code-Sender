@@ -29,16 +29,17 @@ public class AvailableLanguages {
     private static Collection<Language> availableLanguages = new ArrayList<>();
     
     static {
-        availableLanguages.add(new Language("en", "US", "English"));
-        availableLanguages.add(new Language("de", "DE", "German"));
-        availableLanguages.add(new Language("es", "ES", "Spanish"));
-        availableLanguages.add(new Language("it", "IT", "Italian"));
         availableLanguages.add(new Language("af", "ZA", "Afrikaans"));
-        availableLanguages.add(new Language("fr", "FR", "French"));
-        availableLanguages.add(new Language("el", "EL", "Greek"));
         availableLanguages.add(new Language("nl", "NL", "Dutch"));
+        availableLanguages.add(new Language("en", "US", "English"));
+        availableLanguages.add(new Language("fr", "FR", "French"));
+        availableLanguages.add(new Language("de", "DE", "German"));
+        availableLanguages.add(new Language("el", "EL", "Greek"));
+        availableLanguages.add(new Language("it", "IT", "Italian"));
         availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
         availableLanguages.add(new Language("ru", "RU", "Russian"));
+        availableLanguages.add(new Language("es", "ES", "Spanish"));
+        availableLanguages.add(new Language("tr", "TR", "Turkish"));
     }
 
     public static Collection<Language> getAvailableLanguages() {
