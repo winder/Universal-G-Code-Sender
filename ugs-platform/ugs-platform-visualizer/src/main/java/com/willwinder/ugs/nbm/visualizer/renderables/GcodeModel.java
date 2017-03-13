@@ -252,9 +252,9 @@ public class GcodeModel extends Renderable {
             System.out.println("Center = " + center.toString());
             System.out.println("Num Line Segments :" + gcodeLineList.size());
 
-            objectSize.setX(this.objectMax.x-this.objectMin.x);
-            objectSize.setY(this.objectMax.y-this.objectMin.y);
-            objectSize.setZ(this.objectMax.z-this.objectMin.z);
+            objectSize.x = this.objectMax.x-this.objectMin.x;
+            objectSize.y = this.objectMax.y-this.objectMin.y;
+            objectSize.z = this.objectMax.z-this.objectMin.z;
 
             /*
             this.scaleFactorBase = VisualizerUtils.findScaleFactor(this.xSize, this.ySize, this.objectMin, this.objectMax);
