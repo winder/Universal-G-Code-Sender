@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,7 +22,7 @@ package com.willwinder.ugs.nbp.core.control;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.panels.ActionButtonPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
 import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -32,29 +32,29 @@ import org.openide.windows.TopComponent;
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "ActionsTopComponent",
+        preferredID = "ProbeTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = LocalizingService.ActionsCategory, id = LocalizingService.ActionsActionId)
-@ActionReference(path = LocalizingService.ActionsWindowPath)
+@ActionID(category = LocalizingService.ProbeCategory, id = LocalizingService.ProbeActionId)
+@ActionReference(path = LocalizingService.ProbeWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:ActionsTopComponent>",
-        preferredID = "ActionsTopComponent"
+        displayName = "<Not localized:ProbeTopComponent>",
+        preferredID = "ProbeTopComponent"
 )
-public final class ActionsTopComponent extends TopComponent {
+public final class ProbeTopComponent extends TopComponent {
 
-    public ActionsTopComponent() {
+    public ProbeTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());
-        this.add(new ActionButtonPanel(backend), BorderLayout.CENTER);
+        this.add(new ProbePanel(backend), BorderLayout.CENTER);
     }
 
     @Override
     public void componentOpened() {
-        setName(LocalizingService.ActionsTitle);
-        setToolTipText(LocalizingService.ActionsTooltip);
+        setName(LocalizingService.ProbeTitle);
+        setToolTipText(LocalizingService.ProbeTooltip);
     }
 
     @Override
