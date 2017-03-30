@@ -93,13 +93,13 @@ public class GrblUtils {
     /** 
      * Parses the version double out of the version response string.
      */
+    final static String VERSION_DOUBLE_REGEX = "[0-9]*\\.[0-9]*";
+    final static Pattern VERSION_DOUBLE_PATTERN = Pattern.compile(VERSION_DOUBLE_REGEX);
     static protected double getVersionDouble(final String response) {
         double retValue = -1;
-        final String VERSION_REGEX = "[0-9]*\\.[0-9]*";
         
         // Search for a version.
-        Pattern pattern = Pattern.compile(VERSION_REGEX);
-        Matcher matcher = pattern.matcher(response);
+        Matcher matcher = VERSION_DOUBLE_PATTERN.matcher(response);
         if (matcher.find()) {
             retValue = Double.parseDouble(matcher.group(0));
         }
@@ -107,13 +107,13 @@ public class GrblUtils {
         return retValue;
     }
     
+    final static String VERSION_LETTER_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
+    final static Pattern VERSION_LETTER_PATTERN = Pattern.compile(VERSION_LETTER_REGEX);
     static protected Character getVersionLetter(final String response) {
         Character retValue = null;
-        final String VERSION_REGEX = "(?<=[0-9]\\.[0-9])[a-zA-Z]";
         
         // Search for a version.
-        Pattern pattern = Pattern.compile(VERSION_REGEX);
-        Matcher matcher = pattern.matcher(response);
+        Matcher matcher = VERSION_LETTER_PATTERN.matcher(response);
         if (matcher.find()) {
             retValue = matcher.group(0).charAt(0);
             //retValue = Double.parseDouble(matcher.group(0));
@@ -236,7 +236,7 @@ public class GrblUtils {
 
         return ret;
     }
-    
+
     /**
      * Check if a string contains a GRBL position string.
      */
@@ -385,20 +385,17 @@ public class GrblUtils {
     /**
      * Parse state out of position string.
      */
+    final static String STATUS_STATE_REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
+    final static Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
     static protected String getStateFromStatusString(final String status, final Capabilities version) {
         String retValue = null;
-        String REGEX;
         
-        if (version.REAL_TIME) {
-            REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
-        } else {
+        if (!version.REAL_TIME) {
             return null;
         }
         
-        
         // Search for a version.
-        Pattern pattern = Pattern.compile(REGEX);
-        Matcher matcher = pattern.matcher(status);
+        Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
         if (matcher.find()) {
             retValue = matcher.group(0);;
         }
