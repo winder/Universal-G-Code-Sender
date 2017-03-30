@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.control;
 
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -105,7 +106,7 @@ public final class MacroService {
             Macro m = settings.getMacro(macroIdx);
             try {
                 if (m != null && m.getGcode() != null) {
-                    backend.sendGcodeCommand(m.getGcode());
+                    MacroHelper.executeCustomGcode(m.getGcode(), backend);
                 }
             } catch (Exception ex) {
                 Exceptions.printStackTrace(ex);
