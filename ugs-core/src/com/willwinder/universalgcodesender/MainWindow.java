@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2016 Will Winder
+    Copywrite 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -69,10 +69,12 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.BorderLayout;
@@ -151,6 +153,15 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         initProgram();
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
+
+        JFrame frame = new JFrame("prober");
+
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(new ProbePanel(backend), BorderLayout.CENTER);
+
+        frame.pack();
+        frame.setVisible(true);
+
         
         boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
@@ -1984,6 +1995,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }});
     }
 
+    @Override
+    public void probeCoordinates(Position p) {
+    }
+
     // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
     public void messageForConsole(final MessageType type, final String msg) {
@@ -2168,5 +2183,4 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel workPositionZLabel;
     private javax.swing.JLabel workPositionZValueLabel;
     // End of variables declaration//GEN-END:variables
-
 }

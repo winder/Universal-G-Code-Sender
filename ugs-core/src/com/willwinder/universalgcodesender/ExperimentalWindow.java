@@ -1,5 +1,5 @@
 /*
-    Copywrite 2012-2016 Will Winder
+    Copywrite 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.services.JogService;
@@ -492,6 +493,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     
     @Override
     public void commandComplete(final GcodeCommand command) {
+
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
 
     }
 

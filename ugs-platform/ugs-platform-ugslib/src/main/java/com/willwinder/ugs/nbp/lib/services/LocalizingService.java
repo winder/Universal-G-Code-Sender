@@ -93,6 +93,12 @@ public class LocalizingService {
     public final static String WorkflowWindowActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
     public final static String WorkflowWindowCategory = "Window";
 
+    public final static String ProbeTitle = Localization.getString("platform.window.probe", lang);
+    public final static String ProbeTooltip = Localization.getString("platform.window.probe.tooltip", lang);
+    public final static String ProbeWindowPath = "Menu/Window/Plugins";
+    public final static String ProbeActionId = "com.willwinder.ugs.nbp.control.ProbeTopComponent";
+    public final static String ProbeCategory = "Window";
+
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
@@ -119,5 +125,6 @@ public class LocalizingService {
         ars.overrideActionName(SendStatusCategory, SendStatusActionId, SendStatusTitle);
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
         ars.overrideActionName(VisualizerCategory, VisualizerActionId, VisualizerTitle);
+        ars.overrideActionName(ProbeCategory, ProbeActionId, ProbeTitle);
     }
 }

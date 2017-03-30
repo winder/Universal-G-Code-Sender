@@ -13,9 +13,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.vecmath.Point3d;
 
-import com.willwinder.universalgcodesender.model.Position;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 
@@ -35,6 +33,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.net.URL;
@@ -346,6 +345,10 @@ public class PendantUI implements ControllerListener{
 
     @Override
     public void commandComment(String comment) {
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
     }
 
     @Override

@@ -2,7 +2,7 @@
  * Send speed override commands to the backend.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copywrite 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryS
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.awt.Color;
@@ -230,6 +231,10 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
 
     @Override
     public void commandComment(String comment) {
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
     }
 
     @Override

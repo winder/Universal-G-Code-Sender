@@ -2,7 +2,7 @@
  * GRBL Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -175,6 +175,15 @@ public class GrblController extends AbstractController {
                     "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.REAL_TIME});
         }
         
+        else if (GrblUtils.isGrblProbeMessage(response)) {
+            this.messageForConsole(response + "\n");
+
+            Position p = GrblUtils.parseProbePosition(response, getReportingUnits());
+            if (p != null) {
+                dispatchProbeCoordinates(p);
+            }
+        }
+
         else if (GrblUtils.isGrblStatusString(response)) {
             // Only 1 poll is sent at a time so don't decrement, reset to zero.
             this.outstandingPolls = 0;

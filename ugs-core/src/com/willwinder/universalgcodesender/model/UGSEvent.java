@@ -4,7 +4,7 @@
  */
 
 /*
-    Copywrite 2012-2016 Will Winder
+    Copywrite 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,15 +28,17 @@ package com.willwinder.universalgcodesender.model;
  * @author wwinder
  */
 public class UGSEvent {
-    EventType evt = null;
+    final EventType evt;
     ControlState controlState = null;
     FileState fileState = null;
+    Position probePosition = null;
     String file = null;
     
     public enum EventType {
         STATE_EVENT,
         FILE_EVENT,
         SETTING_EVENT,
+        PROBE_EVENT
     }
 
     public enum FileState {
@@ -63,6 +65,10 @@ public class UGSEvent {
         return evt == EventType.SETTING_EVENT;
     }
 
+    public boolean isProbeEvent() {
+        return evt == EventType.PROBE_EVENT;
+    }
+
     /**
      * Create a new event of given type. STATE_EVENT and FILE_EVENT have
      * required parameters, so a runtime exception will be thrown if they are
@@ -74,6 +80,7 @@ public class UGSEvent {
         switch (evt) {
             case STATE_EVENT:
             case FILE_EVENT:
+            case PROBE_EVENT:
                 throw new RuntimeException("Missing parameters for " + type + " event.");
         }
     }
@@ -100,6 +107,16 @@ public class UGSEvent {
         fileState = state;
         file = filepath;
     }
+
+    /**
+     * Create a probe position event.
+     * PROBE_POSITION: This event indicates the tool location after a probe.
+     * @param probePosition 
+     */
+    public UGSEvent(Position probePosition) {
+        evt = EventType.PROBE_EVENT;
+        this.probePosition = probePosition;
+    }
     
     // Getters
 
@@ -113,5 +130,9 @@ public class UGSEvent {
     
     public String getFile() {
         return file;
+    }
+
+    public Position getProbePosition() {
+        return probePosition;
     }
 }

@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2015-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -785,6 +785,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void commandComment(String comment) {
         this.lastComment = comment;
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
+        this.sendControlStateEvent(new UGSEvent(p), false);
     }
 
     @Override

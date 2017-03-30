@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copywrite 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -204,6 +205,11 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
     @Override
     public void commandComment(String comment) {
+
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
 
     }
 

@@ -1,5 +1,5 @@
 /*
-    Copywrite 2014-2016 Will Winder, MerrellM
+    Copywrite 2014-2017 Will Winder, MerrellM
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -80,6 +81,10 @@ public class GrblSettingsListener implements ControllerListener, SerialCommunica
     @Override
     public void commandComment(String comment) {
 
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
     }
 
     @Override

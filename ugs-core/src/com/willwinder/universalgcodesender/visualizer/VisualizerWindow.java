@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -151,6 +151,10 @@ implements ControllerListener, WindowListener {
     @Override
     public void commandComment(String comment) {
         //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void probeCoordinates(Position p) {
     }
 
     @Override

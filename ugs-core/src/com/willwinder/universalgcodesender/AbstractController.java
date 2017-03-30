@@ -2,7 +2,7 @@
  * Abstract Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
@@ -215,12 +216,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Probe offset.");
 
-        String offsetPattern = "G43.1 %s%d";
+        String offsetPattern = "G43.1 %s%f";
         String offsetCommand = String.format(offsetPattern,
                 axis,
                 offset * scaleUnits(units, MM));
 
-        GcodeCommand state = createCommand("G21 G91 G49");
+        GcodeCommand state = createCommand("G21 G90");
         state.setTemporaryParserModalChange(true);
 
         this.sendCommandImmediately(state);
@@ -871,6 +872,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.postProcessData(numRows);
+            }
+        }
+    }
+
+    protected void dispatchProbeCoordinates(Position p) {
+        if (listeners != null) {
+            for (ControllerListener c : listeners) {
+                c.probeCoordinates(p);
             }
         }
     }

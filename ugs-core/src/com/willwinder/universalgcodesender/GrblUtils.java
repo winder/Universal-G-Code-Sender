@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2016 Will Winder
+    Copywrite 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -237,6 +237,17 @@ public class GrblUtils {
         return ret;
     }
 
+    static String PROBE_POSITION_REGEX = "\\[PRB:(-?\\d*\\.\\d*),(-?\\d*\\.\\d*),(-?\\d*\\.\\d*)(?::(\\d))?]";
+    static Pattern PROBE_POSITION_PATTERN = Pattern.compile(PROBE_POSITION_REGEX);
+    static protected Position parseProbePosition(final String response, final Units units) {
+        // Don't parse failed probe response.
+        if (response.contains(":0]")) {
+            return null;
+        }
+
+        return GrblUtils.getPositionFromStatusString(response, PROBE_POSITION_PATTERN, units);
+    }
+    
     /**
      * Check if a string contains a GRBL position string.
      */
@@ -244,6 +255,12 @@ public class GrblUtils {
     private static final Pattern STATUS_PATTERN = Pattern.compile(STATUS_REGEX);
     static protected Boolean isGrblStatusString(final String response) {
         return STATUS_PATTERN.matcher(response).find();
+    }
+
+    private static final String PROBE_REGEX = "\\[PRB:.*\\]";
+    private static final Pattern PROBE_PATTERN = Pattern.compile(PROBE_REGEX);
+    static protected Boolean isGrblProbeMessage(final String response) {
+        return PROBE_PATTERN.matcher(response).find();
     }
 
     private static final String FEEDBACK_REGEX = "\\[.*\\]";
