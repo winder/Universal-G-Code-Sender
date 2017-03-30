@@ -19,8 +19,10 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -56,6 +58,12 @@ public interface IController {
      */
     public void jogMachine(int dirX, int dirY, int dirZ,
             double stepSize, double feedRate, Units units) throws Exception;
+
+    /**
+     * Probe control
+     */
+    public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
+    public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
 
     /*
     Overrides

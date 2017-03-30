@@ -40,6 +40,7 @@ import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGrou
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
+import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
 import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionToolbarPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -72,6 +73,7 @@ public class WidgetPreviewer {
         // Button panel...
         panel.setLayout(new MigLayout("wrap 1"));
 
+        panel.add(frameLauncherButton("ConnectionPanelGroup", new ConnectionPanelGroup(backend, new JogService(backend))));
         panel.add(frameLauncherButton("CommandTextArea", new CommandTextArea(backend)));
         //panel.add(frameLauncherButton("ConnectionSettingsDialog", new ConnectionSettingsDialog(backend.getSettings()), null, false));
         panel.add(dialogLauncherButton("ConnectionSettingsPanel",
@@ -96,12 +98,12 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("ActionButtonPanel", new ActionButtonPanel(backend)));
         panel.add(frameLauncherButton("ActionPanel", new ActionPanel(backend)));
         panel.add(frameLauncherButton("CommandPanel", new CommandPanel(backend)));
-        panel.add(frameLauncherButton("ConnectionPanelGroup", new ConnectionPanelGroup(backend, new JogService(backend))));
         panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
         panel.add(frameLauncherButton("ConnectionToolbarPanel", new ConnectionToolbarPanel(backend)));
         panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend)));
+        panel.add(frameLauncherButton("Probe Panel", new ProbePanel(backend)));
 
         // Display the main frame.
         frame.pack();

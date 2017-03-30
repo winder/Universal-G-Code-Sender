@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copywrite 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.services;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 /**
@@ -32,7 +31,7 @@ public class JogService {
     private double feedRate = 1;
     private Units units;
 
-    private BackendAPI backend;
+    private final BackendAPI backend;
 
     public JogService(BackendAPI backend) {
         this.backend = backend;

@@ -423,6 +423,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
+        controller.probe(axis, feedRate, distance, units);
+    }
+
+    @Override
+    public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception {
+        controller.offsetTool(axis, offset, units);
+    }
+
+    @Override
     public Settings getSettings() {
         logger.log(Level.FINEST, "Getting settings.");
         return this.settings;

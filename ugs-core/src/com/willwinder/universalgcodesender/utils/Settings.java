@@ -62,6 +62,12 @@ public class Settings {
     private boolean displayStateColor = true;
     private String defaultUnits = Units.MM.abbreviation;
 
+    // Probe settings
+    private String probeAxis = "Z";
+    private double probeFeed = 5.0;
+    private double probeDistance = -10;
+    private double probeOffset = 0;
+
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
 
@@ -400,5 +406,41 @@ public class Settings {
 
     public int getToolbarIconSize() {
         return this.toolbarIconSize;
+    }
+
+    public String getProbeAxis() {
+        return probeAxis;
+    }
+
+    public void setProbeAxis(String probeAxis) {
+        this.probeAxis = probeAxis;
+        changed();
+    }
+
+    public double getProbeFeed() {
+        return probeFeed;
+    }
+
+    public void setProbeFeed(double probeFeed) {
+        this.probeFeed = probeFeed;
+        changed();
+    }
+
+    public double getProbeDistance() {
+        return probeDistance;
+    }
+
+    public void setProbeDistance(double probeDistance) {
+        this.probeDistance = probeDistance;
+        changed();
+    }
+
+    public double getProbeOffset() {
+        return probeOffset;
+    }
+
+    public void setProbeOffset(double probeOffset) {
+        this.probeOffset = probeOffset;
+        changed();
     }
 }

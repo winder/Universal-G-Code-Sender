@@ -441,7 +441,7 @@ public class GrblUtils {
     static private Position getPositionFromStatusString(final String status, final Pattern pattern, Units reportingUnits) {
         Matcher matcher = pattern.matcher(status);
         if (matcher.find()) {
-            return new Position( Double.parseDouble(matcher.group(1)),
+            return new Position(Double.parseDouble(matcher.group(1)),
                                 Double.parseDouble(matcher.group(2)),
                                 Double.parseDouble(matcher.group(3)),
                                 reportingUnits);
