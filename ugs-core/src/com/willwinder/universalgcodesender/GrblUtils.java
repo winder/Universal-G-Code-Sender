@@ -327,7 +327,7 @@ public class GrblUtils {
                     MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
                 }
                 else if (part.startsWith("WPos:")) {
-                    MPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
+                    WPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
                 }
                 else if (part.startsWith("WCO:")) {
                     WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
