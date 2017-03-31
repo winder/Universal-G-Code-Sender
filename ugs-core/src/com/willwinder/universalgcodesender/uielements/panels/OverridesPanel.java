@@ -2,7 +2,7 @@
  * Send speed override commands to the backend.
  */
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
@@ -55,13 +56,13 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final ArrayList<Component> components = new ArrayList<>();
 
     private final JLabel feedSpeed = new JLabel("100%");
-    private final JRadioButton feedRadio = new JRadioButton("Feed");
+    private final JRadioButton feedRadio = new JRadioButton(FEED_SHORT);
 
     private final JLabel spindleSpeed = new JLabel("100%");
-    private final JRadioButton spindleRadio = new JRadioButton("Spindle");
+    private final JRadioButton spindleRadio = new JRadioButton(SPINDLE_SHORT);
 
     private final JLabel rapidSpeed = new JLabel("100%");
-    private final JRadioButton rapidRadio = new JRadioButton("Rapid");
+    private final JRadioButton rapidRadio = new JRadioButton(RAPID_SHORT);
 
     private final JButton adjust1 = new JButton("");
     private final JButton adjust2 = new JButton("");
@@ -69,9 +70,29 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final JButton adjust4 = new JButton("");
     private final JButton adjust5 = new JButton("");
 
-    private final JButton toggleSpindle = new JButton("Spindle");
-    private final JButton toggleFloodCoolant = new JButton("Flood Coolant");
-    private final JButton toggleMistCoolant = new JButton("Mist Coolant");
+    private final JButton toggleSpindle = new JButton(SPINDLE_SHORT);
+    private final JButton toggleFloodCoolant = new JButton(FLOOD);
+    private final JButton toggleMistCoolant = new JButton(MIST);
+
+    private final ArrayList<RealTimeAction> rapidActions = new ArrayList<>();
+    private final ArrayList<RealTimeAction> spindleActions = new ArrayList<>();
+    private final ArrayList<RealTimeAction> feedActions = new ArrayList<>();
+
+    public final static String FEED_SHORT = Localization.getString("overrides.feed.short");
+    public final static String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
+    public final static String RAPID_SHORT = Localization.getString("overrides.rapid.short");
+    public final static String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
+    public final static String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
+    public final static String RESET_FEED = Localization.getString("overrides.feed.reset");
+    public final static String MINUS_COARSE = "--";
+    public final static String MINUS_FINE = "-";
+    public final static String PLUS_COARSE = "++";
+    public final static String PLUS_FINE = "+";
+    public final static String RAPID_LOW = Localization.getString("overrides.rapid.low");
+    public final static String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
+    public final static String RAPID_FULL = Localization.getString("overrides.rapid.full");
+    public final static String MIST = Localization.getString("overrides.mist");
+    public final static String FLOOD = Localization.getString("overrides.flood");
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
@@ -122,42 +143,60 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
             adjust2.setEnabled(false);
             adjust5.setEnabled(false);
 
-            adjust1.setText("low");
+            adjust1.setText(RAPID_LOW);
             adjust2.setText("");
-            adjust3.setText("medium");
-            adjust4.setText("full");
+            adjust3.setText(RAPID_MEDIUM);
+            adjust4.setText(RAPID_FULL);
             adjust5.setText("");
 
-            adjust1.setAction(new RealTimeAction("low", Overrides.CMD_RAPID_OVR_LOW, backend));
-            adjust3.setAction(new RealTimeAction("medium", Overrides.CMD_RAPID_OVR_MEDIUM, backend));
-            adjust4.setAction(new RealTimeAction("full", Overrides.CMD_RAPID_OVR_RESET, backend));
+            adjust1.setAction(rapidActions.get(0));
+            adjust3.setAction(rapidActions.get(1));
+            adjust4.setAction(rapidActions.get(2));
         } else {
             adjust2.setEnabled(true);
             adjust5.setEnabled(true);
 
-            adjust1.setText("--");
-            adjust2.setText("-");
-            adjust3.setText("reset");
-            adjust4.setText("+");
-            adjust5.setText("++");
+            adjust1.setText(MINUS_COARSE);
+            adjust2.setText(MINUS_FINE);
+            adjust4.setText(PLUS_FINE);
+            adjust5.setText(PLUS_COARSE);
 
+            ArrayList<RealTimeAction> actions = null;
             if (feedRadio.isSelected()) {
-                adjust1.setAction(new RealTimeAction("--", Overrides.CMD_FEED_OVR_COARSE_MINUS, backend));
-                adjust2.setAction(new RealTimeAction("-", Overrides.CMD_FEED_OVR_FINE_MINUS, backend));
-                adjust3.setAction(new RealTimeAction("reset", Overrides.CMD_FEED_OVR_RESET, backend));
-                adjust4.setAction(new RealTimeAction("+", Overrides.CMD_FEED_OVR_FINE_PLUS, backend));
-                adjust5.setAction(new RealTimeAction("++", Overrides.CMD_FEED_OVR_COARSE_PLUS, backend));
+                adjust3.setText(RESET_FEED);
+                actions = feedActions;
             } else if (spindleRadio.isSelected()) {
-                adjust1.setAction(new RealTimeAction("--", Overrides.CMD_SPINDLE_OVR_COARSE_MINUS, backend));
-                adjust2.setAction(new RealTimeAction("-", Overrides.CMD_SPINDLE_OVR_FINE_MINUS, backend));
-                adjust3.setAction(new RealTimeAction("reset", Overrides.CMD_SPINDLE_OVR_RESET, backend));
-                adjust4.setAction(new RealTimeAction("+", Overrides.CMD_SPINDLE_OVR_FINE_PLUS, backend));
-                adjust5.setAction(new RealTimeAction("++", Overrides.CMD_SPINDLE_OVR_COARSE_PLUS, backend));
+                adjust3.setText(RESET_SPINDLE);
+                actions = spindleActions;
+            }
+
+            if (actions != null) {
+                adjust1.setAction(actions.get(0));
+                adjust2.setAction(actions.get(1));
+                adjust3.setAction(actions.get(2));
+                adjust4.setAction(actions.get(3));
+                adjust5.setAction(actions.get(4));
             }
         }
     }
-    
+
     private void initComponents() {
+        rapidActions.add(new RealTimeAction(RAPID_LOW, Overrides.CMD_RAPID_OVR_LOW, backend));
+        rapidActions.add(new RealTimeAction(RAPID_MEDIUM, Overrides.CMD_RAPID_OVR_MEDIUM, backend));
+        rapidActions.add(new RealTimeAction(RAPID_FULL, Overrides.CMD_RAPID_OVR_RESET, backend));
+
+        spindleActions.add(new RealTimeAction(MINUS_COARSE, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS, backend));
+        spindleActions.add(new RealTimeAction(MINUS_FINE, Overrides.CMD_SPINDLE_OVR_FINE_MINUS, backend));
+        spindleActions.add(new RealTimeAction(RESET_SPINDLE, Overrides.CMD_SPINDLE_OVR_RESET, backend));
+        spindleActions.add(new RealTimeAction(PLUS_FINE, Overrides.CMD_SPINDLE_OVR_FINE_PLUS, backend));
+        spindleActions.add(new RealTimeAction(PLUS_COARSE, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS, backend));
+
+        feedActions.add(new RealTimeAction(MINUS_COARSE, Overrides.CMD_FEED_OVR_COARSE_MINUS, backend));
+        feedActions.add(new RealTimeAction(MINUS_FINE, Overrides.CMD_FEED_OVR_FINE_MINUS, backend));
+        feedActions.add(new RealTimeAction(RESET_FEED, Overrides.CMD_FEED_OVR_RESET, backend));
+        feedActions.add(new RealTimeAction(PLUS_FINE, Overrides.CMD_FEED_OVR_FINE_PLUS, backend));
+        feedActions.add(new RealTimeAction(PLUS_COARSE, Overrides.CMD_FEED_OVR_COARSE_PLUS, backend));
+
         adjust1.setEnabled(false);
         adjust2.setEnabled(false);
         adjust3.setEnabled(false);
@@ -189,12 +228,12 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(spindleRadio);
         this.add(rapidRadio, "wrap");
 
-        this.add(new JLabel("Feed:"));
+        this.add(new JLabel(FEED_SHORT + ":"));
         this.add(feedSpeed);
         this.add(adjust1);
         this.add(adjust2);
 
-        this.add(new JLabel("Spindle:"));
+        this.add(new JLabel(SPINDLE_SHORT + ":"));
         this.add(spindleSpeed);
         this.add(adjust3, "span 2");
 
@@ -203,7 +242,7 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         this.add(adjust4);
         this.add(adjust5, "wrap");
 
-        this.add(new JLabel("Toggle:"));
+        this.add(new JLabel(TOGGLE_SHORT + ":"));
         this.add(toggleSpindle);
         this.add(toggleFloodCoolant);
         this.add(toggleMistCoolant);
