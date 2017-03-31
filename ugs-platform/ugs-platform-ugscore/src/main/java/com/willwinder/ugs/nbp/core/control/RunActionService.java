@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileActio
 import com.willwinder.universalgcodesender.uielements.actions.Pause;
 import com.willwinder.universalgcodesender.uielements.actions.Start;
 import com.willwinder.universalgcodesender.uielements.actions.Stop;
+import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
@@ -156,17 +157,101 @@ public class RunActionService {
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.HOMING_CYCLE));
 
-            /*
-            TODO: Override actions
+            // Feed Overrides
+            category = "Overrides";
+            localizedCategory = Localization.getString("platform.menu.overrides");
+            menuPath = "Menu/Machine/Overrides";
             localized = String.format("Menu/%s/%s",
                     Localization.getString("platform.menu.machine"),
                     Localization.getString("platform.menu.overrides"));
+
+            String pattern = Localization.getString("overrides.feed") + " (%s)";
+
+            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_COARSE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_MINUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_FINE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_MINUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_FINE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_PLUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_COARSE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_PLUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.RESET_FEED),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_FEED_OVR_RESET));
+
+            // Spindle Overrides
             menuPath = "Menu/Machine/Overrides";
-            machine = "Machine";
+            localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.overrides"));
+            pattern = Localization.getString("overrides.spindle") + " (%s)";
 
-            // Overrides
-            */
+            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_COARSE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS));
 
+            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_FINE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_MINUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_FINE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_PLUS));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_COARSE),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS));
+
+            ars.registerAction(String.format(pattern, Localization.getString("mainWindow.swing.reset")),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_RESET));
+
+            // Rapid Overrides
+            menuPath = "Menu/Machine/Overrides";
+            localized = String.format("Menu/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.overrides"));
+
+            pattern = Localization.getString("overrides.rapid") + " (%s)";
+
+            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_LOW),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_LOW));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_MEDIUM),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_MEDIUM));
+
+            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_FULL),
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_RAPID_OVR_RESET));
+
+            // Toggles
+            menuPath = "Menu/Machine/Overrides/Toggles";
+            localized = String.format("Menu/%s/%s/%s",
+                    Localization.getString("platform.menu.machine"),
+                    Localization.getString("platform.menu.overrides"),
+                    Localization.getString("overrides.toggle.short"));
+
+            ars.registerAction(OverridesPanel.SPINDLE_SHORT,
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_TOGGLE_SPINDLE));
+
+            ars.registerAction(OverridesPanel.FLOOD,
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_TOGGLE_FLOOD_COOLANT));
+
+            ars.registerAction(OverridesPanel.MIST,
+                    category, localizedCategory, null , menuPath, localized,
+                    new OverrideAction(this, Overrides.CMD_TOGGLE_MIST_COOLANT));
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
