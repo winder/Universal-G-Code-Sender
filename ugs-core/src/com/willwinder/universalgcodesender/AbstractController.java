@@ -21,6 +21,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -198,11 +199,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Probing.");
 
-        String probePattern = "G38.2 %s%f F%f";
+        String probePattern = "G38.2 %s%s F%s";
         double unitScale = scaleUnits(units, MM);
         String probeCommand = String.format(probePattern, axis, 
-                distance * unitScale,
-                feedRate * unitScale);
+                formatter.format(distance * unitScale),
+                formatter.format(feedRate * unitScale));
 
         GcodeCommand state = createCommand("G21 G91 G49");
         state.setTemporaryParserModalChange(true);
@@ -216,10 +217,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Probe offset.");
 
-        String offsetPattern = "G43.1 %s%f";
+        String offsetPattern = "G43.1 %s%s";
         String offsetCommand = String.format(offsetPattern,
                 axis,
-                offset * scaleUnits(units, MM));
+                formatter.format(offset * scaleUnits(units, MM)));
 
         GcodeCommand state = createCommand("G21 G90");
         state.setTemporaryParserModalChange(true);

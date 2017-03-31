@@ -61,7 +61,7 @@ public class ArcExpander implements ICommandProcessor {
         this.length = length;
 
         // Setup decimal formatter
-        df = new DecimalFormat("#.#########");
+        df = new DecimalFormat("#.#########", Localization.dfs);
     }
 
     @Override

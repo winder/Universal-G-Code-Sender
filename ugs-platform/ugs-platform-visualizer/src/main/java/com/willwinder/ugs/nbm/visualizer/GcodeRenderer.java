@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -43,7 +43,6 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.renderables.Renderable;
-import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -55,7 +54,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
@@ -76,7 +74,6 @@ public class GcodeRenderer implements GLEventListener {
     private static double orthoRotation = -45;
     private static boolean forceOldStyle = false;
     private static boolean debugCoordinates = false; // turn on coordinate debug output
-    final static private DecimalFormat format = new DecimalFormat("####.00");
 
     // Machine data
     private final Point3d machineCoord;
