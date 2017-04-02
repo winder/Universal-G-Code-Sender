@@ -39,6 +39,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
         availableLanguages.add(new Language("ru", "RU", "Russian"));
         availableLanguages.add(new Language("es", "ES", "Spanish"));
+        availableLanguages.add(new Language("sv", "SE", "Swedish"));
         availableLanguages.add(new Language("tr", "TR", "Turkish"));
     }
 
