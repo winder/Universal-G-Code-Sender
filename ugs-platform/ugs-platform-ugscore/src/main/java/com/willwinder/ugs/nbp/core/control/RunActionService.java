@@ -93,7 +93,7 @@ public class RunActionService {
             category = "File";
             localizedCategory = Localization.getString("mainWindow.swing.fileLabel");
 
-            ars.registerAction(Localization.getString("platform.menu.open"),
+            ars.registerAction(OpenGcodeFileAction.class.getCanonicalName(), Localization.getString("platform.menu.open"),
                     category, localizedCategory, "M-O" , menuPath, localized,
                     new OpenGcodeFileAction(backend));
 
@@ -105,24 +105,24 @@ public class RunActionService {
             category = "Machine";
             localizedCategory = Localization.getString("platform.menu.machine");
 
-            ars.registerAction(Localization.getString("mainWindow.swing.firmwareSettingsMenu"),
+            ars.registerAction(ConfigureFirmwareAction.class.getCanonicalName(), Localization.getString("mainWindow.swing.firmwareSettingsMenu"),
                     category, localizedCategory, null , menuPath, localized,
                     new ConfigureFirmwareAction(backend));
 
-            ars.registerAction(Localization.getString("mainWindow.swing.sendButton"),
+            ars.registerAction(Start.class.getCanonicalName(), Localization.getString("mainWindow.swing.sendButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new Start(backend));
 
-            ars.registerAction(Localization.getString("mainWindow.swing.cancelButton"),
+            ars.registerAction(Stop.class.getCanonicalName(), Localization.getString("mainWindow.swing.cancelButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new Stop(backend));
 
-            ars.registerAction(Localization.getString("mainWindow.ui.pauseButton")
+            ars.registerAction(Pause.class.getCanonicalName(), Localization.getString("mainWindow.ui.pauseButton")
                     + " or " + Localization.getString("mainWindow.ui.resumeButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new Pause(backend));
 
-            ars.registerAction(Localization.getString("mainWindow.ui.connectDisconnect"),
+            ars.registerAction(ConnectDisconnectAction.class.getCanonicalName(), Localization.getString("mainWindow.ui.connectDisconnect"),
                     category, localizedCategory, null , menuPath, localized,
                     new ConnectDisconnectAction(backend));
 
@@ -135,25 +135,25 @@ public class RunActionService {
             category = "Machine";
             localizedCategory = Localization.getString("platform.menu.machine");
             
-            ars.registerAction(Localization.getString("mainWindow.swing.returnToZeroButton"),
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".returnToZero", Localization.getString("mainWindow.swing.returnToZeroButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
-            ars.registerAction(Localization.getString("mainWindow.swing.softResetMachineControl"),
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".issueSoftReset", Localization.getString("mainWindow.swing.softResetMachineControl"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.ISSUE_SOFT_RESET));
-            ars.registerAction(Localization.getString("mainWindow.swing.resetCoordinatesButton"),
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".resetCoordinatesToZero", Localization.getString("mainWindow.swing.resetCoordinatesButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
-            ars.registerAction("$X",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".killAlarmLock", "$X",
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
-            ars.registerAction("$C",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".toggleCheckMode", "$C",
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
-            ars.registerAction("$G",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".requestParserState", "$G",
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
-            ars.registerAction(Localization.getString("mainWindow.swing.homeMachine"),
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".homingCycle", Localization.getString("mainWindow.swing.homeMachine"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.HOMING_CYCLE));
 
@@ -167,23 +167,23 @@ public class RunActionService {
 
             String pattern = Localization.getString("overrides.feed") + " (%s)";
 
-            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_COARSE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_MINUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_FINE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_MINUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_FINE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_PLUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_COARSE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_PLUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.RESET_FEED),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrReset", String.format(pattern, OverridesPanel.RESET_FEED),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_RESET));
 
@@ -194,23 +194,23 @@ public class RunActionService {
                     Localization.getString("platform.menu.overrides"));
             pattern = Localization.getString("overrides.spindle") + " (%s)";
 
-            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_COARSE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.MINUS_FINE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_MINUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_FINE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_PLUS));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.PLUS_COARSE),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS));
 
-            ars.registerAction(String.format(pattern, Localization.getString("mainWindow.swing.reset")),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrReset", String.format(pattern, Localization.getString("mainWindow.swing.reset")),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_RESET));
 
@@ -222,15 +222,15 @@ public class RunActionService {
 
             pattern = Localization.getString("overrides.rapid") + " (%s)";
 
-            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_LOW),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrLow", String.format(pattern, OverridesPanel.RAPID_LOW),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_LOW));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_MEDIUM),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrMedium", String.format(pattern, OverridesPanel.RAPID_MEDIUM),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_MEDIUM));
 
-            ars.registerAction(String.format(pattern, OverridesPanel.RAPID_FULL),
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrReset", String.format(pattern, OverridesPanel.RAPID_FULL),
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_RESET));
 
@@ -241,15 +241,15 @@ public class RunActionService {
                     Localization.getString("platform.menu.overrides"),
                     Localization.getString("overrides.toggle.short"));
 
-            ars.registerAction(OverridesPanel.SPINDLE_SHORT,
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleSpindle", OverridesPanel.SPINDLE_SHORT,
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_SPINDLE));
 
-            ars.registerAction(OverridesPanel.FLOOD,
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".toogleFloodCoolant", OverridesPanel.FLOOD,
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_FLOOD_COOLANT));
 
-            ars.registerAction(OverridesPanel.MIST,
+            ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleMistCoolant", OverridesPanel.MIST,
                     category, localizedCategory, null , menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_MIST_COOLANT));
         } catch (IOException ex) {

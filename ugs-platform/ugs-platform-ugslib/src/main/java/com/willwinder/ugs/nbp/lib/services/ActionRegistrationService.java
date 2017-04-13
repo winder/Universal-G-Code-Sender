@@ -20,6 +20,8 @@ package com.willwinder.ugs.nbp.lib.services;
 
 import java.io.IOException;
 import javax.swing.Action;
+
+import org.apache.commons.lang3.StringUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
@@ -37,6 +39,8 @@ public class ActionRegistrationService {
     /**
      * Registers an action with the platform along with optional shortcuts and
      * menu items.
+     *
+     * @param id The unique id of the action
      * @param name Display name of the action.
      * @param category Category in the Keymap tool.
      * @param shortcut Default shortcut, use an empty string or null for none.
@@ -45,11 +49,11 @@ public class ActionRegistrationService {
      * @param action an action object to attach to the action entry.
      * @throws IOException 
      */
-    public void registerAction(String name, String category, String localCategory, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
+    public void registerAction(String id, String name, String category, String localCategory, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
         ///////////////////////
         // Add/Update Action //
         ///////////////////////
-        String originalFile = "Actions/" + category + "/" + name + ".instance";
+        String originalFile = "Actions/" + category + "/" + id + ".instance";
         FileObject root = FileUtil.getConfigRoot();
         FileObject in = FileUtil.createFolder(root, "Actions/" + category);
         //in.setAttribute("displayName", localCategory);
@@ -57,9 +61,9 @@ public class ActionRegistrationService {
         //in.setAttribute("SystemFileSystem.localizingBundle", localCategory);
         in.refresh();
 
-        FileObject obj = in.getFileObject(name, "instance");
+        FileObject obj = in.getFileObject(id, "instance");
         if (obj == null) {
-            obj = in.createData(name, "instance");
+            obj = in.createData(id, "instance");
         }
         action.putValue(Action.NAME, name);
         obj.setAttribute("instanceCreate", action);
@@ -68,13 +72,13 @@ public class ActionRegistrationService {
         /////////////////////
         // Add/Update Menu //
         /////////////////////
-        if (menuPath != null && name != null && menuPath.length() > 0 && name.length() > 0) {
+        if (StringUtils.isNotEmpty(menuPath) && StringUtils.isNotEmpty(id)) {
             in = createAndLocalizeFullMenu(menuPath, localMenu);
 
-            obj = in.getFileObject(name, SHADOW);
+            obj = in.getFileObject(id, SHADOW);
             // Create if missing.
             if (obj == null) {
-                obj = in.createData(name, SHADOW);
+                obj = in.createData(id, SHADOW);
                 obj.setAttribute("originalFile", originalFile);
             }
         }

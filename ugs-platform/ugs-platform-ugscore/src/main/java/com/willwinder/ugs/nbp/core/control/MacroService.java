@@ -78,7 +78,7 @@ public final class MacroService {
                     }
                 }
 
-                ars.registerAction(m.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
+                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), m.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
 
             // Remove anything that doesn't exist.
