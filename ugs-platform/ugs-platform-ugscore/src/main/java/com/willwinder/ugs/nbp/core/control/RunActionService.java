@@ -28,9 +28,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
 import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
-import com.willwinder.universalgcodesender.uielements.actions.Pause;
-import com.willwinder.universalgcodesender.uielements.actions.Start;
-import com.willwinder.universalgcodesender.uielements.actions.Stop;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
@@ -108,19 +105,6 @@ public class RunActionService {
             ars.registerAction(ConfigureFirmwareAction.class.getCanonicalName(), Localization.getString("mainWindow.swing.firmwareSettingsMenu"),
                     category, localizedCategory, null , menuPath, localized,
                     new ConfigureFirmwareAction(backend));
-
-            ars.registerAction(Start.class.getCanonicalName(), Localization.getString("mainWindow.swing.sendButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Start(backend));
-
-            ars.registerAction(Stop.class.getCanonicalName(), Localization.getString("mainWindow.swing.cancelButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Stop(backend));
-
-            ars.registerAction(Pause.class.getCanonicalName(), Localization.getString("mainWindow.ui.pauseButton")
-                    + " or " + Localization.getString("mainWindow.ui.resumeButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Pause(backend));
 
             ars.registerAction(ConnectDisconnectAction.class.getCanonicalName(), Localization.getString("mainWindow.ui.connectDisconnect"),
                     category, localizedCategory, null , menuPath, localized,
