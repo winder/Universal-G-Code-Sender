@@ -41,7 +41,6 @@ public class Localization {
     private static ResourceBundle english = null;
 
     private static int englishKeyCount = 0;
-    private static Locale locale = null;
     private static String region = null;
 
     /**
@@ -56,18 +55,20 @@ public class Localization {
     
     /**
      * Loads a given language.
-     * @param language
+     * @param language the language to load, ex: en, sv, de
+     * @param region the region of the language to load, ex: US, SE, DE
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language, String region) {
         Localization.region = region;
-        locale = new Locale(language, region);
+        Locale locale = new Locale(language, region);
+        Locale.setDefault(locale);
         bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
         return getKeyCount(bundle) >= getEnglishKeyCount();
     }
 
     public static String loadedLocale() {
-        return locale + "";
+        return Locale.getDefault() + "";
     }
 
     /**
