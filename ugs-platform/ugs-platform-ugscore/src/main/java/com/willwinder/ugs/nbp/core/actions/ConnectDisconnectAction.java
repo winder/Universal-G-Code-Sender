@@ -51,7 +51,7 @@ import java.util.logging.Logger;
                 position = 900),
         @ActionReference(
                 path = "Toolbars/Connection",
-                position = 900)
+                position = 1000)
 })
 public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
 
