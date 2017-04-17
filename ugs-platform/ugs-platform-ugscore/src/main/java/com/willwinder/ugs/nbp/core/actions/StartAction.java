@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -34,15 +34,15 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.actions.StartAction")
+        category = LocalizingService.StartCategory,
+        id = LocalizingService.StartActionId)
 @ActionRegistration(
         iconBase = StartAction.ICON_BASE,
-        displayName = "#" + StartAction.TITLE_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.StartTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = "Menu/Machine",
+                path = LocalizingService.StartWindowPath,
                 position = 1000),
         @ActionReference(
                 path = "Toolbars/StartPauseStop",
@@ -52,7 +52,6 @@ public final class StartAction extends AbstractAction implements UGSEventListene
 
     // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/start.png";
-    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.sendButton";
 
     private BackendAPI backend;
 
@@ -62,8 +61,8 @@ public final class StartAction extends AbstractAction implements UGSEventListene
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", Localization.getString(TITLE_LOCALIZATION_KEY));
-        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue("menuText", LocalizingService.StartTitle);
+        putValue(NAME, LocalizingService.StartTitle);
     }
 
     @Override

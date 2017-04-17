@@ -1,7 +1,7 @@
 package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionSerialPortPanel;
 import org.openide.awt.ActionID;
@@ -16,12 +16,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.toolbars.ConnectionSerialPortToolbar"
+        category = LocalizingService.ConnectionSerialPortToolbarCategory,
+        id = LocalizingService.ConnectionSerialPortToolbarActionId
 )
 @ActionRegistration(
         iconBase = ConnectionSerialPortToolbar.ICON_BASE,
-        displayName = "#" + ConnectionSerialPortToolbar.TITLE_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.ConnectionSerialPortToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
@@ -29,11 +29,10 @@ import java.awt.event.ActionEvent;
                 position = 990)})
 public class ConnectionSerialPortToolbar extends AbstractAction implements Presenter.Toolbar {
     public static final String ICON_BASE = "resources/icons/serialport.png";
-    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.serialport.toolbarTitle";
 
     public ConnectionSerialPortToolbar() {
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, LocalizingService.ConnectionSerialPortToolbarTitle);
     }
 
     @Override

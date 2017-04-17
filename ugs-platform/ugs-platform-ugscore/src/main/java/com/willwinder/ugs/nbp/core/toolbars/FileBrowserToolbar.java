@@ -19,7 +19,7 @@
 package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.FileBrowsePanel;
 import org.openide.awt.ActionID;
@@ -32,18 +32,17 @@ import org.openide.util.actions.Presenter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.util.logging.Logger;
 
 /**
  * @author wwinder
  */
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.toolbars.FileBrowserToolbar"
+        category = LocalizingService.FileBrowserToolbarCategory,
+        id = LocalizingService.FileBrowserToolbarActionId
 )
 @ActionRegistration(
         iconBase = ConnectionSerialPortToolbar.ICON_BASE,
-        displayName = "#" + FileBrowserToolbar.TITLE_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.FileBrowserToolbarTitleKey,
         lazy = false
 )
 @ActionReferences({
@@ -53,11 +52,10 @@ import java.util.logging.Logger;
 })
 public final class FileBrowserToolbar extends AbstractAction implements Presenter.Toolbar {
     public static final String ICON_BASE = "resources/icons/open.png";
-    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.filebrowser.toolbarTitle";
 
     public FileBrowserToolbar() {
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, LocalizingService.FileBrowserToolbarTitle);
     }
 
     @Override

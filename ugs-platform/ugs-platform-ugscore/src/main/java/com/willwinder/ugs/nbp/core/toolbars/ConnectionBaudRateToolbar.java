@@ -1,10 +1,9 @@
 package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionBaudRatePanel;
-import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionFirmwarePanel;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -17,12 +16,12 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.toolbars.ConnectionBaudRateToolbar"
+        category = LocalizingService.ConnectionBaudRateToolbarCategory,
+        id = LocalizingService.ConnectionBaudRateToolbarActionId
 )
 @ActionRegistration(
         iconBase = ConnectionBaudRateToolbar.ICON_BASE,
-        displayName = "#" + ConnectionBaudRateToolbar.TITLE_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.ConnectionBaudRateToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
@@ -30,11 +29,10 @@ import java.awt.event.ActionEvent;
                 position = 995)})
 public class ConnectionBaudRateToolbar extends AbstractAction implements Presenter.Toolbar {
     public static final String ICON_BASE = "resources/icons/baudrate.png";
-    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.baudrate.toolbarTitle";
 
     public ConnectionBaudRateToolbar() {
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, LocalizingService.ConnectionBaudRateToolbarTitle);
     }
 
     @Override

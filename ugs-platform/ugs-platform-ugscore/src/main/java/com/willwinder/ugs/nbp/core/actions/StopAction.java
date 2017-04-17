@@ -20,7 +20,7 @@
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -35,15 +35,15 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.actions.StopAction")
+        category = LocalizingService.StopCategory,
+        id = LocalizingService.StopActionId)
 @ActionRegistration(
         iconBase = StopAction.ICON_BASE,
-        displayName = "#" + StopAction.TITLE_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.StopTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = "Menu/Machine",
+                path = LocalizingService.StopWindowPath,
                 position = 1010),
         @ActionReference(
                 path = "Toolbars/StartPauseStop",
@@ -53,7 +53,6 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
     // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/stop.png";
-    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.stopButton";
 
     private BackendAPI backend;
 
@@ -63,8 +62,8 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", Localization.getString(TITLE_LOCALIZATION_KEY));
-        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue("menuText", LocalizingService.StopTitle);
+        putValue(NAME, LocalizingService.StopTitle);
 
     }
 

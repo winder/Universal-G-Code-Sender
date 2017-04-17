@@ -19,7 +19,7 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -39,15 +39,15 @@ import java.util.logging.Logger;
  * @author wwinder
  */
 @ActionID(
-        category = "Machine",
-        id = "com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction")
+        category = LocalizingService.ConnectDisconnectCategory,
+        id = LocalizingService.ConnectDisconnectActionId)
 @ActionRegistration(
         iconBase = ConnectDisconnectAction.ICON_BASE_DISCONNECT,
-        displayName = "#" + ConnectDisconnectAction.CONNECT_LOCALIZATION_KEY,
+        displayName = "#" + LocalizingService.ConnectDisconnectActionTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = "Menu/Machine",
+                path = LocalizingService.ConnectWindowPath,
                 position = 900),
         @ActionReference(
                 path = "Toolbars/Connection",
@@ -57,8 +57,6 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
 
     public static final String ICON_BASE = "resources/icons/connect.png";
     public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.gif";
-    public static final String CONNECT_LOCALIZATION_KEY = "mainWindow.ui.connect";
-    public static final String DISCONNECT_LOCALIZATION_KEY = "mainWindow.ui.disconnect";
 
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
     private BackendAPI backend;
@@ -70,19 +68,19 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
         }
 
         putValue("iconBase", ICON_BASE_DISCONNECT);
-        putValue("menuText", Localization.getString(CONNECT_LOCALIZATION_KEY));
-        putValue(NAME, Localization.getString(CONNECT_LOCALIZATION_KEY));
+        putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
+        putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
         if (backend.isConnected()) {
             putValue("iconBase", ICON_BASE);
-            putValue(NAME, Localization.getString(DISCONNECT_LOCALIZATION_KEY));
-            putValue("menuText", Localization.getString(DISCONNECT_LOCALIZATION_KEY));
+            putValue(NAME, LocalizingService.ConnectDisconnectTitleDisconnect);
+            putValue("menuText", LocalizingService.ConnectDisconnectTitleDisconnect);
         } else {
-            putValue(NAME, Localization.getString(CONNECT_LOCALIZATION_KEY));
-            putValue("menuText", Localization.getString(CONNECT_LOCALIZATION_KEY));
+            putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
+            putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
             putValue("iconBase", ICON_BASE_DISCONNECT);
         }
     }
