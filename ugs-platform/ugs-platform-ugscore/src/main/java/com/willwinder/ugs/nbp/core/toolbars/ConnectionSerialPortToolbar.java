@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = "Toolbars/Connection",
-                position = 980)})
+                position = 990)})
 public class ConnectionSerialPortToolbar extends AbstractAction implements Presenter.Toolbar {
     public static final String ICON_BASE = "resources/icons/serialport.png";
     public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.serialport.toolbarTitle";

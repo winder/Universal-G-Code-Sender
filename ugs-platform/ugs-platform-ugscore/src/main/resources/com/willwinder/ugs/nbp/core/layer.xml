@@ -42,6 +42,7 @@
     </folder>
     <folder name="Toolbars">
         <folder name="File_hidden"/>
+        <folder name="FileBrowser_hidden"/>
         <folder name="UndoRedo_hidden"/>
         <folder name="Connection">
             <attr intvalue="0" name="position"/>

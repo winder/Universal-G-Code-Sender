@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = "Toolbars/Connection",
-                position = 990)})
+                position = 980)})
 public class ConnectionFirmwareToolbar extends AbstractAction implements Presenter.Toolbar {
     public static final String ICON_BASE = "resources/icons/firmware.png";
     public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.firmware.toolbarTitle";
