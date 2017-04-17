@@ -19,30 +19,47 @@
 package com.willwinder.ugs.nbp.core.toolbars;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.toolbars.FileBrowsePanel;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.ImageUtilities;
 import org.openide.util.actions.Presenter;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.logging.Logger;
+
+/**
+ * @author wwinder
+ */
 @ActionID(
-        category = "Edit",
+        category = "Machine",
         id = "com.willwinder.ugs.nbp.core.toolbars.FileBrowserToolbar"
 )
 @ActionRegistration(
-        displayName = "File Browser Toolbar",
+        iconBase = ConnectionSerialPortToolbar.ICON_BASE,
+        displayName = "#" + FileBrowserToolbar.TITLE_LOCALIZATION_KEY,
         lazy = false
 )
-@ActionReference(path = "Toolbars/FileBrowser")
-/**
- *
- * @author wwinder
- */
+@ActionReferences({
+        @ActionReference(
+                path = "Toolbars/StartPauseStop",
+                position = 1020),
+})
 public final class FileBrowserToolbar extends AbstractAction implements Presenter.Toolbar {
+    public static final String ICON_BASE = "resources/icons/open.png";
+    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.filebrowser.toolbarTitle";
+
+    public FileBrowserToolbar() {
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
     }

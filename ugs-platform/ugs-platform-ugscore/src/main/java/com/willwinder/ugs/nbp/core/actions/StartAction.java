@@ -38,20 +38,21 @@ import java.awt.event.ActionEvent;
         id = "com.willwinder.ugs.nbp.core.actions.StartAction")
 @ActionRegistration(
         iconBase = StartAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#mainWindow.swing.sendButton",
+        displayName = "#" + StartAction.TITLE_LOCALIZATION_KEY,
         lazy = false)
 @ActionReferences({
         @ActionReference(
                 path = "Menu/Machine",
                 position = 1000),
         @ActionReference(
-                path = "Toolbars/Run",
+                path = "Toolbars/StartPauseStop",
                 position = 1000)
 })
 public final class StartAction extends AbstractAction implements UGSEventListener {
 
     // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/start.png";
+    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.sendButton";
 
     private BackendAPI backend;
 
@@ -61,8 +62,8 @@ public final class StartAction extends AbstractAction implements UGSEventListene
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", Localization.getString("mainWindow.swing.sendButton"));
-        putValue(NAME, Localization.getString("mainWindow.swing.sendButton"));
+        putValue("menuText", Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
     }
 
     @Override

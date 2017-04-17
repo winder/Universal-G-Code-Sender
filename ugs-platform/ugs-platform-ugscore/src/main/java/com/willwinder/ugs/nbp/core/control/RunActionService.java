@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
-import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -41,7 +40,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author wwinder
  */
-@ServiceProvider(service=RunActionService.class) 
+@ServiceProvider(service=RunActionService.class)
 public class RunActionService {
     BackendAPI backend;
 
@@ -106,10 +105,6 @@ public class RunActionService {
                     category, localizedCategory, null , menuPath, localized,
                     new ConfigureFirmwareAction(backend));
 
-            ars.registerAction(ConnectDisconnectAction.class.getCanonicalName(), Localization.getString("mainWindow.ui.connectDisconnect"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new ConnectDisconnectAction(backend));
-
             // Machine/Actions menu items.
             // Other actions
             localized = String.format("Menu/%s/%s",
@@ -118,7 +113,7 @@ public class RunActionService {
             menuPath = "Menu/Machine/Actions";
             category = "Machine";
             localizedCategory = Localization.getString("platform.menu.machine");
-            
+
             ars.registerAction(GcodeAction.class.getCanonicalName() + ".returnToZero", Localization.getString("mainWindow.swing.returnToZeroButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
@@ -240,7 +235,7 @@ public class RunActionService {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     protected class OverrideAction extends AbstractAction {
         RunActionService gs;
         Overrides action;

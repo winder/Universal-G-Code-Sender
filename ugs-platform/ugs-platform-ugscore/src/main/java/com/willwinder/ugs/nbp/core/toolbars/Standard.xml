@@ -4,7 +4,6 @@
     <Row>
         <Toolbar name="Connection" visible="true" draggable="true" align="left"/>
         <Toolbar name="StartPauseStop" visible="true" draggable="true" align="left"/>
-        <Toolbar name="FileBrowser" visible="true" draggable="true" align="left"/>
         <Toolbar name="File" visible="false" draggable="true" align="left"/>
         <Toolbar name="UndoRedo" visible="false" draggable="true" align="left"/>
         <Toolbar name="Clipboard" visible="false" draggable="true" align="left"/>

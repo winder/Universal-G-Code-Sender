@@ -39,20 +39,22 @@ import java.awt.event.ActionEvent;
         id = "com.willwinder.ugs.nbp.core.actions.StopAction")
 @ActionRegistration(
         iconBase = StopAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#mainWindow.swing.stopButton",
+        displayName = "#" + StopAction.TITLE_LOCALIZATION_KEY,
         lazy = false)
 @ActionReferences({
         @ActionReference(
                 path = "Menu/Machine",
-                position = 1003),
+                position = 1010),
         @ActionReference(
-                path = "Toolbars/Run",
-                position = 1003)
+                path = "Toolbars/StartPauseStop",
+                position = 1010)
 })
 public final class StopAction extends AbstractAction implements UGSEventListener {
 
     // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/stop.png";
+    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.stopButton";
+
     private BackendAPI backend;
 
     public StopAction() {
@@ -61,8 +63,8 @@ public final class StopAction extends AbstractAction implements UGSEventListener
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", Localization.getString("mainWindow.swing.stopButton"));
-        putValue(NAME, Localization.getString("mainWindow.swing.stopButton"));
+        putValue("menuText", Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
 
     }
 

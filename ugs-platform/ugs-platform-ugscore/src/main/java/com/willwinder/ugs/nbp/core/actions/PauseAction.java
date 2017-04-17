@@ -38,20 +38,21 @@ import java.awt.event.ActionEvent;
         id = "com.willwinder.ugs.nbp.core.actions.PauseAction")
 @ActionRegistration(
         iconBase = PauseAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#mainWindow.swing.pauseButton",
+        displayName = "#" + PauseAction.TITLE_LOCALIZATION_KEY,
         lazy = false)
 @ActionReferences({
         @ActionReference(
                 path = "Menu/Machine",
-                position = 1004),
+                position = 1015),
         @ActionReference(
-                path = "Toolbars/Run",
-                position = 1004)
+                path = "Toolbars/StartPauseStop",
+                position = 1015)
 })
 public final class PauseAction extends AbstractAction implements UGSEventListener {
 
     // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/pause.png";
+    public static final String TITLE_LOCALIZATION_KEY = "mainWindow.swing.pauseButton";
     private BackendAPI backend;
 
     public PauseAction() {
@@ -60,8 +61,8 @@ public final class PauseAction extends AbstractAction implements UGSEventListene
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", Localization.getString("mainWindow.swing.pauseButton"));
-        putValue(NAME, Localization.getString("mainWindow.swing.pauseButton"));
+        putValue("menuText", Localization.getString(TITLE_LOCALIZATION_KEY));
+        putValue(NAME, Localization.getString(TITLE_LOCALIZATION_KEY));
     }
 
     @Override
