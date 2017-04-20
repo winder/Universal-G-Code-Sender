@@ -305,8 +305,8 @@ public class Settings {
         
     public void setDefaultUnits(String units) {
         if (Units.getUnit(defaultUnits) != null) {
-        changed();
             defaultUnits = units;
+            changed();
         }
     }
 
