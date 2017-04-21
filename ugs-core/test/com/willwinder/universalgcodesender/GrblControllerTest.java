@@ -1132,4 +1132,47 @@ public class GrblControllerTest {
         
         // TODO: Test that (multiple?) listener events work.
     }
+
+    @Test
+    public void testReturnToHomeWhenZIsPositive() throws Exception {
+        // Set up
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,0.0>");
+
+        // Test the function for going home
+        instance.returnToHome();
+
+        assertEquals(4, mgc.queuedStrings.size());
+        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(2));
+        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(3));
+    }
+
+    @Test
+    public void testReturnToHomeWhenWorkPositionZIsNegative() throws Exception {
+        // Set up
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,MPos:1.000,1.000,1.000,WPos:0.0,0.0,-1.0>");
+
+        // Test the function for going home
+        instance.returnToHome();
+
+        assertEquals(5, mgc.queuedStrings.size());
+        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
+        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0\n", mgc.queuedStrings.get(2));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(3));
+        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(4));
+    }
 }
