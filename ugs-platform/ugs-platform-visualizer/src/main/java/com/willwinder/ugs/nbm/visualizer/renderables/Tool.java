@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import java.awt.Color;
 import javax.vecmath.Point3d;
 
@@ -64,7 +65,6 @@ public final class Tool extends Renderable {
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
         GL2 gl = drawable.getGL().getGL2();
-
         
         gl.glPushMatrix();
             gl.glEnable(GL2.GL_LIGHTING); 

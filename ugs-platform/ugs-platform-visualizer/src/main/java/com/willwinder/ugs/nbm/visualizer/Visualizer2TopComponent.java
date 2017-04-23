@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,6 +22,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.google.common.eventbus.EventBus;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
@@ -111,7 +112,8 @@ public final class Visualizer2TopComponent extends TopComponent {
     private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
-        renderer = new GcodeRenderer();
+        renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
+        //renderer = new GcodeRenderer();
         
         animator = new FPSAnimator(p, 15);
         RendererInputHandler rih = new RendererInputHandler(renderer, animator,
