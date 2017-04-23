@@ -46,6 +46,7 @@ public class JogStatusLineService implements StatusLineElementProvider {
         private final BackendAPI backend;
         public JogStatusLine(BackendAPI backend) {
             this.backend = backend;
+            this.backend.addUGSEventListener(this);
             setText();
         }
 
