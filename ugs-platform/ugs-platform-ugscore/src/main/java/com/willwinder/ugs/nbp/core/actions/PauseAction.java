@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.PauseActionId)
 @ActionRegistration(
         iconBase = PauseAction.ICON_BASE,
-        displayName = "#" + LocalizingService.PauseTitleKey,
+        displayName = "resources.MessagesBundle#" + LocalizingService.PauseTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

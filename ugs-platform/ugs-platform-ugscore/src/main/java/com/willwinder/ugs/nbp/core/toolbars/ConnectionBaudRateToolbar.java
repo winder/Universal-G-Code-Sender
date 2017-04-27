@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(
         iconBase = ConnectionBaudRateToolbar.ICON_BASE,
-        displayName = "#" + LocalizingService.ConnectionBaudRateToolbarTitleKey,
+        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectionBaudRateToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

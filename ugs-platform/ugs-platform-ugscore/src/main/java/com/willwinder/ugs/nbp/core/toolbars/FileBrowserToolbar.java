@@ -42,7 +42,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(
         iconBase = ConnectionSerialPortToolbar.ICON_BASE,
-        displayName = "#" + LocalizingService.FileBrowserToolbarTitleKey,
+        displayName = "resources.MessagesBundle#" + LocalizingService.FileBrowserToolbarTitleKey,
         lazy = false
 )
 @ActionReferences({

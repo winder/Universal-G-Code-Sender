@@ -38,7 +38,7 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.StartActionId)
 @ActionRegistration(
         iconBase = StartAction.ICON_BASE,
-        displayName = "#" + LocalizingService.StartTitleKey,
+        displayName = "resources.MessagesBundle#" + LocalizingService.StartTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(

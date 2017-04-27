@@ -21,7 +21,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionRegistration(
         iconBase = ConnectionSerialPortToolbar.ICON_BASE,
-        displayName = "#" + LocalizingService.ConnectionSerialPortToolbarTitleKey,
+        displayName = "resources.MessagesBundle#" + LocalizingService.ConnectionSerialPortToolbarTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
