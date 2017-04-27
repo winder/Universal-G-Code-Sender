@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -17,6 +17,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_LINES;

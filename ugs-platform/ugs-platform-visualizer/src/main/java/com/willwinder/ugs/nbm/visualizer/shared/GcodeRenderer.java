@@ -22,9 +22,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer;
-
-
+package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GL;
 import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
@@ -42,7 +40,6 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
-import com.willwinder.ugs.nbm.visualizer.renderables.Renderable;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -60,6 +57,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 import javax.vecmath.Vector3d;
+import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
 
 /**
  *
@@ -67,7 +66,11 @@ import javax.vecmath.Vector3d;
  * 
  */
 @SuppressWarnings("serial")
-public class GcodeRenderer implements GLEventListener {
+@ServiceProviders(value = {
+    @ServiceProvider(service = IRenderableRegistrationService.class),
+    @ServiceProvider(service = IRendererNotifier.class),
+    @ServiceProvider(service = GcodeRenderer.class)})
+public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService, IRendererNotifier {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
     
     private static boolean ortho = true;
@@ -150,8 +153,15 @@ public class GcodeRenderer implements GLEventListener {
         reloadPreferences();
     }
 
-    public void addRenderable(Renderable r) {
+    @Override
+    public void registerRenderable(Renderable r) {
         objects.add(r);
+        Collections.sort(objects);
+    }
+
+    @Override
+    public void removeRenderable(Renderable r) {
+        objects.remove(r);
         Collections.sort(objects);
     }
     

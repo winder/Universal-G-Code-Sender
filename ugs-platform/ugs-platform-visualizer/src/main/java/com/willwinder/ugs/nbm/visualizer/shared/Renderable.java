@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbm.visualizer.renderables;
+package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
@@ -34,7 +34,7 @@ public abstract class Renderable implements Comparable<Renderable> {
      * Construct with a priority number. Objects should be rendered from highest
      * to lowest priority;
      */
-    Renderable(int priority) {
+    public Renderable(int priority) {
         this.priority = priority;
     }
 

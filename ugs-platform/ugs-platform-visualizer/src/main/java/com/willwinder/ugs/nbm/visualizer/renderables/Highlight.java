@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -98,7 +99,7 @@ public class Highlight extends Renderable {
     public void setHighlightedLines(Collection<Integer> lines) {
         this.highlightedLines = lines;
 
-        if (lines.size() == 0) {
+        if (lines.isEmpty()) {
             this.numberOfVertices = -1;
             this.lineVertexData = null;
             return;
@@ -106,7 +107,7 @@ public class Highlight extends Renderable {
 
         ArrayList<LineSegment> highlights = new ArrayList<>();
         int vertIndex = 0;
-        for(LineSegment ls : model.getLineList()) {
+        for (LineSegment ls : model.getLineList()) {
             if (lines.contains(ls.getLineNumber())) {
                 highlights.add(ls);
             }

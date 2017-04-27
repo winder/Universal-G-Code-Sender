@@ -2,7 +2,7 @@
  * Display some lines and measurements for the current objects size.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;

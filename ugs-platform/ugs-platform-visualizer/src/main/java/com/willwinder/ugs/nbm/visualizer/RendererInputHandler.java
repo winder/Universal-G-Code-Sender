@@ -2,7 +2,7 @@
  * Process all the listeners and call methods in the renderer.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
@@ -76,15 +77,14 @@ public class RendererInputHandler implements
         sizeDisplay = new SizeDisplay();
         selection = new Selection();
 
-        gr.addRenderable(gcodeModel);
-        gr.addRenderable(highlight);
-        gr.addRenderable(sizeDisplay);
-        gr.addRenderable(selection);
+        gr.registerRenderable(gcodeModel);
+        gr.registerRenderable(highlight);
+        gr.registerRenderable(sizeDisplay);
+        gr.registerRenderable(selection);
     }
 
     @Subscribe
     public void highlightEventListener(HighlightEvent he) {
-        //gcodeModel.setHighlightedLines(he.getLines());
         highlight.setHighlightedLines(he.getLines());
         gcodeRenderer.forceRedraw();
     }
