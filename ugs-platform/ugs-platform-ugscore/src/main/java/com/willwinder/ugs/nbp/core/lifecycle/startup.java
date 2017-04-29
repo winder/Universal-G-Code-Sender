@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 import com.willwinder.ugs.nbp.core.control.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
+import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -56,6 +57,8 @@ public class startup extends OptionProcessor implements Runnable {
         Lookup.getDefault().lookup(MacroService.class);
         System.out.println("Loading StatusLineService...");
         Lookup.getDefault().lookup(StatusLineService.class);
+        System.out.println("Loading SettingsChangedNotificationService...");
+        Lookup.getDefault().lookup(SettingsChangedNotificationService.class);
         System.out.println("Services loaded!");
     }
 
