@@ -113,6 +113,9 @@ public final class Visualizer2TopComponent extends TopComponent {
         final GLJPanel p = new GLJPanel(caps);
 
         renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
+        if (renderer == null) {
+            throw new IllegalArgumentException("Failed to access GcodeRenderer.");
+        }
         //renderer = new GcodeRenderer();
         
         animator = new FPSAnimator(p, 15);
