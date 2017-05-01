@@ -23,7 +23,7 @@
 package com.willwinder.universalgcodesender.uielements;
 
 import com.willwinder.universalgcodesender.uielements.panels.SendStatusPanel;
-import com.willwinder.universalgcodesender.uielements.toolbars.SendStatusLine;
+import com.willwinder.universalgcodesender.uielements.toolbars.*;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
@@ -41,7 +41,6 @@ import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
-import com.willwinder.universalgcodesender.uielements.toolbars.ConnectionToolbarPanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
@@ -101,8 +100,12 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
-        panel.add(frameLauncherButton("ConnectionToolbarPanel", new ConnectionToolbarPanel(backend)));
         panel.add(frameLauncherButton("ConnectionPanel", new ConnectionPanel(backend)));
+        panel.add(frameLauncherButton("ConnectionFirmwarePanel", new ConnectionFirmwarePanel(backend)));
+        panel.add(frameLauncherButton("ConnectionSerialPortPanel", new ConnectionSerialPortPanel(backend)));
+        panel.add(frameLauncherButton("ConnectionBaudRatePanel", new ConnectionBaudRatePanel(backend)));
+        panel.add(frameLauncherButton("FileBrowsePanel", new FileBrowsePanel(backend)));
+
         panel.add(frameLauncherButton("Probe Panel", new ProbePanel(backend)));
 
         // Display the main frame.

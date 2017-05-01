@@ -26,11 +26,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
-import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
-import com.willwinder.universalgcodesender.uielements.actions.Pause;
-import com.willwinder.universalgcodesender.uielements.actions.Start;
-import com.willwinder.universalgcodesender.uielements.actions.Stop;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
@@ -44,7 +40,7 @@ import org.openide.util.lookup.ServiceProvider;
  *
  * @author wwinder
  */
-@ServiceProvider(service=RunActionService.class) 
+@ServiceProvider(service=RunActionService.class)
 public class RunActionService {
     BackendAPI backend;
 
@@ -109,23 +105,6 @@ public class RunActionService {
                     category, localizedCategory, null , menuPath, localized,
                     new ConfigureFirmwareAction(backend));
 
-            ars.registerAction(Start.class.getCanonicalName(), Localization.getString("mainWindow.swing.sendButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Start(backend));
-
-            ars.registerAction(Stop.class.getCanonicalName(), Localization.getString("mainWindow.swing.cancelButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Stop(backend));
-
-            ars.registerAction(Pause.class.getCanonicalName(), Localization.getString("mainWindow.ui.pauseButton")
-                    + " or " + Localization.getString("mainWindow.ui.resumeButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new Pause(backend));
-
-            ars.registerAction(ConnectDisconnectAction.class.getCanonicalName(), Localization.getString("mainWindow.ui.connectDisconnect"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new ConnectDisconnectAction(backend));
-
             // Machine/Actions menu items.
             // Other actions
             localized = String.format("Menu/%s/%s",
@@ -134,7 +113,7 @@ public class RunActionService {
             menuPath = "Menu/Machine/Actions";
             category = "Machine";
             localizedCategory = Localization.getString("platform.menu.machine");
-            
+
             ars.registerAction(GcodeAction.class.getCanonicalName() + ".returnToZero", Localization.getString("mainWindow.swing.returnToZeroButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
@@ -256,7 +235,7 @@ public class RunActionService {
             Exceptions.printStackTrace(ex);
         }
     }
-    
+
     protected class OverrideAction extends AbstractAction {
         RunActionService gs;
         Overrides action;
