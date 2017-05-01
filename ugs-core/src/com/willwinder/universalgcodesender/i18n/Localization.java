@@ -24,6 +24,8 @@
  */
 package com.willwinder.universalgcodesender.i18n;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.DecimalFormatSymbols;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -52,7 +54,7 @@ public class Localization {
         String[] lang = language.split("_");
         return initialize(lang[0], lang[1]);
     }
-    
+
     /**
      * Loads a given language.
      * @param language the language to load, ex: en, sv, de
@@ -83,19 +85,27 @@ public class Localization {
     }
 
     public static String getString(String id) {
+        String result = "";
         try {
             String val = bundle.getString(id);
-            return new String(val.getBytes("ISO-8859-1"), "UTF-8");
+            result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
         } catch (Exception e) {
+            // Ignore this error, we will later try to fetch the string from the english bundle
+        }
+
+        if( StringUtils.isEmpty(StringUtils.trimToEmpty(result))) {
             try {
-                if (english == null)
+                if (english == null) {
                     english = ResourceBundle.getBundle("resources.MessagesBundle", new Locale("en", "US"));
+                }
                 String val = english.getString(id);
-                return new String(val.getBytes("ISO-8859-1"), "UTF-8");
-            } catch (Exception e2) { 
-                return "<" + id + ">";
+                result = new String(val.getBytes("ISO-8859-1"), "UTF-8");
+            } catch (Exception e) {
+                result = "<" + id + ">";
             }
         }
+
+        return result;
     }
 
     private static int getEnglishKeyCount() {
