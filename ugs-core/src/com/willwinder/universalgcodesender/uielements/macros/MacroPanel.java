@@ -96,6 +96,7 @@ public class MacroPanel extends JPanel implements UGSEventListener {
             add(macroDescriptionFields.get(i));
         }
 
+        updateCustomGcodeControls(backend.isIdle());
         super.doLayout();
     }
 
