@@ -29,9 +29,6 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         super(1.0, MIN_VALUE, MAX_VALUE, 1.0);
     }
 
-
-
-
     @Override
     public Object getNextValue() {
         double value = (double) getValue();
@@ -43,8 +40,11 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
                 stepSize = stepSize / 10;
             }
         }
-        setStepSize(stepSize);
-        return super.getNextValue();
+
+        if( value >= MAX_VALUE) {
+            return 0;
+        }
+        return value + stepSize;
     }
 
     @Override
@@ -58,8 +58,11 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
                 stepSize = stepSize / 10;
             }
         }
-        setStepSize(stepSize);
-        return super.getPreviousValue();
+
+        if( value <= MIN_VALUE) {
+            return 0;
+        }
+        return value - stepSize;
     }
 
 }
