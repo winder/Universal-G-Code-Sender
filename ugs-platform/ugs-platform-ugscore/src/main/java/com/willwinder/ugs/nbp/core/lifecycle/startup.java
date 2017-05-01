@@ -19,17 +19,12 @@
 package com.willwinder.ugs.nbp.core.lifecycle;
 
 import com.willwinder.ugs.nbp.core.control.JogActionService;
-import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -37,6 +32,11 @@ import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -53,8 +53,6 @@ public class startup extends OptionProcessor implements Runnable {
         Lookup.getDefault().lookup(JogActionService.class);
         System.out.println("Loading ActionService...");
         Lookup.getDefault().lookup(RunActionService.class);
-        System.out.println("Loading MacroService...");
-        Lookup.getDefault().lookup(MacroService.class);
         System.out.println("Loading StatusLineService...");
         Lookup.getDefault().lookup(StatusLineService.class);
         System.out.println("Loading SettingsChangedNotificationService...");

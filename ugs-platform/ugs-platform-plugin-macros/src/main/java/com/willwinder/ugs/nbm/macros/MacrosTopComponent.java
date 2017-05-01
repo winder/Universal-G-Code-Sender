@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.control;
+package com.willwinder.ugs.nbm.macros;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -32,7 +32,7 @@ import org.openide.windows.TopComponent;
  */
 @TopComponent.Description(
         preferredID = "MacrosTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        iconBase = MacrosTopComponent.ICON_BASE,
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "middle_left", openAtStartup = true)
@@ -43,6 +43,8 @@ import org.openide.windows.TopComponent;
         preferredID = "MacrosTopComponent"
 )
 public final class MacrosTopComponent extends TopComponent {
+    public static final String ICON_BASE = "icons/macros.png";
+
     public MacrosTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());

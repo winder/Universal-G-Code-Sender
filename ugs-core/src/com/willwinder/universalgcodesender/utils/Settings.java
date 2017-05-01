@@ -336,6 +336,13 @@ public class Settings {
         return macro;
     }
 
+    public Collection<Macro> getMacros() {
+        if( macros == null ) {
+            return new ArrayList<>();
+        }
+        return macros.values();
+    }
+
     public Integer getNumMacros() {
         return macros.size();
     }
