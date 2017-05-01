@@ -42,7 +42,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         if( value >= MAX_VALUE) {
-            return 0;
+            return null;
         }
         return value + stepSize;
     }
@@ -60,7 +60,7 @@ public class StepSizeSpinnerModel extends SpinnerNumberModel {
         }
 
         if( value <= MIN_VALUE) {
-            return 0;
+            return null;
         }
         return value - stepSize;
     }

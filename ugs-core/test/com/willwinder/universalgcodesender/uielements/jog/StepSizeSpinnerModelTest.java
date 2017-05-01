@@ -30,7 +30,7 @@ public class StepSizeSpinnerModelTest {
     public void nextValueWhenMaxShouldNotIncrement() {
         StepSizeSpinnerModel model = new StepSizeSpinnerModel();
         model.setValue(StepSizeSpinnerModel.MAX_VALUE);
-        Assert.assertEquals(0, model.getNextValue());
+        Assert.assertEquals(null, model.getNextValue());
     }
 
     @Test
@@ -51,7 +51,7 @@ public class StepSizeSpinnerModelTest {
     public void previousValueWhenMinShouldNotDecrement() {
         StepSizeSpinnerModel model = new StepSizeSpinnerModel();
         model.setValue(StepSizeSpinnerModel.MIN_VALUE);
-        Assert.assertEquals(0, model.getPreviousValue());
+        Assert.assertEquals(null, model.getPreviousValue());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class StepSizeSpinnerModelTest {
         Assert.assertEquals(200.0, model.getNextValue());
 
         model.setValue(StepSizeSpinnerModel.MIN_VALUE * 1000000);
-        Assert.assertEquals(0, model.getNextValue());
+        Assert.assertEquals(null, model.getNextValue());
         Assert.assertEquals(1000.0, model.getValue());
     }
 }
