@@ -21,8 +21,6 @@ package com.willwinder.ugs.platform.surfacescanner;
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -31,8 +29,8 @@ import java.util.List;
 public class SurfaceScanner {
     private ImmutableList<Position> probeLocations;
 
-    private Position corner1 = null;
-    private Position corner2 = null;
+    private Position minXYZ = null;
+    private Position maxXYZ = null;
     private double resolution = 1;
     private double probeDistance = 0;
     
@@ -49,19 +47,20 @@ public class SurfaceScanner {
 
         if (resolution == 0) return;
 
-        this.corner1 = corner1;
-        this.corner2 = corner2;
+        Units units = corner1.getUnits();
+        double minx = Math.min(corner1.x, corner2.x);
+        double maxx = Math.max(corner1.x, corner2.x);
+        double miny = Math.min(corner1.y, corner2.y);
+        double maxy = Math.max(corner1.y, corner2.y);
+        double minz = Math.min(corner1.z, corner2.z);
+        double maxz = Math.max(corner1.z, corner2.z);
 
-        Units units = this.corner1.getUnits();
-        double minx = Math.min(this.corner1.x, this.corner2.x);
-        double maxx = Math.max(this.corner1.x, this.corner2.x);
-        double miny = Math.min(this.corner1.y, this.corner2.y);
-        double maxy = Math.max(this.corner1.y, this.corner2.y);
-        double minz = Math.min(this.corner1.z, this.corner2.z);
-        double maxz = Math.max(this.corner1.z, this.corner2.z);
+        this.minXYZ = new Position(minx, miny, minz, units);
+        this.maxXYZ = new Position(maxx, maxy, maxz, units);
+        this.probeDistance = maxz - minz;
+        this.resolution = resolution;
 
-        probeDistance = maxz - minz;
-
+        // Calculate probe locations.
         ImmutableList.Builder<Position> probeLocationBuilder = ImmutableList.builder();
         for(double x = minx; x <= maxx; x = Math.min(maxx, x + resolution)) {
             for(double y = miny; y <= maxy; y = Math.min(maxy, y + resolution)) {
@@ -71,10 +70,14 @@ public class SurfaceScanner {
             if (x == maxx) break;
         }
 
-        probeLocations = probeLocationBuilder.build();
+        this.probeLocations = probeLocationBuilder.build();
     }
 
     public ImmutableList<Position> getProbeLocations() {
-        return probeLocations;
+        return this.probeLocations;
+    }
+
+    public double getProbeDistance() {
+        return this.probeDistance;
     }
 }
