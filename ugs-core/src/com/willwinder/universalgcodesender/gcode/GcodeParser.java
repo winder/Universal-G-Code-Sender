@@ -194,6 +194,12 @@ public class GcodeParser implements IGcodeParser {
         return results;
     }
 
+    private static PointSegment addProbePointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
+        PointSegment ps = addLinearPointSegment(nextPoint, fastTraverse, line, state);
+        ps.setIsProbe(true);
+        return ps;
+    }
+
     /**
      * Create a PointSegment representing the linear command.
      */
@@ -311,6 +317,11 @@ public class GcodeParser implements IGcodeParser {
             case "21":
                 //mm
                 state.isMetric = true;
+                break;
+
+            // Probe
+            case "38.2":
+                meta.point = addProbePointSegment(nextPoint, true, line, state);
                 break;
 
             case "90":

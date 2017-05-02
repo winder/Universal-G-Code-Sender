@@ -42,6 +42,7 @@ final public class PointSegment {
     private boolean isZMovement = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
+    private boolean isProbe = false;
     private int lineNumber;
     private ArcProperties arcProperties = null;
 
@@ -65,6 +66,7 @@ final public class PointSegment {
         this.setIsMetric(ps.isMetric);
         this.setIsZMovement(ps.isZMovement);
         this.setIsFastTraverse(ps.isFastTraverse);
+        this.setIsProbe(ps.isProbe);
 
         if (ps.isArc) {
             this.setArcCenter(ps.center());
@@ -163,6 +165,14 @@ final public class PointSegment {
         return this.isFastTraverse;
     }
     
+    public void setIsProbe(final boolean isProbe) {
+        this.isProbe = isProbe;
+    }
+    
+    public boolean isProbe() {
+        return this.isProbe;
+    }
+
     // Arc properties.
     
     public void setArcCenter(final Point3d center) {
