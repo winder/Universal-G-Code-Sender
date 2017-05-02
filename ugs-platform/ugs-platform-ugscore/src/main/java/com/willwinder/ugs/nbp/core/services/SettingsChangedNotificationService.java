@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.services;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.LifecycleManager;
 import org.openide.awt.Notification;
@@ -41,19 +42,19 @@ import java.awt.event.MouseEvent;
 @ServiceProvider(service = SettingsChangedNotificationService.class)
 public class SettingsChangedNotificationService {
 
-    public static final String RESTART_ICON = "org/netbeans/core/windows/resources/restart.png";
+    private static final String RESTART_ICON = "org/netbeans/core/windows/resources/restart.png";
     private final BackendAPI backend;
     private Notification restartNotification;
     private String lastSelectedLanguage;
 
     public SettingsChangedNotificationService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.getSettings().setSettingChangeListener(this::checkForLanguageChangeAndAskForRestart);
+        backend.addUGSEventListener(this::checkForLanguageChangeAndAskForRestart);
         lastSelectedLanguage = backend.getSettings().getLanguage();
     }
 
-    private void checkForLanguageChangeAndAskForRestart() {
-        if (!StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
+    private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
+        if (ugsEvent.isSettingChangeEvent() && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
             if (null != restartNotification) {
                 restartNotification.clear();
             }
