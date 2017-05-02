@@ -72,7 +72,11 @@ public class MacrosListAction extends AbstractAction implements DynamicMenuConte
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // does nothing, this is a popup menu
+        //  Opens the macros windows
+        Action action = Actions.forID(LocalizingService.MacrosCategory, LocalizingService.MacrosActionId);
+        if(action != null) {
+            action.actionPerformed(e);
+        }
     }
 
     @Override
