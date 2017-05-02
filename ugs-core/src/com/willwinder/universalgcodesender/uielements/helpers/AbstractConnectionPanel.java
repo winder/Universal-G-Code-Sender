@@ -22,11 +22,9 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.uielements.actions.ConnectDisconnectAction;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
 import java.util.List;
@@ -37,8 +35,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+
 /**
- *
  * @author wwinder
  */
 public abstract class AbstractConnectionPanel extends JPanel implements UGSEventListener {
@@ -60,10 +60,9 @@ public abstract class AbstractConnectionPanel extends JPanel implements UGSEvent
     protected final JLabel firmwareLabel = new JLabel(Localization.getString("mainWindow.swing.firmwareLabel"));
 
     // Combo boxes, these need to be synchronized with Settings
-    protected final JComboBox firmwareCombo = new JComboBox();
-    protected final JComboBox portCombo = new JComboBox();
-    protected final JComboBox baudCombo = new JComboBox();
-
+    protected final JComboBox<String> firmwareCombo = new JComboBox<>();
+    protected final JComboBox<String> portCombo = new JComboBox<>();
+    protected final JComboBox<String> baudCombo = new JComboBox<>();
     protected final JButton refreshButton = new JButton();
     protected final JButton connectDisconnectButton = new JButton();
     
@@ -97,19 +96,27 @@ public abstract class AbstractConnectionPanel extends JPanel implements UGSEvent
         else if (evt.isStateChangeEvent()) {
             if (evt.getControlState() == COMM_DISCONNECTED) {
                 connectDisconnectButton.setIcon(disconnectedIcon);
+                firmwareCombo.setEnabled(true);
+                baudCombo.setEnabled(true);
+                portCombo.setEnabled(true);
+                refreshButton.setEnabled(true);
             } else {
                 connectDisconnectButton.setIcon(connectedIcon);
+                firmwareCombo.setEnabled(false);
+                baudCombo.setEnabled(false);
+                portCombo.setEnabled(false);
+                refreshButton.setEnabled(false);
             }
         }
     }
-    
+
     private void initComponents() {
         // People should be able to type in custom values.
         portCombo.setEditable(true);
         baudCombo.setEditable(true);
 
         // Baud rate options.
-        baudCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
+        baudCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
         baudCombo.setSelectedIndex(6);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
 
@@ -182,10 +189,7 @@ public abstract class AbstractConnectionPanel extends JPanel implements UGSEvent
         if (firmwareList.size() < 1) {
             displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
         } else {
-            java.util.Iterator<String> iter = firmwareList.iterator();
-            while (iter.hasNext()) {
-                firmwareCombo.addItem(iter.next());
-            }
+            firmwareList.forEach(firmwareCombo::addItem);
         }
     }
 }

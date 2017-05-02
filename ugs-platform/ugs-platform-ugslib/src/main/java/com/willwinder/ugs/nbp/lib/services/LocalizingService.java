@@ -99,6 +99,52 @@ public class LocalizingService {
     public final static String ProbeActionId = "com.willwinder.ugs.nbp.control.ProbeTopComponent";
     public final static String ProbeCategory = "Window";
 
+    public final static String StartTitle = Localization.getString("mainWindow.swing.sendButton", lang);
+    public final static String StartTitleKey = "mainWindow.swing.sendButton";
+    public final static String StartWindowPath = "Menu/Machine";
+    public final static String StartActionId = "com.willwinder.ugs.nbp.core.actions.StartAction";
+    public final static String StartCategory = "Machine";
+
+    public final static String PauseTitle = Localization.getString("mainWindow.swing.pauseButton", lang);
+    public final static String PauseTitleKey = "mainWindow.swing.pauseButton";
+    public final static String PauseWindowPath = "Menu/Machine";
+    public final static String PauseActionId = "com.willwinder.ugs.nbp.core.actions.PauseAction";
+    public final static String PauseCategory = "Machine";
+
+    public final static String StopTitle = Localization.getString("mainWindow.swing.stopButton", lang);
+    public final static String StopTitleKey = "mainWindow.swing.stopButton";
+    public final static String StopWindowPath = "Menu/Machine";
+    public final static String StopActionId = "com.willwinder.ugs.nbp.core.actions.StopAction";
+    public final static String StopCategory = "Machine";
+
+    public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
+    public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);
+    public final static String ConnectDisconnectActionTitleKey = "mainWindow.ui.connectDisconnect";
+    public final static String ConnectWindowPath = "Menu/Machine";
+    public final static String ConnectDisconnectActionId = "com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction";
+    public final static String ConnectDisconnectCategory = "Machine";
+
+    public final static String ConnectionBaudRateToolbarTitle = Localization.getString("mainWindow.swing.baudrate.toolbarTitle", lang);
+    public final static String ConnectionBaudRateToolbarTitleKey = "mainWindow.swing.baudrate.toolbarTitle";
+    public final static String ConnectionBaudRateToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionBaudRateToolbar";
+    public final static String ConnectionBaudRateToolbarCategory = "Machine";
+
+    public final static String ConnectionFirmwareToolbarTitle = Localization.getString("mainWindow.swing.firmware.toolbarTitle", lang);
+    public final static String ConnectionFirmwareToolbarTitleKey = "mainWindow.swing.firmware.toolbarTitle";
+    public final static String ConnectionFirmwareToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionFirmwareToolbar";
+    public final static String ConnectionFirmwareToolbarCategory = "Machine";
+
+    public final static String ConnectionSerialPortToolbarTitle = Localization.getString("mainWindow.swing.serialport.toolbarTitle", lang);
+    public final static String ConnectionSerialPortToolbarTitleKey = "mainWindow.swing.firmware.toolbarTitle";
+    public final static String ConnectionSerialPortToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionSerialPortToolbar";
+    public final static String ConnectionSerialPortToolbarCategory = "Machine";
+
+    public final static String FileBrowserToolbarTitle = Localization.getString("mainWindow.swing.filebrowser.toolbarTitle", lang);
+    public final static String FileBrowserToolbarTitleKey = "mainWindow.swing.filebrowser.toolbarTitle";
+    public final static String FileBrowserToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.FileBrowserToolbar";
+    public final static String FileBrowserToolbarCategory = "Machine";
+
+
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 

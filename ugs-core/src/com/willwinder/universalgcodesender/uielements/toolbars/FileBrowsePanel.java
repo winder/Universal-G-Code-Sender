@@ -23,25 +23,22 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
- *
  * @author wwinder
  */
 public class FileBrowsePanel extends JPanel implements UGSEventListener {
-    BackendAPI backend;
-
-    final private JTextField fileTextField = new JTextField();
+    final private JTextField fileTextField = new JTextField(15);
     final private JButton browseButton = new JButton();
+    private BackendAPI backend;
 
     public FileBrowsePanel(BackendAPI backend) {
         this.backend = backend;
         this.backend.addUGSEventListener(this);
+        this.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         setFile();
         browseButton.setAction(new OpenGcodeFileAction(backend));
@@ -49,9 +46,8 @@ public class FileBrowsePanel extends JPanel implements UGSEventListener {
         String browse = Localization.getString("mainWindow.swing.browseButton");
         browseButton.setText(browse);
 
-        this.setLayout(new MigLayout("inset 0, fillx"));
         this.add(new JLabel(Localization.getString("mainWindow.swing.fileLabel")));
-        this.add(fileTextField, "grow, w 150!");
+        this.add(fileTextField);
         this.add(browseButton);
     }
 
@@ -67,5 +63,4 @@ public class FileBrowsePanel extends JPanel implements UGSEventListener {
             setFile();
         }
     }
-    
 }
