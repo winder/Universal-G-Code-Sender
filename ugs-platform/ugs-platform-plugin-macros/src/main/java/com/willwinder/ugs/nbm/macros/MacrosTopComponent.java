@@ -35,9 +35,14 @@ import org.openide.windows.TopComponent;
         iconBase = MacrosTopComponent.ICON_BASE,
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "middle_left", openAtStartup = true)
-@ActionID(category = LocalizingService.MacrosCategory, id = LocalizingService.MacrosActionId)
-@ActionReference(path = LocalizingService.MacrosWindowPath)
+@TopComponent.Registration(
+        mode = "middle_left",
+        openAtStartup = true)
+@ActionID(
+        id = LocalizingService.MacrosActionId,
+        category = LocalizingService.MacrosCategory)
+@ActionReference(
+        path = LocalizingService.MacrosWindowPath)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:MacrosTopComponent>",
         preferredID = "MacrosTopComponent"

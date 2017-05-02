@@ -60,10 +60,9 @@ public class LocalizingService {
     public final static String MacrosTitle = Localization.getString("platform.window.macros", lang);
     public final static String MacrosTitleKey = "platform.window.macros";
     public final static String MacrosTooltip = Localization.getString("platform.window.macros.tooltip", lang);
-    public final static String MacrosWindowPath = "Menu/Window";
+    public final static String MacrosWindowPath = "Menu/Window/Plugins";
     public final static String MacrosActionId = "com.willwinder.ugs.nbm.macros.MacrosTopComponent";
     public final static String MacrosCategory = "Window";
-
 
     public final static String JogControlTitle = Localization.getString("platform.window.jogcontrol", lang);
     public final static String JogControlTooltip = Localization.getString("platform.window.jogcontrol.tooltip", lang);

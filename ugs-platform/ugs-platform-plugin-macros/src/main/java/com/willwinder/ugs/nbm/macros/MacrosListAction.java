@@ -21,23 +21,18 @@ package com.willwinder.ugs.nbm.macros;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.*;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
-import org.openide.util.actions.Presenter;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * An action for registering macro actions as menu items
@@ -51,56 +46,43 @@ import java.util.stream.Collectors;
         lazy = false,
         iconBase = MacrosListAction.ICON_BASE,
         displayName = "resources.MessagesBundle#" + LocalizingService.MacrosTitleKey
-        )
+)
 @ActionReferences({
         @ActionReference(
                 path = "Menu/Machine",
-                position = 1000)
+                position = 800)
 })
-public class MacrosListAction extends AbstractAction implements DynamicMenuContent, Presenter.Popup, Presenter.Menu {
+public class MacrosListAction extends AbstractAction implements DynamicMenuContent, UGSEventListener {
 
     public static final String ICON_BASE = "icons/macros.png";
     private final BackendAPI backend;
-    private static final Logger logger = Logger.getLogger(MacrosListAction.class.getCanonicalName());
+    private JMenu menu;
 
     public MacrosListAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        this.backend.addUGSEventListener(this);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.MacrosTitle);
         putValue(NAME, LocalizingService.MacrosTitle);
+
+        reloadMenu();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         // does nothing, this is a popup menu
-        Action action = Actions.forID(LocalizingService.MacrosCategory, LocalizingService.MacrosActionId);
-        if(action != null) {
-            action.actionPerformed(e);
-        }
     }
 
     @Override
     public JComponent[] getMenuPresenters() {
-        return createMenu();
+        return new JComponent[]{menu};
     }
 
     @Override
     public JComponent[] synchMenuPresenters(JComponent[] items) {
-        return createMenu();
-    }
-
-    @Override
-    public JMenuItem getPopupPresenter() {
-        JMenu menu = new JMenu(this);
-        menu.setText(LocalizingService.MacrosTitle);
-        menu.setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
-
-        JComponent[] menuItems = createMenu();
-        Arrays.stream(menuItems)
-                .forEach(menu::add);
-        return menu;
+        return new JComponent[]{menu};
     }
 
     @Override
@@ -108,18 +90,21 @@ public class MacrosListAction extends AbstractAction implements DynamicMenuConte
         return true;
     }
 
-    private JComponent[] createMenu() {
-        Collection<Macro> macros = backend.getSettings().getMacros();
-        List<JComponent> actions = macros.stream()
-                .map(this::makeMenuItem)
-                .collect(Collectors.toList());
+    private void reloadMenu() {
+        menu = new JMenu(this);
+        menu.setText(LocalizingService.MacrosTitle);
+        menu.setIcon(ImageUtilities.loadImageIcon(ICON_BASE, false));
 
-        actions.add(new JSeparator());
+        Collection<Macro> macros = backend.getSettings().getMacros();
+        macros.stream()
+                .map(this::makeMenuItem)
+                .forEach(menu::add);
+
+        menu.add(new JSeparator());
+
         JMenuItem openSettingsAction = new JMenuItem(Localization.getString("platform.menu.macros.edit"));
         openSettingsAction.addActionListener(l -> OptionsDisplayer.getDefault().open("UGS/macros"));
-        actions.add(openSettingsAction);
-
-        return actions.toArray(new JComponent[actions.size()]);
+        menu.add(openSettingsAction);
     }
 
     private JComponent makeMenuItem(Macro macro) {
@@ -129,36 +114,9 @@ public class MacrosListAction extends AbstractAction implements DynamicMenuConte
     }
 
     @Override
-    public JMenuItem getMenuPresenter() {
-        return getPopupPresenter();
-    }
-
-    private class MacroAction extends AbstractAction {
-        private BackendAPI backend;
-        private Macro macro;
-
-        public MacroAction(BackendAPI backend, Macro macro) {
-            this.backend = backend;
-            this.macro = macro;
-            putValue(NAME, macro.getName());
-            putValue("menuText", macro.getName());
-            putValue("displayName", macro.getName());
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                if (macro != null && macro.getGcode() != null) {
-                    MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-                }
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return backend.isConnected() && backend.isIdle();
+    public void UGSEvent(UGSEvent event) {
+        if (event.isSettingChangeEvent()) {
+            reloadMenu();
         }
     }
 }
