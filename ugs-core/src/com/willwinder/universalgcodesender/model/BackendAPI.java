@@ -41,6 +41,7 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     public void connect(String firmware, String port, int baudRate) throws Exception;
     public void disconnect() throws Exception;
     public void sendGcodeCommand(String commandText) throws Exception;
+    public void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception;
     public void sendGcodeCommand(GcodeCommand command) throws Exception;
     public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, double feedRate, Units units) throws Exception;
 
@@ -53,6 +54,7 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     public void returnToZero() throws Exception;
     public void resetCoordinatesToZero() throws Exception;
     public void resetCoordinateToZero(char coordinate) throws Exception;
+    public void restoreParserState() throws Exception;
     
     public void killAlarmLock() throws Exception;
     public void performHomingCycle() throws Exception;
