@@ -18,16 +18,19 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import java.util.Collection;
 
 /**
  *
  * @author wwinder
  */
 public class SurfaceScanner {
-    private ImmutableList<Position> probeLocations;
+    private ImmutableCollection<Position> probePositions;
+    private Collection<Position> surfacePositions;
 
     private Position minXYZ = null;
     private Position maxXYZ = null;
@@ -61,20 +64,20 @@ public class SurfaceScanner {
         this.resolution = resolution;
 
         // Calculate probe locations.
-        ImmutableList.Builder<Position> probeLocationBuilder = ImmutableList.builder();
+        ImmutableList.Builder<Position> probePositionBuilder = ImmutableList.builder();
         for(double x = minx; x <= maxx; x = Math.min(maxx, x + resolution)) {
             for(double y = miny; y <= maxy; y = Math.min(maxy, y + resolution)) {
-                probeLocationBuilder.add(new Position(x, y, maxz, units));
+                probePositionBuilder.add(new Position(x, y, maxz, units));
                 if (y == maxy) break;
             }
             if (x == maxx) break;
         }
 
-        this.probeLocations = probeLocationBuilder.build();
+        this.probePositions = probePositionBuilder.build();
     }
 
-    public ImmutableList<Position> getProbeLocations() {
-        return this.probeLocations;
+    public ImmutableCollection<Position> getProbePositions() {
+        return this.probePositions;
     }
 
     public double getProbeDistance() {

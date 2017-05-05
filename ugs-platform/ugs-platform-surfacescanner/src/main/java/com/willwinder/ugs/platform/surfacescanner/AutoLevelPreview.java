@@ -18,7 +18,8 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.Iterables;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -64,9 +65,9 @@ public class AutoLevelPreview extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
-    private ImmutableList<Position> positions;
-    public void updateSettings(ImmutableList<Position> positions) {
-        if (positions != null && positions.size() != 0 && this.notifier != null) {
+    private ImmutableCollection<Position> positions;
+    public void updateSettings(ImmutableCollection<Position> positions) {
+        if (positions != null && !positions.isEmpty() && this.notifier != null) {
             this.positions = positions;
             this.notifier.forceRedraw();
         }
@@ -75,12 +76,12 @@ public class AutoLevelPreview extends Renderable {
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
         // Don't draw something invalid.
-        if (positions == null || positions.size() == 0) {
+        if (positions == null || positions.isEmpty()) {
             return;
         }
 
-        Position first = positions.get(0);
-        Units unit = positions.get(0).getUnits();
+        Position first = Iterables.getFirst(positions, null);
+        Units unit = first.getUnits();
 
         double objectX = objectMax.x - objectMin.x;
         double objectY = objectMax.y - objectMin.y;
@@ -98,8 +99,8 @@ public class AutoLevelPreview extends Renderable {
             gl.glEnable(GL2.GL_LIGHTING); 
 
             // Scale inch to mm if needed
-            if (unit != unit.MM) {
-                double scale = UnitUtils.scaleUnits(unit, unit.MM);
+            if (unit != Units.MM) {
+                double scale = UnitUtils.scaleUnits(unit, Units.MM);
                 gl.glScaled(scale, scale, scale);
             }
 

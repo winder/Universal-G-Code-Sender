@@ -118,7 +118,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             Point3d lowerLeft = new Point3d(corner1mm.x, corner1mm.y, corner1mm.z);
             Point3d upperRight = new Point3d(corner2mm.x, corner2mm.y, corner2mm.z);
 
-            r.updateSettings(scanner.getProbeLocations());
+            r.updateSettings(scanner.getProbePositions());
             //r.updateSettings(lowerLeft, upperRight, resolution * UnitUtils.scaleUnits(units, Units.MM));
         }
     }
@@ -367,10 +367,14 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     }// </editor-fold>//GEN-END:initComponents
 
     private void scanSurfaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scanSurfaceButtonActionPerformed
+        if (scanner == null || scanner.getProbePositions() == null || scanner.getProbePositions().isEmpty()) {
+            return;
+        }
+
         try {
-            backend.sendGcodeCommand("G90 G21");
-            for (Position p : scanner.getProbeLocations()) {
-                backend.sendGcodeCommand(String.format("G0 X%f Y%f Z%f", p.x, p.y, p.z));
+            for (Position p : scanner.getProbePositions()) {
+                Position pMM = p.getPositionIn(Units.MM);
+                backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
                 backend.probe("Z", getValue(this.probeSpeed), this.scanner.getProbeDistance(), p.getUnits());
             }
         } catch (Exception ex) {
@@ -406,6 +410,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     private javax.swing.JSpinner zMax;
     private javax.swing.JSpinner zMin;
     // End of variables declaration//GEN-END:variables
+
     @Override
     public void componentOpened() {
         scanner = new SurfaceScanner();
