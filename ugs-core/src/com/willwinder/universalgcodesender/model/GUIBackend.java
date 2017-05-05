@@ -388,9 +388,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void sendGcodeCommand(String commandText) throws Exception {
+        sendGcodeCommand(false, commandText);
+    }
+
+    @Override
+    public void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception {
         if (this.isConnected()) {
             GcodeCommand command = controller.createCommand(commandText);
+            command.setTemporaryParserModalChange(restoreParserState);
             sendGcodeCommand(command);
+
+            if (restoreParserState && this.isConnected()) {
+                controller.restoreParserModalState();
+            }
         } else {
             throw new Exception(Localization.getString("controller.log.notconnected"));
         }
@@ -650,6 +660,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public void restoreParserState() throws Exception {
+        this.controller.restoreParserModalState();
+    }
+
+    @Override
     public void resetCoordinateToZero(char coordinate) throws Exception {
         this.controller.resetCoordinateToZero(coordinate);
     }
@@ -744,7 +759,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        controller.updateParserModalState(command);
         if (isIdle()) {
             this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
         }

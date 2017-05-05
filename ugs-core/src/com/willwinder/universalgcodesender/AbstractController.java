@@ -208,8 +208,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         GcodeCommand state = createCommand("G21 G91 G49");
         state.setTemporaryParserModalChange(true);
 
+        GcodeCommand probe = createCommand(probeCommand);
+        probe.setTemporaryParserModalChange(true);
+
         this.sendCommandImmediately(state);
-        this.sendCommandImmediately(createCommand(probeCommand));
+        this.sendCommandImmediately(probe);
+
         restoreParserModalState();
     }
 
@@ -768,6 +772,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         GcodeCommand command = this.activeCommands.remove(0);
 
         command.setResponse(response);
+        //updateParserModalState(command);
 
         this.numCommandsCompleted++;
         dispatchCommandComplete(command);
