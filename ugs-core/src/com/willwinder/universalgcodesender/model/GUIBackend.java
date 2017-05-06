@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.IController;
@@ -470,7 +471,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     private File getTempDir() {
         if (tempDir == null) {
-            tempDir = new File(System.getProperty("java.io.tmpdir"));
+            tempDir = Files.createTempDir();
         }
         return tempDir;
     }
@@ -902,7 +903,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
                 this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
-                this.preprocessAndExportToFile(processedGcodeFile);
+                this.preprocessAndExportToFile(this.processedGcodeFile);
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");
