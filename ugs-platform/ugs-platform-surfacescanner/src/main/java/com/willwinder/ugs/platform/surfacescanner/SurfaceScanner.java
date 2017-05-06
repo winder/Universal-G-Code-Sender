@@ -30,14 +30,24 @@ import java.util.Collection;
  */
 public class SurfaceScanner {
     private ImmutableCollection<Position> probePositions;
+    private Position[][] probePositionGrid;
     private Collection<Position> surfacePositions;
 
     private Position minXYZ = null;
     private Position maxXYZ = null;
     private double resolution = 1;
     private double probeDistance = 0;
+    private int yAxisPoints = -1;
+    private int xAxisPoints = -1;
     
     public SurfaceScanner() {
+    }
+
+    public void probeEvent(final Position p) {
+        int x = (int) Math.ceil((p.x - minXYZ.x) / resolution);
+        int y = (int) Math.ceil((p.y - minXYZ.y) / resolution);
+
+        probePositionGrid[x][y] = new Position(p);
     }
 
     /**
@@ -60,17 +70,25 @@ public class SurfaceScanner {
 
         this.minXYZ = new Position(minx, miny, minz, units);
         this.maxXYZ = new Position(maxx, maxy, maxz, units);
-        this.probeDistance = maxz - minz;
+        this.probeDistance = minz - maxz;
         this.resolution = resolution;
+
+        this.xAxisPoints = (int) (Math.ceil((maxx - minx) / resolution)) + 1;
+        this.yAxisPoints = (int) (Math.ceil((maxy - miny) / resolution)) + 1;
+        this.probePositionGrid = new Position[this.xAxisPoints][this.yAxisPoints];
 
         // Calculate probe locations.
         ImmutableList.Builder<Position> probePositionBuilder = ImmutableList.builder();
-        for(double x = minx; x <= maxx; x = Math.min(maxx, x + resolution)) {
-            for(double y = miny; y <= maxy; y = Math.min(maxy, y + resolution)) {
-                probePositionBuilder.add(new Position(x, y, maxz, units));
-                if (y == maxy) break;
+        for (int x = 0; x < this.xAxisPoints; x++) {
+            for (int y = 0; y < this.yAxisPoints; y++) {
+                Position p = new Position(
+                        minx + Math.min(maxx-minx, x*resolution),
+                        miny + Math.min(maxy-miny, y*resolution),
+                        maxz,
+                        units);
+                //this.probePositionGrid[x][y] = p;
+                probePositionBuilder.add(p);
             }
-            if (x == maxx) break;
         }
 
         this.probePositions = probePositionBuilder.build();
@@ -80,7 +98,19 @@ public class SurfaceScanner {
         return this.probePositions;
     }
 
+    public final Position[][] getProbePositionGrid() {
+        return this.probePositionGrid;
+    }
+
     public double getProbeDistance() {
         return this.probeDistance;
+    }
+
+    public int getXAxisPoints() {
+        return this.xAxisPoints;
+    }
+
+    public int getYAxisPoints() {
+        return this.yAxisPoints;
     }
 }

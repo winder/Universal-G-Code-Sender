@@ -39,6 +39,9 @@ public class AutoLevelPreview extends Renderable {
     private final IRendererNotifier notifier;
     private final GLUT glut;
 
+    private ImmutableCollection<Position> positions;
+    private Position[][] grid = null;
+
     public AutoLevelPreview(int priority, IRendererNotifier notifier) {
         super(10);
 
@@ -65,11 +68,11 @@ public class AutoLevelPreview extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
-    private ImmutableCollection<Position> positions;
-    public void updateSettings(ImmutableCollection<Position> positions) {
+    public void updateSettings(ImmutableCollection<Position> positions, final Position[][] grid) {
         if (positions != null && !positions.isEmpty() && this.notifier != null) {
             this.positions = positions;
             this.notifier.forceRedraw();
+            this.grid = grid;
         }
     }
 
@@ -120,6 +123,7 @@ public class AutoLevelPreview extends Renderable {
                 gl.glPopMatrix();
             }
 
+            /*
             gl.glPushMatrix();
                 gl.glTranslated(
                         (minx+maxx)/2,
@@ -129,8 +133,72 @@ public class AutoLevelPreview extends Renderable {
                 gl.glColor4fv(new float[]{0.3f, 0, 0, 0.1f}, 0);
                 glut.glutSolidCube((float) 1.);
             gl.glPopMatrix();
+            */
+
+
+            drawGrid(gl);
 
             gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
+    }
+
+    private void drawGrid(GL2 gl) {
+        if (this.grid == null) {
+            return;
+        }
+
+        /*
+    0,5 ?   ?   ?   ?   ? 5,5
+
+        *   ?   ?   ?   ?
+          \
+        *   *   ?   ?   ?
+          x   \
+        *   *   *   ?   ?
+          x   x   \
+    0,0 *   *   *   *   ? 5,0
+
+        */
+
+        gl.glBegin(GL2.GL_TRIANGLES); 
+        int xLen = this.grid.length;
+        for(int x = 0; x < xLen - 1; x++) {
+            if (this.grid[x] == null || this.grid[x+1] == null) {
+                continue;
+            }
+
+            float opacity = 0.8f;
+            for (int y = 0; y < this.grid[x].length - 1; y++) {
+                Position pos1 = this.grid[x][y];
+                Position pos2 = this.grid[x+1][y];
+                Position pos3 = this.grid[x][y+1];
+                Position pos4 = this.grid[x+1][y+1];
+
+                // Bottom left of quad
+                if (pos1 != null && pos2 != null && pos3 != null) {
+                    gl.glColor4f( 0.0f, 1.0f, 0.0f, opacity ); // Green
+                    gl.glVertex3d( pos1.x, pos1.y, pos1.z ); // Left Of Triangle (Front)
+
+                    gl.glColor4f( 1.0f, 0.0f, 0.0f, opacity ); // Red
+                    gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
+
+                    gl.glColor4f( 0.0f, 0.0f, 1.0f, opacity ); // Blue
+                    gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Right Of Triangle (Front)
+                }
+                // Top right of quad
+                if (pos2 != null && pos3 != null && pos4 != null) {
+                    gl.glColor4f( 0.0f, 0.0f, 1.0f, opacity ); // Blue
+                    gl.glVertex3d( pos4.x, pos4.y, pos4.z ); // Right Of Triangle (Front)
+                    
+                    gl.glColor4f( 1.0f, 0.0f, 0.0f, opacity ); // Red
+                    gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
+                    
+                    gl.glColor4f( 0.0f, 1.0f, 0.0f, opacity ); // Green
+                    gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Left Of Triangle (Front)
+                }
+            }
+        }
+
+        gl.glEnd();
     }
 }

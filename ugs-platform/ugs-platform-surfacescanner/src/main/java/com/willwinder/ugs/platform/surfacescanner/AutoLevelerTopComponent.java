@@ -21,8 +21,10 @@ package com.willwinder.ugs.platform.surfacescanner;
 import com.willwinder.ugs.nbm.visualizer.shared.IRendererNotifier;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
@@ -60,10 +62,11 @@ import org.openide.util.NbBundle.Messages;
     "CTL_AutoLevelerTopComponent=AutoLeveler Window",
     "HINT_AutoLevelerTopComponent=This is a AutoLeveler window"
 })
-public final class AutoLevelerTopComponent extends TopComponent implements ChangeListener {
+public final class AutoLevelerTopComponent extends TopComponent implements ChangeListener, UGSEventListener {
     private AutoLevelPreview r;
     private SurfaceScanner scanner;
     private BackendAPI backend;
+    private Position surface[][] = null;
 
     public AutoLevelerTopComponent() {
         initComponents();
@@ -71,6 +74,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         setToolTipText(Bundle.HINT_AutoLevelerTopComponent());
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
 
         ChangeListener cl = this;
         stepResolution.addChangeListener(cl);
@@ -84,6 +88,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         yOffset.addChangeListener(cl);
         unitInch.addChangeListener(cl);
         unitMM.addChangeListener(cl);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if (evt.isProbeEvent()) {
+            scanner.probeEvent(evt.getProbePosition());
+        }
     }
 
     private double getValue(JSpinner spinner) {
@@ -118,7 +129,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             Point3d lowerLeft = new Point3d(corner1mm.x, corner1mm.y, corner1mm.z);
             Point3d upperRight = new Point3d(corner2mm.x, corner2mm.y, corner2mm.z);
 
-            r.updateSettings(scanner.getProbePositions());
+            r.updateSettings(scanner.getProbePositions(), scanner.getProbePositionGrid());
             //r.updateSettings(lowerLeft, upperRight, resolution * UnitUtils.scaleUnits(units, Units.MM));
         }
     }
