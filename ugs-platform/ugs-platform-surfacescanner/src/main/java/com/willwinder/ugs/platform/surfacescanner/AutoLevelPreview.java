@@ -19,6 +19,7 @@
 package com.willwinder.ugs.platform.surfacescanner;
 
 import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -42,12 +43,50 @@ public class AutoLevelPreview extends Renderable {
     private ImmutableCollection<Position> positions;
     private Position[][] grid = null;
 
+    // The maximum distance of a probe used for coloring.
+    private double maxZ, minZ;
+
     public AutoLevelPreview(int priority, IRendererNotifier notifier) {
         super(10);
 
         this.notifier = notifier;
 
         glut = new GLUT();
+
+        /*
+        // initialize with some test data.
+        maxZ = 1;
+        minZ = -1;
+
+        positions = ImmutableList.<Position>builder()
+                .add(new Position(0, 0, 1, Units.MM))
+                .add(new Position(0, 1, 1, Units.MM))
+                .add(new Position(0, 2, 1, Units.MM))
+                .add(new Position(1, 0, 1, Units.MM))
+                .add(new Position(1, 1, 1, Units.MM))
+                .add(new Position(1, 2, 1, Units.MM))
+                .add(new Position(2, 0, 1, Units.MM))
+                .add(new Position(2, 1, 1, Units.MM))
+                .add(new Position(2, 2, 1, Units.MM))
+                .build();
+        grid = new Position[][] {
+            {
+                new Position(0, 0, 0.9, Units.MM),
+                new Position(0, 1, 0.5, Units.MM),
+                new Position(0, 2, 0.01, Units.MM)
+            },
+            {
+                new Position(1, 0, 0.1, Units.MM),
+                new Position(1, 1, 0.05, Units.MM),
+                new Position(1, 2, 0.0, Units.MM)
+            },
+            {
+                new Position(2, 0, -0.9, Units.MM),
+                new Position(2, 1, -0.5, Units.MM),
+                new Position(2, 2, -0.01, Units.MM)
+            }
+        };
+        */
     }
 
     @Override
@@ -68,16 +107,24 @@ public class AutoLevelPreview extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
-    public void updateSettings(ImmutableCollection<Position> positions, final Position[][] grid) {
+    public void updateSettings(
+            ImmutableCollection<Position> positions, final Position[][] grid, Position max, Position min) {
         if (positions != null && !positions.isEmpty() && this.notifier != null) {
             this.positions = positions;
             this.notifier.forceRedraw();
             this.grid = grid;
+            if (max != null) {
+                this.maxZ = max.z;
+            }
+            if (min != null) {
+                this.minZ = min.z;
+            }
         }
     }
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+
         // Don't draw something invalid.
         if (positions == null || positions.isEmpty()) {
             return;
@@ -107,6 +154,7 @@ public class AutoLevelPreview extends Renderable {
                 gl.glScaled(scale, scale, scale);
             }
 
+            // Balls indicating the probe start locations.
             gl.glColor4fv(new float[]{0.1f, 0.1f, 0.1f, 1.0f}, 0);
             for (Position p : positions) {
                 gl.glPushMatrix();
@@ -123,7 +171,7 @@ public class AutoLevelPreview extends Renderable {
                 gl.glPopMatrix();
             }
 
-            /*
+            // Outline of probe area
             gl.glPushMatrix();
                 gl.glTranslated(
                         (minx+maxx)/2,
@@ -131,18 +179,35 @@ public class AutoLevelPreview extends Renderable {
                         (minz+maxz)/2);
                 gl.glScaled(maxx-minx, maxy-miny, maxz-minz);
                 gl.glColor4fv(new float[]{0.3f, 0, 0, 0.1f}, 0);
-                glut.glutSolidCube((float) 1.);
+                glut.glutWireCube((float) 1.);
             gl.glPopMatrix();
-            */
 
-
-            drawGrid(gl);
+            drawProbedSurface(gl);
 
             gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
     }
 
-    private void drawGrid(GL2 gl) {
+    private void setColorForZ(GL2 gl, double zPos, float opacity) {
+        // Other colors I tried, maybe make this configurable.
+        //int high[] = {53, 122, 175}; // blueish
+        //int low[] = {218, 61, 117}; // reddish
+        //int high[] = {38, 109, 211}; // blue
+        //int low[] = {255, 34, 12}; // red
+        //int low[] = {232, 197, 71}; // mustard yellow
+
+        int high[] = {0, 255, 0}; // green
+        int low[] = {255, 0, 0}; // red
+
+        float ratio = (float) ((zPos - minZ) / (maxZ - minZ));
+        float r = (ratio * high[0] + (1-ratio) * low[0]) / 255;
+        float g = (ratio * high[1] + (1-ratio) * low[1]) / 255;
+        float b = (ratio * high[2] + (1-ratio) * low[2]) / 255;
+
+        gl.glColor4f(r, g, b, opacity);
+    }
+
+    private void drawProbedSurface(GL2 gl) {
         if (this.grid == null) {
             return;
         }
@@ -176,24 +241,24 @@ public class AutoLevelPreview extends Renderable {
 
                 // Bottom left of quad
                 if (pos1 != null && pos2 != null && pos3 != null) {
-                    gl.glColor4f( 0.0f, 1.0f, 0.0f, opacity ); // Green
+                    setColorForZ(gl, pos1.z, opacity);
                     gl.glVertex3d( pos1.x, pos1.y, pos1.z ); // Left Of Triangle (Front)
 
-                    gl.glColor4f( 1.0f, 0.0f, 0.0f, opacity ); // Red
+                    setColorForZ(gl, pos3.z, opacity);
                     gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
 
-                    gl.glColor4f( 0.0f, 0.0f, 1.0f, opacity ); // Blue
+                    setColorForZ(gl, pos2.z, opacity);
                     gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Right Of Triangle (Front)
                 }
                 // Top right of quad
                 if (pos2 != null && pos3 != null && pos4 != null) {
-                    gl.glColor4f( 0.0f, 0.0f, 1.0f, opacity ); // Blue
+                    setColorForZ(gl, pos4.z, opacity);
                     gl.glVertex3d( pos4.x, pos4.y, pos4.z ); // Right Of Triangle (Front)
                     
-                    gl.glColor4f( 1.0f, 0.0f, 0.0f, opacity ); // Red
+                    setColorForZ(gl, pos3.z, opacity);
                     gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
                     
-                    gl.glColor4f( 0.0f, 1.0f, 0.0f, opacity ); // Green
+                    setColorForZ(gl, pos2.z, opacity);
                     gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Left Of Triangle (Front)
                 }
             }

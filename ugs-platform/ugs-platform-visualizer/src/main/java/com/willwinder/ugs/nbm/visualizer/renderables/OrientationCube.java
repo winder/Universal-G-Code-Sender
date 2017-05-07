@@ -195,5 +195,7 @@ public class OrientationCube extends Renderable {
                     layer2,
                     textScaleFactor);
     renderer.end3DRendering();
+    gl.glDisable(GL_CULL_FACE);
+    gl.glEnable(GL_DEPTH_TEST);
   }
 }

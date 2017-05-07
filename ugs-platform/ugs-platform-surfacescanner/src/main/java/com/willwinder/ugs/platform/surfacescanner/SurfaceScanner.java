@@ -86,7 +86,6 @@ public class SurfaceScanner {
                         miny + Math.min(maxy-miny, y*resolution),
                         maxz,
                         units);
-                //this.probePositionGrid[x][y] = p;
                 probePositionBuilder.add(p);
             }
         }
@@ -94,7 +93,7 @@ public class SurfaceScanner {
         this.probePositions = probePositionBuilder.build();
     }
 
-    public ImmutableCollection<Position> getProbePositions() {
+    public ImmutableCollection<Position> getProbeStartPositions() {
         return this.probePositions;
     }
 
@@ -112,5 +111,13 @@ public class SurfaceScanner {
 
     public int getYAxisPoints() {
         return this.yAxisPoints;
+    }
+
+    public final Position getMaxXYZ() {
+        return this.maxXYZ;
+    }
+
+    public final Position getMinXYZ() {
+        return this.minXYZ;
     }
 }

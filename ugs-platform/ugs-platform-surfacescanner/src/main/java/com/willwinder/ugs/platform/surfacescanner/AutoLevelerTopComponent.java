@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbm.visualizer.shared.IRendererNotifier;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -26,7 +29,13 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.vecmath.Point3d;
@@ -67,6 +76,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     private SurfaceScanner scanner;
     private BackendAPI backend;
     private Position surface[][] = null;
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public AutoLevelerTopComponent() {
         initComponents();
@@ -122,15 +132,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         scanner.update(corner1, corner2, resolution);
         
         if (r != null) {
-            // The visualizer works in MM, so convert units before providing to renderer.
-            Position corner1mm = corner1.getPositionIn(Units.MM);
-            Position corner2mm = corner2.getPositionIn(Units.MM);
-
-            Point3d lowerLeft = new Point3d(corner1mm.x, corner1mm.y, corner1mm.z);
-            Point3d upperRight = new Point3d(corner2mm.x, corner2mm.y, corner2mm.z);
-
-            r.updateSettings(scanner.getProbePositions(), scanner.getProbePositionGrid());
-            //r.updateSettings(lowerLeft, upperRight, resolution * UnitUtils.scaleUnits(units, Units.MM));
+            r.updateSettings(
+                    scanner.getProbeStartPositions(),
+                    scanner.getProbePositionGrid(),
+                    scanner.getMaxXYZ(),
+                    scanner.getMinXYZ());
         }
     }
 
@@ -167,6 +173,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         jButton2 = new javax.swing.JButton();
         unitMM = new javax.swing.JRadioButton();
         unitInch = new javax.swing.JRadioButton();
+        dataViewer = new javax.swing.JButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.jLabel5.text")); // NOI18N
 
@@ -267,7 +274,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                         .addGap(9, 9, 9)
                         .addComponent(yOffset, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(32, 32, 32)))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.jLabel3.text")); // NOI18N
@@ -323,6 +330,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         unitGroup.add(unitInch);
         org.openide.awt.Mnemonics.setLocalizedText(unitInch, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.unitInch.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(dataViewer, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.dataViewer.text")); // NOI18N
+        dataViewer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dataViewerActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -330,13 +344,17 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scanSurfaceButton)
-                    .addComponent(jButton2)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(unitMM)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(unitInch)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(unitMM)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(unitInch))
+                            .addComponent(scanSurfaceButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(dataViewer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -349,6 +367,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                 .addComponent(scanSurfaceButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dataViewer)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -369,21 +389,21 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(0, 80, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
     private void scanSurfaceButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scanSurfaceButtonActionPerformed
-        if (scanner == null || scanner.getProbePositions() == null || scanner.getProbePositions().isEmpty()) {
+        if (scanner == null || scanner.getProbeStartPositions() == null || scanner.getProbeStartPositions().isEmpty()) {
             return;
         }
 
         try {
-            for (Position p : scanner.getProbePositions()) {
+            for (Position p : scanner.getProbeStartPositions()) {
                 Position pMM = p.getPositionIn(Units.MM);
                 backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
                 backend.probe("Z", getValue(this.probeSpeed), this.scanner.getProbeDistance(), p.getUnits());
@@ -393,7 +413,32 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         }
     }//GEN-LAST:event_scanSurfaceButtonActionPerformed
 
+    private void dataViewerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dataViewerActionPerformed
+        
+        List<Map<String,Double>> probeData = new ArrayList<>();
+
+        // Collect data from grid.
+        if (scanner != null && scanner.getProbePositionGrid() != null) {
+            for (Position[] row : scanner.getProbePositionGrid()) {
+                for (Position p : row) {
+                    if (p != null) {
+                        probeData.add(ImmutableMap.<String,Double>of(
+                                "x", p.x,
+                                "y", p.y,
+                                "z", p.z
+                        ));
+                    }
+                }
+            }
+        }
+
+        JTextArea ta = new JTextArea(15, 30);
+        ta.setText(GSON.toJson(probeData));
+        JOptionPane.showMessageDialog(null, new JScrollPane(ta));
+    }//GEN-LAST:event_dataViewerActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton dataViewer;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
