@@ -88,13 +88,13 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
     @Override
     public void close() throws IOException {
         fileWriter.close();
-        RandomAccessFile raw = new RandomAccessFile(file, "rw");
-        raw.seek(0);
-        String metadata = "gsw_meta:" + lineCount.toString();
-        if (metadata.length() > metadataReservedSize.length()) {
-            throw new IOException("Too many lines to write metadata for GcodeStreamWriter!");
+        try (RandomAccessFile raw = new RandomAccessFile(file, "rw")) {
+            raw.seek(0);
+            String metadata = "gsw_meta:" + lineCount.toString();
+            if (metadata.length() > metadataReservedSize.length()) {
+                throw new IOException("Too many lines to write metadata for GcodeStreamWriter!");
+            }
+            raw.write(metadata.getBytes(), 0, metadata.length());
         }
-        raw.write(metadata.toString().getBytes(), 0, metadata.length());
-        raw.close();
     }
 }
