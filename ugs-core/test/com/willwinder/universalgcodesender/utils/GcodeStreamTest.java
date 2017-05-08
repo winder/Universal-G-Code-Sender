@@ -19,12 +19,10 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStream;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -68,11 +66,21 @@ public class GcodeStreamTest {
         FileUtils.forceDelete(tempDir);
     }
 
+    @Test(expected=GcodeStreamReader.NotGcodeStreamFile.class)
+    public void testNotGcodeStream() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
+        File f = new File(tempDir,"gcodeFile");
+        PrintWriter writer = new PrintWriter(f);
+        writer.println("invalid format");
+        writer.close();
+       
+        new GcodeStreamReader(f);
+    }
+
     /**
      * Writes 1,000,000 rows to a file then reads it back out.
      */
     @Test
-    public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException {
+    public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
         int rows = 1000000;
         File f = new File(tempDir,"gcodeFile");
         try {

@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -43,12 +44,26 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
     BufferedReader reader;
     int numRows;
     int numRowsRemaining;
-    public GcodeStreamReader(File f) throws FileNotFoundException, IOException {
+
+    public static class NotGcodeStreamFile extends Exception {}
+
+    public GcodeStreamReader(File f) throws NotGcodeStreamFile, FileNotFoundException {
         file = f;
         reader = new BufferedReader(new FileReader(file));
-        String metadata = reader.readLine().trim();
-        numRows = Integer.parseInt(metadata);
-        numRowsRemaining = numRows;
+        
+        try {
+            String metadata = reader.readLine().trim();
+
+            if (!metadata.startsWith(super.metaPrefix)) {
+                throw new NotGcodeStreamFile();
+            }
+
+            metadata = metadata.substring(super.metaPrefix.length(), metadata.length());
+            numRows = Integer.parseInt(metadata);
+            numRowsRemaining = numRows;
+        } catch (IOException | NumberFormatException e) {
+            throw new NotGcodeStreamFile();
+        }
     }
     
     public boolean ready() {

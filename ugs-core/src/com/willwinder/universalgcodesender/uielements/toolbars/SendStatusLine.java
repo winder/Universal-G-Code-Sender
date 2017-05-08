@@ -113,7 +113,7 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
                 try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                     setText(String.format(ROWS_FORMAT, gsr.getNumRows()));
                 }
-            } catch (IOException ex){}
+            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex){}
         }
     }
 

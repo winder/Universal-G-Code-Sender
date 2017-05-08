@@ -32,7 +32,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -91,11 +90,11 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
         fileWriter.close();
         RandomAccessFile raw = new RandomAccessFile(file, "rw");
         raw.seek(0);
-        String count = lineCount.toString();
-        if (count.length() > metadataReservedSize.length()) {
-            throw new IOException("Too many lines in GcodeStreamWriter!");
+        String metadata = "gsw_meta:" + lineCount.toString();
+        if (metadata.length() > metadataReservedSize.length()) {
+            throw new IOException("Too many lines to write metadata for GcodeStreamWriter!");
         }
-        raw.write(count.toString().getBytes(), 0, count.length());
+        raw.write(metadata.toString().getBytes(), 0, metadata.length());
         raw.close();
     }
 }

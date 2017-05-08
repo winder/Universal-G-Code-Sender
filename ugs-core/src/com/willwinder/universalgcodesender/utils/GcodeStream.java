@@ -42,4 +42,5 @@ public abstract class GcodeStream {
 
     protected final String separator = "++";
     protected final Pattern splitPattern = Pattern.compile(Pattern.quote(separator));
+    protected final String metaPrefix = "gsw_meta:";
 }
