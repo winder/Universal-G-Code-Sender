@@ -37,6 +37,7 @@ import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
 import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
@@ -189,7 +190,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     final public void reloadPreferences() {
         VisualizerOptions vo = new VisualizerOptions();
 
-        clearColor = (Color)vo.getOptionForKey("platform.visualizer.color.background").value;
+        clearColor = vo.getOptionForKey(VISUALIZER_OPTION_BG).value;
 
         for (Renderable r : objects) {
             r.reloadPreferences(vo);

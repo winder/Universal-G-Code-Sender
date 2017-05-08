@@ -22,6 +22,11 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_GRID;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_XY_PLANE;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 import java.awt.Color;
@@ -45,11 +50,11 @@ public class Grid extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        gridLineColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.xy-grid").value);
-        gridPlaneColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.xy-plane").value);
-        yAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.y-axis").value);
-        xAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.x-axis").value);
-        zAxisColor = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.z-axis").value);
+        gridLineColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_XY_GRID).value);
+        gridPlaneColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_XY_PLANE).value);
+        yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
+        xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
+        zAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Z).value);
     }
 
     @Override

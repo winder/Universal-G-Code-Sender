@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import java.awt.Color;
 import javax.vecmath.Point3d;
 
 /**
@@ -46,6 +47,9 @@ public class AutoLevelPreview extends Renderable {
     // The maximum distance of a probe used for coloring.
     private double maxZ, minZ;
 
+    private float high[] = {0, 255, 0}; // green
+    private float low[] = {255, 0, 0}; // red
+
     public AutoLevelPreview(int priority, IRendererNotifier notifier) {
         super(10);
 
@@ -53,7 +57,13 @@ public class AutoLevelPreview extends Renderable {
 
         glut = new GLUT();
 
-        /*
+        // For testing initialize values to something visible.
+        //storePreviewData();
+
+        reloadPreferences(new VisualizerOptions());
+    }
+
+    private void storePreviewData() {
         // initialize with some test data.
         maxZ = 1;
         minZ = -1;
@@ -86,7 +96,6 @@ public class AutoLevelPreview extends Renderable {
                 new Position(2, 2, -0.01, Units.MM)
             }
         };
-        */
     }
 
     @Override
@@ -105,6 +114,8 @@ public class AutoLevelPreview extends Renderable {
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
+        high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
+        low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
     }
 
     public void updateSettings(
@@ -189,20 +200,10 @@ public class AutoLevelPreview extends Renderable {
     }
 
     private void setColorForZ(GL2 gl, double zPos, float opacity) {
-        // Other colors I tried, maybe make this configurable.
-        //int high[] = {53, 122, 175}; // blueish
-        //int low[] = {218, 61, 117}; // reddish
-        //int high[] = {38, 109, 211}; // blue
-        //int low[] = {255, 34, 12}; // red
-        //int low[] = {232, 197, 71}; // mustard yellow
-
-        int high[] = {0, 255, 0}; // green
-        int low[] = {255, 0, 0}; // red
-
         float ratio = (float) ((zPos - minZ) / (maxZ - minZ));
-        float r = (ratio * high[0] + (1-ratio) * low[0]) / 255;
-        float g = (ratio * high[1] + (1-ratio) * low[1]) / 255;
-        float b = (ratio * high[2] + (1-ratio) * low[2]) / 255;
+        float r = ratio * high[0] + (1-ratio) * low[0];
+        float g = ratio * high[1] + (1-ratio) * low[1];
+        float b = ratio * high[2] + (1-ratio) * low[2];
 
         gl.glColor4f(r, g, b, opacity);
     }

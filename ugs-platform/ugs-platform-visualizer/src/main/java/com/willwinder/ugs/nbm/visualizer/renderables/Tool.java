@@ -23,6 +23,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.GLUquadric;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_TOOL;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import java.awt.Color;
 import javax.vecmath.Point3d;
@@ -43,7 +44,7 @@ public final class Tool extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        toolColor = (Color)vo.getOptionForKey("platform.visualizer.color.tool").value;
+        toolColor = vo.getOptionForKey(VISUALIZER_OPTION_TOOL).value;
     }
 
     @Override

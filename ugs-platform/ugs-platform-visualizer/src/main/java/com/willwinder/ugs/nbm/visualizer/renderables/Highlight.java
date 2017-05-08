@@ -23,6 +23,7 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_HIGHLIGHT;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import java.awt.Color;
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class Highlight extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        highlightColor = (Color)vo.getOptionForKey("platform.visualizer.color.highlight").value;
+        highlightColor = vo.getOptionForKey(VISUALIZER_OPTION_HIGHLIGHT).value;
 
     }
 

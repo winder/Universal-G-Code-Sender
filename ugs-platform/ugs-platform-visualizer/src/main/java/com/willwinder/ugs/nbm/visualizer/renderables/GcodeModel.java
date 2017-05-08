@@ -31,6 +31,11 @@ import com.jogamp.opengl.GLAutoDrawable;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ARC;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_COMPLETE;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_LINEAR;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLUNGE;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_RAPID;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -86,11 +91,11 @@ public class GcodeModel extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        linearColor = (Color)vo.getOptionForKey("platform.visualizer.color.linear").value;
-        rapidColor = (Color)vo.getOptionForKey("platform.visualizer.color.rapid").value;
-        arcColor = (Color)vo.getOptionForKey("platform.visualizer.color.arc").value;
-        plungeColor = (Color)vo.getOptionForKey("platform.visualizer.color.plunge").value;
-        completedColor = (Color)vo.getOptionForKey("platform.visualizer.color.completed").value;
+        linearColor = vo.getOptionForKey(VISUALIZER_OPTION_LINEAR).value;
+        rapidColor = vo.getOptionForKey(VISUALIZER_OPTION_RAPID).value;
+        arcColor = vo.getOptionForKey(VISUALIZER_OPTION_ARC).value;
+        plungeColor = vo.getOptionForKey(VISUALIZER_OPTION_PLUNGE).value;
+        completedColor = vo.getOptionForKey(VISUALIZER_OPTION_COMPLETE).value;
         updateVertexBuffers();
         colorArrayDirty = true;
     }
