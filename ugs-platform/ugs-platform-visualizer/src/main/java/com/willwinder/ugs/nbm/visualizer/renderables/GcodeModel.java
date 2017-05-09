@@ -279,7 +279,7 @@ public class GcodeModel extends Renderable {
             this.lineColorData = new byte[numberOfVertices * 3];
             
             this.updateVertexBuffers();
-        } catch (GcodeParserException | IOException e) {
+        } catch (GcodeParserException | IOException | GcodeStreamReader.NotGcodeStreamFile e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
             System.out.println(error);
             GUIHelpers.displayErrorDialog(error);
