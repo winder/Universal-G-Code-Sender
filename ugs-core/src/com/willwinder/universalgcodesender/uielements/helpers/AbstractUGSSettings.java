@@ -56,6 +56,9 @@ public abstract class AbstractUGSSettings extends JPanel {
     public abstract String getHelpMessage();
     public abstract void restoreDefaults() throws Exception;
 
+    // not sure when we'd use this so defaulting to true.
+    public boolean settingsValid() { return true; }
+
     protected void change() {
         if (changer != null) changer.changed();
     }

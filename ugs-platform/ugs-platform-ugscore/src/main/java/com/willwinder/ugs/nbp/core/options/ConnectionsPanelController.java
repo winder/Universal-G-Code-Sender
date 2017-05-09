@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugs.nbp.core.options;
 
+import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanelController;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
+import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import org.netbeans.spi.options.OptionsPanelController;
 
 /**
@@ -34,7 +37,7 @@ import org.netbeans.spi.options.OptionsPanelController;
 
 public class ConnectionsPanelController extends AbstractOptionsPanelController {
     @Override
-    UGSOptionsPanel initPanel() {
-        return new UGSConnectionOptionsPanel(this);
+    public AbstractUGSSettings initPanel() {
+        return new ConnectionSettingsPanel(settings, this);
     }
 }
