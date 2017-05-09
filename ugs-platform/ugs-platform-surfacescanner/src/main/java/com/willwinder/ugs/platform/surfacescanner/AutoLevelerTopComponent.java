@@ -24,6 +24,7 @@ import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbm.visualizer.shared.IRendererNotifier;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -38,7 +39,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Point3d;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -168,12 +168,15 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         jLabel4 = new javax.swing.JLabel();
         stepResolution = new javax.swing.JSpinner();
         probeSpeed = new javax.swing.JSpinner();
+        jLabel9 = new javax.swing.JLabel();
+        zSurface = new javax.swing.JSpinner();
+        dataViewer = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         scanSurfaceButton = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        applyToGcode = new javax.swing.JButton();
         unitMM = new javax.swing.JRadioButton();
         unitInch = new javax.swing.JRadioButton();
-        dataViewer = new javax.swing.JButton();
+        settings = new javax.swing.JButton();
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel5, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.jLabel5.text")); // NOI18N
 
@@ -285,6 +288,17 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
 
         probeSpeed.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel9, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.jLabel9.text")); // NOI18N
+
+        zSurface.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+
+        org.openide.awt.Mnemonics.setLocalizedText(dataViewer, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.dataViewer.text")); // NOI18N
+        dataViewer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dataViewerActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -292,13 +306,19 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
-                .addGap(18, 18, 18)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(probeSpeed, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel9))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(probeSpeed, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(dataViewer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -311,7 +331,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(probeSpeed, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel9)
+                    .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(dataViewer)
+                .addContainerGap())
         );
 
         org.openide.awt.Mnemonics.setLocalizedText(scanSurfaceButton, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.scanSurfaceButton.text")); // NOI18N
@@ -321,7 +347,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jButton2, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.jButton2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(applyToGcode, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.applyToGcode.text")); // NOI18N
+        applyToGcode.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                applyToGcodeActionPerformed(evt);
+            }
+        });
 
         unitGroup.add(unitMM);
         unitMM.setSelected(true);
@@ -330,10 +361,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         unitGroup.add(unitInch);
         org.openide.awt.Mnemonics.setLocalizedText(unitInch, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.unitInch.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(dataViewer, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.dataViewer.text")); // NOI18N
-        dataViewer.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(settings, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.settings.text")); // NOI18N
+        settings.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dataViewerActionPerformed(evt);
+                settingsActionPerformed(evt);
             }
         });
 
@@ -346,14 +377,14 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(applyToGcode, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addGroup(jPanel3Layout.createSequentialGroup()
                                 .addComponent(unitMM)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(unitInch))
                             .addComponent(scanSurfaceButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(dataViewer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(settings, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -366,9 +397,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scanSurfaceButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton2)
+                .addComponent(applyToGcode)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(dataViewer)
+                .addComponent(settings)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -383,7 +414,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(107, Short.MAX_VALUE))
+                .addContainerGap(109, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -437,9 +468,17 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         JOptionPane.showMessageDialog(null, new JScrollPane(ta));
     }//GEN-LAST:event_dataViewerActionPerformed
 
+    private void applyToGcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyToGcodeActionPerformed
+        GcodeParser gcp = new GcodeParser();
+    }//GEN-LAST:event_applyToGcodeActionPerformed
+
+    private void settingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_settingsActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton applyToGcode;
     private javax.swing.JButton dataViewer;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -448,11 +487,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JSpinner probeSpeed;
     private javax.swing.JButton scanSurfaceButton;
+    private javax.swing.JButton settings;
     private javax.swing.JSpinner stepResolution;
     private javax.swing.ButtonGroup unitGroup;
     private javax.swing.JRadioButton unitInch;
@@ -465,6 +506,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     private javax.swing.JSpinner yOffset;
     private javax.swing.JSpinner zMax;
     private javax.swing.JSpinner zMin;
+    private javax.swing.JSpinner zSurface;
     // End of variables declaration//GEN-END:variables
 
     @Override
