@@ -5,6 +5,7 @@
  */
 package com.willwinder.ugs.platform.surfacescanner;
 
+import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanelController;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import org.netbeans.spi.options.OptionsPanelController;
 
