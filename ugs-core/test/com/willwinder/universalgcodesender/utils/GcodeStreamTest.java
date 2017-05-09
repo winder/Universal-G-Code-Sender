@@ -1,5 +1,5 @@
 /*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 
 /**
@@ -69,9 +68,9 @@ public class GcodeStreamTest {
     @Test(expected=GcodeStreamReader.NotGcodeStreamFile.class)
     public void testNotGcodeStream() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
         File f = new File(tempDir,"gcodeFile");
-        PrintWriter writer = new PrintWriter(f);
-        writer.println("invalid format");
-        writer.close();
+        try (PrintWriter writer = new PrintWriter(f)) {
+            writer.println("invalid format");
+        }
        
         new GcodeStreamReader(f);
     }

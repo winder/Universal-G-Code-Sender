@@ -59,6 +59,7 @@ import java.awt.Robot;
 import java.util.regex.Matcher;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -146,12 +147,56 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     //////////////////
     // GUI API
     //////////////////
-    
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
+        preprocessAndExportToFile(this.gcp, this.getGcodeFile(), f);
+    }
+    
+    /**
+     * Special utility to loop over a gcode file and apply any modifications made by a gcode parser. The results are
+     * stored in a GcodeStream formatted file.
+     * Additional rules:
+     * * Comment lines are left
+     */
+    public static void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
         gcp.reset();
-        try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+
+        // Preprocess a GcodeStream file.
+        try (GcodeStreamReader gsr = new GcodeStreamReader(input)) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
+                int i = 0;
+                while (gsr.getNumRowsRemaining() > 0) {
+                    i++;
+                    if (i % 1000000 == 0) {
+                        logger.log(Level.FINE, "i: " + i);
+                    }
+
+                    GcodeCommand gc = gsr.getNextCommand();
+
+                    if (StringUtils.isEmpty(gc.getCommandString())) {
+                        gsw.addLine(gc);
+                    }
+                    else {
+                        // Parse the gcode for the buffer.
+                        Collection<String> lines = gcp.preprocessCommand(gc.getCommandString());
+
+                        for(String processedLine : lines) {
+                            gsw.addLine(gc.getOriginalCommandString(), processedLine, gc.getComment(), i);
+                            gcp.addCommand(processedLine);
+                        }
+                    }
+                }
+
+                // Done processing GcodeStream file.
+                return;
+            }
+        } catch (GcodeStreamReader.NotGcodeStreamFile ex) {
+            // File exists, but isn't a stream reader. So go ahead and try parsing it as a raw gcode file.
+        }
+
+        // Preprocess a regular gcode file.
+        try(BufferedReader br = new BufferedReader(new FileReader(input))) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
                 int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
                     i++;
@@ -162,7 +207,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     // Parse the gcode for the buffer.
                     Collection<String> lines = gcp.preprocessCommand(line);
 
-                    // If it is a comment-only line, add the comment,
+                    // If it is a comment-only line, add the comment.
                     if (!comment.isEmpty() && lines.isEmpty()) {
                         gsw.addLine(line, "", comment, i);
                     }
