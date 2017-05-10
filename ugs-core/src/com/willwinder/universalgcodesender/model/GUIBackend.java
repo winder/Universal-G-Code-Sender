@@ -158,7 +158,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * Additional rules:
      * * Comment lines are left
      */
-    public static void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
+    public void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
         gcp.reset();
 
         // Preprocess a GcodeStream file.
@@ -531,7 +531,22 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADING,
                 file.getAbsolutePath()), false);
 
-        initializeProcessedLines(true);
+        initializeProcessedLines(true, this.gcodeFile, this.gcp);
+
+        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
+                processedGcodeFile.getAbsolutePath()), false);
+    }
+
+    @Override
+    public void applyGcodeParser(GcodeParser parser) throws Exception {
+        logger.log(Level.INFO, "Applying new parser filters.");
+
+        if (this.processedGcodeFile == null) {
+            return;
+        }
+
+        // re-initialize starting with the already processed file.
+        initializeProcessedLines(true, this.processedGcodeFile, parser);
 
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
@@ -929,7 +944,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         try {
             connected = controller.openCommPort(port, baudRate);
             
-            this.initializeProcessedLines(false);
+            this.initializeProcessedLines(false, this.gcodeFile, this.gcp);
         } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
@@ -938,17 +953,19 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         return connected;
     }
 
-    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, Exception {
-        if (this.gcodeFile != null) {
+    private void initializeProcessedLines(boolean forceReprocess, File startFile, GcodeParser gcodeParser)
+            throws FileNotFoundException, Exception {
+        if (startFile != null) {
             Charset cs;
-            try (FileReader fr = new FileReader(this.gcodeFile)) {
+            try (FileReader fr = new FileReader(startFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
-                this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
-                this.preprocessAndExportToFile(this.processedGcodeFile);
+                this.processedGcodeFile =
+                        new File(this.getTempDir(), startFile.getName() + System.currentTimeMillis());
+                this.preprocessAndExportToFile(gcodeParser, startFile, this.processedGcodeFile);
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");

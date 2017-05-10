@@ -457,6 +457,16 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
     }//GEN-LAST:event_dataViewerActionPerformed
 
     private void applyToGcodeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_applyToGcodeActionPerformed
+        GcodeParser gcp = new GcodeParser();
+        Settings.AutoLevelSettings autoLevelSettings = this.settings.getAutoLevelSettings();
+        gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
+        //gcp.addCommandProcessor(new MeshMaster(mymesh));
+        //backend.preprocessAndExportToFile(f);
+        try {
+            backend.applyGcodeParser(gcp);
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }//GEN-LAST:event_applyToGcodeActionPerformed
 
     private void settingsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsButtonActionPerformed

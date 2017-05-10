@@ -77,6 +77,7 @@ public class GUIBackendPreprocessorTest {
     @Test
     public void testRegularPreprocessAndExportToFile() throws Exception {
         System.out.println("regularPreprocessAndExportToFile");
+        GUIBackend backend = new GUIBackend();
         GcodeParser gcp = new GcodeParser();
         // Double all the commands that go in.
         gcp.addCommandProcessor(commandDoubler);
@@ -86,7 +87,7 @@ public class GUIBackendPreprocessorTest {
         List<String> lines = Arrays.asList("line one", "; comment", "line two");
         Files.write(inputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
          
-        GUIBackend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
+        backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
 
         List<String> expectedResults = Arrays.asList("line one", "line one", "", "", "line two", "line two");
 
@@ -102,7 +103,7 @@ public class GUIBackendPreprocessorTest {
     @Test
     public void testGcodeStreamPreprocessAndExportToFile() throws Exception {
         System.out.println("gcodeStreamPreprocessAndExportToFile");
-        GUIBackend instance = new GUIBackend();
+        GUIBackend backend = new GUIBackend();
         GcodeParser gcp = new GcodeParser();
 
         // Double all the commands that go in.
@@ -111,11 +112,11 @@ public class GUIBackendPreprocessorTest {
         // Create GcodeStream input file by putting it through the preprocessor.
         List<String> lines = Arrays.asList("line one", "line two");
         Files.write(outputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
-        GUIBackend.preprocessAndExportToFile(gcp, outputFile.toFile(), inputFile.toFile());
+        backend.preprocessAndExportToFile(gcp, outputFile.toFile(), inputFile.toFile());
 
          
         // Pass a gcodestream into 
-        GUIBackend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
+        backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
 
         List<String> expectedResults = Arrays.asList(
                 "line one", "line one", "line one", "line one", 
