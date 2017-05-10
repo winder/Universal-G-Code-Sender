@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -86,7 +86,9 @@ public abstract class AbstractOptionsPanelController extends OptionsPanelControl
 
     @Override
     public HelpCtx getHelpCtx() {
-        return null; // new HelpCtx("...ID") if you have a help set
+        // TODO: How to use the HelpCtx???
+        //return new HelpCtx(getPanel().getHelpMessage()); // new HelpCtx("...ID") if you have a help set
+        return null;
     }
 
     @Override

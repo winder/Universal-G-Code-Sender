@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -74,6 +75,15 @@ public class Settings {
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
     private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
+
+    public static class AutoLevelSettings {
+        public double autoLevelFeedRate = 1;
+        public double autoLevelProbeZeroHeight = 0;
+        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
+        public double autoLevelArcSliceLength = 0.01;
+    }
+
+    AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
 
     //vvv deprecated fields, still here to not break the old save files
     // Transient, don't serialize or deserialize.
@@ -442,5 +452,14 @@ public class Settings {
     public void setProbeOffset(double probeOffset) {
         this.probeOffset = probeOffset;
         changed();
+    }
+
+    public void setAutoLevelSettings(AutoLevelSettings settings) {
+        this.autoLevelSettings = settings;
+        changed();
+    }
+
+    public AutoLevelSettings getAutoLevelSettings() {
+        return this.autoLevelSettings;
     }
 }
