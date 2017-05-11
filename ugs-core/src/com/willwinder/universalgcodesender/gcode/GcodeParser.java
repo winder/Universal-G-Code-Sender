@@ -57,12 +57,24 @@ public class GcodeParser implements IGcodeParser {
      * An intermediate object with all metadata for a given point.
      */
     public static class GcodeMeta {
+        /**
+         * The original command represented by this meta object.
+         */
         public String command;
 
-        // Gcode state after processing the command.
+        /**
+         * Gcode command in line.
+         */
+        public String code;
+
+        /**
+         * Gcode state after processing the command.
+         */
         public GcodeState state;
 
-        // PointSegments represent the endpoint of a given command.
+        /**
+         * PointSegments represent the endpoint of a given command.
+         */
         public PointSegment point;
     }
     
@@ -269,6 +281,8 @@ public class GcodeParser implements IGcodeParser {
 
         if (code.length() > 1 && code.startsWith("0"))
             code = code.substring(1);
+
+        meta.code = code;
 
         switch (code) {
             case "0":

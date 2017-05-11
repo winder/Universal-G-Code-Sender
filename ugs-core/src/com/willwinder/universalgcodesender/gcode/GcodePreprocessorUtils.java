@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -250,15 +250,15 @@ public class GcodePreprocessorUtils {
         return updatePointWithCommand(initial, i, j, k, absoluteIJKMode);
 
     }
-        
-    static public String generateG1FromPoints(final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
+
+    static public String generateLineFromPoints(final String command, final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
             df = new DecimalFormat("#.####");
         }
         
         StringBuilder sb = new StringBuilder();
-        sb.append("G1");
+        sb.append(command);
 
         if (absoluteMode) {
             if (!Double.isNaN(end.x)) {

@@ -63,6 +63,7 @@ final public class PointSegment {
     
         this.setToolHead(ps.toolhead);
         this.setSpeed(ps.speed);
+        this.setIsArc(ps.isArc);
         this.setIsMetric(ps.isMetric);
         this.setIsZMovement(ps.isZMovement);
         this.setIsFastTraverse(ps.isFastTraverse);
@@ -148,9 +149,9 @@ final public class PointSegment {
     public boolean isMetric() {
         return isMetric;
     }
-    
-    public void setIsArc(final boolean isA) {
-        this.isArc = isA;
+
+    public void setIsArc(final boolean isArc) {
+        this.isArc = isArc;
     }
     
     public boolean isArc() {

@@ -4,7 +4,7 @@
  * line segments.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -102,7 +102,7 @@ public class ArcExpander implements ICommandProcessor {
             // changed the feed value.
             String feed = "F" + arcMeta.point.getSpeed();
             for (Point3d point : points) {
-                results.add(GcodePreprocessorUtils.generateG1FromPoints(start, point, state.inAbsoluteMode, df) + feed);
+                results.add(GcodePreprocessorUtils.generateLineFromPoints("G1", start, point, state.inAbsoluteMode, df) + feed);
                 start = point;
                 feed = "";
             }
