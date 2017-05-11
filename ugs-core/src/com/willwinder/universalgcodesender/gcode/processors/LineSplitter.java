@@ -50,7 +50,7 @@ public class LineSplitter implements ICommandProcessor {
 
     private boolean hasLine(List<GcodeMeta> commands) {
         for (GcodeMeta command : commands) {
-            if (command.code.equals("0") || command.code.equals("1") && command.point != null) {
+            if (command.code.equals("0") || command.code.equals("1")) {
                 return true;
             }
         }
@@ -74,6 +74,10 @@ public class LineSplitter implements ICommandProcessor {
 
         // We have already verified that there is a single G0/G1 command, split it up.
         GcodeMeta command = commands.get(0);
+
+        if (command == null || command.point == null) {
+            throw new GcodeParserException("Internal parser error: missing data.");
+        }
 
         // line length
         Point3d start = state.currentPoint;
