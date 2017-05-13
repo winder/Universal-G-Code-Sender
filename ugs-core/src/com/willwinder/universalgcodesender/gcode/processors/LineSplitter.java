@@ -69,7 +69,7 @@ public class LineSplitter implements ICommandProcessor {
 
         // Make sure there is just one command (the G0/G1 command).
         if (commands.size() != 1) {
-            throw new GcodeParserException(Localization.getString("parser.processor.linesplitter.multiple-commands"));
+            throw new GcodeParserException(Localization.getString("parser.processor.general.multiple-commands"));
         }
 
         // We have already verified that there is a single G0/G1 command, split it up.
