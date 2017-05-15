@@ -74,7 +74,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.BorderLayout;
@@ -154,15 +153,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
 
-        JFrame frame = new JFrame("prober");
-
-        frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(new ProbePanel(backend), BorderLayout.CENTER);
-
-        frame.pack();
-        frame.setVisible(true);
-
-        
         boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());
