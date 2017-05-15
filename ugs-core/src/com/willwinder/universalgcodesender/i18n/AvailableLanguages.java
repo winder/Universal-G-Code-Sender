@@ -30,6 +30,7 @@ public class AvailableLanguages {
     
     static {
         availableLanguages.add(new Language("af", "ZA", "Afrikaans"));
+        availableLanguages.add(new Language("zh", "CHS", "Chinese (Simplified)"));
         availableLanguages.add(new Language("nl", "NL", "Dutch"));
         availableLanguages.add(new Language("en", "US", "English"));
         availableLanguages.add(new Language("fr", "FR", "French"));
