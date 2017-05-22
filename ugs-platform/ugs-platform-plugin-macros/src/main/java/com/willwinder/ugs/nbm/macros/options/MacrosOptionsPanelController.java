@@ -16,12 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.options;
+package com.willwinder.ugs.nbm.macros.options;
 
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionPanelController;
 import org.netbeans.spi.options.OptionsPanelController;
 
 @OptionsPanelController.SubRegistration(
+        id = "macros",
         location = "UGS",
         displayName = "#AdvancedOption_DisplayName_Macros",
         keywords = "#AdvancedOption_Keywords_Macros",

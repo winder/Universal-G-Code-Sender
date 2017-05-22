@@ -16,28 +16,25 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.options;
+package com.willwinder.ugs.nbm.macros.options;
 
-import com.willwinder.ugs.nbp.core.control.MacroService;
-import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import java.awt.BorderLayout;
-import javax.swing.SwingUtilities;
-import org.openide.util.Lookup;
+
+import javax.swing.*;
+import java.awt.*;
 
 final class MacrosPanel extends AbstractOptionsPanel {
 
     MacroPanel mp;
     BackendAPI backend;
-    MacroService macroService;
 
     MacrosPanel(MacrosOptionsPanelController controller) {
         super(controller);
 
-        macroService = Lookup.getDefault().lookup(MacroService.class);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         super.setLayout(new BorderLayout());
     }
@@ -49,13 +46,12 @@ final class MacrosPanel extends AbstractOptionsPanel {
         }
         mp = new MacroPanel(backend);
         super.add(mp, BorderLayout.CENTER);
-        SwingUtilities.invokeLater(() -> changer.changed());
+        SwingUtilities.invokeLater(changer::changed);
     }
 
     @Override
     public void store() {
         SettingsFactory.saveSettings(backend.getSettings());
-        macroService.reInitActions();
     }
 
     @Override
