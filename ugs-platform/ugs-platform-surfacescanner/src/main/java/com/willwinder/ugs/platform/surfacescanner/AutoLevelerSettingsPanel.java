@@ -34,27 +34,27 @@ import net.miginfocom.swing.MigLayout;
 public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     final Spinner zHeightSpinner = new Spinner(
                 Localization.getString("autoleveler.option.z-zero"),
-                new SpinnerNumberModel((double)0, null, null, 1));
+                new SpinnerNumberModel(0d, null, null, 1d));
 
     final Spinner arcSegmentLengthSpinner = new Spinner(
                 Localization.getString("autoleveler.option.arc-segment-length"),
-                new SpinnerNumberModel((double)0.2, 0.001, null, 0.1));
+                new SpinnerNumberModel(0.2, 0.001, null, 0.1));
 
     final Spinner feedRateSpinner = new Spinner(
                 Localization.getString("probe.feed-rate"),
-                new SpinnerNumberModel((double)1, 1, null, 1));
+                new SpinnerNumberModel(1., 1., null, 1.));
 
     final Spinner xOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-x"),
-                new SpinnerNumberModel((double)0, 0, null, 1));
+                new SpinnerNumberModel(0., 0., null, 1.));
 
     final Spinner yOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-y"),
-                new SpinnerNumberModel((double)0, 0, null, 1));
+                new SpinnerNumberModel(0., 0., null, 1.));
 
     final Spinner zOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-z"),
-                new SpinnerNumberModel((double)0, 0, null, 1));
+                new SpinnerNumberModel(0., 0., null, 1.));
 
     public AutoLevelerSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
