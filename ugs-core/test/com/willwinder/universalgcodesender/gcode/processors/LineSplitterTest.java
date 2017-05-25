@@ -117,7 +117,7 @@ public class LineSplitterTest {
         LineSplitter instance = new LineSplitter(2);
 
         expectedEx.expect(GcodeParserException.class);
-        expectedEx.expectMessage(Localization.getString("parser.processor.linesplitter.multiple-commands"));
+        expectedEx.expectMessage(Localization.getString("parser.processor.general.multiple-commands"));
 
         String command = "G92 G1X1Y1Z1";
         splitterHarness(1, new Point3d(0, 0, 0), command, null);

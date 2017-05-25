@@ -28,7 +28,6 @@ import java.util.List;
 import javax.vecmath.Point3d;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
@@ -41,14 +40,25 @@ public class MeshLevelerTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
 
-    private static Position[][] bigFlatGridZ0 = {
+    private static final Position[][] BIG_FLAT_GRID_Z0 = {
         {new Position(0,0,0,Units.MM), new Position(0, 10, 0,Units.MM)},
         {new Position(10,0,0,Units.MM), new Position(10, 10, 0,Units.MM)}
     };
-    private static Position[][] bigFlatGridZ1 = {
+    private static final Position[][] BIG_FLAT_GRID_Z1 = {
         {new Position(0,0,1,Units.MM), new Position(0, 10, 1,Units.MM)},
         {new Position(10,0,1,Units.MM), new Position(10, 10, 1,Units.MM)}
     };
+
+
+    private static void sendCommandExpectResult(MeshLeveler ml, GcodeState state, String command, String result) {
+        try {
+            List<String> expected = Collections.singletonList(result);
+            List<String> results = ml.processCommand(command, state);
+            Assert.assertEquals(expected, results);
+        } catch (GcodeParserException ex) {
+            Assert.fail("Unexpected exception.");
+        }
+    }
 
     @Test
     public void testNotEnoughPoints() {
@@ -133,7 +143,7 @@ public class MeshLevelerTest {
         expectedEx.expect(GcodeParserException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_UNEXPECTED_ARC);
 
-        MeshLeveler ml = new MeshLeveler(0.0, bigFlatGridZ0);
+        MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0, 0, 0);
@@ -147,7 +157,7 @@ public class MeshLevelerTest {
         expectedEx.expect(GcodeParserException.class);
         expectedEx.expectMessage(Localization.getString("parser.processor.general.multiple-commands"));
 
-        MeshLeveler ml = new MeshLeveler(0.0, bigFlatGridZ0);
+        MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0, 0, 0);
@@ -158,44 +168,78 @@ public class MeshLevelerTest {
 
     @Test
     public void testNoZChangesWithFlatMeshOnSurface() throws GcodeParserException {
-        MeshLeveler ml = new MeshLeveler(0.0, bigFlatGridZ0);
+        MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0, 0, 0);
         state.inAbsoluteMode = true;
 
-        List<String> expected = Collections.singletonList("G1X5Y0Z0");
-        List<String> results = ml.processCommand("G1X5", state);
-
-        Assert.assertEquals(expected, results);
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
     }
 
     @Test
     public void testFlatMeshOnSurfaceOffSurface() throws GcodeParserException {
-        MeshLeveler ml = new MeshLeveler(1.0, bigFlatGridZ1);
+        MeshLeveler ml = new MeshLeveler(1.0, BIG_FLAT_GRID_Z1);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0, 0, 0);
         state.inAbsoluteMode = true;
 
-        List<String> expected = Collections.singletonList("G1X5Y0Z0");
-        List<String> results = ml.processCommand("G1X5", state);
-
-        Assert.assertEquals(expected, results);
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
     }
 
     @Test
     public void testNegativeOffset() throws GcodeParserException {
-        // The probe will be at 1.0 which means the end point needs to be lowered 0.1
-        MeshLeveler ml = new MeshLeveler(0.9, bigFlatGridZ1);
+        // The probe will be at 1.0 instead of 0.9 which means the end point needs to be raised 0.1
+        MeshLeveler ml = new MeshLeveler(0.9, BIG_FLAT_GRID_Z1);
 
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0, 0, 0);
         state.inAbsoluteMode = true;
 
-        List<String> expected = Collections.singletonList("G1X5Y0Z-0.1");
-        List<String> results = ml.processCommand("G1X5", state);
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0.1");
+    }
 
-        Assert.assertEquals(expected, results);
+    @Test
+    public void testUnevenSurface() throws GcodeParserException {
+        /*
+                   10
+      z=-10 *         |         * z=10
+                      |
+                      |
+        -10 --------------------- 10
+                      |
+                      |
+      z=-10 *         |         * z=10
+                   -10
+        */
+        Position[][] grid = {
+            {new Position(-10,-10,-10,Units.MM), new Position(-10, 10, -10,Units.MM)},
+            {new Position(10,-10,10,Units.MM), new Position(10, 10, 10,Units.MM)}
+        };
+
+        MeshLeveler ml = new MeshLeveler(0.0, grid);
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Point3d(-10, -10, 0);
+        state.inAbsoluteMode = true;
+
+        // Moving along Y axis on flat line
+        sendCommandExpectResult(ml, state, "G1Y-5", "G1X-10Y-5Z-10");
+        sendCommandExpectResult(ml, state, "G1Y0", "G1X-10Y0Z-10");
+        sendCommandExpectResult(ml, state, "G1Y5", "G1X-10Y5Z-10");
+        sendCommandExpectResult(ml, state, "G1Y10", "G1X-10Y10Z-10");
+
+        // Moving along X axis up slope
+        sendCommandExpectResult(ml, state, "G1X-5", "G1X-5Y-10Z-5");
+        sendCommandExpectResult(ml, state, "G1X0", "G1X0Y-10Z0");
+        sendCommandExpectResult(ml, state, "G1X5", "G1X5Y-10Z5");
+        sendCommandExpectResult(ml, state, "G1X10", "G1X10Y-10Z10");
+
+        // Moving up slope along X/Y
+        sendCommandExpectResult(ml, state, "G1X-5Y-5", "G1X-5Y-5Z-5");
+        sendCommandExpectResult(ml, state, "G1X0Y0", "G1X0Y0Z0");
+        sendCommandExpectResult(ml, state, "G1X5Y5", "G1X5Y5Z5");
+        sendCommandExpectResult(ml, state, "G1X10Y10", "G1X10Y10Z10");
     }
 }

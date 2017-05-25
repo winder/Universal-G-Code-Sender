@@ -48,7 +48,6 @@ import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;

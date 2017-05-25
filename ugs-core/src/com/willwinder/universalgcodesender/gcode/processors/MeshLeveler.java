@@ -154,7 +154,7 @@ public class MeshLeveler implements ICommandProcessor {
         Point3d end = command.point.point();
 
         // Get offset relative to the expected surface height.
-        double zPointOffset = this.materialSurfaceHeight - surfaceHeightAt(end.x, end.y);
+        double zPointOffset = surfaceHeightAt(end.x, end.y) - this.materialSurfaceHeight;
 
         // Update z coordinate.
         end.z += zPointOffset;

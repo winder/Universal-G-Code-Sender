@@ -30,7 +30,6 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import java.awt.Color;
 import javax.vecmath.Point3d;
 
 /**
@@ -113,7 +112,7 @@ public class AutoLevelPreview extends Renderable {
     }
 
     @Override
-    public void reloadPreferences(VisualizerOptions vo) {
+    public final void reloadPreferences(VisualizerOptions vo) {
         high = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_LOW).value);
         low = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_HIGH).value);
     }
