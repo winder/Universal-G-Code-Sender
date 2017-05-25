@@ -77,13 +77,39 @@ public class Settings {
     private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
 
     public static class AutoLevelSettings {
+        // Setting window
         public double autoLevelFeedRate = 1;
         public double autoLevelProbeZeroHeight = 0;
         public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
         public double autoLevelArcSliceLength = 0.01;
+
+        // Main window
+        public double stepResolution = 10;
+        public double probeSpeed = 10;
+        public double zSurface = 0;
+    }
+
+    public static class FileStats {
+        public Position minCoordinate;
+        public Position maxCoordinate;
+        long numCommands;
+
+        public FileStats() {
+            this.minCoordinate = new Position(0, 0, 0, Units.MM);
+            this.maxCoordinate = new Position(0, 0, 0, Units.MM);
+            this.numCommands = 0;
+        }
+
+        public FileStats(Position min, Position max, long num) {
+            this.minCoordinate = min;
+            this.maxCoordinate = max;
+            this.numCommands = num;
+        }
     }
 
     AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
+
+    FileStats fileStats = new FileStats();
 
     //vvv deprecated fields, still here to not break the old save files
     // Transient, don't serialize or deserialize.
@@ -306,6 +332,13 @@ public class Settings {
         changed();
     }
         
+    public Units getPreferredUnits() {
+        Units u = Units.getUnit(defaultUnits);
+
+        return (u == null) ? Units.MM : u;
+    }
+
+    @Deprecated
     public String getDefaultUnits() {
         if (Units.getUnit(defaultUnits) == null) {
             return Units.MM.abbreviation;
@@ -461,5 +494,14 @@ public class Settings {
 
     public AutoLevelSettings getAutoLevelSettings() {
         return this.autoLevelSettings;
+    }
+
+    public void setFileStats(FileStats settings) {
+        this.fileStats = settings;
+        changed();
+    }
+
+    public FileStats getFileStats() {
+        return this.fileStats;
     }
 }

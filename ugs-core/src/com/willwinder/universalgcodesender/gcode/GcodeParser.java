@@ -31,6 +31,7 @@ package com.willwinder.universalgcodesender.gcode;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
@@ -52,6 +53,7 @@ public class GcodeParser implements IGcodeParser {
 
     private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
 
+    private Stats statsProcessor;
 
     /**
      * An intermediate object with all metadata for a given point.
@@ -108,12 +110,14 @@ public class GcodeParser implements IGcodeParser {
     @Override
     public void resetCommandProcessors() {
         this.processors.clear();
+        this.statsProcessor = new Stats();
     }
 
     /**
      * Resets the current state.
      */
     public void reset() {
+        this.statsProcessor = new Stats();
         this.state.currentPoint = new Point3d();
         this.state.commandNumber = -1;
         latest = new PointSegment(this.state.currentPoint, -1);
@@ -134,6 +138,7 @@ public class GcodeParser implements IGcodeParser {
      */
     @Override
     public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
+        statsProcessor.processCommand(command, state);
         List<PointSegment> results = new ArrayList<>();
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
@@ -143,8 +148,11 @@ public class GcodeParser implements IGcodeParser {
             for (GcodeMeta c : metaObjects) {
                 if (c.point != null)
                     results.add(c.point);
-                if (c.state != null)
+                if (c.state != null) {
                     this.state = c.state;
+                    // Process stats.
+                    statsProcessor.processCommand(command, state);
+                }
             }
         }
 
@@ -161,6 +169,11 @@ public class GcodeParser implements IGcodeParser {
     @Override
     public GcodeState getCurrentState() {
         return this.state;
+    }
+
+    @Override
+    public GcodeStats getCurrentStats() {
+        return statsProcessor;
     }
     
     /**

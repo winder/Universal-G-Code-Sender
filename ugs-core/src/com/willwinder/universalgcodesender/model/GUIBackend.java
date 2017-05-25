@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -52,6 +53,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -158,7 +160,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * Additional rules:
      * * Comment lines are left
      */
-    public void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
+    protected void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
         gcp.reset();
 
         // Preprocess a GcodeStream file.
@@ -963,9 +965,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
+                gcp.reset();
+
                 this.processedGcodeFile =
                         new File(this.getTempDir(), startFile.getName() + System.currentTimeMillis());
                 this.preprocessAndExportToFile(gcodeParser, startFile, this.processedGcodeFile);
+
+                // Store gcode file stats.
+                GcodeStats gs = gcp.getCurrentStats();
+                this.settings.setFileStats(new FileStats(
+                    gs.getMin(), gs.getMax(), gs.getCommandCount()));
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");

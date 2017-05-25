@@ -52,6 +52,12 @@ public interface IGcodeParser {
     public GcodeState getCurrentState();
 
     /**
+     * The current stats of the gcode file.
+     * @return GcodeStats
+     */
+    public GcodeStats getCurrentStats();
+
+    /**
      * Preprocesses a gcode string and returns one or more strings with the
      * postprocessed gcode commands. Each of the ICommandProcessors should be
      * applied to the string in the order they were given to the parser.
