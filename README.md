@@ -19,6 +19,8 @@ commands:
 
 Downloads
 ---------
+
+[![Join the chat at https://gitter.im/winder/Universal-G-Code-Sender](https://badges.gitter.im/winder/Universal-G-Code-Sender.svg)](https://gitter.im/winder/Universal-G-Code-Sender?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
 * Requires Java 8 or higher.
 * Currently under heavy development, feedback and suggestions are helpful!
