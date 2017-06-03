@@ -99,8 +99,8 @@ public class VisualizerOptions extends ArrayList<Option> {
         add(getOption(VISUALIZER_OPTION_SIZE, "", new Color(128,128,128)));
 
         // Autoleveler surface mesh
-        add(getOption(VISUALIZER_OPTION_HIGH, "", new Color(0, 255, 0)));
-        add(getOption(VISUALIZER_OPTION_LOW, "", new Color(255, 0, 0)));
+        add(getOption(VISUALIZER_OPTION_HIGH, "", new Color(0, 255, 0, 128)));
+        add(getOption(VISUALIZER_OPTION_LOW, "", new Color(255, 0, 0, 128)));
     }
 
     private Option<Color> getOption(String op, String desc, Color def) {

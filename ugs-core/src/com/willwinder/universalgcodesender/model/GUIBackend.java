@@ -59,6 +59,7 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import org.apache.commons.lang3.StringUtils;
@@ -410,9 +411,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         systemStateBean.setActiveState(activeState);
         systemStateBean.setControlState(controlState);
         if (this.machineCoord != null) {
-            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.getX()));
-            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.getY()));
-            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.getZ()));
+            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.x));
+            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.y));
+            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.z));
         }
         if (this.controller != null) {
             systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
@@ -967,8 +968,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             if (this.processedGcodeFile == null || forceReprocess) {
                 gcp.reset();
 
+                String name = startFile.getName();
+
+                // If this is being re-processed, strip the ugs postfix and try again.
+                Pattern word = Pattern.compile("(.*)ugs_[\\d]+$");
+                Matcher match = word.matcher(name);
+                if (match.matches()) {
+                    name = match.group(1);
+                }
                 this.processedGcodeFile =
-                        new File(this.getTempDir(), startFile.getName() + System.currentTimeMillis());
+                        new File(this.getTempDir(), name + "_ugs_" + System.currentTimeMillis());
                 this.preprocessAndExportToFile(gcodeParser, startFile, this.processedGcodeFile);
 
                 // Store gcode file stats.

@@ -34,7 +34,11 @@ import net.miginfocom.swing.MigLayout;
 public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
     final Spinner zHeightSpinner = new Spinner(
                 Localization.getString("autoleveler.option.z-zero"),
-                new SpinnerNumberModel(0d, null, null, 1d));
+                new SpinnerNumberModel(0., null, null, 1.));
+
+    final Spinner probeFeedRate = new Spinner(
+                Localization.getString("probe.feed-rate"),
+                new SpinnerNumberModel(1., null, null, 1.));
 
     final Spinner arcSegmentLengthSpinner = new Spinner(
                 Localization.getString("autoleveler.option.arc-segment-length"),
@@ -71,6 +75,9 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
         this.zHeightSpinner.setValue(autoLevelSettings.autoLevelProbeZeroHeight);
         add(this.zHeightSpinner);
 
+        this.probeFeedRate.setValue(autoLevelSettings.probeSpeed);
+        add(this.probeFeedRate);
+
         this.arcSegmentLengthSpinner.setValue(autoLevelSettings.autoLevelArcSliceLength);
         add(this.arcSegmentLengthSpinner);
 
@@ -92,6 +99,7 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
         Settings.AutoLevelSettings values = new Settings.AutoLevelSettings();
 
         values.autoLevelProbeZeroHeight = (double) this.zHeightSpinner.getValue();
+        values.probeSpeed = (double) this.probeFeedRate.getValue();
         values.autoLevelArcSliceLength = (double)this.arcSegmentLengthSpinner.getValue();
         values.autoLevelFeedRate = (double)this.feedRateSpinner.getValue();
         values.autoLevelProbeOffset = new Position(

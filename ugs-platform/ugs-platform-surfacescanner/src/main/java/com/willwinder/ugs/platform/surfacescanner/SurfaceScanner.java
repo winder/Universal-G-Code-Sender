@@ -68,8 +68,16 @@ public class SurfaceScanner {
         double minz = Math.min(corner1.z, corner2.z);
         double maxz = Math.max(corner1.z, corner2.z);
 
-        this.minXYZ = new Position(minx, miny, minz, units);
-        this.maxXYZ = new Position(maxx, maxy, maxz, units);
+        Position newMin = new Position(minx, miny, minz, units);
+        Position newMax = new Position(maxx, maxy, maxz, units);
+
+        // Make sure the position changed before resetting things.
+        if (newMin.equals(this.minXYZ) && newMax.equals(this.maxXYZ) && this.resolution == resolution) {
+            return;
+        }
+
+        this.minXYZ = newMin;
+        this.maxXYZ = newMax;
         this.probeDistance = minz - maxz;
         this.resolution = resolution;
 

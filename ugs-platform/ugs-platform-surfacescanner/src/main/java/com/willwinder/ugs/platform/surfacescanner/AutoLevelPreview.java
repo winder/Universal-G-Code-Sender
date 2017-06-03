@@ -56,45 +56,7 @@ public class AutoLevelPreview extends Renderable {
 
         glut = new GLUT();
 
-        // For testing initialize values to something visible.
-        //storePreviewData();
-
         reloadPreferences(new VisualizerOptions());
-    }
-
-    private void storePreviewData() {
-        // initialize with some test data.
-        maxZ = 1;
-        minZ = -1;
-
-        positions = ImmutableList.<Position>builder()
-                .add(new Position(0, 0, 1, Units.MM))
-                .add(new Position(0, 1, 1, Units.MM))
-                .add(new Position(0, 2, 1, Units.MM))
-                .add(new Position(1, 0, 1, Units.MM))
-                .add(new Position(1, 1, 1, Units.MM))
-                .add(new Position(1, 2, 1, Units.MM))
-                .add(new Position(2, 0, 1, Units.MM))
-                .add(new Position(2, 1, 1, Units.MM))
-                .add(new Position(2, 2, 1, Units.MM))
-                .build();
-        grid = new Position[][] {
-            {
-                new Position(0, 0, 0.9, Units.MM),
-                new Position(0, 1, 0.5, Units.MM),
-                new Position(0, 2, 0.01, Units.MM)
-            },
-            {
-                new Position(1, 0, 0.1, Units.MM),
-                new Position(1, 1, 0.05, Units.MM),
-                new Position(1, 2, 0.0, Units.MM)
-            },
-            {
-                new Position(2, 0, -0.9, Units.MM),
-                new Position(2, 1, -0.5, Units.MM),
-                new Position(2, 2, -0.01, Units.MM)
-            }
-        };
     }
 
     @Override
@@ -198,13 +160,14 @@ public class AutoLevelPreview extends Renderable {
         gl.glPopMatrix();
     }
 
-    private void setColorForZ(GL2 gl, double zPos, float opacity) {
+    private void setColorForZ(GL2 gl, double zPos) {
         float ratio = (float) ((zPos - minZ) / (maxZ - minZ));
         float r = ratio * high[0] + (1-ratio) * low[0];
         float g = ratio * high[1] + (1-ratio) * low[1];
         float b = ratio * high[2] + (1-ratio) * low[2];
+        float a = ratio * high[3] + (1-ratio) * low[3];
 
-        gl.glColor4f(r, g, b, opacity);
+        gl.glColor4f(r, g, b, a);
     }
 
     private void drawProbedSurface(GL2 gl) {
@@ -232,7 +195,6 @@ public class AutoLevelPreview extends Renderable {
                 continue;
             }
 
-            float opacity = 0.8f;
             for (int y = 0; y < this.grid[x].length - 1; y++) {
                 Position pos1 = this.grid[x][y];
                 Position pos2 = this.grid[x+1][y];
@@ -241,24 +203,24 @@ public class AutoLevelPreview extends Renderable {
 
                 // Bottom left of quad
                 if (pos1 != null && pos2 != null && pos3 != null) {
-                    setColorForZ(gl, pos1.z, opacity);
+                    setColorForZ(gl, pos1.z);
                     gl.glVertex3d( pos1.x, pos1.y, pos1.z ); // Left Of Triangle (Front)
 
-                    setColorForZ(gl, pos3.z, opacity);
+                    setColorForZ(gl, pos3.z);
                     gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
 
-                    setColorForZ(gl, pos2.z, opacity);
+                    setColorForZ(gl, pos2.z);
                     gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Right Of Triangle (Front)
                 }
                 // Top right of quad
                 if (pos2 != null && pos3 != null && pos4 != null) {
-                    setColorForZ(gl, pos4.z, opacity);
+                    setColorForZ(gl, pos4.z);
                     gl.glVertex3d( pos4.x, pos4.y, pos4.z ); // Right Of Triangle (Front)
                     
-                    setColorForZ(gl, pos3.z, opacity);
+                    setColorForZ(gl, pos3.z);
                     gl.glVertex3d( pos3.x, pos3.y, pos3.z ); // Top Of Triangle (Front)
                     
-                    setColorForZ(gl, pos2.z, opacity);
+                    setColorForZ(gl, pos2.z);
                     gl.glVertex3d( pos2.x, pos2.y, pos2.z ); // Left Of Triangle (Front)
                 }
             }

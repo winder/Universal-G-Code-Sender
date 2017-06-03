@@ -28,6 +28,8 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collections;
 import java.util.List;
 import javax.vecmath.Point2d;
@@ -45,6 +47,9 @@ public class MeshLeveler implements ICommandProcessor {
     final int xLen, yLen;
     final Point2d meshDimensions;
     final double resolution;
+
+    // Used during processing.
+    double lastZHeight;
 
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
@@ -121,7 +126,7 @@ public class MeshLeveler implements ICommandProcessor {
     }
 
     @Override
-    public List<String> processCommand(String commandString, GcodeState state) throws GcodeParserException {
+    public List<String> processCommand(final String commandString, GcodeState state) throws GcodeParserException {
         List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
 
         // Check for something to process.
@@ -153,11 +158,17 @@ public class MeshLeveler implements ICommandProcessor {
         Point3d start = state.currentPoint;
         Point3d end = command.point.point();
 
+        if (start.z != end.z) {
+            this.lastZHeight = end.z;
+        }
+
         // Get offset relative to the expected surface height.
-        double zPointOffset = surfaceHeightAt(end.x, end.y) - this.materialSurfaceHeight;
+        double scaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
+        double zPointOffset = (surfaceHeightAt(end.x, end.y) - this.materialSurfaceHeight);
+        zPointOffset *= scaleFactor;
 
         // Update z coordinate.
-        end.z += zPointOffset;
+        end.z = this.lastZHeight + zPointOffset;
 
         String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
                 "G" + command.code, start, end, command.state.inAbsoluteMode, null);
