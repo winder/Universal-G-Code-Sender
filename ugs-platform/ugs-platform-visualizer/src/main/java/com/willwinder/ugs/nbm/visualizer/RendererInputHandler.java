@@ -34,7 +34,10 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -65,12 +68,14 @@ public class RendererInputHandler implements
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
     private final VisualizerPopupMenu visualizerPopupMenu;
+    private Settings settings;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
-            VisualizerPopupMenu popup) {
+            VisualizerPopupMenu popup, Settings s) {
         gcodeRenderer = gr;
         animator = a;
         visualizerPopupMenu = popup;
+        settings = s;
 
         gcodeModel = new GcodeModel();
         highlight = new Highlight(gcodeModel);
@@ -97,11 +102,26 @@ public class RendererInputHandler implements
     public void setGcodeFile(String file) {
         gcodeModel.setGcodeFile(file);
         gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
+
+        updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
     }
 
     public void setProcessedGcodeFile(String file) {
         gcodeModel.setProcessedGcodeFile(file);
         gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
+
+        updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
+    }
+
+    /**
+     * Pass new bounds (after interpolating arcs) in case of weird arcs.
+     */
+    private void updateBounds(Point3d min, Point3d max) {
+        // Update bounds.
+        FileStats fs = settings.getFileStats();
+        fs.minCoordinate = new Position(min.x, min.y, min.z, Units.MM);
+        fs.maxCoordinate = new Position(min.x, min.y, min.z, Units.MM);
+        settings.setFileStats(fs);
     }
 
     /**
