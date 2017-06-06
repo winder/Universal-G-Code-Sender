@@ -56,6 +56,16 @@ public class Position extends Point3d {
         return super.equals(o);
     }
 
+    /**
+     * Check that the positions are the same ignoring units.
+     */
+    public boolean isSamePositionIgnoreUnits(final Position o) {
+        if (units != o.getUnits()) {
+            return equals(o.getPositionIn(units));
+        }
+        return equals(o);
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;

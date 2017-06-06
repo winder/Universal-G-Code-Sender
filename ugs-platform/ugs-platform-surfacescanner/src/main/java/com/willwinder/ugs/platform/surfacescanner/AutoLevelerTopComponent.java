@@ -122,12 +122,16 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     private void updateSettings() {
         this.bulkChanges = true;
 
+        // Only set units radio button the first time.
+        if (!this.unitInch.isSelected() && !this.unitMM.isSelected()) {
+            Units u = settings.getPreferredUnits();
+            this.unitInch.setSelected(u == Units.INCH);
+            this.unitMM.setSelected(u == Units.MM);
+        }
+
         AutoLevelSettings als = settings.getAutoLevelSettings();
         this.stepResolution.setValue(als.stepResolution);
 
-        Units u = settings.getPreferredUnits();
-        this.unitInch.setSelected(u == Units.INCH);
-        this.unitMM.setSelected(u == Units.MM);
         this.zSurface.setValue(als.zSurface);
 
         this.bulkChanges = false;
@@ -518,7 +522,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
                 Position probe = new Position(p);
-                p.z = ((random.nextBoolean() ? -1 : 1) * random.nextFloat()) + autoLevelerSettings.zSurface;
+                p.z = ((random.nextBoolean() ? -10 : 10) * random.nextFloat()) + autoLevelerSettings.zSurface;
                 scanner.probeEvent(p);
             }
         }
@@ -556,12 +560,16 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
 
         // Step 3: Line splitter. No line should be longer than "resolution" or maybe even "resolution/4"
-        gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/2));
+        gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
 
         // Step 4: Adjust Z heights codes based on mesh offsets.
-        gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid()));
+        //gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid()));
 
         try {
+            backend.applyGcodeParser(gcp);
+
+            gcp = new GcodeParser();
+            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid()));
             backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);

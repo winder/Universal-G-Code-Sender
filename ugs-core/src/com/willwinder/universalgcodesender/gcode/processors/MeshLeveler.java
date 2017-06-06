@@ -40,16 +40,17 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class MeshLeveler implements ICommandProcessor {
-    final double materialSurfaceHeight;
-    final Position[][] surfaceMesh;
-    final Position lowerLeft;
-    final Position upperRight;
-    final int xLen, yLen;
-    final Point2d meshDimensions;
-    final double resolution;
+    final private double materialSurfaceHeight;
+    final private Position[][] surfaceMesh;
+    final private Position lowerLeft;
+    final private Position upperRight;
+    final private int xLen, yLen;
+    final private Point2d meshDimensions;
+    final private double resolution;
 
     // Used during processing.
-    double lastZHeight;
+    private double lastZHeight;
+    private Units probePositionUnit;
 
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
@@ -118,11 +119,12 @@ public class MeshLeveler implements ICommandProcessor {
                 surfaceMesh[1][0].x-surfaceMesh[0][0].x,
                 surfaceMesh[0][1].y-surfaceMesh[0][0].y);
 
-        lowerLeft = surfaceMesh[0][0];
-        upperRight = surfaceMesh[xLen-1][yLen-1];
+        this.lowerLeft = surfaceMesh[0][0];
+        this.upperRight = surfaceMesh[xLen-1][yLen-1];
         this.meshDimensions = new Point2d(
                 this.upperRight.x - this.lowerLeft.x,
                 this.upperRight.y - this.lowerLeft.y);
+        this.probePositionUnit = lowerLeft.getUnits();
     }
 
     @Override
@@ -163,12 +165,16 @@ public class MeshLeveler implements ICommandProcessor {
         }
 
         // Get offset relative to the expected surface height.
-        double scaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
-        double zPointOffset = (surfaceHeightAt(end.x, end.y) - this.materialSurfaceHeight);
-        zPointOffset *= scaleFactor;
+        // Visualizer normalizes everything to MM but probe mesh might be INCH
+        double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.probePositionUnit);
+        double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
+        double zPointOffset = (surfaceHeightAt(end.x / zScaleFactor, end.y / zScaleFactor) - this.materialSurfaceHeight);
+        zPointOffset *= zScaleFactor;
+
 
         // Update z coordinate.
         end.z = this.lastZHeight + zPointOffset;
+        //end.z /= resultScaleFactor;
 
         String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
                 "G" + command.code, start, end, command.state.inAbsoluteMode, null);
@@ -176,15 +182,20 @@ public class MeshLeveler implements ICommandProcessor {
     }
 
     protected Position[][] findBoundingArea(double x, double y) throws GcodeParserException {
+        /*
         if (x < this.lowerLeft.x || x > this.upperRight.x || y < this.lowerLeft.y || y > this.upperRight.y) {
             throw new GcodeParserException("Coordinate out of bounds.");
         }
+        */
 
         int xIdx = (int) ((x == 0) ? 0 : (x / this.resolution));
         int yIdx = (int) ((y == 0) ? 0 : (y / this.resolution));
 
-        if (xIdx == this.xLen) xIdx--;
-        if (yIdx == this.yLen) yIdx--;
+        // Clamp bounds
+        xIdx = Math.min(xIdx, this.xLen - 2);
+        yIdx = Math.min(yIdx, this.yLen - 2);
+        xIdx = Math.max(xIdx, 0);
+        yIdx = Math.max(yIdx, 0);
         
         return new Position[][] {
             {this.surfaceMesh[xIdx  ][yIdx], this.surfaceMesh[xIdx  ][yIdx+1]},
