@@ -77,6 +77,17 @@ public class Settings {
     private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
 
     public static class AutoLevelSettings {
+        public boolean equals(AutoLevelSettings obj) {
+            return
+                    this.autoLevelFeedRate == obj.autoLevelFeedRate &&
+                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
+                    this.autoLevelProbeOffset == obj.autoLevelProbeOffset &&
+                    this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
+                    this.stepResolution == obj.stepResolution &&
+                    this.probeSpeed == obj.probeSpeed &&
+                    this.zSurface == obj.zSurface;
+        }
+
         // Setting window
         public double autoLevelFeedRate = 1;
         public double autoLevelProbeZeroHeight = 0;
@@ -488,8 +499,10 @@ public class Settings {
     }
 
     public void setAutoLevelSettings(AutoLevelSettings settings) {
-        this.autoLevelSettings = settings;
-        changed();
+        if (! settings.equals(this.autoLevelSettings)) {
+            this.autoLevelSettings = settings;
+            changed();
+        }
     }
 
     public AutoLevelSettings getAutoLevelSettings() {

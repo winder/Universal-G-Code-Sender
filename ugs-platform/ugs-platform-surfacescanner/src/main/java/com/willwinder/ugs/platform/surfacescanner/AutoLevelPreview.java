@@ -121,8 +121,8 @@ public class AutoLevelPreview extends Renderable {
             gl.glEnable(GL2.GL_LIGHTING); 
 
             // Scale inch to mm if needed
+            double scale = UnitUtils.scaleUnits(unit, Units.MM);
             if (unit != Units.MM) {
-                double scale = UnitUtils.scaleUnits(unit, Units.MM);
                 gl.glScaled(scale, scale, scale);
             }
 
@@ -131,7 +131,7 @@ public class AutoLevelPreview extends Renderable {
             for (Position p : positions) {
                 gl.glPushMatrix();
                     gl.glTranslated(p.x, p.y, p.z);
-                    glut.glutSolidSphere(diameter, 7, 7);
+                    glut.glutSolidSphere(diameter/scale, 7, 7);
 
                     // update min/max
                     minx = Math.min(minx, p.x);

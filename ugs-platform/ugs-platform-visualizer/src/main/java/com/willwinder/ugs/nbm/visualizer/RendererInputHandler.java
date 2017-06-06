@@ -120,7 +120,7 @@ public class RendererInputHandler implements
         // Update bounds.
         FileStats fs = settings.getFileStats();
         fs.minCoordinate = new Position(min.x, min.y, min.z, Units.MM);
-        fs.maxCoordinate = new Position(min.x, min.y, min.z, Units.MM);
+        fs.maxCoordinate = new Position(max.x, max.y, max.z, Units.MM);
         settings.setFileStats(fs);
     }
 

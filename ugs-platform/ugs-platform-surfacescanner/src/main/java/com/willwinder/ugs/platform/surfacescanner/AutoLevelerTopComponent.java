@@ -37,11 +37,14 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.swing.JOptionPane;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -80,7 +83,7 @@ import org.openide.util.NbBundle.Messages;
     "CTL_AutoLevelerTopComponent=AutoLeveler Window",
     "HINT_AutoLevelerTopComponent=This is a AutoLeveler window"
 })
-public final class AutoLevelerTopComponent extends TopComponent implements ChangeListener, UGSEventListener {
+public final class AutoLevelerTopComponent extends TopComponent implements ItemListener, ChangeListener, UGSEventListener {
     private static final Boolean TEST = true;
 
     private final BackendAPI backend;
@@ -112,8 +115,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         yMax.addChangeListener(cl);
         zMin.addChangeListener(cl);
         zMax.addChangeListener(cl);
-        unitInch.addChangeListener(cl);
-        unitMM.addChangeListener(cl);
+        unitInch.addItemListener(this);
+        unitMM.addItemListener(this);
     }
 
     private void updateSettings() {
@@ -164,22 +167,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         return 0.0f;
     }
 
-    /**
-     * The preview parameters were changed.
-     */
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        // This state change handler is only for the visualizer.
-        if (bulkChanges || scanner == null) {
-            return;
-        }
-
+    private AutoLevelSettings updateScanner(Units units) {
         Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
-
         double xOff = autoLevelerSettings.autoLevelProbeOffset.x;
         double yOff = autoLevelerSettings.autoLevelProbeOffset.y;
 
-        Units units = this.unitInch.isSelected() ? Units.INCH : Units.MM;
         Position corner1 = new Position(getValue(xMin) + xOff, getValue(yMin) + yOff, getValue(zMin), units);
         Position corner2 = new Position(getValue(xMax) + xOff, getValue(yMax) + yOff, getValue(zMax), units);
 
@@ -196,9 +188,41 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
                     scanner.getMinXYZ());
         }
 
+        return autoLevelerSettings;
+    }
+
+    /**
+     * JRadioButton's have strange state changes, so using item change.
+     * @param e 
+     */
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+        if (e.getStateChange() == ItemEvent.SELECTED) {
+            if (e.getItem() == unitMM) {
+                updateScanner(Units.MM);
+            } else {
+                updateScanner(Units.INCH);
+            }
+        }
+    }
+
+    /**
+     * The preview parameters were changed.
+     */
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        // This state change handler is only for the visualizer.
+        if (bulkChanges || scanner == null) {
+            return;
+        }
+
+        Units units = this.unitInch.isSelected() ? Units.INCH : Units.MM;
+
+        Settings.AutoLevelSettings autoLevelSettings = updateScanner(units);
+
         // prevent infinite loop, only call when the stateChange event was triggered by a swing component.
         if (e != null) {
-            settings.setAutoLevelSettings(autoLevelerSettings);
+            settings.setAutoLevelSettings(autoLevelSettings);
         }
     }
 
@@ -554,13 +578,18 @@ public final class AutoLevelerTopComponent extends TopComponent implements Chang
         }
 
         FileStats fs = backend.getSettings().getFileStats();
-        this.xMin.setValue(fs.minCoordinate.x);
-        this.yMin.setValue(fs.minCoordinate.y);
-        this.zMin.setValue(fs.minCoordinate.z);
 
-        this.xMax.setValue(fs.maxCoordinate.x);
-        this.yMax.setValue(fs.maxCoordinate.y);
-        this.zMax.setValue(fs.maxCoordinate.z);
+        Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
+        Position min = fs.minCoordinate.getPositionIn(u);
+        Position max = fs.maxCoordinate.getPositionIn(u);
+
+        this.xMin.setValue(min.x);
+        this.yMin.setValue(min.y);
+        this.zMin.setValue(min.z);
+
+        this.xMax.setValue(max.x);
+        this.yMax.setValue(max.y);
+        this.zMax.setValue(max.z);
     }//GEN-LAST:event_useLoadedFileActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
