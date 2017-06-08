@@ -41,7 +41,7 @@ public class AutoLevelPreview extends Renderable {
     private final GLUT glut;
 
     private ImmutableCollection<Position> positions;
-    private Position[][] grid = null;
+    private Point3d[][] grid = null;
 
     // The maximum distance of a probe used for coloring.
     private double maxZ, minZ;
@@ -80,7 +80,11 @@ public class AutoLevelPreview extends Renderable {
     }
 
     public void updateSettings(
-            ImmutableCollection<Position> positions, final Position[][] grid, Position max, Position min) {
+            ImmutableCollection<Position> positions,
+            Units gridUnits,
+            final Point3d[][] grid,
+            Point3d max,
+            Point3d min) {
         if (positions != null && !positions.isEmpty() && this.notifier != null) {
             this.positions = positions;
             this.notifier.forceRedraw();
@@ -196,10 +200,10 @@ public class AutoLevelPreview extends Renderable {
             }
 
             for (int y = 0; y < this.grid[x].length - 1; y++) {
-                Position pos1 = this.grid[x][y];
-                Position pos2 = this.grid[x+1][y];
-                Position pos3 = this.grid[x][y+1];
-                Position pos4 = this.grid[x+1][y+1];
+                Point3d pos1 = this.grid[x][y];
+                Point3d pos2 = this.grid[x+1][y];
+                Point3d pos3 = this.grid[x][y+1];
+                Point3d pos4 = this.grid[x+1][y+1];
 
                 // Bottom left of quad
                 if (pos1 != null && pos2 != null && pos3 != null) {

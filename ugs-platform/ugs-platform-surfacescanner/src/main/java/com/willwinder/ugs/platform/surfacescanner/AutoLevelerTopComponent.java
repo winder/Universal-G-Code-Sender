@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -50,6 +51,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.vecmath.Point3d;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -187,6 +189,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         if (r != null) {
             r.updateSettings(
                     scanner.getProbeStartPositions(),
+                    scanner.getUnits(),
                     scanner.getProbePositionGrid(),
                     scanner.getMaxXYZ(),
                     scanner.getMinXYZ());
@@ -531,8 +534,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         // Collect data from grid.
         if (scanner != null && scanner.getProbePositionGrid() != null) {
-            for (Position[] row : scanner.getProbePositionGrid()) {
-                for (Position p : row) {
+            for (Point3d[] row : scanner.getProbePositionGrid()) {
+                for (Point3d p : row) {
                     if (p != null) {
                         probeData.add(ImmutableMap.<String,Double>of(
                                 "x", p.x,
@@ -569,7 +572,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             backend.applyGcodeParser(gcp);
 
             gcp = new GcodeParser();
-            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid()));
+            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid(), scanner.getUnits()));
             backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
@@ -631,7 +634,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     @Override
     public void componentOpened() {
-        scanner = new SurfaceScanner();
+        scanner = new SurfaceScanner(Units.MM);
         if (r == null) {
             IRendererNotifier notifier = Lookup.getDefault().lookup(IRendererNotifier.class);
             r = new AutoLevelPreview(0, notifier);

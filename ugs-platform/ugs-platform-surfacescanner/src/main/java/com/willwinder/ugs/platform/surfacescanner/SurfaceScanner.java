@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collection;
+import javax.vecmath.Point3d;
 
 /**
  *
@@ -30,24 +31,26 @@ import java.util.Collection;
  */
 public class SurfaceScanner {
     private ImmutableCollection<Position> probePositions;
-    private Position[][] probePositionGrid;
+    private Point3d[][] probePositionGrid;
     private Collection<Position> surfacePositions;
 
-    private Position minXYZ = null;
-    private Position maxXYZ = null;
+    private Units u = null;
+    private Point3d minXYZ = null;
+    private Point3d maxXYZ = null;
     private double resolution = 1;
     private double probeDistance = 0;
     private int yAxisPoints = -1;
     private int xAxisPoints = -1;
     
-    public SurfaceScanner() {
+    public SurfaceScanner(Units u) {
+        this.u = u;
     }
 
     public void probeEvent(final Position p) {
         int x = (int) Math.ceil((p.x - minXYZ.x) / resolution);
         int y = (int) Math.ceil((p.y - minXYZ.y) / resolution);
 
-        probePositionGrid[x][y] = new Position(p);
+        probePositionGrid[x][y] = p.getPositionIn(u);
     }
 
     /**
@@ -105,7 +108,7 @@ public class SurfaceScanner {
         return this.probePositions;
     }
 
-    public final Position[][] getProbePositionGrid() {
+    public final Point3d[][] getProbePositionGrid() {
         return this.probePositionGrid;
     }
 
@@ -121,11 +124,15 @@ public class SurfaceScanner {
         return this.yAxisPoints;
     }
 
-    public final Position getMaxXYZ() {
+    public final Point3d getMaxXYZ() {
         return this.maxXYZ;
     }
 
-    public final Position getMinXYZ() {
+    public final Point3d getMinXYZ() {
         return this.minXYZ;
+    }
+
+    public final Units getUnits() {
+        return u;
     }
 }

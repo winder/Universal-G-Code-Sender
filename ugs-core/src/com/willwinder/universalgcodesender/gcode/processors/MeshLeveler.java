@@ -41,16 +41,16 @@ import javax.vecmath.Point3d;
  */
 public class MeshLeveler implements ICommandProcessor {
     final private double materialSurfaceHeight;
-    final private Position[][] surfaceMesh;
-    final private Position lowerLeft;
-    final private Position upperRight;
+    final private Point3d[][] surfaceMesh;
+    final private Point3d lowerLeft;
+    final private Point3d upperRight;
     final private int xLen, yLen;
     final private Point2d meshDimensions;
     final private double resolution;
 
     // Used during processing.
     private double lastZHeight;
-    private Units probePositionUnit;
+    private Units unit;
 
     public final static String ERROR_MESH_SHAPE= "Surface mesh must be a rectangular 2D array.";
     public final static String ERROR_NOT_ENOUGH_SAMPLES = "Need at least 2 samples along each axis.";
@@ -66,7 +66,7 @@ public class MeshLeveler implements ICommandProcessor {
      * @param materialSurfaceHeight Z height used in offset.
      * @param surfaceMesh 2D array in the format Position[x][y]
      */
-    public MeshLeveler(double materialSurfaceHeight, Position[][] surfaceMesh) {
+    public MeshLeveler(double materialSurfaceHeightMM, Point3d[][] surfaceMesh, Units unit) {
         if (surfaceMesh == null) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
@@ -74,7 +74,7 @@ public class MeshLeveler implements ICommandProcessor {
         // Validate that points form a rectangular 2D array.
         this.yLen = surfaceMesh[0].length;
         this.xLen = surfaceMesh.length;
-        for (Position[] arr : surfaceMesh) {
+        for (Point3d[] arr : surfaceMesh) {
             if (arr.length != yLen) {
                 throw new IllegalArgumentException(ERROR_MESH_SHAPE);
             }
@@ -113,7 +113,8 @@ public class MeshLeveler implements ICommandProcessor {
             }
         }
 
-        this.materialSurfaceHeight = materialSurfaceHeight;
+        this.unit = unit;
+        this.materialSurfaceHeight = materialSurfaceHeightMM;
         this.surfaceMesh = surfaceMesh;
         this.resolution = Math.max(
                 surfaceMesh[1][0].x-surfaceMesh[0][0].x,
@@ -124,7 +125,6 @@ public class MeshLeveler implements ICommandProcessor {
         this.meshDimensions = new Point2d(
                 this.upperRight.x - this.lowerLeft.x,
                 this.upperRight.y - this.lowerLeft.y);
-        this.probePositionUnit = lowerLeft.getUnits();
     }
 
     @Override
@@ -166,7 +166,7 @@ public class MeshLeveler implements ICommandProcessor {
 
         // Get offset relative to the expected surface height.
         // Visualizer normalizes everything to MM but probe mesh might be INCH
-        double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.probePositionUnit);
+        double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.unit);
         double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
         double zPointOffset = (surfaceHeightAt(end.x / zScaleFactor, end.y / zScaleFactor) - this.materialSurfaceHeight);
         zPointOffset *= zScaleFactor;
@@ -181,7 +181,7 @@ public class MeshLeveler implements ICommandProcessor {
         return Collections.singletonList(adjustedCommand);
     }
 
-    protected Position[][] findBoundingArea(double x, double y) throws GcodeParserException {
+    protected Point3d[][] findBoundingArea(double x, double y) throws GcodeParserException {
         /*
         if (x < this.lowerLeft.x || x > this.upperRight.x || y < this.lowerLeft.y || y > this.upperRight.y) {
             throw new GcodeParserException("Coordinate out of bounds.");
@@ -197,7 +197,7 @@ public class MeshLeveler implements ICommandProcessor {
         xIdx = Math.max(xIdx, 0);
         yIdx = Math.max(yIdx, 0);
         
-        return new Position[][] {
+        return new Point3d[][] {
             {this.surfaceMesh[xIdx  ][yIdx], this.surfaceMesh[xIdx  ][yIdx+1]},
             {this.surfaceMesh[xIdx+1][yIdx], this.surfaceMesh[xIdx+1][yIdx+1]}
         };
@@ -208,12 +208,12 @@ public class MeshLeveler implements ICommandProcessor {
      * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
      */
     protected double surfaceHeightAt(double x, double y) throws GcodeParserException {
-        Position[][] q = findBoundingArea(x, y);
+        Point3d[][] q = findBoundingArea(x, y);
 
-        Position Q11 = q[0][0];
-        Position Q21 = q[1][0];
-        Position Q12 = q[0][1];
-        Position Q22 = q[1][1];
+        Point3d Q11 = q[0][0];
+        Point3d Q21 = q[1][0];
+        Point3d Q12 = q[0][1];
+        Point3d Q22 = q[1][1];
 
         double x1 = Q11.x;
         double x2 = Q21.x;
