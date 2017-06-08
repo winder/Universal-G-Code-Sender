@@ -91,7 +91,7 @@ public class ArcExpander implements ICommandProcessor {
 
         List<Point3d> points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
                 start, end, ps.center(), ps.isClockwise(),
-                ps.getRadius(), 0, length, new PlaneFormatter(ps.getPlaneState()));
+                ps.getRadius(), 0, this.length, new PlaneFormatter(ps.getPlaneState()));
 
         // That function returns the first and last points. Exclude the first
         // point because the previous gcode command ends there already.

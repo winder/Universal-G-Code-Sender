@@ -394,8 +394,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * This allows us to visualize a file without loading a controller profile.
      */
     private static void initializeWithFallbackProcessors(GcodeParser parser) {
-        parser.addCommandProcessor(new WhitespaceProcessor());
+        // Comment processor must come first otherwise we try to parse codes
+        // out of the comments, like an f-code when we see "(feed rate is 100)"
         parser.addCommandProcessor(new CommentProcessor());
+        parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new CommandSplitter());
         parser.addCommandProcessor(new DecimalProcessor(4));

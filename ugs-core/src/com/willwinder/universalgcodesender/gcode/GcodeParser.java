@@ -47,10 +47,6 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    // Last two commands.
-    private PointSegment latest;
-    private PointSegment secondLatest;
-
     private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
 
     private Stats statsProcessor;
@@ -120,8 +116,6 @@ public class GcodeParser implements IGcodeParser {
         this.statsProcessor = new Stats();
         this.state.currentPoint = new Point3d();
         this.state.commandNumber = -1;
-        latest = new PointSegment(this.state.currentPoint, -1);
-        secondLatest = null;
     }
     
     /**
@@ -156,10 +150,6 @@ public class GcodeParser implements IGcodeParser {
             }
         }
 
-        for (PointSegment ps : results) {
-            secondLatest = latest;
-            latest = ps;
-        }
         return results;
     }
     
@@ -375,19 +365,63 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Applies all command processors to a given command and returns the
      * resulting GCode. Does not change the parser state.
+     * 
+     * TODO: Rather than have a separate 'preprocessCommand' which needs to be
+     * followed up with calls to addCommand, it would be great to have addCommand
+     * also do the preprocessing. This is challenging because they have different
+     * return types.
+     * 
+     * This is also needed for some very particular processing in GUIBackend which
+     * gathers comments as a separate step outside the GcodeParser.
      */
     @Override
     public List<String> preprocessCommand(String command) throws GcodeParserException {
-        List<String> result = new ArrayList<>();
-        result.add(command);
+        List<String> ret = new ArrayList<>();
+        ret.add(command);
+        GcodeState tempState = null;
         for (ICommandProcessor p : processors) {
+            // Reset point segments after each pass. The final pass is what we will return.
+            tempState = this.state.copy();
             // Process each command in the list and add results to the end.
             // Don't re-process the results with the same preprocessor.
-            for (int i = result.size(); i > 0; i--) {
-                result.addAll(p.processCommand(result.remove(0), state));
+            for (int i = ret.size(); i > 0; i--) {
+                List<String> intermediate = p.processCommand(ret.remove(0), tempState);
+
+                // process results to update the state and collect PointSegments
+                for(String c : intermediate) {
+                    tempState = testState(c, tempState);
+                }
+
+                ret.addAll(intermediate);
             }
         }
 
-        return result;
+        // Now that we're done, update the state.
+        //this.state = tempState;
+        return ret;
+    }
+
+    /**
+     * Helper to statically process the next step in a program without modifying the parser.
+     */
+    static private GcodeState testState(String command, GcodeState state) {
+        GcodeState ret = state;
+        //List<PointSegment> results = new ArrayList<>();
+        // Add command get meta doesn't update the state, so we need to do that
+        // manually.
+        //List<String> processedCommands = this.preprocessCommand(command);
+        Collection<GcodeMeta> metaObjects = processCommand(command, 0, state);
+        if (metaObjects != null) {
+            for (GcodeMeta c : metaObjects) {
+                //if (c.point != null)
+                //    results.add(c.point);
+                if (c.state != null) {
+                    ret = c.state;
+                }
+            }
+        }
+
+        //return results;
+        return ret;
     }
 }
