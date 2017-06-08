@@ -37,8 +37,8 @@ public final class Tool extends Renderable {
     GLUquadric gq;
     Color toolColor;
 
-    public Tool() {
-        super(9);
+    public Tool(String title) {
+        super(9, title);
         reloadPreferences(new VisualizerOptions());
     }
 

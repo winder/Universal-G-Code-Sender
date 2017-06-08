@@ -49,8 +49,8 @@ public class AutoLevelPreview extends Renderable {
     private float high[] = {0, 255, 0}; // green
     private float low[] = {255, 0, 0}; // red
 
-    public AutoLevelPreview(int priority, IRendererNotifier notifier) {
-        super(10);
+    public AutoLevelPreview(int priority, IRendererNotifier notifier, String title) {
+        super(10, title);
 
         this.notifier = notifier;
 

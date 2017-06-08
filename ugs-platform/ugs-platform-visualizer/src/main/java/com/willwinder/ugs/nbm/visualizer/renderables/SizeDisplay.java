@@ -49,8 +49,8 @@ public class SizeDisplay extends Renderable {
     private float[] color;
     private boolean textRendererDirty = true;
 
-    public SizeDisplay() {
-        super(3);
+    public SizeDisplay(String title) {
+        super(3, title);
         reloadPreferences(new VisualizerOptions());
     }
 

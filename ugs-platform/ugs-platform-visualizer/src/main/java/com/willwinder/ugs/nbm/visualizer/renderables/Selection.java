@@ -32,8 +32,8 @@ public class Selection extends Renderable {
     private Point3d start = null;
     private Point3d end = null;
 
-    public Selection() {
-        super(8);
+    public Selection(String title) {
+        super(8, title);
     }
 
     public void clear() {

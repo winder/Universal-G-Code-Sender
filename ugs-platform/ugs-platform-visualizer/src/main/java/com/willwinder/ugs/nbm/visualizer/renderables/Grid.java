@@ -29,7 +29,6 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.awt.Color;
 import javax.vecmath.Point3d;
 
 /**
@@ -43,8 +42,8 @@ public class Grid extends Renderable {
     private float[] yAxisColor;
     private float[] zAxisColor;
 
-    public Grid() {
-        super(5);
+    public Grid(String title) {
+        super(5, title);
         reloadPreferences(new VisualizerOptions());
     }
 

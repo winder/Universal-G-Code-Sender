@@ -29,6 +29,7 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -77,10 +78,10 @@ public class RendererInputHandler implements
         visualizerPopupMenu = popup;
         settings = s;
 
-        gcodeModel = new GcodeModel();
-        highlight = new Highlight(gcodeModel);
-        sizeDisplay = new SizeDisplay();
-        selection = new Selection();
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
+        highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
+        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
+        selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(highlight);

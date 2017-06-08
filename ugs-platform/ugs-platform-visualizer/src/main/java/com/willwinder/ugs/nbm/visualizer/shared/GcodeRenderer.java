@@ -42,6 +42,7 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
@@ -52,6 +53,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -144,13 +146,18 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         setHorizontalTranslationVector();
 
         objects = new ArrayList<>();
-        objects.add(new Tool());
-        objects.add(new MouseOver());
-        objects.add(new OrientationCube(0.5f));
-        objects.add(new Grid());
+        objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
+        objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
+        objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
+        objects.add(new Grid(Localization.getString("platform.visualizer.renderable.grid")));
         Collections.sort(objects);
 
         reloadPreferences();
+    }
+
+    @Override
+    public final Collection<Renderable> getRenderables() {
+        return objects;
     }
 
     @Override
@@ -355,6 +362,9 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
         // Render the different parts of the scene.
         for (Renderable r : objects) {
+            // Don't draw disabled renderables.
+            if (!r.isEnabled()) continue;
+
             gl.glPushMatrix();
                 if (r.rotate()) {
                     gl.glRotated(this.rotation.x, 0.0, 1.0, 0.0);

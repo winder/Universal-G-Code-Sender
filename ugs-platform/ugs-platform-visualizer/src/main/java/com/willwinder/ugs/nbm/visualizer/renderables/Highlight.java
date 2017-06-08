@@ -46,8 +46,8 @@ public class Highlight extends Renderable {
     // Preferences
     Color highlightColor;
 
-    public Highlight(GcodeModel model) {
-        super(9);
+    public Highlight(GcodeModel model, String title) {
+        super(9, title);
         this.model = model;
         reloadPreferences(new VisualizerOptions());
     }

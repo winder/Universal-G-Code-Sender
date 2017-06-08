@@ -83,8 +83,8 @@ public class GcodeModel extends Renderable {
     private Color plungeColor;
     private Color completedColor;
 
-    public GcodeModel() {
-        super(10);
+    public GcodeModel(String title) {
+        super(10, title);
         objectSize = new Point3d();
         reloadPreferences(new VisualizerOptions());
     }

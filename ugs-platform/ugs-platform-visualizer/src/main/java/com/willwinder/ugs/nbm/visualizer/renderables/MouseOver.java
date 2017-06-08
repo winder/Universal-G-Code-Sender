@@ -44,8 +44,8 @@ public class MouseOver extends Renderable {
     private static final GLU GLU = new GLU();
     private static GLUquadric GQ;
 
-    public MouseOver() {
-        super(8);
+    public MouseOver(String title) {
+        super(8, title);
     }
 
     @Override

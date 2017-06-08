@@ -637,7 +637,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         scanner = new SurfaceScanner(Units.MM);
         if (r == null) {
             IRendererNotifier notifier = Lookup.getDefault().lookup(IRendererNotifier.class);
-            r = new AutoLevelPreview(0, notifier);
+            r = new AutoLevelPreview(0, notifier,
+                    Localization.getString("platform.visualizer.renderable.autolevel-preview"));
         }
 
         RenderableUtils.registerRenderable(r);

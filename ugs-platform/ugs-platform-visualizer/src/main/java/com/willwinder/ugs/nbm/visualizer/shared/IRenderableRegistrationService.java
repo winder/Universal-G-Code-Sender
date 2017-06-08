@@ -18,11 +18,14 @@
  */
 package com.willwinder.ugs.nbm.visualizer.shared;
 
+import java.util.Collection;
+
 /**
  *
  * @author wwinder
  */
 public interface IRenderableRegistrationService {
+    public Collection<Renderable> getRenderables();
     public void registerRenderable(Renderable r);
     public void removeRenderable(Renderable r);
 }
