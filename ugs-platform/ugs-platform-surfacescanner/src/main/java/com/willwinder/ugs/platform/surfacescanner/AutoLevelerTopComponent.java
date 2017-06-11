@@ -74,28 +74,9 @@ import org.openide.util.NbBundle.Messages;
 @ActionID(category = LocalizingService.AutoLevelerCategory, id = LocalizingService.AutoLevelerActionId)
 @ActionReference(path = LocalizingService.AutoLevelerWindowPath)
 @TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:AutoLevelerAction>",
+        displayName = "<Not localized:AutoLevelerTopComponent>",
         preferredID = "AutoLevelerTopComponent"
 )
-@Messages({
-    "CTL_AutoLevelerAction=AutoLeveler",
-    "CTL_AutoLevelerTopComponent=<na>",
-    "HINT_AutoLevelerTopComponent=<na>",
-    "AutoLevelerTopComponent.unitMM.text=mm",
-    "AutoLevelerTopComponent.unitInch.text=inch",
-    "AutoLevelerTopComponent.scanSurfaceButton.text=Scan Surface",
-    "AutoLevelerTopComponent.dataViewer.text=View Data",
-    "AutoLevelerTopComponent.applyToGcode.text=Apply To Gcode",
-    "AutoLevelerTopComponent.settingsButton.text=Settings",
-    "AutoLevelerTopComponent.useLoadedFile.text=Use Loaded File",
-    "AutoLevelerTopComponent.minLabel.text=Min",
-    "AutoLevelerTopComponent.maxLabel.text=Max",
-    "AutoLevelerTopComponent.xLabel.text=X:",
-    "AutoLevelerTopComponent.yLabel.text=Y:",
-    "AutoLevelerTopComponent.zLabel.text=Z:",
-    "AutoLevelerTopComponent.resolutionLabel.text=Resolution:",
-    "AutoLevelerTopComponent.zSurfaceLabel.text=Gcode Z surface:"
-})
 public final class AutoLevelerTopComponent extends TopComponent implements ItemListener, ChangeListener, UGSEventListener {
     private final BackendAPI backend;
     private final Settings settings;
@@ -295,27 +276,33 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         unitInch = new javax.swing.JRadioButton();
         useLoadedFile = new javax.swing.JButton();
 
-        org.openide.awt.Mnemonics.setLocalizedText(minLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.minLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(minLabel, "Min");
 
-        org.openide.awt.Mnemonics.setLocalizedText(xLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.xLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(xLabel, "X");
 
-        org.openide.awt.Mnemonics.setLocalizedText(yLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.yLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(yLabel, "Y");
 
-        org.openide.awt.Mnemonics.setLocalizedText(zLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.zLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(zLabel, "Z");
 
         zMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        zMin.setSize(new java.awt.Dimension(33, 26));
 
         yMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        yMin.setSize(new java.awt.Dimension(33, 26));
 
         xMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        xMin.setSize(new java.awt.Dimension(33, 26));
 
-        org.openide.awt.Mnemonics.setLocalizedText(maxLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.maxLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(maxLabel, "Max");
 
         xMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        xMax.setSize(new java.awt.Dimension(33, 26));
 
         yMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        yMax.setSize(new java.awt.Dimension(33, 26));
 
         zMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
+        zMax.setSize(new java.awt.Dimension(33, 26));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -323,13 +310,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(xLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(minLabel)
-                            .addComponent(xMin)))
+                            .addComponent(xMin, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(zLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -337,14 +324,14 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(yLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(yMin, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(yMin)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(maxLabel)
-                    .addComponent(yMax)
+                    .addComponent(yMax, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
                     .addComponent(xMax)
                     .addComponent(zMax))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -379,29 +366,29 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        org.openide.awt.Mnemonics.setLocalizedText(resolutionLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.resolutionLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(resolutionLabel, "Resolution:");
 
         stepResolution.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 1.0d));
 
-        org.openide.awt.Mnemonics.setLocalizedText(zSurfaceLabel, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.zSurfaceLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(zSurfaceLabel, "Z Surface:");
 
         zSurface.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
-        org.openide.awt.Mnemonics.setLocalizedText(dataViewer, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.dataViewer.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(dataViewer, "View Data");
         dataViewer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 dataViewerActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(settingsButton, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.settingsButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(settingsButton, "Settings");
         settingsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 settingsButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(generateTestDataButton, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.generateTestDataButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(generateTestDataButton, "Generate Test Data");
         generateTestDataButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 generateTestDataButtonActionPerformed(evt);
@@ -451,14 +438,14 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        org.openide.awt.Mnemonics.setLocalizedText(scanSurfaceButton, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.scanSurfaceButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(scanSurfaceButton, "Scan Surface");
         scanSurfaceButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 scanSurfaceButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(applyToGcode, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.applyToGcode.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(applyToGcode, "Apply to Gcode");
         applyToGcode.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 applyToGcodeActionPerformed(evt);
@@ -467,12 +454,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         unitGroup.add(unitMM);
         unitMM.setSelected(true);
-        org.openide.awt.Mnemonics.setLocalizedText(unitMM, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.unitMM.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(unitMM, "mm");
 
         unitGroup.add(unitInch);
-        org.openide.awt.Mnemonics.setLocalizedText(unitInch, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.unitInch.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(unitInch, "inch");
 
-        org.openide.awt.Mnemonics.setLocalizedText(useLoadedFile, org.openide.util.NbBundle.getMessage(AutoLevelerTopComponent.class, "AutoLevelerTopComponent.useLoadedFile.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(useLoadedFile, "Use Loaded File");
         useLoadedFile.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 useLoadedFileActionPerformed(evt);
@@ -523,7 +510,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(179, Short.MAX_VALUE))
+                .addContainerGap(1519, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -675,9 +662,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             IRendererNotifier notifier = Lookup.getDefault().lookup(IRendererNotifier.class);
             r = new AutoLevelPreview(0, notifier,
                     Localization.getString("platform.visualizer.renderable.autolevel-preview"));
+            RenderableUtils.registerRenderable(r);
         }
 
-        RenderableUtils.registerRenderable(r);
     }
 
     @Override

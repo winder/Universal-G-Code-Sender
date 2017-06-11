@@ -79,7 +79,6 @@ public class Settings {
     public static class AutoLevelSettings {
         public boolean equals(AutoLevelSettings obj) {
             return
-                    this.autoLevelFeedRate == obj.autoLevelFeedRate &&
                     this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
                     this.autoLevelProbeOffset == obj.autoLevelProbeOffset &&
                     this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
@@ -89,7 +88,6 @@ public class Settings {
         }
 
         // Setting window
-        public double autoLevelFeedRate = 1;
         public double autoLevelProbeZeroHeight = 0;
         public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
         public double autoLevelArcSliceLength = 0.01;

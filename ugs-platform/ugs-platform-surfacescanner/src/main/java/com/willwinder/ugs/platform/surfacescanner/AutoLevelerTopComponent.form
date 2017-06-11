@@ -6,11 +6,11 @@
     </Component>
   </NonVisualComponents>
   <AuxValues>
-    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
     <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="true"/>
-    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
@@ -27,7 +27,7 @@
               <Component id="jPanel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jPanel2" min="-2" max="-2" attributes="0"/>
-              <EmptySpace pref="179" max="32767" attributes="0"/>
+              <EmptySpace pref="1519" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -52,14 +52,14 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="xLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
                               <Component id="minLabel" min="-2" max="-2" attributes="0"/>
-                              <Component id="xMin" max="32767" attributes="0"/>
+                              <Component id="xMin" pref="106" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
@@ -70,17 +70,17 @@
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="yLabel" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="yMin" min="-2" pref="80" max="-2" attributes="0"/>
+                          <Component id="yMin" max="32767" attributes="0"/>
                       </Group>
                   </Group>
-                  <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <EmptySpace type="unrelated" min="-2" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="maxLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                      <Component id="yMax" alignment="0" max="32767" attributes="0"/>
+                      <Component id="yMax" alignment="0" pref="107" max="32767" attributes="0"/>
                       <Component id="xMax" alignment="0" max="32767" attributes="0"/>
                       <Component id="zMax" alignment="0" max="32767" attributes="0"/>
                   </Group>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -131,36 +131,31 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="minLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.minLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Min"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="xLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.xLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="X"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="yLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.yLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Y"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="zLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.zLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Z"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="zMin">
           <Properties>
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
+            </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
             </Property>
           </Properties>
         </Component>
@@ -169,6 +164,9 @@
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
             </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
+            </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="xMin">
@@ -176,19 +174,23 @@
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
             </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
+            </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JLabel" name="maxLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.maxLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Max"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="xMax">
           <Properties>
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
+            </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
             </Property>
           </Properties>
         </Component>
@@ -197,12 +199,18 @@
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
             </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
+            </Property>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="zMax">
           <Properties>
             <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
               <SpinnerModel initial="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
+            </Property>
+            <Property name="size" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[33, 26]"/>
             </Property>
           </Properties>
         </Component>
@@ -266,9 +274,7 @@
       <SubComponents>
         <Component class="javax.swing.JLabel" name="resolutionLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.resolutionLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Resolution:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="stepResolution">
@@ -280,9 +286,7 @@
         </Component>
         <Component class="javax.swing.JLabel" name="zSurfaceLabel">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.zSurfaceLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Z Surface:"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JSpinner" name="zSurface">
@@ -294,9 +298,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="dataViewer">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.dataViewer.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="View Data"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dataViewerActionPerformed"/>
@@ -304,9 +306,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="settingsButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.settingsButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Settings"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="settingsButtonActionPerformed"/>
@@ -314,9 +314,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="generateTestDataButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.generateTestDataButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Generate Test Data"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateTestDataButtonActionPerformed"/>
@@ -368,9 +366,7 @@
       <SubComponents>
         <Component class="javax.swing.JButton" name="scanSurfaceButton">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.scanSurfaceButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Scan Surface"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="scanSurfaceButtonActionPerformed"/>
@@ -378,9 +374,7 @@
         </Component>
         <Component class="javax.swing.JButton" name="applyToGcode">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.applyToGcode.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Apply to Gcode"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="applyToGcodeActionPerformed"/>
@@ -392,9 +386,7 @@
               <ComponentRef name="unitGroup"/>
             </Property>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.unitMM.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="mm"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JRadioButton" name="unitInch">
@@ -402,16 +394,12 @@
             <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
               <ComponentRef name="unitGroup"/>
             </Property>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.unitInch.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="inch"/>
           </Properties>
         </Component>
         <Component class="javax.swing.JButton" name="useLoadedFile">
           <Properties>
-            <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="com/willwinder/ugs/platform/surfacescanner/Bundle.properties" key="AutoLevelerTopComponent.useLoadedFile.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-            </Property>
+            <Property name="text" type="java.lang.String" value="Use Loaded File"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="useLoadedFileActionPerformed"/>
