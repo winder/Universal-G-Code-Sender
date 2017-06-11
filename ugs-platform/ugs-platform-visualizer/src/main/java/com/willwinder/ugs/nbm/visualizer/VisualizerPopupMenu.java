@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -47,21 +48,29 @@ public class VisualizerPopupMenu extends JPopupMenu {
             new DecimalFormat("#.#####", Localization.dfs);
 
     public VisualizerPopupMenu(BackendAPI backend) {
+        jogToHereAction = new JogToHereAction(backend);
+
+        jogToHere.setText(String.format(Localization.getString("platform.visualizer.jogToHere"), 0, 0));
+
+        jogToHere.setAction(jogToHereAction);
+    }
+
+    @Override
+    public void show(Component invoker, int x, int y) {
         IRenderableRegistrationService renderableService =
                 Lookup.getDefault().lookup(IRenderableRegistrationService.class);
         Collection<Renderable> renderables = renderableService.getRenderables();
+
+        this.removeAll();
 
         for (Renderable r : renderables) {
             JRenderableCheckBox box = new JRenderableCheckBox(r);
             add(box);
         }
 
-        jogToHereAction = new JogToHereAction(backend);
-
-        jogToHere.setText(String.format(Localization.getString("platform.visualizer.jogToHere"), 0, 0));
-
-        jogToHere.setAction(jogToHereAction);
         add(jogToHere);
+
+        super.show(invoker, x, y);
     }
 
     public void setJogLocation(double x, double y) {

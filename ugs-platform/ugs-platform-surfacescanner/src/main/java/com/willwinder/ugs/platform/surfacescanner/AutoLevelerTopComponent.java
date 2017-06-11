@@ -86,7 +86,7 @@ import org.openide.util.NbBundle.Messages;
     "HINT_AutoLevelerTopComponent=This is a AutoLeveler window"
 })
 public final class AutoLevelerTopComponent extends TopComponent implements ItemListener, ChangeListener, UGSEventListener {
-    private static final Boolean TEST = true;
+    private static final Boolean TEST = false;
 
     private final BackendAPI backend;
     private final Settings settings;
@@ -560,13 +560,13 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         gcp.addCommandProcessor(new CommandSplitter());
 
         // Step 2: Must convert arcs to line segments.
-        gcp.addCommandProcessor(new ArcExpander(true, 0.5));//autoLevelSettings.autoLevelArcSliceLength));
+        gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
 
-        // Step 3: Line splitter. No line should be longer than "resolution" or maybe even "resolution/4"
+        // Step 3: Line splitter. No line should be longer than some fraction of "resolution"
         gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
 
         // Step 4: Adjust Z heights codes based on mesh offsets.
-            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid(), scanner.getUnits()));
+        gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid(), scanner.getUnits()));
 
         try {
             backend.applyGcodeParser(gcp);
