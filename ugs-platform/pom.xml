@@ -69,6 +69,7 @@
         <module>ugs-platform-visualizer</module>
         <module>ugs-platform-plugin-workflow</module>
         <module>ugs-platform-gcode-editor</module>
+        <module>ugs-platform-surfacescanner</module>
     </modules>
 
     <properties>

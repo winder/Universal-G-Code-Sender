@@ -29,13 +29,17 @@ import javax.vecmath.Point3d;
  */
 public abstract class Renderable implements Comparable<Renderable> {
     Integer priority;
+    Boolean enabled;
+    String title;
 
     /**
      * Construct with a priority number. Objects should be rendered from highest
      * to lowest priority;
      */
-    public Renderable(int priority) {
+    public Renderable(int priority, String title) {
+        this.title = title;
         this.priority = priority;
+        this.enabled = true;
     }
 
     @Override
@@ -48,12 +52,24 @@ public abstract class Renderable implements Comparable<Renderable> {
 
     @Override
     public int hashCode() {
-        return priority.hashCode();
+        return this.priority.hashCode();
     }
 
     @Override
     public int compareTo(Renderable o) {
-        return -1 * priority.compareTo(o.priority);
+        return -1 * this.priority.compareTo(o.priority);
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    public String getTitle() {
+        return this.title;
     }
 
     /**

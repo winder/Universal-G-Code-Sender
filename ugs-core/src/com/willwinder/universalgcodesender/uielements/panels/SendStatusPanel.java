@@ -173,7 +173,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                     numRows = gsr.getNumRows();
                     System.out.println("NUM ROWS: " + numRows);
                 }
-            } catch (IOException ex) {}
+            } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex) {}
         }
         // Reset labels
         String totalRows =  String.valueOf(numRows);

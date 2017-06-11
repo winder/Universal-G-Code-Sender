@@ -99,6 +99,12 @@ public class LocalizingService {
     public final static String ProbeActionId = "com.willwinder.ugs.nbp.control.ProbeTopComponent";
     public final static String ProbeCategory = "Window";
 
+    public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
+    public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
+    public final static String AutoLevelerWindowPath = "Menu/Window/Plugins";
+    public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
+    public final static String AutoLevelerCategory = "Window";
+
     public final static String StartTitle = Localization.getString("mainWindow.swing.sendButton", lang);
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
     public final static String StartWindowPath = "Menu/Machine";
@@ -172,5 +178,6 @@ public class LocalizingService {
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
         ars.overrideActionName(VisualizerCategory, VisualizerActionId, VisualizerTitle);
         ars.overrideActionName(ProbeCategory, ProbeActionId, ProbeTitle);
+        ars.overrideActionName(AutoLevelerCategory, AutoLevelerActionId, AutoLevelerTitle);
     }
 }

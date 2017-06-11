@@ -43,8 +43,8 @@ public class OrientationCube extends Renderable {
   private TextRenderer renderer;
   private float textScaleFactor;
 
-  public OrientationCube(float s) {
-    super(Integer.MIN_VALUE);  
+  public OrientationCube(float s, String title) {
+    super(Integer.MIN_VALUE, title);  
     size = s;
   }
 
@@ -195,5 +195,7 @@ public class OrientationCube extends Renderable {
                     layer2,
                     textScaleFactor);
     renderer.end3DRendering();
+    gl.glDisable(GL_CULL_FACE);
+    gl.glEnable(GL_DEPTH_TEST);
   }
 }

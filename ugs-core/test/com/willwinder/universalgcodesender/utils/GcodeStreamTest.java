@@ -1,5 +1,5 @@
 /*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,17 +19,14 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStream;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 
 /**
@@ -68,11 +65,21 @@ public class GcodeStreamTest {
         FileUtils.forceDelete(tempDir);
     }
 
+    @Test(expected=GcodeStreamReader.NotGcodeStreamFile.class)
+    public void testNotGcodeStream() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
+        File f = new File(tempDir,"gcodeFile");
+        try (PrintWriter writer = new PrintWriter(f)) {
+            writer.println("invalid format");
+        }
+       
+        new GcodeStreamReader(f);
+    }
+
     /**
      * Writes 1,000,000 rows to a file then reads it back out.
      */
     @Test
-    public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException {
+    public void testGcodeStreamReadWrite() throws FileNotFoundException, IOException, GcodeStreamReader.NotGcodeStreamFile {
         int rows = 1000000;
         File f = new File(tempDir,"gcodeFile");
         try {

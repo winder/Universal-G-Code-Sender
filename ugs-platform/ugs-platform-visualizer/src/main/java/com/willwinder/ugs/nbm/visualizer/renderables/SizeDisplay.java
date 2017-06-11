@@ -26,6 +26,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_SIZE;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -48,8 +49,8 @@ public class SizeDisplay extends Renderable {
     private float[] color;
     private boolean textRendererDirty = true;
 
-    public SizeDisplay() {
-        super(3);
+    public SizeDisplay(String title) {
+        super(3, title);
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -59,7 +60,7 @@ public class SizeDisplay extends Renderable {
 
     @Override
     final public void reloadPreferences(VisualizerOptions vo) {
-        color = VisualizerOptions.colorToFloatArray((Color) vo.getOptionForKey("platform.visualizer.color.sizedisplay").value);
+        color = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_SIZE).value);
         textRendererDirty = true;
     }
 

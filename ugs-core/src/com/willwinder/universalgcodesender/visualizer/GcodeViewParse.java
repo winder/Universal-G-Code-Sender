@@ -110,8 +110,8 @@ public class GcodeViewParse {
      */
     private static GcodeParser getParser(double arcSegmentLength) {
         GcodeParser gp = new GcodeParser();
-        gp.addCommandProcessor(new WhitespaceProcessor());
         gp.addCommandProcessor(new CommentProcessor());
+        gp.addCommandProcessor(new WhitespaceProcessor());
         gp.addCommandProcessor(new CommandSplitter());
         //gp.addCommandProcessor(new ArcExpander(true, arcSegmentLength, 4));
         return gp;

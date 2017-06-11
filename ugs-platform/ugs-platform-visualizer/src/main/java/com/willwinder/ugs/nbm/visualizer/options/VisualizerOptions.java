@@ -29,6 +29,35 @@ import org.openide.util.NbPreferences;
  * @author wwinder
  */
 public class VisualizerOptions extends ArrayList<Option> {
+    // GcodeRenderer clear color
+    public static String VISUALIZER_OPTION_BG = "platform.visualizer.color.background";
+
+    // Tool renderable
+    public static String VISUALIZER_OPTION_TOOL = "platform.visualizer.color.tool";
+
+    // GcodeModel renderable
+    public static String VISUALIZER_OPTION_LINEAR = "platform.visualizer.color.linear";
+    public static String VISUALIZER_OPTION_RAPID = "platform.visualizer.color.rapid";
+    public static String VISUALIZER_OPTION_ARC = "platform.visualizer.color.arc";
+    public static String VISUALIZER_OPTION_PLUNGE = "platform.visualizer.color.plunge";
+    public static String VISUALIZER_OPTION_COMPLETE = "platform.visualizer.color.completed";
+
+    // Highlight renderable
+    public static String VISUALIZER_OPTION_HIGHLIGHT = "platform.visualizer.color.highlight";
+
+    // Grid renderable
+    public static String VISUALIZER_OPTION_XY_GRID = "platform.visualizer.color.xy-grid";
+    public static String VISUALIZER_OPTION_XY_PLANE = "platform.visualizer.color.xy-plane";
+    public static String VISUALIZER_OPTION_X = "platform.visualizer.color.x-axis";
+    public static String VISUALIZER_OPTION_Y = "platform.visualizer.color.y-axis";
+    public static String VISUALIZER_OPTION_Z = "platform.visualizer.color.z-axis";
+   
+    // SizeDisplay renderable
+    public static String VISUALIZER_OPTION_SIZE = "platform.visualizer.color.sizedisplay";
+
+    // Autoleveler surface mesh
+    public static String VISUALIZER_OPTION_HIGH = "platform.visualizer.color.surface.high";
+    public static String VISUALIZER_OPTION_LOW = "platform.visualizer.color.surface.low";
 
     public class ColorPref {
         public String preference;
@@ -44,38 +73,41 @@ public class VisualizerOptions extends ArrayList<Option> {
 
     public VisualizerOptions() {
         // GcodeRenderer clear color
-        add(getOption("platform.visualizer.color.background", "", new Color(220,235,255)));
+        add(getOption(VISUALIZER_OPTION_BG, "", new Color(220,235,255)));
 
         // Tool renderable
-        add(getOption("platform.visualizer.color.tool", "", new Color(237,255,0)));
+        add(getOption(VISUALIZER_OPTION_TOOL, "", new Color(237,255,0)));
 
         // GcodeModel renderable
-        add(getOption("platform.visualizer.color.linear", "", new Color(0,0,158)));
-        add(getOption("platform.visualizer.color.rapid", "", new Color(204,204,0)));
-        add(getOption("platform.visualizer.color.arc", "", new Color(178,34,34)));
-        add(getOption("platform.visualizer.color.plunge", "", new Color(0,100,0)));
-        add(getOption("platform.visualizer.color.completed", "", new Color(190,190,190)));
+        add(getOption(VISUALIZER_OPTION_LINEAR, "", new Color(0,0,158)));
+        add(getOption(VISUALIZER_OPTION_RAPID, "", new Color(204,204,0)));
+        add(getOption(VISUALIZER_OPTION_ARC, "", new Color(178,34,34)));
+        add(getOption(VISUALIZER_OPTION_PLUNGE, "", new Color(0,100,0)));
+        add(getOption(VISUALIZER_OPTION_COMPLETE, "", new Color(190,190,190)));
 
         // Highlight renderable
-        add(getOption("platform.visualizer.color.highlight", "", new Color(237,255,0)));
+        add(getOption(VISUALIZER_OPTION_HIGHLIGHT, "", new Color(237,255,0)));
 
         // Grid renderable
-        add(getOption("platform.visualizer.color.xy-grid", "", new Color(179,179,179)));
-        add(getOption("platform.visualizer.color.xy-plane", "", new Color(77,77,77,29)));
-        add(getOption("platform.visualizer.color.x-axis", "", new Color(230,0,0)));
-        add(getOption("platform.visualizer.color.y-axis", "", new Color(0,0,230)));
-        add(getOption("platform.visualizer.color.z-axis", "", new Color(0,230,0)));
+        add(getOption(VISUALIZER_OPTION_XY_GRID, "", new Color(179,179,179)));
+        add(getOption(VISUALIZER_OPTION_XY_PLANE, "", new Color(77,77,77,29)));
+        add(getOption(VISUALIZER_OPTION_X, "", new Color(230,0,0)));
+        add(getOption(VISUALIZER_OPTION_Y, "", new Color(0,0,230)));
+        add(getOption(VISUALIZER_OPTION_Z, "", new Color(0,230,0)));
        
         // SizeDisplay renderable
-        add(getOption("platform.visualizer.color.sizedisplay", "", new Color(128,128,128)));
+        add(getOption(VISUALIZER_OPTION_SIZE, "", new Color(128,128,128)));
 
+        // Autoleveler surface mesh
+        add(getOption(VISUALIZER_OPTION_HIGH, "", new Color(0, 255, 0, 128)));
+        add(getOption(VISUALIZER_OPTION_LOW, "", new Color(255, 0, 0, 128)));
     }
 
-    private Option getOption(String op, String desc, Color def) {
+    private Option<Color> getOption(String op, String desc, Color def) {
         return new Option<>(op, Localization.getString(op), desc, getColorOption(op, def));
     }
 
-    public Option getOptionForKey(String key) {
+    public Option<Color> getOptionForKey(String key) {
         for (Option op : this) {
             if (op.option.equals(key)) {
                 return op;

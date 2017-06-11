@@ -2072,7 +2072,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                         try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                             resetSentRowLabels(gsr.getNumRows());
                         }
-                    } catch (IOException ex) {}
+                    } catch (IOException | GcodeStreamReader.NotGcodeStreamFile ex) {}
                     break;
                 default:
                     break;

@@ -7,7 +7,7 @@
  * Created on Jan 7, 2016
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,13 +26,13 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
 
 /**
  *
@@ -52,6 +52,32 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
 
     private String getString(String str) {
         return str == null ? "" : str.trim();
+    }
+
+    public void addLine(GcodeCommand command) {
+        lineCount++;
+        String sep = "";
+        for (int i = 0; i < NUM_COLUMNS; i++) {
+            fileWriter.append(sep);
+            switch (i) {
+                case COL_ORIGINAL_COMMAND:
+                    fileWriter.append(command.getOriginalCommandString());
+                    break;
+                case COL_PROCESSED_COMMAND:
+                    fileWriter.append(command.getCommandString());
+                    break;
+                case COL_COMMENT:
+                    fileWriter.append(command.getComment());
+                    break;
+                case COL_COMMAND_NUMBER:
+                    fileWriter.append(Integer.toString(command.getCommandNumber()));
+                    break;
+                default:
+                    break;
+            }
+            sep = separator;
+        }
+        fileWriter.append("\n");
     }
 
     public void addLine(String original, String processed, String comment, int commandNumber) {
@@ -89,13 +115,13 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
     @Override
     public void close() throws IOException {
         fileWriter.close();
-        RandomAccessFile raw = new RandomAccessFile(file, "rw");
-        raw.seek(0);
-        String count = lineCount.toString();
-        if (count.length() > metadataReservedSize.length()) {
-            throw new IOException("Too many lines in GcodeStreamWriter!");
+        try (RandomAccessFile raw = new RandomAccessFile(file, "rw")) {
+            raw.seek(0);
+            String metadata = "gsw_meta:" + lineCount.toString();
+            if (metadata.length() > metadataReservedSize.length()) {
+                throw new IOException("Too many lines to write metadata for GcodeStreamWriter!");
+            }
+            raw.write(metadata.getBytes(), 0, metadata.length());
         }
-        raw.write(count.toString().getBytes(), 0, count.length());
-        raw.close();
     }
 }

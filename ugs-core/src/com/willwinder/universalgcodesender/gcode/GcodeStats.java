@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,23 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.options;
+package com.willwinder.universalgcodesender.gcode;
 
-import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
-import com.willwinder.universalgcodesender.uielements.IChanged;
-import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
  * @author wwinder
  */
-public class UGSConnectionOptionsPanel extends UGSOptionsPanel {
-    public UGSConnectionOptionsPanel(AbstractOptionsPanelController controller) {
-        super(controller);
-    }
-
-    @Override
-    protected AbstractUGSSettings initPanel(IChanged changer) {
-        return new ConnectionSettingsPanel(settings, changer);
-    }
+public interface GcodeStats {
+    public Position getMin();
+    public Position getMax();
+    public long getCommandCount();
 }

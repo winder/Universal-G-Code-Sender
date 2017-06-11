@@ -2,7 +2,7 @@
  * The current state of a gcode program.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copywrite 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -53,6 +53,5 @@ public class GcodeState {
     public String lastGcodeCommand = "";
     public Point3d currentPoint = null;
     public double speed = 0;
-    //PointSegment currentPoint = null;
     public int commandNumber = 0;
 }

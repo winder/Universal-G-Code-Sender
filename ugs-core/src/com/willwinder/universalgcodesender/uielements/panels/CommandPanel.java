@@ -85,6 +85,8 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         menu.add(showVerboseMenuItem);
         menu.add(scrollWindowMenuItem);
         setComponentPopupMenu(menu);
+        consoleTextArea.setComponentPopupMenu(menu);
+        commandTextField.setComponentPopupMenu(menu);
 
         setLayout(new MigLayout("inset 0 0 5 0, fill, wrap 1", "", "[][min!]"));
         add(scrollPane, "grow, growy");

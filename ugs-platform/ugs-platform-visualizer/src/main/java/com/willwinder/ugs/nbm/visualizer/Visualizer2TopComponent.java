@@ -35,6 +35,8 @@ import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
@@ -62,6 +64,7 @@ public final class Visualizer2TopComponent extends TopComponent {
     private GLJPanel panel;
     private GcodeRenderer renderer;
     private FPSAnimator animator;
+    private RendererInputHandler rih;
     private final BackendAPI backend;
     
     public Visualizer2TopComponent() {
@@ -113,45 +116,48 @@ public final class Visualizer2TopComponent extends TopComponent {
         final GLJPanel p = new GLJPanel(caps);
 
         renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-        //renderer = new GcodeRenderer();
+        if (renderer == null) {
+            throw new IllegalArgumentException("Failed to access GcodeRenderer.");
+        }
         
         animator = new FPSAnimator(p, 15);
-        RendererInputHandler rih = new RendererInputHandler(renderer, animator,
-                new VisualizerPopupMenu(backend));
+        this.rih = new RendererInputHandler(renderer, animator,
+                new VisualizerPopupMenu(backend),
+                backend.getSettings());
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
-        pref.addPreferenceChangeListener(rih);
+        pref.addPreferenceChangeListener(this.rih);
 
         if (backend.getProcessedGcodeFile() != null) {
-            rih.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
+            this.rih.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
         } else if (backend.getGcodeFile() != null) {
-            rih.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
+            this.rih.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
         }
 
         // Install listeners...
 
         EventBus eb = Lookup.getDefault().lookup(HighlightEventBus.class);
         if (eb != null) {
-            eb.register(rih);
+            eb.register(this.rih);
         }
 
-        backend.addControllerListener(rih);
-        backend.addUGSEventListener(rih);
+        backend.addControllerListener(this.rih);
+        backend.addUGSEventListener(this.rih);
 
         // shutdown hook...
-        //frame.addWindowListener(rih);
+        //frame.addWindowListener(this.rih);
 
         // key listener...
-        p.addKeyListener(rih);
+        p.addKeyListener(this.rih);
 
         // mouse wheel...
-        p.addMouseWheelListener(rih);
+        p.addMouseWheelListener(this.rih);
 
         // mouse motion...
-        p.addMouseMotionListener(rih);
+        p.addMouseMotionListener(this.rih);
 
         // mouse...
-        p.addMouseListener(rih);
+        p.addMouseListener(this.rih);
 
         p.addGLEventListener((GLEventListener) renderer);
 

@@ -29,12 +29,16 @@ import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -65,17 +69,19 @@ public class RendererInputHandler implements
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
     private final VisualizerPopupMenu visualizerPopupMenu;
+    private Settings settings;
 
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
-            VisualizerPopupMenu popup) {
+            VisualizerPopupMenu popup, Settings s) {
         gcodeRenderer = gr;
         animator = a;
         visualizerPopupMenu = popup;
+        settings = s;
 
-        gcodeModel = new GcodeModel();
-        highlight = new Highlight(gcodeModel);
-        sizeDisplay = new SizeDisplay();
-        selection = new Selection();
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
+        highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
+        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
+        selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(highlight);
@@ -97,11 +103,26 @@ public class RendererInputHandler implements
     public void setGcodeFile(String file) {
         gcodeModel.setGcodeFile(file);
         gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
+
+        updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
     }
 
     public void setProcessedGcodeFile(String file) {
         gcodeModel.setProcessedGcodeFile(file);
         gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
+
+        updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
+    }
+
+    /**
+     * Pass new bounds (after interpolating arcs) in case of weird arcs.
+     */
+    private void updateBounds(Point3d min, Point3d max) {
+        // Update bounds.
+        FileStats fs = settings.getFileStats();
+        fs.minCoordinate = new Position(min.x, min.y, min.z, Units.MM);
+        fs.maxCoordinate = new Position(max.x, max.y, max.z, Units.MM);
+        settings.setFileStats(fs);
     }
 
     /**

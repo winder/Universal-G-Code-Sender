@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -74,6 +75,52 @@ public class Settings {
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
     private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
+
+    public static class AutoLevelSettings {
+        public boolean equals(AutoLevelSettings obj) {
+            return
+                    this.autoLevelFeedRate == obj.autoLevelFeedRate &&
+                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
+                    this.autoLevelProbeOffset == obj.autoLevelProbeOffset &&
+                    this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
+                    this.stepResolution == obj.stepResolution &&
+                    this.probeSpeed == obj.probeSpeed &&
+                    this.zSurface == obj.zSurface;
+        }
+
+        // Setting window
+        public double autoLevelFeedRate = 1;
+        public double autoLevelProbeZeroHeight = 0;
+        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
+        public double autoLevelArcSliceLength = 0.01;
+
+        // Main window
+        public double stepResolution = 10;
+        public double probeSpeed = 10;
+        public double zSurface = 0;
+    }
+
+    public static class FileStats {
+        public Position minCoordinate;
+        public Position maxCoordinate;
+        long numCommands;
+
+        public FileStats() {
+            this.minCoordinate = new Position(0, 0, 0, Units.MM);
+            this.maxCoordinate = new Position(0, 0, 0, Units.MM);
+            this.numCommands = 0;
+        }
+
+        public FileStats(Position min, Position max, long num) {
+            this.minCoordinate = min;
+            this.maxCoordinate = max;
+            this.numCommands = num;
+        }
+    }
+
+    AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
+
+    FileStats fileStats = new FileStats();
 
     //vvv deprecated fields, still here to not break the old save files
     // Transient, don't serialize or deserialize.
@@ -296,6 +343,13 @@ public class Settings {
         changed();
     }
         
+    public Units getPreferredUnits() {
+        Units u = Units.getUnit(defaultUnits);
+
+        return (u == null) ? Units.MM : u;
+    }
+
+    @Deprecated
     public String getDefaultUnits() {
         if (Units.getUnit(defaultUnits) == null) {
             return Units.MM.abbreviation;
@@ -442,5 +496,25 @@ public class Settings {
     public void setProbeOffset(double probeOffset) {
         this.probeOffset = probeOffset;
         changed();
+    }
+
+    public void setAutoLevelSettings(AutoLevelSettings settings) {
+        if (! settings.equals(this.autoLevelSettings)) {
+            this.autoLevelSettings = settings;
+            changed();
+        }
+    }
+
+    public AutoLevelSettings getAutoLevelSettings() {
+        return this.autoLevelSettings;
+    }
+
+    public void setFileStats(FileStats settings) {
+        this.fileStats = settings;
+        changed();
+    }
+
+    public FileStats getFileStats() {
+        return this.fileStats;
     }
 }

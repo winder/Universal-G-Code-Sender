@@ -23,6 +23,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -35,6 +36,19 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     public void setTempDir(File file) throws IOException;
     public void applySettings(Settings settings) throws Exception;
 
+    /**
+     * Modify the currently processed gcode with a provided gcode parser.
+     * This can be used for post-processing tasks like rotating a gcode file.
+     * @param gcp externally configured gcode parser.
+     * @throws Exception 
+     */
+    public void applyGcodeParser(GcodeParser gcp) throws Exception;
+
+    /**
+     * Process the currently loaded gcode file and export it to a file.
+     * Intended primarily as "save and export" style preprocessor option.
+     * @param f location to export processed gcode
+     */
     public void preprocessAndExportToFile(File f) throws Exception;
     
     // Control options

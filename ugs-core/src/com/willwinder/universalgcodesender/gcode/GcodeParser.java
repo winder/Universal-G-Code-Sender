@@ -31,6 +31,7 @@ package com.willwinder.universalgcodesender.gcode;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
@@ -46,23 +47,32 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    // Last two commands.
-    private PointSegment latest;
-    private PointSegment secondLatest;
-
     private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
 
+    private Stats statsProcessor;
 
     /**
      * An intermediate object with all metadata for a given point.
      */
     public static class GcodeMeta {
+        /**
+         * The original command represented by this meta object.
+         */
         public String command;
 
-        // Gcode state after processing the command.
+        /**
+         * Gcode command in line.
+         */
+        public String code;
+
+        /**
+         * Gcode state after processing the command.
+         */
         public GcodeState state;
 
-        // PointSegments represent the endpoint of a given command.
+        /**
+         * PointSegments represent the endpoint of a given command.
+         */
         public PointSegment point;
     }
     
@@ -96,16 +106,16 @@ public class GcodeParser implements IGcodeParser {
     @Override
     public void resetCommandProcessors() {
         this.processors.clear();
+        this.statsProcessor = new Stats();
     }
 
     /**
      * Resets the current state.
      */
     public void reset() {
+        this.statsProcessor = new Stats();
         this.state.currentPoint = new Point3d();
         this.state.commandNumber = -1;
-        latest = new PointSegment(this.state.currentPoint, -1);
-        secondLatest = null;
     }
     
     /**
@@ -122,6 +132,7 @@ public class GcodeParser implements IGcodeParser {
      */
     @Override
     public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
+        statsProcessor.processCommand(command, state);
         List<PointSegment> results = new ArrayList<>();
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
@@ -131,15 +142,14 @@ public class GcodeParser implements IGcodeParser {
             for (GcodeMeta c : metaObjects) {
                 if (c.point != null)
                     results.add(c.point);
-                if (c.state != null)
+                if (c.state != null) {
                     this.state = c.state;
+                    // Process stats.
+                    statsProcessor.processCommand(command, state);
+                }
             }
         }
 
-        for (PointSegment ps : results) {
-            secondLatest = latest;
-            latest = ps;
-        }
         return results;
     }
     
@@ -149,6 +159,11 @@ public class GcodeParser implements IGcodeParser {
     @Override
     public GcodeState getCurrentState() {
         return this.state;
+    }
+
+    @Override
+    public GcodeStats getCurrentStats() {
+        return statsProcessor;
     }
     
     /**
@@ -192,6 +207,12 @@ public class GcodeParser implements IGcodeParser {
         }
         
         return results;
+    }
+
+    private static PointSegment addProbePointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
+        PointSegment ps = addLinearPointSegment(nextPoint, fastTraverse, line, state);
+        ps.setIsProbe(true);
+        return ps;
     }
 
     /**
@@ -264,6 +285,8 @@ public class GcodeParser implements IGcodeParser {
         if (code.length() > 1 && code.startsWith("0"))
             code = code.substring(1);
 
+        meta.code = code;
+
         switch (code) {
             case "0":
                 meta.point = addLinearPointSegment(nextPoint, true, line, state);
@@ -313,6 +336,11 @@ public class GcodeParser implements IGcodeParser {
                 state.isMetric = true;
                 break;
 
+            // Probe
+            case "38.2":
+                meta.point = addProbePointSegment(nextPoint, true, line, state);
+                break;
+
             case "90":
                 state.inAbsoluteMode = true;
                 break;
@@ -337,19 +365,63 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Applies all command processors to a given command and returns the
      * resulting GCode. Does not change the parser state.
+     * 
+     * TODO: Rather than have a separate 'preprocessCommand' which needs to be
+     * followed up with calls to addCommand, it would be great to have addCommand
+     * also do the preprocessing. This is challenging because they have different
+     * return types.
+     * 
+     * This is also needed for some very particular processing in GUIBackend which
+     * gathers comments as a separate step outside the GcodeParser.
      */
     @Override
     public List<String> preprocessCommand(String command) throws GcodeParserException {
-        List<String> result = new ArrayList<>();
-        result.add(command);
+        List<String> ret = new ArrayList<>();
+        ret.add(command);
+        GcodeState tempState = null;
         for (ICommandProcessor p : processors) {
+            // Reset point segments after each pass. The final pass is what we will return.
+            tempState = this.state.copy();
             // Process each command in the list and add results to the end.
             // Don't re-process the results with the same preprocessor.
-            for (int i = result.size(); i > 0; i--) {
-                result.addAll(p.processCommand(result.remove(0), state));
+            for (int i = ret.size(); i > 0; i--) {
+                List<String> intermediate = p.processCommand(ret.remove(0), tempState);
+
+                // process results to update the state and collect PointSegments
+                for(String c : intermediate) {
+                    tempState = testState(c, tempState);
+                }
+
+                ret.addAll(intermediate);
             }
         }
 
-        return result;
+        // Now that we're done, update the state.
+        //this.state = tempState;
+        return ret;
+    }
+
+    /**
+     * Helper to statically process the next step in a program without modifying the parser.
+     */
+    static private GcodeState testState(String command, GcodeState state) {
+        GcodeState ret = state;
+        //List<PointSegment> results = new ArrayList<>();
+        // Add command get meta doesn't update the state, so we need to do that
+        // manually.
+        //List<String> processedCommands = this.preprocessCommand(command);
+        Collection<GcodeMeta> metaObjects = processCommand(command, 0, state);
+        if (metaObjects != null) {
+            for (GcodeMeta c : metaObjects) {
+                //if (c.point != null)
+                //    results.add(c.point);
+                if (c.state != null) {
+                    ret = c.state;
+                }
+            }
+        }
+
+        //return results;
+        return ret;
     }
 }

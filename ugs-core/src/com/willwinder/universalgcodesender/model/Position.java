@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,22 +18,24 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Objects;
 import javax.vecmath.Point3d;
+import javax.vecmath.Tuple3d;
 
 public class Position extends Point3d {
 
-    private final UnitUtils.Units units;
+    private final Units units;
 
     public Position() {
-        this.units = UnitUtils.Units.UNKNOWN;
+        this.units = Units.UNKNOWN;
     }
 
     public Position(Position other) {
         this(other.x, other.y, other.z, other.units);
     }
 
-    public Position(double x, double y, double z, UnitUtils.Units units) {
+    public Position(double x, double y, double z, Units units) {
         super(x, y, z);
         this.units = units;
     }
@@ -41,10 +43,27 @@ public class Position extends Point3d {
     @Override
     public boolean equals(final Object other) {
         if (other instanceof Position) {
-            Position o = (Position) other;
-            return x == o.x && y == o.y && z == o.z && units == o.units;
+            return equals((Position) other);
         }
         return false;
+    }
+
+    @Override
+    public boolean equals(final Tuple3d o) {
+        if (o instanceof Position) {
+            return super.equals(o) && units == ((Position)o).units;
+        }
+        return super.equals(o);
+    }
+
+    /**
+     * Check that the positions are the same ignoring units.
+     */
+    public boolean isSamePositionIgnoreUnits(final Position o) {
+        if (units != o.getUnits()) {
+            return equals(o.getPositionIn(units));
+        }
+        return equals(o);
     }
 
     @Override
@@ -54,11 +73,11 @@ public class Position extends Point3d {
         return hash;
     }
 
-    public UnitUtils.Units getUnits() {
+    public Units getUnits() {
         return units;
     }
 
-    public Position getPositionIn(UnitUtils.Units units) {
+    public Position getPositionIn(Units units) {
         double scale = UnitUtils.scaleUnits(this.units, units);
         return new Position(x*scale, y*scale, z*scale, units);
     }

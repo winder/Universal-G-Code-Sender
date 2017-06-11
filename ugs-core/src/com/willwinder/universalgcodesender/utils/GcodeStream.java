@@ -7,7 +7,7 @@
  * Created on Jan 7, 2016
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -42,4 +42,5 @@ public abstract class GcodeStream {
 
     protected final String separator = "++";
     protected final Pattern splitPattern = Pattern.compile(Pattern.quote(separator));
+    protected final String metaPrefix = "gsw_meta:";
 }

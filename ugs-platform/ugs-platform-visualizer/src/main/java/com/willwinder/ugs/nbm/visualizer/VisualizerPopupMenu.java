@@ -18,18 +18,23 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.ugs.nbm.visualizer.shared.IRenderableRegistrationService;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
-import java.util.logging.Level;
+import java.util.Collection;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -48,7 +53,24 @@ public class VisualizerPopupMenu extends JPopupMenu {
         jogToHere.setText(String.format(Localization.getString("platform.visualizer.jogToHere"), 0, 0));
 
         jogToHere.setAction(jogToHereAction);
+    }
+
+    @Override
+    public void show(Component invoker, int x, int y) {
+        IRenderableRegistrationService renderableService =
+                Lookup.getDefault().lookup(IRenderableRegistrationService.class);
+        Collection<Renderable> renderables = renderableService.getRenderables();
+
+        this.removeAll();
+
+        for (Renderable r : renderables) {
+            JRenderableCheckBox box = new JRenderableCheckBox(r);
+            add(box);
+        }
+
         add(jogToHere);
+
+        super.show(invoker, x, y);
     }
 
     public void setJogLocation(double x, double y) {
@@ -83,6 +105,26 @@ public class VisualizerPopupMenu extends JPopupMenu {
             } catch (Exception ex) {
                 //logger.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
                 GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+            }
+        }
+    }
+
+    private class JRenderableCheckBox extends JCheckBox implements ItemListener {
+        private Renderable r;
+
+        public JRenderableCheckBox(Renderable r) {
+            super(r.getTitle(), r.isEnabled());
+            this.r = r;
+
+            this.addItemListener(this);
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent ie) {
+            if (ie.getStateChange() == ItemEvent.SELECTED) {
+                r.setEnabled(true);
+            } else if (ie.getStateChange() == ItemEvent.DESELECTED) {
+                r.setEnabled(false);
             }
         }
     }

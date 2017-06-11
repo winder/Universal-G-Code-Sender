@@ -2,7 +2,7 @@
  * Abstract settings class with helper widgets, and change detection.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -55,6 +55,9 @@ public abstract class AbstractUGSSettings extends JPanel {
     public abstract void save();
     public abstract String getHelpMessage();
     public abstract void restoreDefaults() throws Exception;
+
+    // not sure when we'd use this so defaulting to true.
+    public boolean settingsValid() { return true; }
 
     protected void change() {
         if (changer != null) changer.changed();

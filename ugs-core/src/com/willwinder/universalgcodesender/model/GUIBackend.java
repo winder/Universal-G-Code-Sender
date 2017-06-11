@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -52,13 +53,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Robot;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -146,12 +150,56 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     //////////////////
     // GUI API
     //////////////////
-    
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
+        preprocessAndExportToFile(this.gcp, this.getGcodeFile(), f);
+    }
+    
+    /**
+     * Special utility to loop over a gcode file and apply any modifications made by a gcode parser. The results are
+     * stored in a GcodeStream formatted file.
+     * Additional rules:
+     * * Comment lines are left
+     */
+    protected void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
         gcp.reset();
-        try(BufferedReader br = new BufferedReader(new FileReader(this.getGcodeFile()))) {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(f)) {
+
+        // Preprocess a GcodeStream file.
+        try (GcodeStreamReader gsr = new GcodeStreamReader(input)) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
+                int i = 0;
+                while (gsr.getNumRowsRemaining() > 0) {
+                    i++;
+                    if (i % 1000000 == 0) {
+                        logger.log(Level.FINE, "i: " + i);
+                    }
+
+                    GcodeCommand gc = gsr.getNextCommand();
+
+                    if (StringUtils.isEmpty(gc.getCommandString())) {
+                        gsw.addLine(gc);
+                    }
+                    else {
+                        // Parse the gcode for the buffer.
+                        Collection<String> lines = gcp.preprocessCommand(gc.getCommandString());
+
+                        for(String processedLine : lines) {
+                            gsw.addLine(gc.getOriginalCommandString(), processedLine, gc.getComment(), i);
+                            gcp.addCommand(processedLine);
+                        }
+                    }
+                }
+
+                // Done processing GcodeStream file.
+                return;
+            }
+        } catch (GcodeStreamReader.NotGcodeStreamFile ex) {
+            // File exists, but isn't a stream reader. So go ahead and try parsing it as a raw gcode file.
+        }
+
+        // Preprocess a regular gcode file.
+        try(BufferedReader br = new BufferedReader(new FileReader(input))) {
+            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
                 int i = 0;
                 for(String line; (line = br.readLine()) != null; ) {
                     i++;
@@ -162,7 +210,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     // Parse the gcode for the buffer.
                     Collection<String> lines = gcp.preprocessCommand(line);
 
-                    // If it is a comment-only line, add the comment,
+                    // If it is a comment-only line, add the comment.
                     if (!comment.isEmpty() && lines.isEmpty()) {
                         gsw.addLine(line, "", comment, i);
                     }
@@ -346,8 +394,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * This allows us to visualize a file without loading a controller profile.
      */
     private static void initializeWithFallbackProcessors(GcodeParser parser) {
-        parser.addCommandProcessor(new WhitespaceProcessor());
+        // Comment processor must come first otherwise we try to parse codes
+        // out of the comments, like an f-code when we see "(feed rate is 100)"
         parser.addCommandProcessor(new CommentProcessor());
+        parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new CommandSplitter());
         parser.addCommandProcessor(new DecimalProcessor(4));
@@ -363,9 +413,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         systemStateBean.setActiveState(activeState);
         systemStateBean.setControlState(controlState);
         if (this.machineCoord != null) {
-            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.getX()));
-            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.getY()));
-            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.getZ()));
+            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.x));
+            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.y));
+            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.z));
         }
         if (this.controller != null) {
             systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
@@ -486,7 +536,22 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADING,
                 file.getAbsolutePath()), false);
 
-        initializeProcessedLines(true);
+        initializeProcessedLines(true, this.gcodeFile, this.gcp);
+
+        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
+                processedGcodeFile.getAbsolutePath()), false);
+    }
+
+    @Override
+    public void applyGcodeParser(GcodeParser parser) throws Exception {
+        logger.log(Level.INFO, "Applying new parser filters.");
+
+        if (this.processedGcodeFile == null) {
+            return;
+        }
+
+        // re-initialize starting with the already processed file.
+        initializeProcessedLines(true, this.processedGcodeFile, parser);
 
         this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
@@ -884,7 +949,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         try {
             connected = controller.openCommPort(port, baudRate);
             
-            this.initializeProcessedLines(false);
+            this.initializeProcessedLines(false, this.gcodeFile, this.gcp);
         } catch (Exception e) {
             logger.log(Level.INFO, "Exception in openCommConnection.", e);
             throw new Exception(Localization.getString("mainWindow.error.connection")
@@ -893,17 +958,34 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         return connected;
     }
 
-    private void initializeProcessedLines(boolean forceReprocess) throws FileNotFoundException, Exception {
-        if (this.gcodeFile != null) {
+    private void initializeProcessedLines(boolean forceReprocess, File startFile, GcodeParser gcodeParser)
+            throws FileNotFoundException, Exception {
+        if (startFile != null) {
             Charset cs;
-            try (FileReader fr = new FileReader(this.gcodeFile)) {
+            try (FileReader fr = new FileReader(startFile)) {
                 cs = Charset.forName(fr.getEncoding());
             }
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
             if (this.processedGcodeFile == null || forceReprocess) {
-                this.processedGcodeFile = new File(this.getTempDir(), this.gcodeFile.getName());
-                this.preprocessAndExportToFile(this.processedGcodeFile);
+                gcp.reset();
+
+                String name = startFile.getName();
+
+                // If this is being re-processed, strip the ugs postfix and try again.
+                Pattern word = Pattern.compile("(.*)ugs_[\\d]+$");
+                Matcher match = word.matcher(name);
+                if (match.matches()) {
+                    name = match.group(1);
+                }
+                this.processedGcodeFile =
+                        new File(this.getTempDir(), name + "_ugs_" + System.currentTimeMillis());
+                this.preprocessAndExportToFile(gcodeParser, startFile, this.processedGcodeFile);
+
+                // Store gcode file stats.
+                GcodeStats gs = gcp.getCurrentStats();
+                this.settings.setFileStats(new FileStats(
+                    gs.getMin(), gs.getMax(), gs.getCommandCount()));
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");

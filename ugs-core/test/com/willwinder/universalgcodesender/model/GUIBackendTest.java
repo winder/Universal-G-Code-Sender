@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.io.File;
 import java.lang.reflect.Field;
-import javax.vecmath.Point3d;
 import static org.easymock.EasyMock.createMock;
 import org.junit.Before;
 import org.junit.Test;

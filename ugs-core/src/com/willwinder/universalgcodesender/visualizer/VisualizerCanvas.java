@@ -52,6 +52,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -517,7 +518,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
             this.createVertexBuffers();
             this.colorArrayDirty = true;
             this.vertexArrayDirty = true;
-        } catch (GcodeParserException | IOException e) {
+        } catch (GcodeParserException | IOException | GcodeStreamReader.NotGcodeStreamFile e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
             System.out.println(error);
             GUIHelpers.displayErrorDialog(error);

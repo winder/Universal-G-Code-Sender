@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,9 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.core.options;
+package com.willwinder.ugs.nbp.lib.options;
 
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.uielements.IChanged;
+import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
+import com.willwinder.universalgcodesender.utils.Settings;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import javax.swing.JComponent;
@@ -29,61 +32,78 @@ import org.openide.util.Lookup;
 
 public abstract class AbstractOptionsPanelController extends OptionsPanelController implements IChanged {
 
-    private UGSOptionsPanel panel;
+    private AbstractUGSSettings panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
+    protected Settings settings;
 
     public AbstractOptionsPanelController() {
+        settings = CentralLookup.getDefault().lookup(Settings.class);
         panel = initPanel();
+        panel.updateComponents(settings);
     }
 
-    abstract UGSOptionsPanel initPanel();
+    private AbstractUGSSettings getPanel() {
+        return panel;
+    }
 
+    public abstract AbstractUGSSettings initPanel();
+
+    @Override
     public void update() {
-        getPanel().load();
+        getPanel().updateComponents(settings);
         changed = false;
     }
 
+    @Override
     public void applyChanges() {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                getPanel().store();
+                getPanel().save();
                 changed = false;
             }
         });
     }
 
+    /**
+     *
+     */
+    @Override
     public void cancel() {
         // need not do anything special, if no changes have been persisted yet
     }
 
+    @Override
     public boolean isValid() {
-        return getPanel().valid();
+        return getPanel().settingsValid();
     }
 
+    @Override
     public boolean isChanged() {
         return changed;
     }
 
+    @Override
     public HelpCtx getHelpCtx() {
-        return null; // new HelpCtx("...ID") if you have a help set
+        // TODO: How to use the HelpCtx???
+        //return new HelpCtx(getPanel().getHelpMessage()); // new HelpCtx("...ID") if you have a help set
+        return null;
     }
 
+    @Override
     public JComponent getComponent(Lookup masterLookup) {
         return getPanel();
     }
 
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener l) {
         pcs.addPropertyChangeListener(l);
     }
 
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener l) {
         pcs.removePropertyChangeListener(l);
-    }
-
-    private UGSOptionsPanel getPanel() {
-        return panel;
     }
 
     public void changed() {
@@ -93,5 +113,4 @@ public abstract class AbstractOptionsPanelController extends OptionsPanelControl
         }
         pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
     }
-
 }
