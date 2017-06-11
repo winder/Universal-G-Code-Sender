@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collections;
@@ -168,7 +167,9 @@ public class MeshLeveler implements ICommandProcessor {
         // Visualizer normalizes everything to MM but probe mesh might be INCH
         double probeScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, this.unit);
         double zScaleFactor = UnitUtils.scaleUnits(UnitUtils.Units.MM, state.isMetric ? Units.MM : Units.INCH);
-        double zPointOffset = (surfaceHeightAt(end.x / zScaleFactor, end.y / zScaleFactor) - this.materialSurfaceHeight);
+        double zPointOffset =
+                surfaceHeightAt(end.x / zScaleFactor, end.y / zScaleFactor) -
+                (this.materialSurfaceHeight / probeScaleFactor);
         zPointOffset *= zScaleFactor;
 
 
@@ -188,15 +189,18 @@ public class MeshLeveler implements ICommandProcessor {
         }
         */
 
-        int xIdx = (int) ((x == 0) ? 0 : (x / this.resolution));
-        int yIdx = (int) ((y == 0) ? 0 : (y / this.resolution));
+        double xOffset = x - this.lowerLeft.x;
+        double yOffset = y - this.lowerLeft.y;
+
+        int xIdx = (int) ((xOffset == 0) ? 0 : (xOffset / this.resolution));
+        int yIdx = (int) ((yOffset == 0) ? 0 : (yOffset / this.resolution));
 
         // Clamp bounds
         xIdx = Math.min(xIdx, this.xLen - 2);
         yIdx = Math.min(yIdx, this.yLen - 2);
         xIdx = Math.max(xIdx, 0);
         yIdx = Math.max(yIdx, 0);
-        
+
         return new Point3d[][] {
             {this.surfaceMesh[xIdx  ][yIdx], this.surfaceMesh[xIdx  ][yIdx+1]},
             {this.surfaceMesh[xIdx+1][yIdx], this.surfaceMesh[xIdx+1][yIdx+1]}
@@ -214,6 +218,14 @@ public class MeshLeveler implements ICommandProcessor {
         Point3d Q21 = q[1][0];
         Point3d Q12 = q[0][1];
         Point3d Q22 = q[1][1];
+
+        /*
+        // This check doesn't work properly because I chose to clamp bounds
+        if (Q11.x > x || Q12.x > x || Q21.x < x || Q22.x < x ||
+            Q12.y < y || Q22.y < y || Q11.y > y || Q21.y > y) {
+            throw new GcodeParserException("Problem detected getting surface height. Please submit file to github for analysis.");
+        }
+        */
 
         double x1 = Q11.x;
         double x2 = Q21.x;

@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.AutoLevelSettings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -525,7 +525,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
                 Position probe = new Position(p);
-                p.z = ((random.nextBoolean() ? -10 : 10) * random.nextFloat()) + autoLevelerSettings.zSurface;
+                p.z = ((random.nextBoolean() ? -1 : 1) * random.nextFloat()) + autoLevelerSettings.zSurface;
                 scanner.probeEvent(p);
             }
         }
@@ -560,21 +560,18 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         gcp.addCommandProcessor(new CommandSplitter());
 
         // Step 2: Must convert arcs to line segments.
-        gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
+        gcp.addCommandProcessor(new ArcExpander(true, 0.5));//autoLevelSettings.autoLevelArcSliceLength));
 
         // Step 3: Line splitter. No line should be longer than "resolution" or maybe even "resolution/4"
         gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
 
         // Step 4: Adjust Z heights codes based on mesh offsets.
-        //gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid()));
+            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid(), scanner.getUnits()));
 
         try {
             backend.applyGcodeParser(gcp);
-
-            gcp = new GcodeParser();
-            gcp.addCommandProcessor(new MeshLeveler(autoLevelSettings.zSurface, scanner.getProbePositionGrid(), scanner.getUnits()));
-            backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
+            GUIHelpers.displayErrorDialog(ex.getMessage());
             Exceptions.printStackTrace(ex);
         }
     }//GEN-LAST:event_applyToGcodeActionPerformed
