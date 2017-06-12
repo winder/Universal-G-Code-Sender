@@ -47,7 +47,10 @@ public abstract class Renderable implements Comparable<Renderable> {
         if (this == obj) return true;
         if (!(obj instanceof Renderable)) return false;
         Renderable that = (Renderable)obj;
-        return Objects.equals(this.priority, that.priority);
+        return 
+                Objects.equals(this.title, that.title) &&
+                Objects.equals(this.enabled, that.enabled) &&
+                Objects.equals(this.priority, that.priority);
     }
 
     @Override
