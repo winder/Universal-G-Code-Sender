@@ -578,9 +578,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
 
         // Step 4: Adjust Z heights codes based on mesh offsets.
-        gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
+        //gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
 
         try {
+            backend.applyGcodeParser(gcp);
+            gcp = new GcodeParser();
+            gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
             backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());
