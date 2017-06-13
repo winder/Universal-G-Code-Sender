@@ -47,7 +47,7 @@ import java.awt.event.ActionEvent;
 )
 @ActionReferences({
         @ActionReference(
-                path = "Toolbars/StartPauseStop",
+                path = "Toolbars/GcodeBrowser",
                 position = 1020),
 })
 public final class FileBrowserToolbar extends AbstractAction implements Presenter.Toolbar {

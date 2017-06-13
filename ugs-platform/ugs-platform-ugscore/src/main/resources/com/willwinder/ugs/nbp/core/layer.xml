@@ -50,5 +50,11 @@
         <folder name="StartPauseStop">
             <attr intvalue="100" name="position"/>
         </folder>
+        <folder name="Pendant">
+            <attr intvalue="125" name="position"/>
+        </folder>
+        <folder name="GcodeBrowser">
+            <attr intvalue="150" name="position"/>
+        </folder>
     </folder>
 </filesystem>

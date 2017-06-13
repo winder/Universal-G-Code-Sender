@@ -105,23 +105,29 @@ public class LocalizingService {
     public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
     public final static String AutoLevelerCategory = "Window";
 
-    public final static String StartTitle = Localization.getString("mainWindow.swing.sendButton", lang);
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
+    public final static String StartTitle = Localization.getString(StartTitleKey, lang);
     public final static String StartWindowPath = "Menu/Machine";
     public final static String StartActionId = "com.willwinder.ugs.nbp.core.actions.StartAction";
     public final static String StartCategory = "Machine";
 
-    public final static String PauseTitle = Localization.getString("mainWindow.swing.pauseButton", lang);
     public final static String PauseTitleKey = "mainWindow.swing.pauseButton";
+    public final static String PauseTitle = Localization.getString(PauseTitleKey, lang);
     public final static String PauseWindowPath = "Menu/Machine";
     public final static String PauseActionId = "com.willwinder.ugs.nbp.core.actions.PauseAction";
     public final static String PauseCategory = "Machine";
 
-    public final static String StopTitle = Localization.getString("mainWindow.swing.stopButton", lang);
     public final static String StopTitleKey = "mainWindow.swing.stopButton";
+    public final static String StopTitle = Localization.getString(StopTitleKey, lang);
     public final static String StopWindowPath = "Menu/Machine";
     public final static String StopActionId = "com.willwinder.ugs.nbp.core.actions.StopAction";
     public final static String StopCategory = "Machine";
+
+    public final static String PendantTitleKey = "mainWindow.swing.pendantButton";
+    public final static String PendantTitle = Localization.getString(PendantTitleKey, lang);
+    public final static String PendantWindowPath = "Menu/Machine";
+    public final static String PendantActionId = "com.willwinder.ugs.nbp.core.actions.PendantAction";
+    public final static String PendantCategory = "Machine";
 
     public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
     public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);

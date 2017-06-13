@@ -1,0 +1,96 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.willwinder.ugs.nbp.core.actions;
+
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
+import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import java.awt.Dialog;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.util.Collection;
+import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
+import org.openide.awt.ActionID;
+import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
+import org.openide.awt.ActionRegistration;
+import org.openide.util.ImageUtilities;
+
+/**
+ *
+ * @author wwinder
+ */
+@ActionID(
+        category = LocalizingService.PendantCategory,
+        id = LocalizingService.PendantActionId)
+@ActionRegistration(
+        //iconBase = PauseAction.ICON_BASE,
+        displayName = "Pendant", //resources.MessagesBundle#" + LocalizingService.PendantTitleKey,
+        lazy = false)
+@ActionReferences({
+        @ActionReference(
+                path = "Toolbars/Pendant",
+                position = 980),
+        @ActionReference(
+                path = LocalizingService.PendantWindowPath,
+                position = 1015)})
+public class PendantAction extends AbstractAction {
+    // http://www.flaticon.com/authors/dario-ferrando
+    // Pendant icon made by Dario Ferrando from www.flaticon.com is licensed by CC 3.0 BY
+    public static final String ICON_BASE = "resources/icons/pendant.png";
+
+    private final BackendAPI backend;
+    private PendantUI pendantUI = null;
+
+    public PendantAction() {
+        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        putValue("iconBase", ICON_BASE);
+        putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
+        putValue("menuText", LocalizingService.PendantTitle);
+        putValue(NAME, LocalizingService.PendantTitle);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Collection<PendantURLBean> results;
+        if (this.pendantUI == null) {
+            this.pendantUI = new PendantUI(this.backend);
+            results = this.pendantUI.start();
+        } else {
+            results = this.pendantUI.getUrlList();
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new MigLayout("fill, wrap 1"));
+        String urlPattern = "<HTML>URL: <a href=\"%s\">%s</a></html>";
+        for (PendantURLBean result : results) {
+            panel.add(new JLabel(String.format(urlPattern, result.getUrlString(), result.getUrlString())),
+                    "al center");
+            panel.add(new JLabel(
+                    "",
+                    new ImageIcon(result.getQrCodeJpg(), "QR Code"),
+                    JLabel.CENTER),
+                    "al center");
+            backend.sendMessageForConsole("Pendant URL: " + result.getUrlString());
+
+            this.backend.addControllerListener(pendantUI);
+
+            JOptionPane.showMessageDialog(null,panel,"Pendant Address",JOptionPane.PLAIN_MESSAGE);
+
+            return;
+        }
+    }
+}

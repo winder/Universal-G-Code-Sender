@@ -44,7 +44,7 @@ import java.util.logging.Level;
  * @author bobj
  *
  */
-public class PendantUI implements ControllerListener{
+public class PendantUI implements ControllerListener {
     private static final Logger logger = Logger.getLogger(PendantUI.class.getName());
     private BackendAPI mainWindow;
     private Server server = null;
