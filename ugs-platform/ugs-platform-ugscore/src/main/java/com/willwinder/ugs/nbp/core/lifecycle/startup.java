@@ -25,11 +25,17 @@ import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Version;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -37,6 +43,7 @@ import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+import org.openide.windows.WindowManager;
 
 /**
  *
@@ -60,6 +67,38 @@ public class startup extends OptionProcessor implements Runnable {
         System.out.println("Loading SettingsChangedNotificationService...");
         Lookup.getDefault().lookup(SettingsChangedNotificationService.class);
         System.out.println("Services loaded!");
+
+        System.out.println("Setting UGP version title.");
+        Settings settings = CentralLookup.getDefault().lookup(Settings.class);
+        setupVersionInformation(settings);
+    }
+
+    private void setupVersionInformation(Settings settings) {
+        String version = Version.getVersion() + " / " + Version.getTimestamp();
+        if (settings.isShowNightlyWarning() && version.contains("nightly")) {
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                String message =
+                        "This version of Universal Gcode Sender is a nightly build.\n"
+                                + "It contains all of the latest features and improvements, \n"
+                                + "but may also have bugs that still need to be fixed.\n"
+                                + "\n"
+                                + "If you encounter any problems, please report them on github.";
+                JOptionPane.showMessageDialog(new JFrame(), message,
+                        "", JOptionPane.INFORMATION_MESSAGE);
+            }});
+        }
+
+        String title = Localization.getString("platform-title")
+                + " (" + Localization.getString("version")
+                + " " + version + ")";
+        
+        // Only change the window title when all the UI components are fully loaded.
+        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
+            @Override
+            public void run() {
+                WindowManager.getDefault().getMainWindow().setTitle(title);
+            }
+        });
     }
 
     private final Option openOption = Option.additionalArguments('o', "open");

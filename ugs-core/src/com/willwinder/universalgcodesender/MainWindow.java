@@ -25,7 +25,6 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.uielements.components.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -58,9 +57,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.ParseException;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
