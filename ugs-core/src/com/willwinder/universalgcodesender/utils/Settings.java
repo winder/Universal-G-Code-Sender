@@ -1,5 +1,5 @@
 /*
-    Copywrite 2014-2016 Will Winder
+    Copyright 2014-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
