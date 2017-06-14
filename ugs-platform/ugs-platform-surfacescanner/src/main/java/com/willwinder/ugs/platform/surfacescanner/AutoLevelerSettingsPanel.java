@@ -99,6 +99,7 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
                 (double)this.yOffsetSpinner.getValue(),
                 (double)this.zOffsetSpinner.getValue(),
                 Units.UNKNOWN);
+        settings.setAutoLevelSettings(values);
     }
 
     @Override

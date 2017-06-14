@@ -528,11 +528,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         }
 
         try {
+            Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
-                Position pMM = p.getPositionIn(Units.MM);
                 backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
-                backend.probe("Z", als.probeSpeed, this.scanner.getProbeDistance(), p.getUnits());
+                backend.probe("Z", als.probeSpeed, this.scanner.getProbeDistance(), u);
+                backend.sendGcodeCommand(true, String.format("G90 G21 G0 Z%f", p.z));
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
