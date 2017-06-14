@@ -74,30 +74,25 @@ public class startup extends OptionProcessor implements Runnable {
     }
 
     private void setupVersionInformation(Settings settings) {
-        String version = Version.getVersion() + " / " + Version.getTimestamp();
-        if (settings.isShowNightlyWarning() && version.contains("nightly")) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+        // Only change the window title when all the UI components are fully loaded.
+        WindowManager.getDefault().invokeWhenUIReady(() -> {
+            String version = Version.getVersion() + " / " + Version.getTimestamp();
+            if (settings.isShowNightlyWarning() && version.contains("nightly")) {
                 String message =
                         "This version of Universal Gcode Sender is a nightly build.\n"
-                                + "It contains all of the latest features and improvements, \n"
-                                + "but may also have bugs that still need to be fixed.\n"
-                                + "\n"
-                                + "If you encounter any problems, please report them on github.";
+                        + "It contains all of the latest features and improvements, \n"
+                        + "but may also have bugs that still need to be fixed.\n"
+                        + "\n"
+                        + "If you encounter any problems, please report them on github.";
                 JOptionPane.showMessageDialog(new JFrame(), message,
                         "", JOptionPane.INFORMATION_MESSAGE);
-            }});
-        }
-
-        String title = Localization.getString("platform-title")
-                + " (" + Localization.getString("version")
-                + " " + version + ")";
-        
-        // Only change the window title when all the UI components are fully loaded.
-        WindowManager.getDefault().invokeWhenUIReady(new Runnable() {
-            @Override
-            public void run() {
-                WindowManager.getDefault().getMainWindow().setTitle(title);
             }
+            
+            String title = Localization.getString("platform-title")
+                    + " (" + Localization.getString("version")
+                    + " " + version + ")";
+            
+            WindowManager.getDefault().getMainWindow().setTitle(title);
         });
     }
 
