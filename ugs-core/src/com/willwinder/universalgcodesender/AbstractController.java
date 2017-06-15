@@ -33,6 +33,8 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
@@ -261,7 +263,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     // Added value
     private Boolean isStreaming = false;
-    private Boolean paused = false;
     private long streamStart = 0;
     private long streamStop = 0;
     private File gcodeFile;
@@ -294,7 +295,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //Track current mode to restore after jogging
     private String distanceModeCode = null;
     private String unitsCode = null;
-    protected ControlState currentState = COMM_DISCONNECTED;
+
+    // Maintain the current state given actions performed.
+    // Concrete classes with a status field should override getControlState.
+    private ControlState currentState = COMM_DISCONNECTED;
         
     /**
      * Dependency injection constructor to allow a mock communicator.
@@ -363,7 +367,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         
         // No point in checking response, it throws an exception on errors.
         this.comm.openCommPort(port, portRate);
-        this.currentState = COMM_IDLE;
+        this.setCurrentState(COMM_IDLE);
         
         if (isCommOpen()) {
             this.openCommAfterEvent();
@@ -498,7 +502,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             throw new Exception("Cannot send command(s), comm port is not open.");
         }
 
-        this.dispatchStateChange(ControlState.COMM_SENDING);
+        this.setCurrentState(ControlState.COMM_SENDING);
         this.sendStringToComm(command.getCommandString());
         this.comm.streamCommands();
     }
@@ -618,27 +622,32 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void pauseStreaming() throws Exception {
         this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
         pauseStreamingEvent();
-        this.paused = true;
         this.comm.pauseSend();
+        this.setCurrentState(COMM_SENDING_PAUSED);
     }
     
     @Override
     public void resumeStreaming() throws Exception {
         this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
         resumeStreamingEvent();
-        this.paused = false;
         this.comm.resumeSend();
+        this.setCurrentState(COMM_SENDING);
     }
     
     @Override
+    public ControlState getControlState() {
+        return this.currentState;
+    };
+
+    @Override
     public Boolean isPaused() {
-        return paused;
+        return getControlState() == COMM_SENDING_PAUSED;
     }
 
     @Override
     public Boolean isIdle() {
         try {
-            return !isPaused() && !isStreaming && isIdleEvent();
+            return getControlState() == COMM_IDLE && isIdleEvent();
         } catch (Exception e) {
             return false;
         }
@@ -675,7 +684,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void resetBuffers() {
         this.activeCommands.clear();
         this.comm.resetBuffers();
-        paused = false;
+        this.setCurrentState(COMM_IDLE);
     }
     
     private synchronized void flushQueuedCommands() {
@@ -775,8 +784,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         //updateParserModalState(command);
 
         this.numCommandsCompleted++;
-        dispatchCommandComplete(command);
 
+        if (this.activeCommands.isEmpty()) {
+            this.setCurrentState(COMM_IDLE);
+        }
+
+        dispatchCommandComplete(command);
         checkStreamFinished();
     }
     
@@ -795,10 +808,16 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         dispatchConsoleMessage(MessageType.ERROR, msg);
     }
 
-
     @Override
     public void rawResponseListener(String response) {
         rawResponseHandler(response);
+    }
+
+    private void setCurrentState(ControlState state) {
+        this.currentState = state;
+        if (!this.handlesAllStateChangeEvents()) {
+            this.dispatchStateChange(state);
+        }
     }
 
     /**
@@ -826,7 +845,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     protected void dispatchStateChange(ControlState state) {
-        currentState = state;
+        if (this.currentState == COMM_SENDING_PAUSED && state != this.currentState
+                && this.comm.isPaused() && !this.isStreaming()) {
+            this.comm.resumeSend();
+        }
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.controlStateChange(state);

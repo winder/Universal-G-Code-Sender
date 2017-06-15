@@ -61,9 +61,6 @@ public class GrblController extends AbstractController {
 
     // Grbl status members.
     private GrblUtils.Capabilities capabilities = new GrblUtils.Capabilities();
-    private String grblState = "";
-    private Position machineLocation;
-    private Position workLocation;
     private double maxZLocationMM;
 
     // Polling state
@@ -249,7 +246,7 @@ public class GrblController extends AbstractController {
     @Override
     protected void isReadyToStreamCommandsEvent() throws Exception {
         isReadyToSendCommandsEvent();
-        if (grblState != null && grblState.equals("Alarm")) {
+        if (this.controllerStatus != null && this.controllerStatus.getState().equals("Alarm")) {
             throw new Exception(Localization.getString("grbl.exception.Alarm"));
         }
     }
@@ -302,11 +299,37 @@ public class GrblController extends AbstractController {
     @Override
     protected Boolean isIdleEvent() {
         if (this.capabilities.REAL_TIME) {
-            return this.currentState == COMM_IDLE;
+            return getControlState() == COMM_IDLE;
         }
         // Otherwise let the abstract controller decide.
         return true;
     }
+
+    @Override
+    public ControlState getControlState() {
+        if (!this.capabilities.REAL_TIME) {
+            return super.getControlState();
+        }
+
+        String state = this.controllerStatus == null ? "" : this.controllerStatus.getState();
+        switch(state.toLowerCase()) {
+            case "jog":
+            case "run":
+                return ControlState.COMM_SENDING;
+            case "hold":
+            case "door":
+            case "queue":
+                return ControlState.COMM_SENDING_PAUSED;
+            case "idle":
+                if (isStreaming()){
+                    return ControlState.COMM_SENDING_PAUSED;
+                }
+            case "check":
+            case "alarm":
+            default:
+                return ControlState.COMM_IDLE;
+        }
+    };
     
     /**
      * Sends the version specific homing cycle to the machine.
@@ -361,7 +384,7 @@ public class GrblController extends AbstractController {
             if (this.maxZLocationMM != -1) {
                 max = this.maxZLocationMM;
             }
-            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.workLocation.z);
+            ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.controllerStatus.getWorkCoord().z);
             if (!commands.isEmpty()) {
                 Iterator<String> iter = commands.iterator();
                 // Perform the homing commands
@@ -532,9 +555,10 @@ public class GrblController extends AbstractController {
         }
     }
 
-    private void sendStateMessageIfChanged(String beforeState, ControlState current) {
+    private void sendStateMessageIfChanged(ControlState before, ControlState after) {
+        /*
         ControlState state = ControlState.COMM_IDLE;
-        switch (controllerStatus.getState().toLowerCase()) {
+        switch (afterState.toLowerCase()) {
             case "jog":
             case "run":
                 state = ControlState.COMM_SENDING;
@@ -558,9 +582,10 @@ public class GrblController extends AbstractController {
                 }
                 break;
         }
+        */
 
-        if (current != state) {
-            this.dispatchStateChange(state);
+        if (before != after) {
+            this.dispatchStateChange(after);
         }
     }
     
@@ -570,18 +595,19 @@ public class GrblController extends AbstractController {
             return;
         }
 
-        String beforeState =  (controllerStatus != null) ?
-                controllerStatus.getState() : "";
+        ControlState before = getControlState();
+        String beforeState = controllerStatus == null ? "" : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
-        sendStateMessageIfChanged(beforeState, this.currentState);
+        sendStateMessageIfChanged(before, getControlState());
 
-        grblState = controllerStatus.getState();
-        machineLocation = controllerStatus.getMachineCoord();
-        workLocation = controllerStatus.getWorkCoord();
+        // GRBL 1.1 jog complete transition
+        if (beforeState.equals("Jog") && controllerStatus.getState().equals("Idle")) {
+            this.comm.cancelSend();
+        }
 
         // Prior to GRBL v1.1 the GUI is required to keep checking locations
         // to verify that the machine has come to a complete stop after
@@ -590,12 +616,13 @@ public class GrblController extends AbstractController {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
                 // If the machine goes into idle, we no longer need to cancel.
-                if (grblState.equals("Idle")) {
+                if (this.controllerStatus.getState().equals("Idle")) {
                     isCanceling = false;
                 }
-                // Otherwise check if the machine is Hold and stopped.
-                else if (grblState.equals("Hold")
-                        && lastLocation.equals(machineLocation)) {
+                // Otherwise check if the machine is Hold/Queue and stopped.
+                else if ((this.controllerStatus.getState().equals("Hold")
+                        || this.controllerStatus.getState().equals("Queue"))
+                        && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {
@@ -607,14 +634,14 @@ public class GrblController extends AbstractController {
                     this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset"));
                 }
             }
-            lastLocation = new Position(machineLocation);
+            lastLocation = new Position(this.controllerStatus.getMachineCoord());
         }
         
         // Save max Z location
-        if (machineLocation != null && this.getUnitsCode() != null) {
+        if (this.controllerStatus != null && this.getUnitsCode() != null) {
             Units u = this.getUnitsCode().toUpperCase().equals("G21") ?
                     Units.MM : Units.INCH;
-            double zLocationMM = machineLocation.z;
+            double zLocationMM = this.controllerStatus.getMachineCoord().z;
             if (u == Units.INCH)
                 zLocationMM *= 26.4;
             

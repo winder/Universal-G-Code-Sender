@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -113,6 +114,7 @@ public interface IController {
     public Boolean isPaused();
     public Boolean isIdle();
     public void cancelSend() throws Exception;
+    public ControlState getControlState();
 
     /**
      * In case a controller reset is detected.
