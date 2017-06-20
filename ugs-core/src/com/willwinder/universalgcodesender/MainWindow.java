@@ -2011,6 +2011,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     
     @Override
     public void statusStringListener(ControllerStatus status) {
+        if (status == null) {
+            return;
+        }
+
         this.activeStateValueLabel.setText( status.getState() );
         this.setStatusColorForState( status.getState() );
 
