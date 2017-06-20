@@ -138,6 +138,7 @@ public class GrblController extends AbstractController {
         }
         
         else if (GrblUtils.isGrblVersionString(response)) {
+            this.controllerStatus = null;
             this.stopPollingPosition();
             positionPollTimer = createPositionPollTimer();
             this.beginPollingPosition();
@@ -555,39 +556,6 @@ public class GrblController extends AbstractController {
         }
     }
 
-    private void sendStateMessageIfChanged(ControlState before, ControlState after) {
-        /*
-        ControlState state = ControlState.COMM_IDLE;
-        switch (afterState.toLowerCase()) {
-            case "jog":
-            case "run":
-                state = ControlState.COMM_SENDING;
-                break;
-            case "hold":
-            case "door":
-                state = ControlState.COMM_SENDING_PAUSED;
-                break;
-            case "check":
-            case "alarm":
-            case "idle":
-                if (isStreaming()){
-                    state = ControlState.COMM_SENDING_PAUSED;
-                } else {
-                    // GRBL 1.1: cancel the send when from jog -> idle.
-                    if (beforeState != null &&
-                            beforeState.toLowerCase().equals("jog")) {
-                        this.comm.cancelSend();
-                    }
-                    state = ControlState.COMM_IDLE;
-                }
-                break;
-        }
-        */
-
-        if (before != after) {
-            this.dispatchStateChange(after);
-        }
-    }
     
     // No longer a listener event
     private void handleStatusString(final String string) {
@@ -602,7 +570,9 @@ public class GrblController extends AbstractController {
                 controllerStatus, string, capabilities, getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
-        sendStateMessageIfChanged(before, getControlState());
+        if (before != getControlState()) {
+            this.dispatchStateChange(getControlState());
+        }
 
         // GRBL 1.1 jog complete transition
         if (beforeState.equals("Jog") && controllerStatus.getState().equals("Idle")) {

@@ -23,11 +23,13 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore; 
@@ -63,11 +65,11 @@ public class GrblControllerTest {
         f.set(null, false);
     }
 
-    private static void setState(GrblController gc, String state) {
+    private static void setState(GrblController gc, ControlState state) {
         try {
-            Field f = GrblController.class.getDeclaredField("grblState");
-            f.setAccessible(true);
-            f.set(gc, "Idle");
+            Method m = AbstractController.class.getDeclaredMethod("setCurrentState", ControlState.class);
+            m.setAccessible(true);
+            m.invoke(gc, state);
         } catch (Exception e) {
             Assert.fail();
         }
@@ -745,7 +747,7 @@ public class GrblControllerTest {
         assertEquals(0, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
-        setState(instance, "Idle");
+        setState(instance, ControlState.COMM_IDLE);
 
         // Test 1.1 Cancel when nothing is running (Grbl 0.7).
         instance.rawResponseHandler("Grbl 0.7");
@@ -867,7 +869,7 @@ public class GrblControllerTest {
     public void testPauseAndCancelSend() throws Exception {
         System.out.println("Pause + cancelSend");
         GrblController instance = new GrblController(mgc);
-        setState(instance, "Run");
+        setState(instance, ControlState.COMM_SENDING);
         instance.openCommPort("blah", 1234);
 
         // Test 1.1 cancel throws an exception (Grbl 0.7).

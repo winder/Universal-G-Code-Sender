@@ -129,7 +129,7 @@ public class AbstractControllerTest {
     ///////////////
     // UTILITIES //
     ///////////////
-    public void openInstanceExpectUtility(String port, int portRate) throws Exception {
+    public void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
         instance.openCommAfterEvent();
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
         mockListener.messageForConsole(anyObject(), EasyMock.anyString());
@@ -137,6 +137,7 @@ public class AbstractControllerTest {
         EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
         EasyMock.expect(instance.isCommOpen()).andReturn(false).once();
         EasyMock.expect(instance.isCommOpen()).andReturn(true).anyTimes();
+        EasyMock.expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {
         EasyMock.expect(mockCommunicator.areActiveCommands()).andReturn(false).anyTimes();
@@ -145,8 +146,8 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         EasyMock.expect(EasyMock.expectLastCall()).once();
     }
-    private void startStreamExpectation(String port, int rate, String command) throws Exception {
-        openInstanceExpectUtility(port, rate);
+    private void startStreamExpectation(String port, int rate, String command, boolean handleStateChange) throws Exception {
+        openInstanceExpectUtility(port, rate, handleStateChange);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -303,7 +304,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        startStreamExpectation(port, rate, command);
+        startStreamExpectation(port, rate, command, false);
 
         EasyMock.replay(instance, mockCommunicator);
 
@@ -388,7 +389,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        openInstanceExpectUtility(port, rate);
+        openInstanceExpectUtility(port, rate, false);
         mockCommunicator.queueStringForComm(str + "\n");
         expect(expectLastCall()).times(1);
         mockCommunicator.streamCommands();
@@ -425,7 +426,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        startStreamExpectation(port, rate, command);
+        startStreamExpectation(port, rate, command, false);
         replay(instance, mockCommunicator);
 
         instance.openCommPort(port, rate);
@@ -465,7 +466,7 @@ public class AbstractControllerTest {
             out.append(i);
         }
 
-        openInstanceExpectUtility(port, rate);
+        openInstanceExpectUtility(port, rate, false);
         streamInstanceExpectUtility();
         
         // TODO Fix this
@@ -504,7 +505,7 @@ public class AbstractControllerTest {
             }
 
             try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
-                openInstanceExpectUtility(port, rate);
+                openInstanceExpectUtility(port, rate, false);
                 streamInstanceExpectUtility();
 
                 // TODO Fix this
@@ -538,7 +539,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        openInstanceExpectUtility(port, rate);
+        openInstanceExpectUtility(port, rate, false);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -567,7 +568,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        openInstanceExpectUtility(port, rate);
+        openInstanceExpectUtility(port, rate, false);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -643,7 +644,7 @@ public class AbstractControllerTest {
         String command = "command";
 
         // Setup instance with commands buffered on the communicator.
-        startStreamExpectation(port, baud, command);
+        startStreamExpectation(port, baud, command, false);
         EasyMock.replay(instance, mockCommunicator);
         startStream(port, baud, command);
         EasyMock.reset(instance, mockCommunicator, mockListener);
@@ -680,6 +681,7 @@ public class AbstractControllerTest {
         // Setup test with commands sent by communicator waiting on response.
         testCommandSent();
         reset(instance, mockCommunicator, mockListener);
+        EasyMock.expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
 
         // Make sure the events are triggered.
         Capture<GcodeCommand> gc1 = newCapture();
@@ -812,6 +814,7 @@ public class AbstractControllerTest {
     public void testJogMachine() throws Exception {
         System.out.println("jogMachine");
 
+        EasyMock.expect(niceInstance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
         EasyMock.expect(niceInstance.isCommOpen()).andReturn(true).anyTimes();
         mockCommunicator.streamCommands();
         EasyMock.expect(expectLastCall()).anyTimes();
