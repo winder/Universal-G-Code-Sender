@@ -56,34 +56,23 @@ public final class MacroService {
 
         try {
             FileObject root= FileUtil.getConfigRoot(); 
+
+            // Clear out the menu items.
             FileUtil.createFolder(root, menuPath).delete(); 
             FileUtil.createFolder(root, menuPath); 
-            FileObject actionsObject = FileUtil.createFolder(root, "/Actions/" + actionCategory);
-            ArrayList<FileObject> actionObjects = new ArrayList<>(Arrays.asList(actionsObject.getChildren()));
+
+            String actionPath = "/Actions/" + actionCategory;
+            FileUtil.createFolder(root, actionPath).delete();
+            //FileObject actionsObject = FileUtil.createFolder(root, actionPath);
 
             ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
-            Settings settings = CentralLookup.getDefault().lookup(Settings.class);
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+            Settings settings = backend.getSettings();
 
             int numMacros = settings.getNumMacros();
-
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
-
-                // Remove from list if it already exists.
-                for (Iterator<FileObject> iter = actionObjects.iterator(); iter.hasNext();) {
-                    FileObject next = iter.next();
-                    if (next.getName().equals(m.getName())) {
-                        iter.remove();
-                    }
-                }
-
                 ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), m.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
-            }
-
-            // Remove anything that doesn't exist.
-            for (FileObject action : actionObjects) {
-                action.delete();
             }
         } catch (Exception e) {
             e.printStackTrace();
