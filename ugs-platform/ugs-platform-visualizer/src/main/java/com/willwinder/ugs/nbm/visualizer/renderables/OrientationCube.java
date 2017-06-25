@@ -137,7 +137,7 @@ public class OrientationCube extends Renderable {
     // Left face    
     gl.glRotatef(90, 0, 1, 0);
     gl.glRotatef(-90, 0, 0, 1);
-    drawFace(gl, size, color, border, "X+");
+    drawFace(gl, size, color, border, "X-");
     gl.glPopMatrix();
     // Bottom face
     gl.glPushMatrix();
