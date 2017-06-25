@@ -26,6 +26,7 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
@@ -137,11 +138,13 @@ public class GcodeViewParse {
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
-            List<String> commands = gp.preprocessCommand(commandObject.getCommandString());
+            List<String> commands = gp.preprocessCommand(commandObject.getCommandString(), gp.getCurrentState());
             for (String command : commands) {
-                List<PointSegment> points = gp.addCommand(command, commandObject.getCommandNumber());
-                for (PointSegment p : points) {
-                    addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
+                List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
+                for (GcodeMeta meta : points) {
+                    if (meta.point != null) {
+                        addLinesFromPointSegment(start, end, meta.point, arcSegmentLength, lines);
+                    }
                 }
             }
         }
@@ -164,11 +167,13 @@ public class GcodeViewParse {
         Point3d end = new Point3d();
 
         for (String s : gcode) {
-            List<String> commands = gp.preprocessCommand(s);
+            List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
             for (String command : commands) {
-                List<PointSegment> points = gp.addCommand(command);
-                for (PointSegment p : points) {
-                    addLinesFromPointSegment(start, end, p, arcSegmentLength, lines);
+                List<GcodeMeta> points = gp.addCommand(command);
+                for (GcodeMeta meta : points) {
+                    if (meta.point != null) {
+                        addLinesFromPointSegment(start, end, meta.point, arcSegmentLength, lines);
+                    }
                 }
             }
         }

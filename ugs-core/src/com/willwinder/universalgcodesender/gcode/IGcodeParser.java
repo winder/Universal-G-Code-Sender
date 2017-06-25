@@ -3,6 +3,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.types.PointSegment;
@@ -34,7 +35,7 @@ public interface IGcodeParser {
      * @param command
      * @return PointSegment representing the last command.
      */
-    public List<PointSegment> addCommand(String command) throws GcodeParserException;
+    public List<GcodeMeta> addCommand(String command) throws GcodeParserException;
 
     /**
      * Add a string of command(s) and a line number associated with that string.
@@ -43,7 +44,7 @@ public interface IGcodeParser {
      * @return PointSegment(s) representing the command.
      * @throws GcodeParserException
      */
-    public List<PointSegment> addCommand(String command, int lineNumber) throws GcodeParserException;
+    public List<GcodeMeta> addCommand(String command, int lineNumber) throws GcodeParserException;
 
     /**
      * The state of the machine as of the last command.
@@ -65,5 +66,5 @@ public interface IGcodeParser {
      * @return a collection of postprocessed commands
      * @throws GcodeParserException 
      */
-    public List<String> preprocessCommand(String command) throws GcodeParserException;
+    public List<String> preprocessCommand(String command, GcodeState initial) throws GcodeParserException;
 }

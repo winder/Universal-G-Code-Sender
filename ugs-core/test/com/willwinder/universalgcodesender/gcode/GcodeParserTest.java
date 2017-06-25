@@ -1,27 +1,52 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copyright 2016-2017 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
+import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.PointSegment;
-import java.util.Collection;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import java.io.File;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import javax.vecmath.Point3d;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 
 /**
  *
@@ -40,27 +65,33 @@ public class GcodeParserTest {
     public void tearDown() throws Exception {
     }
 
-    private void testCommand(List<PointSegment> segments, int numResults, double speed,
+    private void testCommand(List<GcodeMeta> segments, int numResults, double speed,
             double x, double y, double z,
             boolean fastTraversal, boolean zMovement, boolean arc, boolean clockwise,
             boolean isMetric,
             int num) {
-        assertEquals(numResults, segments.size());
-
-        for (PointSegment ps : segments) {
-            assertEquals(ps.getSpeed(), speed, 0);
-            assertEquals(x, ps.point().x, 0);
-            assertEquals(y, ps.point().y, 0);
-            assertEquals(z, ps.point().z, 0);
-            assertEquals(fastTraversal, ps.isFastTraverse());
-            assertEquals(zMovement, ps.isZMovement());
-            assertEquals(arc, ps.isArc());
-            if (arc) {
-                assertEquals(clockwise, ps.isClockwise());
+        int points = 0;
+        for (GcodeMeta meta : segments) {
+            if (meta.point != null) {
+                points++;
+                PointSegment ps = meta.point;
+                assertEquals(ps.getSpeed(), speed, 0);
+                assertEquals(x, ps.point().x, 0);
+                assertEquals(y, ps.point().y, 0);
+                assertEquals(z, ps.point().z, 0);
+                assertEquals(fastTraversal, ps.isFastTraverse());
+                assertEquals(zMovement, ps.isZMovement());
+                assertEquals(arc, ps.isArc());
+                if (arc) {
+                    assertEquals(clockwise, ps.isClockwise());
+                }
+                assertEquals(num, ps.getLineNumber());
+                assertEquals(isMetric, ps.isMetric());
             }
-            assertEquals(num, ps.getLineNumber());
-            assertEquals(isMetric, ps.isMetric());
         }
+
+        assertEquals(numResults, points);
+
     }
 
     /**
@@ -69,7 +100,7 @@ public class GcodeParserTest {
     @Test
     public void testAddCommand_String() throws Exception {
         System.out.println("addCommand");
-        List<PointSegment> results;
+        List<GcodeMeta> results;
         GcodeParser instance = new GcodeParser();
 
         // X movement with speed
@@ -131,7 +162,7 @@ public class GcodeParserTest {
 
         // More or less the same thing as the above test, so just make sure the
         // line number is applied.
-        List<PointSegment> results = instance.addCommand("G20 G0X1F150", 123);
+        List<GcodeMeta> results = instance.addCommand("G20 G0X1F150", 123);
         testCommand(results, 1, 150, 1., 0., 0., true, false, false, false, false, 123);
     }
 
@@ -193,7 +224,7 @@ public class GcodeParserTest {
         instance.addCommandProcessor(new M30Processor());
         instance.addCommandProcessor(new WhitespaceProcessor());
         instance.addCommandProcessor(new CommandLengthProcessor(50));
-        List<String> result = instance.preprocessCommand(command);
+        List<String> result = instance.preprocessCommand(command, instance.getCurrentState());
         assertEquals(1, result.size());
         assertEquals("G01X0.88889", result.get(0));
     }
@@ -215,7 +246,7 @@ public class GcodeParserTest {
         instance.addCommandProcessor(new M30Processor());
         instance.addCommandProcessor(new WhitespaceProcessor());
         instance.addCommandProcessor(new CommandLengthProcessor(50));
-        List<String> result = instance.preprocessCommand(command);
+        List<String> result = instance.preprocessCommand(command, instance.getCurrentState());
         assertEquals(1, result.size());
         assertEquals("G01X0.88889F100", result.get(0));
 
@@ -226,7 +257,7 @@ public class GcodeParserTest {
         instance.addCommandProcessor(new M30Processor());
         instance.addCommandProcessor(new WhitespaceProcessor());
         instance.addCommandProcessor(new CommandLengthProcessor(50));
-        result = instance.preprocessCommand(command);
+        result = instance.preprocessCommand(command, instance.getCurrentState());
         assertEquals(1, result.size());
         assertEquals("G01X0.88889F200.0", result.get(0));
     }
@@ -244,13 +275,13 @@ public class GcodeParserTest {
 
         // Shouldn't throw if exactly 50 characters long.
         String command = "G01X0.88888888888888888888888888888888888888888888";
-        instance.preprocessCommand(command);
+        instance.preprocessCommand(command, instance.getCurrentState());
 
         // Should throw an exception when it is 51 characters long.
         boolean threw = false;
         try {
             command += "8";
-            instance.preprocessCommand(command);
+            instance.preprocessCommand(command, instance.getCurrentState());
         } catch (GcodeParserException gpe) {
             threw = true;
         }
@@ -258,15 +289,30 @@ public class GcodeParserTest {
     }
 
     @Test
-    @Ignore // Arc feature disabled for now...
-    public void testPreprocessCommandArc() throws Exception {
-        System.out.println("preprocessCommandArc");
-        /*
-        GcodeParser instance = new GcodeParser();
-        instance.setConvertArcsToLines(true);
-        instance.addCommand("G0X-1");
-        List<String> commands = instance.preprocessCommand("G2 Y1 X0 I1 J0");
-        System.out.println("num: " + commands.size());
-        */
+    public void autoLevelerProcessorSet() throws Exception {
+        System.out.println("autoLevelerProcessorSet");
+        GcodeParser gcp = new GcodeParser();
+        gcp.addCommandProcessor(new CommentProcessor());
+        gcp.addCommandProcessor(new CommandSplitter());
+        gcp.addCommandProcessor(new ArcExpander(true, 0.1));
+        gcp.addCommandProcessor(new LineSplitter(1));
+        Point3d grid[][] = {
+            { new Point3d(-5,-5,0), new Point3d(-5,35,0) },
+            { new Point3d(35,-5,0), new Point3d(35,35,0) }
+        };
+        gcp.addCommandProcessor(new MeshLeveler(0, grid, Units.MM));
+
+        Path output = Files.createTempFile("autoleveler_processor_set_test.nc", "");
+
+        // Copy resource to temp file since my parser methods need it that way.
+        URL file = this.getClass().getClassLoader().getResource("./gcode/circle_test.nc");
+        File tempFile = File.createTempFile("temp", "file");
+        IOUtils.copy(file.openStream(), FileUtils.openOutputStream(tempFile));
+
+        GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
+
+        GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
+        assertEquals(1021, reader.getNumRows());
+        output.toFile().delete();
     }
 }

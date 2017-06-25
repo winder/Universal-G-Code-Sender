@@ -127,6 +127,13 @@
     <sourceDirectory>src/</sourceDirectory>
     <testSourceDirectory>test/</testSourceDirectory>
 
+    <testResources>
+      <testResource>
+        <directory>${project.basedir}/test/resources</directory>
+      </testResource>
+    </testResources>
+
+
     <resources>
       <!-- PendantUI -->
       <resource>

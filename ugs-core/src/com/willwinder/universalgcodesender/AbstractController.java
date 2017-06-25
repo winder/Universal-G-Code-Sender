@@ -23,7 +23,7 @@ package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
-import com.willwinder.universalgcodesender.gcode.GcodeUtils;
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;

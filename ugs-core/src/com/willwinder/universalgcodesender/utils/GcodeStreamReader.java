@@ -39,16 +39,14 @@ import java.io.IOException;
  * @author wwinder
  */
 public class GcodeStreamReader extends GcodeStream implements Closeable {
-    File file;
     BufferedReader reader;
     int numRows;
     int numRowsRemaining;
 
     public static class NotGcodeStreamFile extends Exception {}
 
-    public GcodeStreamReader(File f) throws NotGcodeStreamFile, FileNotFoundException {
-        file = f;
-        reader = new BufferedReader(new FileReader(file));
+    public GcodeStreamReader(BufferedReader reader) throws NotGcodeStreamFile {
+        this.reader = reader;
         
         try {
             String metadata = reader.readLine().trim();
@@ -63,6 +61,10 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
         } catch (IOException | NumberFormatException e) {
             throw new NotGcodeStreamFile();
         }
+    }
+
+    public GcodeStreamReader(File f) throws NotGcodeStreamFile, FileNotFoundException {
+        this(new BufferedReader(new FileReader(f)));
     }
     
     public boolean ready() {

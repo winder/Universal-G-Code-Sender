@@ -122,7 +122,7 @@ public class GcodeParser implements IGcodeParser {
      * Add a command to be processed with no line number association.
      */
     @Override
-    public List<PointSegment> addCommand(String command) throws GcodeParserException {
+    public List<GcodeMeta> addCommand(String command) throws GcodeParserException {
         return addCommand(command, ++this.state.commandNumber);
     }
 
@@ -131,17 +131,16 @@ public class GcodeParser implements IGcodeParser {
      * @throws GcodeParserException If the command is too long throw an exception
      */
     @Override
-    public List<PointSegment> addCommand(String command, int line) throws GcodeParserException {
+    public List<GcodeMeta> addCommand(String command, int line) throws GcodeParserException {
         statsProcessor.processCommand(command, state);
-        List<PointSegment> results = new ArrayList<>();
+        List<GcodeMeta> results = new ArrayList<>();
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
         //List<String> processedCommands = this.preprocessCommand(command);
         Collection<GcodeMeta> metaObjects = processCommand(command, line, state);
         if (metaObjects != null) {
             for (GcodeMeta c : metaObjects) {
-                if (c.point != null)
-                    results.add(c.point);
+                results.add(c);
                 if (c.state != null) {
                     this.state = c.state;
                     // Process stats.
@@ -171,7 +170,8 @@ public class GcodeParser implements IGcodeParser {
      * input parameters.
      */
     public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState) {
-        List<String> args = GcodePreprocessorUtils.splitCommand(command);
+        String noCommentsCommand = GcodePreprocessorUtils.removeComment(command);
+        List<String> args = GcodePreprocessorUtils.splitCommand(noCommentsCommand);
         if (args.isEmpty()) return null;
 
         List<GcodeMeta> results = new ArrayList<>();
@@ -373,18 +373,24 @@ public class GcodeParser implements IGcodeParser {
      * 
      * This is also needed for some very particular processing in GUIBackend which
      * gathers comments as a separate step outside the GcodeParser.
+     * 
+     * TODO 2: Move this processing logic into another class, or GcodeParserUtils along with testState.
      */
     @Override
-    public List<String> preprocessCommand(String command) throws GcodeParserException {
+    public List<String> preprocessCommand(String command, GcodeState initialState) throws GcodeParserException {
         List<String> ret = new ArrayList<>();
         ret.add(command);
         GcodeState tempState = null;
         for (ICommandProcessor p : processors) {
             // Reset point segments after each pass. The final pass is what we will return.
-            tempState = this.state.copy();
+            tempState = initialState.copy();
             // Process each command in the list and add results to the end.
             // Don't re-process the results with the same preprocessor.
             for (int i = ret.size(); i > 0; i--) {
+                // The arc expander changes the lastGcodeCommand which causes the following to fail:
+                // G2 Y-0.7 J-14.7
+                // Y28.7 J14.7 (this line treated as a G1)
+                tempState.lastGcodeCommand = initialState.lastGcodeCommand;
                 List<String> intermediate = p.processCommand(ret.remove(0), tempState);
 
                 // process results to update the state and collect PointSegments

@@ -28,6 +28,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -567,6 +568,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         GcodeParser gcp = new GcodeParser();
         Settings.AutoLevelSettings autoLevelSettings = this.settings.getAutoLevelSettings();
 
+        // Step 0: Get rid of comments.
+        gcp.addCommandProcessor(new  CommentProcessor());
+
         // Step 1: The arc processor and line processor need commands to be split.
         gcp.addCommandProcessor(new CommandSplitter());
 
@@ -577,12 +581,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         gcp.addCommandProcessor(new LineSplitter(getValue(stepResolution)/10));
 
         // Step 4: Adjust Z heights codes based on mesh offsets.
-        //gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
+        gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
 
         try {
-            backend.applyGcodeParser(gcp);
-            gcp = new GcodeParser();
-            gcp.addCommandProcessor(new MeshLeveler(getValue(this.zSurface), scanner.getProbePositionGrid(), scanner.getUnits()));
             backend.applyGcodeParser(gcp);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());

@@ -83,13 +83,13 @@ public class GUIBackendPreprocessorTest {
         gcp.addCommandProcessor(commandDoubler);
         gcp.addCommandProcessor(new CommentProcessor());
 
-        // Create input file.
+        // Create input file, comment-only line shouldn't be processed twice.
         List<String> lines = Arrays.asList("line one", "; comment", "line two");
         Files.write(inputFile, lines, Charset.defaultCharset(), StandardOpenOption.WRITE);
          
         backend.preprocessAndExportToFile(gcp, inputFile.toFile(), outputFile.toFile());
 
-        List<String> expectedResults = Arrays.asList("line one", "line one", "", "", "line two", "line two");
+        List<String> expectedResults = Arrays.asList("line one", "line one", "", "line two", "line two");
 
         try (GcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());

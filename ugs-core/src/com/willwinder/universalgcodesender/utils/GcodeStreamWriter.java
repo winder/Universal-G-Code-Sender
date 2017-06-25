@@ -43,6 +43,7 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
     PrintWriter fileWriter;
     Integer lineCount = 0;
     String metadataReservedSize = "                                                  ";
+
     public GcodeStreamWriter(File f) throws FileNotFoundException {
         file = f;
         fileWriter = new PrintWriter(f);

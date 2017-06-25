@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -161,68 +162,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * * Comment lines are left
      */
     protected void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
-        gcp.reset();
-
-        // Preprocess a GcodeStream file.
-        try (GcodeStreamReader gsr = new GcodeStreamReader(input)) {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
-                int i = 0;
-                while (gsr.getNumRowsRemaining() > 0) {
-                    i++;
-                    if (i % 1000000 == 0) {
-                        logger.log(Level.FINE, "i: " + i);
-                    }
-
-                    GcodeCommand gc = gsr.getNextCommand();
-
-                    if (StringUtils.isEmpty(gc.getCommandString())) {
-                        gsw.addLine(gc);
-                    }
-                    else {
-                        // Parse the gcode for the buffer.
-                        Collection<String> lines = gcp.preprocessCommand(gc.getCommandString());
-
-                        for(String processedLine : lines) {
-                            gsw.addLine(gc.getOriginalCommandString(), processedLine, gc.getComment(), i);
-                            gcp.addCommand(processedLine);
-                        }
-                    }
-                }
-
-                // Done processing GcodeStream file.
-                return;
-            }
-        } catch (GcodeStreamReader.NotGcodeStreamFile ex) {
-            // File exists, but isn't a stream reader. So go ahead and try parsing it as a raw gcode file.
-        }
-
-        // Preprocess a regular gcode file.
-        try(BufferedReader br = new BufferedReader(new FileReader(input))) {
-            try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
-                int i = 0;
-                for(String line; (line = br.readLine()) != null; ) {
-                    i++;
-                    if (i % 1000000 == 0) {
-                        logger.log(Level.FINE, "i: " + i);
-                    }
-                    String comment = GcodePreprocessorUtils.parseComment(line);
-                    // Parse the gcode for the buffer.
-                    Collection<String> lines = gcp.preprocessCommand(line);
-
-                    // If it is a comment-only line, add the comment.
-                    if (!comment.isEmpty() && lines.isEmpty()) {
-                        gsw.addLine(line, "", comment, i);
-                    }
-                    // Otherwise add each processed line (often just one line).
-                    else {
-                        for(String processedLine : lines) {
-                            gsw.addLine(line, processedLine, comment, i);
-                            gcp.addCommand(processedLine);
-                        }
-                    }
-                }
-            }
-        }
+        GcodeParserUtils.processAndExport(gcp, input, output);
     }
 
     private void initGcodeParser() {

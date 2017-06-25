@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.gcode;
+package com.willwinder.universalgcodesender.gcode.util;
 
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
