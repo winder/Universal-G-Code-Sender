@@ -126,11 +126,8 @@ public class MeshLeveler implements ICommandProcessor {
                 this.upperRight.y - this.lowerLeft.y);
     }
 
-    @Override
-    public List<String> processCommand(final String commandString, GcodeState state) throws GcodeParserException {
-        List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
-
-        // Check for something to process.
+    private boolean hasJustLines(List<GcodeMeta> commands) throws GcodeParserException {
+        if (commands == null) return false;
         boolean hasLine = false;
         for (GcodeMeta command : commands) {
             if (command.code.equals("0") || command.code.equals("1") && command.point != null) {
@@ -140,9 +137,15 @@ public class MeshLeveler implements ICommandProcessor {
                 throw new GcodeParserException(ERROR_UNEXPECTED_ARC);
             }
         }
+        return hasLine;
+    }
+
+    @Override
+    public List<String> processCommand(final String commandString, GcodeState state) throws GcodeParserException {
+        List<GcodeMeta> commands = GcodeParser.processCommand(commandString, 0, state);
 
         // If there are no lines, return unmodified input.
-        if (!hasLine) {
+        if (!hasJustLines(commands)) {
             return Collections.singletonList(commandString);
         }
 

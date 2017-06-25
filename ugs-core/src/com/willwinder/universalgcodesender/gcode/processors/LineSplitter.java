@@ -49,6 +49,7 @@ public class LineSplitter implements ICommandProcessor {
     }
 
     private boolean hasLine(List<GcodeMeta> commands) {
+        if (commands == null) return false;
         for (GcodeMeta command : commands) {
             if (command.code.equals("0") || command.code.equals("1")) {
                 return true;
