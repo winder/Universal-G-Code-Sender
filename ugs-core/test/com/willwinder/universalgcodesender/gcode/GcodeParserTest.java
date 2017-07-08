@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
+import static com.willwinder.universalgcodesender.gcode.util.Plane.XY;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -41,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import javax.vecmath.Point3d;
+import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
@@ -314,5 +316,17 @@ public class GcodeParserTest {
         GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
         assertEquals(1021, reader.getNumRows());
         output.toFile().delete();
+    }
+
+    @Test
+    public void nonGcodeIgnoresImplicitGcode() throws Exception {
+        GcodeParser gcp = new GcodeParser();
+        gcp.addCommandProcessor(new CommentProcessor());
+        GcodeState initialState = new GcodeState();
+        initialState.currentPoint = new Point3d(0, 0, 1);
+        initialState.lastGcodeCommand = "0";
+        List<String> result = gcp.preprocessCommand("M05", initialState);
+        assertEquals(1, result.size());
+        assertEquals("M05", result.get(0));
     }
 }
