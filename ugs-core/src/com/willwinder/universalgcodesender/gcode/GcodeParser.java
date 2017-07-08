@@ -358,8 +358,11 @@ public class GcodeParser implements IGcodeParser {
                 state.isMetric = true;
                 break;
 
-            // Probe
-            case "38.2":
+            // Probe: http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g38
+            case "38.2": // probe toward workpiece, stop on contact, signal error if failure
+            case "38.3": // probe toward workpiece, stop on contact
+            case "38.4": // probe away from workpiece, stop on loss of contact, signal error if failure
+            case "38.5": // probe away from workpiece, stop on loss of contact
                 meta.point = addProbePointSegment(nextPoint, true, line, state);
                 break;
 
