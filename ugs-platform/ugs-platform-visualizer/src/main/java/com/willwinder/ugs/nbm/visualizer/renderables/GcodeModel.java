@@ -61,7 +61,6 @@ public class GcodeModel extends Renderable {
 
     // Gcode file data
     private String gcodeFile = null;
-    private boolean processedFile = false; // True if the file should be opened with GcodeStreamReader.
     private boolean isDrawable = false; //True if a file is loaded; false if not
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
@@ -100,13 +99,22 @@ public class GcodeModel extends Renderable {
         colorArrayDirty = true;
     }
 
-    public void setProcessedGcodeFile(String file) {
-        this.processedFile = true;
-        setFile(file);
-    }
-    public void setGcodeFile(String file) {
-        this.processedFile = false;
-        setFile(file);
+    /**
+     * Assign a gcode file to drawing.
+     */
+    public boolean setGcodeFile(String file) {
+        this.gcodeFile = file;
+        this.isDrawable = false;
+        this.currentCommandNumber = 0;
+        this.lastCommandNumber = 0;
+        
+        boolean result = generateObject();
+        
+        // Force a display in case an animator isn't running.
+        //forceRedraw();
+
+        logger.log(Level.INFO, "Done setting gcode file.");
+        return result;
     }
 
     /**
@@ -116,23 +124,6 @@ public class GcodeModel extends Renderable {
         currentCommandNumber = num;
         updateVertexBuffers();
         colorArrayDirty = true;
-    }
-
-    /**
-     * Assign a gcode file to drawing.
-     */
-    public void setFile(String file) {
-        this.gcodeFile = file;
-        this.isDrawable = false;
-        this.currentCommandNumber = 0;
-        this.lastCommandNumber = 0;
-        
-        generateObject();
-        
-        // Force a display in case an animator isn't running.
-        //forceRedraw();
-
-        logger.log(Level.INFO, "Done setting gcode file.");
     }
 
     public List<LineSegment> getLineList() {
@@ -222,19 +213,18 @@ public class GcodeModel extends Renderable {
     /**
      * Parse the gcodeFile and store the resulting geometry and data about it.
      */
-    private void generateObject()
+    private boolean generateObject()
     {
         isDrawable = false;
-        if (this.gcodeFile == null){ return; }
+        if (this.gcodeFile == null){ return false; }
         
         try {
             GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
-            if (this.processedFile) {
+            try {
                 GcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
                 gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
-            }
-            else {
+            } catch (GcodeStreamReader.NotGcodeStreamFile e) {
                 List<String> linesInFile;
                 linesInFile = VisualizerUtils.readFiletoArrayList(this.gcodeFile);
                 gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
@@ -244,7 +234,7 @@ public class GcodeModel extends Renderable {
             this.objectMax = gcvp.getMaximumExtremes();
 
             if (gcodeLineList.isEmpty()) {
-                return;
+                return false;
             }
 
             // Grab the line number off the last line.
@@ -279,12 +269,14 @@ public class GcodeModel extends Renderable {
             this.lineColorData = new byte[numberOfVertices * 3];
             
             this.updateVertexBuffers();
-        } catch (GcodeParserException | IOException | GcodeStreamReader.NotGcodeStreamFile e) {
+        } catch (GcodeParserException | IOException e) {
             String error = Localization.getString("mainWindow.error.openingFile") + " : " + e.getLocalizedMessage();
             System.out.println(error);
             GUIHelpers.displayErrorDialog(error);
+            return false;
         }
 
+        return true;
     }
 
     /**

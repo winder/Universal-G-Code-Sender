@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2017 Will Winder
+    Copyright 2015-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
@@ -43,7 +42,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -63,7 +61,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -162,6 +159,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
      * * Comment lines are left
      */
     protected void preprocessAndExportToFile(GcodeParser gcp, File input, File output) throws Exception {
+        logger.log(Level.INFO, "Preprocessing {0} to {1}", new Object[]{input.getCanonicalPath(), output.getCanonicalPath()});
         GcodeParserUtils.processAndExport(gcp, input, output);
     }
 
@@ -901,7 +899,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 String name = startFile.getName();
 
                 // If this is being re-processed, strip the ugs postfix and try again.
-                Pattern word = Pattern.compile("(.*)ugs_[\\d]+$");
+                Pattern word = Pattern.compile("(.*)_ugs_[\\d]+$");
                 Matcher match = word.matcher(name);
                 if (match.matches()) {
                     name = match.group(1);

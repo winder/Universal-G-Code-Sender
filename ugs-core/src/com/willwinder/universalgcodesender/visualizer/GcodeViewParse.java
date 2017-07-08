@@ -134,7 +134,6 @@ public class GcodeViewParse {
 
         // Save the state
         Point3d start = new Point3d();
-        Point3d end = new Point3d();
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -143,7 +142,8 @@ public class GcodeViewParse {
                 List<GcodeMeta> points = gp.addCommand(command, commandObject.getCommandNumber());
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        addLinesFromPointSegment(start, end, meta.point, arcSegmentLength, lines);
+                        addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        start.set(meta.point.point());
                     }
                 }
             }
@@ -164,18 +164,22 @@ public class GcodeViewParse {
 
         // Save the state
         Point3d start = new Point3d();
-        Point3d end = new Point3d();
 
+        try {
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
             for (String command : commands) {
                 List<GcodeMeta> points = gp.addCommand(command);
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
-                        addLinesFromPointSegment(start, end, meta.point, arcSegmentLength, lines);
+                        addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
+                        start.set(meta.point.point());
                     }
                 }
             }
+        }
+        } catch (Exception e) {
+            System.out.println("Here...");
         }
         
         return lines;
@@ -185,14 +189,14 @@ public class GcodeViewParse {
      * Turns a point segment into one or more LineSegment. Arcs are expanded.
      * Keeps track of the minimum and maximum x/y/z locations.
      */
-    private List<LineSegment> addLinesFromPointSegment(Point3d start, Point3d end, PointSegment segment, double arcSegmentLength, List<LineSegment> ret) {
+    private List<LineSegment> addLinesFromPointSegment(final Point3d start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         LineSegment ls;
-        PointSegment ps = segment;
+        PointSegment ps = endSegment;
         ps.convertToMetric();
         
-        end.set(ps.point());
+        Point3d end = new Point3d(endSegment.point());
 
         // start is null for the first iteration.
         if (start != null) {
@@ -225,7 +229,6 @@ public class GcodeViewParse {
                 ret.add(ls);
             }
         }
-        start.set(end);
         
         return ret;
     }

@@ -28,6 +28,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
@@ -36,13 +37,18 @@ import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
 import java.util.*;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
  * @author wwinder
  */
 public class GcodeParser implements IGcodeParser {
+    private static final Logger logger = Logger.getLogger(GcodeParser.class.getName());
 
     // Current state
     private GcodeState state;
@@ -169,13 +175,12 @@ public class GcodeParser implements IGcodeParser {
      * Process commend given an initial state. This method will not modify its
      * input parameters.
      */
-    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState) {
+    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState)
+            throws GcodeParserException {
         String noCommentsCommand = GcodePreprocessorUtils.removeComment(command);
         List<String> args = GcodePreprocessorUtils.splitCommand(noCommentsCommand);
         if (args.isEmpty()) return null;
 
-        List<GcodeMeta> results = new ArrayList<>();
-        
         GcodeState state = inputState.copy();
         state.commandNumber = line;
         
@@ -188,14 +193,19 @@ public class GcodeParser implements IGcodeParser {
             state.speed = Double.parseDouble(fCodes.remove(fCodes.size()-1));
         }
         
+        if (command.contains("M3")) {
+            System.out.println("here.");
+        }
         // handle G codes.
         List<String> gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
-        // If there was no command, add the implicit one to the party.
-        if (gCodes.isEmpty() && state.lastGcodeCommand != null && !state.lastGcodeCommand.isEmpty()) {
+        // If there was no command and there are coordinates, add the implicit one to the party.
+        if (gCodes.isEmpty() && !StringUtils.isBlank(state.lastGcodeCommand)
+                && GcodePreprocessorUtils.hasCoordinates(args)) {
             gCodes.add(state.lastGcodeCommand);
         }
         
+        List<GcodeMeta> results = new ArrayList<>();
         for (String i : gCodes) {
             GcodeMeta meta = handleGCode(i, args, line, state);
             meta.command = command;
@@ -275,19 +285,31 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static GcodeMeta handleGCode(String code, List<String> args, int line, GcodeState state) {
+    private static final List<String> MOVEMENT_CODES = ImmutableList.of("0", "1", "2", "3");
+    private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+(\\d+)");
+    private static GcodeMeta handleGCode(final String code, List<String> args, int line, GcodeState state)
+            throws GcodeParserException {
         GcodeMeta meta = new GcodeMeta();
 
-        Point3d nextPoint = 
-            GcodePreprocessorUtils.updatePointWithCommand(
-            args, state.currentPoint, state.inAbsoluteMode);
+        Matcher m = CODE_PATTERN.matcher(code);
+        if (!m.matches()) {
+            throw new GcodeParserException("Invalid gcode in handleGCode: " + code);
+        }
 
-        if (code.length() > 1 && code.startsWith("0"))
-            code = code.substring(1);
+        final String codeChar = m.group(1);
 
-        meta.code = code;
+        meta.code = codeChar;
 
-        switch (code) {
+        Point3d nextPoint = null;
+
+        // If it is a movement code make sure it has some coordinates.
+        if (GcodePreprocessorUtils.hasCoordinates(args)) {
+        //if (MOVEMENT_CODES.contains(codeChar)) {
+            nextPoint = GcodePreprocessorUtils.updatePointWithCommand(args, state.currentPoint, state.inAbsoluteMode)
+                    .orElseThrow(() -> new GcodeParserException("Invalid: G" + codeChar + " with no coordinates"));
+        }
+
+        switch (codeChar) {
             case "0":
                 meta.point = addLinearPointSegment(nextPoint, true, line, state);
                 break;
@@ -357,7 +379,7 @@ public class GcodeParser implements IGcodeParser {
             default:
                 break;
         }
-        state.lastGcodeCommand = code;
+        state.lastGcodeCommand = codeChar;
         meta.state = state.copy();
         return meta;
     }
@@ -377,7 +399,7 @@ public class GcodeParser implements IGcodeParser {
      * TODO 2: Move this processing logic into another class, or GcodeParserUtils along with testState.
      */
     @Override
-    public List<String> preprocessCommand(String command, GcodeState initialState) throws GcodeParserException {
+    public List<String> preprocessCommand(String command, final GcodeState initialState) throws GcodeParserException {
         List<String> ret = new ArrayList<>();
         ret.add(command);
         GcodeState tempState = null;
@@ -402,32 +424,25 @@ public class GcodeParser implements IGcodeParser {
             }
         }
 
-        // Now that we're done, update the state.
-        //this.state = tempState;
         return ret;
     }
 
     /**
      * Helper to statically process the next step in a program without modifying the parser.
      */
-    static private GcodeState testState(String command, GcodeState state) {
+    static private GcodeState testState(String command, GcodeState state) throws GcodeParserException {
         GcodeState ret = state;
-        //List<PointSegment> results = new ArrayList<>();
-        // Add command get meta doesn't update the state, so we need to do that
-        // manually.
-        //List<String> processedCommands = this.preprocessCommand(command);
+
+        // Add command get meta doesn't update the state, so we need to do that manually.
         Collection<GcodeMeta> metaObjects = processCommand(command, 0, state);
         if (metaObjects != null) {
             for (GcodeMeta c : metaObjects) {
-                //if (c.point != null)
-                //    results.add(c.point);
                 if (c.state != null) {
                     ret = c.state;
                 }
             }
         }
 
-        //return results;
         return ret;
     }
 }

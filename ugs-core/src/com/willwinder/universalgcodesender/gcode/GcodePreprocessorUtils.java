@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
@@ -180,7 +181,7 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the arguments of a command.
      */
-    static public Point3d updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
+    static public Optional<Point3d> updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
         List<String> l = GcodePreprocessorUtils.splitCommand(command);
         return updatePointWithCommand(l, initial, absoluteMode);
     }
@@ -188,13 +189,17 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
-    static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
+    static public Optional<Point3d> updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
 
-        double x = parseCoord(commandArgs, 'X');
-        double y = parseCoord(commandArgs, 'Y');
-        double z = parseCoord(commandArgs, 'Z');
+        Double x = parseCoord(commandArgs, 'X');
+        Double y = parseCoord(commandArgs, 'Y');
+        Double z = parseCoord(commandArgs, 'Z');
 
-        return updatePointWithCommand(initial, x, y, z, absoluteMode);
+        if (x.isNaN() && y.isNaN() && z.isNaN()) {
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(updatePointWithCommand(initial, x, y, z, absoluteMode));
     }
 
     /**
@@ -335,6 +340,20 @@ public class GcodePreprocessorUtils {
         return l;
     }
     
+    // TODO: Replace everything that uses this with a loop that loops through
+    //       the string and creates a hash with all the values.
+    static public boolean hasCoordinates(List<String> argList) {
+        for(String t : argList) {
+            if (t.length() > 1) {
+                char c = Character.toUpperCase(t.charAt(0));
+                if (c == 'X' || c == 'Y' || c == 'Z') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
     static public double parseCoord(List<String> argList, char c)

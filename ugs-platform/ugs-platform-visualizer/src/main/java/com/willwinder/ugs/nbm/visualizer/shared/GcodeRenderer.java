@@ -272,9 +272,15 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     }
 
     public void setObjectSize(Point3d min, Point3d max) {
-        this.objectMin = min;
-        this.objectMax = max;
-        idle = false;
+        if (min == null || max == null) {
+            this.objectMin = new Point3d(-10,-10,-10);
+            this.objectMax = new Point3d( 10, 10, 10);
+            idle = true;
+        } else {
+            this.objectMin = min;
+            this.objectMax = max;
+            idle = false;
+        }
         resizeForCamera(objectMin, objectMax, 0.9);
         forceRedraw();
     }

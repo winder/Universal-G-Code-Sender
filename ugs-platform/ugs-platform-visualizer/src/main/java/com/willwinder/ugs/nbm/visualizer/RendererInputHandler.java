@@ -107,13 +107,6 @@ public class RendererInputHandler implements
         updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
     }
 
-    public void setProcessedGcodeFile(String file) {
-        gcodeModel.setProcessedGcodeFile(file);
-        gcodeRenderer.setObjectSize(gcodeModel.getMin(), gcodeModel.getMax());
-
-        updateBounds(gcodeModel.getMin(), gcodeModel.getMax());
-    }
-
     /**
      * Pass new bounds (after interpolating arcs) in case of weird arcs.
      */
@@ -134,11 +127,9 @@ public class RendererInputHandler implements
             animator.pause();
 
             switch (cse.getFileState()) {
+                case FILE_LOADED:
                 case FILE_LOADING:
                     setGcodeFile(cse.getFile());
-                    break;
-                case FILE_LOADED:
-                    setProcessedGcodeFile(cse.getFile());
                     break;
             }
 

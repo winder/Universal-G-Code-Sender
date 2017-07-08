@@ -37,6 +37,7 @@ import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+import java.io.File;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Lookup;
@@ -128,10 +129,10 @@ public final class Visualizer2TopComponent extends TopComponent {
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
         pref.addPreferenceChangeListener(this.rih);
 
-        if (backend.getProcessedGcodeFile() != null) {
-            this.rih.setProcessedGcodeFile(backend.getProcessedGcodeFile().getAbsolutePath());
-        } else if (backend.getGcodeFile() != null) {
-            this.rih.setGcodeFile(backend.getGcodeFile().getAbsolutePath());
+        File f = (backend.getProcessedGcodeFile() != null) ?
+                backend.getProcessedGcodeFile() : backend.getGcodeFile();
+        if (f != null) {
+            this.rih.setGcodeFile(f.getAbsolutePath());
         }
 
         // Install listeners...
