@@ -3,7 +3,7 @@
  * comment.
  */
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,10 +40,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import org.apache.commons.lang3.StringUtils;
 
 public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
 
-    private final JLabel activeStateLabel  = new JLabel("Active State:");
+    private final JLabel activeStateLabel  = new JLabel(Localization.getString("mainWindow.swing.activeStateLabel"));
     private final JLabel activeStateValueLabel = new JLabel(" ");
 
     private final JLabel machinePositionLabel = new JLabel(Localization.getString("mainWindow.swing.machinePosition"));
@@ -353,7 +354,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private void setStatusColorForState(String state) {
         if (backend.getSettings().isDisplayStateColor()) {
             java.awt.Color color = null; // default to a transparent background.
-            if (state.equals(Localization.getString("mainWindow.status.alarm"))) {
+            if (state.equals(Localization.getString("mainWindow.status.alarm"))
+                    || StringUtils.startsWithIgnoreCase(state, "Alarm")) {
                 color = Color.RED;
             } else if (state.equals(Localization.getString("mainWindow.status.hold"))) {
                 color = Color.YELLOW;

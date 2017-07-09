@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2012-2017 Will Winder
+    Copyright 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,9 +31,9 @@ import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -506,5 +506,21 @@ public class GrblUtils {
             }
         }
         return null;
+    }
+
+    public static boolean isOkErrorAlarmResponse(String response) {
+        return isOkResponse(response) || isErrorResponse(response) || isAlarmResponse(response);
+    }
+
+    public static boolean isOkResponse(String response) {
+        return StringUtils.equalsIgnoreCase(response, "ok");
+    }
+
+    public static boolean isErrorResponse(String response) {
+        return StringUtils.containsIgnoreCase(response, "error");
+    }
+
+    public static boolean isAlarmResponse(String response) {
+        return StringUtils.startsWith(response, "ALARM");
     }
 }

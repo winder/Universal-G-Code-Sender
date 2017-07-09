@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -370,5 +370,22 @@ public class GrblUtilsTest {
         assertEquals("G10 P0 L20 Y0", result);
         result = GrblUtils.getResetCoordToZeroCommand('Z', version, letter);
         assertEquals("G10 P0 L20 Z0", result);
+    }
+
+    @Test
+    public void okErrorAlarmTests() {
+        assertTrue(GrblUtils.isOkResponse("ok"));
+        assertFalse(GrblUtils.isOkResponse("not ok"));
+        
+        assertTrue(GrblUtils.isErrorResponse("error: some error"));
+        assertFalse(GrblUtils.isErrorResponse("ok"));
+
+        assertTrue(GrblUtils.isAlarmResponse("ALARM:1"));
+        assertFalse(GrblUtils.isAlarmResponse("ok"));
+
+        assertTrue(GrblUtils.isOkErrorAlarmResponse("ok"));
+        assertTrue(GrblUtils.isOkErrorAlarmResponse("error: some error"));
+        assertTrue(GrblUtils.isOkErrorAlarmResponse("ALARM:1"));
+        assertFalse(GrblUtils.isOkErrorAlarmResponse("not ok"));
     }
 }

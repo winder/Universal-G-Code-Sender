@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copyright 2015-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -35,7 +35,7 @@ public class XLCDCommunicator extends GrblCommunicator {
 
     @Override
     protected boolean processedCommand(String response) {
-        if (UGSCommandCount > 0 && GcodeCommand.isOkErrorResponse(response)) {
+        if (UGSCommandCount > 0 && GrblUtils.isOkErrorAlarmResponse(response)) {
             UGSCommandCount--;
             return true;
         }

@@ -2,7 +2,7 @@
  * Abstract Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2017 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -781,7 +781,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         GcodeCommand command = this.activeCommands.remove(0);
 
         command.setResponse(response);
-        //updateParserModalState(command);
 
         this.numCommandsCompleted++;
 

@@ -7,7 +7,7 @@
  */
 
 /*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +27,7 @@
 
 package com.willwinder.universalgcodesender.types;
 
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 
 /**
@@ -34,7 +35,6 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
  * @author wwinder
  */
 public class GcodeCommand {
-    private static final String ERROR = "error";
     private String command;
     private String originalCommand;
     private String response;
@@ -167,10 +167,10 @@ public class GcodeCommand {
         }
         
         // Command complete, can be 'ok' or 'error'.
-        if (response.toLowerCase().equals("ok")) {
+        if (GrblUtils.isOkResponse(response)) {
             this.isOk = true;
             this.isError = false;
-        } else if (response.toLowerCase().startsWith(ERROR)) {
+        } else if (GrblUtils.isErrorResponse(response) || GrblUtils.isAlarmResponse(response)) {
             this.isOk = false;
             this.isError = true;
         }
@@ -189,7 +189,7 @@ public class GcodeCommand {
             returnString = "ok" + number;
         }
         else if (this.isError) {
-            returnString = ERROR+number+"["+response.substring("error: ".length()) + "]";
+            returnString = "error"+number+"["+response.substring("error: ".length()) + "]";
         }
         
         return returnString;
@@ -197,14 +197,5 @@ public class GcodeCommand {
     
     public Boolean isDone() {
         return (this.response != null);
-    }
-    
-    public static Boolean isOkErrorResponse(String response) {
-        if (response.toLowerCase().equals("ok")) {
-            return true;
-        } else if (response.toLowerCase().startsWith(ERROR)) {
-            return true;
-        }
-        return false;
     }
 }

@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Noah Levy, William Winder
+    Copyright 2013-2017 Noah Levy, William Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -165,7 +165,6 @@ public class GcodeViewParse {
         // Save the state
         Point3d start = new Point3d();
 
-        try {
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
             for (String command : commands) {
@@ -177,9 +176,6 @@ public class GcodeViewParse {
                     }
                 }
             }
-        }
-        } catch (Exception e) {
-            System.out.println("Here...");
         }
         
         return lines;

@@ -2,7 +2,7 @@
  * GRBL Control layer, coordinates all aspects of control.
  */
 /*
-    Copywrite 2013-2017 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -106,111 +106,145 @@ public class GrblController extends AbstractController {
     /***********************
      * API Implementation. *
      ***********************/
+
+    private static String lookupCode(String input, boolean shortString) {
+        if (input.contains(":")) {
+            String inputParts[] = input.split(":");
+            if (inputParts.length == 2) {
+                String code = inputParts[1].trim();
+                if (StringUtils.isNumeric(code)) {
+                    String[] lookupParts = null;
+                    switch(inputParts[0].toLowerCase()) {
+                        case "error":
+                            lookupParts = ERRORS.lookup(code);
+                            break;
+                        case "alarm":
+                            lookupParts = ALARMS.lookup(code);
+                            break;
+                        default:
+                            return input;
+                    }
+
+                    if (shortString)
+                        return input + " (" + lookupParts[1] + ")";
+                    else 
+                        return "(" + input + ") " + lookupParts[2];
+                }
+            }
+        }
+
+        return input;
+    }
     
     @Override
     protected void rawResponseHandler(String response) {
-        if (GcodeCommand.isOkErrorResponse(response)) {
-            String processed = response;
-            if (response.startsWith("error:")) {
-                String parts[] = response.split(":");
-                if (parts.length == 2) {
-                    String code = parts[1].trim();
-                    if (StringUtils.isNumeric(code)) {
-                        String[] errorParts = ERRORS.lookup(code);
-                        if (errorParts != null && errorParts.length >= 3) {
-                            processed = "error: " + errorParts[1] + ": " +
-                                    errorParts[2];
-                        }
-                    }
-                }
-            }
-            try {
+        String processed = response;
+        try {
+            boolean verbose = false;
+
+            if (GrblUtils.isOkResponse(response)) {
                 this.commandComplete(processed);
-                this.messageForConsole(processed + "\n");
-            } catch (Exception e) {
-                String message = "";
-                if (e.getMessage() != null) {
-                    message = ": " + e.getMessage();
+            }
+
+            else if (GrblUtils.isOkErrorAlarmResponse(response)) {
+                if (GrblUtils.isAlarmResponse(response)) {
+                    //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
+                    // TODO: Find a builder library.
+                    this.controllerStatus = new ControllerStatus(
+                            lookupCode(response, true), 
+                            this.controllerStatus.getMachineCoord(),
+                            this.controllerStatus.getWorkCoord(),
+                            this.controllerStatus.getFeedSpeed(),
+                            this.controllerStatus.getSpindleSpeed(),
+                            this.controllerStatus.getOverrides(),
+                            this.controllerStatus.getWorkCoordinateOffset(),
+                            this.controllerStatus.getEnabledPins(),
+                            this.controllerStatus.getAccessoryStates());
+                    dispatchStatusString(this.controllerStatus);
+                    dispatchStateChange(COMM_IDLE);
                 }
-                this.errorMessageForConsole(Localization.getString("controller.error.response")
-                        + " <" + processed + ">" + message);
-            }
-        }
-        
-        else if (GrblUtils.isGrblVersionString(response)) {
-            this.controllerStatus = null;
-            this.stopPollingPosition();
-            positionPollTimer = createPositionPollTimer();
-            this.beginPollingPosition();
 
-            this.isReady = true;
-            resetBuffers();
-
-            // In case a reset occurred while streaming.
-            if (this.isStreaming()) {
-                checkStreamFinished();
+                processed = lookupCode(response, false);
+                this.errorMessageForConsole(processed);
+                this.commandComplete(processed);
             }
 
-            // Version string goes to console
-            this.messageForConsole(response + "\n");
+            else if (GrblUtils.isGrblVersionString(response)) {
+                this.controllerStatus = null;
+                this.stopPollingPosition();
+                positionPollTimer = createPositionPollTimer();
+                this.beginPollingPosition();
+
+                this.isReady = true;
+                resetBuffers();
+
+                // In case a reset occurred while streaming.
+                if (this.isStreaming()) {
+                    checkStreamFinished();
+                }
+                
+                this.grblVersion = GrblUtils.getVersionDouble(response);
+                this.grblVersionLetter = GrblUtils.getVersionLetter(response);
+                
+                this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
+                try {
+                    this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
+                    this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                this.beginPollingPosition();
+                
+                Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
+                        "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
+                Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
+                        "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.REAL_TIME});
+            }
             
-            this.grblVersion = GrblUtils.getVersionDouble(response);
-            this.grblVersionLetter = GrblUtils.getVersionLetter(response);
-            
-            this.capabilities = GrblUtils.getGrblStatusCapabilities(this.grblVersion, this.grblVersionLetter);
-            try {
-                this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND));
-                this.sendCommandImmediately(createCommand(GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            else if (GrblUtils.isGrblProbeMessage(response)) {
+                Position p = GrblUtils.parseProbePosition(response, getReportingUnits());
+                if (p != null) {
+                    dispatchProbeCoordinates(p);
+                }
             }
 
-            this.beginPollingPosition();
-            
-            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
-            Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                    "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.REAL_TIME});
-        }
-        
-        else if (GrblUtils.isGrblProbeMessage(response)) {
-            this.messageForConsole(response + "\n");
+            else if (GrblUtils.isGrblStatusString(response)) {
+                // Only 1 poll is sent at a time so don't decrement, reset to zero.
+                this.outstandingPolls = 0;
 
-            Position p = GrblUtils.parseProbePosition(response, getReportingUnits());
-            if (p != null) {
-                dispatchProbeCoordinates(p);
+                // Status string goes to verbose console
+                verbose = true;
+                
+                this.handleStatusString(response);
             }
-        }
 
-        else if (GrblUtils.isGrblStatusString(response)) {
-            // Only 1 poll is sent at a time so don't decrement, reset to zero.
-            this.outstandingPolls = 0;
-
-            // Status string goes to verbose console
-            verboseMessageForConsole(response + "\n");
-            
-            this.handleStatusString(response);
-        }
-
-        else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
-            GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
-            this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
-            this.messageForConsole(response + "\n");
-            setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
-            setUnitsCode(grblFeedbackMessage.getUnits());
-        }
-
-        else if (GrblUtils.isGrblSettingMessage(response)) {
-            GrblSettingMessage message = new GrblSettingMessage(response);
-            this.messageForConsole(message + "\n");
-            if (message.isReportingUnits()) {
-                setReportingUnits(message.getReportingUnits());
+            else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
+                GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
+                this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
+                setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
+                setUnitsCode(grblFeedbackMessage.getUnits());
             }
-        }
 
-        else {
-            // Display any unhandled messages
-            this.messageForConsole(response + "\n");
+            else if (GrblUtils.isGrblSettingMessage(response)) {
+                GrblSettingMessage message = new GrblSettingMessage(response);
+                if (message.isReportingUnits()) {
+                    setReportingUnits(message.getReportingUnits());
+                }
+            }
+
+            if (verbose) {
+                this.verboseMessageForConsole(response + "\n");
+            } else {
+                this.messageForConsole(processed + "\n");
+            }
+        } catch (Exception e) {
+            String message = "";
+            if (e.getMessage() != null) {
+                message = ": " + e.getMessage();
+            }
+            this.errorMessageForConsole(Localization.getString("controller.error.response")
+                    + " <" + processed + ">" + message);
         }
     }
 
@@ -325,8 +359,8 @@ public class GrblController extends AbstractController {
                 if (isStreaming()){
                     return ControlState.COMM_SENDING_PAUSED;
                 }
-            case "check":
             case "alarm":
+            case "check":
             default:
                 return ControlState.COMM_IDLE;
         }

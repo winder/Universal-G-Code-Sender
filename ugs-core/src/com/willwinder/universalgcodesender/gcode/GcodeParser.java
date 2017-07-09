@@ -9,7 +9,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -285,7 +285,6 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static final List<String> MOVEMENT_CODES = ImmutableList.of("0", "1", "2", "3");
     private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+(\\d+)");
     private static GcodeMeta handleGCode(final String code, List<String> args, int line, GcodeState state)
             throws GcodeParserException {
@@ -304,7 +303,6 @@ public class GcodeParser implements IGcodeParser {
 
         // If it is a movement code make sure it has some coordinates.
         if (GcodePreprocessorUtils.hasCoordinates(args)) {
-        //if (MOVEMENT_CODES.contains(codeChar)) {
             nextPoint = GcodePreprocessorUtils.updatePointWithCommand(args, state.currentPoint, state.inAbsoluteMode)
                     .orElseThrow(() -> new GcodeParserException("Invalid: G" + codeChar + " with no coordinates"));
         }
