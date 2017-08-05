@@ -4,8 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
-        <artifactId>UGS</artifactId>
-        <version>2.0</version>
+        <artifactId>ugs-parent</artifactId>
+        <version>2.0-SNAPSHOT</version>
     </parent>
 
     <groupId>com.willwinder</groupId>
@@ -14,6 +14,25 @@
     <packaging>pom</packaging>
 
     <name>ugs-platform-parent</name>
+
+    <properties>
+      <netbeans.version>RELEASE81</netbeans.version>
+
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+      <!--==== Netbeans Plugin Settings ====-->
+      <brandingToken>ugsplatform</brandingToken>
+      <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
+
+      <!--==== Plugin Versions ====-->
+      <ugs.maven-surefire-plugin>2.20</ugs.maven-surefire-plugin>
+
+      <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
+
+      <ugs.maven-compiler-plugin.version>3.6.1</ugs.maven-compiler-plugin.version>
+
+      <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
+    </properties>
 
     <repositories>
         <!--
@@ -34,7 +53,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
-                    <version>4.1</version>
+                    <version>${ugs.nbm-maven-plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
                         <brandingToken>${brandingToken}</brandingToken>
@@ -46,7 +65,7 @@
                     <!-- NetBeans 6.9+ requires JDK 6, starting NetBeans 7.4 source 1.7 is required -->
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>2.5.1</version>
+                    <version>${ugs.maven-compiler-plugin.version}</version>
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
@@ -55,7 +74,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
+                <version>${ugs.maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <!-- required since nbm-maven-plugin 3.0-->
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
+                </configuration>
             </plugin>
             </plugins>
         </pluginManagement>
@@ -71,8 +96,4 @@
         <module>ugs-platform-gcode-editor</module>
         <module>ugs-platform-surfacescanner</module>
     </modules>
-
-    <properties>
-        <brandingToken>ugsplatform</brandingToken>
-    </properties>
 </project>

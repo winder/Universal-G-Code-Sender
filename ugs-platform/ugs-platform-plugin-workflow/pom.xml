@@ -6,20 +6,19 @@
         <artifactId>ugs-platform-parent</artifactId>
         <version>2.0-SNAPSHOT</version>
     </parent>
+    
     <artifactId>ugs-platform-plugin-workflow</artifactId>
+    <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <extensions>true</extensions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                    <publicPackages>
+                    </publicPackages>
                 </configuration>
             </plugin>
             <plugin>
@@ -75,7 +74,4 @@
             <version>${netbeans.version}</version>
         </dependency>
     </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 </project>

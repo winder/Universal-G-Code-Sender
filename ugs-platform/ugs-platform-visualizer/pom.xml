@@ -6,8 +6,11 @@
         <artifactId>ugs-platform-parent</artifactId>
         <version>2.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>ugs-platform-visualizer</artifactId>
+    <version>2.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
+
     <build>
         <plugins>
             <plugin>
@@ -19,13 +22,6 @@
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.shared</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.options</publicPackage>
                     </publicPackages>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <useDefaultManifestFile>true</useDefaultManifestFile>
                 </configuration>
             </plugin>
         </plugins>
@@ -67,7 +63,4 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 </project>
