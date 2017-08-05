@@ -50,6 +50,8 @@ import org.apache.commons.lang3.StringUtils;
  * @author wwinder
  */
 public class GrblController extends AbstractController {
+    private static final Logger logger = Logger.getLogger(GrblController.class.getName());
+
     private static final GrblLookups ALARMS = new GrblLookups("alarm_codes");
     private static final GrblLookups ERRORS = new GrblLookups("error_codes");
 
@@ -244,8 +246,11 @@ public class GrblController extends AbstractController {
             if (e.getMessage() != null) {
                 message = ": " + e.getMessage();
             }
-            this.errorMessageForConsole(Localization.getString("controller.error.response")
-                    + " <" + processed + ">" + message);
+            message = Localization.getString("controller.error.response")
+                    + " <" + processed + ">" + message;
+
+            logger.log(Level.SEVERE, message, e);
+            this.errorMessageForConsole(message);
         }
     }
 
