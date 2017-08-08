@@ -17,19 +17,30 @@
 
     <properties>
       <netbeans.version>RELEASE81</netbeans.version>
+      <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+      <!--==== Mac OS X bundle settings ====-->
+      <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
+      <ugs.bundle.jre.url>http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163</ugs.bundle.jre.url>
+      <ugs.bundle.jre.version>jre-8u131-macosx-x64</ugs.bundle.jre.version>
+
+      <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
+      <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
 
       <!--==== Netbeans Plugin Settings ====-->
       <brandingToken>ugsplatform</brandingToken>
       <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
 
       <!--==== Plugin Versions ====-->
-      <ugs.maven-surefire-plugin>2.20</ugs.maven-surefire-plugin>
+      <ugs.maven-surefire-plugin.version>2.20</ugs.maven-surefire-plugin.version>
 
       <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
 
       <ugs.maven-compiler-plugin.version>3.6.1</ugs.maven-compiler-plugin.version>
+
+      <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
       <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
     </properties>
@@ -71,17 +82,22 @@
                         <target>1.8</target>
                     </configuration>
                 </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${ugs.maven-jar-plugin.version}</version>
-                <configuration>
-                    <archive>
-                        <!-- required since nbm-maven-plugin 3.0-->
-                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
-            </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-jar-plugin</artifactId>
+                  <version>${ugs.maven-jar-plugin.version}</version>
+                  <configuration>
+                      <archive>
+                          <!-- required since nbm-maven-plugin 3.0-->
+                          <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                      </archive>
+                  </configuration>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <version>${ugs.maven-antrun-plugin.version}</version>
+              </plugin>
             </plugins>
         </pluginManagement>
     </build>
