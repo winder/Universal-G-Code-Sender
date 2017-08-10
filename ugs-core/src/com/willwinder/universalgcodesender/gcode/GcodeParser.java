@@ -193,9 +193,6 @@ public class GcodeParser implements IGcodeParser {
             state.speed = Double.parseDouble(fCodes.remove(fCodes.size()-1));
         }
         
-        if (command.contains("M3")) {
-            System.out.println("here.");
-        }
         // handle G codes.
         List<String> gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
         
@@ -229,6 +226,10 @@ public class GcodeParser implements IGcodeParser {
      * Create a PointSegment representing the linear command.
      */
     private static PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
+        if (nextPoint == null) {
+            return null;
+        }
+
         PointSegment ps = new PointSegment(nextPoint, line);
 
         boolean zOnly = false;
@@ -253,6 +254,10 @@ public class GcodeParser implements IGcodeParser {
      * Create a PointSegment representing the arc command.
      */
     private static PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line, GcodeState state) {
+        if (nextPoint == null) {
+            return null;
+        }
+
         PointSegment ps = new PointSegment(nextPoint, line);
 
         Point3d center =
