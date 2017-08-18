@@ -8,6 +8,26 @@
   <version>2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
+  <scm>
+    <connection>scm:git:git@github.com:winder/Universal-G-Code-Sender.git</connection>
+    <developerConnection>scm:git:git@github.com:winder/Universal-G-Code-Sender.git</developerConnection>
+    <url>https://github.com/winder/Universal-G-Code-Sender/tree/master</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>GNU General Public License, version 3 (GPL-3.0)</name>
+      <url>https://opensource.org/licenses/GPL-3.0</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Will Winder</name>
+      <email>wwinder.unh@gmail.com</email>
+    </developer>
+  </developers>
+
   <properties>
     <jetty.version>8.1.16.v20140903</jetty.version>
     <gluegen.version>2.3.2</gluegen.version>

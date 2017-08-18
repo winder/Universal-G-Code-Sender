@@ -295,5 +295,97 @@
             </plugins>
           </build>
         </profile>
+
+      <profile>
+        <id>create-autoupdate</id>
+        <build>
+          <plugins>
+            <!-- NBM Plugin settings. Enable the autoupdate generation -->
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>nbm-maven-plugin</artifactId>
+              <executions>
+                <execution>
+                  <id>autoupdate</id>
+                  <goals>
+                    <goal>autoupdate</goal>
+                  </goals>
+                  <configuration>
+                    <outputDirectory>${project.build.directory}/site</outputDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </build>
+      </profile>
+
+      <!-- Profile that pushes the /site folder to GitHub's gh-pages -->
+      <!--
+         Usage:
+            mvn install -P create-autoupdate,push-autoupdate
+
+         Configuration:
+            The site-maven-plugin uses the <scm> settings from a parent POM.
+            
+            settings.xml entry for github credentials
+
+            <server>
+              <id>github</id>
+              <username>username</username>
+              <password>password</password>
+            </server>
+
+         Note: This is slow. After a 'mvn clean' this command took 6:20 min.
+      -->
+      <profile>
+        <id>push-autoupdate</id>
+        <properties>
+          <github.global.server>github</github.global.server>
+        </properties>
+        <build>
+          <plugins>
+            <!-- Copy parent's site into target/site -->
+            <!--
+            <plugin>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <executions>
+                <execution>
+                  <phase>site</phase>
+                  <configuration>
+                    <target>
+                      <copy todir="${project.build.directory}/site">
+                        <fileset dir="${basedir}/../../target/site"/>
+                      </copy>
+                    </target>
+                  </configuration>
+                  <goals>
+                    <goal>run</goal>
+                  </goals>
+                </execution>
+              </executions>
+            </plugin>
+            -->
+            <!-- Publish site folder to GitHub's gh-pages branch -->
+            <plugin>
+              <groupId>com.github.github</groupId>
+              <artifactId>site-maven-plugin</artifactId>
+              <configuration>
+                <message>Creating site for ${project.version}</message>
+                <path>${project.version}</path>
+                <merge>true</merge>
+              </configuration>
+              <executions>
+                <execution>
+                  <goals>
+                    <goal>site</goal>
+                  </goals>
+                  <phase>install</phase>
+                </execution>
+              </executions>
+            </plugin>
+          </plugins>
+        </build>
+      </profile>
     </profiles>
 </project>
