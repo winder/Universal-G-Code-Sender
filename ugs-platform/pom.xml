@@ -16,10 +16,17 @@
     <name>ugs-platform-parent</name>
 
     <properties>
+      <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
       <netbeans.version>RELEASE81</netbeans.version>
       <ugs.app.title>Universal Gcode Platform ${project.version}</ugs.app.title>
 
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+       <!-- Modules specification version, overrides project version -->
+       <!-- Adding timestamp for nightly autoupdates -->
+       <!--
+            -->
+      <ugs.modules.implementation.version>${maven.build.timestamp}</ugs.modules.implementation.version>
 
       <!--==== Mac OS X bundle settings ====-->
       <ugs.appbundle.name>Universal Gcode Platform</ugs.appbundle.name>
@@ -67,6 +74,7 @@
                     <version>${ugs.nbm-maven-plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
+                        <sourceManifestFile>${project.build.directory}/manifest.mf</sourceManifestFile>
                         <brandingToken>${brandingToken}</brandingToken>
                         <cluster>${brandingToken}</cluster>
                         <etcConfFile>launcher.conf</etcConfFile>
@@ -100,6 +108,34 @@
               </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+          <!-- Copy and apply filtering on manifest.mf file -->                                                                                   
+          <plugin>
+            <artifactId>maven-resources-plugin</artifactId>                                                                                               
+            <executions>
+              <execution>                                                                                                              
+                <id>generate-modules-xml</id>
+                <phase>generate-resources</phase>    
+                <goals>
+                  <goal>copy-resources</goal>   
+                </goals>
+                <configuration>  
+                  <outputDirectory>${basedir}/target/</outputDirectory>
+                  <resources>      
+                    <resource>
+                      <directory>src/main/nbm</directory>   
+                      <includes>
+                          <include>manifest.mf</include>
+                      </includes>
+                      <filtering>true</filtering>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
     </build>
 
     <modules>
