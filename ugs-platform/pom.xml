@@ -50,6 +50,8 @@
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
       <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
+
+      <ugs.maven-resources-plugin.version>3.0.2</ugs.maven-resources-plugin.version>
     </properties>
 
     <repositories>
@@ -100,6 +102,11 @@
                           <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                       </archive>
                   </configuration>
+              </plugin>
+              <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-resources-plugin</artifactId>
+                  <version>${ugs.maven-resources-plugin.version}</version>
               </plugin>
               <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
