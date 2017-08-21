@@ -374,6 +374,8 @@
                 <message>Creating site for ${project.version}</message>
                 <path>${project.version}</path>
                 <merge>true</merge>
+                <repositoryName>ugs-platform-updates</repositoryName>
+                <repositoryOwner>winder</repositoryOwner>
               </configuration>
               <executions>
                 <execution>
