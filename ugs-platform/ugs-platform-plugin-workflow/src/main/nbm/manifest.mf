@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/platform/plugin/workflow/Bundle.properties
 OpenIDE-Module-Java-Dependencies: Java > 1.8
-OpenIDE-Module-Implementation-Version: ${ugs.modules.implementation.version}
+OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
+

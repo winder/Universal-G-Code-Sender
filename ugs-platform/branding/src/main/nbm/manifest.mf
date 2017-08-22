@@ -1,4 +1,4 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: com/willwinder/branding/Bundle.properties
-OpenIDE-Module-Implementation-Version: ${ugs.modules.implementation.version}
+OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
 AutoUpdate-Essential-Module: true

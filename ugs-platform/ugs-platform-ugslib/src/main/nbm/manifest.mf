@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Layer: com/willwinder/ugs/nbp/lib/layer.xml
 OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/nbp/lib/Bundle.properties
-OpenIDE-Module-Implementation-Version: ${ugs.modules.implementation.version}
+OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
 AutoUpdate-Essential-Module: true
 OpenIDE-Module-Java-Dependencies: Java > 1.8
