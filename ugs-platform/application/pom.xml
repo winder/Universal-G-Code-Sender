@@ -352,7 +352,7 @@
                       </copy>
 
                       <!-- copy autoupdate files to sourceforge -->
-                      <scp todir="${sourceforge.login}:${sourceforge.password}@frs.sourceforge.net:${sourceforge.path}" sftp="true">
+                      <scp todir="${sourceforge.login}:${sourceforge.password}@frs.sourceforge.net:${sourceforge.path}" sftp="true" trust="true">
                         <fileset dir="${project.build.directory}/site/">
                           <include name="**/${project.version}/"/>
                         </fileset>
