@@ -344,11 +344,7 @@
                       <!-- remove extra files -->
                       <delete dir="${project.build.directory}/site/${project.version}/" failonerror="false"/>
                       <copy todir="${project.build.directory}/site/${project.version}">
-                        <fileset dir="${project.build.directory}/site/netbeans_site/">
-                          <exclude name="**/org-netbeans*"/>
-                          <exclude name="**/org-openide-*"/>
-                          <exclude name="**/org-jdesktop-*"/>
-                        </fileset>
+                        <fileset dir="${project.build.directory}/site/netbeans_site/" includes="**"/>
                       </copy>
 
                       <!-- copy autoupdate files to sourceforge -->
