@@ -231,13 +231,14 @@ public class GrblController extends AbstractController {
 
             else if (GrblUtils.isGrblSettingMessage(response)) {
                 GrblSettingMessage message = new GrblSettingMessage(response);
+                processed = message.toString();
                 if (message.isReportingUnits()) {
                     setReportingUnits(message.getReportingUnits());
                 }
             }
 
             if (verbose) {
-                this.verboseMessageForConsole(response + "\n");
+                this.verboseMessageForConsole(processed + "\n");
             } else {
                 this.messageForConsole(processed + "\n");
             }
