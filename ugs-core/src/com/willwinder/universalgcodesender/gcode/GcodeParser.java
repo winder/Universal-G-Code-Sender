@@ -290,7 +290,7 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+(\\d+)");
+    private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+((?:\\d*\\.)?\\d+)");
     private static GcodeMeta handleGCode(final String code, List<String> args, int line, GcodeState state)
             throws GcodeParserException {
         GcodeMeta meta = new GcodeMeta();
