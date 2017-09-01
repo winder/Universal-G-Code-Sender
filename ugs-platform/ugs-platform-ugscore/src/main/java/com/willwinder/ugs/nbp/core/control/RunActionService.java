@@ -123,13 +123,13 @@ public class RunActionService {
             ars.registerAction(GcodeAction.class.getCanonicalName() + ".resetCoordinatesToZero", Localization.getString("mainWindow.swing.resetCoordinatesButton"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".killAlarmLock", "$X",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".killAlarmLock", Localization.getString("mainWindow.swing.alarmLock"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".toggleCheckMode", "$C",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".toggleCheckMode", Localization.getString("mainWindow.swing.checkMode"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".requestParserState", "$G",
+            ars.registerAction(GcodeAction.class.getCanonicalName() + ".requestParserState", Localization.getString("mainWindow.swing.getState"),
                     category, localizedCategory, null , menuPath, localized,
                     new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
             ars.registerAction(GcodeAction.class.getCanonicalName() + ".homingCycle", Localization.getString("mainWindow.swing.homeMachine"),
