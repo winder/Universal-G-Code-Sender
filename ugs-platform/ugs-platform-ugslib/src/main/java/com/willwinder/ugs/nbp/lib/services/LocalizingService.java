@@ -123,7 +123,7 @@ public class LocalizingService {
     public final static String StopActionId = "com.willwinder.ugs.nbp.core.actions.StopAction";
     public final static String StopCategory = "Machine";
 
-    public final static String PendantTitleKey = "mainWindow.swing.pendantButton";
+    public final static String PendantTitleKey = "mainWindow.swing.pendant";
     public final static String PendantTitle = Localization.getString(PendantTitleKey, lang);
     public final static String PendantWindowPath = "Menu/Machine";
     public final static String PendantActionId = "com.willwinder.ugs.nbp.core.actions.PendantAction";
