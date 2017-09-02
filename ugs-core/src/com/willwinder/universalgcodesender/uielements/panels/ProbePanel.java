@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.components.StepSizeSpinnerModel;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.event.ActionEvent;
@@ -45,9 +44,12 @@ import net.miginfocom.swing.MigLayout;
 public class ProbePanel extends JPanel implements UGSEventListener {
     private final BackendAPI backend;
     private final Settings settings;
+    private Position start = null;
+    private Position probePosition = null;
 
     // State
     boolean probing = false;
+    boolean finalizing = false;
 
     // UI Components
     private final JSpinner feedRate = new JSpinner();
@@ -79,6 +81,8 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         }
 
         try {
+            this.start = backend.getMachinePosition();
+            this.probePosition = null;
             backend.probe(
                     this.plane.getSelectedItem().toString(),
                     settings.getProbeFeed(),
@@ -91,23 +95,26 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     }
 
     private void probeDone(Position p) {
-        if (!probing) return;
+        if (!finalizing) return;
 
         try {
             String axis = this.plane.getSelectedItem().toString();
             double offset = 0;
+            Position cur = backend.getWorkPosition();
             switch (axis) {
                 case "X":
-                    offset = p.x;
+                    offset = cur.x;
                     break;
                 case "Y":
-                    offset = p.y;
+                    offset = cur.y;
                     break;
                 case "Z":
-                    offset = p.z;
+                    offset = cur.z;
                     break;
             }
 
+            backend.sendMessageForConsole("thickness = "+settings.getProbeOffset());
+            backend.sendMessageForConsole("cur = "+offset);
             // Gcode to update location adjusting for thickness/diameter/plane
             backend.offsetTool(
                     this.plane.getSelectedItem().toString(),
@@ -117,7 +124,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
             Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        probing = false;
+        finalizing = false;
     }
 
     private static double getSpinnerDouble(JSpinner spinner) {
@@ -181,10 +188,23 @@ public class ProbePanel extends JPanel implements UGSEventListener {
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isStateChangeEvent() || evt.isSettingChangeEvent()) {
-            updateControls();
-        } else if (evt.isProbeEvent()) {
-            probeDone(evt.getProbePosition());
+        switch(evt.getEventType()){
+            case STATE_EVENT:
+            case SETTING_EVENT:
+                updateControls();
+                break;
+            case PROBE_EVENT:
+                finalizing = probing;
+                probing = false;
+                break;
+            case CONTROLLER_STATUS_EVENT:
+                if (finalizing) {
+                    probeDone(this.probePosition);
+                }
+                break;
+            case FILE_EVENT:
+                default:
+                return;
         }
     }
 }

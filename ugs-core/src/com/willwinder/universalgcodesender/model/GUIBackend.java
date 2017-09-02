@@ -441,6 +441,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         return this.controller == null ?
                 ControlState.COMM_DISCONNECTED : this.controller.getControlState();
     }
+
+    @Override
+    public Position getWorkPosition() {
+        return this.workCoord;
+    }
+
+    @Override
+    public Position getMachinePosition() {
+        return this.machineCoord;
+    }
     
     @Override
     public IController getController() {
@@ -812,6 +822,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.workCoord = status.getWorkCoord();
         this.reportUnits = machineCoord.getUnits();
         this.lastResponse = System.currentTimeMillis();
+        this.sendControlStateEvent(new UGSEvent(status), false);
     }
 
     @Override

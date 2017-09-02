@@ -23,6 +23,8 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+
 /**
  *
  * @author wwinder
@@ -32,13 +34,15 @@ public class UGSEvent {
     ControlState controlState = null;
     FileState fileState = null;
     Position probePosition = null;
+    ControllerStatus controllerStatus = null;
     String file = null;
     
     public enum EventType {
         STATE_EVENT,
         FILE_EVENT,
         SETTING_EVENT,
-        PROBE_EVENT
+        PROBE_EVENT,
+        CONTROLLER_STATUS_EVENT
     }
 
     public enum FileState {
@@ -53,6 +57,10 @@ public class UGSEvent {
         COMM_SENDING_PAUSED,
     };
     
+    public EventType getEventType(){
+        return evt;
+    }
+
     public boolean isStateChangeEvent() {
         return evt == EventType.STATE_EVENT;
     }
@@ -69,6 +77,10 @@ public class UGSEvent {
         return evt == EventType.PROBE_EVENT;
     }
 
+    public boolean isControllerStatusEvent() {
+        return evt == EventType.CONTROLLER_STATUS_EVENT;
+    }
+
     /**
      * Create a new event of given type. STATE_EVENT and FILE_EVENT have
      * required parameters, so a runtime exception will be thrown if they are
@@ -81,6 +93,7 @@ public class UGSEvent {
             case STATE_EVENT:
             case FILE_EVENT:
             case PROBE_EVENT:
+            case CONTROLLER_STATUS_EVENT:
                 throw new RuntimeException("Missing parameters for " + type + " event.");
         }
     }
@@ -117,6 +130,14 @@ public class UGSEvent {
         evt = EventType.PROBE_EVENT;
         this.probePosition = probePosition;
     }
+
+    /**
+     * Create a controller status event.
+     */
+    public UGSEvent(ControllerStatus controllerStatus){
+        evt = EventType.CONTROLLER_STATUS_EVENT;
+        this.controllerStatus = controllerStatus;
+    }
     
     // Getters
 
@@ -134,5 +155,9 @@ public class UGSEvent {
 
     public Position getProbePosition() {
         return probePosition;
+    }
+
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
     }
 }

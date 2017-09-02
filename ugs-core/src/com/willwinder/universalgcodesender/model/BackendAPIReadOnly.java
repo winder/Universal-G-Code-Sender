@@ -51,6 +51,8 @@ public interface BackendAPIReadOnly {
     public boolean canCancel();
     public boolean canSend();
     public ControlState getControlState();
+    public Position getWorkPosition();
+    public Position getMachinePosition();
 
     // Send status
     public long getNumRows();
