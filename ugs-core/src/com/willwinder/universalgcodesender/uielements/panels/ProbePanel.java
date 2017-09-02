@@ -113,8 +113,6 @@ public class ProbePanel extends JPanel implements UGSEventListener {
                     break;
             }
 
-            backend.sendMessageForConsole("thickness = "+settings.getProbeOffset());
-            backend.sendMessageForConsole("cur = "+offset);
             // Gcode to update location adjusting for thickness/diameter/plane
             backend.offsetTool(
                     this.plane.getSelectedItem().toString(),
