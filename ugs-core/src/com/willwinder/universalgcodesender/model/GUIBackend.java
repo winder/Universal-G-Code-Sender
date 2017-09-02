@@ -942,7 +942,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
     
     private void sendControlStateEvent(UGSEvent event, boolean force) {
-        logger.log(Level.FINE, "Sending control state event {0}.", event.evt);
+        logger.log(Level.FINE, "Sending control state event {0}.", event.getEventType());
         if (event.isStateChangeEvent()) {
             if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force){
                 return;
