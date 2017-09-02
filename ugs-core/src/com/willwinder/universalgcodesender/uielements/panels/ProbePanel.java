@@ -100,7 +100,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         try {
             String axis = this.plane.getSelectedItem().toString();
             double offset = 0;
-            Position cur = backend.getWorkPosition();
+            Position cur = backend.getWorkPosition().getPositionIn(UnitUtils.Units.MM);
             switch (axis) {
                 case "X":
                     offset = cur.x;
