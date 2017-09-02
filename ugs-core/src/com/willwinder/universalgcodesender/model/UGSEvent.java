@@ -31,11 +31,11 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
  */
 public class UGSEvent {
     private final EventType evt;
-    private final ControlState controlState = null;
-    private final FileState fileState = null;
-    private final Position probePosition = null;
-    private final ControllerStatus controllerStatus = null;
-    private final String file = null;
+    private ControlState controlState = null;
+    private FileState fileState = null;
+    private Position probePosition = null;
+    private ControllerStatus controllerStatus = null;
+    private String file = null;
     
     public enum EventType {
         STATE_EVENT,
