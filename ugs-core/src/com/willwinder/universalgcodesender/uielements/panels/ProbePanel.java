@@ -48,8 +48,8 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     private Position probePosition = null;
 
     // State
-    boolean probing = false;
-    boolean finalizing = false;
+    private boolean probing = false;
+    private boolean finalizing = false;
 
     // UI Components
     private final JSpinner feedRate = new JSpinner();
@@ -194,6 +194,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
                 updateControls();
                 break;
             case PROBE_EVENT:
+                // Wait for the next controller status to calculate an offset.
                 finalizing = probing;
                 probing = false;
                 break;
