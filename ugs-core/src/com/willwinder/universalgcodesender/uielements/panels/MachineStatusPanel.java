@@ -30,7 +30,6 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -47,15 +46,15 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JLabel activeStateLabel  = new JLabel(Localization.getString("mainWindow.swing.activeStateLabel"));
     private final JLabel activeStateValueLabel = new JLabel(" ");
 
-    private final JLabel machinePositionLabel = new JLabel(Localization.getString("mainWindow.swing.machinePosition"));
-    private final JLabel machinePositionXLabel = new JLabel("X:");
+    //private final JLabel machinePositionLabel = new JLabel(Localization.getString("mainWindow.swing.machinePosition"));
+    //private final JLabel machinePositionXLabel = new JLabel("X:");
     private final JLabel machinePositionXValue = new JLabel("0.00");
-    private final JLabel machinePositionYLabel = new JLabel("Y:");
+    //private final JLabel machinePositionYLabel = new JLabel("Y:");
     private final JLabel machinePositionYValue = new JLabel("0.00");
-    private final JLabel machinePositionZLabel = new JLabel("Z:");
+    //private final JLabel machinePositionZLabel = new JLabel("Z:");
     private final JLabel machinePositionZValue = new JLabel("0.00");
 
-    private final JLabel workPositionLabel = new JLabel(Localization.getString("mainWindow.swing.workPositionLabel"));
+    //private final JLabel workPositionLabel = new JLabel(Localization.getString("mainWindow.swing.workPositionLabel"));
     private final JLabel workPositionXLabel = new JLabel("X:");
     private final JLabel workPositionXValue = new JLabel("0.00");
     private final JLabel workPositionYLabel = new JLabel("Y:");

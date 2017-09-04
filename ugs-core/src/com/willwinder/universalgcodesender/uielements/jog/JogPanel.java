@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -96,7 +96,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     private void initComponents() {
-        unitButton.setText(getUnits().abbreviation);
+        updateUnitButton();
 
         double feedRate = backend.getSettings().getJogFeedRate();
         feedRateSpinner.setModel(new SpinnerNumberModel(feedRate, null, null, 10));
@@ -182,7 +182,11 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     private void updateUnitButton() {
-        unitButton.setText(getUnits().abbreviation);
+        if (getUnits() == Units.INCH){
+            unitButton.setText("inch");
+        } else {
+            unitButton.setText("mm");
+        }
     }
 
     public void increaseStepActionPerformed() {
