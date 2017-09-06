@@ -68,6 +68,7 @@ public class Settings {
     private double probeFeed = 5.0;
     private double probeDistance = -10;
     private double probeOffset = 0;
+    private double retractHeight = 0;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
@@ -515,4 +516,12 @@ public class Settings {
     public FileStats getFileStats() {
         return this.fileStats;
     }
+
+	public double getRetractHeight() {
+		return this.retractHeight;
+	}
+
+	public void setRetractHeight(double retractHeight) {
+		this.retractHeight = retractHeight;
+	}
 }
