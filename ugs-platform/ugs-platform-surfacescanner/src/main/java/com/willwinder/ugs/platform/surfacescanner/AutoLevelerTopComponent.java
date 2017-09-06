@@ -139,7 +139,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         AutoLevelSettings als = settings.getAutoLevelSettings();
         this.stepResolution.setValue(als.stepResolution);
-        this.zSurface.setValue(als.zSurface);
+        this.zSurface.setValue((int) als.zSurface);
 
         this.bulkChanges = false;
         this.stateChanged(null);
