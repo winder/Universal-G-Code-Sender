@@ -31,7 +31,6 @@ import java.text.ParseException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
@@ -55,9 +54,8 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     private final JSpinner feedRate = new JSpinner();
     private final JSpinner probeOffset = new JSpinner();
     private final JSpinner probeDistance = new JSpinner();
-    private final JComboBox<String> plane = new JComboBox<>(new String[]{"Z", "X","Y"});
+    private final JSpinner retractHeight = new JSpinner();
     private final JButton probeButton = new JButton(Localization.getString("probe.button"));
-    private final JLabel thicknessDiameter = new JLabel();
 
     public ProbePanel(BackendAPI backend) {
         this.backend = backend;
@@ -84,7 +82,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
             this.start = backend.getMachinePosition();
             this.probePosition = null;
             backend.probe(
-                    this.plane.getSelectedItem().toString(),
+                    "Z",
                     settings.getProbeFeed(),
                     settings.getProbeDistance(),
                     UnitUtils.Units.MM);
@@ -98,26 +96,15 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         if (!finalizing) return;
 
         try {
-            String axis = this.plane.getSelectedItem().toString();
-            double offset = 0;
             Position cur = backend.getWorkPosition().getPositionIn(UnitUtils.Units.MM);
-            switch (axis) {
-                case "X":
-                    offset = cur.x;
-                    break;
-                case "Y":
-                    offset = cur.y;
-                    break;
-                case "Z":
-                    offset = cur.z;
-                    break;
-            }
+            double offset = cur.z;
 
-            // Gcode to update location adjusting for thickness/diameter/plane
+            // Gcode to update location adjusting for thickness
             backend.offsetTool(
-                    this.plane.getSelectedItem().toString(),
+                    "Z",
                     offset - settings.getProbeOffset(),
                     UnitUtils.Units.MM);
+            backend.sendGcodeCommand(true, "G91 G21 G0 Z" + settings.getRetractHeight());
         } catch (Exception ex) {
             Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -135,16 +122,17 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         this.feedRate.setModel(new StepSizeSpinnerModel(settings.getProbeFeed(), 1., null, 1.));
         this.probeOffset.setModel(new StepSizeSpinnerModel(settings.getProbeOffset(), null, null, 0.1));
         this.probeDistance.setModel(new StepSizeSpinnerModel(settings.getProbeDistance(), null, null, 0.1));
+        this.retractHeight.setModel(new StepSizeSpinnerModel(settings.getRetractHeight(), null, null, 1.));
 
         this.feedRate.addChangeListener(cl -> settings.setProbeFeed(getSpinnerDouble(this.feedRate)));
         this.probeOffset.addChangeListener(cl -> settings.setProbeOffset(getSpinnerDouble(this.probeOffset)));
         this.probeDistance.addChangeListener(cl -> settings.setProbeDistance(getSpinnerDouble(this.probeDistance)));
+        this.retractHeight.addChangeListener(cl -> settings.setRetractHeight(getSpinnerDouble(this.retractHeight)));
 
         MigLayout layout = new MigLayout("fill, wrap 1");
         setLayout(layout);
 
         // Callbacks
-        this.plane.addActionListener(e -> this.updateControls());
         this.probeButton.addActionListener(this::doProbe);
 
         // Feed rate
@@ -152,7 +140,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         add(this.feedRate, "growx");
 
         // Plate thickness / bit radius
-        add(this.thicknessDiameter);
+        add(new JLabel(Localization.getString("probe.plate-thickness")));
         add(this.probeOffset, "growx");
 
         // Distance to probe
@@ -160,25 +148,19 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         add(this.probeDistance, "growx");
 
         // Probe plane
-        add(new JLabel(Localization.getString("probe.plane")));
-        add(this.plane, "growx");
+        add(new JLabel(Localization.getString("probe.retract-height")));
+        add(this.retractHeight, "growx");
 
         add(this.probeButton, "growx");
     }
 
     private void updateControls() {
         enableDisable(backend.isIdle());
-
-        if (this.plane.getSelectedItem().equals("Z")) {
-            this.thicknessDiameter.setText(Localization.getString("probe.plate-thickness"));
-        } else {
-            this.thicknessDiameter.setText(Localization.getString("probe.endmill-radius"));
-        }
     }
 
     private void enableDisable(boolean enabled) {
         this.feedRate.setEnabled(enabled);
-        this.plane.setEnabled(enabled);
+        this.retractHeight.setEnabled(enabled);
         this.probeOffset.setEnabled(enabled);
         this.probeDistance.setEnabled(enabled);
         this.probeButton.setEnabled(enabled);
