@@ -101,6 +101,11 @@
       <artifactId>core</artifactId>
       <version>${zxing.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.squirrelframework</groupId>
+      <artifactId>squirrel-foundation</artifactId>
+      <version>0.3.8</version>
+    </dependency>
 
 
     <!-- ************************* -->

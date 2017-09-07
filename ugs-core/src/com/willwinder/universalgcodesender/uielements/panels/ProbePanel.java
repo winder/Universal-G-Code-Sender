@@ -23,8 +23,10 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.StepSizeSpinnerModel;
+import static com.willwinder.universalgcodesender.uielements.panels.ProbePanel.ProbeState.*;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.event.ActionEvent;
 import java.text.ParseException;
@@ -35,20 +37,27 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import net.miginfocom.swing.MigLayout;
+import org.squirrelframework.foundation.fsm.StateMachine;
+import org.squirrelframework.foundation.fsm.StateMachineBuilder;
+import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 
 /**
  *
  * @author wwinder
  */
 public class ProbePanel extends JPanel implements UGSEventListener {
+    static enum ProbeState {
+        Waiting, FastProbe, SmallRetract, SlowProbe, SlowProbed, Finalizing
+    }
+
+    static enum ProbeEvent {
+        Start, Probed, Position, Idle
+    }
+
     private final BackendAPI backend;
     private final Settings settings;
-    private Position start = null;
     private Position probePosition = null;
-
-    // State
-    private boolean probing = false;
-    private boolean finalizing = false;
 
     // UI Components
     private final JSpinner feedRate = new JSpinner();
@@ -57,19 +66,105 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     private final JSpinner retractHeight = new JSpinner();
     private final JButton probeButton = new JButton(Localization.getString("probe.button"));
 
+    //@StateMachineParameters(stateType=String.class, eventType=ProbeEvent.class, contextType=UGSEvent.class)
+    public static class ZProbeStateMachine extends AbstractStateMachine<ZProbeStateMachine, ProbeState, ProbeEvent, UGSEvent> {
+        private final BackendAPI backend;
+        private final Settings settings;
+        private Position start = null;
+        private Position probePosition = null;
+
+        public ZProbeStateMachine(BackendAPI backend) {
+            this.backend = backend;
+            this.settings = backend.getSettings();
+        }
+
+        public void probe(ProbeState from, ProbeState to, ProbeEvent event, UGSEvent ugsState){
+            try {
+                double probeSpeed;
+
+                if (to == ProbeState.FastProbe) {
+                    probeSpeed = settings.getProbeFeed();
+                } else if (to == ProbeState.SlowProbe) {
+                    probeSpeed = settings.getProbeFeed() / 2;
+                } else {
+                    return;
+                }
+
+                this.start = backend.getMachinePosition();
+                this.probePosition = null;
+                backend.probe(
+                        "Z",
+                        probeSpeed,
+                        settings.getProbeDistance(),
+                        UnitUtils.Units.MM);
+            } catch (Exception ex) {
+                Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        public void smallRetract(ProbeState from, ProbeState to, ProbeEvent event, UGSEvent ugsState){
+            try {
+                backend.sendGcodeCommand(true, "G91 G21 G0 Z1");
+            } catch (Exception ex) {
+                Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        public void setOffsetFinalRetract(ProbeState from, ProbeState to, ProbeEvent event, UGSEvent ugsState){
+            try {
+                Position cur = backend.getWorkPosition().getPositionIn(UnitUtils.Units.MM);
+                double offset = cur.z;
+
+                // Gcode to update location adjusting for thickness
+                backend.offsetTool(
+                        "Z",
+                        offset - settings.getProbeOffset(),
+                        UnitUtils.Units.MM);
+                backend.sendGcodeCommand(true, "G91 G21 G0 Z" + settings.getRetractHeight());
+            } catch (Exception ex) {
+                Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    };
+
+    private final StateMachine<ZProbeStateMachine, ProbeState, ProbeEvent, UGSEvent> fsm;
     public ProbePanel(BackendAPI backend) {
         this.backend = backend;
         this.settings = backend.getSettings();
 
         backend.addUGSEventListener(this);
 
+        fsm = initStateMachine();
         initComponents();
         updateControls();
     }
 
-    private void doProbe(ActionEvent evt) {
-        probing = true;
+    private StateMachine<ZProbeStateMachine, ProbeState, ProbeEvent, UGSEvent> initStateMachine() {
+        StateMachineBuilder builder = StateMachineBuilderFactory.create
+                (ZProbeStateMachine.class, ProbeState.class, ProbeEvent.class, UGSEvent.class, BackendAPI.class);
 
+        // Send the fast probe
+        builder.externalTransition().from(Waiting).to(FastProbe)
+                .on(ProbeEvent.Start).callMethod("probe");
+        // After fast-probe retract a small amount
+        builder.externalTransition().from(FastProbe).to(SmallRetract)
+                .on(ProbeEvent.Probed).callMethod("smallRetract");
+        // Once retracted do a slow probe
+        builder.externalTransition().from(SmallRetract).to(SlowProbe)
+                .on(ProbeEvent.Idle).callMethod("probe");
+        // After the slow probe, wait for a position event
+        builder.externalTransition().from(SlowProbe).to(SlowProbed)
+                .on(ProbeEvent.Probed);
+        // Finalize.
+        builder.externalTransition().from(SlowProbed).to(Finalizing)
+                .on(ProbeEvent.Position).callMethod("setOffsetFinalRetract");
+        // Reset when the final retract finishes.
+        builder.externalTransition().from(Finalizing).to(Waiting).on(ProbeEvent.Idle);
+
+        return builder.newStateMachine(ProbeState.Waiting, new Object[] {backend});
+    }
+
+    private void doProbe(ActionEvent evt) {
         try {
             this.feedRate.commitEdit();
             this.probeOffset.commitEdit();
@@ -78,23 +173,10 @@ public class ProbePanel extends JPanel implements UGSEventListener {
             Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        try {
-            this.start = backend.getMachinePosition();
-            this.probePosition = null;
-            backend.probe(
-                    "Z",
-                    settings.getProbeFeed(),
-                    settings.getProbeDistance(),
-                    UnitUtils.Units.MM);
-        } catch (Exception ex) {
-            probing = false;
-            Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        fsm.fire(ProbeEvent.Start);
     }
 
     private void probeDone(Position p) {
-        if (!finalizing) return;
-
         try {
             Position cur = backend.getWorkPosition().getPositionIn(UnitUtils.Units.MM);
             double offset = cur.z;
@@ -108,8 +190,6 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         } catch (Exception ex) {
             Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        finalizing = false;
     }
 
     private static double getSpinnerDouble(JSpinner spinner) {
@@ -117,8 +197,6 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     }
 
     private void initComponents() {
-        probing = false;
-
         this.feedRate.setModel(new StepSizeSpinnerModel(settings.getProbeFeed(), 1., null, 1.));
         this.probeOffset.setModel(new StepSizeSpinnerModel(settings.getProbeOffset(), null, null, 0.1));
         this.probeDistance.setModel(new StepSizeSpinnerModel(settings.getProbeDistance(), null, null, 0.1));
@@ -166,22 +244,24 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         this.probeButton.setEnabled(enabled);
     }
 
+    /**
+     * Fire events to the probe state machine, it will handle state transitions as needed.
+     */
     @Override
     public void UGSEvent(UGSEvent evt) {
         switch(evt.getEventType()){
             case STATE_EVENT:
+                if (evt.getControlState() == COMM_IDLE){
+                    fsm.fire(ProbeEvent.Idle, evt);
+                }
             case SETTING_EVENT:
                 updateControls();
                 break;
             case PROBE_EVENT:
-                // Wait for the next controller status to calculate an offset.
-                finalizing = probing;
-                probing = false;
+                fsm.fire(ProbeEvent.Probed, evt);
                 break;
             case CONTROLLER_STATUS_EVENT:
-                if (finalizing) {
-                    probeDone(this.probePosition);
-                }
+                fsm.fire(ProbeEvent.Position, evt);
                 break;
             case FILE_EVENT:
                 default:
