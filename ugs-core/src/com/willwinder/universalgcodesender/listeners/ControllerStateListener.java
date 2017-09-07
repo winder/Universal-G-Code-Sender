@@ -1,5 +1,5 @@
 /*
-    Copyright 2015 Will Winder
+    Copyright 2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,6 +24,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
  *
  * @author wwinder
  */
-public interface UGSEventListener {
+public interface ControllerStateListener {
     public void UGSEvent(UGSEvent evt);
 }

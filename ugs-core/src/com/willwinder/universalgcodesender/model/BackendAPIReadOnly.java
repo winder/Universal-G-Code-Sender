@@ -23,6 +23,7 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
@@ -34,7 +35,19 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
  * @author wwinder
  */
 public interface BackendAPIReadOnly {
+    /**
+     * Contains all common GUI events: state changes, probe events, settings changes and file changes.
+     */
     public void addUGSEventListener(UGSEventListener listener);
+
+    /**
+     * Listener for controller status events, these come at regular intervals. 
+     */
+    public void addControllerStateListener(ControllerStateListener listener);
+
+    /**
+     * Details internal controller listener.
+     */
     public void addControllerListener(ControllerListener listener);
     
     // Config options

@@ -36,6 +36,7 @@ import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
@@ -79,7 +80,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     private String state;
     private final Collection<ControllerListener> controllerListeners = new ArrayList<>();
-    private final Collection<UGSEventListener> controlStateListeners = new ArrayList<>();
+    private final Collection<UGSEventListener> ugsEventListener = new ArrayList<>();
+    private final Collection<ControllerStateListener> controllerStateListener = new ArrayList<>();
 
     // GUI State
     private File gcodeFile = null;
@@ -132,7 +134,13 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
         logger.log(Level.INFO, "Adding control state listener.");
-        controlStateListeners.add(listener);
+        ugsEventListener.add(listener);
+    }
+
+    @Override
+    public void addControllerStateListener(ControllerStateListener listener) {
+        logger.log(Level.INFO, "Adding control state listener.");
+        controllerStateListener.add(listener);
     }
     
     @Override
@@ -236,7 +244,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         if (this.controller != null) {
             this.controller.closeCommPort();
             this.controller = null;
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_DISCONNECTED), false);
+            this.sendUGSEvent(new UGSEvent(ControlState.COMM_DISCONNECTED), false);
         }
     }
 
@@ -480,12 +488,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.gcodeFile = file;
         this.processedGcodeFile = null;
 
-        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADING,
+        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADING,
                 file.getAbsolutePath()), false);
 
         initializeProcessedLines(true, this.gcodeFile, this.gcp);
 
-        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
+        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
     }
 
@@ -500,7 +508,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         // re-initialize starting with the already processed file.
         initializeProcessedLines(true, this.processedGcodeFile, parser);
 
-        this.sendControlStateEvent(new UGSEvent(FileState.FILE_LOADED,
+        this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
     }
     
@@ -534,7 +542,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
             this.controller.beginStreaming();
         } catch (Exception e) {
-            this.sendControlStateEvent(new UGSEvent(ControlState.COMM_IDLE), false);
+            this.sendUGSEvent(new UGSEvent(ControlState.COMM_IDLE), false);
             e.printStackTrace();
             throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
         }
@@ -737,7 +745,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void controlStateChange(ControlState state) {
         // This comes from the boss, force the event change.
-        this.sendControlStateEvent(new UGSEvent(state), true);
+        this.sendUGSEvent(new UGSEvent(state), true);
     }
 
     @Override
@@ -805,7 +813,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void probeCoordinates(Position p) {
-        this.sendControlStateEvent(new UGSEvent(p), false);
+        this.sendUGSEvent(new UGSEvent(p), false);
     }
 
     @Override
@@ -822,7 +830,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.workCoord = status.getWorkCoord();
         this.reportUnits = machineCoord.getUnits();
         this.lastResponse = System.currentTimeMillis();
-        this.sendControlStateEvent(new UGSEvent(status), false);
+        this.sendControllerStateEvent(new UGSEvent(status));
     }
 
     @Override
@@ -941,7 +949,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
     
-    private void sendControlStateEvent(UGSEvent event, boolean force) {
+    private void sendUGSEvent(UGSEvent event, boolean force) {
+        if (event.isControllerStatusEvent()) return;
+
         logger.log(Level.FINE, "Sending control state event {0}.", event.getEventType());
         if (event.isStateChangeEvent()) {
             if (this.controller != null && this.controller.handlesAllStateChangeEvents() && !force){
@@ -949,7 +959,15 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             }
         }
         
-        for (UGSEventListener l : controlStateListeners) {
+        for (UGSEventListener l : ugsEventListener) {
+            l.UGSEvent(event);
+        }
+    }
+
+    private void sendControllerStateEvent(UGSEvent event) {
+        if (!event.isControllerStatusEvent()) return;
+
+        for (ControllerStateListener l : controllerStateListener) {
             l.UGSEvent(event);
         }
     }
@@ -961,6 +979,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void settingChanged() {
-        this.sendControlStateEvent(new UGSEvent(EventType.SETTING_EVENT), false);
+        this.sendUGSEvent(new UGSEvent(EventType.SETTING_EVENT), false);
     }
 }
