@@ -515,4 +515,12 @@ public class Settings {
     public FileStats getFileStats() {
         return this.fileStats;
     }
+
+	public double getRetractHeight() {
+		return this.retractHeight;
+	}
+
+	public void setRetractHeight(double retractHeight) {
+		this.retractHeight = retractHeight;
+	}
 }
