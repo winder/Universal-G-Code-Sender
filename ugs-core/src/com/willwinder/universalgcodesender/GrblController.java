@@ -649,7 +649,8 @@ public class GrblController extends AbstractController {
         }
         
         // Save max Z location
-        if (this.controllerStatus != null && this.getUnitsCode() != null) {
+        if (this.controllerStatus != null && this.getUnitsCode() != null
+                && this.controllerStatus.getMachineCoord() != null) {
             Units u = this.getUnitsCode().toUpperCase().equals("G21") ?
                     Units.MM : Units.INCH;
             double zLocationMM = this.controllerStatus.getMachineCoord().z;
