@@ -18,11 +18,16 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -41,5 +46,18 @@ public class GrblControllerMockTests {
     ArgumentCaptor<String> consoleMessageCaptor = ArgumentCaptor.forClass(String.class);
     verify(gc, times(1)).messageForConsole(consoleMessageCaptor.capture());
     assertThat(consoleMessageCaptor.getValue(), containsString(description));
+  }
+
+  @Test
+  public void testProbeResponse() {
+    GrblController gc = Mockito.spy(new GrblController());
+    doReturn(Units.MM).when(gc).getReportingUnits();
+
+    String description = "Status report options, mask";
+    gc.rawResponseListener("[PRB:-192.200,-202.000,-40.400:1]");
+
+    ArgumentCaptor<Position> probeCaptor = ArgumentCaptor.forClass(Position.class);
+    verify(gc, times(1)).dispatchProbeCoordinates(probeCaptor.capture());
+    assertThat(probeCaptor.getValue(), is(new Position(-192.200, -202.000, -40.400, Units.MM)));
   }
 }
