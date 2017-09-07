@@ -371,7 +371,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         org.openide.awt.Mnemonics.setLocalizedText(zSurfaceLabel, "Z Surface:");
 
-        zSurface.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+        zSurface.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 1.0d));
 
         org.openide.awt.Mnemonics.setLocalizedText(dataViewer, "View Data");
         dataViewer.addActionListener(new java.awt.event.ActionListener() {
