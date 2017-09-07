@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -46,15 +47,7 @@ import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
  *
  * @author wwinder
  */
-public class ProbePanel extends JPanel implements UGSEventListener {
-    static enum ProbeState {
-        Waiting, FastProbe, SmallRetract, SlowProbe, SlowProbed, Finalizing
-    }
-
-    static enum ProbeEvent {
-        Start, Probed, Position, Idle
-    }
-
+public class ProbePanel extends JPanel implements UGSEventListener, ControllerStateListener {
     private final BackendAPI backend;
     private final Settings settings;
     private Position probePosition = null;
@@ -66,7 +59,14 @@ public class ProbePanel extends JPanel implements UGSEventListener {
     private final JSpinner retractHeight = new JSpinner();
     private final JButton probeButton = new JButton(Localization.getString("probe.button"));
 
-    //@StateMachineParameters(stateType=String.class, eventType=ProbeEvent.class, contextType=UGSEvent.class)
+    static enum ProbeState {
+        Waiting, FastProbe, SmallRetract, SlowProbe, SlowProbed, Finalizing
+    }
+
+    static enum ProbeEvent {
+        Start, Probed, Position, Idle
+    }
+
     public static class ZProbeStateMachine extends AbstractStateMachine<ZProbeStateMachine, ProbeState, ProbeEvent, UGSEvent> {
         private final BackendAPI backend;
         private final Settings settings;
@@ -133,6 +133,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         this.settings = backend.getSettings();
 
         backend.addUGSEventListener(this);
+        backend.addControllerStateListener(this);
 
         fsm = initStateMachine();
         initComponents();
@@ -159,7 +160,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
         builder.externalTransition().from(SlowProbed).to(Finalizing)
                 .on(ProbeEvent.Position).callMethod("setOffsetFinalRetract");
         // Reset when the final retract finishes.
-        builder.externalTransition().from(Finalizing).to(Waiting).on(ProbeEvent.Idle);
+        builder.externalTransition().from(Finalizing).to(Waiting).on(ProbeEvent.Position);
 
         return builder.newStateMachine(ProbeState.Waiting, new Object[] {backend});
     }
@@ -173,6 +174,7 @@ public class ProbePanel extends JPanel implements UGSEventListener {
             Logger.getLogger(ProbePanel.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+        this.probeButton.setEnabled(false);
         fsm.fire(ProbeEvent.Start);
     }
 

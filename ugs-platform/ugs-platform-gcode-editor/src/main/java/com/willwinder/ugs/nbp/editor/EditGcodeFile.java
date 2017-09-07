@@ -80,9 +80,10 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
      */
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (backend == null || backend.getGcodeFile() == null) return;
 
         if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
+            if (backend == null || backend.getGcodeFile() == null) return;
+
             java.awt.EventQueue.invokeLater(() -> {
                 if (getCurrentlyOpenedEditors().isEmpty()) return;
 
