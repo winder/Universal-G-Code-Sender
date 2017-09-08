@@ -315,7 +315,9 @@ public class GcodeParser implements IGcodeParser {
             nextPoint = GcodePreprocessorUtils.updatePointWithCommand(args, state.currentPoint, state.inAbsoluteMode)
                     .orElseThrow(() -> new GcodeParserException("Invalid: " + code + " with no coordinates"));
         } else {
-            nextPoint = meta.point.point();
+            if (meta.point != null) {
+                nextPoint = meta.point.point();
+            }
         }
 
         switch (code) {
