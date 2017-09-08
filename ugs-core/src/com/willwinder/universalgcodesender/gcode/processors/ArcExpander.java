@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -102,7 +103,7 @@ public class ArcExpander implements ICommandProcessor {
             // changed the feed value.
             String feed = "F" + arcMeta.point.getSpeed();
             for (Point3d point : points) {
-                results.add(GcodePreprocessorUtils.generateLineFromPoints("G1", start, point, state.inAbsoluteMode, df) + feed);
+                results.add(GcodePreprocessorUtils.generateLineFromPoints(G1, start, point, state.inAbsoluteMode, df) + feed);
                 start = point;
                 feed = "";
             }

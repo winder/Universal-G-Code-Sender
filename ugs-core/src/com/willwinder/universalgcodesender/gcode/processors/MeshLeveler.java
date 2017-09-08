@@ -130,11 +130,14 @@ public class MeshLeveler implements ICommandProcessor {
         if (commands == null) return false;
         boolean hasLine = false;
         for (GcodeMeta command : commands) {
-            if (command.code.equals("0") || command.code.equals("1") && command.point != null) {
-                hasLine = true;
-            }
-            else if (command.code.equals("2") || command.code.equals("3")) {
-                throw new GcodeParserException(ERROR_UNEXPECTED_ARC);
+            switch(command.code) {
+                case G0:
+                case G1:
+                    hasLine = true;
+                    break;
+                case G2:
+                case G3:
+                    throw new GcodeParserException(ERROR_UNEXPECTED_ARC);
             }
         }
         return hasLine;
@@ -181,7 +184,7 @@ public class MeshLeveler implements ICommandProcessor {
         //end.z /= resultScaleFactor;
 
         String adjustedCommand = GcodePreprocessorUtils.generateLineFromPoints(
-                "G" + command.code, start, end, command.state.inAbsoluteMode, null);
+                command.code, start, end, command.state.inAbsoluteMode, null);
         return Collections.singletonList(adjustedCommand);
     }
 

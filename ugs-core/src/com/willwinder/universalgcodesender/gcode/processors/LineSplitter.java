@@ -39,6 +39,9 @@ import javax.vecmath.Point3d;
 public class LineSplitter implements ICommandProcessor {
     final double maxSegmentLength;
 
+    /**
+     * @param segmentLength length of longest single line.
+     */
     public LineSplitter(double segmentLength) {
         this.maxSegmentLength = segmentLength;
     }
@@ -51,8 +54,10 @@ public class LineSplitter implements ICommandProcessor {
     private boolean hasLine(List<GcodeMeta> commands) {
         if (commands == null) return false;
         for (GcodeMeta command : commands) {
-            if (command.code.equals("0") || command.code.equals("1")) {
-                return true;
+            switch(command.code){
+                case G0:
+                case G1:
+                    return true;
             }
         }
         return false;
@@ -100,13 +105,13 @@ public class LineSplitter implements ICommandProcessor {
 
                 Point3d next = new Point3d(newX, newY, newZ);
                 results.add(GcodePreprocessorUtils.generateLineFromPoints(
-                        "G" + command.code, current, next, command.state.inAbsoluteMode, null));
+                        command.code, current, next, command.state.inAbsoluteMode, null));
                 current = next;
             }
 
             // Add the last line point.
             results.add(GcodePreprocessorUtils.generateLineFromPoints(
-                    "G" + command.code, current, end, command.state.inAbsoluteMode, null));
+                    command.code, current, end, command.state.inAbsoluteMode, null));
         } else {
             results.add(commandString);
         }

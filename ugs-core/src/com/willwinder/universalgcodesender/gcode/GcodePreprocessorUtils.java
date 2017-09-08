@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;
@@ -256,7 +257,7 @@ public class GcodePreprocessorUtils {
 
     }
 
-    static public String generateLineFromPoints(final String command, final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
+    static public String generateLineFromPoints(final Code command, final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
             df = new DecimalFormat("#.####");

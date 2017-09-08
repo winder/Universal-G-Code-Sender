@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.XY;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -324,7 +325,7 @@ public class GcodeParserTest {
         gcp.addCommandProcessor(new CommentProcessor());
         GcodeState initialState = new GcodeState();
         initialState.currentPoint = new Point3d(0, 0, 1);
-        initialState.lastGcodeCommand = "0";
+        initialState.lastGcodeCommand = Code.G0;
         List<String> result = gcp.preprocessCommand("M05", initialState);
         assertEquals(1, result.size());
         assertEquals("M05", result.get(0));

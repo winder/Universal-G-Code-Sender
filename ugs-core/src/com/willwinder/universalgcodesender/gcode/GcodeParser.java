@@ -28,20 +28,19 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
-import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.Stats;
+import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.UNKNOWN;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.types.PointSegment;
 
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.vecmath.Point3d;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -69,7 +68,7 @@ public class GcodeParser implements IGcodeParser {
         /**
          * Gcode command in line.
          */
-        public String code;
+        public Code code;
 
         /**
          * Gcode state after processing the command.
@@ -194,23 +193,32 @@ public class GcodeParser implements IGcodeParser {
         }
         
         // handle G codes.
-        List<String> gCodes = GcodePreprocessorUtils.parseCodes(args, 'G');
+        List<String> gCodeStrings = GcodePreprocessorUtils.parseCodes(args, 'G');
+        List<Code> gCodes = gCodeStrings.stream()
+                .map(c -> 'G' + c)
+                .map(Code::lookupCode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         
         // If there was no command and there are coordinates, add the implicit one to the party.
-        if (gCodes.isEmpty() && !StringUtils.isBlank(state.lastGcodeCommand)
+        if (gCodes.isEmpty() && state.lastGcodeCommand != null
                 && GcodePreprocessorUtils.hasCoordinates(args)) {
             gCodes.add(state.lastGcodeCommand);
         }
         
         List<GcodeMeta> results = new ArrayList<>();
-        for (String i : gCodes) {
-            GcodeMeta meta = handleGCode(i, args, line, state);
-            meta.command = command;
-            // Commands like 'G21' don't return a point segment.
-            if (meta.point != null) {
-                meta.point.setSpeed(state.speed);
+        for (Code i : gCodes) {
+            if (i == UNKNOWN) {
+                logger.warning("An unknown gcode command was detected in: " + command);
+            } else {
+                GcodeMeta meta = handleGCode(i, args, line, state);
+                meta.command = command;
+                // Commands like 'G21' don't return a point segment.
+                if (meta.point != null) {
+                    meta.point.setSpeed(state.speed);
+                }
+                results.add(meta);
             }
-            results.add(meta);
         }
         
         return results;
@@ -290,102 +298,100 @@ public class GcodeParser implements IGcodeParser {
      * 
      * A copy of the state object should go in the resulting GcodeMeta object.
      */
-    private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+((?:\\d*\\.)?\\d+)");
-    private static GcodeMeta handleGCode(final String code, List<String> args, int line, GcodeState state)
+    private static GcodeMeta handleGCode(final Code code, List<String> args, int line, GcodeState state)
             throws GcodeParserException {
         GcodeMeta meta = new GcodeMeta();
 
-        Matcher m = CODE_PATTERN.matcher(code);
-        if (!m.matches()) {
-            throw new GcodeParserException("Invalid gcode in handleGCode: " + code);
-        }
-
-        final String codeChar = m.group(1);
-
-        meta.code = codeChar;
+        meta.code = code;
 
         Point3d nextPoint = null;
 
         // If it is a movement code make sure it has some coordinates.
-        if (GcodePreprocessorUtils.hasCoordinates(args)) {
+        if (code.requiresCoordinates()) {
+            if (!GcodePreprocessorUtils.hasCoordinates(args)){
+                throw new GcodeParserException("Invalid: " + code + " with no coordinates");
+            }
+
             nextPoint = GcodePreprocessorUtils.updatePointWithCommand(args, state.currentPoint, state.inAbsoluteMode)
-                    .orElseThrow(() -> new GcodeParserException("Invalid: G" + codeChar + " with no coordinates"));
+                    .orElseThrow(() -> new GcodeParserException("Invalid: " + code + " with no coordinates"));
+        } else {
+            nextPoint = meta.point.point();
         }
 
-        switch (codeChar) {
-            case "0":
+        switch (code) {
+            case G0:
                 meta.point = addLinearPointSegment(nextPoint, true, line, state);
                 break;
-            case "1":
+            case G1:
                 meta.point = addLinearPointSegment(nextPoint, false, line, state);
                 break;
 
             // Arc command.
-            case "2":
+            case G2:
                 meta.point = addArcPointSegment(nextPoint, true, args, line, state);
                 break;
-            case "3":
+            case G3:
                 meta.point = addArcPointSegment(nextPoint, false, args, line, state);
                 break;
 
-            case "17":
+            case G17:
                 state.plane = XY;
                 break;
 
-            case "18":
+            case G18:
                 state.plane = ZX;
                 break;
 
-            case "19":
+            case G19:
                 state.plane = YZ;
                 break;
 
-            case "17.1":
+            case G17_1:
                 state.plane = UV;
                 break;
 
-            case "18.1":
+            case G18_1:
                 state.plane = WU;
                 break;
 
-            case "19.1":
+            case G19_1:
                 state.plane = VW;
                 break;
 
-            case "20":
+            case G20:
                 //inch
                 state.isMetric = false;
                 break;
-            case "21":
+            case G21:
                 //mm
                 state.isMetric = true;
                 break;
 
             // Probe: http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g38
-            case "38.2": // probe toward workpiece, stop on contact, signal error if failure
-            case "38.3": // probe toward workpiece, stop on contact
-            case "38.4": // probe away from workpiece, stop on loss of contact, signal error if failure
-            case "38.5": // probe away from workpiece, stop on loss of contact
+            case G38_2: // probe toward workpiece, stop on contact, signal error if failure
+            case G38_3: // probe toward workpiece, stop on contact
+            case G38_4: // probe away from workpiece, stop on loss of contact, signal error if failure
+            case G38_5: // probe away from workpiece, stop on loss of contact
                 meta.point = addProbePointSegment(nextPoint, true, line, state);
                 break;
 
-            case "90":
+            case G90:
                 state.inAbsoluteMode = true;
                 break;
-            case "90.1":
+            case G90_1:
                 state.inAbsoluteIJKMode = true;
                 break;
 
-            case "91":
+            case G91:
                 state.inAbsoluteMode = false;
                 break;
-            case "91.1":
+            case G91_1:
                 state.inAbsoluteIJKMode = false;
                 break;
             default:
                 break;
         }
-        state.lastGcodeCommand = codeChar;
+        state.lastGcodeCommand = code;
         meta.state = state.copy();
         return meta;
     }

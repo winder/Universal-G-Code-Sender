@@ -22,6 +22,7 @@
 
 package com.willwinder.universalgcodesender.gcode;
 
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import javax.vecmath.Point3d;
 
@@ -50,7 +51,7 @@ public class GcodeState {
     public boolean isMetric = true;
     public boolean inAbsoluteMode = true;
     public boolean inAbsoluteIJKMode = false;
-    public String lastGcodeCommand = "";
+    public Code lastGcodeCommand = null;
     public Point3d currentPoint = null;
     public double speed = 0;
     public int commandNumber = 0;
