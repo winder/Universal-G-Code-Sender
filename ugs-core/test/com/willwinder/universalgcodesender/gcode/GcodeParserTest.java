@@ -33,20 +33,23 @@ import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
-import static com.willwinder.universalgcodesender.gcode.util.Plane.XY;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.vecmath.Point3d;
-import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -316,6 +319,15 @@ public class GcodeParserTest {
 
         GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
         assertEquals(1021, reader.getNumRows());
+
+        file = this.getClass().getClassLoader().getResource("./gcode/circle_test.nc.processed");
+        Files.lines(Paths.get(file.toURI())).forEach((t) -> {
+            try {
+                Assert.assertEquals(reader.getNextCommand().getCommandString(), t);
+            } catch (IOException ex) {
+                Assert.fail("Unexpected exception.");
+            }
+        });
         output.toFile().delete();
     }
 
