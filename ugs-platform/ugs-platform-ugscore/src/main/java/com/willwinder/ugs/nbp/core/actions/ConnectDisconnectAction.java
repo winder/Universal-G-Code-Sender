@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+import java.awt.Component;
+import java.awt.Image;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -32,8 +34,14 @@ import org.openide.awt.ActionRegistration;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
+import org.apache.commons.io.IOUtils;
+import org.openide.util.Exceptions;
+import org.openide.util.actions.Presenter;
 
 /**
  * @author wwinder
@@ -53,23 +61,36 @@ import java.util.logging.Logger;
                 path = "Toolbars/Connection",
                 position = 1000)
 })
-public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
+public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener, Presenter.Toolbar {
+    private JButton connectDisconnectButton = new JButton(this);
 
-    public static final String ICON_BASE = "resources/icons/connect.png";
-    public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.gif";
+
+    public static final String ICON_BASE = "resources/icons/connect.gif";
+    public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.png";
+    public ImageIcon connectImage = null;
+    public ImageIcon connectImageDisconnect = null;
 
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
     private BackendAPI backend;
 
     public ConnectDisconnectAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+
+        try {
+            connectImage = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource(ICON_BASE)));
+            connectImageDisconnect = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource(ICON_BASE_DISCONNECT)));
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
         }
 
-        putValue("iconBase", ICON_BASE_DISCONNECT);
-        putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
-        putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
+        connectDisconnectButton.setVerticalTextPosition(SwingConstants.CENTER);
+        connectDisconnectButton.setHorizontalTextPosition(SwingConstants.LEFT);
+
+        this.UGSEvent(null);
     }
 
     @Override
@@ -78,10 +99,14 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
             putValue("iconBase", ICON_BASE);
             putValue(NAME, LocalizingService.ConnectDisconnectTitleDisconnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleDisconnect);
+            connectDisconnectButton.setIcon(connectImage);
+            connectDisconnectButton.setText(LocalizingService.ConnectDisconnectTitleDisconnect);
         } else {
             putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
             putValue("iconBase", ICON_BASE_DISCONNECT);
+            connectDisconnectButton.setIcon(connectImageDisconnect);
+            connectDisconnectButton.setText(LocalizingService.ConnectDisconnectTitleConnect);
         }
     }
 
@@ -121,5 +146,10 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
                 GUIHelpers.displayErrorDialog(e.getMessage());
             }
         }
+    }
+
+    @Override
+    public Component getToolbarPresenter() {
+        return connectDisconnectButton;
     }
 }

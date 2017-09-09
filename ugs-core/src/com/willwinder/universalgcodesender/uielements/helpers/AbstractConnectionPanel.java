@@ -46,8 +46,8 @@ public abstract class AbstractConnectionPanel extends JPanel implements UGSEvent
 
     // Icon paths
     static private final String REFRESH_ICON = "/resources/icons/refresh.gif";
-    static private final String CONNECTED_ICON = "/resources/icons/connect.png";
-    static private final String DISCONNECTED_ICON = "/resources/icons/disconnect.gif";
+    static private final String CONNECTED_ICON = "/resources/icons/connect.gif";
+    static private final String DISCONNECTED_ICON = "/resources/icons/disconnect.png";
 
     // Icon resources
     private final ImageIcon refreshIcon =  new ImageIcon(getClass().getResource(REFRESH_ICON));
