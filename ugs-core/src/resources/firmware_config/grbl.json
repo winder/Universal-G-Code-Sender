@@ -55,7 +55,7 @@
                 "enabled": true,
                 "optional": true,
                 "args": {
-                    "commandLength":50
+                    "commandLength":70
                 }
             }
         ]
