@@ -138,7 +138,7 @@ public class LocalizingService {
 
     public final static String ConnectionBaudRateToolbarTitle = Localization.getString("mainWindow.swing.baudrate.toolbarTitle", lang);
     public final static String ConnectionBaudRateToolbarTitleKey = "mainWindow.swing.baudrate.toolbarTitle";
-    public final static String ConnectionBaudRateToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionBaudRateToolbar";
+    public final static String ConnectionBaudRateToolbarActionId = "com.willwinder.ugs.nbp.core.actions.BaudRateAction";
     public final static String ConnectionBaudRateToolbarCategory = "Machine";
 
     public final static String ConnectionFirmwareToolbarTitle = Localization.getString("mainWindow.swing.firmware.toolbarTitle", lang);

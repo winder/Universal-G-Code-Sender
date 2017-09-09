@@ -1,5 +1,5 @@
 /*
-Copywrite 2015-2016 Will Winder
+Copyright 2015-2017 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.awt.Component;
-import java.awt.Image;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -34,12 +33,9 @@ import org.openide.awt.ActionRegistration;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import org.apache.commons.io.IOUtils;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.Presenter;
 
