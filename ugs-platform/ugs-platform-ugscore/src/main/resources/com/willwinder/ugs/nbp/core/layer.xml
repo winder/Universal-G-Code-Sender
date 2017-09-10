@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
+    <folder name="Actions">
+        <folder name="Machine">
+            <!-- deprecated item -->
+            <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionBaudRateToolbar.instance_hidden"/>
+        </folder>
+    </folder>
     <folder name="Menu">
         <folder name="File">
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
@@ -45,7 +51,9 @@
         <folder name="FileBrowser_hidden"/>
         <folder name="UndoRedo_hidden"/>
         <folder name="Connection">
+            <!-- deprecated item -->
             <attr intvalue="0" name="position"/>
+            <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionBaudRateToolbar.shadow_hidden"/>
         </folder>
         <folder name="StartPauseStop">
             <attr intvalue="100" name="position"/>
