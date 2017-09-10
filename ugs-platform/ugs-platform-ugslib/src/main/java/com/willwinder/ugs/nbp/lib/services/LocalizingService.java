@@ -143,7 +143,7 @@ public class LocalizingService {
 
     public final static String ConnectionFirmwareToolbarTitle = Localization.getString("mainWindow.swing.firmware.toolbarTitle", lang);
     public final static String ConnectionFirmwareToolbarTitleKey = "mainWindow.swing.firmware.toolbarTitle";
-    public final static String ConnectionFirmwareToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionFirmwareToolbar";
+    public final static String ConnectionFirmwareToolbarActionId = "com.willwinder.ugs.nbp.core.actions.FirmwareAction";
     public final static String ConnectionFirmwareToolbarCategory = "Machine";
 
     public final static String ConnectionSerialPortToolbarTitle = Localization.getString("mainWindow.swing.serialport.toolbarTitle", lang);

@@ -175,6 +175,7 @@ public class Settings {
     }
 
     public void setFirmwareVersion(String firmwareVersion) {
+        if (firmwareVersion == this.firmwareVersion) return;
         this.firmwareVersion = firmwareVersion;
         changed();
     }
@@ -193,6 +194,7 @@ public class Settings {
     }
 
     public void setPort(String port) {
+        if (this.port == port) return;
         this.port = port;
         changed();
     }
@@ -202,6 +204,7 @@ public class Settings {
     }
 
     public void setPortRate(String portRate) {
+        if (this.portRate == portRate) return;
         this.portRate = portRate;
         changed();
     }
