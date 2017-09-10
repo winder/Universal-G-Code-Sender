@@ -35,7 +35,6 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import org.openide.util.Exceptions;
 import org.openide.util.actions.Presenter;
 
@@ -55,26 +54,25 @@ import org.openide.util.actions.Presenter;
                 position = 900),
         @ActionReference(
                 path = "Toolbars/Connection",
-                position = 1000)
+                position = 975)
 })
 public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener, Presenter.Toolbar {
-    private JButton connectDisconnectButton = new JButton(this);
-
-
     public static final String ICON_BASE = "resources/icons/connect.gif";
     public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.png";
+
     public ImageIcon connectImage = null;
     public ImageIcon connectImageDisconnect = null;
 
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
     private BackendAPI backend;
+    private JButton connectDisconnectButton = new JButton(this);
 
     public ConnectDisconnectAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 
         try {
-            connectImage = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource(ICON_BASE)));
-            connectImageDisconnect = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource(ICON_BASE_DISCONNECT)));
+            connectImage = new ImageIcon(this.getClass().getClassLoader().getResource(ICON_BASE));
+            connectImageDisconnect = new ImageIcon(this.getClass().getClassLoader().getResource(ICON_BASE_DISCONNECT));
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
         }

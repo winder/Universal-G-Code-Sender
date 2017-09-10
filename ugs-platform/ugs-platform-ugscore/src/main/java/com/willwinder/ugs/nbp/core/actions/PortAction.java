@@ -18,8 +18,6 @@ along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.willwinder.ugs.nbp.core.actions;
 
-import static com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction.ICON_BASE;
-import static com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction.ICON_BASE_DISCONNECT;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -30,7 +28,6 @@ import com.willwinder.universalgcodesender.utils.CommUtils;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import javax.imageio.ImageIO;
 import static javax.swing.Action.NAME;
 import static javax.swing.Action.SMALL_ICON;
 import javax.swing.ImageIcon;
