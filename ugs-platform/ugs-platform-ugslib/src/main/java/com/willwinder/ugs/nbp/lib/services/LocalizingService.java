@@ -148,7 +148,7 @@ public class LocalizingService {
 
     public final static String ConnectionSerialPortToolbarTitle = Localization.getString("mainWindow.swing.serialport.toolbarTitle", lang);
     public final static String ConnectionSerialPortToolbarTitleKey = "mainWindow.swing.firmware.toolbarTitle";
-    public final static String ConnectionSerialPortToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.ConnectionSerialPortToolbar";
+    public final static String ConnectionSerialPortToolbarActionId = "com.willwinder.ugs.nbp.core.actions.PortAction";
     public final static String ConnectionSerialPortToolbarCategory = "Machine";
 
     public final static String FileBrowserToolbarTitle = Localization.getString("mainWindow.swing.filebrowser.toolbarTitle", lang);

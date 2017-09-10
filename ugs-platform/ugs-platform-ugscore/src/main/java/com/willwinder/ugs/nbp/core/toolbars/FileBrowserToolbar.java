@@ -41,7 +41,6 @@ import java.awt.event.ActionEvent;
         id = LocalizingService.FileBrowserToolbarActionId
 )
 @ActionRegistration(
-        iconBase = ConnectionSerialPortToolbar.ICON_BASE,
         displayName = "resources.MessagesBundle#" + LocalizingService.FileBrowserToolbarTitleKey,
         lazy = false
 )
