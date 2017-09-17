@@ -174,5 +174,6 @@
         <module>ugs-platform-plugin-workflow</module>
         <module>ugs-platform-gcode-editor</module>
         <module>ugs-platform-surfacescanner</module>
+        <module>ProbeModule</module>
     </modules>
 </project>

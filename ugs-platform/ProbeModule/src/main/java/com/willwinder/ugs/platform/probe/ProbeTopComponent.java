@@ -17,7 +17,7 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.willwinder.ugs.nbp.core.control;
+package com.willwinder.ugs.platform.probe;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -37,8 +37,10 @@ import org.openide.windows.TopComponent;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = true)
-@ActionID(category = LocalizingService.ProbeCategory, id = LocalizingService.ProbeActionId)
-@ActionReference(path = LocalizingService.ProbeWindowPath)
+@ActionID(
+        category = "Window",
+        id = LocalizingService.ProbeActionId)
+@ActionReference(path = LocalizingService.PLUGIN_WINDOW)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:ProbeTopComponent>",
         preferredID = "ProbeTopComponent"

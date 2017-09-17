@@ -40,10 +40,10 @@ public class CommandProcessorTests {
         assertEquals("G54", result.get(2));
         assertEquals("G90", result.get(3));
 
+        // Don't split S1000 onto its own line
         result = instance.processCommand("M3 S1000", null);
-        assertEquals(2, result.size());
-        assertEquals("M3", result.get(0));
-        assertEquals("S1000", result.get(1));
+        assertEquals(1, result.size());
+        assertEquals("M3 S1000", result.get(0));
 
         result = instance.processCommand("X0 Y10 F300", null);
         assertEquals(1, result.size());
