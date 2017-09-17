@@ -59,6 +59,11 @@ public class Highlight extends Renderable {
     }
 
     @Override
+    public boolean enableLighting() {
+        return false;
+    }
+
+    @Override
     public boolean rotate() {
         return true;
     }
@@ -79,8 +84,6 @@ public class Highlight extends Renderable {
         }
 
         GL2 gl = drawable.getGL().getGL2();
-
-        gl.glDisable(GL2.GL_LIGHTING);
 
         //gl.glEnable(GL2.GL_LINE_SMOOTH);
         gl.glBegin(GL_LINES);

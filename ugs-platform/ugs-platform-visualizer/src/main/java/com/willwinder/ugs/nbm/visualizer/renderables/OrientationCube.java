@@ -93,14 +93,8 @@ public class OrientationCube extends Renderable {
         gl.glLoadIdentity();
         gl.glOrtho(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5); //, maxSide, maxSide, maxSide, maxSide, maxSide);
         gl.glMatrixMode(gl.GL_MODELVIEW);
-
-        // Setup lighting
-        float[] lmodel_ambient = { 0.5f, 0.5f, 0.5f, 1.0f };
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
         
-        gl.glEnable(GL2.GL_LIGHTING); 
         drawCube(gl);
-        gl.glDisable(gl.GL_LIGHTING); 
     gl.glPopMatrix();
 
     gl.glViewport(0, 0, xSize, ySize);

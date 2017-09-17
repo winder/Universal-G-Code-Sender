@@ -131,6 +131,11 @@ public class GcodeModel extends Renderable {
     }
 
     @Override
+    public boolean enableLighting() {
+        return false;
+    }
+
+    @Override
     public boolean rotate() {
         return true;
     }
@@ -150,8 +155,6 @@ public class GcodeModel extends Renderable {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();
-
-        gl.glDisable(GL2.GL_LIGHTING);
         
         // Batch mode if available 
         if(!forceOldStyle

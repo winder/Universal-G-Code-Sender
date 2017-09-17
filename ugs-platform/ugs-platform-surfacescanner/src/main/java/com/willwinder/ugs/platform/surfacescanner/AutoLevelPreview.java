@@ -19,7 +19,6 @@
 package com.willwinder.ugs.platform.surfacescanner;
 
 import com.google.common.collect.ImmutableCollection;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -49,7 +48,7 @@ public class AutoLevelPreview extends Renderable {
     private float high[] = {0, 255, 0}; // green
     private float low[] = {255, 0, 0}; // red
 
-    public AutoLevelPreview(int priority, IRendererNotifier notifier, String title) {
+    public AutoLevelPreview(IRendererNotifier notifier, String title) {
         super(10, title);
 
         this.notifier = notifier;
@@ -122,8 +121,6 @@ public class AutoLevelPreview extends Renderable {
         
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            gl.glEnable(GL2.GL_LIGHTING); 
-
             // Scale inch to mm if needed
             double scale = UnitUtils.scaleUnits(unit, Units.MM);
             if (unit != Units.MM) {
@@ -159,8 +156,6 @@ public class AutoLevelPreview extends Renderable {
             gl.glPopMatrix();
 
             drawProbedSurface(gl);
-
-            gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
     }
 

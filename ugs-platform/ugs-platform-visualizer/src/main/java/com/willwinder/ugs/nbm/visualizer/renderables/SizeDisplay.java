@@ -30,7 +30,6 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;

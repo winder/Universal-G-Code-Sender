@@ -80,19 +80,17 @@ public class MouseOver extends Renderable {
         if (inBounds(mouseWorldCoordinates, objectMin, objectMax)) {
             GL2 gl = drawable.getGL().getGL2();
 
-            double scale = scaleFactor * 2;
+            double scale = 1. / (scaleFactor * 2);
 
             gl.glPushMatrix();
-                gl.glEnable(GL2.GL_LIGHTING); 
                 gl.glTranslated(mouseWorldCoordinates.x, mouseWorldCoordinates.y, 0.);
-                gl.glScaled(1./scale, 1./scale, 1./scale);
+                gl.glScaled(scale, scale, scale);
 
                 gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.LIGHT_GRAY), 0);
                 GLU.gluQuadricNormals(GQ, GLU.GLU_SMOOTH);
                 GLU.gluCylinder(GQ, 0f, .03f, .2, 16, 1);
                 gl.glTranslated(0, 0, 0.2);
                 GLU.gluCylinder(GQ, 0.03f, .0f, .01, 16, 1);
-                gl.glDisable(GL2.GL_LIGHTING); 
             gl.glPopMatrix();
         }
     }

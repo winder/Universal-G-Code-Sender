@@ -57,6 +57,11 @@ public class Grid extends Renderable {
     }
 
     @Override
+    public boolean enableLighting() {
+        return false;
+    }
+
+    @Override
     public boolean rotate() {
         return true;
     }

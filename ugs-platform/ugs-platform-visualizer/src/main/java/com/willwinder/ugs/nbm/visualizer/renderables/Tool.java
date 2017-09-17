@@ -67,30 +67,16 @@ public final class Tool extends Renderable {
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
         GL2 gl = drawable.getGL().getGL2();
         
+        double scale = 1. / scaleFactor;
         gl.glPushMatrix();
-            gl.glEnable(GL2.GL_LIGHTING); 
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
-            gl.glScaled(1./scaleFactor, 1./scaleFactor, 1./scaleFactor);
+            gl.glScaled(scale, scale, scale);
 
             gl.glColor4fv(VisualizerOptions.colorToFloatArray(toolColor), 0);
             glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);
             glu.gluCylinder(gq, 0f, .03f, .2, 16, 1);
             gl.glTranslated(0, 0, 0.2);
             glu.gluCylinder(gq, 0.03f, .0f, .01, 16, 1);
-            gl.glDisable(GL2.GL_LIGHTING); 
         gl.glPopMatrix();
-
-        /*
-        // The ugly yellow line. RIP.
-        gl.glBegin(GL_LINES);
-        
-            gl.glLineWidth(8.0f);
-            gl.glColor3ub(color[0], color[1], color[2]);
-            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z);
-            gl.glColor3ub(color[0], color[1], color[2]);
-            gl.glVertex3d(this.workCoord.x, this.workCoord.y, this.workCoord.z+(1.0/this.scaleFactor));
-            
-        gl.glEnd();
-        */
     }
 }

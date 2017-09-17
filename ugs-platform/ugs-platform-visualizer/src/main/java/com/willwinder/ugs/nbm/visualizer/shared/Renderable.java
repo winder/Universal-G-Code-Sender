@@ -76,6 +76,13 @@ public abstract class Renderable implements Comparable<Renderable> {
     }
 
     /**
+     * Indicates whether the object should have lighting enabled.
+     */
+    public boolean enableLighting() {
+        return true;
+    }
+
+    /**
      * Indicates whether the object should be rotated prior to calling draw.
      */
     abstract public boolean rotate();

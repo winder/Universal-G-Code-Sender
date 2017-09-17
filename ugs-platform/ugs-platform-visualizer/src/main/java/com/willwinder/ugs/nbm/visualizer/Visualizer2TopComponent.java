@@ -35,8 +35,6 @@ import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.io.File;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
