@@ -21,7 +21,6 @@ package com.willwinder.ugs.platform.surfacescanner;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.willwinder.ugs.nbm.visualizer.shared.IRendererNotifier;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -58,7 +57,6 @@ import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
 /**
@@ -662,9 +660,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         GUIHelpers.displayHelpDialog(Localization.getString("experimental.feature"));
         scanner = new SurfaceScanner(Units.MM);
         if (r == null) {
-            IRendererNotifier notifier = Lookup.getDefault().lookup(IRendererNotifier.class);
-            r = new AutoLevelPreview(notifier,
-                    Localization.getString("platform.visualizer.renderable.autolevel-preview"));
+            r = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
             RenderableUtils.registerRenderable(r);
         }
 

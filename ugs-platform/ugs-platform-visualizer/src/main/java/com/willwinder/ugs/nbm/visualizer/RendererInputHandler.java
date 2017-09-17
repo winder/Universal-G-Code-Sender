@@ -71,10 +71,14 @@ public class RendererInputHandler implements
     private final VisualizerPopupMenu visualizerPopupMenu;
     private Settings settings;
 
+    private static final int HIGH_FPS = 15;
+    private static final int LOW_FPS = 4;
+
     public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
             VisualizerPopupMenu popup, Settings s) {
         gcodeRenderer = gr;
         animator = a;
+        animator.start();
         visualizerPopupMenu = popup;
         settings = s;
 
@@ -89,10 +93,17 @@ public class RendererInputHandler implements
         gr.registerRenderable(selection);
     }
 
+    
+    private void setFPS(int fps) {
+        animator.stop();
+        animator.setFPS(fps);
+        animator.start();
+    }
+
+
     @Subscribe
     public void highlightEventListener(HighlightEvent he) {
         highlight.setHighlightedLines(he.getLines());
-        gcodeRenderer.forceRedraw();
     }
 
     @Override
@@ -149,7 +160,6 @@ public class RendererInputHandler implements
         if (selecting){
             gcodeRenderer.mouseMoved(new Point(e.getX(), e.getY()));
             selection.setEnd(gcodeRenderer.getMouseWorldLocation());
-            gcodeRenderer.forceRedraw();
             return;
         }
 
@@ -171,7 +181,6 @@ public class RendererInputHandler implements
     @Override
     public void mouseMoved(java.awt.event.MouseEvent e) {
         gcodeRenderer.mouseMoved(new Point(e.getX(), e.getY()));
-        gcodeRenderer.forceRedraw();
     }
 
     /**
@@ -180,7 +189,6 @@ public class RendererInputHandler implements
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         gcodeRenderer.zoom(e.getWheelRotation());
-        gcodeRenderer.forceRedraw();
     }
 
     
@@ -198,6 +206,7 @@ public class RendererInputHandler implements
 
     @Override
     public void windowOpened(java.awt.event.WindowEvent e) {
+        new Thread(animator::start).start();
     }
 
     @Override
@@ -244,27 +253,26 @@ public class RendererInputHandler implements
      */
     @Override
     public void mousePressed(MouseEvent e) {
+        setFPS(HIGH_FPS);
         // Zoom
         if (e.getButton() == MouseEvent.BUTTON1 && e.isMetaDown()) {
             selecting = true;
             selectionStart = gcodeRenderer.getMouseWorldLocation();
             selection.setStart(selectionStart);
-        } else {
-            animator.start();
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        setFPS(LOW_FPS);
+
         // Finish selecting.
         if (selecting) {
             selecting = false;
             selectionEnd = gcodeRenderer.getMouseWorldLocation();
             gcodeRenderer.zoomToRegion(selectionStart, selectionEnd, 1.0);
             selection.clear();
-            gcodeRenderer.forceRedraw();
         }
-        animator.stop();
     }
 
     @Override
@@ -291,7 +299,8 @@ public class RendererInputHandler implements
      */
     @Override
     public void keyPressed(KeyEvent ke) {
-        animator.start();
+        setFPS(HIGH_FPS);
+
         int DELTA_SIZE = 1;
             
         switch(ke.getKeyCode()) {
@@ -331,7 +340,7 @@ public class RendererInputHandler implements
      */
     @Override
     public void keyReleased(KeyEvent ke) {
-        animator.stop();
+        setFPS(LOW_FPS);
     }
 
     /**
@@ -342,7 +351,6 @@ public class RendererInputHandler implements
         sizeDisplay.setUnits(status.getMachineCoord().getUnits());
         gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
         gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
-        gcodeRenderer.forceRedraw();
     }
 
     @Override

@@ -69,9 +69,8 @@ import org.openide.util.lookup.ServiceProviders;
 @SuppressWarnings("serial")
 @ServiceProviders(value = {
     @ServiceProvider(service = IRenderableRegistrationService.class),
-    @ServiceProvider(service = IRendererNotifier.class),
     @ServiceProvider(service = GcodeRenderer.class)})
-public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService, IRendererNotifier {
+public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
     
     private static boolean ortho = true;
@@ -171,13 +170,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         Collections.sort(objects);
     }
     
-    @Override
-    public void forceRedraw() {
-        if (drawable != null) {
-            drawable.display();
-        }
-    }
-
     /**
      * Get the location on the XY plane of the mouse.
      */
@@ -201,7 +193,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         for (Renderable r : objects) {
             r.reloadPreferences(vo);
         }
-        forceRedraw();
     }
 
     // ------ Implement methods declared in GLEventListener ------
@@ -304,7 +295,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             idle = false;
         }
         resizeForCamera(objectMin, objectMax, 0.9);
-        forceRedraw();
     }
 
     /**
