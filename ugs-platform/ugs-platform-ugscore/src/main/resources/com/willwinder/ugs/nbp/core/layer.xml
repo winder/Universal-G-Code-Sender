@@ -69,4 +69,10 @@
             <attr intvalue="150" name="position"/>
         </folder>
     </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <!-- Moved to another package -->
+            <file name="ProbeTopComponent.settings_hidden"/>
+        </folder>
+    </folder>
 </filesystem>

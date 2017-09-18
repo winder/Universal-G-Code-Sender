@@ -135,9 +135,6 @@
                         <package>com.willwinder.universalgcodesender.visualizer</package>
                         <package>javax.vecmath</package>
                         <package>jssc</package>
-                        <package>org.squirrelframework.foundation.fsm</package>
-                        <package>org.squirrelframework.foundation.fsm.annotation</package>
-                        <package>org.squirrelframework.foundation.fsm.impl</package>
                         <package>net.miginfocom.layout</package>
                         <package>net.miginfocom.swing</package>
                         <package>net.miginfocom.swt</package>
