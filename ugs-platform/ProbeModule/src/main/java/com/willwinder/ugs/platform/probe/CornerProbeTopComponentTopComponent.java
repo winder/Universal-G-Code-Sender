@@ -112,15 +112,15 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
 
         // Initialize spinner models
         // TODO: Initialize the number.
-        outsideXOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        outsideYOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        insideXOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        insideYOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+        outsideXOffsetModel = new SpinnerNumberModel(10., -1000000, 1000000., 0.1);
+        outsideYOffsetModel = new SpinnerNumberModel(10., -1000000, 1000000., 0.1);
+        insideXOffsetModel = new SpinnerNumberModel(10., -1000000, 1000000., 0.1);
+        insideYOffsetModel = new SpinnerNumberModel(10., -1000000, 1000000., 0.1);
 
-        outsideXThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
-        outsideYThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
-        insideXThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
-        insideYThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
+        outsideXThicknessModel = new SpinnerNumberModel(2., -1000000, 1000000., 0.1);
+        outsideYThicknessModel = new SpinnerNumberModel(2., -1000000, 1000000., 0.1);
+        insideXThicknessModel = new SpinnerNumberModel(2., -1000000, 1000000., 0.1);
+        insideYThicknessModel = new SpinnerNumberModel(2., -1000000, 1000000., 0.1);
 
         measureOutside.addActionListener((e) -> {
             ProbeContext pc = new AbstractProbeService.ProbeContext(

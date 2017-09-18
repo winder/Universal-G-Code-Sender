@@ -84,6 +84,11 @@ public class ProbePathPreview extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
 
+        int xDir = (this.xSpacing > 0) ? 1 : -1;
+        int yDir = (this.ySpacing > 0) ? 1 : -1;
+        double xAbs = Math.abs(this.xSpacing);
+        double yAbs = Math.abs(this.ySpacing);
+
         // touch plate
         gl.glPushMatrix();
             // big piece
@@ -92,14 +97,14 @@ public class ProbePathPreview extends Renderable {
             gl.glColor4d(.8, .8, .8, 1);
             // y bump
             gl.glPushMatrix();
-                gl.glTranslated(0, -this.previewSize/2 + this.yThickness / 2, 0);
+                gl.glTranslated(0, yDir * -this.previewSize/2 + yDir * this.yThickness / 2, 0);
                 gl.glScaled(previewSize, this.yThickness, 2.);
                 glut.glutSolidCube(1);
             gl.glPopMatrix();
 
             // x bump
             gl.glPushMatrix();
-                gl.glTranslated(-this.previewSize/2 + this.xThickness / 2, 0, 0);
+                gl.glTranslated(xDir * -this.previewSize/2 + xDir * this.xThickness / 2, 0, 0);
                 gl.glScaled(this.xThickness, previewSize, 2.);
                 glut.glutSolidCube(1);
             gl.glPopMatrix();
@@ -119,29 +124,29 @@ public class ProbePathPreview extends Renderable {
 
         // y probe arrows
         gl.glPushMatrix();
-            gl.glRotated(90, 0, 1, 0);
-            glut.glutSolidCylinder(.1, this.xSpacing - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, this.xSpacing - 1);
+            gl.glRotated(90, 0, xDir, 0);
+            glut.glutSolidCylinder(.1, xAbs - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, xAbs - 1);
             glut.glutSolidCone(.2, 1, slices, stacks);
             gl.glTranslated(0, 0, 1);
-            gl.glRotated(-90, 0, 1, 0);
-            gl.glRotated(-90, 1, 0, 0);
-            glut.glutSolidCylinder(.1, this.ySpacing - previewSize / 2 - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, this.ySpacing - previewSize / 2 - 1);
+            gl.glRotated(-90, 0, xDir, 0);
+            gl.glRotated(-90, yDir, 0, 0);
+            glut.glutSolidCylinder(.1, yAbs - previewSize / 2 - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, yAbs - previewSize / 2 - 1);
             glut.glutSolidCone(.2, 1, slices, stacks);
         gl.glPopMatrix();
 
         // x probe arrows
         gl.glPushMatrix();
-            gl.glRotated(-90, 1, 0, 0);
-            glut.glutSolidCylinder(.1, this.ySpacing - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, this.ySpacing - 1);
+            gl.glRotated(-90, yDir, 0, 0);
+            glut.glutSolidCylinder(.1, yAbs - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, yAbs - 1);
             glut.glutSolidCone(.2, 1, slices, stacks);
             gl.glTranslated(0, 0, 1);
-            gl.glRotated(90, 1, 0, 0);
-            gl.glRotated(90, 0, 1, 0);
-            glut.glutSolidCylinder(.1, this.xSpacing - previewSize / 2 - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, this.xSpacing - previewSize / 2 - 1);
+            gl.glRotated(90, yDir, 0, 0);
+            gl.glRotated(90, 0, xDir, 0);
+            glut.glutSolidCylinder(.1, xAbs - previewSize / 2 - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, xAbs - previewSize / 2 - 1);
             glut.glutSolidCone(.2, 1, slices, stacks);
         gl.glPopMatrix();
     }
