@@ -86,7 +86,7 @@ public class MouseOver extends Renderable {
                 gl.glTranslated(mouseWorldCoordinates.x, mouseWorldCoordinates.y, 0.);
                 gl.glScaled(scale, scale, scale);
 
-                gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.LIGHT_GRAY), 0);
+                gl.glColor4fv(VisualizerOptions.colorToFloatArray(Color.WHITE), 0);
                 GLU.gluQuadricNormals(GQ, GLU.GLU_SMOOTH);
                 GLU.gluCylinder(GQ, 0f, .03f, .2, 16, 1);
                 gl.glTranslated(0, 0, 0.2);

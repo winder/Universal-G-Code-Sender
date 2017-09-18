@@ -25,7 +25,6 @@
 package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_FRONT_AND_BACK;
 import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
@@ -245,24 +244,39 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         */
 
         // init lighting
-        float ambient[] = { 40f, 40f, 40f, 100.f };
-        float diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float specular[] = { 100.0f, 100.0f, 100.0f, 100.0f };
-        float position[] = { 10f, 0f, 50f, 1.0f };
-        float lmodel_ambient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float ambient[] = { .6f, .6f, .6f, 1.f };
+        float diffuse[] = { .6f, .6f, .6f, 1.0f };
+        float position[] = { 0f, 0f, 20f, 1.0f };
 
-        //gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, specular, 0);
-        //gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_SPECULAR, ambient, 0);
+        gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_AMBIENT, ambient, 0);
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, diffuse, 0);
-        gl.glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, lmodel_ambient, 0);
         gl.glEnable(GL2.GL_LIGHT0);  
         gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_POSITION, position, 0);
+
+        // Allow glColor to set colors
+        gl.glEnable (GL2.GL_COLOR_MATERIAL) ;
+        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_DIFFUSE);
+        gl.glColorMaterial(GL.GL_FRONT, GL2.GL_AMBIENT);
+        //gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
+        //gl.glColorMaterial(GL.GL_FRONT, GL2.GL_SPECULAR);
+
+
+        float mat_specular[] =
+            { 1.0f, 1.0f, 1.0f, 1.0f };
+        float diffuseMaterial[] =
+            { 0.5f, 0.5f, 0.5f, 1.0f };
+     
+        gl.glMaterialfv(GL.GL_FRONT, GL2.GL_DIFFUSE, diffuseMaterial, 0);
+        //gl.glMaterialfv(GL.GL_FRONT, GL2.GL_SPECULAR, mat_specular, 0);
+        //gl.glMaterialf(GL.GL_FRONT, GL2.GL_SHININESS, 25.0f);
+
+        //gl.glMaterialfv(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT_AND_DIFFUSE);
+
 
 
         gl.glEnable(GL2.GL_LIGHTING); 
         for (Renderable r : objects) {
             r.init(drawable);
-            //r.setEnabled(false);
         }
     }
 
@@ -347,10 +361,6 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
         // Update normals when an object is scaled
         gl.glEnable(GL2.GL_NORMALIZE); 
-
-        // Allow glColor to set colors
-        gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-        gl.glEnable (GL2.GL_COLOR_MATERIAL ) ;
 
         // Setup the current matrix so that the projection can be done.
         if (mouseLastWindow != null) {
