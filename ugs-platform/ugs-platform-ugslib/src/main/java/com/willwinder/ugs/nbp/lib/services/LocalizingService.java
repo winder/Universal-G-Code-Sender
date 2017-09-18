@@ -96,8 +96,14 @@ public class LocalizingService {
     public final static String WorkflowWindowActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
     public final static String WorkflowWindowCategory = "Window";
 
-    public final static String ProbeTitle = Localization.getString("platform.window.probe", lang);
-    public final static String ProbeTooltip = Localization.getString("platform.window.probe.tooltip", lang);
+    public final static String ProbeHelperTitle = Localization.getString("platform.window.probe", lang);
+    public final static String ProbeHelperTooltip = Localization.getString("platform.window.probe.tooltip", lang);
+    public final static String ProbeHelperWindowPath = "Menu/Window/Plugins";
+    public final static String ProbeHelperActionId = "com.willwinder.ugs.platform.probe.ProbeHelperTopComponent";
+    public final static String ProbeHelperCategory = "Window";
+
+    public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
+    public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
     public final static String ProbeWindowPath = "Menu/Window/Plugins";
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
     public final static String ProbeCategory = "Window";
@@ -175,7 +181,7 @@ public class LocalizingService {
                         Localization.getString("platform.menu.window"),
                         Localization.getString("platform.menu.plugins")));
 
-        // Menu Items
+        // Localize Menu Items
         ars.overrideActionName(WorkflowWindowCategory, WorkflowWindowActionId, WorkflowWindowTitle);
         ars.overrideActionName(ActionsCategory, ActionsActionId, ActionsTitle);
         ars.overrideActionName(LocationStatusCategory, LocationStatusActionId, LocationStatusTitle);
@@ -187,6 +193,7 @@ public class LocalizingService {
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
         ars.overrideActionName(VisualizerCategory, VisualizerActionId, VisualizerTitle);
         ars.overrideActionName(ProbeCategory, ProbeActionId, ProbeTitle);
+        ars.overrideActionName(ProbeHelperCategory, ProbeHelperActionId, ProbeHelperTitle);
         ars.overrideActionName(AutoLevelerCategory, AutoLevelerActionId, AutoLevelerTitle);
     }
 }

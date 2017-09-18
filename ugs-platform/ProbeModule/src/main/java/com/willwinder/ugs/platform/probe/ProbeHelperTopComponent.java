@@ -32,22 +32,22 @@ import org.openide.windows.TopComponent;
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "ProbeTopComponent",
+        preferredID = "ProbeHelperTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "top_left", openAtStartup = true)
 @ActionID(
         category = "Window",
-        id = LocalizingService.ProbeActionId)
+        id = LocalizingService.ProbeHelperActionId)
 @ActionReference(path = LocalizingService.PLUGIN_WINDOW)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:ProbeTopComponent>",
-        preferredID = "ProbeTopComponent"
+        preferredID = "ProbeHelperTopComponent"
 )
-public final class ProbeTopComponent extends TopComponent {
+public final class ProbeHelperTopComponent extends TopComponent {
 
-    public ProbeTopComponent() {
+    public ProbeHelperTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());
         this.add(new ProbePanel(backend), BorderLayout.CENTER);
@@ -55,8 +55,8 @@ public final class ProbeTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        setName(LocalizingService.ProbeTitle);
-        setToolTipText(LocalizingService.ProbeTooltip);
+        setName(LocalizingService.ProbeHelperTitle);
+        setToolTipText(LocalizingService.ProbeHelperTooltip);
     }
 
     @Override

@@ -32,7 +32,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class ProbePathPreview extends Renderable {
+public class CornerProbePathPreview extends Renderable {
     private Double xSpacing = null;
     private Double ySpacing = null;
     private Double xThickness = null;
@@ -43,7 +43,7 @@ public class ProbePathPreview extends Renderable {
     private GLU glu;
     private GLUquadric gq;
 
-    public ProbePathPreview(String title) {
+    public CornerProbePathPreview(String title) {
         super(10, title);
         glut = new GLUT();
     }
