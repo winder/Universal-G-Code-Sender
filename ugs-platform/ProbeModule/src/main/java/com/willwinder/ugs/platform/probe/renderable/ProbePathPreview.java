@@ -1,10 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copyright 2017 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.glu.GLU;
@@ -19,13 +33,26 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class ProbePathPreview extends Renderable {
+    private Double xSpacing = null;
+    private Double ySpacing = null;
+    private Double xThickness = null;
+    private Double yThickness = null;
+    private final double previewSize = 5;
+
     private final GLUT glut;
     private GLU glu;
-    GLUquadric gq;
+    private GLUquadric gq;
 
     public ProbePathPreview(String title) {
         super(10, title);
         glut = new GLUT();
+    }
+
+    public void updateSpacing(double xSpacing, double ySpacing, double xThickness, double yThickness) {
+        this.xSpacing = xSpacing;
+        this.ySpacing = ySpacing;
+        this.xThickness = xThickness;
+        this.yThickness = yThickness;
     }
 
     @Override
@@ -50,23 +77,72 @@ public class ProbePathPreview extends Renderable {
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+        if (xSpacing == null || ySpacing == null) return;
+
+        final int slices = 10;
+        final int stacks = 10;
+
         GL2 gl = drawable.getGL().getGL2();
+
+        // touch plate
         gl.glPushMatrix();
-        // Setup lighting
-            //gl.glEnable(GL2.GL_LIGHTING); 
-            float red[] = { 0.8f, 0.1f, 0.0f, 0.7f };
-            gl.glMaterialfv(GL2.GL_FRONT, GL2.GL_AMBIENT_AND_DIFFUSE, red, 0);
+            // big piece
+            gl.glTranslated(this.xSpacing, this.ySpacing, workCoord.z);
 
-            gl.glShadeModel(GL2.GL_FLAT);
+            gl.glColor4d(.8, .8, .8, 1);
+            // y bump
+            gl.glPushMatrix();
+                gl.glTranslated(0, -this.previewSize/2 + this.yThickness / 2, 0);
+                gl.glScaled(previewSize, this.yThickness, 2.);
+                glut.glutSolidCube(1);
+            gl.glPopMatrix();
 
-            gl.glNormal3f(0.0f, 0.0f, 1.0f);
+            // x bump
+            gl.glPushMatrix();
+                gl.glTranslated(-this.previewSize/2 + this.xThickness / 2, 0, 0);
+                gl.glScaled(this.xThickness, previewSize, 2.);
+                glut.glutSolidCube(1);
+            gl.glPopMatrix();
 
-            //glu.gluQuadricNormals(gq, GLU.GLU_SMOOTH);
-            glut.glutSolidTeapot(5);
-            //glut.glutSolidCube(5);
-            //glu.
-            //gl.glDisable(GL2.GL_LIGHTING); 
+            gl.glColor4d(1, 1, 1, 1);
+            gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT);
+
+            gl.glPushMatrix();
+                gl.glScaled(previewSize-0.1, previewSize-0.1, 1.);
+                glut.glutSolidCube(1);
+            gl.glPopMatrix();
+
+        gl.glPopMatrix();
+
+        // Everything is going to be red now!
+        gl.glColor4d(8., 0., 0., 1);
+
+        // y probe arrows
+        gl.glPushMatrix();
+            gl.glRotated(90, 0, 1, 0);
+            glut.glutSolidCylinder(.1, this.xSpacing - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, this.xSpacing - 1);
+            glut.glutSolidCone(.2, 1, slices, stacks);
+            gl.glTranslated(0, 0, 1);
+            gl.glRotated(-90, 0, 1, 0);
+            gl.glRotated(-90, 1, 0, 0);
+            glut.glutSolidCylinder(.1, this.ySpacing - previewSize / 2 - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, this.ySpacing - previewSize / 2 - 1);
+            glut.glutSolidCone(.2, 1, slices, stacks);
+        gl.glPopMatrix();
+
+        // x probe arrows
+        gl.glPushMatrix();
+            gl.glRotated(-90, 1, 0, 0);
+            glut.glutSolidCylinder(.1, this.ySpacing - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, this.ySpacing - 1);
+            glut.glutSolidCone(.2, 1, slices, stacks);
+            gl.glTranslated(0, 0, 1);
+            gl.glRotated(90, 1, 0, 0);
+            gl.glRotated(90, 0, 1, 0);
+            glut.glutSolidCylinder(.1, this.xSpacing - previewSize / 2 - 0.5, slices, stacks);
+            gl.glTranslated(0, 0, this.xSpacing - previewSize / 2 - 1);
+            glut.glutSolidCone(.2, 1, slices, stacks);
         gl.glPopMatrix();
     }
-    
 }

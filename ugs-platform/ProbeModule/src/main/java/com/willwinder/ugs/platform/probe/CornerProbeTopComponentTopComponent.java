@@ -19,7 +19,6 @@
 
 package com.willwinder.ugs.platform.probe;
 
-import com.willwinder.ugs.nbm.visualizer.shared.IRendererNotifier;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -70,13 +69,20 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
 
     private static final String INSIDE_IMG = "images/inside.png";
     private static final String OUTSIDE_IMG = "images/outside.png";
-    private static final String xPosition = "X Position:";
-    private static final String yPosition = "Y Position:";
+    private static final String X_OFFSET = "X Offset:";
+    private static final String Y_OFFSET = "Y Offset:";
+    private static final String X_THICKNESS = "X Thickness:";
+    private static final String Y_THICKNESS = "Y Thickness:";
 
-    private SpinnerNumberModel outsideXModel;
-    private SpinnerNumberModel outsideYModel;
-    private SpinnerNumberModel insideXModel;
-    private SpinnerNumberModel insideYModel;
+    private SpinnerNumberModel outsideXOffsetModel;
+    private SpinnerNumberModel outsideYOffsetModel;
+    private SpinnerNumberModel insideXOffsetModel;
+    private SpinnerNumberModel insideYOffsetModel;
+
+    private SpinnerNumberModel outsideXThicknessModel;
+    private SpinnerNumberModel outsideYThicknessModel;
+    private SpinnerNumberModel insideXThicknessModel;
+    private SpinnerNumberModel insideYThicknessModel;
 
     private final JLabel insideImageLabel = new JLabel("", JLabel.CENTER);
     private final JLabel outsideImageLabel = new JLabel("", JLabel.CENTER);
@@ -93,7 +99,6 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
     private final ProbeService2 ps2;
     private final BackendAPI backend;
 
-    JSpinner ixp = new JSpinner();
     public CornerProbeTopComponentTopComponent() {
         setName("Corner Probe");
 
@@ -107,27 +112,49 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
 
         // Initialize spinner models
         // TODO: Initialize the number.
-        outsideXModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        outsideYModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        insideXModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
-        insideYModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+        outsideXOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+        outsideYOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+        insideXOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+        insideYOffsetModel = new SpinnerNumberModel(10., 0., 1000000., 0.1);
+
+        outsideXThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
+        outsideYThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
+        insideXThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
+        insideYThicknessModel = new SpinnerNumberModel(2., 0., 1000000., 0.1);
 
         measureOutside.addActionListener((e) -> {
             ProbeContext pc = new AbstractProbeService.ProbeContext(
                 1, backend.getMachinePosition(),
-                get(outsideXModel), get(outsideYModel), 100., 1);
+                get(outsideXOffsetModel), get(outsideYOffsetModel), 100., 1);
                 ps2.performOutsideCornerProbe(pc);
             });
 
         measureInside.addActionListener((e) -> {
             ProbeContext pc = new AbstractProbeService.ProbeContext(
                 1, backend.getMachinePosition(),
-                get(insideXModel), get(insideYModel), 100., 1);
+                get(insideXOffsetModel), get(insideYOffsetModel), 100., 1);
                 ps2.performInsideCornerProbe(pc);
             });
 
         initComponents();
         updateControls();
+
+        this.outsideXOffsetModel.addChangeListener(l -> controlChangeListener());
+        this.outsideYOffsetModel.addChangeListener(l -> controlChangeListener());
+        this.insideXOffsetModel.addChangeListener(l -> controlChangeListener());
+        this.insideYOffsetModel.addChangeListener(l -> controlChangeListener());
+
+        this.outsideXThicknessModel.addChangeListener(l -> controlChangeListener());
+        this.outsideYThicknessModel.addChangeListener(l -> controlChangeListener());
+        this.insideXThicknessModel.addChangeListener(l -> controlChangeListener());
+        this.insideYThicknessModel.addChangeListener(l -> controlChangeListener());
+    }
+
+    private void controlChangeListener() {
+        if (preview != null) {
+            this.preview.updateSpacing(get(outsideXOffsetModel), get(outsideYOffsetModel),
+                    get(outsideXThicknessModel), get(outsideYThicknessModel));
+        }
     }
 
     public void updateControls() {
@@ -154,20 +181,32 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
 
         JPanel inside = new JPanel(new MigLayout("fill, wrap 2"));
         inside.setBorder(BorderFactory.createTitledBorder("inside"));
-        inside.add(new JLabel(xPosition));
-        inside.add(new JSpinner(insideXModel), "growx");
-        inside.add(new JLabel(yPosition));
-        inside.add(new JSpinner(insideYModel), "growx");
+        inside.add(new JLabel(X_OFFSET));
+        inside.add(new JSpinner(insideXOffsetModel), "growx");
+        inside.add(new JLabel(Y_OFFSET));
+        inside.add(new JSpinner(insideYOffsetModel), "growx");
+
+        inside.add(new JLabel(X_THICKNESS));
+        inside.add(new JSpinner(insideXThicknessModel), "growx");
+        inside.add(new JLabel(Y_THICKNESS));
+        inside.add(new JSpinner(insideYThicknessModel), "growx");
+
         inside.add(insideImageLabel, "span 2, growx");
         inside.add(measureInside, "span 2, growx");
         inside.add(settings1, "span2, growx");
 
         JPanel outside = new JPanel(new MigLayout("fill, wrap 2"));
         outside.setBorder(BorderFactory.createTitledBorder("outside"));
-        outside.add(new JLabel(xPosition));
-        outside.add(new JSpinner(outsideXModel), "growx");
-        outside.add(new JLabel(yPosition));
-        outside.add(new JSpinner(outsideYModel), "growx");
+        outside.add(new JLabel(X_OFFSET));
+        outside.add(new JSpinner(outsideXOffsetModel), "growx");
+        outside.add(new JLabel(Y_OFFSET));
+        outside.add(new JSpinner(outsideYOffsetModel), "growx");
+
+        outside.add(new JLabel(X_THICKNESS));
+        outside.add(new JSpinner(outsideXThicknessModel), "growx");
+        outside.add(new JLabel(Y_THICKNESS));
+        outside.add(new JSpinner(outsideYThicknessModel), "growx");
+
         outside.add(outsideImageLabel, "span 2, growx");
         outside.add(measureOutside, "span 2, growx");
         outside.add(settings2, "span 2, growx");
@@ -198,9 +237,8 @@ public final class CornerProbeTopComponentTopComponent extends TopComponent impl
     public void componentOpened() {
         // TODO add custom code on component opening
         if (this.preview == null) {
-            //IRendererNotifier notifier = Lookup.getDefault().lookup(IRendererNotifier.class);
             this.preview = new ProbePathPreview("Preview");
-                    //Localization.getString("platform.visualizer.renderable.autolevel-preview"));
+            this.controlChangeListener();
             RenderableUtils.registerRenderable(this.preview);
         }
     }

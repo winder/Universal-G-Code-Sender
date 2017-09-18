@@ -35,18 +35,18 @@ public abstract class AbstractProbeService implements UGSEventListener, Controll
      * Context passed into state machine for each transition.
      */
     public static class ProbeContext {
-        String errorMessage;
-        UGSEvent event;
-        final double probeDiameter;
-        final double xSpacing;
-        final double ySpacing;
-        final double feedRate;
-        final int wcsToUpdate;
+        public String errorMessage;
+        public UGSEvent event;
+        public final double probeDiameter;
+        public final double xSpacing;
+        public final double ySpacing;
+        public final double feedRate;
+        public final int wcsToUpdate;
 
         // Results
-        final Position startPosition;
-        Position probePosition1;
-        Position probePosition2;
+        public final Position startPosition;
+        public Position probePosition1;
+        public Position probePosition2;
 
         public ProbeContext(double diameter, Position start,
                 double xSpacing, double ySpacing, double feedRate, int wcs) {
