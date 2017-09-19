@@ -44,6 +44,8 @@ import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.StoreXFina
 import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Start;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import javax.swing.SwingUtilities;
 
 /**
  *
@@ -74,6 +76,9 @@ public class ProbeService2 implements UGSEventListener {
         public final double xSpacing;
         public final double ySpacing;
         public final double zSpacing;
+        public final double xOffset;
+        public final double yOffset;
+        public final double zOffset;
         public final double feedRate;
         public final double feedRateSlow;
         public final double retractHeight;
@@ -87,6 +92,7 @@ public class ProbeService2 implements UGSEventListener {
 
         public ProbeContext(double diameter, Position start,
                 double xSpacing, double ySpacing, double zSpacing,
+                double xOffset, double yOffset, double zOffset,
                 double feedRate, double feedRateSlow, double retractHeight,
                 Units u, int wcs) {
             this.probeDiameter = diameter;
@@ -94,6 +100,9 @@ public class ProbeService2 implements UGSEventListener {
             this.xSpacing = xSpacing;
             this.ySpacing = ySpacing;
             this.zSpacing = zSpacing;
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.zOffset = zOffset;
             this.feedRate = feedRate;
             this.feedRateSlow = feedRateSlow;
             this.retractHeight = retractHeight;
@@ -124,14 +133,15 @@ public class ProbeService2 implements UGSEventListener {
         }
     }
 
-    private static String getG0For(Units u) {
-        return u == Units.MM ? "G91 G21 G0" : "G91 G20 G0";
+    private static String getUnitCmdFor(Units u) {
+        return u == Units.MM ? "G21" : "G20";
     }
 
     void performZProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
-        String g0 = getG0For(context.units);
+        String g = getUnitCmdFor(context.units);
+        String g0 = "G91 " + g + " G0";
 
         this.context = context;
         stateMachine = new StateMachineBuilder<Z, Event, ProbeContext>(Z.Waiting)
@@ -143,7 +153,7 @@ public class ProbeService2 implements UGSEventListener {
                 .onEnter(Z.Fast1,           c -> probe('Z', context.feedRate, context.zSpacing, context.units))
                 .onEnter(Z.SmallRetract1,   c -> gcode(g0 + " Z" + retractDistance(c.zSpacing)))
                 .onEnter(Z.Slow1,           c -> probe('Z', context.feedRateSlow, context.zSpacing, context.units))
-                .onEnter(Z.Finalize,        c -> setup(Z.Finalize, c))
+                .onEnter(Z.Finalize,        c -> finalizeZProbe(c))
 
                 .throwOnNoOpApply(false)
                 .build();
@@ -154,7 +164,8 @@ public class ProbeService2 implements UGSEventListener {
     void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
-        String g0 = getG0For(context.units);
+        String g = getUnitCmdFor(context.units);
+        String g0 = "G91 " + g + " G0";
 
         this.context = context;
         stateMachine = new StateMachineBuilder<Outside, Event, ProbeContext>(Outside.Waiting)
@@ -184,21 +195,40 @@ public class ProbeService2 implements UGSEventListener {
         stateMachine.apply(Start, context);
     }
 
-    public void setup(Z s, ProbeContext context) {
-        String g0 = getG0For(context.units);
-        context.probePosition1 = context.event.getProbePosition();
-        gcode(g0 + " Z" + context.retractHeight);
+    public void finalizeZProbe(ProbeContext context) {
+        // Update WCS
+        gcode("G10 L20 P" +context.wcsToUpdate + "Z"+ context.zOffset);
 
+        try {
+            Thread.sleep(250);
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        String g = getUnitCmdFor(context.units);
+        String g0 = "G90 " + g + " G0";
+        gcode(g0 + " Z" + context.retractHeight);
         stateMachine = null;
     }
 
     // Outside probe callbacks.
     public void setup(Outside s, ProbeContext context) {
-        String g0 = getG0For(context.units);
+        String g = getUnitCmdFor(context.units);
+        String g0 = "G91 " + g + " G0";
+        double radius = context.probeDiameter / 2;
         try {
             switch(s) {
                 case StoreYReset:
                 {
+                    double yOffset = ((context.ySpacing > 0) ? -radius : radius);
+                    gcode("G10 L20 P" +context.wcsToUpdate + "Y"+ (context.yOffset + yOffset));
+
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+
                     context.probePosition1 = context.event.getProbePosition();
                     double offset =  context.startPosition.y - context.probePosition1.y;
                     backend.sendGcodeCommand(true, g0 + " Y" + offset);
@@ -208,13 +238,20 @@ public class ProbeService2 implements UGSEventListener {
                 }
                 case StoreXFinalize:
                 {
+                    double xOffset = ((context.xSpacing > 0) ? -radius : radius);
+                    gcode("G10 L20 P" +context.wcsToUpdate + "X"+ (context.xOffset + xOffset));
+
+                    try {
+                        Thread.sleep(250);
+                    } catch (InterruptedException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+
                     context.probePosition2 = context.event.getProbePosition();
                     double offset =  context.startPosition.x - context.probePosition2.x;
                     backend.sendGcodeCommand(true, g0 + " X" + offset);
                     backend.sendGcodeCommand(true, g0 + " Y" + -context.ySpacing);
 
-                    // TODO: Update WCS.
-                    // Done.
                     stateMachine = null;
                     break;
                 }
@@ -252,6 +289,8 @@ public class ProbeService2 implements UGSEventListener {
             case STATE_EVENT:
                 if (evt.getControlState() == COMM_IDLE){
                     stateMachine.apply(Idle, context);
+                } if (evt.getControlState() == COMM_DISCONNECTED) {
+                    stateMachine = null;
                 }
                 break;
             case PROBE_EVENT:

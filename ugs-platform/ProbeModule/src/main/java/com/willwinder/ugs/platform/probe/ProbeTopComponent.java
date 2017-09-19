@@ -68,19 +68,19 @@ import org.openide.windows.TopComponent;
         displayName = "Probe",
         preferredID = "CornerProbeTopComponentTopComponent"
 )
-public final class ProbeTopComponentt extends TopComponent implements UGSEventListener {
+public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
     private Renderable active = null;
     private CornerProbePathPreview outsideRenderable = new CornerProbePathPreview(
             Localization.getString("probe.visualizer.corner-preview"));
     private ZProbePathPreview zRenderable = new ZProbePathPreview(
             Localization.getString("probe.visualizer.z-preview"));
 
-    private static final String X_DISTANCE = Localization.getString("autoleveler.option.offset-x") + ":";
-    private static final String Y_DISTANCE = Localization.getString("autoleveler.option.offset-y") + ":";
-    private static final String Z_DISTANCE = Localization.getString("autoleveler.option.offset-z") + ":";
-    private static final String X_OFFSET = "X Offset:";
-    private static final String Y_OFFSET = Localization.getString("autoleveler.option.offset-z") + ":";
-    private static final String Z_OFFSET = Localization.getString("probe.plate-thickness") + ":";
+    private static final String X_OFFSET = Localization.getString("autoleveler.option.offset-x") + ":";
+    private static final String Y_OFFSET = Localization.getString("autoleveler.option.offset-y") + ":";
+    private static final String Z_OFFSET = Localization.getString("autoleveler.option.offset-z") + ":";
+    private static final String X_DISTANCE = Localization.getString("probe.x-distance") + ":";
+    private static final String Y_DISTANCE = Localization.getString("probe.y-distance") + ":";
+    private static final String Z_DISTANCE = Localization.getString("probe.plate-thickness") + ":";
 
     protected class ProbeSettings {
         double outsideXDistance;
@@ -144,7 +144,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
     private final ProbeService2 ps2;
     private final BackendAPI backend;
 
-    public ProbeTopComponentt() {
+    public ProbeTopComponent() {
         setName(LocalizingService.ProbeHelperTitle);
         setToolTipText(LocalizingService.ProbeHelperTooltip);
 
@@ -186,6 +186,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
                 ProbeContext pc = new ProbeContext(
                         get(settingsProbeDiameter), backend.getMachinePosition(),
                         get(outsideXDistanceModel), get(outsideYDistanceModel), 0.,
+                        get(outsideXOffsetModel), get(outsideYOffsetModel), 0.,
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
                         get(settingsRetractAmount), getUnits(), 1);
                 ps2.performOutsideCornerProbe(pc);
@@ -204,6 +205,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
                 ProbeContext pc = new ProbeContext(
                         get(settingsProbeDiameter), backend.getMachinePosition(),
                         0., 0., get(zProbeDistance),
+                        0., 0., get(zProbeOffset),
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
                         get(settingsRetractAmount), getUnits(), 1);
                 ps2.performZProbe(pc);
