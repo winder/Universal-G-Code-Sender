@@ -46,7 +46,7 @@ public class ProbeServiceTest {
 
         ProbeService2 ps = new ProbeService2(backend);
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 100, 25, 5, Units.MM, 0);
+        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 100, 25, 5, Units.INCH, 0);
         ps.performZProbe(pc);
 
         Position probeZ = new Position(5, 5, 3, Units.MM);
@@ -56,9 +56,9 @@ public class ProbeServiceTest {
         ps.UGSEvent(new UGSEvent(probeZ));
 
         verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
-        verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance(pc.zSpacing));
+        verify(backend, times(1)).sendGcodeCommand(true, "G91 G20 G0 Z" + retractDistance(pc.zSpacing));
         verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
-        verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + pc.retractHeight);
+        verify(backend, times(1)).sendGcodeCommand(true, "G91 G20 G0 Z" + pc.retractHeight);
     }
 
     @Test

@@ -124,8 +124,14 @@ public class ProbeService2 implements UGSEventListener {
         }
     }
 
+    private static String getG0For(Units u) {
+        return u == Units.MM ? "G91 G21 G0" : "G91 G20 G0";
+    }
+
     void performZProbe(ProbeContext context) throws IllegalStateException {
         validateState();
+
+        String g0 = getG0For(context.units);
 
         this.context = context;
         stateMachine = new StateMachineBuilder<Z, Event, ProbeContext>(Z.Waiting)
@@ -135,7 +141,7 @@ public class ProbeService2 implements UGSEventListener {
                 .addTransition(Z.Slow1,         Probed,     Z.Finalize)
 
                 .onEnter(Z.Fast1,           c -> probe('Z', context.feedRate, context.zSpacing, context.units))
-                .onEnter(Z.SmallRetract1,   c -> gcode("G91 G21 G0 Z" + retractDistance(c.zSpacing)))
+                .onEnter(Z.SmallRetract1,   c -> gcode(g0 + " Z" + retractDistance(c.zSpacing)))
                 .onEnter(Z.Slow1,           c -> probe('Z', context.feedRateSlow, context.zSpacing, context.units))
                 .onEnter(Z.Finalize,        c -> setup(Z.Finalize, c))
 
@@ -147,6 +153,8 @@ public class ProbeService2 implements UGSEventListener {
 
     void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
         validateState();
+
+        String g0 = getG0For(context.units);
 
         this.context = context;
         stateMachine = new StateMachineBuilder<Outside, Event, ProbeContext>(Outside.Waiting)
@@ -160,13 +168,13 @@ public class ProbeService2 implements UGSEventListener {
                 .addTransition(SmallRetract2, Idle,       Slow2)
                 .addTransition(Slow2,         Probed,     StoreXFinalize)
 
-                .onEnter(Setup,           c -> gcode("G91 G21 G0 X" + c.xSpacing))
+                .onEnter(Setup,           c -> gcode(g0 + " X" + c.xSpacing))
                 .onEnter(Probe1,          c -> probe('Y', c.feedRate, c.ySpacing, c.units))
-                .onEnter(SmallRetract1,   c -> gcode("G91 G21 G0 Y" + retractDistance(c.ySpacing)))
+                .onEnter(SmallRetract1,   c -> gcode(g0 + " Y" + retractDistance(c.ySpacing)))
                 .onEnter(Slow1,           c -> probe('Y', c.feedRateSlow, c.ySpacing, c.units))
                 .onEnter(StoreYReset,     c -> setup(StoreYReset, c))
                 .onEnter(Probe2,          c -> probe('X', c.feedRate, c.xSpacing, c.units))
-                .onEnter(SmallRetract2,   c -> gcode("G91 G21 G0 X" + retractDistance(c.xSpacing)))
+                .onEnter(SmallRetract2,   c -> gcode(g0 + " X" + retractDistance(c.xSpacing)))
                 .onEnter(Slow2,           c -> probe('X', c.feedRateSlow, c.xSpacing, c.units))
                 .onEnter(StoreXFinalize,  c -> setup(StoreXFinalize, c))
 
@@ -177,31 +185,33 @@ public class ProbeService2 implements UGSEventListener {
     }
 
     public void setup(Z s, ProbeContext context) {
+        String g0 = getG0For(context.units);
         context.probePosition1 = context.event.getProbePosition();
-        gcode("G91 G21 G0 Z" + context.retractHeight);
+        gcode(g0 + " Z" + context.retractHeight);
 
         stateMachine = null;
     }
 
     // Outside probe callbacks.
     public void setup(Outside s, ProbeContext context) {
+        String g0 = getG0For(context.units);
         try {
             switch(s) {
                 case StoreYReset:
                 {
                     context.probePosition1 = context.event.getProbePosition();
                     double offset =  context.startPosition.y - context.probePosition1.y;
-                    backend.sendGcodeCommand(true, "G91 G21 G0 Y" + offset);
-                    backend.sendGcodeCommand(true, "G91 G21 G0 X" + -context.xSpacing);
-                    backend.sendGcodeCommand(true, "G91 G21 G0 Y" + context.ySpacing);
+                    backend.sendGcodeCommand(true, g0 + " Y" + offset);
+                    backend.sendGcodeCommand(true, g0 + " X" + -context.xSpacing);
+                    backend.sendGcodeCommand(true, g0 + " Y" + context.ySpacing);
                     break;
                 }
                 case StoreXFinalize:
                 {
                     context.probePosition2 = context.event.getProbePosition();
                     double offset =  context.startPosition.x - context.probePosition2.x;
-                    backend.sendGcodeCommand(true, "G91 G21 G0 X" + offset);
-                    backend.sendGcodeCommand(true, "G91 G21 G0 Y" + -context.ySpacing);
+                    backend.sendGcodeCommand(true, g0 + " X" + offset);
+                    backend.sendGcodeCommand(true, g0 + " Y" + -context.ySpacing);
 
                     // TODO: Update WCS.
                     // Done.
