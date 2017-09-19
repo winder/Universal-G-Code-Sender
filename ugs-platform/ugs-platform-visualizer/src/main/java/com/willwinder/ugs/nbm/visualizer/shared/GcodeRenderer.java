@@ -159,12 +159,14 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
     @Override
     public void registerRenderable(Renderable r) {
+        if (r == null) return;
         objects.add(r);
         Collections.sort(objects);
     }
 
     @Override
     public void removeRenderable(Renderable r) {
+        if (r == null) return;
         objects.remove(r);
         Collections.sort(objects);
     }

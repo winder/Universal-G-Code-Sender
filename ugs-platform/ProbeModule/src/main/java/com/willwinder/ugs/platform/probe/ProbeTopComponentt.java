@@ -19,15 +19,19 @@
 
 package com.willwinder.ugs.platform.probe;
 
+import com.google.gson.Gson;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.platform.probe.AbstractProbeService.ProbeContext;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
+import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -64,7 +68,11 @@ import org.openide.windows.TopComponent;
         preferredID = "CornerProbeTopComponentTopComponent"
 )
 public final class ProbeTopComponentt extends TopComponent implements UGSEventListener {
-    private CornerProbePathPreview preview = null;
+    private Renderable active = null;
+    private CornerProbePathPreview outsideRenderable = new CornerProbePathPreview(
+            Localization.getString("probe.visualizer.corner-preview"));
+    private ZProbePathPreview zRenderable = new ZProbePathPreview(
+            Localization.getString("probe.visualizer.z-preview"));
 
     private static final String X_DISTANCE = Localization.getString("autoleveler.option.offset-x") + ":";
     private static final String Y_DISTANCE = Localization.getString("autoleveler.option.offset-y") + ":";
@@ -73,7 +81,32 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
     private static final String Y_OFFSET = Localization.getString("autoleveler.option.offset-z") + ":";
     private static final String Z_OFFSET = Localization.getString("probe.plate-thickness") + ":";
 
+    protected class ProbeSettings {
+        double outsideXDistance;
+        double outsideYDistance;
+        double outsideXOffset;
+        double outsideYOffset;
+
+        double zDistance;
+        double zOffset;
+
+        double insideXDistance;
+        double insideYDistance;
+        double insideXOffset;
+        double insideYOffset;
+
+        int settingsWorkCoordinateIdx;
+        int settingsUnitsIdx;
+        double settingsProbeDiameter;
+        double settingsFastFindRate;
+        double settingsSlowMeasureRate;
+        double settingsRetractAmount;
+
+        int selectedTabIdx;
+    }
+
     // outside tab
+    private static final String OUTSIDE_TAB = "XY";
     private SpinnerNumberModel outsideXDistanceModel;
     private SpinnerNumberModel outsideYDistanceModel;
     private SpinnerNumberModel outsideXOffsetModel;
@@ -81,6 +114,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
     private final JButton measureOutside = new JButton(Localization.getString("probe.measure.outside-corner"));
 
     // z-probe tab
+    private static final String Z_TAB = "Z";
     private final SpinnerNumberModel zProbeDistance;
     private final SpinnerNumberModel zProbeOffset;
     private final JButton  zProbeButton = new JButton(Localization.getString("probe.button"));
@@ -102,8 +136,9 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
     private SpinnerNumberModel settingsRetractAmount;
 
 
-    private final JButton settings1 = new JButton("Settings");
-    private final JButton settings2 = new JButton("Settings");
+    private static final String SETTINGS_TAB = "Settings";
+
+    private final JTabbedPane jtp = new JTabbedPane(JTabbedPane.LEFT);
 
     private final ProbeService2 ps2;
     private final BackendAPI backend;
@@ -160,9 +195,12 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
                 ps2.performInsideCornerProbe(pc);
             });
 
+        zProbeButton.addActionListener(e -> GUIHelpers.displayErrorDialog("Not done yet..."));
+
         initComponents();
         updateControls();
 
+        // Listeners...
         this.outsideXDistanceModel.addChangeListener(l -> controlChangeListener());
         this.outsideYDistanceModel.addChangeListener(l -> controlChangeListener());
         this.insideXDistanceModel.addChangeListener(l -> controlChangeListener());
@@ -175,15 +213,37 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         this.outsideYOffsetModel.addChangeListener(l -> controlChangeListener());
         this.insideXOffsetModel.addChangeListener(l -> controlChangeListener());
         this.insideYOffsetModel.addChangeListener(l -> controlChangeListener());
+
+        this.settingsWorkCoordinate.addActionListener(l -> controlChangeListener());
+        this.settingsUnits.addActionListener(l -> controlChangeListener());
+        this.settingsProbeDiameter.addChangeListener(l -> controlChangeListener());
+        this.settingsFastFindRate.addChangeListener(l -> controlChangeListener());
+        this.settingsSlowMeasureRate.addChangeListener(l -> controlChangeListener());
+        this.settingsRetractAmount.addChangeListener(l -> controlChangeListener());
+
+        this.jtp.addChangeListener(l -> controlChangeListener());
     }
 
     private void controlChangeListener() {
-        if (preview != null) {
-            // if (tab == corner)
-            this.preview.updateSpacing(get(outsideXDistanceModel), get(outsideYDistanceModel),
-                    get(outsideXOffsetModel), get(outsideYOffsetModel));
-            // else if (tab == z)
-            //        this.zPreview.update
+        Renderable before = active;
+        //switch (this.jtp.getTabComponentAt(this.jtp.getSelectedIndex()).getName()) {
+        switch (this.jtp.getTitleAt(this.jtp.getSelectedIndex())) {
+            case OUTSIDE_TAB:
+                active = outsideRenderable;
+                outsideRenderable.updateSpacing(get(outsideXDistanceModel), get(outsideYDistanceModel),
+                        get(outsideXOffsetModel), get(outsideYOffsetModel));
+                break;
+            case Z_TAB:
+                active = zRenderable;
+                break;
+            case SETTINGS_TAB:
+                active = null;
+                break;
+        }
+
+        if (before != active) {
+            RenderableUtils.removeRenderable(before);
+            RenderableUtils.registerRenderable(this.active);
         }
     }
 
@@ -191,6 +251,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         boolean enabled = backend.isIdle();
         this.measureInside.setEnabled(enabled);
         this.measureOutside.setEnabled(enabled);
+        this.zProbeButton.setEnabled(enabled);
     }
 
     @Override
@@ -206,9 +267,6 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
     }
 
     private void initComponents() {
-        //setMinimumSize(new Dimension(500, 230));
-        //setPreferredSize(new Dimension(500, 240));
-
         JPanel inside = new JPanel(new MigLayout("flowy, wrap 2"));
         inside.add(new JLabel(X_DISTANCE));
         inside.add(new JLabel(Y_DISTANCE));
@@ -239,7 +297,7 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         // Z PROBE TAB
         JPanel z = new JPanel(new MigLayout("wrap 4"));
         z.add(new JLabel(Localization.getString("probe.plate-thickness")));
-        z.add(new JSpinner(this.zProbeDistance), "growx");
+        z.add(new JSpinner(this.zProbeOffset), "growx");
 
         z.add(this.zProbeButton, "spanx 2, spany 2, growx, growy");
 
@@ -266,43 +324,88 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         settings.add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
         settings.add(new JSpinner(settingsRetractAmount), "growx");
 
-        JTabbedPane jtp = new JTabbedPane(JTabbedPane.LEFT);
-        jtp.add("XY", outside);
-        jtp.add("Z", z);
+        jtp.add(OUTSIDE_TAB, outside);
+        jtp.add(Z_TAB, z);
         //jtp.add("inside", inside);
-        jtp.add("settings", settings);
+        jtp.add(SETTINGS_TAB, settings);
 
         this.setLayout(new BorderLayout());
         this.add(jtp);
     }
 
+
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
-        if (this.preview == null) {
-            // if (tab == corner)
-            this.preview = new CornerProbePathPreview(Localization.getString("probe.visualizer.corner-preview"));
-            this.controlChangeListener();
-            RenderableUtils.registerRenderable(this.preview);
-        }
-        // if (tab == z)
-        //    this.zpreview = ...
+        controlChangeListener();
     }
 
     @Override
     public void componentClosed() {
-        RenderableUtils.removeRenderable(this.preview);
+        if (this.active != null) {
+            RenderableUtils.removeRenderable(this.active);
+        }
     }
 
     void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-        // TODO store your settings
+
+        String version = p.getProperty("version");
+
+        ProbeSettings ps = new ProbeSettings();
+        ps.outsideXDistance = get(this.outsideXDistanceModel);
+        ps.outsideYDistance = get(outsideYDistanceModel);
+        ps.outsideXOffset = get(outsideXOffsetModel);
+        ps.outsideYOffset = get(outsideYOffsetModel);
+
+        ps.zDistance = get(zProbeDistance);
+        ps.zOffset = get(zProbeOffset);
+
+        ps.insideXDistance = get(this.insideXDistanceModel);
+        ps.insideYDistance = get(insideYDistanceModel);
+        ps.insideXOffset = get(insideXOffsetModel);
+        ps.insideYOffset = get(insideYOffsetModel);
+
+        ps.settingsWorkCoordinateIdx = (int) settingsWorkCoordinate.getSelectedIndex();
+        ps.settingsUnitsIdx = (int) settingsUnits.getSelectedIndex();
+        ps.settingsProbeDiameter = get(settingsProbeDiameter);
+        ps.settingsFastFindRate = get(settingsFastFindRate);
+        ps.settingsSlowMeasureRate = get(settingsSlowMeasureRate);
+        ps.settingsRetractAmount = get(settingsRetractAmount);
+
+        ps.selectedTabIdx = this.jtp.getSelectedIndex();
+
+        p.setProperty("json_data", new Gson().toJson(ps));
     }
 
     void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
-        // TODO read your settings according to their version
+
+        String jsonData = p.getProperty("json_data");
+        if (jsonData == null) return;
+
+        ProbeSettings ps = new Gson().fromJson(jsonData, ProbeSettings.class);
+        outsideXDistanceModel.setValue(ps.outsideXDistance);
+        outsideYDistanceModel.setValue(ps.outsideYDistance);
+        outsideXOffsetModel.setValue(ps.outsideXOffset);
+        outsideYOffsetModel.setValue(ps.outsideYOffset);
+
+        zProbeDistance.setValue(ps.zDistance);
+        zProbeOffset.setValue(ps.zOffset);
+
+        insideXDistanceModel.setValue(ps.insideXDistance);
+        insideYDistanceModel.setValue(ps.insideYDistance);
+        insideXOffsetModel.setValue(ps.insideXOffset);
+        insideYOffsetModel.setValue(ps.insideYOffset);
+
+        settingsWorkCoordinate.setSelectedIndex(ps.settingsWorkCoordinateIdx);
+        settingsUnits.setSelectedIndex(ps.settingsUnitsIdx);
+        settingsProbeDiameter.setValue(ps.settingsProbeDiameter);
+        settingsFastFindRate.setValue(ps.settingsFastFindRate);
+        settingsSlowMeasureRate.setValue(ps.settingsSlowMeasureRate);
+        settingsRetractAmount.setValue(ps.settingsRetractAmount);
+
+        jtp.setSelectedIndex(ps.selectedTabIdx);
     }
 }

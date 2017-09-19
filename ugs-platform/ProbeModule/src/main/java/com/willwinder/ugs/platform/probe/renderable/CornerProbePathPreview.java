@@ -21,8 +21,6 @@ package com.willwinder.ugs.platform.probe.renderable;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.GLUquadric;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
@@ -40,8 +38,6 @@ public class CornerProbePathPreview extends Renderable {
     private final double previewSize = 5;
 
     private final GLUT glut;
-    private GLU glu;
-    private GLUquadric gq;
 
     public CornerProbePathPreview(String title) {
         super(10, title);
@@ -67,8 +63,6 @@ public class CornerProbePathPreview extends Renderable {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-        glu = new GLU();
-        gq = glu.gluNewQuadric();
     }
 
     @Override
