@@ -616,7 +616,7 @@ public class GrblController extends AbstractController {
         }
 
         // GRBL 1.1 jog complete transition
-        if (beforeState.equals("Jog") && controllerStatus.getState().equals("Idle")) {
+        if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getState().equals("Idle")) {
             this.comm.cancelSend();
         }
 
