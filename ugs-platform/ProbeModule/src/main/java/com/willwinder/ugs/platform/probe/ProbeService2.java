@@ -21,21 +21,8 @@ package com.willwinder.ugs.platform.probe;
 //import com.github.zevada.stateful.StateMachine;
 //import com.github.zevada.stateful.StateMachineBuilder;
 import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Idle;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Position;
 import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Probed;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Event.StartOC;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.Waiting;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocProbe1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocProbe2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocProbed1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocProbed2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocSetup;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocSlow1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocSlow2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocSmallRetract1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocSmallRetract2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocStoreXFinalize;
-import static com.willwinder.ugs.platform.probe.ProbeService2.State.ocStoreYReset;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Waiting;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 
 import com.willwinder.ugs.platform.probe.stateful.StateMachine;
@@ -45,35 +32,86 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 import org.openide.util.Exceptions;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Setup;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Probe1;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.SmallRetract1;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Slow1;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.StoreYReset;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Probe2;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.SmallRetract2;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Slow2;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.StoreXFinalize;
+import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Start;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
  * @author wwinder
  */
-public class ProbeService2 extends AbstractProbeService {
-    private StateMachine<State, Event, ProbeContext> stateMachine = null;
+public class ProbeService2 implements UGSEventListener {
+    private StateMachine stateMachine = null;
     private ProbeContext context = null;
 
+    protected final BackendAPI backend;
+
     public ProbeService2(BackendAPI backend) {
-        super(backend);
+        this.backend = backend;
+        this.backend.addUGSEventListener(this);
     }
 
-    static enum State {
-        Waiting,
-        // Outside corner
-        ocSetup, ocProbe1, ocSmallRetract1, ocSlow1, ocProbed1, ocStoreYReset, ocProbe2,
-        ocSmallRetract2, ocSlow2, ocProbed2, ocStoreXFinalize,
-        // Inside corner
-        icProbe1, icSmallRetract, icSlow1, icProbe2, icSmallRetract2, icSlow2, icFinalizing, icFinal,
+    protected static double retractDistance(double spacing) {
+        return (spacing < 0) ? 1 : -1;
+    }
+
+    /**
+     * Context passed into state machine for each transition.
+     */
+    public static class ProbeContext {
+        public String errorMessage;
+        public UGSEvent event;
+        public final double probeDiameter;
+        public final double xSpacing;
+        public final double ySpacing;
+        public final double zSpacing;
+        public final double feedRate;
+        public final double feedRateSlow;
+        public final double retractHeight;
+        public final int wcsToUpdate;
+        public final Units units;
+
+        // Results
+        public final Position startPosition;
+        public Position probePosition1;
+        public Position probePosition2;
+
+        public ProbeContext(double diameter, Position start,
+                double xSpacing, double ySpacing, double zSpacing,
+                double feedRate, double feedRateSlow, double retractHeight,
+                Units u, int wcs) {
+            this.probeDiameter = diameter;
+            this.startPosition = start;
+            this.xSpacing = xSpacing;
+            this.ySpacing = ySpacing;
+            this.zSpacing = zSpacing;
+            this.feedRate = feedRate;
+            this.feedRateSlow = feedRateSlow;
+            this.retractHeight = retractHeight;
+            this.units = u;
+            this.wcsToUpdate = wcs;
+        }
+    }
+
+    static enum Outside {
+        Waiting, Setup, Probe1, SmallRetract1, Slow1, StoreYReset, Probe2, SmallRetract2, Slow2, StoreXFinalize
+    }
+
+    static enum Z {
+        Waiting, Fast1, SmallRetract1, Slow1, Finalize
     }
 
     static enum Event {
-        StartInsideCornerProbe,
-        StartOC,
-
-        Probed, Position, Idle,
-
-        Failure;
+        Start, Probed, Idle;
     }
 
     private void validateState() {
@@ -86,66 +124,81 @@ public class ProbeService2 extends AbstractProbeService {
         }
     }
 
-    @Override
-    void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
+    void performZProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
         this.context = context;
-        stateMachine = new StateMachineBuilder<State, Event, ProbeContext>(State.Waiting)
-                .addTransition(Waiting,         StartOC,    ocSetup)
-                .addTransition(ocSetup,         Idle,       ocProbe1)
-                .addTransition(ocProbe1,        Probed,     ocSmallRetract1)
-                .addTransition(ocSmallRetract1, Idle,       ocSlow1)
-                .addTransition(ocSlow1,         Probed,     ocProbed1)
-                .addTransition(ocProbed1,       Position,   ocStoreYReset)
-                .addTransition(ocStoreYReset,   Idle,       ocProbe2)
-                .addTransition(ocProbe2,        Probed,     ocSmallRetract2)
-                .addTransition(ocSmallRetract2, Idle,       ocSlow2)
-                .addTransition(ocSlow2,         Probed,     ocProbed2)
-                .addTransition(ocProbed2,       Position,   ocStoreXFinalize)
+        stateMachine = new StateMachineBuilder<Z, Event, ProbeContext>(Z.Waiting)
+                .addTransition(Z.Waiting,       Start,      Z.Fast1)
+                .addTransition(Z.Fast1,         Probed,     Z.SmallRetract1)
+                .addTransition(Z.SmallRetract1, Idle,       Z.Slow1)
+                .addTransition(Z.Slow1,         Probed,     Z.Finalize)
 
-                .onEnter(ocSetup,           c -> gcode("G91 G21 G0 X" + c.xSpacing))
-                .onEnter(ocProbe1,          c -> probe('Y', c.feedRate, c.ySpacing, Units.MM))
-                .onEnter(ocSmallRetract1,   c -> gcode("G91 G21 G0 Y" + retractDistance(c.ySpacing)))
-                .onEnter(ocSlow1,           c -> probe('Y', c.feedRate/2, c.ySpacing, Units.MM))
-                //.onEnter(ocProbed1,        c -> null);
-                .onEnter(ocStoreYReset,     c -> setup(ocStoreYReset, c))
-                .onEnter(ocProbe2,          c -> probe('X', c.feedRate, c.xSpacing, Units.MM))
-                .onEnter(ocSmallRetract2,   c -> gcode("G91 G21 G0 X" + retractDistance(c.xSpacing)))
-                .onEnter(ocSlow2,           c -> probe('X', c.feedRate/2, c.xSpacing, Units.MM))
-                //.onEnter(ocProbed2,        c -> null);
-                .onEnter(ocStoreXFinalize,  c -> setup(ocStoreXFinalize, c))
+                .onEnter(Z.Fast1,           c -> probe('Z', context.feedRate, context.zSpacing, context.units))
+                .onEnter(Z.SmallRetract1,   c -> gcode("G91 G21 G0 Z" + retractDistance(c.zSpacing)))
+                .onEnter(Z.Slow1,           c -> probe('Z', context.feedRateSlow, context.zSpacing, context.units))
+                .onEnter(Z.Finalize,        c -> setup(Z.Finalize, c))
 
                 .throwOnNoOpApply(false)
                 .build();
 
-        stateMachine.apply(StartOC, context);
+        stateMachine.apply(Start, context);
     }
 
-    public void gcode(String s) {
-        try {
-            backend.sendGcodeCommand(true, s);
-        } catch (Exception ex) {
-            stateMachine = null;
-            Exceptions.printStackTrace(ex);
-        }
+    void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
+        validateState();
+
+        this.context = context;
+        stateMachine = new StateMachineBuilder<Outside, Event, ProbeContext>(Outside.Waiting)
+                .addTransition(Waiting,       Start,      Setup)
+                .addTransition(Setup,         Idle,       Probe1)
+                .addTransition(Probe1,        Probed,     SmallRetract1)
+                .addTransition(SmallRetract1, Idle,       Slow1)
+                .addTransition(Slow1,         Probed,     StoreYReset)
+                .addTransition(StoreYReset,   Idle,       Probe2)
+                .addTransition(Probe2,        Probed,     SmallRetract2)
+                .addTransition(SmallRetract2, Idle,       Slow2)
+                .addTransition(Slow2,         Probed,     StoreXFinalize)
+
+                .onEnter(Setup,           c -> gcode("G91 G21 G0 X" + c.xSpacing))
+                .onEnter(Probe1,          c -> probe('Y', c.feedRate, c.ySpacing, c.units))
+                .onEnter(SmallRetract1,   c -> gcode("G91 G21 G0 Y" + retractDistance(c.ySpacing)))
+                .onEnter(Slow1,           c -> probe('Y', c.feedRateSlow, c.ySpacing, c.units))
+                .onEnter(StoreYReset,     c -> setup(StoreYReset, c))
+                .onEnter(Probe2,          c -> probe('X', c.feedRate, c.xSpacing, c.units))
+                .onEnter(SmallRetract2,   c -> gcode("G91 G21 G0 X" + retractDistance(c.xSpacing)))
+                .onEnter(Slow2,           c -> probe('X', c.feedRateSlow, c.xSpacing, c.units))
+                .onEnter(StoreXFinalize,  c -> setup(StoreXFinalize, c))
+
+                .throwOnNoOpApply(false)
+                .build();
+
+        stateMachine.apply(Start, context);
     }
 
-    public void setup(State s, ProbeContext context) {
+    public void setup(Z s, ProbeContext context) {
+        context.probePosition1 = context.event.getProbePosition();
+        gcode("G91 G21 G0 Z" + context.retractHeight);
+
+        stateMachine = null;
+    }
+
+    // Outside probe callbacks.
+    public void setup(Outside s, ProbeContext context) {
         try {
             switch(s) {
-                case ocStoreYReset:
+                case StoreYReset:
                 {
-                    context.probePosition1 = context.event.getControllerStatus().getMachineCoord();
+                    context.probePosition1 = context.event.getProbePosition();
                     double offset =  context.startPosition.y - context.probePosition1.y;
                     backend.sendGcodeCommand(true, "G91 G21 G0 Y" + offset);
                     backend.sendGcodeCommand(true, "G91 G21 G0 X" + -context.xSpacing);
                     backend.sendGcodeCommand(true, "G91 G21 G0 Y" + context.ySpacing);
                     break;
                 }
-                case ocStoreXFinalize:
+                case StoreXFinalize:
                 {
-                    context.probePosition2 = context.event.getControllerStatus().getMachineCoord();
+                    context.probePosition2 = context.event.getProbePosition();
                     double offset =  context.startPosition.x - context.probePosition2.x;
                     backend.sendGcodeCommand(true, "G91 G21 G0 X" + offset);
                     backend.sendGcodeCommand(true, "G91 G21 G0 Y" + -context.ySpacing);
@@ -162,6 +215,15 @@ public class ProbeService2 extends AbstractProbeService {
         }
     }
 
+    public void gcode(String s) {
+        try {
+            backend.sendGcodeCommand(true, s);
+        } catch (Exception ex) {
+            stateMachine = null;
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
     public void probe(char axis, double rate, double distance, Units u) {
         try {
             backend.probe(String.valueOf(axis), rate, distance, u);
@@ -169,11 +231,6 @@ public class ProbeService2 extends AbstractProbeService {
             stateMachine = null;
             Exceptions.printStackTrace(ex);
         }
-    }
-
-
-    @Override
-    void performInsideCornerProbe(ProbeContext context) throws IllegalStateException {
     }
 
     @Override
@@ -189,9 +246,6 @@ public class ProbeService2 extends AbstractProbeService {
                 break;
             case PROBE_EVENT:
                 stateMachine.apply(Probed, context);
-                break;
-            case CONTROLLER_STATUS_EVENT:
-                stateMachine.apply(Position, context);
                 break;
             case FILE_EVENT:
                 default:

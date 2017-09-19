@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-import com.willwinder.ugs.platform.probe.AbstractProbeService.ProbeContext;
 import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
+import com.willwinder.ugs.platform.probe.ProbeService2.ProbeContext;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -40,9 +40,40 @@ public class ProbeServiceTest {
     
     BackendAPI backend = Mockito.mock(BackendAPI.class);
 
-    private void validateOutside(AbstractProbeService ps, ProbeContext pc) throws Exception {
+    @Test
+    public void testProbeService2Z() throws Exception {
+        doReturn(true).when(backend).isIdle();
+
+        ProbeService2 ps = new ProbeService2(backend);
+
+        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 100, 25, 5, Units.MM, 0);
+        ps.performZProbe(pc);
+
+        Position probeZ = new Position(5, 5, 3, Units.MM);
+        ps.UGSEvent(new UGSEvent(probeZ));
+        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
+        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
+        ps.UGSEvent(new UGSEvent(probeZ));
+
+        verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
+        verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance(pc.zSpacing));
+        verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
+        verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + pc.retractHeight);
+    }
+
+    @Test
+    public void testProbeService2Outside() throws Exception {
+        doReturn(true).when(backend).isIdle();
+
+        ProbeService2 ps = new ProbeService2(backend);
+
+        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 100, 25, 5, Units.MM, 0);
+        ps.performOutsideCornerProbe(pc);
+
         Position probeY = new Position(pc.ySpacing, 2.1, 0, Units.MM);
         Position probeX = new Position(pc.xSpacing, 1.9, 0, Units.MM);
+
+        // Events to transition between states.
         ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
         ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeY));
@@ -60,44 +91,19 @@ public class ProbeServiceTest {
 
         // probe Y axis
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + pc.xSpacing);
-        verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, Units.MM);
+        verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing));
-        verify(backend, times(1)).probe("Y", pc.feedRate/2, pc.ySpacing, Units.MM);
+        verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + (pc.startPosition.y-probeY.y));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + -pc.xSpacing);
 
         // probe X axis
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + pc.ySpacing);
-        verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, Units.MM);
+        verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing));
-        verify(backend, times(1)).probe("X", pc.feedRate/2, pc.xSpacing, Units.MM);
+        verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + (pc.startPosition.x-probeX.x));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + -pc.xSpacing);
         // TODO: update WCS
-    }
-
-    @Test
-    @Ignore
-    public void testProbeService1Outside() throws Exception {
-        doReturn(true).when(backend).isIdle();
-
-        ProbeService ps = new ProbeService(backend);
-
-        ProbeContext pc = new ProbeService.ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 100, 0);
-        ps.performOutsideCornerProbe(pc);
-
-        validateOutside(ps, pc);
-    }
-
-    @Test
-    public void testProbeService2Outside() throws Exception {
-        doReturn(true).when(backend).isIdle();
-
-        ProbeService2 ps = new ProbeService2(backend);
-
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 100, 0);
-        ps.performOutsideCornerProbe(pc);
-
-        validateOutside(ps, pc);
     }
 }

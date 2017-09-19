@@ -24,13 +24,14 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.platform.probe.AbstractProbeService.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService2.ProbeContext;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
@@ -181,21 +182,32 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         settingsSlowMeasureRate = new SpinnerNumberModel(100., 1, largeSpinner, 1.);
         settingsRetractAmount = new SpinnerNumberModel(15., 10, largeSpinner, 1.);
 
-        measureOutside.addActionListener((e) -> {
-            ProbeContext pc = new AbstractProbeService.ProbeContext(
-                1, backend.getMachinePosition(),
-                get(outsideXDistanceModel), get(outsideYDistanceModel), 100., 1);
+        measureOutside.addActionListener(e -> {
+                ProbeContext pc = new ProbeContext(
+                        get(settingsProbeDiameter), backend.getMachinePosition(),
+                        get(outsideXDistanceModel), get(outsideYDistanceModel), 0.,
+                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
+                        get(settingsRetractAmount), getUnits(), 1);
                 ps2.performOutsideCornerProbe(pc);
             });
 
+        /*
         measureInside.addActionListener((e) -> {
-            ProbeContext pc = new AbstractProbeService.ProbeContext(
+            ProbeContext pc = new ProbeContext(
                 1, backend.getMachinePosition(),
                 get(insideXDistanceModel), get(insideYDistanceModel), 100., 1);
                 ps2.performInsideCornerProbe(pc);
             });
+        */
 
-        zProbeButton.addActionListener(e -> GUIHelpers.displayErrorDialog("Not done yet..."));
+        zProbeButton.addActionListener(e -> {
+                ProbeContext pc = new ProbeContext(
+                        get(settingsProbeDiameter), backend.getMachinePosition(),
+                        0., 0., get(zProbeDistance),
+                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
+                        get(settingsRetractAmount), getUnits(), 1);
+                ps2.performZProbe(pc);
+            });
 
         initComponents();
         updateControls();
@@ -259,6 +271,10 @@ public final class ProbeTopComponentt extends TopComponent implements UGSEventLi
         if (evt.isStateChangeEvent()) {
             updateControls();
         }
+    }
+
+    private Units getUnits() {
+        return this.settingsUnits.getSelectedIndex() == 0 ? Units.MM : Units.INCH;
     }
 
     // deal with casting the spinner model to a double.
