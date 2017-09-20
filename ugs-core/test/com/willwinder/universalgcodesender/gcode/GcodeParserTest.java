@@ -34,6 +34,8 @@ import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -379,11 +381,29 @@ public class GcodeParserTest {
 
     @Test
     public void g28WithAxes() throws Exception {
+        // No exception
         GcodeParser.processCommand("G28 X1 Y2 Z3", 0, new GcodeState());
     }
 
     @Test
     public void g28NoAxes() throws Exception {
+        // No exception
         GcodeParser.processCommand("G28", 0, new GcodeState());
+    }
+
+    @Test
+    public void motionNoAxes() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("G3", 0, new GcodeState());
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.code).isEqualTo(G3);
+        assertThat(meta.state.currentPoint).isEqualTo(new Point3d(0, 0, 0));
+    }
+
+    @Test
+    public void spaceInAxisWord() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("G \t1 X-1Y  - 0.\t5Z\n1 .0", 0, new GcodeState());
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.code).isEqualTo(G1);
+        assertThat(meta.state.currentPoint).isEqualTo(new Point3d(-1, -0.5, 1));
     }
 }

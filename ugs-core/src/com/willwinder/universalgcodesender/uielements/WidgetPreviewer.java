@@ -39,7 +39,6 @@ import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
-import com.willwinder.universalgcodesender.uielements.panels.ProbePanel;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
@@ -100,8 +99,6 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
         panel.add(frameLauncherButton("FileBrowsePanel", new FileBrowsePanel(backend)));
-
-        panel.add(frameLauncherButton("Probe Panel", new ProbePanel(backend)));
 
         // Display the main frame.
         frame.pack();

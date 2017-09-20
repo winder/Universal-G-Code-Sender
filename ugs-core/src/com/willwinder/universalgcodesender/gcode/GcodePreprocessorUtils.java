@@ -309,6 +309,7 @@ public class GcodePreprocessorUtils {
         
         for (int i = 0; i < command.length(); i++){
             char c = command.charAt(i);
+            if (Character.isWhitespace(c)) continue;
                         
             // If the last character was numeric (readNumeric is true) and this
             // character is a letter or whitespace, then we hit a boundary.

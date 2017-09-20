@@ -29,9 +29,8 @@ import java.util.regex.Pattern;
 public class GrblCommunicator extends BufferedCommunicator {
 
     private boolean temporarySingleStepMode;
-    private static String EEPROM_COMMAND_PATTERN = 
-            "G10 *L20|G10 *L2|G28\\.1|G30\\.1|\\$x=|\\$I|\\$N|\\$RST=|G5[456789]|G28|G30|\\$\\$|\\$#";
-    private static Pattern EEPROM_COMMAND = Pattern.compile(EEPROM_COMMAND_PATTERN, Pattern.CASE_INSENSITIVE);
+    private final static String EEPROM_COMMAND_PATTERN = "G10|G28|G30|\\$x=|\\$I|\\$N|\\$RST=|G5[456789]|\\$\\$|\\$#";
+    private final static Pattern EEPROM_COMMAND = Pattern.compile(EEPROM_COMMAND_PATTERN, Pattern.CASE_INSENSITIVE);
     
     protected GrblCommunicator() {}
 
@@ -73,7 +72,6 @@ public class GrblCommunicator extends BufferedCommunicator {
     /**
      * When a command is sent, check if it is one of the special commands which writes to the EEPROM.
      * If it is temporarily setSingleStepMode(true) to avoid corruption.
-     * @param response 
      */
     @Override
     protected void sendingCommand(String response) {
