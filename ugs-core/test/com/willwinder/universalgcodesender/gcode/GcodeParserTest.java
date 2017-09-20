@@ -354,11 +354,11 @@ public class GcodeParserTest {
 
     @Test
     public void missingAxisWords() throws Exception {
-        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G1", 0, new GcodeState()));
+        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G38.2", 0, new GcodeState()));
 
         assertThat(thrown)
                 .isInstanceOf(GcodeParserException.class)
-                .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G1");
+                .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G38.2");
     }
 
     @Test
