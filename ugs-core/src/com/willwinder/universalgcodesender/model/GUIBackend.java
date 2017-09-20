@@ -828,7 +828,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.activeState = status.getState();
         this.machineCoord = status.getMachineCoord();
         this.workCoord = status.getWorkCoord();
-        this.reportUnits = machineCoord.getUnits();
+        if (machineCoord != null) {
+            this.reportUnits = machineCoord.getUnits();
+        }
         this.lastResponse = System.currentTimeMillis();
         this.sendControllerStateEvent(new UGSEvent(status));
     }
