@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
+import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
@@ -64,5 +65,28 @@ public class ZProbePathPreview extends Renderable {
 
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+        if (this.probeDepth == null || this.probeOffset == null) return;
+        final int slices = 10;
+        final int stacks = 10;
+
+        int rot = (this.probeOffset > 0) ? 180 : 0;
+        double zAbs = Math.abs(this.probeOffset);
+
+        GL2 gl = drawable.getGL().getGL2();
+        gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        gl.glRotated(rot, 1, 0, 0);
+
+        // touch plate
+        gl.glPushMatrix();
+            gl.glTranslated(0, 0, zAbs);
+            glut.glutSolidCylinder(5, this.probeDepth, slices*2, stacks);
+        gl.glPopMatrix();
+
+        // Everything is going to be red now!
+        gl.glColor4d(8., 0., 0., 1);
+        glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
+        gl.glTranslated(0, 0, zAbs - 1);
+        glut.glutSolidCone(.2, 1, slices, stacks);
+
     }
 }

@@ -83,10 +83,12 @@ public class CornerProbePathPreview extends Renderable {
         double xAbs = Math.abs(this.xSpacing);
         double yAbs = Math.abs(this.ySpacing);
 
+        gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+
         // touch plate
         gl.glPushMatrix();
             // big piece
-            gl.glTranslated(this.xSpacing, this.ySpacing, workCoord.z);
+            gl.glTranslated(this.xSpacing, this.ySpacing, 0);
 
             gl.glColor4d(.8, .8, .8, 1);
             // y bump

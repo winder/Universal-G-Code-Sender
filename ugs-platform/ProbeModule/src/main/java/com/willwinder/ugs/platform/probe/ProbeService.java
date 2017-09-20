@@ -20,9 +20,9 @@ package com.willwinder.ugs.platform.probe;
 
 //import com.github.zevada.stateful.StateMachine;
 //import com.github.zevada.stateful.StateMachineBuilder;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Idle;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Probed;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Waiting;
+import static com.willwinder.ugs.platform.probe.ProbeService.Event.Idle;
+import static com.willwinder.ugs.platform.probe.ProbeService.Event.Probed;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Waiting;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 
 import com.willwinder.ugs.platform.probe.stateful.StateMachine;
@@ -32,33 +32,32 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 import org.openide.util.Exceptions;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Setup;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Probe1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.SmallRetract1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Slow1;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.StoreYReset;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Probe2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.SmallRetract2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.Slow2;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Outside.StoreXFinalize;
-import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Start;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Setup;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Probe1;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SmallRetract1;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Slow1;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreYReset;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Probe2;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SmallRetract2;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Slow2;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreXFinalize;
+import static com.willwinder.ugs.platform.probe.ProbeService.Event.Start;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
-import javax.swing.SwingUtilities;
 
 /**
  *
  * @author wwinder
  */
-public class ProbeService2 implements UGSEventListener {
+public class ProbeService implements UGSEventListener {
     private StateMachine stateMachine = null;
     private ProbeContext context = null;
 
     protected final BackendAPI backend;
 
-    public ProbeService2(BackendAPI backend) {
+    public ProbeService(BackendAPI backend) {
         this.backend = backend;
         this.backend.addUGSEventListener(this);
     }

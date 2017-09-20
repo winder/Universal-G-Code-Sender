@@ -19,7 +19,7 @@
 package com.willwinder.ugs.platform.probe;
 
 import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
-import com.willwinder.ugs.platform.probe.ProbeService2.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
 import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.doReturn;
@@ -43,10 +42,10 @@ public class ProbeServiceTest {
     BackendAPI backend = Mockito.mock(BackendAPI.class);
 
     @Test
-    public void testProbeService2Z() throws Exception {
+    public void testProbeServiceZ() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeService2 ps = new ProbeService2(backend);
+        ProbeService ps = new ProbeService(backend);
 
         ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
         ps.performZProbe(pc);
@@ -65,10 +64,10 @@ public class ProbeServiceTest {
     }
 
     @Test
-    public void testProbeService2Outside() throws Exception {
+    public void testProbeServiceOutside() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeService2 ps = new ProbeService2(backend);
+        ProbeService ps = new ProbeService(backend);
 
         ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
         ps.performOutsideCornerProbe(pc);

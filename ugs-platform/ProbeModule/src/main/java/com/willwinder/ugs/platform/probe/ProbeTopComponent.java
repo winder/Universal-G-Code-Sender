@@ -24,7 +24,7 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.platform.probe.ProbeService2.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -142,17 +142,17 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     private final JTabbedPane jtp = new JTabbedPane(JTabbedPane.LEFT);
 
-    private final ProbeService2 ps2;
+    private final ProbeService ps2;
     private final BackendAPI backend;
 
     public ProbeTopComponent() {
-        setName(LocalizingService.ProbeHelperTitle);
-        setToolTipText(LocalizingService.ProbeHelperTooltip);
+        setName(LocalizingService.ProbeTitle);
+        setToolTipText(LocalizingService.ProbeTooltip);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
-        ps2 = new ProbeService2(backend);
+        ps2 = new ProbeService(backend);
 
         double largeSpinner = 1000000;
 
@@ -250,6 +250,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                 break;
             case Z_TAB:
                 active = zRenderable;
+                zRenderable.updateSpacing(get(zProbeDistance), get(zProbeOffset));
                 break;
             case SETTINGS_TAB:
                 active = null;

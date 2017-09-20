@@ -96,12 +96,6 @@ public class LocalizingService {
     public final static String WorkflowWindowActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
     public final static String WorkflowWindowCategory = "Window";
 
-    public final static String ProbeHelperTitle = Localization.getString("platform.window.probe", lang);
-    public final static String ProbeHelperTooltip = Localization.getString("platform.window.probe.tooltip", lang);
-    public final static String ProbeHelperWindowPath = "Menu/Window/Plugins";
-    public final static String ProbeHelperActionId = "com.willwinder.ugs.platform.probe.ProbeHelperTopComponent";
-    public final static String ProbeHelperCategory = "Window";
-
     public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
     public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
     public final static String ProbeWindowPath = "Menu/Window/Plugins";
@@ -193,7 +187,6 @@ public class LocalizingService {
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
         ars.overrideActionName(VisualizerCategory, VisualizerActionId, VisualizerTitle);
         ars.overrideActionName(ProbeCategory, ProbeActionId, ProbeTitle);
-        ars.overrideActionName(ProbeHelperCategory, ProbeHelperActionId, ProbeHelperTitle);
         ars.overrideActionName(AutoLevelerCategory, AutoLevelerActionId, AutoLevelerTitle);
     }
 }
