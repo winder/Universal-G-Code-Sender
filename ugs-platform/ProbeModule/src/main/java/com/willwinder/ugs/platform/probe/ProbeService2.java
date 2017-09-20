@@ -45,6 +45,7 @@ import static com.willwinder.ugs.platform.probe.ProbeService2.Event.Start;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import javax.swing.SwingUtilities;
 
 /**
@@ -82,7 +83,7 @@ public class ProbeService2 implements UGSEventListener {
         public final double feedRate;
         public final double feedRateSlow;
         public final double retractHeight;
-        public final int wcsToUpdate;
+        public final WorkCoordinateSystem wcsToUpdate;
         public final Units units;
 
         // Results
@@ -94,7 +95,7 @@ public class ProbeService2 implements UGSEventListener {
                 double xSpacing, double ySpacing, double zSpacing,
                 double xOffset, double yOffset, double zOffset,
                 double feedRate, double feedRateSlow, double retractHeight,
-                Units u, int wcs) {
+                Units u, WorkCoordinateSystem wcs) {
             this.probeDiameter = diameter;
             this.startPosition = start;
             this.xSpacing = xSpacing;
@@ -197,13 +198,7 @@ public class ProbeService2 implements UGSEventListener {
 
     public void finalizeZProbe(ProbeContext context) {
         // Update WCS
-        gcode("G10 L20 P" +context.wcsToUpdate + "Z"+ context.zOffset);
-
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException ex) {
-            Exceptions.printStackTrace(ex);
-        }
+        gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Z"+ context.zOffset);
 
         String g = getUnitCmdFor(context.units);
         String g0 = "G90 " + g + " G0";
@@ -221,13 +216,7 @@ public class ProbeService2 implements UGSEventListener {
                 case StoreYReset:
                 {
                     double yOffset = ((context.ySpacing > 0) ? -radius : radius);
-                    gcode("G10 L20 P" +context.wcsToUpdate + "Y"+ (context.yOffset + yOffset));
-
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
+                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Y"+ (context.yOffset + yOffset));
 
                     context.probePosition1 = context.event.getProbePosition();
                     double offset =  context.startPosition.y - context.probePosition1.y;
@@ -239,13 +228,7 @@ public class ProbeService2 implements UGSEventListener {
                 case StoreXFinalize:
                 {
                     double xOffset = ((context.xSpacing > 0) ? -radius : radius);
-                    gcode("G10 L20 P" +context.wcsToUpdate + "X"+ (context.xOffset + xOffset));
-
-                    try {
-                        Thread.sleep(250);
-                    } catch (InterruptedException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
+                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " X"+ (context.xOffset + xOffset));
 
                     context.probePosition2 = context.event.getProbePosition();
                     double offset =  context.startPosition.x - context.probePosition2.x;

@@ -32,7 +32,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.*;
 import java.awt.BorderLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -129,8 +130,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private final JButton measureInside = new JButton(Localization.getString("probe.measure.inside-corner"));
 
     // settings
-    private JComboBox settingsWorkCoordinate;
-    private JComboBox settingsUnits;
+    private JComboBox<WorkCoordinateSystem> settingsWorkCoordinate;
+    private JComboBox<String> settingsUnits;
     private SpinnerNumberModel settingsProbeDiameter;
     private SpinnerNumberModel settingsFastFindRate;
     private SpinnerNumberModel settingsSlowMeasureRate;
@@ -154,7 +155,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         ps2 = new ProbeService2(backend);
 
         double largeSpinner = 1000000;
-        // TODO: Initialize from settings.
+
         // OUTSIDE TAB
         outsideXDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
         outsideYDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
@@ -172,8 +173,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         insideYOffsetModel = new SpinnerNumberModel(2., -largeSpinner, largeSpinner, 0.1);
 
         // SETTINGS TAB
-        settingsWorkCoordinate = new JComboBox(new String[]{"G54", "G55", "G56", "G57", "G58", "G59"});
-        settingsUnits = new JComboBox(new String[]{
+        settingsWorkCoordinate = new JComboBox<>(new WorkCoordinateSystem[]{G54, G55, G56, G57, G58, G59});
+        settingsUnits = new JComboBox<>(new String[]{
             Localization.getString("mainWindow.swing.mmRadioButton"),
             Localization.getString("mainWindow.swing.inchRadioButton")
         });
@@ -188,7 +189,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         get(outsideXDistanceModel), get(outsideYDistanceModel), 0.,
                         get(outsideXOffsetModel), get(outsideYOffsetModel), 0.,
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
-                        get(settingsRetractAmount), getUnits(), 1);
+                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 ps2.performOutsideCornerProbe(pc);
             });
 
@@ -207,7 +208,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         0., 0., get(zProbeDistance),
                         0., 0., get(zProbeOffset),
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
-                        get(settingsRetractAmount), getUnits(), 1);
+                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 ps2.performZProbe(pc);
             });
 
@@ -282,6 +283,11 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     // deal with casting the spinner model to a double.
     private static double get(SpinnerNumberModel model) {
         return (double) model.getValue();
+    }
+
+    // Helper since getSelectedItem doesn't use generics.
+    private static WorkCoordinateSystem get(JComboBox<WorkCoordinateSystem> wcsCombo) {
+        return wcsCombo.getItemAt(wcsCombo.getSelectedIndex());
     }
 
     private void initComponents() {

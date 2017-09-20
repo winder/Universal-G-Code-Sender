@@ -25,6 +25,8 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,7 +48,7 @@ public class ProbeServiceTest {
 
         ProbeService2 ps = new ProbeService2(backend);
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.INCH, 0);
+        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
         ps.performZProbe(pc);
 
         Position probeZ = new Position(5, 5, 3, Units.MM);
@@ -59,6 +61,7 @@ public class ProbeServiceTest {
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G20 G0 Z" + retractDistance(pc.zSpacing));
         verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z" + pc.retractHeight);
+        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z1.0");
     }
 
     @Test
@@ -67,7 +70,7 @@ public class ProbeServiceTest {
 
         ProbeService2 ps = new ProbeService2(backend);
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, 0);
+        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
         ps.performOutsideCornerProbe(pc);
 
         Position probeY = new Position(pc.ySpacing, 2.1, 0, Units.MM);
@@ -94,6 +97,7 @@ public class ProbeServiceTest {
         verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing));
         verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
+        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 Y0.5");
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + (pc.startPosition.y-probeY.y));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + -pc.xSpacing);
 
@@ -102,8 +106,8 @@ public class ProbeServiceTest {
         verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing));
         verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
+        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0.5");
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + (pc.startPosition.x-probeX.x));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + -pc.xSpacing);
-        // TODO: update WCS
     }
 }
