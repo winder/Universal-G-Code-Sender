@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import java.awt.Component;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -128,11 +129,12 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
             String port = s.getPort();
             int baudRate = Integer.parseInt(s.getPortRate());
 
-            try {
-                backend.connect(firmware, port, baudRate);
-            } catch (Exception e) {
-                GUIHelpers.displayErrorDialog(e.getMessage());
-            }
+            ThreadHelper.invokeLater(() -> {
+                try {
+                    backend.connect(firmware, port, baudRate);
+                } catch (Exception e) {
+                    GUIHelpers.displayErrorDialog(e.getMessage());
+                }});
         } else {
             try {
                 backend.disconnect();
