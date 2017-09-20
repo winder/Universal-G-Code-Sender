@@ -182,7 +182,7 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the arguments of a command.
      */
-    static public Optional<Point3d> updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
+    static public Point3d updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
         List<String> l = GcodePreprocessorUtils.splitCommand(command);
         return updatePointWithCommand(l, initial, absoluteMode);
     }
@@ -190,17 +190,17 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
-    static public Optional<Point3d> updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
+    static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
 
         Double x = parseCoord(commandArgs, 'X');
         Double y = parseCoord(commandArgs, 'Y');
         Double z = parseCoord(commandArgs, 'Z');
 
         if (x.isNaN() && y.isNaN() && z.isNaN()) {
-            return Optional.empty();
+            return null;
         }
 
-        return Optional.ofNullable(updatePointWithCommand(initial, x, y, z, absoluteMode));
+        return updatePointWithCommand(initial, x, y, z, absoluteMode);
     }
 
     /**
@@ -343,7 +343,7 @@ public class GcodePreprocessorUtils {
     
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
-    static public boolean hasCoordinates(List<String> argList) {
+    static public boolean hasAxisWords(List<String> argList) {
         for(String t : argList) {
             if (t.length() > 1) {
                 char c = Character.toUpperCase(t.charAt(0));

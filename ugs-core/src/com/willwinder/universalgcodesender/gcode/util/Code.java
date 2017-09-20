@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.gcode.util;
 
-import static com.willwinder.universalgcodesender.gcode.util.Code.Type.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -29,14 +29,37 @@ import java.util.stream.Collectors;
  * @author wwinder
  */
 public enum Code {
+    G4(NonModal),
+    G10(NonModal, true, false),
+    G28(NonModal, true, true),
+    G30(NonModal, true, true),
+    G53(NonModal, false, false),
+    G92(NonModal, true, false),
+    G92_1(NonModal),
+    G92_2(NonModal),
+    G92_3(NonModal),
+
     G0(Motion),
     G1(Motion),
     G2(Motion),
     G3(Motion),
-
-    G4(Dwell),
-
-    G10(WCS), // combine with 'L' codes to set WCS
+    G33(Motion),
+    G38_2(Motion),
+    G38_3(Motion),
+    G38_4(Motion),
+    G38_5(Motion),
+    G73(Motion),
+    G76(Motion),
+    G80(Motion),
+    G81(Motion),
+    G82(Motion),
+    G83(Motion),
+    G84(Motion),
+    G85(Motion),
+    G86(Motion),
+    G87(Motion),
+    G88(Motion),
+    G89(Motion),
 
     G17(Plane),
     G18(Plane),
@@ -45,20 +68,31 @@ public enum Code {
     G18_1(Plane),
     G19_1(Plane),
 
+    G90(Distance),
+    G91(Distance),
+
+    G90_1(Arc),
+    G91_1(Arc),
+
+    G93(Feedmode),
+    G94(Feedmode),
+    G95(Feedmode),
+
     G20(Units),
     G21(Units),
 
-    G28(Motion),
-
-    G38_2(Motion),
-    G38_3(Motion),
-    G38_4(Motion),
-    G38_5(Motion),
-
     G40(Cutter),
+    G41(Cutter),
+    G42(Cutter),
+    G41_1(Cutter),
+    G42_1(Cutter),
 
+    G43(TLO),
     G43_1(TLO),
     G49(TLO),
+
+    G98(CannedCycle),
+    G99(CannedCycle),
 
     G54(WCS),
     G55(WCS),
@@ -66,25 +100,26 @@ public enum Code {
     G57(WCS),
     G58(WCS),
     G59(WCS),
+    G59_1(WCS),
+    G59_2(WCS),
+    G59_3(WCS),
 
-    G80(Motion), // Canned cycle
+    G61(Control),
+    G61_1(Control),
+    G64(Control),
 
-    G90(Distance),
-    G91(Distance),
+    G96(SpindleSpeed),
+    G97(SpindleSpeed),
 
-    G90_1(Arc),
-    G91_1(Arc),
-
-    G92(WCS),
-
-    G93(Feedmode),
-    G94(Feedmode),
-    G95(Feedmode),
+    G7(LatheDiamater),
+    G8(LatheDiamater),
 
     // MCodes
-    M0(Program),
-    M1(Program),
-    M2(Program),
+    M0(Stopping),
+    M1(Stopping),
+    M2(Stopping),
+    M30(Stopping),
+    M60(Stopping),
 
     M3(Spindle),
     M4(Spindle),
@@ -94,26 +129,34 @@ public enum Code {
     M8(Coolant),
     M9(Coolant),
 
-    M30(Program),
+    M48(Override),
+    M49(Override),
+
     UNKNOWN(Unknown);
 
-    public enum Type {
-        // Gcode Types
-        Motion,
-        WCS,
-        Plane,
-        Distance,
-        Arc,
-        Feedmode,
-        Units,
-        Cutter,
-        TLO,
-        Dwell,
+    // http://linuxcnc.org/docs/html/gcode/overview.html#_modal_groups
+    public enum ModalGroup {
+        // G-Code
+        NonModal,       // (Group 0)  Non-modal codes 
+        Motion,         // (Group 1)  Motion
+        Plane,          // (Group 2)  Plane selection
+        Distance,       // (Group 3)  Distance Mode
+        Arc,            // (Group 4)  Arc IJK Distance Mode
+        Feedmode,       // (Group 5)  Feed Rate Mode
+        Units,          // (Group 6)  Units
+        Cutter,         // (Group 7)  Cutter Diameter Compensation
+        TLO,            // (Group 8)  Tool Length Offset
+        CannedCycle,    // (Group 10) Canned Cycles Return Mode
+        WCS,            // (Group 12) Coordinate System
+        Control,        // (Group 13) Control Mode
+        SpindleSpeed,   // (Group 14) Spindle Speed Mode
+        LatheDiamater,  // (Group 15) Lathe Diameter Mode
         
-        // Mcode Types
-        Program,
-        Spindle,
-        Coolant,
+        // M-Code
+        Stopping,       // (Group 4)  Stopping 
+        Spindle,        // (Group 7)  Spindle
+        Coolant,        // (Group 8)  Coolant
+        Override,       // (Group 9)  Override Switches
 
         Unknown;
     };
@@ -122,10 +165,28 @@ public enum Code {
         Arrays.stream(Code.values())
                 .collect(Collectors.toMap(Code::toString, c -> c));
 
-    private final Type type;
+    private final ModalGroup type;
+    private final boolean nonModalMotionCode;
+    private final boolean motionOptional;
 
-    private Code(Type type){
+    private Code(ModalGroup type){
         this.type = type;
+        this.nonModalMotionCode = false;
+        this.motionOptional = false;
+    }
+
+    private Code(ModalGroup type, boolean nonModalMotionCode, boolean motionOptional){
+        this.type = type;
+        this.nonModalMotionCode = nonModalMotionCode;
+        this.motionOptional = motionOptional;
+    }
+
+    public boolean consumesMotion() {
+        return type == Motion || this.nonModalMotionCode;
+    }
+
+    public boolean motionOptional() {
+        return this.motionOptional;
     }
 
     /**
@@ -136,13 +197,8 @@ public enum Code {
         return this.name().replace("_", ".");
     }
 
-    public Type getType(){
+    public ModalGroup getType(){
         return this.type;
-    }
-
-
-    public boolean requiresCoordinates() {
-        return this.type == Motion && this != G28;
     }
 
     private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+((?:\\d*\\.)?\\d+)");

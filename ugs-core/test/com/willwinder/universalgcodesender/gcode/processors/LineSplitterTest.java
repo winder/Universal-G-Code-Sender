@@ -119,7 +119,7 @@ public class LineSplitterTest {
         expectedEx.expect(GcodeParserException.class);
         expectedEx.expectMessage(Localization.getString("parser.processor.general.multiple-commands"));
 
-        String command = "G92 G1X1Y1Z1";
+        String command = "G20 G1X1Y1Z1";
         splitterHarness(1, new Point3d(0, 0, 0), command, null);
 
         Assert.fail("Should throw an exception before reaching this point.");
@@ -132,8 +132,8 @@ public class LineSplitterTest {
     public void testIgnoreNonLines() throws Exception {
         System.out.println("ignoreNonLines");
 
-        String command = "G92G2X1Y1Z1";
-        List<String> expected = Arrays.asList("G92G2X1Y1Z1");
+        String command = "G20G2X1Y1Z1";
+        List<String> expected = Arrays.asList("G20G2X1Y1Z1");
         splitterHarness(2, new Point3d(-1, -1, -1), command, expected);
     }
     

@@ -46,6 +46,7 @@ public class ArcExpanderTest {
         ArcExpander instance = new ArcExpander(true, 1);
         boolean threwException = false;
         try {
+            state.currentPoint = null;
             List<String> result = instance.processCommand("G02 X5 Y0 R12", state);
         } catch (GcodeParserException e) {
             threwException = true;

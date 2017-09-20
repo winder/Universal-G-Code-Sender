@@ -162,7 +162,7 @@ public class MeshLevelerTest {
         state.currentPoint = new Point3d(0, 0, 0);
         state.inAbsoluteMode = true;
 
-        ml.processCommand("G1X1G92", state);
+        ml.processCommand("G1X1G20", state);
     }
 
     @Test

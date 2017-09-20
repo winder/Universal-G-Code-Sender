@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
@@ -32,7 +33,9 @@ import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -43,16 +46,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.vecmath.Point3d;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Before;
 
 /**
  *
@@ -60,17 +60,6 @@ import org.junit.Before;
  */
 public class GcodeParserTest {
     
-    public GcodeParserTest() {
-    }
-
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
     private void testCommand(List<GcodeMeta> segments, int numResults, double speed,
             double x, double y, double z,
             boolean fastTraversal, boolean zMovement, boolean arc, boolean clockwise,
@@ -337,9 +326,64 @@ public class GcodeParserTest {
         gcp.addCommandProcessor(new CommentProcessor());
         GcodeState initialState = new GcodeState();
         initialState.currentPoint = new Point3d(0, 0, 1);
-        initialState.lastGcodeCommand = Code.G0;
+        initialState.currentMotionMode = Code.G0;
         List<String> result = gcp.preprocessCommand("M05", initialState);
         assertEquals(1, result.size());
         assertEquals("M05", result.get(0));
+    }
+
+    @Test
+    public void stateInitialized() throws Exception {
+        GcodeState state = new GcodeState();
+        Assert.assertEquals(G0, state.currentMotionMode);
+        List<GcodeMeta> metaList = GcodeParser.processCommand("X1", 0, new GcodeState());
+        Assert.assertEquals(1, metaList.size());
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        Assert.assertEquals(G0, meta.code);
+    }
+
+    @Test
+    public void multipleAxisWordCommands() throws Exception {
+        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G0G1X1X2", 0, new GcodeState()));
+        assertThat(thrown)
+                .isInstanceOf(GcodeParserException.class)
+                .hasMessageStartingWith(Localization.getString("parser.gcode.multiple-axis-commands"));
+    }
+
+    @Test
+    public void missingAxisWords() throws Exception {
+        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G1", 0, new GcodeState()));
+
+        assertThat(thrown)
+                .isInstanceOf(GcodeParserException.class)
+                .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G1");
+    }
+
+    @Test
+    public void duplicateFeedException() throws Exception {
+        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("F1F1", 0, new GcodeState()));
+
+        assertThat(thrown)
+                .isInstanceOf(GcodeParserException.class)
+                .hasMessage("Multiple F-codes on one line.");
+    }
+
+    @Test
+    public void duplicateSpindleException() throws Exception {
+        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("S1S1", 0, new GcodeState()));
+
+        assertThat(thrown)
+                .isInstanceOf(GcodeParserException.class)
+                .hasMessage("Multiple S-codes on one line.");
+    }
+
+    @Test
+    public void g28WithAxes() throws Exception {
+        GcodeParser.processCommand("G28 X1 Y2 Z3", 0, new GcodeState());
+    }
+
+    @Test
+    public void g28NoAxes() throws Exception {
+        GcodeParser.processCommand("G28", 0, new GcodeState());
     }
 }

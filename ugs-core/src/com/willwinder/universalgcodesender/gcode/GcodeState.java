@@ -23,6 +23,7 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import javax.vecmath.Point3d;
 
@@ -31,28 +32,54 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class GcodeState {
+    public GcodeState() {
+        // GRBL initial state: [G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 F0. S0.]
+        this.currentMotionMode = G0;
+        // TODO: Add WCS
+        this.plane = Plane.XY;
+        this.isMetric = true;
+        this.inAbsoluteMode = true;
+        // TODO: Feed mode
+        this.speed = 0;
+        this.spindleSpeed = 0;
+
+        this.currentPoint = new Point3d(0, 0, 0);
+    }
+
     public GcodeState copy() {
         GcodeState ret = new GcodeState();
+        ret.currentMotionMode = currentMotionMode;
         ret.plane = plane;
-        ret.isMetric = isMetric;
         ret.inAbsoluteMode = inAbsoluteMode;
         ret.inAbsoluteIJKMode = inAbsoluteIJKMode;
-        ret.lastGcodeCommand = lastGcodeCommand;
+        ret.speed = speed;
+        ret.isMetric = isMetric;
+        ret.spindleSpeed = spindleSpeed;
+
         if (currentPoint != null) {
             ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
         }
-        ret.speed = speed;
         ret.commandNumber = commandNumber;
         return ret;
     }
 
     // Current state
+    // group 1
+    public Code currentMotionMode = null;
+    // group 2
     public Plane plane;
-    public boolean isMetric = true;
+    // group 3
     public boolean inAbsoluteMode = true;
+    // group 4
     public boolean inAbsoluteIJKMode = false;
-    public Code lastGcodeCommand = null;
-    public Point3d currentPoint = null;
+    // group 5
     public double speed = 0;
+    // group 6
+    public boolean isMetric = true;
+    // group 12 (WCS)?
+
+    // Misc
+    public double spindleSpeed = 0;
+    public Point3d currentPoint = null;
     public int commandNumber = 0;
 }

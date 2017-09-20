@@ -22,15 +22,22 @@
 
 package com.willwinder.universalgcodesender.gcode.util;
 
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+
 /**
  *
  * @author wwinder
  */
 public enum Plane {
-    XY,
-    ZX,
-    YZ,
-    UV,
-    WU,
-    VW
+    XY(G17),
+    ZX(G18),
+    YZ(G19),
+    UV(G17_1),
+    WU(G18_1),
+    VW(G19_1);
+
+    public final Code code;
+    private Plane(Code c) {
+        code = c;
+    }
 }
