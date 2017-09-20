@@ -117,7 +117,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             private int count = 0;
             @Override
             public void run() {
-                autoconnect();
+                //autoconnect();
 
                 // Move the mouse every 30 seconds to prevent sleeping.
                 if (isPaused() || isActive()) {
