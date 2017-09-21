@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
@@ -343,7 +342,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         parser.addCommandProcessor(new CommentProcessor());
         parser.addCommandProcessor(new WhitespaceProcessor());
         parser.addCommandProcessor(new M30Processor());
-        parser.addCommandProcessor(new CommandSplitter());
         parser.addCommandProcessor(new DecimalProcessor(4));
         parser.addCommandProcessor(new CommandLengthProcessor(50));
     }

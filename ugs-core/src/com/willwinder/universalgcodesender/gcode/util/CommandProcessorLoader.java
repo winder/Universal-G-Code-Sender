@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,7 +24,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
@@ -55,11 +54,6 @@ public class CommandProcessorLoader {
      *         "args": {}
      *     },{
      *         "name": "CommandLenghtProcessor",
-     *         "enabled": <enabled>,
-     *         "optional": <optional>,
-     *         "args": {}
-     *     },{
-     *         "name": "CommandSplitter",
      *         "enabled": <enabled>,
      *         "optional": <optional>,
      *         "args": {}
@@ -141,10 +135,6 @@ public class CommandProcessorLoader {
      *             "commandLength": <double>
      *         }
      *     },{
-     *         "name": "CommandSplitter",
-     *         "enabled": <enabled>
-     *         "optional": <optional>,
-     *     },{
      *         "name": "CommentProcessor",
      *         "enabled": <enabled>
      *         "optional": <optional>,
@@ -196,9 +186,6 @@ public class CommandProcessorLoader {
                     int commandLength = pc.args.get("commandLength").getAsInt();
                     p = new CommandLengthProcessor(commandLength);
                     break;
-                case "CommandSplitter":
-                    p = new CommandSplitter();
-                    break;
                 case "CommentProcessor":
                     p = new CommentProcessor();
                     break;
@@ -246,9 +233,6 @@ public class CommandProcessorLoader {
                 case "CommandLengthProcessor":
                     int commandLength = pc.args.get("commandLength").getAsInt();
                     p = new CommandLengthProcessor(commandLength);
-                    break;
-                case "CommandSplitter":
-                    p = new CommandSplitter();
                     break;
                 case "CommentProcessor":
                     p = new CommentProcessor();

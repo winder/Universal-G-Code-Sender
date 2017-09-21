@@ -1,6 +1,6 @@
 {
     "Name": "GRBL",
-    "Version": 2,
+    "Version": 3,
     "Controller": {
         "name": "GRBL",
         "args": null
@@ -20,10 +20,6 @@
                 }
             },{
                 "name": "M30Processor",
-                "enabled": true,
-                "optional": false
-            },{
-                "name": "CommandSplitter",
                 "enabled": true,
                 "optional": false
             },{

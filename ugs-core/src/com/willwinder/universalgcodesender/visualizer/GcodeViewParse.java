@@ -29,7 +29,6 @@ import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
@@ -113,7 +112,6 @@ public class GcodeViewParse {
         GcodeParser gp = new GcodeParser();
         gp.addCommandProcessor(new CommentProcessor());
         gp.addCommandProcessor(new WhitespaceProcessor());
-        gp.addCommandProcessor(new CommandSplitter());
         //gp.addCommandProcessor(new ArcExpander(true, arcSegmentLength, 4));
         return gp;
     }

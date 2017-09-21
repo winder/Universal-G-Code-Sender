@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -96,10 +96,6 @@ public class CommandProcessorLoaderTest {
         array.add(object);
 
         object = new JsonObject();
-        object.addProperty("name", "CommandSplitter");
-        array.add(object);
-
-        object = new JsonObject();
         object.addProperty("name", "CommentProcessor");
         object.add("args", null);
         array.add(object);
@@ -145,16 +141,15 @@ public class CommandProcessorLoaderTest {
         String jsonConfig = array.toString();
         List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
 
-        assertEquals(9, processors.size());
+        assertEquals(8, processors.size());
         assertEquals(ArcExpander.class, processors.get(0).getClass());
-        assertEquals(CommandSplitter.class, processors.get(1).getClass());
-        assertEquals(CommentProcessor.class, processors.get(2).getClass());
-        assertEquals(DecimalProcessor.class, processors.get(3).getClass());
-        assertEquals(FeedOverrideProcessor.class, processors.get(4).getClass());
-        assertEquals(M30Processor.class, processors.get(5).getClass());
-        assertEquals(PatternRemover.class, processors.get(6).getClass());
-        assertEquals(CommandLengthProcessor.class, processors.get(7).getClass());
-        assertEquals(WhitespaceProcessor.class, processors.get(8).getClass());
+        assertEquals(CommentProcessor.class, processors.get(1).getClass());
+        assertEquals(DecimalProcessor.class, processors.get(2).getClass());
+        assertEquals(FeedOverrideProcessor.class, processors.get(3).getClass());
+        assertEquals(M30Processor.class, processors.get(4).getClass());
+        assertEquals(PatternRemover.class, processors.get(5).getClass());
+        assertEquals(CommandLengthProcessor.class, processors.get(6).getClass());
+        assertEquals(WhitespaceProcessor.class, processors.get(7).getClass());
     }
     
     private static JsonElement with(String name, Boolean enabled) {

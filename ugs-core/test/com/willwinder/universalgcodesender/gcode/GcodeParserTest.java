@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
@@ -39,6 +38,7 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.File;
@@ -290,7 +290,6 @@ public class GcodeParserTest {
         System.out.println("autoLevelerProcessorSet");
         GcodeParser gcp = new GcodeParser();
         gcp.addCommandProcessor(new CommentProcessor());
-        gcp.addCommandProcessor(new CommandSplitter());
         gcp.addCommandProcessor(new ArcExpander(true, 0.1));
         gcp.addCommandProcessor(new LineSplitter(1));
         Point3d grid[][] = {
@@ -309,16 +308,20 @@ public class GcodeParserTest {
         GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
 
         GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
-        assertEquals(1021, reader.getNumRows());
 
         file = this.getClass().getClassLoader().getResource("./gcode/circle_test.nc.processed");
         Files.lines(Paths.get(file.toURI())).forEach((t) -> {
             try {
-                Assert.assertEquals(reader.getNextCommand().getCommandString(), t);
+                GcodeCommand c = reader.getNextCommand();
+                if (c == null) {
+                    Assert.fail("Reached end of gcode reader before end of expected commands.");
+                }
+                Assert.assertEquals(c.getCommandString(), t);
             } catch (IOException ex) {
                 Assert.fail("Unexpected exception.");
             }
         });
+        assertEquals(1027, reader.getNumRows());
         output.toFile().delete();
     }
 

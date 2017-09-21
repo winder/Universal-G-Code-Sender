@@ -19,13 +19,10 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.Arrays;
 import java.util.List;
 import javax.vecmath.Point3d;
 import static org.assertj.core.api.Assertions.*;
-import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Rule;
@@ -149,9 +146,22 @@ public class LineSplitterTest {
     public void testIgnoreNonLines() throws Exception {
         System.out.println("ignoreNonLines");
 
-        String command = "G20G2X1Y1Z1";
-        List<String> expected = Arrays.asList("G20G2X1Y1Z1");
-        splitterHarness(2, new Point3d(-1, -1, -1), command, expected);
+        LineSplitter instance = new LineSplitter(1.5);
+
+        String command;
+
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Point3d(0, 0, 0);
+        state.inAbsoluteMode = true;
+
+        command = "G20G2X1Y1Z1";
+        List<String> result = instance.processCommand(command, state);
+        assertThat(result).containsExactly(command);
+
+        command = "G17";
+        result = instance.processCommand(command, state);
+        assertThat(result).containsExactly(command);
     }
     
     /**

@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import static com.willwinder.universalgcodesender.gcode.util.Code.UNKNOWN;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -421,7 +422,9 @@ public class GcodeParser implements IGcodeParser {
             default:
                 break;
         }
-        state.currentMotionMode = code;
+        if (code.getType() == Motion) {
+            state.currentMotionMode = code;
+        }
         meta.state = state.copy();
         return meta;
     }

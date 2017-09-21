@@ -26,7 +26,6 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
-import com.willwinder.universalgcodesender.gcode.processors.CommandSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.LineSplitter;
 import com.willwinder.universalgcodesender.gcode.processors.MeshLeveler;
@@ -569,8 +568,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         // Step 0: Get rid of comments.
         gcp.addCommandProcessor(new  CommentProcessor());
 
-        // Step 1: The arc processor and line processor need commands to be split.
-        gcp.addCommandProcessor(new CommandSplitter());
+        // Step 1: The arc processor and line processors NO LONGER need to be split!
 
         // Step 2: Must convert arcs to line segments.
         gcp.addCommandProcessor(new ArcExpander(true, autoLevelSettings.autoLevelArcSliceLength));
