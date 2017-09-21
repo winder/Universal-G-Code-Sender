@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.Arrays;
 import java.util.List;
 import javax.vecmath.Point3d;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -112,17 +113,33 @@ public class LineSplitterTest {
      * Multiple commands on 1 line sent to the splitter should throw.
      */
     @Test
-    public void testMultipleCommandsError() throws Exception {
-        System.out.println("multipleCommandsError");
+    public void testShortLineNoOp() throws Exception {
+        System.out.println("testShortLineNoOp");
+
         LineSplitter instance = new LineSplitter(2);
 
-        expectedEx.expect(GcodeParserException.class);
-        expectedEx.expectMessage(Localization.getString("parser.processor.general.multiple-commands"));
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Point3d(0, 0, 0);
+        state.inAbsoluteMode = true;
 
         String command = "G20 G1X1Y1Z1";
-        splitterHarness(1, new Point3d(0, 0, 0), command, null);
+        List<String> result = instance.processCommand(command, state);
+        assertThat(result).containsExactly(command);
+    }
 
-        Assert.fail("Should throw an exception before reaching this point.");
+    @Test
+    public void testModalReturnedFirst() throws Exception {
+        System.out.println("testModalReturnedFirst");
+
+        LineSplitter instance = new LineSplitter(1.5);
+
+        GcodeState state = new GcodeState();
+        state.currentPoint = new Point3d(0, 0, 0);
+        state.inAbsoluteMode = true;
+
+        String command = "G20 G1X2Y2Z0";
+        List<String> result = instance.processCommand(command, state);
+        assertThat(result).containsExactly("G20", "G1X1Y1Z0", "G1X2Y2Z0");
     }
 
     /**

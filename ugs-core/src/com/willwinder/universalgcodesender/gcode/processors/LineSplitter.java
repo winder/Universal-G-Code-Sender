@@ -21,10 +21,14 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
+import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
@@ -51,16 +55,17 @@ public class LineSplitter implements ICommandProcessor {
         return "Split G0 and G1 commands into multiple commands.";
     }
 
-    private boolean hasLine(List<GcodeMeta> commands) {
-        if (commands == null) return false;
+    private Code hasLine(List<GcodeMeta> commands) {
+        if (commands == null) return null;
         for (GcodeMeta command : commands) {
             switch(command.code){
                 case G0:
+                    return G0;
                 case G1:
-                    return true;
+                    return G1;
             }
         }
-        return false;
+        return null;
     }
 
     @Override
@@ -69,17 +74,17 @@ public class LineSplitter implements ICommandProcessor {
 
         List<String> results = new ArrayList<>();
 
-        if (!hasLine(commands)) {
+        Code code = hasLine(commands);
+        if (code == null) {
             return Collections.singletonList(commandString);
         }
 
-        // Make sure there is just one command (the G0/G1 command).
-        if (commands.size() != 1) {
-            throw new GcodeParserException(Localization.getString("parser.processor.general.multiple-commands"));
+        SplitCommand sc = GcodePreprocessorUtils.extractMotion(code, commandString);
+        if (sc.remainder.length() > 0) {
+            results.add(sc.remainder);
         }
 
-        // We have already verified that there is a single G0/G1 command, split it up.
-        GcodeMeta command = commands.get(0);
+        GcodeMeta command = Iterables.getLast(commands);
 
         if (command == null || command.point == null) {
             throw new GcodeParserException("Internal parser error: missing data.");
@@ -113,7 +118,7 @@ public class LineSplitter implements ICommandProcessor {
             results.add(GcodePreprocessorUtils.generateLineFromPoints(
                     command.code, current, end, command.state.inAbsoluteMode, null));
         } else {
-            results.add(commandString);
+            return Collections.singletonList(commandString);
         }
 
         return results;

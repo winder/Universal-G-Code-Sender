@@ -23,10 +23,13 @@
  */
 package com.willwinder.universalgcodesender.gcode.processors;
 
+import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
@@ -34,6 +37,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.vecmath.Point3d;
 
@@ -74,18 +78,17 @@ public class ArcExpander implements ICommandProcessor {
         List<GcodeMeta> commands = GcodeParser.processCommand(command, 0, state);
 
         // If this is not an arc, there is nothing to do.
-        if (! hasArcCommand(commands)) {
-            results.add(command);
-            return results;
+        Code c = hasArcCommand(commands);
+        if (c == null) {
+            return Collections.singletonList(command);
         }
 
-        // Make sure there is just one command (the arc).
-        // Note: This means "G17 G02 X5 Y5 R2" would be an error.
-        if (commands.size() != 1) {
-            throw new GcodeParserException(Localization.getString("parser.processor.arc.multiple-commands"));
+        SplitCommand sc = GcodePreprocessorUtils.extractMotion(c, command);
+        if (sc.remainder.length() > 0) {
+            results.add(sc.remainder);
         }
 
-        GcodeMeta arcMeta = commands.get(0);
+        GcodeMeta arcMeta = Iterables.getLast(commands);
         PointSegment ps = arcMeta.point;
         Point3d start = state.currentPoint;
         Point3d end = arcMeta.point.point();
@@ -115,13 +118,13 @@ public class ArcExpander implements ICommandProcessor {
         return results;
     }
 
-    private static boolean hasArcCommand(List<GcodeMeta> commands) {
-        if (commands == null) return false;
+    private static Code hasArcCommand(List<GcodeMeta> commands) {
+        if (commands == null) return null;
         for (GcodeMeta meta : commands) {
             if (meta.point != null && meta.point.isArc()) {
-                return true;
+                return meta.code;
             }
         }
-        return false;
+        return null;
     }
 }

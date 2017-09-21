@@ -30,7 +30,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.vecmath.Point3d;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
+import org.assertj.core.data.Offset;
+import org.junit.Assert;
 
 /**
  *
@@ -43,33 +45,25 @@ public class ArcExpanderTest {
         System.out.println("arcExpandBadState");
 
         GcodeState state = new GcodeState();
+        state.currentPoint = null;
         ArcExpander instance = new ArcExpander(true, 1);
-        boolean threwException = false;
-        try {
-            state.currentPoint = null;
-            List<String> result = instance.processCommand("G02 X5 Y0 R12", state);
-        } catch (GcodeParserException e) {
-            threwException = true;
-            assertEquals(Localization.getString("parser.processor.arc.start-error"), e.getMessage());
-        }
-        assertTrue(threwException);
+
+        assertThatThrownBy(() -> instance.processCommand("G02 X5 Y0 R12", state))
+                .isInstanceOf(GcodeParserException.class)
+                .hasMessage(Localization.getString("parser.processor.arc.start-error"));
     }
 
     @Test
-    public void arcExpandBadCommand() throws Exception {
-        System.out.println("arcExpandBadCommand");
+    public void modalsReturnedFirst() throws Exception {
+        System.out.println("arcExpandWithModals");
         GcodeState state = new GcodeState();
         state.currentPoint = new Point3d(0,0,0);
         state.plane = XY;
         ArcExpander instance = new ArcExpander(true, 1);
-        boolean threwException = false;
-        try {
-            List<String> result = instance.processCommand("G17 G02 X5 Y0 R12", state);
-        } catch (GcodeParserException e) {
-            threwException = true;
-            assertEquals(Localization.getString("parser.processor.arc.multiple-commands"), e.getMessage());
-        }
-        assertTrue(threwException);
+
+        List<String> result = instance.processCommand("G17 G20 G02 X5 Y0 R12 S1300", state);
+        assertThat(result.get(0)).isEqualTo("G17G20S1300");
+        assertThat(result).size().isGreaterThan(2);
     }
     
     @Test
@@ -82,8 +76,8 @@ public class ArcExpanderTest {
         boolean threwException = false;
         String command = "G17 G0 X12";
         List<String> result = instance.processCommand(command, state);
-        assertEquals(1, result.size());
-        assertEquals(command, result.get(0));
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0)).isEqualTo(command);
     }
 
     @Test
@@ -102,13 +96,13 @@ public class ArcExpanderTest {
             // Half circle clockwise, X-1 -> X1, Y0 -> Y1 -> Y0
             String command = "G2 Y0 X1 R1";
             List<String> result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, 0, 0), new Point3d(1,1,0), state.plane);
 
             // Half circle counter-clockwise, X-1 -> X1, Y0 -> Y-1 -> Y0
             command = "G3 Y0 X1 R1";
             result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, -1, 0), new Point3d(1,0,0), state.plane);
         }
     }
@@ -129,13 +123,13 @@ public class ArcExpanderTest {
             // Half circle clockwise, Z-1 -> Z1, X0 -> X1 -> X0
             String command = "G2 Z1 X0 R1";
             List<String> result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, 0, -1), new Point3d(1,0,1), state.plane);
 
             // Half circle clockwise, Z-1 -> Z1, X0 -> X-1 -> X0
             command = "G3 Z1 X0 R1";
             result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, 0, -1), new Point3d(0,0,1), state.plane);
         }
     }
@@ -156,13 +150,13 @@ public class ArcExpanderTest {
             // Half circle clockwise, Y-1 -> Y1, X0 -> X1 -> X0
             String command = "G2 Y1 X0 R1";
             List<String> result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, -1., 0), new Point3d(0,1,1), state.plane);
 
             // Half circle clockwise, Y-1 -> Y1, X0 -> X-1 -> X0
             command = "G3 Y1 X0 R1";
             result = instance.processCommand(command, state);
-            assertEquals((int)Math.ceil(Math.PI / segmentLength), result.size());
+            assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
             verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, -1, -1), new Point3d(0,1,0), state.plane);
         }
     }
@@ -190,9 +184,9 @@ public class ArcExpanderTest {
             double y = Double.parseDouble(m.group(2)) - center.y;
             double z = Double.parseDouble(m.group(3)) - center.z;
 
-            assertTrue("X is in bounds", x <= max.x && x >= min.x);
-            assertTrue("Y is in bounds", y <= max.y && y >= min.y);
-            assertTrue("Z is in bounds", z <= max.z && z >= min.z);
+            assertThat(x).as("X is in bounds").isBetween(min.x, max.x);
+            assertThat(y).as("Y is in bounds").isBetween(min.y, max.y);
+            assertThat(z).as("Z is in bounds").isBetween(min.z, max.z);
 
             double r;
             switch (p) {
@@ -201,9 +195,9 @@ public class ArcExpanderTest {
                 case ZX: r = Math.sqrt(z*z + x*x); break;
                 default: r = -1;
             }
-            assertEquals(radius, r, 0.0001);
+            assertThat(radius).isCloseTo(r, Offset.offset(0.0001));
         } else {
-            fail("This should have matched.");
+            Assert.fail("This should have matched.");
         }
     }
 }

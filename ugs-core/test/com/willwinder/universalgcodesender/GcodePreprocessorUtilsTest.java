@@ -198,7 +198,7 @@ public class GcodePreprocessorUtilsTest {
     public void testGetGcodes() throws Exception {
         List<String> args = ImmutableList.of("F100", "M30", "G1", "G2", "F100", "G3", "G92.1", "G38.2", "S1300");
         Set<Code> codes = GcodePreprocessorUtils.getGCodes(args);
-        assertThat(codes).containsExactlyInAnyOrder(G1, G2, G3, G92_1, G38_2);
+        assertThat(codes).containsExactly(G1, G2, G3, G92_1, G38_2);
     }
 
     @Test
