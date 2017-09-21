@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +46,9 @@ public class CommandSplitter implements ICommandProcessor {
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
+        return Collections.singletonList(command);
+
+        /*
         List<String> ret = new ArrayList<>();
         
         Matcher m = GROUP_PATTERN.matcher(command);
@@ -58,6 +62,7 @@ public class CommandSplitter implements ICommandProcessor {
         }
 
         return ret;
+        */
     }
     
 }
