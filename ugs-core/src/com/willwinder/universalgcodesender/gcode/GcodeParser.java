@@ -180,8 +180,7 @@ public class GcodeParser implements IGcodeParser {
      */
     public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState)
             throws GcodeParserException {
-        String noCommentsCommand = GcodePreprocessorUtils.removeComment(command);
-        List<String> args = GcodePreprocessorUtils.splitCommand(noCommentsCommand);
+        List<String> args = GcodePreprocessorUtils.splitCommand(command);
         if (args.isEmpty()) return null;
 
         // Initialize with original state
@@ -212,12 +211,7 @@ public class GcodeParser implements IGcodeParser {
         }
         
         // Gather G codes.
-        List<String> gCodeStrings = GcodePreprocessorUtils.parseCodes(args, 'G');
-        Set<Code> gCodes = gCodeStrings.stream()
-                .map(c -> 'G' + c)
-                .map(Code::lookupCode)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Code> gCodes = GcodePreprocessorUtils.getGCodes(args);
         
         boolean hasAxisWords = GcodePreprocessorUtils.hasAxisWords(args);
 

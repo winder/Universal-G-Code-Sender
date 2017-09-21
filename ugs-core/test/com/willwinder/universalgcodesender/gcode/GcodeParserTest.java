@@ -346,35 +346,28 @@ public class GcodeParserTest {
 
     @Test
     public void multipleAxisWordCommands() throws Exception {
-        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G0G1X1X2", 0, new GcodeState()));
-        assertThat(thrown)
+        assertThatThrownBy(() -> GcodeParser.processCommand("G0G1X1X2", 0, new GcodeState()))
                 .isInstanceOf(GcodeParserException.class)
                 .hasMessageStartingWith(Localization.getString("parser.gcode.multiple-axis-commands"));
     }
 
     @Test
     public void missingAxisWords() throws Exception {
-        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("G38.2", 0, new GcodeState()));
-
-        assertThat(thrown)
+        assertThatThrownBy(() -> GcodeParser.processCommand("G38.2", 0, new GcodeState()))
                 .isInstanceOf(GcodeParserException.class)
                 .hasMessage(Localization.getString("parser.gcode.missing-axis-commands") + ": G38.2");
     }
 
     @Test
     public void duplicateFeedException() throws Exception {
-        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("F1F1", 0, new GcodeState()));
-
-        assertThat(thrown)
+        assertThatThrownBy(() -> GcodeParser.processCommand("F1F1", 0, new GcodeState()))
                 .isInstanceOf(GcodeParserException.class)
                 .hasMessage("Multiple F-codes on one line.");
     }
 
     @Test
     public void duplicateSpindleException() throws Exception {
-        Throwable thrown = catchThrowable(() -> GcodeParser.processCommand("S1S1", 0, new GcodeState()));
-
-        assertThat(thrown)
+        assertThatThrownBy(() -> GcodeParser.processCommand("S1S1", 0, new GcodeState()))
                 .isInstanceOf(GcodeParserException.class)
                 .hasMessage("Multiple S-codes on one line.");
     }

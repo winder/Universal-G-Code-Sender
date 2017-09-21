@@ -4,9 +4,15 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
+import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -163,5 +169,59 @@ public class GcodePreprocessorUtilsTest {
         assertEquals(1, l.size());
         assertEquals("7", l.get(0));
     }
+
+    @Test
+    public void parseCoord() throws Exception {
+        List<String> args = ImmutableList.of("G10", "G3", "X100", "y-.5", "Z0.25");
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'x')).isEqualTo(100);
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'y')).isEqualTo(-0.5);
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'z')).isEqualTo(0.25);
+
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'X')).isEqualTo(100);
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'Y')).isEqualTo(-0.5);
+        assertThat(GcodePreprocessorUtils.parseCoord(args, 'Z')).isEqualTo(0.25);
+    }
+
+    @Test
+    public void extractWord() throws Exception {
+        List<String> args = ImmutableList.of("G10", "G3", "X100", "y-.5", "Z0.25");
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'x')).isEqualTo("X100");
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'y')).isEqualTo("y-.5");
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'z')).isEqualTo("Z0.25");
+
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'X')).isEqualTo("X100");
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'Y')).isEqualTo("y-.5");
+        assertThat(GcodePreprocessorUtils.extractWord(args, 'Z')).isEqualTo("Z0.25");
+    }
     
+    @Test
+    public void testGetGcodes() throws Exception {
+        List<String> args = ImmutableList.of("F100", "M30", "G1", "G2", "F100", "G3", "G92.1", "G38.2", "S1300");
+        Set<Code> codes = GcodePreprocessorUtils.getGCodes(args);
+        assertThat(codes).containsExactlyInAnyOrder(G1, G2, G3, G92_1, G38_2);
+    }
+
+    @Test
+    public void testExtractMotion() throws Exception {
+        assertThat(GcodePreprocessorUtils.extractMotion(G3, "G17 G03 X0 Y12 I0.25 J-0.25 K1.99 F100"))
+                .hasFieldOrPropertyWithValue("extracted", "G03X0Y12I0.25J-0.25K1.99")
+                .hasFieldOrPropertyWithValue("remainder", "G17F100");
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G1, "G17 G03 X0 Y12 I0.25 J-0.25 K1.99 F100"))
+                .isNull();
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G1, ""))
+                .isNull();
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G1, "G53 G0 X0"))
+                .isNull();
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G1, "G53 G01 X0 F100 S1300"))
+                .hasFieldOrPropertyWithValue("extracted", "G53G01X0")
+                .hasFieldOrPropertyWithValue("remainder", "F100S1300");
+
+        assertThat(GcodePreprocessorUtils.extractMotion(G3, "G53 G03 X0 F100 S1300"))
+                .hasFieldOrPropertyWithValue("extracted", "G03X0")
+                .hasFieldOrPropertyWithValue("remainder", "G53F100S1300");
+    }
 }

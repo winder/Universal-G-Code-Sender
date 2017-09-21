@@ -225,8 +225,6 @@ public enum Code {
         String rest = code.substring(subStr);
 
         Code c = codeLookup.get(type + rest);
-        //return c;
-        //return codeLookup.get(code.toUpperCase());
         return c == null ? UNKNOWN : c;
     }
 }

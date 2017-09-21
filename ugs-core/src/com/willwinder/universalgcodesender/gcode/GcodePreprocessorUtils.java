@@ -23,14 +23,20 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.vecmath.Point3d;
 
 /**
@@ -180,14 +186,6 @@ public class GcodePreprocessorUtils {
     }
 
     /**
-     * Update a point given the arguments of a command.
-     */
-    static public Point3d updatePointWithCommand(String command, Point3d initial, boolean absoluteMode) {
-        List<String> l = GcodePreprocessorUtils.splitCommand(command);
-        return updatePointWithCommand(l, initial, absoluteMode);
-    }
-    
-    /**
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
     static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
@@ -303,6 +301,7 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
+        String noCommentsCommand = GcodePreprocessorUtils.removeComment(command);
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
@@ -358,18 +357,31 @@ public class GcodePreprocessorUtils {
 
     // TODO: Replace everything that uses this with a loop that loops through
     //       the string and creates a hash with all the values.
-    static public double parseCoord(List<String> argList, char c)
-    {
+    /**
+     * Pulls out a word, like "F100", "S1300", "T0", "X-0.5"
+     */
+    static public String extractWord(List<String> argList, char c) {
         char address = Character.toUpperCase(c);
         for(String t : argList)
         {
-            if (t.length() > 1 && Character.toUpperCase(t.charAt(0)) == address)
+            if (Character.toUpperCase(t.charAt(0)) == address)
             {
-                try {
-                    return Double.parseDouble(t.substring(1));
-                } catch (NumberFormatException e) {
-                    return Double.NaN;
-                }
+                return t;
+            }
+        }
+        return null;
+    }
+
+    // TODO: Replace everything that uses this with a loop that loops through
+    //       the string and creates a hash with all the values.
+    static public double parseCoord(List<String> argList, char c)
+    {
+        String word = extractWord(argList, c);
+        if (word != null && word.length() > 1) {
+            try {
+                return Double.parseDouble(word.substring(1));
+            } catch (NumberFormatException e) {
+                return Double.NaN;
             }
         }
         return Double.NaN;
@@ -589,4 +601,60 @@ public class GcodePreprocessorUtils {
         return sweep;
     }
 
+    static public Set<Code> getGCodes(List<String> args) {
+        List<String> gCodeStrings = parseCodes(args, 'G');
+        return gCodeStrings.stream()
+                .map(c -> 'G' + c)
+                .map(Code::lookupCode)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+
+    public static class SplitCommand {
+        public String extracted;
+        public String remainder;
+    }
+
+    public static boolean isMotionWord(char character) {
+        char c = Character.toUpperCase(character);
+        return 
+                c == 'X' || c == 'Y' || c == 'Z'
+                || c == 'U' || c == 'V' || c == 'W'
+                || c == 'I' || c == 'J' || c == 'K'
+                || c == 'R';
+    }
+
+    /**
+     * Return extracted motion words and remainder words.
+     * If the code is G0 or G1 and G53 is found, it will also be extracted:
+     * http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g53
+     */
+    public static SplitCommand extractMotion(Code code, String command) {
+        List<String> args = splitCommand(command);
+        if (args.isEmpty()) return null;
+        
+        StringBuilder extracted = new StringBuilder();
+        StringBuilder remainder = new StringBuilder();
+
+        boolean includeG53 = code == G0 || code == G1;
+        for (String arg : args) {
+            char c = arg.charAt(0);
+            Code lookup = Code.lookupCode(arg);
+            if (lookup.getType() == Motion && lookup != code) return null;
+            if (lookup == code || isMotionWord(c) || (includeG53 && lookup == G53)) {
+                extracted.append(arg);
+            } else {
+                remainder.append(arg);
+            }
+        }
+
+        if (extracted.length() == 0) return null;
+
+        SplitCommand sc = new SplitCommand();
+        sc.extracted= extracted.toString();
+        sc.remainder = remainder.toString();
+
+        return sc;
+    }
 }
