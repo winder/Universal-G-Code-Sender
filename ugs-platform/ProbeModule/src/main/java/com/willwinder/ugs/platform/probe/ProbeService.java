@@ -89,6 +89,9 @@ public class ProbeService implements UGSEventListener {
         public final Position startPosition;
         public Position probePosition1;
         public Position probePosition2;
+        public Double xWcsOffset;
+        public Double yWcsOffset;
+        public Double zWcsOffset;
 
         public ProbeContext(double diameter, Position start,
                 double xSpacing, double ySpacing, double zSpacing,
@@ -108,7 +111,17 @@ public class ProbeService implements UGSEventListener {
             this.retractHeight = retractHeight;
             this.units = u;
             this.wcsToUpdate = wcs;
+
+            this.probePosition1 = null;
+            this.probePosition2 = null;
+            this.xWcsOffset = null;
+            this.yWcsOffset = null;
+            this.zWcsOffset = null;
         }
+    }
+
+    public boolean probeCycleActive() {
+        return this.stateMachine != null;
     }
 
     static enum Outside {
@@ -128,9 +141,11 @@ public class ProbeService implements UGSEventListener {
             throw new IllegalStateException("Can only begin probing while IDLE.");
         }
 
+        /*
         if (stateMachine != null) {
             throw new IllegalStateException("A probe operation is already active.");
         }
+        */
     }
 
     private static String getUnitCmdFor(Units u) {
@@ -210,12 +225,15 @@ public class ProbeService implements UGSEventListener {
         String g = getUnitCmdFor(context.units);
         String g0 = "G91 " + g + " G0";
         double radius = context.probeDiameter / 2;
+        double xDir = (context.xSpacing > 0) ? -1 : 1;
+        double yDir = (context.ySpacing > 0) ? -1 : 1;
+        double xProbedOffset = xDir * (radius + context.xOffset);
+        double yProbedOffset = yDir * (radius + context.yOffset);
         try {
             switch(s) {
                 case StoreYReset:
                 {
-                    double yOffset = ((context.ySpacing > 0) ? -radius : radius);
-                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Y"+ (context.yOffset + yOffset));
+                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Y"+ (context.yOffset + yRadiusOffset));
 
                     context.probePosition1 = context.event.getProbePosition();
                     double offset =  context.startPosition.y - context.probePosition1.y;
@@ -226,13 +244,18 @@ public class ProbeService implements UGSEventListener {
                 }
                 case StoreXFinalize:
                 {
-                    double xOffset = ((context.xSpacing > 0) ? -radius : radius);
-                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " X"+ (context.xOffset + xOffset));
+                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " X"+ (context.xOffset + xRadiusOffset));
 
                     context.probePosition2 = context.event.getProbePosition();
                     double offset =  context.startPosition.x - context.probePosition2.x;
                     backend.sendGcodeCommand(true, g0 + " X" + offset);
                     backend.sendGcodeCommand(true, g0 + " Y" + -context.ySpacing);
+
+                    context.yWcsOffset = context.startPosition.y - context.probePosition1.y + yProbedOffset;
+                    context.xWcsOffset = context.startPosition.x - context.probePosition2.x + xProbedOffset;
+                    context.zWcsOffset = 0.;
+                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue()
+                            + " X"+ context.xWcsOffset+ " Y"+ context.yWcsOffset);
 
                     stateMachine = null;
                     break;

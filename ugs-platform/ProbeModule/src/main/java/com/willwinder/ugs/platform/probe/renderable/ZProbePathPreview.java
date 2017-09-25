@@ -32,12 +32,17 @@ import javax.vecmath.Point3d;
 public class ZProbePathPreview extends Renderable {
     private Double probeDepth = null;
     private Double probeOffset = null;
+    private Point3d start = null;
 
     private final GLUT glut;
 
     public ZProbePathPreview(String title) {
         super(10, title);
         glut = new GLUT();
+    }
+
+    public void setStart(Point3d p) {
+        this.start = p;
     }
 
     public void updateSpacing(double depth, double offset) {
@@ -73,7 +78,12 @@ public class ZProbePathPreview extends Renderable {
         double zAbs = Math.abs(this.probeOffset);
 
         GL2 gl = drawable.getGL().getGL2();
-        gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+
+        if (this.start != null) {
+            gl.glTranslated(start.x, start.y, start.z);
+        } else {
+            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        }
         gl.glRotated(rot, 1, 0, 0);
 
         // touch plate

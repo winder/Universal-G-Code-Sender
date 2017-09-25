@@ -190,6 +190,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         get(outsideXOffsetModel), get(outsideYOffsetModel), 0.,
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
                         get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                this.outsideRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
                 ps2.performOutsideCornerProbe(pc);
             });
 
@@ -209,6 +210,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         0., 0., get(zProbeOffset),
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
                         get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                this.zRenderable.setStart(backend.getWorkPosition());
                 ps2.performZProbe(pc);
             });
 

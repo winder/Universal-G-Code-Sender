@@ -96,7 +96,6 @@ public class ProbeServiceTest {
         verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing));
         verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
-        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 Y0.5");
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + (pc.startPosition.y-probeY.y));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + -pc.xSpacing);
 
@@ -105,8 +104,16 @@ public class ProbeServiceTest {
         verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing));
         verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
-        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0.5");
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + (pc.startPosition.x-probeX.x));
         verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + -pc.xSpacing);
+
+        // Verify the correct offset
+        double radius = pc.probeDiameter / 2;
+        double xDir = ((pc.xSpacing > 0) ? -1 : 1);
+        double yDir = ((pc.ySpacing > 0) ? -1 : 1);
+        double xProbeOffset = pc.startPosition.x - probeX.x + xDir * (radius + Math.abs(pc.xOffset));
+        double yProbeOffset = pc.startPosition.y - probeY.y + yDir * (radius + Math.abs(pc.yOffset));
+
+        verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X" + xProbeOffset + " Y" + yProbeOffset);
     }
 }

@@ -24,6 +24,7 @@ import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
 import javax.vecmath.Point3d;
 
 /**
@@ -36,12 +37,21 @@ public class CornerProbePathPreview extends Renderable {
     private Double xThickness = null;
     private Double yThickness = null;
     private final double previewSize = 5;
+    private Point3d startWork = null;
+    private Point3d startMachine = null;
+    private ProbeContext pc = null;
 
     private final GLUT glut;
 
     public CornerProbePathPreview(String title) {
         super(10, title);
         glut = new GLUT();
+    }
+
+    public void setContext(ProbeContext pc, Point3d startWork, Point3d startMachine) {
+        this.pc = pc;
+        this.startWork = startWork;
+        this.startMachine = startMachine;
     }
 
     public void updateSpacing(double xSpacing, double ySpacing, double xThickness, double yThickness) {
@@ -83,7 +93,22 @@ public class CornerProbePathPreview extends Renderable {
         double xAbs = Math.abs(this.xSpacing);
         double yAbs = Math.abs(this.ySpacing);
 
-        gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+
+        if (startWork != null) {
+            // After the probe, move it back to the original location
+            if (pc != null && pc.xWcsOffset != null && pc.yWcsOffset != null && pc.zWcsOffset != null) {
+                //Point3d originalOffset = new Point3d(this.startMachine);
+                //originalOffset.sub(this.startWork);
+                gl.glTranslated(
+                        pc.xWcsOffset,
+                        pc.yWcsOffset,
+                        pc.zWcsOffset);
+            } else {
+                gl.glTranslated(startWork.x, startWork.y, startWork.z);
+            }
+        } else {
+            gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
+        }
 
         // touch plate
         gl.glPushMatrix();
@@ -145,5 +170,33 @@ public class CornerProbePathPreview extends Renderable {
             gl.glTranslated(0, 0, xAbs - previewSize / 2 - 1);
             glut.glutSolidCone(.2, 1, slices, stacks);
         gl.glPopMatrix();
+
+        /*
+        // If we haven't done both probes, don't render the offset arrow.
+        if (pc == null || pc.xWcsOffset == null || pc.yWcsOffset == null) return;
+
+        // offset arrow is yellow
+        gl.glColor3d(1., 1., 0);
+
+        double vx = pc.xWcsOffset;
+        double vy = pc.yWcsOffset;
+        double vz = pc.yWcsOffset;
+
+        //handle the degenerate case of z1 == z2 with an approximation
+        if(vz == 0)
+            vz = .0001;
+
+        double v = Math.sqrt( vx*vx + vy*vy + vz*vz );
+        double ax = 57.2957795*Math.acos( vz/v );
+        if ( vz < 0.0 )
+            ax = -ax;
+        double rx = -vy*vz;
+        double ry = vx*vz;
+
+        gl.glRotated(ax, rx, ry, 0.0);
+        glut.glutSolidCylinder(.1, v - 0.5, slices, stacks);
+        gl.glTranslated(0, 0, v - 1);
+        glut.glutSolidCone(.2, 1, slices, stacks);
+        */
     }
 }
