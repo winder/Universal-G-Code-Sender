@@ -69,7 +69,7 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
      */
     @Override
     public void UGSEvent(UGSEvent evt) {
-        this.setEnabled(backend.isConnected());
+        this.setEnabled(backend.isIdle());
     }
 
     public void action(ActionEvent evt) {
