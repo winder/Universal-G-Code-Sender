@@ -46,7 +46,7 @@ public class LoopBackConnection extends Connection {
 
     private static void initialize(AbstractCommunicator comm) {
         comm.responseMessage(" ");
-        comm.responseMessage("Grbl 9.9z [ugs diagnostic mode]");
+        comm.responseMessage("Grbl 0.9z [ugs diagnostic mode]");
         comm.responseMessage(" ");
         comm.responseMessage("This is a diagnostic end point which responds to each gcode");
         comm.responseMessage("command as fast as possible while doing nothing else.");
@@ -75,7 +75,7 @@ public class LoopBackConnection extends Connection {
                         Point3d p = lastCommand;
                         xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
                     }
-                    comm.responseMessage(String.format("<Run,MPos:%s,WPos:%s>", xyz, xyz));
+                    comm.responseMessage(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
                 } else if (command.equals("G61")) {
                     comm.responseMessage("error: G61 not supported.");
                 } else {

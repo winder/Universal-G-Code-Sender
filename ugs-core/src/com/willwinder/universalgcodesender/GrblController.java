@@ -573,6 +573,7 @@ public class GrblController extends AbstractController {
         
         return new Timer(this.getStatusUpdateRate(), actionListener);
     }
+
     /**
      * Begin issuing GRBL status request commands.
      */
