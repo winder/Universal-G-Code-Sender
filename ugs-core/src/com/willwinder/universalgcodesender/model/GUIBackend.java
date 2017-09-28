@@ -174,13 +174,18 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         // Configure gcode parser.
         gcp.resetCommandProcessors();
 
-        List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
-        if (processors != null) {
-            for (ICommandProcessor p : processors) {
-                gcp.addCommandProcessor(p);
+        try {
+            List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
+            if (processors != null) {
+                for (ICommandProcessor p : processors) {
+                    gcp.addCommandProcessor(p);
+                }
+            } else {
+                initializeWithFallbackProcessors(gcp);
             }
-        } else {
-            initializeWithFallbackProcessors(gcp);
+        }
+        catch (Exception e) {
+            GUIHelpers.displayErrorDialog("Bad configuration file for: " + firmware + " (" + e.getMessage() + ")");
         }
     }
 
@@ -188,11 +193,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.firmware = firmware;
 
         // Load command processors for this firmware.
-        Optional<List<ICommandProcessor>> processor_ret =
-                FirmwareUtils.getParserFor(firmware, settings);
-        if (!processor_ret.isPresent()) {
+        try {
+            Optional<List<ICommandProcessor>> processor_ret = FirmwareUtils.getParserFor(firmware, settings);
+        }
+        catch (Exception e) {
             disconnect();
-            throw new Exception("Bad configuration file for: " + firmware);
+            throw new Exception("Bad configuration file for: " + firmware + " (" + e.getMessage() + ")");
         }
 
         // Reload gcode file to use the controllers processors.

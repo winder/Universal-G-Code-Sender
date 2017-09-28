@@ -108,15 +108,12 @@ public class FirmwareUtils {
     /**
      * Gets a list of command processors initialized with user settings.
      */
-    public static Optional<List<ICommandProcessor>> getParserFor(String firmware, Settings settings) {
+    public static Optional<List<ICommandProcessor>> getParserFor(String firmware, Settings settings)
+            throws Exception {
         if (!configFiles.containsKey(firmware)) {
-            return Optional.empty();
+            throw new Exception("Missing config file.");
         }
-        try {
-            return Optional.of(configFiles.get(firmware).loader.getProcessors());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return Optional.of(configFiles.get(firmware).loader.getProcessors());
     }
 
     public static void addPatternRemoverForFirmware(String firmware, String pattern) throws IOException {
