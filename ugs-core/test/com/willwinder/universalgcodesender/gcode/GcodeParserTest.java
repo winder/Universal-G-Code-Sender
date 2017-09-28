@@ -51,6 +51,7 @@ import java.util.List;
 import javax.vecmath.Point3d;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -271,18 +272,12 @@ public class GcodeParserTest {
         instance.addCommandProcessor(new CommandLengthProcessor(50));
 
         // Shouldn't throw if exactly 50 characters long.
-        String command = "G01X0.88888888888888888888888888888888888888888888";
+        final String command = "G01X0.88888888888888888888888888888888888888888888";
         instance.preprocessCommand(command, instance.getCurrentState());
 
         // Should throw an exception when it is 51 characters long.
-        boolean threw = false;
-        try {
-            command += "8";
-            instance.preprocessCommand(command, instance.getCurrentState());
-        } catch (GcodeParserException gpe) {
-            threw = true;
-        }
-        assertEquals(true, threw);
+        Assertions.assertThatThrownBy(() -> instance.preprocessCommand(command + "8", instance.getCurrentState()))
+                .isInstanceOf(GcodeParserException.class);
     }
 
     @Test

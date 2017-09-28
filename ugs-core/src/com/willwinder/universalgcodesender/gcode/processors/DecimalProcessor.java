@@ -35,7 +35,7 @@ public class DecimalProcessor implements ICommandProcessor {
     private final int numDecimals;
 
     public DecimalProcessor(int numDecimals) {
-        if (numDecimals < 4)
+        if (numDecimals < 4 && numDecimals != 0)
             throw new RuntimeException(this.getClass().getSimpleName() 
                     + ": Use at least 4 decimals.");
         this.numDecimals = numDecimals;
