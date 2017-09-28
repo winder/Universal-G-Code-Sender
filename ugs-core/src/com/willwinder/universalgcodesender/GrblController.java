@@ -172,13 +172,13 @@ public class GrblController extends AbstractController {
             }
 
             else if (GrblUtils.isGrblVersionString(response)) {
+                this.isReady = true;
+                resetBuffers();
+
                 this.controllerStatus = null;
                 this.stopPollingPosition();
                 positionPollTimer = createPositionPollTimer();
                 this.beginPollingPosition();
-
-                this.isReady = true;
-                resetBuffers();
 
                 // In case a reset occurred while streaming.
                 if (this.isStreaming()) {
@@ -195,8 +195,6 @@ public class GrblController extends AbstractController {
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
-
-                this.beginPollingPosition();
                 
                 Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                         "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
@@ -564,7 +562,7 @@ public class GrblController extends AbstractController {
                             }
                         } catch (Exception ex) {
                             messageForConsole(Localization.getString("controller.exception.sendingstatus")
-                                    + ": " + ex.getMessage() + "\n");
+                                    + " (" + ex.getMessage() + ")\n");
                             ex.printStackTrace();
                         }
                     }
@@ -580,7 +578,7 @@ public class GrblController extends AbstractController {
      */
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
-        if (this.capabilities != null && this.getStatusUpdatesEnabled()) {
+        if (this.isReady && this.capabilities != null && this.getStatusUpdatesEnabled()) {
             if (this.positionPollTimer.isRunning() == false) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();
