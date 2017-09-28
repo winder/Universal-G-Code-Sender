@@ -45,6 +45,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -752,7 +753,37 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             this.numCommandsSkipped++;
         }
         
-        this.messageForConsole("Skipping command #" + command.getCommandNumber() + "\n");
+        StringBuilder message = new StringBuilder();
+        boolean hasComment = command.hasComment();
+        boolean hasCommand = StringUtils.isNotEmpty(command.getCommandString());
+        if (!hasComment && !hasCommand) {
+            if (StringUtils.isNotEmpty(command.getOriginalCommandString())) {
+                message
+                        .append("Skipping line: ")
+                        .append(command.getOriginalCommandString());
+            } else {
+                message
+                        .append("Skipping blank line #")
+                        .append(command.getCommandNumber());
+            }
+        }
+        else if (hasComment && !hasCommand) {
+            message
+                    .append("Skipping comment-only line: (")
+                    .append(command.getComment())
+                    .append(")");
+        } else {
+            message
+                    .append("Skipping line: ")
+                    .append(command.getCommandString());
+            if (command.hasComment()) {
+                message
+                        .append(" ; ")
+                        .append(command.getComment());
+            }
+        }
+        message.append("\n");
+        this.messageForConsole(message.toString());
         command.setResponse("<skipped by application>");
         command.setSkipped(true);
         dispatchCommandSkipped(command);
