@@ -176,16 +176,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         try {
             List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
-            if (processors != null) {
-                for (ICommandProcessor p : processors) {
-                    gcp.addCommandProcessor(p);
-                }
-            } else {
-                initializeWithFallbackProcessors(gcp);
+            for (ICommandProcessor p : processors) {
+                gcp.addCommandProcessor(p);
             }
         }
         catch (Exception e) {
-            GUIHelpers.displayErrorDialog("Bad configuration file for: " + firmware + " (" + e.getMessage() + ")");
+            initializeWithFallbackProcessors(gcp);
         }
     }
 
