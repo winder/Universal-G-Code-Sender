@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
 
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 public class Settings {
     // Transient, don't serialize or deserialize.
@@ -80,7 +81,7 @@ public class Settings {
         public boolean equals(AutoLevelSettings obj) {
             return
                     this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
-                    this.autoLevelProbeOffset == obj.autoLevelProbeOffset &&
+                    Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
                     this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
                     this.stepResolution == obj.stepResolution &&
                     this.probeSpeed == obj.probeSpeed &&
@@ -175,7 +176,7 @@ public class Settings {
     }
 
     public void setFirmwareVersion(String firmwareVersion) {
-        if (firmwareVersion == this.firmwareVersion) return;
+        if (StringUtils.equals(firmwareVersion, this.firmwareVersion)) return;
         this.firmwareVersion = firmwareVersion;
         changed();
     }
@@ -194,7 +195,7 @@ public class Settings {
     }
 
     public void setPort(String port) {
-        if (this.port == port) return;
+        if (StringUtils.equals(port, this.port)) return;
         this.port = port;
         changed();
     }
@@ -204,7 +205,7 @@ public class Settings {
     }
 
     public void setPortRate(String portRate) {
-        if (this.portRate == portRate) return;
+        if (StringUtils.equals(portRate, this.portRate)) return;
         this.portRate = portRate;
         changed();
     }

@@ -74,11 +74,16 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
         panel.add(firmwareCombo);
         c = panel;
 
-        firmwareCombo.addActionListener(a -> firmwareUpdated());
+        firmwareCombo.addActionListener(a -> setFirmware());
+    }
+
+    private void setFirmware() {
+        String firmware = firmwareCombo.getSelectedItem().toString();
+        backend.getSettings().setFirmwareVersion(firmware);
     }
 
     private void firmwareUpdated() {
-        firmwareCombo.setSelectedItem(backend.getSettings().getFirmwareVersion());
+        firmwareCombo.setSelectedItem( backend.getSettings().getFirmwareVersion());
     }
 
     @Override
@@ -124,5 +129,7 @@ public class FirmwareAction extends CallableSystemAction implements UGSEventList
         } else {
             firmwareList.forEach(firmwareCombo::addItem);
         }
+
+        firmwareUpdated();
     }
 }
