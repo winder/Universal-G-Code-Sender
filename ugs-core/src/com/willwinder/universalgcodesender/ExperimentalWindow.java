@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -63,7 +64,6 @@ import java.util.logging.Level;
  * @author wwinder
  */
 public class ExperimentalWindow extends JFrame implements ControllerListener, UGSEventListener {
-
     private static final Logger logger = Logger.getLogger(ExperimentalWindow.class.getName());
 
     final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
@@ -73,10 +73,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private final BackendAPI backend;
 
     private JogService jogService;
-
-    /**
-     * Creates new form ExperimentalWindow
-     */
+    
+    /** Creates new form ExperimentalWindow */
     public ExperimentalWindow() {
         this.backend = new GUIBackend();
         try {
@@ -91,19 +89,16 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
 
         if (backend.getSettings().isShowNightlyWarning() && ExperimentalWindow.VERSION.contains("nightly")) {
-            java.awt.EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    String message
-                            = "This version of Universal Gcode Sender is a nightly build.\n"
-                            + "It contains all of the latest features and improvements, \n"
-                            + "but may also have bugs that still need to be fixed.\n"
-                            + "\n"
-                            + "If you encounter any problems, please report them on github.";
-                    JOptionPane.showMessageDialog(new JFrame(), message,
-                            "", JOptionPane.INFORMATION_MESSAGE);
-                }
-            });
+            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
+                String message =
+                        "This version of Universal Gcode Sender is a nightly build.\n"
+                                + "It contains all of the latest features and improvements, \n"
+                                + "but may also have bugs that still need to be fixed.\n"
+                                + "\n"
+                                + "If you encounter any problems, please report them on github.";
+                JOptionPane.showMessageDialog(new JFrame(), message,
+                        "", JOptionPane.INFORMATION_MESSAGE);
+            }});
         }
 
         initComponents();
@@ -123,27 +118,25 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 commandPanel.saveSettings();
                 connectionPanel.saveSettings();
                 SettingsFactory.saveSettings(backend.getSettings());
-
-                if (pendantUI != null) {
+                
+                if(pendantUI!=null){
                     pendantUI.stop();
                 }
             }
         });
     }
-
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-
+        
         /* Set the System look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
+            
             String syslf = javax.swing.UIManager.getSystemLookAndFeelClassName();
-
+            
             javax.swing.UIManager.setLookAndFeel(syslf);
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -151,7 +144,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         //</editor-fold>
 
         // Fix look and feel to use CMD+C/X/V/A instead of CTRL
-        if (SystemUtils.IS_OS_MAC) {
+        if (SystemUtils.IS_OS_MAC)
+        {
             Collection<InputMap> ims = new ArrayList<>();
             ims.add((InputMap) UIManager.get("TextField.focusInputMap"));
             ims.add((InputMap) UIManager.get("TextArea.focusInputMap"));
@@ -173,11 +167,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 im.put(KeyStroke.getKeyStroke(a, meta), DefaultEditorKit.selectAllAction);
             }
         }
-
-        /* Create the form */
+        
+         /* Create the form */
         final ExperimentalWindow mw = new ExperimentalWindow();
-
+        
         /* Apply the settings to the ExperimentalWindow bofore showing it */
+
         mw.setSize(mw.backend.getSettings().getMainWindowSettings().width, mw.backend.getSettings().getMainWindowSettings().height);
         mw.setLocation(mw.backend.getSettings().getMainWindowSettings().xLocation, mw.backend.getSettings().getMainWindowSettings().yLocation);
 
@@ -195,12 +190,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             }
 
             @Override
-            public void componentShown(ComponentEvent ce) {
-            }
-
+            public void componentShown(ComponentEvent ce) {}
             @Override
-            public void componentHidden(ComponentEvent ce) {
-            }
+            public void componentHidden(ComponentEvent ce) {}
         });
 
         /* Display the form */
@@ -211,6 +203,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 mw.setVisible(true);
             }
         });
+        
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
@@ -218,7 +211,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 mw.connectionPanel.saveSettings();
                 mw.commandPanel.saveSettings();
 
-                if (mw.pendantUI != null) {
+                if(mw.pendantUI!=null){
                     mw.pendantUI.stop();
                 }
             }
@@ -242,8 +235,8 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         }
     }
 
-    /**
-     * This method is called from within the constructor to initialize the form.
+    /** This method is called from within the constructor to
+     * initialize the form.
      */
     @SuppressWarnings("unchecked")
     private void initComponents() {
@@ -327,21 +320,21 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createSequentialGroup()
-                                .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 764, Short.MAX_VALUE)
-                                        .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(connectionPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 764, Short.MAX_VALUE)
+                    .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createSequentialGroup()
-                                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 294, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE))
-                        .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(layout.createSequentialGroup()
+                .add(controlContextTabbedPane, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 294, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(commandPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE))
+            .add(connectionPanel, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -351,13 +344,13 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("sender.header"),
-                backend.getSettings(),
+                backend.getSettings(), 
                 new ConnectionSettingsPanel(backend.getSettings()),
                 this,
                 true);
-
+        
         gcsd.setVisible(true);
-
+        
         if (gcsd.saveChanges()) {
             try {
                 backend.applySettings(backend.getSettings());
@@ -372,13 +365,13 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             if (!this.backend.isConnected()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             } else if (this.backend.getController() instanceof GrblController) {
-                GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
-                gfsd.setVisible(true);
+                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
+                    gfsd.setVisible(true);
             } else {
                 displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));
             }
         } catch (Exception ex) {
-            displayErrorDialog(ex.getMessage());
+                displayErrorDialog(ex.getMessage());
         }
     }//GEN-LAST:event_grblFirmwareSettingsMenuItemActionPerformed
 
@@ -388,9 +381,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 backend.getSettings(),
                 new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                 this, true);
-
+        
         gcsd.setVisible(true);
-
+        
         if (gcsd.saveChanges()) {
             // TODO: Reprocess gcode file?
             /*
@@ -404,13 +397,14 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                 vw.setMinArcLength(backend.getSettings().getSmallArcThreshold());
                 vw.setArcLength(backend.getSettings().getSmallArcSegmentLength());
             }
-             */
+            */
         }
     }
 
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
+
 
     private void initProgram() {
         Localization.initialize(this.backend.getSettings().getLanguage());
@@ -419,12 +413,13 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }
-
+        
         this.setLocalLabels();
         this.setTitle(Localization.getString("title") + " ("
                 + Localization.getString("version") + " " + VERSION + ")");
 
         // Add keyboard listener for manual controls.
+
     }
 
     /**
@@ -447,6 +442,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     /**
      * SerialCommunicatorListener implementation.
      */
+    
     @Override
     public void controlStateChange(UGSEvent.ControlState state) {
     }
@@ -461,30 +457,29 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
                         Localization.getString("success"), JOptionPane.INFORMATION_MESSAGE);
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                }
+                } catch (InterruptedException ex) {}
 
             });
         } else {
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
     }
-
+    
     @Override
     public void commandSkipped(GcodeCommand command) {
 
     }
-
+     
     @Override
     public void commandSent(final GcodeCommand command) {
 
     }
-
+    
     @Override
     public void commandComment(String comment) {
 
     }
-
+    
     @Override
     public void commandComplete(final GcodeCommand command) {
 
@@ -504,11 +499,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     public void statusStringListener(ControllerStatus status) {
 
     }
-
+    
     @Override
     public void postProcessData(int numRows) {
     }
-
+    
     @Override
     public void UGSEvent(UGSEvent evt) {
     }
