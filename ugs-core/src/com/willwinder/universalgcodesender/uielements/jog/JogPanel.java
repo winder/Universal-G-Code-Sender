@@ -128,12 +128,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         add(panel, "grow, span 3");
 
 
-        add(xMinusButton, "spany 2, w 50!, h 50!");
-        add(yPlusButton, "w 50!, h 50!");
-        add(xPlusButton, "spany 2, w 50!, h 50!");
-        add(zPlusButton, "w 50!, h 50!");
-        add(yMinusButton, "w 50!, h 50!");
-        add(zMinusButton, "w 50!, h 50!");
+        add(xMinusButton, "spany 2, w 60!, h 50!");
+        add(yPlusButton, "w 60!, h 50!");
+        add(xPlusButton, "spany 2, w 60!, h 50!");
+        add(zPlusButton, "w 60!, h 50!");
+        add(yMinusButton, "w 60!, h 50!");
+        add(zMinusButton, "w 60!, h 50!");
 
         updateManualControls(false);
     }
