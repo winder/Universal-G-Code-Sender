@@ -30,7 +30,6 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.BufferedReader;
 import java.io.File;
@@ -58,6 +57,7 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -108,7 +108,7 @@ public class FirmwareUtils {
     /**
      * Gets a list of command processors initialized with user settings.
      */
-    public static Optional<List<ICommandProcessor>> getParserFor(String firmware, Settings settings)
+    public static Optional<List<CommandProcessor>> getParserFor(String firmware, Settings settings)
             throws Exception {
         if (!configFiles.containsKey(firmware)) {
             throw new Exception("Missing config file.");

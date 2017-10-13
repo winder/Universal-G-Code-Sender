@@ -45,7 +45,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class ArcExpander implements ICommandProcessor {
+public class ArcExpander implements CommandProcessor {
     final private boolean convertToLines;
     final private double length;
     final private DecimalFormat df;

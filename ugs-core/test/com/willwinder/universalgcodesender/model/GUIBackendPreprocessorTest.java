@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
@@ -37,6 +36,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -44,7 +44,7 @@ import org.junit.Test;
  */
 public class GUIBackendPreprocessorTest {
     
-    ICommandProcessor commandDoubler = new ICommandProcessor() {
+    CommandProcessor commandDoubler = new CommandProcessor() {
         @Override
         public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
             return ImmutableList.of(command, command);

@@ -29,7 +29,6 @@ import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
@@ -61,6 +60,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -175,8 +175,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         gcp.resetCommandProcessors();
 
         try {
-            List<ICommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
-            for (ICommandProcessor p : processors) {
+            List<CommandProcessor> processors = FirmwareUtils.getParserFor(firmware, settings).orElse(null);
+            for (CommandProcessor p : processors) {
                 gcp.addCommandProcessor(p);
             }
         }
@@ -190,7 +190,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         // Load command processors for this firmware.
         try {
-            Optional<List<ICommandProcessor>> processor_ret = FirmwareUtils.getParserFor(firmware, settings);
+            Optional<List<CommandProcessor>> processor_ret = FirmwareUtils.getParserFor(firmware, settings);
         }
         catch (Exception e) {
             disconnect();

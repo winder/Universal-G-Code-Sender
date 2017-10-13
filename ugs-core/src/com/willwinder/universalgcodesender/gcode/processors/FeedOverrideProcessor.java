@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author wwinder
  */
-public class FeedOverrideProcessor implements ICommandProcessor {
+public class FeedOverrideProcessor implements CommandProcessor {
     private final double percentOverride;
 
     public FeedOverrideProcessor(double percentOverride) {

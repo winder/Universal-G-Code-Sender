@@ -31,7 +31,6 @@ package com.willwinder.universalgcodesender.gcode;
 import com.google.common.collect.Iterables;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
@@ -46,6 +45,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.vecmath.Point3d;
 import org.apache.commons.lang3.StringUtils;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -57,7 +57,7 @@ public class GcodeParser implements IGcodeParser {
     // Current state
     private GcodeState state;
 
-    private final ArrayList<ICommandProcessor> processors = new ArrayList<>();
+    private final ArrayList<CommandProcessor> processors = new ArrayList<>();
 
     private Stats statsProcessor;
 
@@ -106,7 +106,7 @@ public class GcodeParser implements IGcodeParser {
      * Add a preprocessor to use with the preprocessCommand method.
      */
     @Override
-    public void addCommandProcessor(ICommandProcessor p) {
+    public void addCommandProcessor(CommandProcessor p) {
         this.processors.add(p);
     }
 
@@ -448,7 +448,7 @@ public class GcodeParser implements IGcodeParser {
         List<String> ret = new ArrayList<>();
         ret.add(command);
         GcodeState tempState = null;
-        for (ICommandProcessor p : processors) {
+        for (CommandProcessor p : processors) {
             // Reset point segments after each pass. The final pass is what we will return.
             tempState = initialState.copy();
             // Process each command in the list and add results to the end.

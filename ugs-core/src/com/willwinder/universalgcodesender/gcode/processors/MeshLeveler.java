@@ -38,7 +38,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class MeshLeveler implements ICommandProcessor {
+public class MeshLeveler implements CommandProcessor {
     final private double materialSurfaceHeight;
     final private Point3d[][] surfaceMesh;
     final private Point3d lowerLeft;

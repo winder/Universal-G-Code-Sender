@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author wwinder
  */
-public class DecimalProcessor implements ICommandProcessor {
+public class DecimalProcessor implements CommandProcessor {
     private final int numDecimals;
 
     public DecimalProcessor(int numDecimals) {

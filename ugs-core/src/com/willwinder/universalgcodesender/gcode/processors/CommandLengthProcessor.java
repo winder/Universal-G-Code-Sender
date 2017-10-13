@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author wwinder
  */
-public class CommandLengthProcessor implements ICommandProcessor {
+public class CommandLengthProcessor implements CommandProcessor {
     final private int length;
     public CommandLengthProcessor(int length) {
         this.length = length;

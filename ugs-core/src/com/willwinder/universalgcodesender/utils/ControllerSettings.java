@@ -29,10 +29,10 @@ import com.willwinder.universalgcodesender.LoopBackCommunicator;
 import com.willwinder.universalgcodesender.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.CommandProcessorLoader;
 import java.util.ArrayList;
 import java.util.List;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -134,8 +134,8 @@ public class ControllerSettings {
      * applied.
      */
     // TODO: Remove settings
-    public List<ICommandProcessor> getProcessors() {
-        List<ICommandProcessor> ret = new ArrayList<>();
+    public List<CommandProcessor> getProcessors() {
+        List<CommandProcessor> ret = new ArrayList<>();
         ret.addAll(
                 CommandProcessorLoader.initializeWithProcessors(GcodeProcessors.Front));
         ret.addAll(

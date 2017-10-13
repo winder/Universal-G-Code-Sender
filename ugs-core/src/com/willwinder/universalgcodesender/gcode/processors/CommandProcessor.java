@@ -29,7 +29,7 @@ import java.util.List;
  *
  * @author wwinder
  */
-public interface ICommandProcessor {
+public interface CommandProcessor {
     /**
      * Given a command and the current state of a program returns a replacement
      * list of commands.

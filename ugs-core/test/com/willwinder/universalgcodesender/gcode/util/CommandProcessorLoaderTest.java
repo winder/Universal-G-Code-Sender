@@ -48,7 +48,7 @@ public class CommandProcessorLoaderTest {
 
         boolean threwException = false;
         try {
-            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
+            List<CommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
         } catch (IllegalArgumentException e) {
             threwException = true;
         }
@@ -71,7 +71,7 @@ public class CommandProcessorLoaderTest {
 
         boolean threwException = false;
         try {
-            List<ICommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
+            List<CommandProcessor> result = CommandProcessorLoader.initializeWithProcessors(array.toString());
         } catch (IllegalArgumentException e) {
             threwException = true;
         }
@@ -139,7 +139,7 @@ public class CommandProcessorLoaderTest {
         array.add(object);
 
         String jsonConfig = array.toString();
-        List<ICommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
+        List<CommandProcessor> processors = CommandProcessorLoader.initializeWithProcessors(jsonConfig);
 
         assertEquals(8, processors.size());
         assertEquals(ArcExpander.class, processors.get(0).getClass());

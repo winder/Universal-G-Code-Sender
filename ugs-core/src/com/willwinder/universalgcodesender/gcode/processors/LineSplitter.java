@@ -39,7 +39,7 @@ import javax.vecmath.Point3d;
  *
  * @author wwinder
  */
-public class LineSplitter implements ICommandProcessor {
+public class LineSplitter implements CommandProcessor {
     final double maxSegmentLength;
 
     /**

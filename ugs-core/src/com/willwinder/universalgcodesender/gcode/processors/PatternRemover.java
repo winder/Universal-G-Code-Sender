@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  *
  * @author wwinder
  */
-public class PatternRemover implements ICommandProcessor {
+public class PatternRemover implements CommandProcessor {
     final private Pattern p;
 
     public PatternRemover(String regexPattern) {

@@ -31,7 +31,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeStats;
  *
  * @author wwinder
  */
-public class Stats implements ICommandProcessor, GcodeStats {
+public class Stats implements CommandProcessor, GcodeStats {
     private static Units defaultUnits = Units.MM;
 
     Position min = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Units.MM);

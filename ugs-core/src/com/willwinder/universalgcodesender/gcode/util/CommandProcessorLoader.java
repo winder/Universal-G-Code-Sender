@@ -27,7 +27,6 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcess
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.ICommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
@@ -35,6 +34,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.utils.ControllerSettings.ProcessorConfig;
 import java.util.ArrayList;
 import java.util.List;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -163,14 +163,14 @@ public class CommandProcessorLoader {
      *     }
      *  ]
      */
-    static public List<ICommandProcessor> initializeWithProcessors(String jsonConfig) {
+    static public List<CommandProcessor> initializeWithProcessors(String jsonConfig) {
         return initializeWithProcessors(getConfigFrom(jsonConfig));
     }
 
-    static public List<ICommandProcessor> initializeWithProcessors(List<ProcessorConfig> config) {
-        List<ICommandProcessor> list = new ArrayList<>();
+    static public List<CommandProcessor> initializeWithProcessors(List<ProcessorConfig> config) {
+        List<CommandProcessor> list = new ArrayList<>();
         for (ProcessorConfig pc : config) {
-            ICommandProcessor p = null;
+            CommandProcessor p = null;
 
             // Check if the processor is enabled.
             if (pc.optional && !pc.enabled) {
@@ -223,7 +223,7 @@ public class CommandProcessorLoader {
      * @return 
      */
     static public String getHelpForConfig(ProcessorConfig pc) {
-        ICommandProcessor p;
+        CommandProcessor p;
         try {
             switch (pc.name) {
                 case "ArcExpander":
