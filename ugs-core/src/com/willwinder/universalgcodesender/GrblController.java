@@ -166,9 +166,14 @@ public class GrblController extends AbstractController {
                     dispatchStateChange(COMM_IDLE);
                 }
 
-                processed = lookupCode(response, false);
+                GcodeCommand command = this.getActiveCommand();
+                processed =
+                        String.format(Localization.getString("controller.exception.sendError"),
+                                command.getCommandString(),
+                                lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
                 this.errorMessageForConsole(processed);
                 this.commandComplete(processed);
+                processed = "";
             }
 
             else if (GrblUtils.isGrblVersionString(response)) {
@@ -235,10 +240,12 @@ public class GrblController extends AbstractController {
                 }
             }
 
-            if (verbose) {
-                this.verboseMessageForConsole(processed + "\n");
-            } else {
-                this.messageForConsole(processed + "\n");
+            if (StringUtils.isNotBlank(processed)) {
+                if (verbose) {
+                    this.verboseMessageForConsole(processed + "\n");
+                } else {
+                    this.messageForConsole(processed + "\n");
+                }
             }
         } catch (Exception e) {
             String message = "";
@@ -362,7 +369,12 @@ public class GrblController extends AbstractController {
                 return ControlState.COMM_SENDING_PAUSED;
             case "idle":
                 if (isStreaming()){
-                    return ControlState.COMM_SENDING_PAUSED;
+                    // Special case where commands have been sent but no progress has been received.
+                    if (this.comm.areActiveCommands()) {
+                        return ControlState.COMM_SENDING;
+                    } else {
+                        return ControlState.COMM_SENDING_PAUSED;
+                    }
                 }
             case "alarm":
             case "check":

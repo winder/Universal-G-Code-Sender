@@ -315,7 +315,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             hal.mouseMove(pObj.x + 1, pObj.y + 1);
             hal.mouseMove(pObj.x - 1, pObj.y - 1);
             pObj = MouseInfo.getPointerInfo().getLocation();
-            System.out.println(pObj.toString() + "x>>" + pObj.x + "  y>>" + pObj.y);
+            logger.log(Level.INFO, pObj.toString() + "x>>" + pObj.x + "  y>>" + pObj.y);
         } catch (AWTException | NullPointerException ex) {
             Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -781,12 +781,15 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
                 }
 
+                /*
                 String error =
                         String.format(Localization.getString("controller.exception.sendError"),
                                 command.getCommandString(),
                                 command.getResponse()).replaceAll("\\.\\.", "\\.");
                 messageForConsole(MessageType.INFO, error);
 
+                // The logic below used to automatically add "pattern processor remover" entries to the gcode processor.
+                // It was causing a lot of issues where users were adding commands which shouldn't be added.
                 String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
                 Object[] params = {String.format(NarrowOptionPane.pattern, 300, error), checkboxQuestion};
                 int n = JOptionPane.showConfirmDialog(new JFrame(),
@@ -802,6 +805,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                         GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
                     }
                 }
+                */
             }
         }
     }
