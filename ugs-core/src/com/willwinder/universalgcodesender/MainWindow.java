@@ -84,8 +84,6 @@ import org.apache.commons.lang3.SystemUtils;
 public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
-    final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
-
     private PendantUI pendantUI;
     public Settings settings;
     
@@ -130,7 +128,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         this.jogPanel = new JogPanel(backend, jogService, true);
 
-        if (settings.isShowNightlyWarning() && MainWindow.VERSION.contains("nightly")) {
+        if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 String message =
                         "This version of Universal Gcode Sender is a nightly build.\n"
@@ -1608,7 +1606,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.checkScrollWindow();
         this.loadFirmwareSelector();
         this.setTitle(Localization.getString("title") + " (" 
-                + Localization.getString("version") + " " + VERSION + ")");
+                + Localization.getString("version") + " " + Version.getVersionString() + ")");
 
         // Command History
         this.manualCommandHistory = new ArrayList<>();

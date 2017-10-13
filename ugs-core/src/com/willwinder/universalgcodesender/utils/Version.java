@@ -10,6 +10,14 @@ public class Version {
 
     private static boolean initialized = false;
     
+    static public Boolean isNightlyBuild() {
+        return VERSION.contains("nightly");
+    }
+
+    static public String getVersionString() {
+        return Version.getVersion() + " / " + Version.getTimestamp();
+    }
+
     static public String getVersion() {
         return VERSION;
     }

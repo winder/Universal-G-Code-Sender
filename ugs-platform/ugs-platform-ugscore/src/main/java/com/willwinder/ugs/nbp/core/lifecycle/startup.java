@@ -76,8 +76,7 @@ public class startup extends OptionProcessor implements Runnable {
     private void setupVersionInformation(Settings settings) {
         // Only change the window title when all the UI components are fully loaded.
         WindowManager.getDefault().invokeWhenUIReady(() -> {
-            String version = Version.getVersion() + " / " + Version.getTimestamp();
-            if (settings.isShowNightlyWarning() && version.contains("nightly")) {
+            if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
                 String message =
                         "This version of Universal Gcode Sender is a nightly build.\n"
                         + "It contains all of the latest features and improvements, \n"
@@ -90,7 +89,7 @@ public class startup extends OptionProcessor implements Runnable {
             
             String title = Localization.getString("platform-title")
                     + " (" + Localization.getString("version")
-                    + " " + version + ")";
+                    + " " + Version.getVersionString() + ")";
             
             WindowManager.getDefault().getMainWindow().setTitle(title);
         });

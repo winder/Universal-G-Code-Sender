@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.Version;
 import javax.swing.JComboBox;
 import javax.swing.SpinnerNumberModel;
 import net.miginfocom.swing.MigLayout;
@@ -48,8 +49,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 new SpinnerNumberModel((int)1, 1, null, 100));
     final Checkbox stateColorDisplayEnabled = new Checkbox(
                 Localization.getString("sender.state"));
-    final Checkbox autoConnect = new Checkbox(
-                Localization.getString("sender.autoconnect"));
+    final Checkbox showNightlyWarning = new Checkbox(
+                Localization.getString("sender.nightly-warning"));
     final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
@@ -69,8 +70,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 .append(Localization.getString("sender.help.status")).append("\n\n")
                 .append(Localization.getString("sender.help.status.rate")).append("\n\n")
                 .append(Localization.getString("sender.help.state")).append("\n\n")
-                .append(Localization.getString("sender.help.autoconnect"))
-                //.append(Localization.getString("sender.help.autoreconnect"))
                 ;
         return message.toString();
     }
@@ -83,7 +82,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
         settings.setDisplayStateColor(stateColorDisplayEnabled.getValue());
-        settings.setAutoConnectEnabled(autoConnect.getValue());
+        //settings.setAutoConnectEnabled(autoConnect.getValue());
+        settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
     }
 
@@ -118,8 +118,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         stateColorDisplayEnabled.setSelected(s.isDisplayStateColor());
         add(stateColorDisplayEnabled);
 
-        autoConnect.setSelected(s.isAutoConnectEnabled());
-        add(autoConnect);
+        showNightlyWarning.setSelected(s.isShowNightlyWarning());
+        add(showNightlyWarning);
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = (Language)languageCombo.getItemAt(i);
