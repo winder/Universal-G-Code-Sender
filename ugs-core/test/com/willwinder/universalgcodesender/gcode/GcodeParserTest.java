@@ -333,6 +333,21 @@ public class GcodeParserTest {
     }
 
     @Test
+    public void doubleParenCommentTest() throws Exception {
+        GcodeParser gcp = new GcodeParser();
+        gcp.addCommandProcessor(new CommentProcessor());
+
+
+
+        String command = "(comment (with subcomment) still in the comment) G01 X10";
+        GcodeParser instance = new GcodeParser();
+        instance.addCommandProcessor(new CommentProcessor());
+        List<String> result = instance.preprocessCommand(command, instance.getCurrentState());
+        assertEquals(1, result.size());
+        assertEquals(" G01 X10", result.get(0));
+    }
+
+    @Test
     public void stateInitialized() throws Exception {
         GcodeState state = new GcodeState();
         Assert.assertEquals(G0, state.currentMotionMode);

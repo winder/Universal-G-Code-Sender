@@ -46,7 +46,7 @@ import javax.vecmath.Point3d;
 public class GcodePreprocessorUtils {
 
     public static final String EMPTY = "";
-    public static final Pattern COMMENT = Pattern.compile("\\([^\\(]*\\)|\\s*;.*|%$");
+    public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%$");
     private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
     private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
 
