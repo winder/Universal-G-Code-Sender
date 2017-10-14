@@ -47,10 +47,14 @@ public class SurfaceScanner {
     }
 
     public void probeEvent(final Position p) {
-        int x = (int) Math.ceil((p.x - minXYZ.x) / resolution);
-        int y = (int) Math.ceil((p.y - minXYZ.y) / resolution);
+        try {
+            int x = (int) Math.ceil((p.x - minXYZ.x) / resolution);
+            int y = (int) Math.ceil((p.y - minXYZ.y) / resolution);
 
-        probePositionGrid[x][y] = p.getPositionIn(u);
+            probePositionGrid[x][y] = p.getPositionIn(u);
+        } catch (Exception e) {
+
+        }
     }
 
     /**

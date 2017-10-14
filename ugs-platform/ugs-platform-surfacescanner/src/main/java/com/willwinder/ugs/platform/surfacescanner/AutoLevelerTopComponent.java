@@ -83,6 +83,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     // Used to disable the change listener temporarily.
     private boolean bulkChanges = false;
+    boolean scanningSurface = false;
 
     public AutoLevelerTopComponent() {
         initComponents();
@@ -145,6 +146,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isProbeEvent()) {
+            if (!scanningSurface) return;
+
             Position probe = evt.getProbePosition();
             Position offset = this.settings.getAutoLevelSettings().autoLevelProbeOffset;
 
@@ -525,6 +528,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             return;
         }
 
+        scanningSurface = true;
         try {
             Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
             AutoLevelSettings als = settings.getAutoLevelSettings();
@@ -535,6 +539,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
+        } finally {
+            scanningSurface = false;
         }
     }//GEN-LAST:event_scanSurfaceButtonActionPerformed
 
