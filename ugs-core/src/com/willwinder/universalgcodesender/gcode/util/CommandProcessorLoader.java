@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.FeedOverrideProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.M3Dweller;
 import com.willwinder.universalgcodesender.gcode.processors.PatternRemover;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -79,6 +80,11 @@ public class CommandProcessorLoader {
      *         "args": {}
      *     },{
      *         name: "WhitespaceProcessor",
+     *         "enabled": <enabled>,
+     *         "optional": <optional>,
+     *         "args": {}
+     *     },{
+     *         name: "M3Dweller",
      *         "enabled": <enabled>,
      *         "optional": <optional>,
      *         "args": {}
@@ -160,6 +166,13 @@ public class CommandProcessorLoader {
      *         name: "WhitespaceProcessor",
      *         "enabled": <enabled>
      *         "optional": <optional>,
+     *     },{
+     *         name: "M3Dweller",
+     *         "enabled": <enabled>,
+     *         "optional": <optional>,
+     *         "args": {
+     *             "duraion": <double>
+     *         }
      *     }
      *  ]
      */
@@ -206,6 +219,10 @@ public class CommandProcessorLoader {
                     break;
                 case "WhitespaceProcessor":
                     p = new WhitespaceProcessor();
+                    break;
+                case "M3Dweller":
+                    double duration = pc.args.get("duration").getAsDouble();
+                    p = new M3Dweller(duration);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown processor: " + pc.name);
@@ -254,6 +271,10 @@ public class CommandProcessorLoader {
                     break;
                 case "WhitespaceProcessor":
                     p = new WhitespaceProcessor();
+                    break;
+                case "M3Dweller":
+                    int duration = pc.args.get("duration").getAsInt();
+                    p = new M3Dweller(duration);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown processor: " + pc.name);

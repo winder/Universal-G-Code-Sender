@@ -1,6 +1,6 @@
 {
     "Name": "Testing",
-    "Version": 3,
+    "Version": 4,
     "Controller": {
         "name": "Loopback",
         "args": null
@@ -46,6 +46,13 @@
                 "name": "WhitespaceProcessor",
                 "enabled": true,
                 "optional": true
+            },{
+                "name": "M3Dweller",
+                "enabled": false,
+                "optional": true,
+                "args": {
+                    "duration": 2.5
+                }
             },{
                 "name": "CommandLengthProcessor",
                 "enabled": true,
