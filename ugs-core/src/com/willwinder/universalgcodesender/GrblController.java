@@ -369,12 +369,7 @@ public class GrblController extends AbstractController {
                 return ControlState.COMM_SENDING_PAUSED;
             case "idle":
                 if (isStreaming()){
-                    // Special case where commands have been sent but no progress has been received.
-                    if (this.comm.areActiveCommands()) {
-                        return ControlState.COMM_SENDING;
-                    } else {
-                        return ControlState.COMM_SENDING_PAUSED;
-                    }
+                    return ControlState.COMM_SENDING_PAUSED;
                 }
             case "alarm":
             case "check":
