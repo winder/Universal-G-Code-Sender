@@ -370,9 +370,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             systemStateBean.setEstimatedTimeRemaining(String.valueOf(this.getSendRemainingDuration()));
         }
         if (this.workCoord != null) {
-            systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.getX()));
-            systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.getY()));
-            systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.getZ()));
+            systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.x));
+            systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.y));
+            systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.z));
         }
         systemStateBean.setSendButtonText(openCloseButtonText);
         systemStateBean.setSendButtonEnabled(openCloseButtonEnabled);
