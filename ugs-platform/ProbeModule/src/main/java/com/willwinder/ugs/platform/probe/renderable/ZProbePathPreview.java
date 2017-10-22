@@ -74,8 +74,8 @@ public class ZProbePathPreview extends Renderable {
         final int slices = 10;
         final int stacks = 10;
 
-        int rot = (this.probeOffset > 0) ? 180 : 0;
-        double zAbs = Math.abs(this.probeOffset);
+        int rot = (this.probeDepth > 0) ? 0 : 180;
+        double zAbs = Math.abs(this.probeDepth);
 
         GL2 gl = drawable.getGL().getGL2();
 
@@ -89,7 +89,7 @@ public class ZProbePathPreview extends Renderable {
         // touch plate
         gl.glPushMatrix();
             gl.glTranslated(0, 0, zAbs);
-            glut.glutSolidCylinder(5, this.probeDepth, slices*2, stacks);
+            glut.glutSolidCylinder(5, this.probeOffset, slices*2, stacks);
         gl.glPopMatrix();
 
         // Everything is going to be red now!
