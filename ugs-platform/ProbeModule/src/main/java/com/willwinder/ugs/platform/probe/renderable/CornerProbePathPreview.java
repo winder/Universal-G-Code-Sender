@@ -25,6 +25,11 @@ import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
+import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
+import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.NEGATIVE;
+import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.POSITIVE;
+import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawTouchPlate;
+import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
 import javax.vecmath.Point3d;
 
 /**
@@ -32,11 +37,14 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class CornerProbePathPreview extends Renderable {
+    private Point3d spacing = new Point3d(0, 0, 0);
+    private Point3d thickness = new Point3d(0, 0, 0);
+    /*
     private Double xSpacing = null;
     private Double ySpacing = null;
     private Double xThickness = null;
     private Double yThickness = null;
-    private final double previewSize = 5;
+*/
     private Point3d startWork = null;
     private Point3d startMachine = null;
     private ProbeContext pc = null;
@@ -54,11 +62,15 @@ public class CornerProbePathPreview extends Renderable {
         this.startMachine = startMachine;
     }
 
-    public void updateSpacing(double xSpacing, double ySpacing, double xThickness, double yThickness) {
-        this.xSpacing = xSpacing;
-        this.ySpacing = ySpacing;
-        this.xThickness = xThickness;
-        this.yThickness = yThickness;
+    public void updateSpacing(
+            double xSpacing, double ySpacing, double zSpacing,
+            double xThickness, double yThickness, double zThickness) {
+        this.spacing.x = xSpacing;
+        this.spacing.y = ySpacing;
+        this.spacing.z = zSpacing;
+        this.thickness.x = xThickness;
+        this.thickness.y = yThickness;
+        this.thickness.z = zThickness;
     }
 
     @Override
@@ -79,20 +91,102 @@ public class CornerProbePathPreview extends Renderable {
     public void reloadPreferences(VisualizerOptions vo) {
     }
 
+    private boolean invalidSettings() {
+        return this.spacing.x == 0
+                && this.spacing.y == 0
+                && this.spacing.z == 0
+                && this.thickness.x == 0
+                && this.thickness.y == 0
+                && this.thickness.z == 0;
+    }
+
+    private void drawXY(GL2 gl, Side X, Side Y) {
+        double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
+        double previewDepth = Math.min(thickness.x, thickness.y);
+        double inset = 2.5;
+        double lip = 4;
+        drawTouchPlate(gl, glut,
+            new Point3d(spacing.x, spacing.y, spacing.z),
+            inset,
+            previewSize,
+            thickness,
+            previewDepth + lip,
+            previewDepth,
+            X, Y);
+
+        // Everything is going to be red now!
+        gl.glColor4d(8., 0., 0., 1);
+
+        // y probe arrows
+        drawArrow(gl, glut,
+                new Point3d(0, 0, 0),
+                new Point3d(spacing.x, 0, 0));
+        drawArrow(gl, glut,
+                new Point3d(spacing.x, 0, 0),
+                new Point3d(spacing.x, spacing.y - inset, 0));
+
+        // x probe arrows
+        drawArrow(gl, glut,
+                new Point3d(0, 0, 0),
+                new Point3d(0, spacing.y, 0));
+        drawArrow(gl, glut,
+                new Point3d(0, spacing.y, 0),
+                new Point3d(spacing.x - inset, spacing.y, 0));
+    }
+
+    private void drawXYZ(GL2 gl, Side X, Side Y) {
+        double previewSize = Math.max(5, Math.max(thickness.x * 4, thickness.y * 4));
+        double previewDepth = thickness.z;
+        double inset = 2.5;
+        double lip = 4;
+        drawTouchPlate(gl, glut,
+            new Point3d(0, 0, spacing.z),
+            inset,
+            previewSize,
+            thickness,
+            previewDepth + lip,
+            previewDepth,
+            X, Y);
+
+        // Everything is going to be red now!
+        gl.glColor4d(8., 0., 0., 1);
+
+        // z arrow
+        drawArrow(gl, glut,
+                new Point3d(.25, .25, 0),
+                new Point3d(.25, .25, spacing.z - Math.signum(spacing.z) * inset));
+        drawArrow(gl, glut,
+                new Point3d(-0.25, -0.25, spacing.z - Math.signum(spacing.z) * inset),
+                new Point3d(-0.25, -0.25, 0.));
+
+        // x probe arrows
+        drawArrow(gl, glut,
+                new Point3d(0, 0, 0),
+                new Point3d(-spacing.x, 0, 0));
+        drawArrow(gl, glut,
+                new Point3d(-spacing.x, 0, 0),
+                new Point3d(-spacing.x, 0, spacing.z));
+        drawArrow(gl, glut,
+                new Point3d(-spacing.x, 0, spacing.z),
+                new Point3d(-X.side(inset), 0, spacing.z));
+
+        // y probe arrows
+        drawArrow(gl, glut,
+                new Point3d(-spacing.x, 0, spacing.z),
+                new Point3d(-spacing.x, -spacing.y, spacing.z));
+        drawArrow(gl, glut,
+                new Point3d(-spacing.x, -spacing.y, spacing.z),
+                new Point3d(0, -spacing.y, spacing.z));
+        drawArrow(gl, glut,
+                new Point3d(0, -spacing.y, spacing.z),
+                new Point3d(0, -Y.side(inset), spacing.z));
+    }
+
     @Override
     public void draw(GLAutoDrawable drawable, boolean idle, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
-        if (xSpacing == null || ySpacing == null) return;
-
-        final int slices = 10;
-        final int stacks = 10;
+        if (invalidSettings()) return;
 
         GL2 gl = drawable.getGL().getGL2();
-
-        int xDir = (this.xSpacing > 0) ? 1 : -1;
-        int yDir = (this.ySpacing > 0) ? 1 : -1;
-        double xAbs = Math.abs(this.xSpacing);
-        double yAbs = Math.abs(this.ySpacing);
-
 
         if (startWork != null) {
             // After the probe, move it back to the original location
@@ -110,93 +204,12 @@ public class CornerProbePathPreview extends Renderable {
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
         }
 
-        // touch plate
-        gl.glPushMatrix();
-            // big piece
-            gl.glTranslated(this.xSpacing, this.ySpacing, 0);
-
-            gl.glColor4d(.8, .8, .8, 1);
-            // y bump
-            gl.glPushMatrix();
-                gl.glTranslated(0, yDir * -this.previewSize/2 + yDir * this.yThickness / 2, 0);
-                gl.glScaled(previewSize, this.yThickness, 2.);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
-
-            // x bump
-            gl.glPushMatrix();
-                gl.glTranslated(xDir * -this.previewSize/2 + xDir * this.xThickness / 2, 0, 0);
-                gl.glScaled(this.xThickness, previewSize, 2.);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
-
-            gl.glColor4d(1, 1, 1, 1);
-            gl.glColorMaterial(GL.GL_FRONT_AND_BACK, GL2.GL_AMBIENT);
-
-            gl.glPushMatrix();
-                gl.glScaled(previewSize-0.1, previewSize-0.1, 1.);
-                glut.glutSolidCube(1);
-            gl.glPopMatrix();
-
-        gl.glPopMatrix();
-
-        // Everything is going to be red now!
-        gl.glColor4d(8., 0., 0., 1);
-
-        // y probe arrows
-        gl.glPushMatrix();
-            gl.glRotated(90, 0, xDir, 0);
-            glut.glutSolidCylinder(.1, xAbs - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, xAbs - 1);
-            glut.glutSolidCone(.2, 1, slices, stacks);
-            gl.glTranslated(0, 0, 1);
-            gl.glRotated(-90, 0, xDir, 0);
-            gl.glRotated(-90, yDir, 0, 0);
-            glut.glutSolidCylinder(.1, yAbs - previewSize / 2 - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, yAbs - previewSize / 2 - 1);
-            glut.glutSolidCone(.2, 1, slices, stacks);
-        gl.glPopMatrix();
-
-        // x probe arrows
-        gl.glPushMatrix();
-            gl.glRotated(-90, yDir, 0, 0);
-            glut.glutSolidCylinder(.1, yAbs - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, yAbs - 1);
-            glut.glutSolidCone(.2, 1, slices, stacks);
-            gl.glTranslated(0, 0, 1);
-            gl.glRotated(90, yDir, 0, 0);
-            gl.glRotated(90, 0, xDir, 0);
-            glut.glutSolidCylinder(.1, xAbs - previewSize / 2 - 0.5, slices, stacks);
-            gl.glTranslated(0, 0, xAbs - previewSize / 2 - 1);
-            glut.glutSolidCone(.2, 1, slices, stacks);
-        gl.glPopMatrix();
-
-        /*
-        // If we haven't done both probes, don't render the offset arrow.
-        if (pc == null || pc.xWcsOffset == null || pc.yWcsOffset == null) return;
-
-        // offset arrow is yellow
-        gl.glColor3d(1., 1., 0);
-
-        double vx = pc.xWcsOffset;
-        double vy = pc.yWcsOffset;
-        double vz = pc.yWcsOffset;
-
-        //handle the degenerate case of z1 == z2 with an approximation
-        if(vz == 0)
-            vz = .0001;
-
-        double v = Math.sqrt( vx*vx + vy*vy + vz*vz );
-        double ax = 57.2957795*Math.acos( vz/v );
-        if ( vz < 0.0 )
-            ax = -ax;
-        double rx = -vy*vz;
-        double ry = vx*vz;
-
-        gl.glRotated(ax, rx, ry, 0.0);
-        glut.glutSolidCylinder(.1, v - 0.5, slices, stacks);
-        gl.glTranslated(0, 0, v - 1);
-        glut.glutSolidCone(.2, 1, slices, stacks);
-        */
+        Side X = (spacing.x > 0) ? POSITIVE : NEGATIVE;
+        Side Y = (spacing.y > 0) ? POSITIVE : NEGATIVE;
+        if (spacing.z == 0) {
+            drawXY(gl, X, Y);
+        } else {
+            drawXYZ(gl, X, Y);
+        }
     }
 }

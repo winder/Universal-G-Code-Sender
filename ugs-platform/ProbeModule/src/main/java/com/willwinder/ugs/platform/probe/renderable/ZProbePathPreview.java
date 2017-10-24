@@ -97,6 +97,5 @@ public class ZProbePathPreview extends Renderable {
         glut.glutSolidCylinder(.1, zAbs - 0.5, slices, stacks);
         gl.glTranslated(0, 0, zAbs - 1);
         glut.glutSolidCone(.2, 1, slices, stacks);
-
     }
 }

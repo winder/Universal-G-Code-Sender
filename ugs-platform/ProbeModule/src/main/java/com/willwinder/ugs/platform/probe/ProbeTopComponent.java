@@ -71,19 +71,27 @@ import org.openide.windows.TopComponent;
 )
 public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
     private Renderable active = null;
-    private CornerProbePathPreview outsideRenderable = new CornerProbePathPreview(
+    private CornerProbePathPreview cornerRenderable = new CornerProbePathPreview(
             Localization.getString("probe.visualizer.corner-preview"));
     private ZProbePathPreview zRenderable = new ZProbePathPreview(
             Localization.getString("probe.visualizer.z-preview"));
 
     private static final String X_OFFSET = Localization.getString("autoleveler.option.offset-x") + ":";
     private static final String Y_OFFSET = Localization.getString("autoleveler.option.offset-y") + ":";
-    private static final String Z_OFFSET = Localization.getString("autoleveler.option.offset-z") + ":";
+    //private static final String Z_OFFSET = Localization.getString("autoleveler.option.offset-z") + ":";
+    private static final String Z_OFFSET = Localization.getString("probe.plate-thickness");
     private static final String X_DISTANCE = Localization.getString("probe.x-distance") + ":";
     private static final String Y_DISTANCE = Localization.getString("probe.y-distance") + ":";
-    private static final String Z_DISTANCE = Localization.getString("probe.plate-thickness") + ":";
+    private static final String Z_DISTANCE = Localization.getString("probe.probe-distance") + ":";
 
     protected class ProbeSettings {
+        double xyzXDistance;
+        double xyzYDistance;
+        double xyzZDistance;
+        double xyzXOffset;
+        double xyzYOffset;
+        double xyzZOffset;
+
         double outsideXDistance;
         double outsideYDistance;
         double outsideXOffset;
@@ -106,6 +114,16 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         int selectedTabIdx;
     }
+
+    // xyz tab
+    private static final String XYZ_TAB = "XYZ";
+    private SpinnerNumberModel xyzXDistanceModel;
+    private SpinnerNumberModel xyzYDistanceModel;
+    private SpinnerNumberModel xyzZDistanceModel;
+    private SpinnerNumberModel xyzXOffsetModel;
+    private SpinnerNumberModel xyzYOffsetModel;
+    private SpinnerNumberModel xyzZOffsetModel;
+    private final JButton measureXYZ = new JButton(Localization.getString("probe.measure.outside-corner"));
 
     // outside tab
     private static final String OUTSIDE_TAB = "XY";
@@ -156,6 +174,14 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         double largeSpinner = 1000000;
 
+        // XYZ TAB
+        xyzXDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
+        xyzYDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
+        xyzZDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
+        xyzXOffsetModel = new SpinnerNumberModel(2., -largeSpinner, largeSpinner, 0.1);
+        xyzYOffsetModel = new SpinnerNumberModel(2., -largeSpinner, largeSpinner, 0.1);
+        xyzZOffsetModel = new SpinnerNumberModel(2., -largeSpinner, largeSpinner, 0.1);
+
         // OUTSIDE TAB
         outsideXDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
         outsideYDistanceModel = new SpinnerNumberModel(10., -largeSpinner, largeSpinner, 0.1);
@@ -183,6 +209,17 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsSlowMeasureRate = new SpinnerNumberModel(100., 1, largeSpinner, 1.);
         settingsRetractAmount = new SpinnerNumberModel(15., 10, largeSpinner, 1.);
 
+        measureXYZ.addActionListener(e -> {
+                ProbeContext pc = new ProbeContext(
+                        get(settingsProbeDiameter), backend.getMachinePosition(),
+                        get(xyzXDistanceModel), get(xyzYDistanceModel), get(xyzZDistanceModel),
+                        get(xyzXOffsetModel), get(xyzYOffsetModel), get(xyzZOffsetModel),
+                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
+                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
+                ps2.performXYZProbe(pc);
+            });
+
         measureOutside.addActionListener(e -> {
                 ProbeContext pc = new ProbeContext(
                         get(settingsProbeDiameter), backend.getMachinePosition(),
@@ -190,7 +227,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                         get(outsideXOffsetModel), get(outsideYOffsetModel), 0.,
                         get(settingsFastFindRate), get(settingsSlowMeasureRate),
                         get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
-                this.outsideRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
+                this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
                 ps2.performOutsideCornerProbe(pc);
             });
 
@@ -218,6 +255,9 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         updateControls();
 
         // Listeners...
+        this.xyzXDistanceModel.addChangeListener(l -> controlChangeListener());
+        this.xyzYDistanceModel.addChangeListener(l -> controlChangeListener());
+        this.xyzZDistanceModel.addChangeListener(l -> controlChangeListener());
         this.outsideXDistanceModel.addChangeListener(l -> controlChangeListener());
         this.outsideYDistanceModel.addChangeListener(l -> controlChangeListener());
         this.insideXDistanceModel.addChangeListener(l -> controlChangeListener());
@@ -226,6 +266,9 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         this.zProbeDistance.addChangeListener(l -> controlChangeListener());
         this.zProbeOffset.addChangeListener(l -> controlChangeListener());
 
+        this.xyzXOffsetModel.addChangeListener(l -> controlChangeListener());
+        this.xyzYOffsetModel.addChangeListener(l -> controlChangeListener());
+        this.xyzZOffsetModel.addChangeListener(l -> controlChangeListener());
         this.outsideXOffsetModel.addChangeListener(l -> controlChangeListener());
         this.outsideYOffsetModel.addChangeListener(l -> controlChangeListener());
         this.insideXOffsetModel.addChangeListener(l -> controlChangeListener());
@@ -245,10 +288,26 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         Renderable before = active;
         //switch (this.jtp.getTabComponentAt(this.jtp.getSelectedIndex()).getName()) {
         switch (this.jtp.getTitleAt(this.jtp.getSelectedIndex())) {
+            case XYZ_TAB:
+                // TODO: XYZ Renderable
+                active = cornerRenderable;
+                cornerRenderable.updateSpacing(
+                        get(xyzXDistanceModel),
+                        get(xyzYDistanceModel),
+                        get(xyzZDistanceModel),
+                        get(xyzXOffsetModel),
+                        get(xyzYOffsetModel),
+                        get(xyzZOffsetModel));
+                break;
             case OUTSIDE_TAB:
-                active = outsideRenderable;
-                outsideRenderable.updateSpacing(get(outsideXDistanceModel), get(outsideYDistanceModel),
-                        get(outsideXOffsetModel), get(outsideYOffsetModel));
+                active = cornerRenderable;
+                cornerRenderable.updateSpacing(
+                        get(outsideXDistanceModel),
+                        get(outsideYDistanceModel),
+                        0,
+                        get(outsideXOffsetModel),
+                        get(outsideYOffsetModel),
+                        0);
                 break;
             case Z_TAB:
                 active = zRenderable;
@@ -294,6 +353,25 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     }
 
     private void initComponents() {
+        // XYZ TAB
+        JPanel xyz = new JPanel(new MigLayout("flowy, wrap 3"));
+        xyz.add(new JLabel(X_DISTANCE));
+        xyz.add(new JLabel(Y_DISTANCE));
+        xyz.add(new JLabel(Z_DISTANCE));
+        xyz.add(new JSpinner(xyzXDistanceModel), "growx");
+        xyz.add(new JSpinner(xyzYDistanceModel), "growx");
+        xyz.add(new JSpinner(xyzZDistanceModel), "growx");
+
+        xyz.add(new JLabel(X_OFFSET));
+        xyz.add(new JLabel(Y_OFFSET));
+        xyz.add(new JLabel(Z_OFFSET));
+        xyz.add(new JSpinner(xyzXOffsetModel), "growx");
+        xyz.add(new JSpinner(xyzYOffsetModel), "growx");
+        xyz.add(new JSpinner(xyzZOffsetModel), "growx");
+
+        xyz.add(measureXYZ, "spanx 2, spany 3, growx, growy");
+
+        // TODO: INSIDE Probe
         JPanel inside = new JPanel(new MigLayout("flowy, wrap 2"));
         inside.add(new JLabel(X_DISTANCE));
         inside.add(new JLabel(Y_DISTANCE));
@@ -323,12 +401,12 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         // Z PROBE TAB
         JPanel z = new JPanel(new MigLayout("wrap 4"));
-        z.add(new JLabel(Localization.getString("probe.plate-thickness")));
+        z.add(new JLabel(Z_OFFSET));
         z.add(new JSpinner(this.zProbeOffset), "growx");
 
         z.add(this.zProbeButton, "spanx 2, spany 2, growx, growy");
 
-        z.add(new JLabel(Localization.getString("probe.probe-distance")));
+        z.add(new JLabel(Z_DISTANCE));
         z.add(new JSpinner(this.zProbeDistance), "growx");
         
         // SETTINGS TAB
@@ -336,7 +414,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settings.add(new JLabel(Localization.getString("probe.units") + ":"), "al right");
         settings.add(settingsUnits, "growx");
 
-        settings.add(new JLabel(Localization.getString("probe.endmill-radius") + ":"), "al right");
+        settings.add(new JLabel(Localization.getString("probe.endmill-diameter") + ":"), "al right");
         settings.add(new JSpinner(settingsProbeDiameter), "growx");
 
         settings.add(new JLabel(Localization.getString("probe.find-rate") + ":"), "al right");
@@ -351,6 +429,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settings.add(new JLabel(Localization.getString("probe.retract-amount") + ":"), "al right");
         settings.add(new JSpinner(settingsRetractAmount), "growx");
 
+        jtp.add(XYZ_TAB, xyz);
         jtp.add(OUTSIDE_TAB, outside);
         jtp.add(Z_TAB, z);
         //jtp.add("inside", inside);
@@ -381,6 +460,13 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         String version = p.getProperty("version");
 
         ProbeSettings ps = new ProbeSettings();
+        ps.xyzXDistance = get(this.xyzXDistanceModel);
+        ps.xyzYDistance = get(xyzYDistanceModel);
+        ps.xyzZDistance = get(xyzZDistanceModel);
+        ps.xyzXOffset = get(xyzXOffsetModel);
+        ps.xyzYOffset = get(xyzYOffsetModel);
+        ps.xyzZOffset = get(xyzZOffsetModel);
+
         ps.outsideXDistance = get(this.outsideXDistanceModel);
         ps.outsideYDistance = get(outsideYDistanceModel);
         ps.outsideXOffset = get(outsideXOffsetModel);
@@ -413,6 +499,13 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         if (jsonData == null) return;
 
         ProbeSettings ps = new Gson().fromJson(jsonData, ProbeSettings.class);
+        xyzXDistanceModel.setValue(ps.xyzXDistance);
+        xyzYDistanceModel.setValue(ps.xyzYDistance);
+        xyzZDistanceModel.setValue(ps.xyzZDistance);
+        xyzXOffsetModel.setValue(ps.xyzXOffset);
+        xyzYOffsetModel.setValue(ps.xyzYOffset);
+        xyzZOffsetModel.setValue(ps.xyzZOffset);
+
         outsideXDistanceModel.setValue(ps.outsideXDistance);
         outsideYDistanceModel.setValue(ps.outsideYDistance);
         outsideXOffsetModel.setValue(ps.outsideXOffset);
