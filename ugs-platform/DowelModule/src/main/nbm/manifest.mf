@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+OpenIDE-Module-Localizing-Bundle: com/willwinder/ugs/platform/probe/Bundle.properties
+OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}

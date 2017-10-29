@@ -98,9 +98,13 @@ public class LocalizingService {
 
     public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
     public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
-    public final static String ProbeWindowPath = "Menu/Window/Plugins";
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
     public final static String ProbeCategory = "Window";
+
+    public final static String DowelTitle = Localization.getString("platform.window.dowel-module", lang);
+    public final static String DowelTooltip = Localization.getString("platform.window.dowel-module.tooltip", lang);
+    public final static String DowelActionId = "com.willwinder.ugs.platform.dowel.DowelTopComponent";
+    public final static String DowelCategory = "Window";
 
     public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
     public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);

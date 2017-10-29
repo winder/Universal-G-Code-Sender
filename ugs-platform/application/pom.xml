@@ -76,6 +76,11 @@
             <artifactId>ProbeModule</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>DowelModule</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

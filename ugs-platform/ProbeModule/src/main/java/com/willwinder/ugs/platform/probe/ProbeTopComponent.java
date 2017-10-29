@@ -67,7 +67,7 @@ import org.openide.windows.TopComponent;
 @ActionReference(path = LocalizingService.PLUGIN_WINDOW)
 @TopComponent.OpenActionRegistration(
         displayName = "Probe",
-        preferredID = "CornerProbeTopComponentTopComponent"
+        preferredID = "ProbeModule"
 )
 public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
     private Renderable active = null;
