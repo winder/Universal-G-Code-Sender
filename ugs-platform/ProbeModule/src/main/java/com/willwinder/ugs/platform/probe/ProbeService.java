@@ -18,8 +18,6 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-//import com.github.zevada.stateful.StateMachine;
-//import com.github.zevada.stateful.StateMachineBuilder;
 import static com.willwinder.ugs.platform.probe.ProbeService.Event.Idle;
 import static com.willwinder.ugs.platform.probe.ProbeService.Event.Probed;
 import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Waiting;
