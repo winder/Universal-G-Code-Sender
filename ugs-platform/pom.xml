@@ -50,8 +50,6 @@
 
       <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
 
-      <ugs.maven-compiler-plugin.version>3.6.1</ugs.maven-compiler-plugin.version>
-
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
       <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
@@ -88,14 +86,12 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <!-- NetBeans 6.9+ requires JDK 6, starting NetBeans 7.4 source 1.7 is required -->
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${ugs.maven-compiler-plugin.version}</version>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                    </configuration>
                 </plugin>
               <plugin>
                   <groupId>org.apache.maven.plugins</groupId>

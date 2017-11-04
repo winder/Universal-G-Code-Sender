@@ -18,6 +18,14 @@
         <artifactId>nbm-maven-plugin</artifactId>  
         <extensions>true</extensions> 
       </plugin>  
+      <plugin>
+        <groupId>org.jetbrains.kotlin</groupId>
+        <artifactId>kotlin-maven-plugin</artifactId>
+      </plugin>
+      <plugin> 
+        <groupId>org.apache.maven.plugins</groupId>  
+        <artifactId>maven-compiler-plugin</artifactId> 
+      </plugin>  
     </plugins> 
   </build>  
   <dependencies> 
@@ -94,5 +102,10 @@
       <version>1.3</version>  
       <scope>test</scope> 
     </dependency>  
+    <dependency> 
+      <groupId>org.jetbrains.kotlin</groupId>  
+      <artifactId>kotlin-stdlib</artifactId>  
+      <version>1.1.1</version> 
+    </dependency> 
   </dependencies> 
 </project>
