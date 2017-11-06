@@ -19,6 +19,14 @@
 
 package com.willwinder.ugs.platform.probe;
 
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G56;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G57;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G58;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
+import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
+
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
@@ -33,20 +41,17 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.*;
-import java.awt.BorderLayout;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTabbedPane;
-import javax.swing.SpinnerNumberModel;
+
 import net.miginfocom.swing.MigLayout;
+
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import java.awt.*;
+
+import javax.swing.*;
 
 /**
  * Top component which displays something.
@@ -57,7 +62,7 @@ import org.openide.windows.TopComponent;
 )
 @TopComponent.Description(
         preferredID = "CornerProbeTopComponentTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
@@ -211,22 +216,22 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         measureXYZ.addActionListener(e -> {
                 ProbeContext pc = new ProbeContext(
-                        get(settingsProbeDiameter), backend.getMachinePosition(),
-                        get(xyzXDistanceModel), get(xyzYDistanceModel), get(xyzZDistanceModel),
-                        get(xyzXOffsetModel), get(xyzYOffsetModel), get(xyzZOffsetModel),
-                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
-                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                        getDouble(settingsProbeDiameter), backend.getMachinePosition(),
+                        getDouble(xyzXDistanceModel), getDouble(xyzYDistanceModel), getDouble(xyzZDistanceModel),
+                        getDouble(xyzXOffsetModel), getDouble(xyzYOffsetModel), getDouble(xyzZOffsetModel),
+                        getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
+                        getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
                 ps2.performXYZProbe(pc);
             });
 
         measureOutside.addActionListener(e -> {
                 ProbeContext pc = new ProbeContext(
-                        get(settingsProbeDiameter), backend.getMachinePosition(),
-                        get(outsideXDistanceModel), get(outsideYDistanceModel), 0.,
-                        get(outsideXOffsetModel), get(outsideYOffsetModel), 0.,
-                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
-                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                        getDouble(settingsProbeDiameter), backend.getMachinePosition(),
+                        getDouble(outsideXDistanceModel), getDouble(outsideYDistanceModel), 0.,
+                        getDouble(outsideXOffsetModel), getDouble(outsideYOffsetModel), 0.,
+                        getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
+                        getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.cornerRenderable.setContext(pc, backend.getWorkPosition(), backend.getMachinePosition());
                 ps2.performOutsideCornerProbe(pc);
             });
@@ -242,11 +247,11 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         zProbeButton.addActionListener(e -> {
                 ProbeContext pc = new ProbeContext(
-                        get(settingsProbeDiameter), backend.getMachinePosition(),
-                        0., 0., get(zProbeDistance),
-                        0., 0., get(zProbeOffset),
-                        get(settingsFastFindRate), get(settingsSlowMeasureRate),
-                        get(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                        getDouble(settingsProbeDiameter), backend.getMachinePosition(),
+                        0., 0., getDouble(zProbeDistance),
+                        0., 0., getDouble(zProbeOffset),
+                        getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
+                        getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
                 this.zRenderable.setStart(backend.getWorkPosition());
                 ps2.performZProbe(pc);
             });
@@ -292,26 +297,26 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                 // TODO: XYZ Renderable
                 active = cornerRenderable;
                 cornerRenderable.updateSpacing(
-                        get(xyzXDistanceModel),
-                        get(xyzYDistanceModel),
-                        get(xyzZDistanceModel),
-                        get(xyzXOffsetModel),
-                        get(xyzYOffsetModel),
-                        get(xyzZOffsetModel));
+                        getDouble(xyzXDistanceModel),
+                        getDouble(xyzYDistanceModel),
+                        getDouble(xyzZDistanceModel),
+                        getDouble(xyzXOffsetModel),
+                        getDouble(xyzYOffsetModel),
+                        getDouble(xyzZOffsetModel));
                 break;
             case OUTSIDE_TAB:
                 active = cornerRenderable;
                 cornerRenderable.updateSpacing(
-                        get(outsideXDistanceModel),
-                        get(outsideYDistanceModel),
+                        getDouble(outsideXDistanceModel),
+                        getDouble(outsideYDistanceModel),
                         0,
-                        get(outsideXOffsetModel),
-                        get(outsideYOffsetModel),
+                        getDouble(outsideXOffsetModel),
+                        getDouble(outsideYOffsetModel),
                         0);
                 break;
             case Z_TAB:
                 active = zRenderable;
-                zRenderable.updateSpacing(get(zProbeDistance), get(zProbeOffset));
+                zRenderable.updateSpacing(getDouble(zProbeDistance), getDouble(zProbeOffset));
                 break;
             case SETTINGS_TAB:
                 active = null;
@@ -340,11 +345,6 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     private Units getUnits() {
         return this.settingsUnits.getSelectedIndex() == 0 ? Units.MM : Units.INCH;
-    }
-
-    // deal with casting the spinner model to a double.
-    private static double get(SpinnerNumberModel model) {
-        return (double) model.getValue();
     }
 
     // Helper since getSelectedItem doesn't use generics.
@@ -408,7 +408,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         z.add(new JLabel(Z_DISTANCE));
         z.add(new JSpinner(this.zProbeDistance), "growx");
-        
+
         // SETTINGS TAB
         JPanel settings = new JPanel(new MigLayout("wrap 6"));
         settings.add(new JLabel(Localization.getString("probe.units") + ":"), "al right");
@@ -460,32 +460,32 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         String version = p.getProperty("version");
 
         ProbeSettings ps = new ProbeSettings();
-        ps.xyzXDistance = get(this.xyzXDistanceModel);
-        ps.xyzYDistance = get(xyzYDistanceModel);
-        ps.xyzZDistance = get(xyzZDistanceModel);
-        ps.xyzXOffset = get(xyzXOffsetModel);
-        ps.xyzYOffset = get(xyzYOffsetModel);
-        ps.xyzZOffset = get(xyzZOffsetModel);
+        ps.xyzXDistance = getDouble(this.xyzXDistanceModel);
+        ps.xyzYDistance = getDouble(xyzYDistanceModel);
+        ps.xyzZDistance = getDouble(xyzZDistanceModel);
+        ps.xyzXOffset = getDouble(xyzXOffsetModel);
+        ps.xyzYOffset = getDouble(xyzYOffsetModel);
+        ps.xyzZOffset = getDouble(xyzZOffsetModel);
 
-        ps.outsideXDistance = get(this.outsideXDistanceModel);
-        ps.outsideYDistance = get(outsideYDistanceModel);
-        ps.outsideXOffset = get(outsideXOffsetModel);
-        ps.outsideYOffset = get(outsideYOffsetModel);
+        ps.outsideXDistance = getDouble(this.outsideXDistanceModel);
+        ps.outsideYDistance = getDouble(outsideYDistanceModel);
+        ps.outsideXOffset = getDouble(outsideXOffsetModel);
+        ps.outsideYOffset = getDouble(outsideYOffsetModel);
 
-        ps.zDistance = get(zProbeDistance);
-        ps.zOffset = get(zProbeOffset);
+        ps.zDistance = getDouble(zProbeDistance);
+        ps.zOffset = getDouble(zProbeOffset);
 
-        ps.insideXDistance = get(this.insideXDistanceModel);
-        ps.insideYDistance = get(insideYDistanceModel);
-        ps.insideXOffset = get(insideXOffsetModel);
-        ps.insideYOffset = get(insideYOffsetModel);
+        ps.insideXDistance = getDouble(this.insideXDistanceModel);
+        ps.insideYDistance = getDouble(insideYDistanceModel);
+        ps.insideXOffset = getDouble(insideXOffsetModel);
+        ps.insideYOffset = getDouble(insideYOffsetModel);
 
         ps.settingsWorkCoordinateIdx = (int) settingsWorkCoordinate.getSelectedIndex();
         ps.settingsUnitsIdx = (int) settingsUnits.getSelectedIndex();
-        ps.settingsProbeDiameter = get(settingsProbeDiameter);
-        ps.settingsFastFindRate = get(settingsFastFindRate);
-        ps.settingsSlowMeasureRate = get(settingsSlowMeasureRate);
-        ps.settingsRetractAmount = get(settingsRetractAmount);
+        ps.settingsProbeDiameter = getDouble(settingsProbeDiameter);
+        ps.settingsFastFindRate = getDouble(settingsFastFindRate);
+        ps.settingsSlowMeasureRate = getDouble(settingsSlowMeasureRate);
+        ps.settingsRetractAmount = getDouble(settingsRetractAmount);
 
         ps.selectedTabIdx = this.jtp.getSelectedIndex();
 
