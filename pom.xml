@@ -49,8 +49,11 @@
     <ugs.jvm.version>1.8</ugs.jvm.version>
     <ugs.kotlin.version>1.1.51</ugs.kotlin.version>
 
+    <!-- supposidly this was needed for the kotlin plugin -->
+    <!--
     <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
     <testSourceDirectory>${basedir}/src/test/java</testSourceDirectory>
+    -->
   </properties>
 
   <modules>
@@ -94,7 +97,6 @@
         <configuration>
           <source>${ugs.jvm.version}</source>
           <target>${ugs.jvm.version}</target>
-          <debuglevel>source,lines,vars</debuglevel>
         </configuration>
         <executions>
           <!-- Make sure to compile Kotlin first (required if calling Kotlin code from Java) -->
@@ -125,7 +127,6 @@
       </plugin>
       </plugins>
     </pluginManagement>
-
 
     <plugins>
       <plugin>

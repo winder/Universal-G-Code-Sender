@@ -101,18 +101,5 @@
         <version>1.3</version>
         <scope>test</scope>
       </dependency>
-
-      <dependency>
-        <groupId>com.github.zevada</groupId>
-        <artifactId>stateful</artifactId>
-        <version>1.0.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.squirrelframework</groupId>
-        <artifactId>squirrel-foundation</artifactId>
-        <version>${ugs.squirrel.version}</version>
-      </dependency>
-
     </dependencies>
 </project>
