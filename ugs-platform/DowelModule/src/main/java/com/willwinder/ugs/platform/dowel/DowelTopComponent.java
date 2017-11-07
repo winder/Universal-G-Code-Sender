@@ -27,7 +27,7 @@ import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import com.willwinder.ugs.platform.dowel.renderable.DowelPreview;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -77,8 +77,10 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
 
   private final BackendAPI backend;
 
-  private final JButton generateGcodeButton = new JButton("Generate Gcode");
-  private final JButton exportGcodeButton = new JButton("Export Gcode");
+  private final JButton generateGcodeButton = new JButton(
+          Localization.getString("platform.plugin.dowel-module.generate"));
+  private final JButton exportGcodeButton = new JButton(
+          Localization.getString("platform.plugin.dowel-module.export"));
 
   private final SpinnerNumberModel numDowelsX;
   private final SpinnerNumberModel numDowelsY;
@@ -105,19 +107,20 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     double doubleSpinner = 1000000;
     int intSpinner = 1000000;
 
-    numDowelsX = new SpinnerNumberModel(10, -intSpinner, intSpinner, 1);
-    numDowelsY = new SpinnerNumberModel(10, -intSpinner, intSpinner, 1);
-    dowelDiameter = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
-    dowelLength = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
-    bitDiameter = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
-    feed = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
-    cutDepth = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
-    safetyHeight = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
+    numDowelsX = new SpinnerNumberModel(3, 1, intSpinner, 1);
+    numDowelsY = new SpinnerNumberModel(3, 1, intSpinner, 1);
+    dowelDiameter = new SpinnerNumberModel(5, 0, doubleSpinner, 0.1);
+    dowelLength = new SpinnerNumberModel(10, 0, doubleSpinner, 0.1);
+    bitDiameter = new SpinnerNumberModel(3.17, 0, doubleSpinner, 0.1);
+    feed = new SpinnerNumberModel(100, 1, doubleSpinner, 1);
+    cutDepth = new SpinnerNumberModel(2, 0, doubleSpinner, 0.1);
+    safetyHeight = new SpinnerNumberModel(5, 0, doubleSpinner, 0.1);
 
     units = new JComboBox<>(SwingHelpers.getUnitOptions());
 
     generator = new DowelGenerator(getSettings());
-    preview = new DowelPreview("Dowel Preview", generator);
+    preview = new DowelPreview(
+            Localization.getString("platform.plugin.dowel-module.preview"),generator);
 
     generateGcodeButton.addActionListener(al -> generateGcode());
     exportGcodeButton.addActionListener(al -> exportGcode());
@@ -145,39 +148,49 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
 
     // Dowel settings
     JPanel dowelPanel = new JPanel();
-    dowelPanel.setBorder(BorderFactory.createTitledBorder(blackline, "Dowel"));
+    dowelPanel.setBorder(BorderFactory.createTitledBorder(blackline,
+            Localization.getString("platform.plugin.dowel-module.dowel")));
     dowelPanel.setLayout(new MigLayout("fillx, wrap 4"));
 
-    dowelPanel.add(new JLabel("X Count"), "growx");
+    dowelPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.x")), "growx");
     dowelPanel.add(new JSpinner(numDowelsX), "growx");
 
-    dowelPanel.add(new JLabel("Diameter"), "growx");
+    dowelPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.diameter")), "growx");
     dowelPanel.add(new JSpinner(dowelDiameter), "growx");
 
-    dowelPanel.add(new JLabel("Y Count"), "growx");
+    dowelPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.y")), "growx");
     dowelPanel.add(new JSpinner(numDowelsY), "growx");
 
-    dowelPanel.add(new JLabel("Length"), "growx");
+    dowelPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.length")), "growx");
     dowelPanel.add(new JSpinner(dowelLength), "growx");
 
     // Gcode settings
     JPanel cutPanel = new JPanel();
-    cutPanel.setBorder(BorderFactory.createTitledBorder(blackline, "Settings"));
+    cutPanel.setBorder(BorderFactory.createTitledBorder(blackline,
+            Localization.getString("mainWindow.swing.settingsMenu")));
     cutPanel.setLayout(new MigLayout("fillx, wrap 4"));
 
-    cutPanel.add(new JLabel("Units"), "growx");
+    cutPanel.add(new JLabel(Localization.getString("probe.units")), "growx");
     cutPanel.add(units, "growx");
 
-    cutPanel.add(new JLabel("Feed rate"), "growx");
+    cutPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.feed")), "growx");
     cutPanel.add(new JSpinner(feed), "growx");
 
-    cutPanel.add(new JLabel("Bit diameter"), "growx");
+    cutPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.bit")), "growx");
     cutPanel.add(new JSpinner(bitDiameter), "growx");
 
-    cutPanel.add(new JLabel("Cut depth"), "growx");
+    cutPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.depth")), "growx");
     cutPanel.add(new JSpinner(cutDepth), "growx");
 
-    cutPanel.add(new JLabel("Safety height"), "growx");
+    cutPanel.add(new JLabel(
+            Localization.getString("platform.plugin.dowel-module.safety-height")), "growx");
     cutPanel.add(new JSpinner(safetyHeight), "growx");
 
     // Put it all together
@@ -192,7 +205,6 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     try {
       path = Files.createTempFile("dowel_program", ".gcode");
       File file = path.toFile();
-      System.out.println("File: " + file.getAbsolutePath());
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
         generator.generate(writer);
       }

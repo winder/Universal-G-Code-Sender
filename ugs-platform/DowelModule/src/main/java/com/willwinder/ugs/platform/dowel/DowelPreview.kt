@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.platform.dowel.renderable
+package com.willwinder.ugs.platform.dowel
 
 import com.jogamp.opengl.GL2
 import com.jogamp.opengl.GLAutoDrawable

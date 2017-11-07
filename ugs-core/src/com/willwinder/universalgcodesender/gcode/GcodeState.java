@@ -19,7 +19,6 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
