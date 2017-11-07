@@ -34,4 +34,5 @@ data class DowelSettings(
         val bitDiameter: Double,
         val feed: Double,
         val cutDepth: Double,
+        val safetyHeight: Double,
         val units: UnitUtils.Units)

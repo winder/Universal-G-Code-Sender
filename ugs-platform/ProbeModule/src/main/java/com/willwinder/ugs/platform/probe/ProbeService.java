@@ -20,30 +20,31 @@ package com.willwinder.ugs.platform.probe;
 
 import static com.willwinder.ugs.platform.probe.ProbeService.Event.Idle;
 import static com.willwinder.ugs.platform.probe.ProbeService.Event.Probed;
+import static com.willwinder.ugs.platform.probe.ProbeService.Event.Start;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeX;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeY;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractX;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractY;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekX;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekY;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Setup;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreXFinalize;
+import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreYReset;
 import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Waiting;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 
 import com.willwinder.ugs.platform.probe.stateful.StateMachine;
 import com.willwinder.ugs.platform.probe.stateful.StateMachineBuilder;
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 
 import org.openide.util.Exceptions;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Setup;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreYReset;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreXFinalize;
-import static com.willwinder.ugs.platform.probe.ProbeService.Event.Start;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Position;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
-import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractY;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeY;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekY;
 
 /**
  *
@@ -158,14 +159,10 @@ public class ProbeService implements UGSEventListener {
         */
     }
 
-    private static String getUnitCmdFor(Units u) {
-        return u == Units.MM ? "G21" : "G20";
-    }
-
     void performZProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G91 " + g + " G0";
 
         this.context = context;
@@ -189,7 +186,7 @@ public class ProbeService implements UGSEventListener {
     void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G91 " + g + " G0";
 
         this.context = context;
@@ -223,7 +220,7 @@ public class ProbeService implements UGSEventListener {
     void performXYZProbe(ProbeContext context) throws IllegalStateException {
         validateState();
 
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G91 " + g + " G0";
 
         this.context = context;
@@ -274,7 +271,7 @@ public class ProbeService implements UGSEventListener {
         // Update WCS
         gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Z"+ context.zOffset);
 
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G90 " + g + " G0";
         if (context.zSpacing < 0) {
             gcode(g0 + " Z" + (context.retractHeight - context.zSpacing));
@@ -284,7 +281,7 @@ public class ProbeService implements UGSEventListener {
 
     // Outside probe callbacks.
     public void setup(Outside s, ProbeContext context) {
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G91 " + g + " G0";
         double radius = context.probeDiameter / 2;
         double xDir = Math.signum(context.xSpacing) * -1;
@@ -331,7 +328,7 @@ public class ProbeService implements UGSEventListener {
 
     // Outside probe callbacks.
     public void setup(OutsideXYZ s, ProbeContext context) {
-        String g = getUnitCmdFor(context.units);
+        String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G91 " + g + " G0";
         double radius = context.probeDiameter / 2;
         double xDir = Math.signum(context.xSpacing) * -1;

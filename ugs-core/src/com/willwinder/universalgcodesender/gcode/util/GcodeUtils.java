@@ -25,8 +25,20 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
  * @author wwinder
  */
 public class GcodeUtils {
+    public static String unitCommand(Units units) {
+      // Change units.
+      switch(units) {
+        case MM:
+          return "G21";
+        case INCH:
+          return "G20";
+        default:
+          return "";
+      }
+    }
+
     /**
-     * 
+     *
      * @param command Something like "G0"
      * @param units Appends "G21" or "G20"
      * @param distance The distance to use
@@ -38,22 +50,12 @@ public class GcodeUtils {
             String distance, String feedRate, int dirX, int dirY, int dirZ) {
         StringBuilder sb = new StringBuilder();
 
-        // Change units.
-        switch(units) {
-            case MM:
-                sb.append("G21");
-                break;
-            case INCH:
-                sb.append("G20");
-                break;
-            default:
-                break;
-        }
+      // Add units.
+        sb.append(unitCommand(units));
 
         // Set command.
         sb.append(command);
 
-        // Add units.
         if (dirX != 0) {
             sb.append("X");
             if (dirX < 0) {

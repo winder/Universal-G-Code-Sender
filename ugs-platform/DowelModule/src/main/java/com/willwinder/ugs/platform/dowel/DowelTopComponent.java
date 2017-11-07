@@ -30,6 +30,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.platform.dowel.renderable.DowelPreview;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 
 import net.miginfocom.swing.MigLayout;
@@ -40,6 +41,12 @@ import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -70,6 +77,9 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
 
   private final BackendAPI backend;
 
+  private final JButton generateGcodeButton = new JButton("Generate Gcode");
+  private final JButton exportGcodeButton = new JButton("Export Gcode");
+
   private final SpinnerNumberModel numDowelsX;
   private final SpinnerNumberModel numDowelsY;
   private final SpinnerNumberModel dowelDiameter;
@@ -77,6 +87,7 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
   private final SpinnerNumberModel bitDiameter;
   private final SpinnerNumberModel feed;
   private final SpinnerNumberModel cutDepth;
+  private final SpinnerNumberModel safetyHeight;
   private final JComboBox<String> units;
 
   private static final Gson GSON = new Gson();
@@ -101,11 +112,15 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     bitDiameter = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
     feed = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
     cutDepth = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
+    safetyHeight = new SpinnerNumberModel(10, -doubleSpinner, doubleSpinner, 1);
 
     units = new JComboBox<>(SwingHelpers.getUnitOptions());
 
     generator = new DowelGenerator(getSettings());
     preview = new DowelPreview("Dowel Preview", generator);
+
+    generateGcodeButton.addActionListener(al -> generateGcode());
+    exportGcodeButton.addActionListener(al -> exportGcode());
 
     // Change listener...
     numDowelsX.addChangeListener(l -> controlChangeListener());
@@ -115,9 +130,18 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     bitDiameter.addChangeListener(l -> controlChangeListener());
     feed.addChangeListener(l -> controlChangeListener());
     cutDepth.addChangeListener(l -> controlChangeListener());
+    safetyHeight.addChangeListener(l -> controlChangeListener());
     units.addActionListener(l -> controlChangeListener());
 
     Border blackline = BorderFactory.createLineBorder(Color.black);
+
+    // Buttons
+    JPanel buttonPanel = new JPanel();
+    buttonPanel.setBorder(blackline);
+    buttonPanel.setLayout(new MigLayout("fillx, wrap 1"));
+
+    buttonPanel.add(generateGcodeButton, "growx");
+    buttonPanel.add(exportGcodeButton, "growx");
 
     // Dowel settings
     JPanel dowelPanel = new JPanel();
@@ -153,10 +177,36 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     cutPanel.add(new JLabel("Cut depth"), "growx");
     cutPanel.add(new JSpinner(cutDepth), "growx");
 
+    cutPanel.add(new JLabel("Safety height"), "growx");
+    cutPanel.add(new JSpinner(safetyHeight), "growx");
+
     // Put it all together
     setLayout(new MigLayout("fillx, wrap 2"));
+    add(buttonPanel, "grow, span 2");
     add(dowelPanel, "grow");
     add(cutPanel, "grow");
+  }
+
+  private void generateGcode() {
+    Path path = null;
+    try {
+      path = Files.createTempFile("dowel_program", ".gcode");
+      File file = path.toFile();
+      System.out.println("File: " + file.getAbsolutePath());
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+        generator.generate(writer);
+      }
+
+      backend.setGcodeFile(file);
+    } catch (IOException e) {
+      GUIHelpers.displayErrorDialog("An error occurred generating dowel program: " + e.getLocalizedMessage());
+    } catch (Exception e) {
+      GUIHelpers.displayErrorDialog("An error occurred loading generated dowel program: " + e.getLocalizedMessage());
+    }
+  }
+
+  private void exportGcode() {
+
   }
 
   private void controlChangeListener() {
@@ -172,6 +222,7 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
         getDouble(this.bitDiameter),
         getDouble(this.feed),
         getDouble(this.cutDepth),
+        getDouble(this.safetyHeight),
         selectedUnit(this.units.getSelectedIndex()));
   }
 
@@ -201,16 +252,21 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
 
     if (p.containsKey(JSON_PROPERTY)) {
       String json = p.getProperty(JSON_PROPERTY);
-      DowelSettings ds = new Gson().fromJson(json, DowelSettings.class);
+      try {
+        DowelSettings ds = new Gson().fromJson(json, DowelSettings.class);
 
-      this.numDowelsX.setValue(ds.getNumDowelsX());
-      this.numDowelsY.setValue(ds.getNumDowelsY());
-      this.dowelDiameter.setValue(ds.getDowelDiameter());
-      this.dowelLength.setValue(ds.getDowelLength());
-      this.bitDiameter.setValue(ds.getBitDiameter());
-      this.feed.setValue(ds.getFeed());
-      this.cutDepth.setValue(ds.getCutDepth());
-      this.units.setSelectedIndex(unitIdx(ds.getUnits()));
+        this.numDowelsX.setValue(ds.getNumDowelsX());
+        this.numDowelsY.setValue(ds.getNumDowelsY());
+        this.dowelDiameter.setValue(ds.getDowelDiameter());
+        this.dowelLength.setValue(ds.getDowelLength());
+        this.bitDiameter.setValue(ds.getBitDiameter());
+        this.feed.setValue(ds.getFeed());
+        this.cutDepth.setValue(ds.getCutDepth());
+        this.safetyHeight.setValue(ds.getSafetyHeight());
+        this.units.setSelectedIndex(unitIdx(ds.getUnits()));
+      } catch (Exception e) {
+        GUIHelpers.displayErrorDialog("Problem loading Dowel Settings, defaults have been restored.");
+      }
     }
   }
 }
