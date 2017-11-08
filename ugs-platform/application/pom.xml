@@ -76,6 +76,11 @@
             <artifactId>ProbeModule</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-pendant</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
