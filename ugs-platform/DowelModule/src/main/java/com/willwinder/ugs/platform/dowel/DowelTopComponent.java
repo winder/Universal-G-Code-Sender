@@ -28,7 +28,6 @@ import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -41,7 +40,7 @@ import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
-import java.io.BufferedWriter;
+import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -72,8 +71,10 @@ import javax.swing.border.Border;
         displayName = "Dowel",
         preferredID = "DowelTopComponent"
 )
-public final class DowelTopComponent extends TopComponent implements UGSEventListener {
+public final class DowelTopComponent extends TopComponent {
   final static String JSON_PROPERTY = "dowel_settings_json";
+  static String ERROR_GENERATING = "An error occurred generating dowel program: ";
+  static String ERROR_LOADING = "An error occurred loading generated dowel program: ";
 
   private final BackendAPI backend;
 
@@ -102,7 +103,6 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     setToolTipText(LocalizingService.DowelTooltip);
 
     backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-    backend.addUGSEventListener(this);
 
     double doubleSpinner = 1000000;
     int intSpinner = 1000000;
@@ -122,10 +122,15 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     preview = new DowelPreview(
             Localization.getString("platform.plugin.dowel-module.preview"),generator);
 
+    setupGui();
+  }
+
+  private void setupGui() {
+    // Button callbacks
     generateGcodeButton.addActionListener(al -> generateGcode());
     exportGcodeButton.addActionListener(al -> exportGcode());
 
-    // Change listener...
+    // Change listeners
     numDowelsX.addChangeListener(l -> controlChangeListener());
     numDowelsY.addChangeListener(l -> controlChangeListener());
     dowelDiameter.addChangeListener(l -> controlChangeListener());
@@ -135,16 +140,7 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     cutDepth.addChangeListener(l -> controlChangeListener());
     safetyHeight.addChangeListener(l -> controlChangeListener());
     units.addActionListener(l -> controlChangeListener());
-
     Border blackline = BorderFactory.createLineBorder(Color.black);
-
-    // Buttons
-    JPanel buttonPanel = new JPanel();
-    buttonPanel.setBorder(blackline);
-    buttonPanel.setLayout(new MigLayout("fillx, wrap 1"));
-
-    buttonPanel.add(generateGcodeButton, "growx");
-    buttonPanel.add(exportGcodeButton, "growx");
 
     // Dowel settings
     JPanel dowelPanel = new JPanel();
@@ -168,36 +164,52 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
             Localization.getString("platform.plugin.dowel-module.length")), "growx");
     dowelPanel.add(new JSpinner(dowelLength), "growx");
 
+    dowelPanel.add(generateGcodeButton, "growx, span 2");
+    dowelPanel.add(exportGcodeButton, "growx, span 2");
+
     // Gcode settings
     JPanel cutPanel = new JPanel();
     cutPanel.setBorder(BorderFactory.createTitledBorder(blackline,
             Localization.getString("mainWindow.swing.settingsMenu")));
     cutPanel.setLayout(new MigLayout("fillx, wrap 4"));
 
-    cutPanel.add(new JLabel(Localization.getString("probe.units")), "growx");
+    cutPanel.add(new JLabel(Localization.getString("gcode.setting.units")), "growx");
     cutPanel.add(units, "growx");
 
     cutPanel.add(new JLabel(
-            Localization.getString("platform.plugin.dowel-module.feed")), "growx");
+            Localization.getString("gcode.setting.feed")), "growx");
     cutPanel.add(new JSpinner(feed), "growx");
 
     cutPanel.add(new JLabel(
-            Localization.getString("platform.plugin.dowel-module.bit")), "growx");
+            Localization.getString("gcode.setting.endmill-diameter")), "growx");
     cutPanel.add(new JSpinner(bitDiameter), "growx");
 
     cutPanel.add(new JLabel(
-            Localization.getString("platform.plugin.dowel-module.depth")), "growx");
+            Localization.getString("gcode.setting.cut-depth")), "growx");
     cutPanel.add(new JSpinner(cutDepth), "growx");
 
     cutPanel.add(new JLabel(
-            Localization.getString("platform.plugin.dowel-module.safety-height")), "growx");
+            Localization.getString("gcode.setting.safety-height")), "growx");
     cutPanel.add(new JSpinner(safetyHeight), "growx");
 
     // Put it all together
     setLayout(new MigLayout("fillx, wrap 2"));
-    add(buttonPanel, "grow, span 2");
     add(dowelPanel, "grow");
     add(cutPanel, "grow");
+  }
+
+  private void generateAndLoadGcode(File file) {
+    try {
+      try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
+        generator.generate(writer);
+      }
+      backend.setGcodeFile(file);
+    } catch (IOException e) {
+      GUIHelpers.displayErrorDialog(ERROR_GENERATING + e.getLocalizedMessage());
+    } catch (Exception e) {
+      GUIHelpers.displayErrorDialog(ERROR_LOADING + e.getLocalizedMessage());
+    }
+
   }
 
   private void generateGcode() {
@@ -205,20 +217,17 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
     try {
       path = Files.createTempFile("dowel_program", ".gcode");
       File file = path.toFile();
-      try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-        generator.generate(writer);
-      }
-
-      backend.setGcodeFile(file);
+      generateAndLoadGcode(file);
     } catch (IOException e) {
-      GUIHelpers.displayErrorDialog("An error occurred generating dowel program: " + e.getLocalizedMessage());
-    } catch (Exception e) {
-      GUIHelpers.displayErrorDialog("An error occurred loading generated dowel program: " + e.getLocalizedMessage());
+      GUIHelpers.displayErrorDialog(ERROR_LOADING + e.getLocalizedMessage());
     }
   }
 
   private void exportGcode() {
-
+    String sourceDir = backend.getSettings().getLastOpenedFilename();
+    SwingHelpers
+          .createFile(sourceDir)
+          .ifPresent(file -> generateAndLoadGcode(file));
   }
 
   private void controlChangeListener() {
@@ -236,10 +245,6 @@ public final class DowelTopComponent extends TopComponent implements UGSEventLis
         getDouble(this.cutDepth),
         getDouble(this.safetyHeight),
         selectedUnit(this.units.getSelectedIndex()));
-  }
-
-  @Override
-  public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
   }
 
   @Override

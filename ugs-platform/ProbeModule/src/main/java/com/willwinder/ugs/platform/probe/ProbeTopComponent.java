@@ -411,10 +411,10 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
         // SETTINGS TAB
         JPanel settings = new JPanel(new MigLayout("wrap 6"));
-        settings.add(new JLabel(Localization.getString("probe.units") + ":"), "al right");
+        settings.add(new JLabel(Localization.getString("gcode.setting.units") + ":"), "al right");
         settings.add(settingsUnits, "growx");
 
-        settings.add(new JLabel(Localization.getString("probe.endmill-diameter") + ":"), "al right");
+        settings.add(new JLabel(Localization.getString("gcode.setting.endmill-diameter") + ":"), "al right");
         settings.add(new JSpinner(settingsProbeDiameter), "growx");
 
         settings.add(new JLabel(Localization.getString("probe.find-rate") + ":"), "al right");

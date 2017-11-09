@@ -24,6 +24,7 @@ import com.jogamp.opengl.util.gl2.GLUT
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable
 import com.willwinder.ugs.platform.dowel.DowelGenerator
+import com.willwinder.universalgcodesender.model.UnitUtils
 import javax.vecmath.Point3d
 
 /*
@@ -59,9 +60,9 @@ class DowelPreview(val description: String, val generator: DowelGenerator) : Ren
 
     override fun draw(drawable: GLAutoDrawable?, idle: Boolean, workCoord: Point3d?, objectMin: Point3d?, objectMax: Point3d?, scaleFactor: Double, mouseWorldCoordinates: Point3d?, rotation: Point3d?) {
       if (drawable?.gl?.gL2 == null) return
-      val mult = generator.unitMultiplier()
+      val mult: Double = generator.unitMultiplier()
       drawable.gl.gL2.let {
-        for (point in generator.getLocations()) {
+        for (point in generator.getLocations(UnitUtils.Units.MM)) {
           drawDowel(
               it,
               point,

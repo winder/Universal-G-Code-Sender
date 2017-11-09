@@ -2,6 +2,11 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
+import java.io.File;
+import java.util.Optional;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 
 /**
@@ -38,5 +43,25 @@ public class SwingHelpers {
   // deal with casting the spinner model to a double.
   public static int getInt(SpinnerNumberModel model) {
     return (int) model.getValue();
+  }
+
+  public static Optional<File> createFile(String sourceDir) {
+    JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(sourceDir);
+    int returnVal = fileChooser.showSaveDialog(new JFrame());
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+      return Optional.ofNullable(fileChooser.getSelectedFile());
+    } else {
+      return Optional.empty();
+    }  
+  }
+
+  public static Optional<File> openFile(String sourceDir) {
+    JFileChooser fileChooser = GcodeFileTypeFilter.getGcodeFileChooser(sourceDir);
+    int returnVal = fileChooser.showOpenDialog(new JFrame());
+    if (returnVal == JFileChooser.APPROVE_OPTION) {
+      return Optional.ofNullable(fileChooser.getSelectedFile());
+    } else {
+      return Optional.empty();
+    }  
   }
 }
