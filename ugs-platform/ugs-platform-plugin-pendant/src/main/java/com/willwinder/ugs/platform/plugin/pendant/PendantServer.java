@@ -47,7 +47,6 @@ import org.webbitserver.BaseWebSocketHandler;
 import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.WebSocketConnection;
-import org.webbitserver.WebSocketHandler;
 
 public class PendantServer extends BaseWebSocketHandler implements UGSEventListener, ControllerStateListener {
 
