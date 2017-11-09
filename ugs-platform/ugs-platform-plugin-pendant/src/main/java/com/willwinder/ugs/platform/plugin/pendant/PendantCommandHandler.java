@@ -103,17 +103,4 @@ public class PendantCommandHandler {
             jogService.setUnits(UnitUtils.Units.MM);
         }
     }
-
-    private boolean isManualControlEnabled() {
-        switch (backend.getControlState()) {
-            case COMM_DISCONNECTED:
-                return false;
-            case COMM_IDLE:
-                return true;
-            case COMM_SENDING:
-                return false;
-            default:
-                return true;
-        }
-    }
 }

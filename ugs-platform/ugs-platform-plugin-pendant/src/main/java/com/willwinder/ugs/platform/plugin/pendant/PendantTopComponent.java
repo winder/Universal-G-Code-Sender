@@ -20,7 +20,6 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.willwinder.ugs.platform.plugin.pendant;
 
 import javax.swing.ImageIcon;
@@ -110,7 +109,7 @@ public final class PendantTopComponent extends TopComponent {
             server.start();
             imagePanel.setLayout(new MigLayout("fill, wrap 1"));
             byte[] qrBytes = server.getQr();
-            
+
             imagePanel.add(new JLabel(server.getPendantClientAddress()), "al center");
             imagePanel.add(new JLabel("", new ImageIcon(qrBytes, "QR Code"), JLabel.CENTER), "al center");
         } catch (Exception e) {
@@ -124,15 +123,15 @@ public final class PendantTopComponent extends TopComponent {
         server.stop();
     }
 
-    void writeProperties(java.util.Properties p) {
+    protected void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
         // TODO store your settings
     }
 
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
+    protected void readProperties(java.util.Properties p) {
+//        String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
 

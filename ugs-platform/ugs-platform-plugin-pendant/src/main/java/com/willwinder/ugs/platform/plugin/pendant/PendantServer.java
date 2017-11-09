@@ -31,7 +31,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.services.JogService;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -49,19 +48,15 @@ import org.webbitserver.WebServer;
 import org.webbitserver.WebServers;
 import org.webbitserver.WebSocketConnection;
 import org.webbitserver.WebSocketHandler;
-import org.webbitserver.handler.EmbeddedResourceHandler;
-import org.webbitserver.handler.StaticFileHandler;
 
 public class PendantServer extends BaseWebSocketHandler implements UGSEventListener, ControllerStateListener {
 
     private static final Logger logger = Logger.getLogger(PendantServer.class.getName());
 
     private final BackendAPI backend;
-    private final JogService jogService;
     private int port = 9988;
 
     private WebServer server;
-    private WebSocketHandler handler;
     private final List<WebSocketConnection> connections = new ArrayList<>();
     private final PendantCommandHandler commandHandler;
 
@@ -69,7 +64,6 @@ public class PendantServer extends BaseWebSocketHandler implements UGSEventListe
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
         backend.addControllerStateListener(this);
-        jogService = CentralLookup.getDefault().lookup(JogService.class);
         commandHandler = new PendantCommandHandler();
     }
 
@@ -91,7 +85,7 @@ public class PendantServer extends BaseWebSocketHandler implements UGSEventListe
      */
     @Override
     public void onClose(WebSocketConnection connection) {
-
+        logger.info("Pendant client disconnected");
     }
 
     /**
@@ -196,21 +190,22 @@ public class PendantServer extends BaseWebSocketHandler implements UGSEventListe
         Enumeration<NetworkInterface> networkInterfaceEnum;
         try {
             networkInterfaceEnum = NetworkInterface.getNetworkInterfaces();
-        } catch (SocketException e) {
-            throw new RuntimeException(e);
-        }
-        while (networkInterfaceEnum.hasMoreElements()) {
-            NetworkInterface networkInterface = networkInterfaceEnum.nextElement();
 
-            Enumeration<InetAddress> addressEnum = networkInterface.getInetAddresses();
-            while (addressEnum.hasMoreElements()) {
-                InetAddress addr = addressEnum.nextElement();
-                String hostAddress = addr.getHostAddress();
-                if (!hostAddress.contains(":")
-                        && !hostAddress.equals("127.0.0.1")) {
-                    url += hostAddress + ":" + port;
+            while (networkInterfaceEnum.hasMoreElements()) {
+                NetworkInterface networkInterface = networkInterfaceEnum.nextElement();
+
+                Enumeration<InetAddress> addressEnum = networkInterface.getInetAddresses();
+                while (addressEnum.hasMoreElements()) {
+                    InetAddress addr = addressEnum.nextElement();
+                    String hostAddress = addr.getHostAddress();
+                    if (!hostAddress.contains(":")
+                            && !"127.0.0.1".equals(hostAddress)) {
+                        url += hostAddress + ":" + port;
+                    }
                 }
             }
+        } catch (SocketException e) {
+            logger.warning("Error getting network interfaces");
         }
         return url;
     }
