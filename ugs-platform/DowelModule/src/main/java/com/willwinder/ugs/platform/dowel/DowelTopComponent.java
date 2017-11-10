@@ -26,7 +26,11 @@ import static com.willwinder.universalgcodesender.utils.SwingHelpers.unitIdx;
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.PLUGIN_WINDOW;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -49,6 +53,8 @@ import java.nio.file.Path;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import org.openide.modules.OnStart;
+import org.openide.util.Lookup;
 
 /**
  * Top component which displays something.
@@ -64,14 +70,26 @@ import javax.swing.border.Border;
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(
-        category = "Window",
-        id = LocalizingService.DowelActionId)
+        category = DowelTopComponent.DowelCategory,
+        id = DowelTopComponent.DowelActionId)
 @ActionReference(path = LocalizingService.PLUGIN_WINDOW)
 @TopComponent.OpenActionRegistration(
         displayName = "Dowel",
         preferredID = "DowelTopComponent"
 )
 public final class DowelTopComponent extends TopComponent {
+  public final static String DowelTitle = Localization.getString("platform.window.dowel-module", lang);
+  public final static String DowelTooltip = Localization.getString("platform.window.dowel-module.tooltip", lang);
+  public final static String DowelActionId = "com.willwinder.ugs.platform.dowel.DowelTopComponent";
+  public final static String DowelCategory = "Window";
+
+  @OnStart
+  public static class Localizer extends TopComponentLocalizer {
+    public Localizer() {
+      super(DowelCategory, DowelActionId, DowelTitle);
+    }
+  }
+
   final static String JSON_PROPERTY = "dowel_settings_json";
   static String ERROR_GENERATING = "An error occurred generating dowel program: ";
   static String ERROR_LOADING = "An error occurred loading generated dowel program: ";
@@ -99,8 +117,8 @@ public final class DowelTopComponent extends TopComponent {
   private final DowelPreview preview;
 
   public DowelTopComponent() {
-    setName(LocalizingService.DowelTitle);
-    setToolTipText(LocalizingService.DowelTooltip);
+    setName(DowelTitle);
+    setToolTipText(DowelTooltip);
 
     backend = CentralLookup.getDefault().lookup(BackendAPI.class);
 

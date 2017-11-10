@@ -32,6 +32,8 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
@@ -52,6 +54,7 @@ import org.openide.windows.TopComponent;
 import java.awt.*;
 
 import javax.swing.*;
+import org.openide.modules.OnStart;
 
 /**
  * Top component which displays something.
@@ -68,7 +71,7 @@ import javax.swing.*;
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(
         category = "Window",
-        id = LocalizingService.ProbeActionId)
+        id = ProbeTopComponent.ProbeActionId)
 @ActionReference(path = LocalizingService.PLUGIN_WINDOW)
 @TopComponent.OpenActionRegistration(
         displayName = "Probe",
@@ -88,6 +91,18 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private static final String X_DISTANCE = Localization.getString("probe.x-distance") + ":";
     private static final String Y_DISTANCE = Localization.getString("probe.y-distance") + ":";
     private static final String Z_DISTANCE = Localization.getString("probe.probe-distance") + ":";
+
+    public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
+    public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
+    public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
+    public final static String ProbeCategory = "Window";
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+      public Localizer() {
+        super(ProbeCategory, ProbeActionId, ProbeTitle);
+      }
+    }
 
     protected class ProbeSettings {
         double xyzXDistance;
@@ -169,8 +184,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private final BackendAPI backend;
 
     public ProbeTopComponent() {
-        setName(LocalizingService.ProbeTitle);
-        setToolTipText(LocalizingService.ProbeTooltip);
+        setName(ProbeTitle);
+        setToolTipText(ProbeTooltip);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);

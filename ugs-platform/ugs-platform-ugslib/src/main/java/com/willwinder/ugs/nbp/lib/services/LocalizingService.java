@@ -1,3 +1,7 @@
+/**
+ * LocalizingService for core module top components.
+ * Modules should use TopComponentLocalizer and @OnStart instead of this.
+ */
 /*
     Copyright 2016-2017 Will Winder
 
@@ -35,12 +39,7 @@ public class LocalizingService {
     public static final String PLUGIN_WINDOW = WINDOW_PATH +"/Plugins";
 
     // Initialize backend (locale setting) before we load localized strings.
-    static private final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();
-    public final static String VisualizerTitle = Localization.getString("platform.window.visualizer", lang);
-    public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
-    public final static String VisualizerWindowPath = "Menu/Window";
-    public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
-    public final static String VisualizerCategory = "Window";
+    public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();
 
     public final static String SerialConsoleTitle = Localization.getString("platform.window.serialconsole", lang);
     public final static String SerialConsoleTooltip = Localization.getString("platform.window.serialconsole.tooltip", lang);
@@ -95,22 +94,6 @@ public class LocalizingService {
     public final static String WorkflowWindowWindowPath = "Menu/Window/Plugins";
     public final static String WorkflowWindowActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
     public final static String WorkflowWindowCategory = "Window";
-
-    public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
-    public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
-    public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
-    public final static String ProbeCategory = "Window";
-
-    public final static String DowelTitle = Localization.getString("platform.window.dowel-module", lang);
-    public final static String DowelTooltip = Localization.getString("platform.window.dowel-module.tooltip", lang);
-    public final static String DowelActionId = "com.willwinder.ugs.platform.dowel.DowelTopComponent";
-    public final static String DowelCategory = "Window";
-
-    public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
-    public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
-    public final static String AutoLevelerWindowPath = "Menu/Window/Plugins";
-    public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
-    public final static String AutoLevelerCategory = "Window";
 
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
     public final static String StartTitle = Localization.getString(StartTitleKey, lang);
@@ -189,8 +172,5 @@ public class LocalizingService {
         ars.overrideActionName(OverridesCategory, OverridesActionId, OverridesTitle);
         ars.overrideActionName(SendStatusCategory, SendStatusActionId, SendStatusTitle);
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
-        ars.overrideActionName(VisualizerCategory, VisualizerActionId, VisualizerTitle);
-        ars.overrideActionName(ProbeCategory, ProbeActionId, ProbeTitle);
-        ars.overrideActionName(AutoLevelerCategory, AutoLevelerActionId, AutoLevelerTitle);
     }
 }
