@@ -26,9 +26,7 @@ import static com.willwinder.universalgcodesender.utils.SwingHelpers.unitIdx;
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.PLUGIN_WINDOW;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -54,7 +52,6 @@ import java.nio.file.Path;
 import javax.swing.*;
 import javax.swing.border.Border;
 import org.openide.modules.OnStart;
-import org.openide.util.Lookup;
 
 /**
  * Top component which displays something.
@@ -72,7 +69,7 @@ import org.openide.util.Lookup;
 @ActionID(
         category = DowelTopComponent.DowelCategory,
         id = DowelTopComponent.DowelActionId)
-@ActionReference(path = LocalizingService.PLUGIN_WINDOW)
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "Dowel",
         preferredID = "DowelTopComponent"
@@ -81,7 +78,7 @@ public final class DowelTopComponent extends TopComponent {
   public final static String DowelTitle = Localization.getString("platform.window.dowel-module", lang);
   public final static String DowelTooltip = Localization.getString("platform.window.dowel-module.tooltip", lang);
   public final static String DowelActionId = "com.willwinder.ugs.platform.dowel.DowelTopComponent";
-  public final static String DowelCategory = "Window";
+  public final static String DowelCategory = LocalizingService.CATEGORY_WINDOW;
 
   @OnStart
   public static class Localizer extends TopComponentLocalizer {

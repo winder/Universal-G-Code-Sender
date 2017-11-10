@@ -70,9 +70,9 @@ import org.openide.modules.OnStart;
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(
-        category = "Window",
+        category = ProbeTopComponent.ProbeCategory,
         id = ProbeTopComponent.ProbeActionId)
-@ActionReference(path = LocalizingService.PLUGIN_WINDOW)
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "Probe",
         preferredID = "ProbeModule"
@@ -95,7 +95,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
     public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
-    public final static String ProbeCategory = "Window";
+    public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
 
     @OnStart
     public static class Localizer extends TopComponentLocalizer {

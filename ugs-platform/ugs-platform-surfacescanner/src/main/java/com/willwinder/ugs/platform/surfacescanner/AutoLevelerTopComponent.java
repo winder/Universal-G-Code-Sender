@@ -71,7 +71,7 @@ import org.openide.windows.TopComponent;
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
 @ActionID(category = AutoLevelerTopComponent.AutoLevelerCategory, id = AutoLevelerTopComponent.AutoLevelerActionId)
-@ActionReference(path = AutoLevelerTopComponent.AutoLevelerWindowPath)
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:AutoLevelerTopComponent>",
         preferredID = "AutoLevelerTopComponent"
@@ -90,9 +90,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
     public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
-    public final static String AutoLevelerWindowPath = "Menu/Window/Plugins";
     public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
-    public final static String AutoLevelerCategory = "Window";
+    public final static String AutoLevelerCategory = LocalizingService.CATEGORY_WINDOW;
 
     @OnStart
     public static class Localizer extends TopComponentLocalizer {

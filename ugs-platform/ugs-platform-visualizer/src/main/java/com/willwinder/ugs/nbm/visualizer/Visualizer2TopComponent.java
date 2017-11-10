@@ -72,9 +72,9 @@ public final class Visualizer2TopComponent extends TopComponent {
 
     public final static String VisualizerTitle = Localization.getString("platform.window.visualizer", lang);
     public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
-    public final static String VisualizerWindowPath = "Menu/Window";
+    public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
     public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
-    public final static String VisualizerCategory = "Window";
+    public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
 
     @OnStart
     public static class Localizer extends TopComponentLocalizer {
