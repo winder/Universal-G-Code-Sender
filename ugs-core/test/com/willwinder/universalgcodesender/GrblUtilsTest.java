@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
 import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -388,4 +389,28 @@ public class GrblUtilsTest {
         assertTrue(GrblUtils.isOkErrorAlarmResponse("ALARM:1"));
         assertFalse(GrblUtils.isOkErrorAlarmResponse("not ok"));
     }
+
+    @Test
+    public void isFeedbackString() {
+        Capabilities capabilities = new Capabilities();
+
+        capabilities.V1_FORMAT = false;
+        assertTrue(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities));
+
+        capabilities.V1_FORMAT = true;
+        assertFalse(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities));
+        assertTrue(GrblUtils.isGrblFeedbackMessage("[GC:feedback]", capabilities));
+    }
+
+    @Test
+    public void parseFeedbackString() {
+        Capabilities capabilities = new Capabilities();
+
+        capabilities.V1_FORMAT = false;
+        assertThat(GrblUtils.parseFeedbackMessage("[feedback]", capabilities)).isEqualTo("feedback");
+
+        capabilities.V1_FORMAT = true;
+        assertThat(GrblUtils.parseFeedbackMessage("[GC:feedback]", capabilities)).isEqualTo("feedback");
+    }
+
 }

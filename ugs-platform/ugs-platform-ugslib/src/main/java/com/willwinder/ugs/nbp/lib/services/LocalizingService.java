@@ -145,9 +145,10 @@ public class LocalizingService {
     public final static String FileBrowserToolbarActionId = "com.willwinder.ugs.nbp.core.toolbars.FileBrowserToolbar";
     public final static String FileBrowserToolbarCategory = CATEGORY_MACHINE;
 
-    public final static String StateTitle = Localization.getString("platform.window.workflow", lang);
-    public final static String StateTooltip = Localization.getString("platform.window.workflow.tooltip", lang);
-    public final static String StateActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
+    public final static String StateTitle = Localization.getString("platform.window.states", lang);
+    public final static String StateTooltip = Localization.getString("platform.window.states.tooltip", lang);
+    public final static String StateWindowPath = MENU_WINDOW;
+    public final static String StateActionId = "com.willwinder.ugs.nbp.core.windows.StateTopComponent";
     public final static String StateCategory = CATEGORY_WINDOW;
 
     public LocalizingService() throws IOException {
@@ -174,5 +175,6 @@ public class LocalizingService {
         ars.overrideActionName(OverridesCategory, OverridesActionId, OverridesTitle);
         ars.overrideActionName(SendStatusCategory, SendStatusActionId, SendStatusTitle);
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
+        ars.overrideActionName(StateCategory, StateActionId, StateTitle);
     }
 }

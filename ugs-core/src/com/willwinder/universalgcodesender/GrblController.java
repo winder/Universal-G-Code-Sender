@@ -148,6 +148,7 @@ public class GrblController extends AbstractController {
                 this.commandComplete(processed);
             }
 
+            // Error case.
             else if (GrblUtils.isOkErrorAlarmResponse(response)) {
                 if (GrblUtils.isAlarmResponse(response)) {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
@@ -171,7 +172,7 @@ public class GrblController extends AbstractController {
                         String.format(Localization.getString("controller.exception.sendError"),
                                 command.getCommandString(),
                                 lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                this.errorMessageForConsole(processed);
+                this.errorMessageForConsole(processed + "\n");
                 this.commandComplete(processed);
                 processed = "";
             }
@@ -226,6 +227,8 @@ public class GrblController extends AbstractController {
 
             else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
+                // Convert feedback message to raw commands to update modal state.
+                this.updateParserModalState(new GcodeCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
                 this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
@@ -256,7 +259,7 @@ public class GrblController extends AbstractController {
                     + " <" + processed + ">" + message;
 
             logger.log(Level.SEVERE, message, e);
-            this.errorMessageForConsole(message);
+            this.errorMessageForConsole(message + "\n");
         }
     }
 
@@ -643,12 +646,12 @@ public class GrblController extends AbstractController {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {
-                        this.errorMessageForConsole(e.getMessage());
+                        this.errorMessageForConsole(e.getMessage() + "\n");
                     }
                     isCanceling = false;
                 }
                 if (isCanceling && attemptsRemaining == 0) {
-                    this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset"));
+                    this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset") + "\n");
                 }
             }
             lastLocation = new Position(this.controllerStatus.getMachineCoord());

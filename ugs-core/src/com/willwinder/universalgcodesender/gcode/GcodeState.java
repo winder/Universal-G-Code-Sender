@@ -23,6 +23,12 @@ package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G0;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G54;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G93;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G94;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import javax.vecmath.Point3d;
 
@@ -36,8 +42,12 @@ public class GcodeState {
         this.currentMotionMode = G0;
         // TODO: Add WCS
         this.plane = Plane.XY;
+
         this.isMetric = true;
+        this.units = G21;
+
         this.inAbsoluteMode = true;
+        this.distanceMode = G90;
         // TODO: Feed mode
         this.speed = 0;
         this.spindleSpeed = 0;
@@ -49,11 +59,22 @@ public class GcodeState {
         GcodeState ret = new GcodeState();
         ret.currentMotionMode = currentMotionMode;
         ret.plane = plane;
+
         ret.inAbsoluteMode = inAbsoluteMode;
+        ret.distanceMode = distanceMode;
+
         ret.inAbsoluteIJKMode = inAbsoluteIJKMode;
-        ret.speed = speed;
+        ret.arcDistanceMode = arcDistanceMode;
+
+        ret.feedMode = feedMode;
+
         ret.isMetric = isMetric;
+        ret.units = units;
+
+        ret.speed = speed;
         ret.spindleSpeed = spindleSpeed;
+
+        ret.offset = offset;
 
         if (currentPoint != null) {
             ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
@@ -65,20 +86,39 @@ public class GcodeState {
     // Current state
     // group 1
     public Code currentMotionMode = null;
+
     // group 2
     public Plane plane;
+
     // group 3
     public boolean inAbsoluteMode = true;
+    public Code distanceMode = G90;
+
     // group 4
     public boolean inAbsoluteIJKMode = false;
+    public Code arcDistanceMode = G91_1;
+
     // group 5
+    public Code feedMode = G94;
     public double speed = 0;
+
     // group 6
     public boolean isMetric = true;
-    // group 12 (WCS)?
+    public Code units = G21;
+
+    // group 12
+    public Code offset = G54;
 
     // Misc
     public double spindleSpeed = 0;
     public Point3d currentPoint = null;
     public int commandNumber = 0;
+
+    @Override
+    public String toString() {
+      String pattern = "metric: %b, motionMode: %s, plane: %s, absoluteMode: %b, ijkMode: %b, feed: %f, spindle: %f, point: %s";
+      return String.format(pattern,
+              isMetric, currentMotionMode, plane, inAbsoluteMode, inAbsoluteIJKMode, speed, spindleSpeed, currentPoint);
+
+    }
 }

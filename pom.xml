@@ -97,6 +97,8 @@
         <configuration>
           <source>${ugs.jvm.version}</source>
           <target>${ugs.jvm.version}</target>
+          <debug>true</debug>
+          <debuglevel>lines,vars,source</debuglevel> 
         </configuration>
         <executions>
           <!-- Make sure to compile Kotlin first (required if calling Kotlin code from Java) -->

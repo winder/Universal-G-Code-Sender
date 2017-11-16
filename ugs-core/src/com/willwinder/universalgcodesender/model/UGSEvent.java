@@ -23,6 +23,7 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 
 /**
@@ -32,6 +33,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 public class UGSEvent {
     private final EventType evt;
     private ControlState controlState = null;
+    private GcodeState gcodeState = null;
     private FileState fileState = null;
     private Position probePosition = null;
     private ControllerStatus controllerStatus = null;
@@ -42,7 +44,8 @@ public class UGSEvent {
         FILE_EVENT,
         SETTING_EVENT,
         PROBE_EVENT,
-        CONTROLLER_STATUS_EVENT
+        CONTROLLER_STATUS_EVENT,
+        GCODE_STATE_EVENT
     }
 
     public enum FileState {
@@ -106,6 +109,15 @@ public class UGSEvent {
         evt = EventType.STATE_EVENT;
         controlState = state;
     }
+
+    /**
+     * Create a gcode state event.
+     * @param state the new state.
+     */
+    public UGSEvent(GcodeState state) {
+        evt = EventType.GCODE_STATE_EVENT;
+        gcodeState = state;
+    }
     
     /**
      * Create a file state event
@@ -159,5 +171,9 @@ public class UGSEvent {
 
     public ControllerStatus getControllerStatus() {
         return controllerStatus;
+    }
+
+    public GcodeState getGcodeState() {
+      return gcodeState;
     }
 }

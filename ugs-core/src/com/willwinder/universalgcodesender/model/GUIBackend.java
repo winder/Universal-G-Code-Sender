@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -58,8 +59,6 @@ import java.awt.Point;
 import java.awt.Robot;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
@@ -458,6 +457,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public Position getMachinePosition() {
         return this.machineCoord;
+    }
+
+    @Override
+    public GcodeState getGcodeState() {
+        if (this.controller != null) {
+          return this.controller.getCurrentGcodeState();
+        }
+        return null;
     }
     
     @Override

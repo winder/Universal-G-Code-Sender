@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
 import javax.vecmath.Point3d;
 import org.apache.commons.lang3.StringUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 
 /**
  *
@@ -147,10 +148,12 @@ public class GcodeParser implements IGcodeParser {
         // Add command get meta doesn't update the state, so we need to do that
         // manually.
         //List<String> processedCommands = this.preprocessCommand(command);
-        Collection<GcodeMeta> metaObjects = processCommand(command, line, state);
+        Collection<GcodeMeta> metaObjects = processCommand(command, line, state, true);
         if (metaObjects != null) {
             for (GcodeMeta c : metaObjects) {
-                results.add(c);
+                if(c.point != null) {
+                    results.add(c);
+                }
                 if (c.state != null) {
                     this.state = c.state;
                     // Process stats.
@@ -174,12 +177,24 @@ public class GcodeParser implements IGcodeParser {
     public GcodeStats getCurrentStats() {
         return statsProcessor;
     }
+
+    /**
+     * For backwards compatibility this method calls processCommand with includeNonMotionStates = false.
+     */
+    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState)
+            throws GcodeParserException {
+      return processCommand(command, line, inputState, false);
+    }
     
     /**
      * Process commend given an initial state. This method will not modify its
      * input parameters.
+     * 
+     * @param includeNonMotionStates Create gcode meta responses even if there is no motion, for example "F100" will not
+     * return a GcodeMeta entry unless this flag is set to true.
      */
-    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState)
+    public static List<GcodeMeta> processCommand(String command, int line, final GcodeState inputState,
+            boolean includeNonMotionStates)
             throws GcodeParserException {
         List<String> args = GcodePreprocessorUtils.splitCommand(command);
         if (args.isEmpty()) return null;
@@ -246,6 +261,15 @@ public class GcodeParser implements IGcodeParser {
                 }
                 results.add(meta);
             }
+        }
+
+        // Return updated state / command.
+        if (results.isEmpty() && includeNonMotionStates) {
+          GcodeMeta meta = new GcodeMeta();
+          meta.state = state;
+          meta.command = command;
+          meta.code = state.currentMotionMode;
+          return Collections.singletonList(meta);
         }
         
         return results;
@@ -366,36 +390,23 @@ public class GcodeParser implements IGcodeParser {
                 break;
 
             case G17:
-                state.plane = XY;
-                break;
-
             case G18:
-                state.plane = ZX;
-                break;
-
             case G19:
-                state.plane = YZ;
-                break;
-
             case G17_1:
-                state.plane = UV;
-                break;
-
             case G18_1:
-                state.plane = WU;
-                break;
-
             case G19_1:
-                state.plane = VW;
+                state.plane = Plane.lookup(code);
                 break;
 
             case G20:
                 //inch
                 state.isMetric = false;
+                state.units = G20;
                 break;
             case G21:
                 //mm
                 state.isMetric = true;
+                state.units = G21;
                 break;
 
             // Probe: http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g38
@@ -406,18 +417,41 @@ public class GcodeParser implements IGcodeParser {
                 meta.point = addProbePointSegment(nextPoint, true, line, state);
                 break;
 
-            case G90:
-                state.inAbsoluteMode = true;
-                break;
-            case G90_1:
-                state.inAbsoluteIJKMode = true;
+            // These are not used in the visualizer.
+            case G54:
+            case G55:
+            case G56:
+            case G57:
+            case G58:
+            case G59:
+            case G59_1:
+            case G59_2:
+            case G59_3:
+                state.offset = code;
                 break;
 
+            case G90:
+                state.inAbsoluteMode = true;
+                state.distanceMode = G90;
+                break;
             case G91:
                 state.inAbsoluteMode = false;
+                state.distanceMode = G91;
+                break;
+
+            case G90_1:
+                state.inAbsoluteIJKMode = true;
+                state.arcDistanceMode = G90_1;
                 break;
             case G91_1:
                 state.inAbsoluteIJKMode = false;
+                state.arcDistanceMode = G91_1;
+                break;
+
+            case G93:
+            case G94:
+            case G95:
+                state.feedMode = code;
                 break;
             default:
                 break;

@@ -23,6 +23,8 @@ package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -53,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class AbstractController implements SerialCommunicatorListener, IController {;
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
+    private final GcodeParser parser = new GcodeParser();
 
     public class UnexpectedCommand extends Exception {
         public UnexpectedCommand(String message) {
@@ -490,6 +493,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public GcodeCommand getActiveCommand() {
         return activeCommands.get(0);
     }
+
+    @Override
+    public GcodeState getCurrentGcodeState() {
+        return parser.getCurrentState();
+    }
     
     /**
      * Creates a gcode command and queues it for send immediately.
@@ -813,6 +821,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         command.setResponse(response);
 
+        updateParserModalState(command);
+
         this.numCommandsCompleted++;
 
         if (this.activeCommands.isEmpty()) {
@@ -979,9 +989,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void updateParserModalState(GcodeCommand command) {
-        if (command.isTemporaryParserModalChange()) {
+        if (command.isError() || command.isTemporaryParserModalChange()) {
             return;
         }
+
+        try {
+          parser.addCommand(command.getCommandString());
+          //System.out.println(parser.getCurrentState());
+        } catch (Exception e) {
+          logger.log(Level.SEVERE, "Problem prasing command.", e);
+        }
+
         String gcode = command.getCommandString().toUpperCase();
         if (gcode.contains("G90")) {
             distanceModeCode = "G90";

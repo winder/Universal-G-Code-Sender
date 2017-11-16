@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
@@ -43,6 +44,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class MachineStatusPanel extends JPanel implements UGSEventListener, ControllerListener {
 
+    private final JPanel activeStatePanel = new JPanel();
     private final JLabel activeStateLabel  = new JLabel(Localization.getString("mainWindow.swing.activeStateLabel"));
     private final JLabel activeStateValueLabel = new JLabel(" ");
 
@@ -61,6 +63,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JLabel workPositionYValue = new JLabel("0.00");
     private final JLabel workPositionZLabel = new JLabel("Z:");
     private final JLabel workPositionZValue = new JLabel("0.00");
+
+    private final JLabel feedLabel = new JLabel(Localization.getString("gcode.setting.feed"));
+    private final JTextField feedValue = new JTextField();
+
+    private final JLabel spindleSpeedLabel = new JLabel(Localization.getString("overrides.spindle.short"));
+    private final JTextField spindleSpeedValue = new JTextField();
 
     private final JLabel latestCommentLabel = new JLabel(Localization.getString("mainWindow.swing.latestCommentLabel"));
     private final JLabel latestCommentValueLabel = new JLabel(" ");
@@ -90,9 +98,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private boolean addedPinStatusPanel = false;
 
     public MachineStatusPanel(BackendAPI backend) {
-        activeStateLabel.setOpaque(true);
-        activeStateValueLabel.setOpaque(true);
-
         this.backend = backend;
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
@@ -150,6 +155,12 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void initComponents() {
+        activeStateLabel.setOpaque(true);
+        activeStateValueLabel.setOpaque(true);
+
+        feedValue.setEnabled(false);
+        spindleSpeedValue.setEnabled(false);
+
         // Hookup the reset buttons.
         resetXButton.addActionListener(ae -> resetCoordinateButton('X'));
         resetYButton.addActionListener(ae -> resetCoordinateButton('Y'));
@@ -157,13 +168,24 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         String debug = "";
         //String debug = "debug, ";
-        // MigLayout... 3rd party layout library.
+
+        activeStatePanel.setLayout(new MigLayout(debug + "fill, wrap 2"));
+        activeStatePanel.add(activeStateLabel);
+        activeStatePanel.add(activeStateValueLabel, "growx");
+
         MigLayout layout = new MigLayout(debug + "fill, wrap 2");
         setLayout(layout);
-        add(activeStateLabel, "al right");
-        add(activeStateValueLabel);
-        add(latestCommentLabel, "al right");
-        add(latestCommentValueLabel);
+
+        add(activeStatePanel, "span 2, growx");
+
+        add(feedLabel);
+        add(feedValue, "growx");
+
+        add(spindleSpeedLabel);
+        add(spindleSpeedValue, "growx");
+
+        add(latestCommentLabel);
+        add(latestCommentValueLabel, "growx");
 
         // Subpanels for work/machine read outs.
         JPanel workPanel = new JPanel();
@@ -249,7 +271,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
+    public void controlStateChange(ControlState state) {
     }
 
     @Override
@@ -296,6 +318,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.activeStateValueLabel.setText( status.getState() );
         this.setStatusColorForState( status.getState() );
 
+        /*
         if (status.getEnabledPins() != null) {
             if (!addedPinStatusPanel) {
                 addedPinStatusPanel = true;
@@ -314,6 +337,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             pinSoftReset.setSelected(ep.SoftReset);
             pinCycleStart.setSelected(ep.CycleStart);
         }
+        */
 
         if (status.getMachineCoord() != null) {
             this.setUnits(status.getMachineCoord().getUnits());
@@ -340,6 +364,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.setPostionValueColor(this.workPositionZValue, status.getWorkCoord().z);
             this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
         }
+
+        if (status.getFeedSpeed() != null) {
+            this.feedValue.setText(Integer.toString(status.getFeedSpeed().intValue()));
+            this.spindleSpeedValue.setText(Integer.toString(status.getSpindleSpeed().intValue()));
+        }
     }
     
     private void setPostionValueColor(JLabel label, double newValue) {
@@ -351,8 +380,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void setStatusColorForState(String state) {
+        Color color = null; // default to a transparent background.
+
         if (backend.getSettings().isDisplayStateColor()) {
-            java.awt.Color color = null; // default to a transparent background.
             if (state.equals(Localization.getString("mainWindow.status.alarm"))
                     || StringUtils.startsWithIgnoreCase(state, "Alarm")) {
                 color = Color.RED;
@@ -365,13 +395,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             } else {
                 color = Color.WHITE;
             }
-
-            this.activeStateLabel.setBackground(color);
-            this.activeStateValueLabel.setBackground(color);
-        } else {
-            this.activeStateLabel.setBackground(null);
-            this.activeStateValueLabel.setBackground(null);
         }
+
+        this.activeStatePanel.setBackground(color);
+        this.activeStateLabel.setBackground(color);
+        this.activeStateValueLabel.setBackground(color);
     }
     private void resetCoordinateButton(char coord) {
         try {

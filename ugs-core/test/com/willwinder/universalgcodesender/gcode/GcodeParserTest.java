@@ -412,4 +412,18 @@ public class GcodeParserTest {
         assertThat(meta.code).isEqualTo(G1);
         assertThat(meta.state.currentPoint).isEqualTo(new Point3d(-1, -0.5, 1));
     }
+
+    @Test
+    public void fWordOnly() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("F100", 0, new GcodeState(), true);
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.state.speed).isEqualTo(100.0);
+    }
+
+    @Test
+    public void sWordOnly() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("S100", 0, new GcodeState(), true);
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.state.spindleSpeed).isEqualTo(100.0);
+    }
 }

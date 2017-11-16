@@ -35,7 +35,6 @@ public class ControllerStatus {
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
 
-
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.

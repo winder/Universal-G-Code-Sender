@@ -273,6 +273,14 @@ public class GrblUtils {
         }
     }
 
+    static protected String parseFeedbackMessage(final String response, Capabilities c) {
+        if (c.V1_FORMAT) {
+            return response.substring(4, response.length() - 1);
+        } else {
+            return response.substring(1, response.length() - 1);
+        }
+    }
+
 
     private static final String SETTING_REGEX = "\\$\\d+=.+";
     private static final Pattern SETTING_PATTERN = Pattern.compile(SETTING_REGEX);
