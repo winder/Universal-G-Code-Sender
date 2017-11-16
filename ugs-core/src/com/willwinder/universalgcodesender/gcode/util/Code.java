@@ -50,7 +50,7 @@ public enum Code {
     G38_5(Motion),
     G73(Motion),
     G76(Motion),
-    G80(Motion),
+    G80(Motion, false, true),
     G81(Motion),
     G82(Motion),
     G83(Motion),
