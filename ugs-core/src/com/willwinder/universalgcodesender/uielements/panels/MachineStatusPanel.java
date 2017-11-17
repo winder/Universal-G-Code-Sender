@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -365,9 +366,14 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
         }
 
+        // Use real-time values if availabe, otherwise show the target values.
         if (status.getFeedSpeed() != null) {
             this.feedValue.setText(Integer.toString(status.getFeedSpeed().intValue()));
             this.spindleSpeedValue.setText(Integer.toString(status.getSpindleSpeed().intValue()));
+        } else {
+            GcodeState gs = this.backend.getGcodeState();
+            this.feedValue.setText(Integer.toString((int) gs.speed));
+            this.spindleSpeedValue.setText(Integer.toString((int) gs.spindleSpeed));
         }
     }
     
