@@ -163,6 +163,5 @@
     <module>ugs-platform-surfacescanner</module>
     <module>ProbeModule</module>
     <module>DowelModule</module>
-    <module>Amazerator</module>
   </modules>
 </project>
