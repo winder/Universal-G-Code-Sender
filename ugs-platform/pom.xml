@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
@@ -153,16 +152,17 @@
         </plugins>
     </build>
 
-    <modules>
-        <module>branding</module>
-        <module>application</module>
-        <module>ugs-platform-ugslib</module>
-        <module>ugs-platform-ugscore</module>
-        <module>ugs-platform-visualizer</module>
-        <module>ugs-platform-plugin-workflow</module>
-        <module>ugs-platform-gcode-editor</module>
-        <module>ugs-platform-surfacescanner</module>
-        <module>ProbeModule</module>
-        <module>DowelModule</module>
-    </modules>
+  <modules>
+    <module>branding</module>
+    <module>application</module>
+    <module>ugs-platform-ugslib</module>
+    <module>ugs-platform-ugscore</module>
+    <module>ugs-platform-visualizer</module>
+    <module>ugs-platform-plugin-workflow</module>
+    <module>ugs-platform-gcode-editor</module>
+    <module>ugs-platform-surfacescanner</module>
+    <module>ProbeModule</module>
+    <module>DowelModule</module>
+    <module>Amazerator</module>
+  </modules>
 </project>
