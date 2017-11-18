@@ -1,0 +1,15 @@
+From this directory, install archetype with `mvn install`
+
+To use navigate to `ugs-platform` directory and run:
+
+mvn archetype:generate                             \
+  -DarchetypeGroupId=com.willwinder                \
+  -DarchetypeArtifactId=ugs-plugin-archetype       \
+  -DarchetypeVersion=2.0-SNAPSHOT                  \
+  -DgroupId=com.willwinder <OrYourGroupId>         \
+  -DartifactId=<YourModuleName>
+
+This will add your new module to `ugs-platform/pom.xml` and create a new
+directory to work in.
+
+To add the new module to the platform create a dependency in `ugs-platform/application/pom.xml`
