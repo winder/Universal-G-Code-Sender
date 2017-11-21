@@ -22,6 +22,7 @@
  */
 package com.willwinder.ugs.platform.apiserver;
 
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import net.miginfocom.swing.MigLayout;
@@ -44,8 +45,8 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
-@ActionID(category = "Window", id = "com.willwinder.ugs.platform.plugin.pendant.ApiServerTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionID(category = "Window", id = "com.willwinder.ugs.platform.apiserver.ApiServerTopComponent")
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_PendantAction",
         preferredID = "ApiServerTopComponent"
