@@ -51,11 +51,10 @@ public class ApiServer implements UGSEventListener, ControllerStateListener {
 
     private final BackendAPI backend;
     private final int port = 9988;
-    private Configuration config = null;
     private SocketIOServer server = null;
 
     public ApiServer() {
-        config = new Configuration();
+        Configuration config = new Configuration();
         config.setPort(port);
         server = new SocketIOServer(config);
         
