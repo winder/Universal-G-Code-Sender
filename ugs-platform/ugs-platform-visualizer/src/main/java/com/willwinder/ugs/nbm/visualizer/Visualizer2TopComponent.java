@@ -35,9 +35,13 @@ import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
 import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.File;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbPreferences;
@@ -51,8 +55,8 @@ import org.openide.util.NbPreferences;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "visualizer", openAtStartup = true)
-@ActionID(category = LocalizingService.VisualizerCategory, id = LocalizingService.VisualizerActionId)
-@ActionReference(path = LocalizingService.VisualizerWindowPath)
+@ActionID(category = Visualizer2TopComponent.VisualizerCategory, id = Visualizer2TopComponent.VisualizerActionId)
+@ActionReference(path = Visualizer2TopComponent.VisualizerWindowPath)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:VisualizerTopComponent>",
         preferredID = "VisualizerTopComponent"
@@ -65,7 +69,20 @@ public final class Visualizer2TopComponent extends TopComponent {
     private FPSAnimator animator;
     private RendererInputHandler rih;
     private final BackendAPI backend;
-    
+
+    public final static String VisualizerTitle = Localization.getString("platform.window.visualizer", lang);
+    public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
+    public final static String VisualizerWindowPath = LocalizingService.MENU_WINDOW;
+    public final static String VisualizerActionId = "com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent";
+    public final static String VisualizerCategory = LocalizingService.CATEGORY_WINDOW;
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+      public Localizer() {
+        super(VisualizerCategory, VisualizerActionId, VisualizerTitle);
+      }
+    }
+
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         glCaps = new GLCapabilities(null);
@@ -77,8 +94,8 @@ public final class Visualizer2TopComponent extends TopComponent {
 
     @Override
     protected void componentOpened() {
-        setName(LocalizingService.VisualizerTitle);
-        setToolTipText(LocalizingService.VisualizerTooltip);
+        setName(VisualizerTitle);
+        setToolTipText(VisualizerTooltip);
         super.componentOpened();
         panel = makeWindow(glCaps);
         add(panel, BorderLayout.CENTER);

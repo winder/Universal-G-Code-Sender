@@ -73,12 +73,17 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-apiserver</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>ProbeModule</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ugs-platform-plugin-pendant</artifactId>
+            <artifactId>DowelModule</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

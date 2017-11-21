@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.willwinder.universalgcodesender</groupId>
@@ -50,8 +49,6 @@
 
       <ugs.maven-jar-plugin.version>3.0.2</ugs.maven-jar-plugin.version>
 
-      <ugs.maven-compiler-plugin.version>3.6.1</ugs.maven-compiler-plugin.version>
-
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
       <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
@@ -85,16 +82,6 @@
                         <brandingToken>${brandingToken}</brandingToken>
                         <cluster>${brandingToken}</cluster>
                         <etcConfFile>launcher.conf</etcConfFile>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <!-- NetBeans 6.9+ requires JDK 6, starting NetBeans 7.4 source 1.7 is required -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${ugs.maven-compiler-plugin.version}</version>
-                    <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
                     </configuration>
                 </plugin>
               <plugin>
@@ -165,16 +152,17 @@
         </plugins>
     </build>
 
-    <modules>
-        <module>branding</module>
-        <module>application</module>
-        <module>ugs-platform-ugslib</module>
-        <module>ugs-platform-ugscore</module>
-        <module>ugs-platform-visualizer</module>
-        <module>ugs-platform-plugin-workflow</module>
-        <module>ugs-platform-gcode-editor</module>
-        <module>ugs-platform-surfacescanner</module>
-        <module>ProbeModule</module>
-        <module>ugs-platform-plugin-pendant</module>
-    </modules>
+  <modules>
+    <module>branding</module>
+    <module>application</module>
+    <module>ugs-platform-ugslib</module>
+    <module>ugs-platform-ugscore</module>
+    <module>ugs-platform-visualizer</module>
+    <module>ugs-platform-plugin-workflow</module>
+    <module>ugs-platform-gcode-editor</module>
+    <module>ugs-platform-surfacescanner</module>
+    <module>ugs-platform-apiserver</module>
+    <module>ProbeModule</module>
+    <module>DowelModule</module>
+  </modules>
 </project>

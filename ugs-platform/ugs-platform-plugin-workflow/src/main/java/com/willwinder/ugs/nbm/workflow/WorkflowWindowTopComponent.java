@@ -25,6 +25,8 @@ package com.willwinder.ugs.nbm.workflow;
 
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -44,6 +46,7 @@ import javax.swing.table.DefaultTableModel;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
@@ -58,11 +61,8 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@Messages({
-})
-
-@ActionID(category = LocalizingService.WorkflowWindowCategory, id = LocalizingService.WorkflowWindowActionId)
-@ActionReference(path = LocalizingService.WorkflowWindowWindowPath)
+@ActionID(category = WorkflowWindowTopComponent.WorkflowWindowCategory, id = WorkflowWindowTopComponent.WorkflowWindowActionId)
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:WorkflowWindow>",
         preferredID = "WorkflowWindowTopComponent"
@@ -73,6 +73,10 @@ import org.openide.util.NbBundle.Messages;
  * ListSelectionListener - listen for table selections.
  */
 public final class WorkflowWindowTopComponent extends TopComponent implements UGSEventListener, ListSelectionListener {
+    public final static String WorkflowWindowTitle = Localization.getString("platform.window.workflow", lang);
+    public final static String WorkflowWindowTooltip = Localization.getString("platform.window.workflow.tooltip", lang);
+    public final static String WorkflowWindowActionId = "com.willwinder.ugs.nbm.workflow.WorkflowWindowTopComponent";
+    public final static String WorkflowWindowCategory = LocalizingService.CATEGORY_WINDOW;
 
     // These are the UGS backend objects for interacting with the backend.
     private final Settings settings;
@@ -85,13 +89,21 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
     // This is used in most functions, so cache it here.
     DefaultTableModel model;
 
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+      public Localizer() {
+        super(WorkflowWindowCategory, WorkflowWindowActionId, WorkflowWindowTitle);
+      }
+    }
+
+
     /**
      * Initialize the WorkflowWindow, register with the UGS Backend and set some
      * of the required JTable settings.
      */
     public WorkflowWindowTopComponent() {
-        setName(LocalizingService.WorkflowWindowTitle);
-        setToolTipText(LocalizingService.WorkflowWindowTooltip);
+        setName(WorkflowWindowTitle);
+        setToolTipText(WorkflowWindowTooltip);
 
         initComponents();
 

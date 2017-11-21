@@ -24,6 +24,8 @@ import com.google.gson.GsonBuilder;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.processors.ArcExpander;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
@@ -55,6 +57,7 @@ import javax.vecmath.Point3d;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 
@@ -67,8 +70,8 @@ import org.openide.windows.TopComponent;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "output", openAtStartup = false)
-@ActionID(category = LocalizingService.AutoLevelerCategory, id = LocalizingService.AutoLevelerActionId)
-@ActionReference(path = LocalizingService.AutoLevelerWindowPath)
+@ActionID(category = AutoLevelerTopComponent.AutoLevelerCategory, id = AutoLevelerTopComponent.AutoLevelerActionId)
+@ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:AutoLevelerTopComponent>",
         preferredID = "AutoLevelerTopComponent"
@@ -85,10 +88,22 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     private boolean bulkChanges = false;
     boolean scanningSurface = false;
 
+    public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
+    public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
+    public final static String AutoLevelerActionId = "com.willwinder.ugs.platform.surfacescanner.AutoLevelerTopComponent";
+    public final static String AutoLevelerCategory = LocalizingService.CATEGORY_WINDOW;
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+      public Localizer() {
+        super(AutoLevelerCategory, AutoLevelerActionId, AutoLevelerTitle);
+      }
+    }
+
     public AutoLevelerTopComponent() {
         initComponents();
-        setName(LocalizingService.AutoLevelerTitle);
-        setToolTipText(LocalizingService.AutoLevelerTooltip);
+        setName(AutoLevelerTitle);
+        setToolTipText(AutoLevelerTooltip);
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);

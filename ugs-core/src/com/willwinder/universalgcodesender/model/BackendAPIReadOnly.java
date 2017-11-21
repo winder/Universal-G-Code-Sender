@@ -22,6 +22,7 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -66,6 +67,7 @@ public interface BackendAPIReadOnly {
     public ControlState getControlState();
     public Position getWorkPosition();
     public Position getMachinePosition();
+    public GcodeState getGcodeState();
 
     // Send status
     public long getNumRows();

@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Overrides;
@@ -104,6 +105,7 @@ public interface IController {
     public int rowsSent();
     public int rowsRemaining();
     public GcodeCommand getActiveCommand();
+    public GcodeState getCurrentGcodeState();
     
     /*
     Stream control

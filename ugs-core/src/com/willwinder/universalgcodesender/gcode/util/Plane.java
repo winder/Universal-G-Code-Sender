@@ -40,4 +40,13 @@ public enum Plane {
     private Plane(Code c) {
         code = c;
     }
+
+    public static Plane lookup(Code c) {
+      for (Plane p: values()) {
+        if (p.code == c) {
+          return p;
+        }
+      }
+      return null;
+    }
 }
