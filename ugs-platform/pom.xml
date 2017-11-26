@@ -161,6 +161,7 @@
     <module>ugs-platform-plugin-workflow</module>
     <module>ugs-platform-gcode-editor</module>
     <module>ugs-platform-surfacescanner</module>
+    <module>ugs-platform-apiserver</module>
     <module>ProbeModule</module>
     <module>DowelModule</module>
   </modules>
