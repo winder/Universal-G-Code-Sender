@@ -172,7 +172,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStatePanel.add(activeStateLabel);
         activeStatePanel.add(activeStateValueLabel, "growx");
 
-        MigLayout layout = new MigLayout(debug + "fill, wrap 2");
+        MigLayout layout = new MigLayout(debug + "fillx, wrap 2");
         setLayout(layout);
 
         add(activeStatePanel, "span 2, growx");

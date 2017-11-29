@@ -18,26 +18,26 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.Timer;
-import net.miginfocom.swing.MigLayout;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 
 /**
  *
@@ -185,7 +185,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     private void initComponents() {
         // MigLayout... 3rd party layout library.
-        setLayout(new MigLayout("fill, wrap 2"));
+        setLayout(new MigLayout("fillx, wrap 2"));
         add(rowsLabel, AL_RIGHT);
         add(rowsValue);
         add(sentRowsLabel, AL_RIGHT);

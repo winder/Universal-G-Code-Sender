@@ -23,20 +23,14 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
 import net.miginfocom.swing.MigLayout;
-
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-import java.util.ArrayList;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MacroActionPanel extends JPanel implements UGSEventListener {
 
@@ -148,7 +142,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             }
             columnConstraint.append("[fill, sg 1]");
         }
-        MigLayout layout = new MigLayout("fill, wrap "+columns + ", inset " + INSET, columnConstraint.toString());
+        MigLayout layout = new MigLayout("fillx, wrap " + columns + ", inset " + INSET, columnConstraint.toString());
         macroPanel.setLayout(layout);
         
         // Put buttons in grid.

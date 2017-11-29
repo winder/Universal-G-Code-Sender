@@ -25,10 +25,9 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import com.willwinder.universalgcodesender.utils.Version;
-import javax.swing.JComboBox;
-import javax.swing.SpinnerNumberModel;
 import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
 
 /**
  *
@@ -98,7 +97,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
 
-        setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
+        setLayout(new MigLayout("wrap 1", "grow, fill"));
 
         verboseConsoleOutput.setSelected(s.isVerboseOutputEnabled());
         add(verboseConsoleOutput);
