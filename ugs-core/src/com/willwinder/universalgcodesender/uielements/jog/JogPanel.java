@@ -31,11 +31,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 
 public class JogPanel extends JPanel implements UGSEventListener, ControllerListener {
 
@@ -107,7 +103,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         keyboardMovementEnabled.addActionListener(al -> keyboardMovementSelected());
 
         // MigLayout... 3rd party layout library.
-        MigLayout layout = new MigLayout("fill, wrap 4");
+        MigLayout layout = new MigLayout("fillx, wrap 4");
         setLayout(layout);
 
         if (showKeyboardToggle) {
@@ -115,7 +111,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         }
 
         JPanel panel = new JPanel();
-        panel.setLayout(new MigLayout("ins 0, fill, wrap 2"));
+        panel.setLayout(new MigLayout("ins 0, fillx, wrap 2"));
 
         panel.add(stepSizeLabel);
         panel.add(xyStepSizeSpinner, "growx");

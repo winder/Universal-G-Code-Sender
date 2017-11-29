@@ -22,28 +22,27 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.Timer;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import javax.swing.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 
 /**
  * Top component which displays something.
@@ -129,7 +128,7 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
 
     statePollTimer = createTimer();
 
-    setLayout(new MigLayout("wrap 2"));
+    setLayout(new MigLayout("wrap 2, fillx"));
 
     add(new JLabel(Localization.getString("gcode.current-motion")));
     add(motionBox, "growx");

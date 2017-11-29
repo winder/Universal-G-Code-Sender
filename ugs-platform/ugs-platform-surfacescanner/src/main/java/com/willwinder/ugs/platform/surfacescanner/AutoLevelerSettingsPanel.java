@@ -24,8 +24,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
-import javax.swing.SpinnerNumberModel;
 import net.miginfocom.swing.MigLayout;
+
+import javax.swing.*;
 
 /**
  *
@@ -66,7 +67,7 @@ public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
 
         Settings.AutoLevelSettings autoLevelSettings = s.getAutoLevelSettings();
 
-        setLayout(new MigLayout("wrap 1", "grow, fill", "grow, fill"));
+        setLayout(new MigLayout("wrap 1", "grow, fill"));
 
         this.zHeightSpinner.setValue(autoLevelSettings.autoLevelProbeZeroHeight);
         add(this.zHeightSpinner);

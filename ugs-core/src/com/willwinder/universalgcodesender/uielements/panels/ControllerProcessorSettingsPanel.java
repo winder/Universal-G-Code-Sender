@@ -33,23 +33,18 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils.ConfigTuple;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.SwingUtilities;
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import net.miginfocom.swing.MigLayout;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -173,7 +168,7 @@ public class ControllerProcessorSettingsPanel extends AbstractUGSSettings {
     protected void updateComponentsInternal(Settings s) {
         this.removeAll();
         initCustomRemoverTable(customRemoverTable);
-        setLayout(new MigLayout("wrap 1, inset 5", "fill"));
+        setLayout(new MigLayout("wrap 1, inset 5, fillx", "fill"));
 
         super.addIgnoreChanges(controllerConfigs);
 
