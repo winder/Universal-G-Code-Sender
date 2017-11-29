@@ -19,9 +19,10 @@
 package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import java.util.Arrays;
 import java.util.List;
-import javax.vecmath.Point3d;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -37,7 +38,7 @@ public class LineSplitterTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
     private static void splitterHarness(
-            double splitterLength, Point3d start, String command, List<String> expected) throws Exception {
+            double splitterLength, Position start, String command, List<String> expected) throws Exception {
         LineSplitter instance = new LineSplitter(splitterLength);
 
         GcodeState state = new GcodeState();
@@ -58,13 +59,13 @@ public class LineSplitterTest {
         List<String> expected;
 
         expected = Arrays.asList("G1X0Y0Z0", "G1X1Y0Z0");
-        splitterHarness(1, new Point3d(-1, 0, 0), "G1X1", expected);
+        splitterHarness(1, new Position(-1, 0, 0, MM), "G1X1", expected);
 
         expected = Arrays.asList("G1X0Y0Z0", "G1X0Y1Z0");
-        splitterHarness(1, new Point3d(0, -1, 0), "G1Y1", expected);
+        splitterHarness(1, new Position(0, -1, 0, MM), "G1Y1", expected);
 
         expected = Arrays.asList("G1X0Y0Z0", "G1X0Y0Z1");
-        splitterHarness(1, new Point3d(0, 0, -1), "G1Z1", expected);
+        splitterHarness(1, new Position(0, 0, -1, MM), "G1Z1", expected);
     }
 
     /**
@@ -75,7 +76,7 @@ public class LineSplitterTest {
         System.out.println("diagonalLine");
 
         List<String> expected = Arrays.asList("G1X-0.5Y-0.5Z-0.5", "G1X0Y0Z0", "G1X0.5Y0.5Z0.5", "G1X1Y1Z1");
-        splitterHarness(1, new Point3d(-1, -1, -1), "G1X1Y1Z1", expected);
+        splitterHarness(1, new Position(-1, -1, -1, MM), "G1X1Y1Z1", expected);
     }
 
     /**
@@ -88,7 +89,7 @@ public class LineSplitterTest {
         String command = "G1X0.01";
         double length = 2;
         List<String> expected = Arrays.asList(command);
-        splitterHarness(length, new Point3d(0, 0, 0), command, expected);
+        splitterHarness(length, new Position(0, 0, 0, MM), command, expected);
     }
 
     /**
@@ -100,10 +101,10 @@ public class LineSplitterTest {
         List<String> expected;
 
         expected = Arrays.asList("G1X0Y0Z0", "G1X1Y0Z0");
-        splitterHarness(1, new Point3d(-1, 0, 0), "G1X1", expected);
+        splitterHarness(1, new Position(-1, 0, 0, MM), "G1X1", expected);
 
         expected = Arrays.asList("G0X0Y0Z0", "G0X1Y0Z0");
-        splitterHarness(1, new Point3d(-1, 0, 0), "G0X1", expected);
+        splitterHarness(1, new Position(-1, 0, 0, MM), "G0X1", expected);
     }
 
     /**
@@ -116,7 +117,7 @@ public class LineSplitterTest {
         LineSplitter instance = new LineSplitter(2);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         String command = "G20 G1X1Y1Z1";
@@ -131,7 +132,7 @@ public class LineSplitterTest {
         LineSplitter instance = new LineSplitter(1.5);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         String command = "G20 G1X2Y2Z0";
@@ -152,7 +153,7 @@ public class LineSplitterTest {
 
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         command = "G20G2X1Y1Z1";
@@ -166,7 +167,7 @@ public class LineSplitterTest {
     
     /**
      * Sloppy fractional result.
-     * (0,0,0) -> (1,0,0) line needs to split into 3 parts.
+     * (0,0,0, MM) -> (1,0,0, MM) line needs to split into 3 parts.
      * Verify that the infinite fraction is truncated to 4 digits.
      * Verify that the endpoint equals the real endpoint not the interpolated endpoint.
      */
@@ -177,6 +178,6 @@ public class LineSplitterTest {
         double maxSegmentLength = 0.4;
         String command = "G1X1";
         List<String> expected = Arrays.asList("G1X0.3333Y0Z0", "G1X0.6667Y0Z0", "G1X1Y0Z0");
-        splitterHarness(maxSegmentLength, new Point3d(0, 0, 0), command, expected);
+        splitterHarness(maxSegmentLength, new Position(0, 0, 0, MM), command, expected);
     }
 }

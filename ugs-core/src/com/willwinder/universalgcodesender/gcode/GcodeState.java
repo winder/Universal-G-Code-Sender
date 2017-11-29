@@ -30,7 +30,9 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G93;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G94;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 /**
  *
@@ -52,7 +54,7 @@ public class GcodeState {
         this.speed = 0;
         this.spindleSpeed = 0;
 
-        this.currentPoint = new Point3d(0, 0, 0);
+        this.currentPoint = new Position(0, 0, 0, Units.MM);
     }
 
     public GcodeState copy() {
@@ -77,7 +79,7 @@ public class GcodeState {
         ret.offset = offset;
 
         if (currentPoint != null) {
-            ret.currentPoint = new Point3d(currentPoint.x, currentPoint.y, currentPoint.z);
+            ret.currentPoint = new Position(currentPoint.x, currentPoint.y, currentPoint.z, UnitUtils.Units.getUnits(units));
         }
         ret.commandNumber = commandNumber;
         return ret;
@@ -111,7 +113,7 @@ public class GcodeState {
 
     // Misc
     public double spindleSpeed = 0;
-    public Point3d currentPoint = null;
+    public Position currentPoint = null;
     public int commandNumber = 0;
 
     @Override

@@ -6,7 +6,7 @@
  */
 
 /*
-    Copywrite 2013 Will Winder
+    Copyright 2013-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,16 +26,18 @@
 package com.willwinder.universalgcodesender.types;
 
 import com.willwinder.universalgcodesender.gcode.util.Plane;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.INCH;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 
 /**
  *
  * @author wwinder
  */
 final public class PointSegment {
-    private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
-    private Point3d point;
+    private Position point;
     
     // Line properties
     private boolean isMetric = true;
@@ -49,19 +51,18 @@ final public class PointSegment {
     private class ArcProperties {
         public boolean isClockwise;
         public double radius = 0.0;
-        public Point3d center = null;
+        public Position center = null;
         public Plane plane = null;
     }
     
     public PointSegment() {
         this.lineNumber = -1;
-        this.point = new Point3d();
+        this.point = new Position();
     }
     
     public PointSegment(PointSegment ps) {
         this(ps.point(), ps.getLineNumber());
     
-        this.setToolHead(ps.toolhead);
         this.setSpeed(ps.speed);
         this.setIsArc(ps.isArc);
         this.setIsMetric(ps.isMetric);
@@ -76,28 +77,28 @@ final public class PointSegment {
         }
     }
     
-    public PointSegment(final Point3d b, final int num)
+    public PointSegment(final Position b, final int num)
     {
         this();
-        this.point = new Point3d (b);
+        this.point = new Position (b);
         this.lineNumber = num;
     }
     
-    public PointSegment(final Point3d point, final int num, final Point3d center, final double radius, final boolean clockwise, Plane plane) {
+    public PointSegment(final Position point, final int num, final Position center, final double radius, final boolean clockwise, Plane plane) {
         this(point, num);
         this.isArc = true;
         this.arcProperties = new ArcProperties();
-        this.arcProperties.center = new Point3d(center);
+        this.arcProperties.center = new Position(center);
         this.arcProperties.radius = radius;
         this.arcProperties.isClockwise = clockwise;
         this.arcProperties.plane = plane;
     }
     
-    public void setPoint(final Point3d point) {
-        this.point = new Point3d(point);
+    public void setPoint(final Position point) {
+        this.point = new Position(point);
     }
 
-    public Point3d point()
+    public Position point()
     {
         return point;
     }
@@ -106,15 +107,6 @@ final public class PointSegment {
     {
         double[] points = {point.x, point.y, point.z};
         return points;
-    }
-    
-    public void setToolHead(final int head) {
-        this.toolhead = head;
-    }
-    
-    public int getToolhead()
-    {
-        return toolhead;
     }
     
     public void setLineNumber(final int num) {
@@ -176,12 +168,12 @@ final public class PointSegment {
 
     // Arc properties.
     
-    public void setArcCenter(final Point3d center) {
+    public void setArcCenter(final Position center) {
         if (this.arcProperties == null) {
             this.arcProperties = new ArcProperties();
         }
         
-        this.arcProperties.center = new Point3d(center);
+        this.arcProperties.center = new Position(center);
         this.setIsArc(true);
     }
     
@@ -195,7 +187,7 @@ final public class PointSegment {
     }
 
     
-    public Point3d center() {
+    public Position center() {
         if (this.arcProperties != null && this.arcProperties.center != null) {
             return this.arcProperties.center;
         }
@@ -246,11 +238,12 @@ final public class PointSegment {
         }
 
         this.isMetric = true;
-        this.point.scale(25.4);
+
+        this.point = this.point.getPositionIn(MM);
 
         if (this.isArc && this.arcProperties != null) {
-            this.arcProperties.center.scale(25.4);
-            this.arcProperties.radius *= 25.4;
+            this.arcProperties.center = this.arcProperties.center.getPositionIn(MM);
+            this.arcProperties.radius *= UnitUtils.scaleUnits(INCH, MM);
         }
     }
 }

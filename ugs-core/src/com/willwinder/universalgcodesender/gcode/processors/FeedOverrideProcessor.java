@@ -2,7 +2,7 @@
  * Overrides any F commands with the given percentage.
  */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2017 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 

@@ -138,6 +138,7 @@
                         <package>net.miginfocom.layout</package>
                         <package>net.miginfocom.swing</package>
                         <package>net.miginfocom.swt</package>
+                        <package>org.apache.commons.lang3</package>
                     </publicPackages>
                 </configuration>
             </plugin>

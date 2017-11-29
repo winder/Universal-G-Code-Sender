@@ -27,17 +27,16 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -188,7 +187,7 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the arguments of a command, using a pre-parsed list.
      */
-    static public Point3d updatePointWithCommand(List<String> commandArgs, Point3d initial, boolean absoluteMode) {
+    static public Position updatePointWithCommand(List<String> commandArgs, Position initial, boolean absoluteMode) {
 
         Double x = parseCoord(commandArgs, 'X');
         Double y = parseCoord(commandArgs, 'Y');
@@ -204,9 +203,9 @@ public class GcodePreprocessorUtils {
     /**
      * Update a point given the new coordinates.
      */
-    static public Point3d updatePointWithCommand(Point3d initial, double x, double y, double z, boolean absoluteMode) {
+    static public Position updatePointWithCommand(Position initial, double x, double y, double z, boolean absoluteMode) {
 
-        Point3d newPoint = new Point3d(initial.x, initial.y, initial.z);
+        Position newPoint = new Position(initial);
 
         if (absoluteMode) {
             if (!Double.isNaN(x)) {
@@ -233,10 +232,10 @@ public class GcodePreprocessorUtils {
         return newPoint;
     }
     
-    static public Point3d updateCenterWithCommand(
+    static public Position updateCenterWithCommand(
             List<String> commandArgs,
-            Point3d initial,
-            Point3d nextPoint,
+            Position initial,
+            Position nextPoint,
             boolean absoluteIJKMode,
             boolean clockwise,
             PlaneFormatter plane) {
@@ -255,7 +254,7 @@ public class GcodePreprocessorUtils {
 
     }
 
-    static public String generateLineFromPoints(final Code command, final Point3d start, final Point3d end, final boolean absoluteMode, DecimalFormat formatter) {
+    static public String generateLineFromPoints(final Code command, final Position start, final Position end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
             df = new DecimalFormat("#.####");
@@ -387,7 +386,7 @@ public class GcodePreprocessorUtils {
         return Double.NaN;
     }
     
-    static public List<String> convertArcsToLines(Point3d start, Point3d end) {
+    static public List<String> convertArcsToLines(Position start, Position end) {
         List<String> l = new ArrayList<>();
         
         return l;
@@ -396,10 +395,10 @@ public class GcodePreprocessorUtils {
     /**
      * Generates the points along an arc including the start and end points.
      */
-    static public List<Point3d> generatePointsAlongArcBDring(
-            final Point3d start,
-            final Point3d end,
-            final Point3d center,
+    static public List<Position> generatePointsAlongArcBDring(
+            final Position start,
+            final Position end,
+            final Position center,
             boolean clockwise,
             double R,
             double minArcLength,
@@ -440,10 +439,10 @@ public class GcodePreprocessorUtils {
     /**
      * Generates the points along an arc including the start and end points.
      */
-    static private List<Point3d> generatePointsAlongArcBDring(
-            final Point3d p1,
-            final Point3d p2,
-            final Point3d center,
+    static private List<Position> generatePointsAlongArcBDring(
+            final Position p1,
+            final Position p2,
+            final Position center,
             boolean isCw,
             double radius, 
             double startAngle,
@@ -451,8 +450,8 @@ public class GcodePreprocessorUtils {
             int numPoints,
             PlaneFormatter plane) {
 
-        Point3d lineStart = new Point3d(p1.x, p1.y, p1.z);
-        List<Point3d> segments = new ArrayList<>();
+        Position lineStart = new Position(p1);
+        List<Position> segments = new ArrayList<>();
         double angle;
 
         // Calculate radius if necessary.
@@ -480,10 +479,10 @@ public class GcodePreprocessorUtils {
             //lineStart.z += zIncrement;
             plane.setLinear(lineStart, plane.linear(lineStart) + zIncrement);
             
-            segments.add(new Point3d(lineStart));
+            segments.add(new Position(lineStart));
         }
         
-        segments.add(new Point3d(p2));
+        segments.add(new Position(p2));
 
         return segments;
     }
@@ -492,22 +491,22 @@ public class GcodePreprocessorUtils {
      * Helper method for to convert IJK syntax to center point.
      * @return the center of rotation between two points with IJK codes.
      */
-    static private Point3d convertRToCenter(
-            Point3d start,
-            Point3d end,
+    static private Position convertRToCenter(
+            Position start,
+            Position end,
             double radius,
             boolean absoluteIJK,
             boolean clockwise,
             PlaneFormatter plane) {
         double R = radius;
-        Point3d center = new Point3d();
+        Position center = new Position();
         
         // This math is copied from GRBL in gcode.c
         double x = plane.axis0(end) - plane.axis0(start);
         double y = plane.axis1(end) - plane.axis1(start);
 
         double h_x2_div_d = 4 * R*R - x*x - y*y;
-        if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
+        //if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
         h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
 
         if (clockwise == false) {
@@ -540,7 +539,7 @@ public class GcodePreprocessorUtils {
      * Helper method for arc calculation
      * @return angle in radians of a line going from start to end.
      */
-    static private double getAngle(final Point3d start, final Point3d end, PlaneFormatter plane) {
+    static private double getAngle(final Position start, final Position end, PlaneFormatter plane) {
         double deltaX = plane.axis0(end) - plane.axis0(start);
         double deltaY = plane.axis1(end) - plane.axis1(start);
 

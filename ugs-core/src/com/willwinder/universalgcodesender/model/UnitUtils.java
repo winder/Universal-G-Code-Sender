@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.gcode.util.Code;
+
 /**
  *
  * @author will
@@ -41,6 +43,17 @@ public class UnitUtils {
                 }
             }
             return null;
+        }
+
+        public static Units getUnits(Code code) {
+          switch (code) {
+            case G20:
+              return INCH;
+            case G21:
+              return MM;
+            default:
+              throw new RuntimeException("Not a units gcode: " + code);
+          }
         }
     }
 

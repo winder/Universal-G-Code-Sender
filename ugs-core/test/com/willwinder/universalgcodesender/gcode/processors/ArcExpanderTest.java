@@ -24,11 +24,12 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.vecmath.Point3d;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 import org.assertj.core.data.Offset;
@@ -57,7 +58,7 @@ public class ArcExpanderTest {
     public void modalsReturnedFirst() throws Exception {
         System.out.println("arcExpandWithModals");
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0,0,0);
+        state.currentPoint = new Position(0,0,0,MM);
         state.plane = XY;
         ArcExpander instance = new ArcExpander(true, 1);
 
@@ -70,7 +71,7 @@ public class ArcExpanderTest {
     public void arcExpandIgnoreNonArc() throws Exception {
         System.out.println("arcExpandIgnoreNonArc");
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0,0,0);
+        state.currentPoint = new Position(0,0,0,MM);
         state.plane = XY;
         ArcExpander instance = new ArcExpander(true, 1);
         boolean threwException = false;
@@ -84,7 +85,7 @@ public class ArcExpanderTest {
     public void expandArcG17() throws Exception {
         System.out.println("expandArcG17");
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(-1,0,0);
+        state.currentPoint = new Position(-1,0,0,MM);
         state.plane = XY;
 
         /////////////////////////////////////////////////////////
@@ -97,13 +98,13 @@ public class ArcExpanderTest {
             String command = "G2 Y0 X1 R1";
             List<String> result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, 0, 0), new Point3d(1,1,0), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(-1, 0, 0,MM), new Position(1,1,0,MM), state.plane);
 
             // Half circle counter-clockwise, X-1 -> X1, Y0 -> Y-1 -> Y0
             command = "G3 Y0 X1 R1";
             result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, -1, 0), new Point3d(1,0,0), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(-1, -1, 0,MM), new Position(1,0,0,MM), state.plane);
         }
     }
 
@@ -111,7 +112,7 @@ public class ArcExpanderTest {
     public void expandArcG18() throws Exception {
         System.out.println("expandArcG18");
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0,0,-1);
+        state.currentPoint = new Position(0,0,-1,MM);
         state.plane = ZX;
 
         /////////////////////////////////////////////////////////
@@ -124,13 +125,13 @@ public class ArcExpanderTest {
             String command = "G2 Z1 X0 R1";
             List<String> result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, 0, -1), new Point3d(1,0,1), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(0, 0, -1,MM), new Position(1,0,1,MM), state.plane);
 
             // Half circle clockwise, Z-1 -> Z1, X0 -> X-1 -> X0
             command = "G3 Z1 X0 R1";
             result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(-1, 0, -1), new Point3d(0,0,1), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(-1, 0, -1,MM), new Position(0,0,1,MM), state.plane);
         }
     }
 
@@ -138,7 +139,7 @@ public class ArcExpanderTest {
     public void expandArcG19() throws Exception {
         System.out.println("expandArcG19");
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0,-1,0);
+        state.currentPoint = new Position(0,-1,0,MM);
         state.plane = YZ;
 
         /////////////////////////////////////////////////////////
@@ -151,13 +152,13 @@ public class ArcExpanderTest {
             String command = "G2 Y1 X0 R1";
             List<String> result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, -1., 0), new Point3d(0,1,1), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(0, -1., 0,MM), new Position(0,1,1,MM), state.plane);
 
             // Half circle clockwise, Y-1 -> Y1, X0 -> X-1 -> X0
             command = "G3 Y1 X0 R1";
             result = instance.processCommand(command, state);
             assertThat(result.size()).isEqualTo((int)Math.ceil(Math.PI / segmentLength));
-            verifyLines(new Point3d(0,0,0), result, 1., new Point3d(0, -1, -1), new Point3d(0,1,0), state.plane);
+            verifyLines(new Position(0,0,0,MM), result, 1., new Position(0, -1, -1,MM), new Position(0,1,0,MM), state.plane);
         }
     }
 
@@ -166,7 +167,7 @@ public class ArcExpanderTest {
      * Verify that the points around given center point have a known radius and
      * fall within known boundaries.
      */
-    static void verifyLines(Point3d center, Collection<String> lines, double radius, Point3d min, Point3d max, Plane p) {
+    static void verifyLines(Position center, Collection<String> lines, double radius, Position min, Position max, Plane p) {
         for (String line : lines) {
             verifyLine(center, line, radius, min, max, p);
         }
@@ -177,7 +178,7 @@ public class ArcExpanderTest {
                 + "Y([\\-\\+]?[0-9]+(?:\\.[0-9]+)?)"
                 + "Z([\\-\\+]?[0-9]+(?:\\.[0-9]+)?)");
                 //+ "(F\\d+)?");
-    static void verifyLine(Point3d center, String line, double radius, Point3d min, Point3d max, Plane p) {
+    static void verifyLine(Position center, String line, double radius, Position min, Position max, Plane p) {
         Matcher m = LINE_COORDS.matcher(line);
         if (m.find()) {
             double x = Double.parseDouble(m.group(1)) - center.x;

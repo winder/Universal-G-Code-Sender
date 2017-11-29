@@ -21,10 +21,11 @@ package com.willwinder.universalgcodesender.gcode.processors;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import java.util.Collections;
 import java.util.List;
-import javax.vecmath.Point3d;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Rule;
@@ -39,13 +40,13 @@ public class MeshLevelerTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
 
-    private static final Point3d[][] BIG_FLAT_GRID_Z0 = {
-        {new Point3d(0,0,0), new Point3d(0, 10, 0)},
-        {new Point3d(10,0,0), new Point3d(10, 10, 0)}
+    private static final Position[][] BIG_FLAT_GRID_Z0 = {
+        {new Position(0,0,0,MM), new Position(0, 10, 0, MM)},
+        {new Position(10,0,0,MM), new Position(10, 10, 0, MM)}
     };
-    private static final Point3d[][] BIG_FLAT_GRID_Z1 = {
-        {new Point3d(0,0,1), new Point3d(0, 10, 1)},
-        {new Point3d(10,0,1), new Point3d(10, 10, 1)}
+    private static final Position[][] BIG_FLAT_GRID_Z1 = {
+        {new Position(0,0,1,MM), new Position(0, 10, 1,MM)},
+        {new Position(10,0,1,MM), new Position(10, 10, 1,MM)}
     };
 
 
@@ -64,9 +65,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_NOT_ENOUGH_SAMPLES);
 
-        Point3d[][] grid = {
-            {new Point3d()},
-            {new Point3d()}
+        Position[][] grid = {
+            {new Position()},
+            {new Position()}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -77,9 +78,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_MESH_SHAPE);
 
-        Point3d[][] grid = {
-            {new Point3d(), new Point3d()},
-            {new Point3d(), new Point3d(), new Point3d()}
+        Position[][] grid = {
+            {new Position(), new Position()},
+            {new Position(), new Position(), new Position()}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -90,9 +91,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_X_ALIGNMENT);
 
-        Point3d[][] grid = {
-            {new Point3d(0,0,0), new Point3d(0, 10, 0)},
-            {new Point3d(10,1,0), new Point3d(10, 10, 0)}
+        Position[][] grid = {
+            {new Position(0,0,0, MM), new Position(0, 10, 0, MM)},
+            {new Position(10,1,0, MM), new Position(10, 10, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -103,9 +104,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_Y_ALIGNMENT);
 
-        Point3d[][] grid = {
-            {new Point3d(0,0,0), new Point3d(1, 10, 0)},
-            {new Point3d(10,0,0), new Point3d(10, 10, 0)}
+        Position[][] grid = {
+            {new Position(0,0,0, MM), new Position(1, 10, 0, MM)},
+            {new Position(10,0,0, MM), new Position(10, 10, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -116,9 +117,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_X_ASCENTION);
 
-        Point3d[][] grid = {
-            {new Point3d(10,0,0), new Point3d(10, 10, 0)},
-            {new Point3d(0,0,0), new Point3d(0, 10, 0)}
+        Position[][] grid = {
+            {new Position(10,0,0, MM), new Position(10, 10, 0, MM)},
+            {new Position(0,0,0, MM), new Position(0, 10, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -129,9 +130,9 @@ public class MeshLevelerTest {
         expectedEx.expect(IllegalArgumentException.class);
         expectedEx.expectMessage(MeshLeveler.ERROR_Y_ASCENTION);
 
-        Point3d[][] grid = {
-            {new Point3d(0,10,0), new Point3d(0, 0, 0)},
-            {new Point3d(10,0,0), new Point3d(10, 10, 0)}
+        Position[][] grid = {
+            {new Position(0,10,0, MM), new Position(0, 0, 0, MM)},
+            {new Position(10,0,0, MM), new Position(10, 10, 0, MM)}
         };
 
         new MeshLeveler(0.0, grid, Units.MM);
@@ -145,7 +146,7 @@ public class MeshLevelerTest {
         MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         ml.processCommand("G2X1", state);
@@ -159,7 +160,7 @@ public class MeshLevelerTest {
         MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         ml.processCommand("G1X1G20", state);
@@ -170,7 +171,7 @@ public class MeshLevelerTest {
         MeshLeveler ml = new MeshLeveler(0.0, BIG_FLAT_GRID_Z0, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
@@ -181,7 +182,7 @@ public class MeshLevelerTest {
         MeshLeveler ml = new MeshLeveler(1.0, BIG_FLAT_GRID_Z1, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0");
@@ -193,7 +194,7 @@ public class MeshLevelerTest {
         MeshLeveler ml = new MeshLeveler(0.9, BIG_FLAT_GRID_Z1, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(0, 0, 0);
+        state.currentPoint = new Position(0, 0, 0, MM);
         state.inAbsoluteMode = true;
 
         sendCommandExpectResult(ml, state, "G1X5", "G1X5Y0Z0.1");
@@ -212,15 +213,15 @@ public class MeshLevelerTest {
       z=-10 *         |         * z=10
                    -10
         */
-        Point3d[][] grid = {
-            {new Point3d(-10,-10,-10), new Point3d(-10, 10, -10)},
-            {new Point3d(10,-10,10), new Point3d(10, 10, 10)}
+        Position[][] grid = {
+            {new Position(-10,-10,-10, MM), new Position(-10, 10, -10, MM)},
+            {new Position(10,-10,10, MM), new Position(10, 10, 10, MM)}
         };
 
         MeshLeveler ml = new MeshLeveler(0.0, grid, Units.MM);
 
         GcodeState state = new GcodeState();
-        state.currentPoint = new Point3d(-10, -10, 0);
+        state.currentPoint = new Position(-10, -10, 0, MM);
         state.inAbsoluteMode = true;
 
         // Moving along Y axis on flat line

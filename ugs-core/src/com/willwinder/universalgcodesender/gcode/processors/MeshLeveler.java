@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collections;
@@ -40,9 +41,9 @@ import javax.vecmath.Point3d;
  */
 public class MeshLeveler implements CommandProcessor {
     final private double materialSurfaceHeight;
-    final private Point3d[][] surfaceMesh;
-    final private Point3d lowerLeft;
-    final private Point3d upperRight;
+    final private Position[][] surfaceMesh;
+    final private Position lowerLeft;
+    final private Position upperRight;
     final private int xLen, yLen;
     final private Point2d meshDimensions;
     final private double resolution;
@@ -65,7 +66,7 @@ public class MeshLeveler implements CommandProcessor {
      * @param materialSurfaceHeight Z height used in offset.
      * @param surfaceMesh 2D array in the format Position[x][y]
      */
-    public MeshLeveler(double materialSurfaceHeightMM, Point3d[][] surfaceMesh, Units unit) {
+    public MeshLeveler(double materialSurfaceHeightMM, Position[][] surfaceMesh, Units unit) {
         if (surfaceMesh == null) {
             throw new IllegalArgumentException("Surface mesh is required.");
         }
@@ -73,7 +74,7 @@ public class MeshLeveler implements CommandProcessor {
         // Validate that points form a rectangular 2D array.
         this.yLen = surfaceMesh[0].length;
         this.xLen = surfaceMesh.length;
-        for (Point3d[] arr : surfaceMesh) {
+        for (Position[] arr : surfaceMesh) {
             if (arr.length != yLen) {
                 throw new IllegalArgumentException(ERROR_MESH_SHAPE);
             }
@@ -162,8 +163,8 @@ public class MeshLeveler implements CommandProcessor {
             throw new GcodeParserException(ERROR_MISSING_POINT_DATA);
         }
 
-        Point3d start = state.currentPoint;
-        Point3d end = command.point.point();
+        Position start = state.currentPoint;
+        Position end = command.point.point();
 
         if (start.z != end.z) {
             this.lastZHeight = end.z;
@@ -188,7 +189,7 @@ public class MeshLeveler implements CommandProcessor {
         return Collections.singletonList(adjustedCommand);
     }
 
-    protected Point3d[][] findBoundingArea(double x, double y) throws GcodeParserException {
+    protected Position[][] findBoundingArea(double x, double y) throws GcodeParserException {
         /*
         if (x < this.lowerLeft.x || x > this.upperRight.x || y < this.lowerLeft.y || y > this.upperRight.y) {
             throw new GcodeParserException("Coordinate out of bounds.");
@@ -207,7 +208,7 @@ public class MeshLeveler implements CommandProcessor {
         xIdx = Math.max(xIdx, 0);
         yIdx = Math.max(yIdx, 0);
 
-        return new Point3d[][] {
+        return new Position[][] {
             {this.surfaceMesh[xIdx  ][yIdx], this.surfaceMesh[xIdx  ][yIdx+1]},
             {this.surfaceMesh[xIdx+1][yIdx], this.surfaceMesh[xIdx+1][yIdx+1]}
         };
@@ -218,12 +219,12 @@ public class MeshLeveler implements CommandProcessor {
      * http://supercomputingblog.com/graphics/coding-bilinear-interpolation/
      */
     protected double surfaceHeightAt(double x, double y) throws GcodeParserException {
-        Point3d[][] q = findBoundingArea(x, y);
+        Position[][] q = findBoundingArea(x, y);
 
-        Point3d Q11 = q[0][0];
-        Point3d Q21 = q[1][0];
-        Point3d Q12 = q[0][1];
-        Point3d Q22 = q[1][1];
+        Position Q11 = q[0][0];
+        Position Q21 = q[1][0];
+        Position Q12 = q[0][1];
+        Position Q22 = q[1][1];
 
         /*
         // This check doesn't work properly because I chose to clamp bounds

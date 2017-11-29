@@ -34,12 +34,12 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -90,10 +90,10 @@ public class ArcExpander implements CommandProcessor {
 
         GcodeMeta arcMeta = Iterables.getLast(commands);
         PointSegment ps = arcMeta.point;
-        Point3d start = state.currentPoint;
-        Point3d end = arcMeta.point.point();
+        Position start = state.currentPoint;
+        Position end = arcMeta.point.point();
 
-        List<Point3d> points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
+        List<Position> points = GcodePreprocessorUtils.generatePointsAlongArcBDring(
                 start, end, ps.center(), ps.isClockwise(),
                 ps.getRadius(), 0, this.length, new PlaneFormatter(ps.getPlaneState()));
 
@@ -105,7 +105,7 @@ public class ArcExpander implements CommandProcessor {
             // Tack the speed onto the first line segment in case the arc also
             // changed the feed value.
             String feed = "F" + arcMeta.point.getSpeed();
-            for (Point3d point : points) {
+            for (Position point : points) {
                 results.add(GcodePreprocessorUtils.generateLineFromPoints(G1, start, point, state.inAbsoluteMode, df) + feed);
                 start = point;
                 feed = "";

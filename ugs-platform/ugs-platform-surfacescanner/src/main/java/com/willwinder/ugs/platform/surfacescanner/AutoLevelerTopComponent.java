@@ -53,7 +53,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.vecmath.Point3d;
 import org.netbeans.api.options.OptionsDisplayer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -564,8 +563,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         // Collect data from grid.
         if (scanner != null && scanner.getProbePositionGrid() != null) {
-            for (Point3d[] row : scanner.getProbePositionGrid()) {
-                for (Point3d p : row) {
+            for (Position[] row : scanner.getProbePositionGrid()) {
+                for (Position p : row) {
                     if (p != null) {
                         probeData.add(ImmutableMap.<String,Double>of(
                                 "x", p.x,

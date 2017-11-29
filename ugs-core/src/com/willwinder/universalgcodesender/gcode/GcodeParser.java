@@ -43,10 +43,11 @@ import com.willwinder.universalgcodesender.types.PointSegment;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.vecmath.Point3d;
 import org.apache.commons.lang3.StringUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
  *
@@ -125,7 +126,7 @@ public class GcodeParser implements IGcodeParser {
      */
     public void reset() {
         this.statsProcessor = new Stats();
-        this.state.currentPoint = new Point3d();
+        this.state.currentPoint = new Position();
         this.state.commandNumber = -1;
     }
     
@@ -275,7 +276,7 @@ public class GcodeParser implements IGcodeParser {
         return results;
     }
 
-    private static PointSegment addProbePointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
+    private static PointSegment addProbePointSegment(Position nextPoint, boolean fastTraverse, int line, GcodeState state) {
         PointSegment ps = addLinearPointSegment(nextPoint, fastTraverse, line, state);
         ps.setIsProbe(true);
         return ps;
@@ -284,7 +285,7 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Create a PointSegment representing the linear command.
      */
-    private static PointSegment addLinearPointSegment(Point3d nextPoint, boolean fastTraverse, int line, GcodeState state) {
+    private static PointSegment addLinearPointSegment(Position nextPoint, boolean fastTraverse, int line, GcodeState state) {
         if (nextPoint == null) {
             return null;
         }
@@ -312,14 +313,14 @@ public class GcodeParser implements IGcodeParser {
     /**
      * Create a PointSegment representing the arc command.
      */
-    private static PointSegment addArcPointSegment(Point3d nextPoint, boolean clockwise, List<String> args, int line, GcodeState state) {
+    private static PointSegment addArcPointSegment(Position nextPoint, boolean clockwise, List<String> args, int line, GcodeState state) {
         if (nextPoint == null) {
             return null;
         }
 
         PointSegment ps = new PointSegment(nextPoint, line);
 
-        Point3d center =
+        Position center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
                         args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, new PlaneFormatter(state.plane));
 
@@ -355,7 +356,7 @@ public class GcodeParser implements IGcodeParser {
 
         meta.code = code;
 
-        Point3d nextPoint = null;
+        Position nextPoint = null;
 
         // If it is a movement code make sure it has some coordinates.
         if (code.consumesMotion()) {
@@ -398,15 +399,17 @@ public class GcodeParser implements IGcodeParser {
                 state.plane = Plane.lookup(code);
                 break;
 
+            //inch
             case G20:
-                //inch
                 state.isMetric = false;
                 state.units = G20;
+                state.currentPoint = state.currentPoint.getPositionIn(UnitUtils.Units.INCH);
                 break;
+            //mm
             case G21:
-                //mm
                 state.isMetric = true;
                 state.units = G21;
+                state.currentPoint = state.currentPoint.getPositionIn(UnitUtils.Units.MM);
                 break;
 
             // Probe: http://linuxcnc.org/docs/html/gcode/g-code.html#gcode:g38

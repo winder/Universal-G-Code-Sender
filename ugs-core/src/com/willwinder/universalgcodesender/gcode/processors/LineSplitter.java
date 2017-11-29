@@ -30,10 +30,10 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.model.Position;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -90,9 +90,9 @@ public class LineSplitter implements CommandProcessor {
         }
 
         // line length
-        Point3d start = state.currentPoint;
-        Point3d end = command.point.point();
-        Point3d current = start;
+        Position start = state.currentPoint;
+        Position end = command.point.point();
+        Position current = start;
         double length = start.distance(end);
 
         // Check if line needs splitting.
@@ -107,7 +107,7 @@ public class LineSplitter implements CommandProcessor {
                 double newY = start.y + k * (end.y - start.y);
                 double newZ = start.z + k * (end.z - start.z);
 
-                Point3d next = new Point3d(newX, newY, newZ);
+                Position next = new Position(newX, newY, newZ, start.getUnits());
                 results.add(GcodePreprocessorUtils.generateLineFromPoints(
                         command.code, current, next, command.state.inAbsoluteMode, null));
                 current = next;

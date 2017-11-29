@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collection;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -31,12 +30,12 @@ import javax.vecmath.Point3d;
  */
 public class SurfaceScanner {
     private ImmutableCollection<Position> probePositions;
-    private Point3d[][] probePositionGrid;
+    private Position[][] probePositionGrid;
     private Collection<Position> surfacePositions;
 
     private Units u = null;
-    private Point3d minXYZ = null;
-    private Point3d maxXYZ = null;
+    private Position minXYZ = null;
+    private Position maxXYZ = null;
     private double resolution = 1;
     private double probeDistance = 0;
     private int yAxisPoints = -1;
@@ -112,7 +111,7 @@ public class SurfaceScanner {
         return this.probePositions;
     }
 
-    public final Point3d[][] getProbePositionGrid() {
+    public final Position[][] getProbePositionGrid() {
         return this.probePositionGrid;
     }
 
@@ -128,11 +127,11 @@ public class SurfaceScanner {
         return this.yAxisPoints;
     }
 
-    public final Point3d getMaxXYZ() {
+    public final Position getMaxXYZ() {
         return this.maxXYZ;
     }
 
-    public final Point3d getMinXYZ() {
+    public final Position getMinXYZ() {
         return this.minXYZ;
     }
 

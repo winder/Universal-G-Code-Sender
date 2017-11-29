@@ -37,7 +37,9 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -48,7 +50,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import javax.vecmath.Point3d;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
@@ -287,9 +288,9 @@ public class GcodeParserTest {
         gcp.addCommandProcessor(new CommentProcessor());
         gcp.addCommandProcessor(new ArcExpander(true, 0.1));
         gcp.addCommandProcessor(new LineSplitter(1));
-        Point3d grid[][] = {
-            { new Point3d(-5,-5,0), new Point3d(-5,35,0) },
-            { new Point3d(35,-5,0), new Point3d(35,35,0) }
+        Position grid[][] = {
+            { new Position(-5,-5,0, MM), new Position(-5,35,0, MM) },
+            { new Position(35,-5,0, MM), new Position(35,35,0, MM) }
         };
         gcp.addCommandProcessor(new MeshLeveler(0, grid, Units.MM));
 
@@ -325,7 +326,7 @@ public class GcodeParserTest {
         GcodeParser gcp = new GcodeParser();
         gcp.addCommandProcessor(new CommentProcessor());
         GcodeState initialState = new GcodeState();
-        initialState.currentPoint = new Point3d(0, 0, 1);
+        initialState.currentPoint = new Position(0, 0, 1, MM);
         initialState.currentMotionMode = Code.G0;
         List<String> result = gcp.preprocessCommand("M05", initialState);
         assertEquals(1, result.size());
@@ -402,7 +403,7 @@ public class GcodeParserTest {
         List<GcodeMeta> metaList = GcodeParser.processCommand("G3", 0, new GcodeState());
         GcodeMeta meta = Iterables.getOnlyElement(metaList);
         assertThat(meta.code).isEqualTo(G3);
-        assertThat(meta.state.currentPoint).isEqualTo(new Point3d(0, 0, 0));
+        assertThat(meta.state.currentPoint).isEqualTo(new Position(0, 0, 0, MM));
     }
 
     @Test
@@ -410,7 +411,7 @@ public class GcodeParserTest {
         List<GcodeMeta> metaList = GcodeParser.processCommand("G \t1 X-1Y  - 0.\t5Z\n1 .0", 0, new GcodeState());
         GcodeMeta meta = Iterables.getOnlyElement(metaList);
         assertThat(meta.code).isEqualTo(G1);
-        assertThat(meta.state.currentPoint).isEqualTo(new Point3d(-1, -0.5, 1));
+        assertThat(meta.state.currentPoint).isEqualTo(new Position(-1, -0.5, 1, MM));
     }
 
     @Test

@@ -32,13 +32,13 @@ import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.vecmath.Point3d;
 
 
 public class GcodeViewParse {
@@ -48,8 +48,8 @@ public class GcodeViewParse {
     static boolean absoluteIJK = false;
 
     // Parsed object
-    private final Point3d min;
-    private final Point3d max;
+    private final Position min;
+    private final Position max;
     private final List<LineSegment> lines;
     
     // Debug
@@ -57,17 +57,17 @@ public class GcodeViewParse {
     
     public GcodeViewParse()
     {
-        min = new Point3d();
-        max = new Point3d();
+        min = new Position();
+        max = new Position();
         lines = new ArrayList<>();
     }
 
-    public Point3d getMinimumExtremes()
+    public Position getMinimumExtremes()
     {
         return min;
     }
     
-    public Point3d getMaximumExtremes()
+    public Position getMaximumExtremes()
     {
         return max;
     }
@@ -75,7 +75,7 @@ public class GcodeViewParse {
     /**
      * Test a point and update min/max coordinates if appropriate.
      */
-    private void testExtremes(final Point3d p3d)
+    private void testExtremes(final Position p3d)
     {
         testExtremes(p3d.x, p3d.y, p3d.z);
     }
@@ -131,7 +131,7 @@ public class GcodeViewParse {
         GcodeParser gp = getParser(arcSegmentLength);
 
         // Save the state
-        Point3d start = new Point3d();
+        Position start = new Position();
 
         while (reader.getNumRowsRemaining() > 0) {
             GcodeCommand commandObject = reader.getNextCommand();
@@ -161,7 +161,7 @@ public class GcodeViewParse {
         lines.clear();
 
         // Save the state
-        Point3d start = new Point3d();
+        Position start = new Position();
 
         for (String s : gcode) {
             List<String> commands = gp.preprocessCommand(s, gp.getCurrentState());
@@ -183,27 +183,27 @@ public class GcodeViewParse {
      * Turns a point segment into one or more LineSegment. Arcs are expanded.
      * Keeps track of the minimum and maximum x/y/z locations.
      */
-    private List<LineSegment> addLinesFromPointSegment(final Point3d start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
+    private List<LineSegment> addLinesFromPointSegment(final Position start, final PointSegment endSegment, double arcSegmentLength, List<LineSegment> ret) {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         LineSegment ls;
         PointSegment ps = endSegment;
         ps.convertToMetric();
         
-        Point3d end = new Point3d(endSegment.point());
+        Position end = new Position(endSegment.point());
 
         // start is null for the first iteration.
         if (start != null) {
             // Expand arc for graphics.
             if (ps.isArc()) {
-                List<Point3d> points =
+                List<Position> points =
                     GcodePreprocessorUtils.generatePointsAlongArcBDring(
                         start, end, ps.center(), ps.isClockwise(),
                         ps.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(ps.getPlaneState()));
                 // Create line segments from points.
                 if (points != null) {
-                    Point3d startPoint = start;
-                    for (Point3d nextPoint : points) {
+                    Position startPoint = start;
+                    for (Position nextPoint : points) {
                         ls = new LineSegment(startPoint, nextPoint, ps.getLineNumber());
                         ls.setIsArc(ps.isArc());
                         ls.setIsFastTraverse(ps.isFastTraverse());
