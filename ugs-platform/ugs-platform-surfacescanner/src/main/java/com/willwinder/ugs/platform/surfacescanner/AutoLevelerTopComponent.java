@@ -675,7 +675,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     @Override
     public void componentOpened() {
-        GUIHelpers.displayHelpDialog(Localization.getString("experimental.feature"));
+        GUIHelpers.displayHelpDialog("This feature currently doesn't work properly.");
         scanner = new SurfaceScanner(Units.MM);
         if (r == null) {
             r = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
