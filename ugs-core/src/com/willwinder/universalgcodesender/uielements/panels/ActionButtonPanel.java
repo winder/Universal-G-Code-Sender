@@ -78,7 +78,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
         toggleCheckMode.addActionListener(this::toggleCheckMode);
 
-        MigLayout layout = new MigLayout("fill, wrap 2");
+        MigLayout layout = new MigLayout("fillx, wrap 2");
         setLayout(layout);
 
         String constraints = "sg 1";

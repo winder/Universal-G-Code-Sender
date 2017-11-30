@@ -32,7 +32,8 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MacroPanel extends JPanel implements UGSEventListener {
 
@@ -80,18 +81,18 @@ public class MacroPanel extends JPanel implements UGSEventListener {
             macroDescriptionFields.add(createMacroField(i, MACRO_FIELD.DESCRIPTION, macro.getDescription()));
         }
 
-        MigLayout layout = new MigLayout("fill, wrap 4", "[fill, sg 1]r[fill]r[fill, grow 50]r[fill, grow 50]");
+        MigLayout layout = new MigLayout("fillx, wrap 4", "[fill, sg 1]r[fill, grow 10]r[fill, grow 45]r[fill, grow 45]");
         setLayout(layout);
 
         add(this.helpButton, "span 4");
         add(buttonHeader, "sg 1");
-        add(nameHeader, "w 75!");
+        add(nameHeader);
         add(gcodeHeader);
         add(descriptionHeader);
 
         for (int i = 0; i < customGcodeButtons.size(); i++) {
             add(customGcodeButtons.get(i), "sg 1");
-            add(macroNameFields.get(i), "w 75!");
+            add(macroNameFields.get(i));
             add(macroGcodeFields.get(i));
             add(macroDescriptionFields.get(i));
         }
