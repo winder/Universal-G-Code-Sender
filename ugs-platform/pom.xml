@@ -163,5 +163,6 @@
     <module>ugs-platform-surfacescanner</module>
     <module>ProbeModule</module>
     <module>DowelModule</module>
+    <module>GcodeTools</module>
   </modules>
 </project>
