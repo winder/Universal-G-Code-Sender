@@ -95,6 +95,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     public Units units;
     public DecimalFormat decimalFormatter;
 
+    private Color subPanelBackgroundColor;
+    private Color defaultTextColor;
+
     // Don't add the pin status panel until we get a pin status update.
     private boolean addedPinStatusPanel = false;
 
@@ -128,7 +131,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         try {
             font = Font.createFont(Font.TRUETYPE_FONT, is);
             big = font.deriveFont(Font.PLAIN,30);
-            small = font.deriveFont(Font.PLAIN,18);
+            small = font.deriveFont(Font.PLAIN,19);
         } catch (Exception ex) {
             ex.printStackTrace();
             System.err.println(fontName + " not loaded.  Using serif font.");
@@ -156,6 +159,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void initComponents() {
+
+        subPanelBackgroundColor = getBackground().darker();
+        defaultTextColor = activeStateLabel.getForeground();
 
         feedValue.setEnabled(false);
         spindleSpeedValue.setEnabled(false);
@@ -189,7 +195,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         // Subpanels for work/machine read outs.
         RoundedPanel workPanel = new RoundedPanel();
 
-        workPanel.setBackground(Color.LIGHT_GRAY);
+        workPanel.setBackground(subPanelBackgroundColor);
         workPanel.setLayout(new MigLayout(debug + "fillx, wrap 3, inset 8", "[left][right][grow, right]"));
         //workPanel.add(workPositionLabel, "span 2, wrap");
         workPanel.add(resetXButton);
@@ -378,16 +384,16 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
     
     private void setPostionValueColor(JLabel label, double newValue) {
-       if (!label.getText().equals(decimalFormatter.format(newValue))) {
-                label.setForeground(Color.red);
-            } else {
-                label.setForeground(Color.black);
-            } 
+        if (!label.getText().equals(decimalFormatter.format(newValue))) {
+            label.setForeground(Color.red);
+        } else {
+            label.setForeground(defaultTextColor);
+        }
     }
 
     private void setStatusColorForState(String state) {
-        Color background = Color.LIGHT_GRAY;
-        Color foreground = Color.BLACK;
+        Color background = subPanelBackgroundColor;
+        Color foreground = defaultTextColor;
         this.activeStatePanel.setGradientEnabled(true);
         if (backend.getSettings().isDisplayStateColor()) {
             if (state.equals(Localization.getString("mainWindow.status.alarm"))
@@ -396,8 +402,10 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
                 foreground = Color.WHITE;
             } else if (state.equals(Localization.getString("mainWindow.status.hold"))) {
                 background = new Color(220, 200, 0);
+                foreground = Color.BLACK;
             } else if (state.equals(Localization.getString("mainWindow.status.queue"))) {
                 background = new Color(220, 200, 0);
+                foreground = Color.BLACK;
             } else if (state.equals(Localization.getString("mainWindow.status.run"))) {
                 background = new Color(0, 128, 0);
                 foreground = Color.WHITE;
