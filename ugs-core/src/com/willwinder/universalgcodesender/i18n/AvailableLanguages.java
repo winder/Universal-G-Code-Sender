@@ -43,6 +43,7 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("es", "ES", "Spanish"));
         availableLanguages.add(new Language("sv", "SE", "Swedish"));
         availableLanguages.add(new Language("tr", "TR", "Turkish"));
+        availableLanguages.add(new Language("lt", "LT", "Lithuanian"));
     }
 
     public static Collection<Language> getAvailableLanguages() {
