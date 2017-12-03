@@ -25,6 +25,7 @@ package com.willwinder.universalgcodesender.uielements.panels;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -324,7 +325,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.activeStateValueLabel.setText( status.getState() );
         this.setStatusColorForState( status.getState() );
 
-        /*
         if (status.getEnabledPins() != null) {
             if (!addedPinStatusPanel) {
                 addedPinStatusPanel = true;
@@ -343,7 +343,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             pinSoftReset.setSelected(ep.SoftReset);
             pinCycleStart.setSelected(ep.CycleStart);
         }
-        */
 
         if (status.getMachineCoord() != null) {
             this.setUnits(status.getMachineCoord().getUnits());
