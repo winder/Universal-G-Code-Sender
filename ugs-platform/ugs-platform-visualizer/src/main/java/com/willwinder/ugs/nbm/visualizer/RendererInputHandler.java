@@ -359,6 +359,7 @@ public class RendererInputHandler implements
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        gcodeModel.setCurrentCommandNumber(0);
     }
 
     @Override
