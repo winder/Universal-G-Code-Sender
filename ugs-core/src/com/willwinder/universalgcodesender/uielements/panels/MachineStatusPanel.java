@@ -86,7 +86,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JLabel gStatesLabel = new JLabel();
 
     private final RoundedPanel pinStatePanel = new RoundedPanel(COMMON_RADIUS);
-    private final JLabel pinStatesLabel = new JLabel(" ");
+    private final JLabel pinStatesLabel = new JLabel();
 
     private List<JComponent> axisResetControls = new ArrayList<>(3);
 
@@ -171,18 +171,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         Color transparent = new Color(0, 0, 0, 0);
 
-        JPanel pinStateLayoutPanel = new JPanel(new MigLayout("insets 0"));
-        pinStateLayoutPanel.setBackground(transparent);
-        JLabel pinAlarmLabel = new JLabel(ALARM);
-        pinStateLayoutPanel.add(pinAlarmLabel);
-
         pinStatePanel.setLayout(new MigLayout("insets 0 5 0 5"));
         pinStatePanel.setBackground(transparent);
-        pinStatePanel.setForeground(ThemeColors.GREY);
+        resetStatePinComponents();
         pinStatePanel.add(pinStatesLabel);
-        pinStateLayoutPanel.add(pinStatePanel);
-
-        add(pinStateLayoutPanel, "align center");
+        add(pinStatePanel, "align center");
 
         Color bkg = getBackground();
         int value = bkg.getRed() + bkg.getBlue() + bkg.getGreen();
@@ -190,17 +183,21 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         Color panelTextColor;
         if (panelIsLight) panelTextColor = Color.BLACK;
         else panelTextColor = ThemeColors.ORANGE;
-        pinAlarmLabel.setForeground(ThemeColors.GREY);
-        pinStatesLabel.setForeground(ThemeColors.GREY);
         setForegroundColor(panelTextColor, feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue, gStatesLabel);
 
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
-        machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinAlarmLabel, pinStatesLabel, gStatesLabel);
+        machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
         machineStatusFontManager.addSpeedLabel(feedValue, spindleSpeedValue);
         machineStatusFontManager.applyFonts(0);
 
         statePollTimer.start();
+    }
+
+    private void resetStatePinComponents() {
+        pinStatesLabel.setText(ALARM);
+        pinStatesLabel.setForeground(ThemeColors.GREY);
+        pinStatePanel.setForeground(ThemeColors.GREY);
     }
 
     private void setForegroundColor(Color color, JComponent... components) {
@@ -308,6 +305,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (!backend.isConnected()) {
             // Clear out the status color.
             this.setStatusColorForState("");
+            resetStatePinComponents();
         }
     }
 
@@ -321,6 +319,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             EnabledPins ep = status.getEnabledPins();
 
             List<String> enabled = new ArrayList<>();
+            enabled.add(ALARM + ":");
             if (ep.X) enabled.add(PIN_X);
             if (ep.Y) enabled.add(PIN_Y);
             if (ep.Z) enabled.add(PIN_Z);
@@ -333,8 +332,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             pinStatesLabel.setForeground(ThemeColors.RED);
             pinStatePanel.setForeground(ThemeColors.RED);
         } else {
-            pinStatesLabel.setText(" ");
-            pinStatesLabel.setForeground(ThemeColors.GREY);
+            resetStatePinComponents();
         }
 
         if (status.getMachineCoord() != null) {
