@@ -304,15 +304,14 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         if (!backend.isConnected()) {
             // Clear out the status color.
-            this.setStatusColorForState("");
+            this.updateStatePanel("");
             resetStatePinComponents();
         }
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {
         String label = Localization.getString("mainWindow.status." + status.getState().toLowerCase());
-        this.activeStateValueLabel.setText(label.toUpperCase());
-        this.setStatusColorForState(status.getState());
+        this.updateStatePanel(status.getState());
 
         if (status.getEnabledPins() != null) {
 
@@ -381,21 +380,33 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
     }
 
-    private void setStatusColorForState(String state) {
+    private void updateStatePanel(String state) {
         if (backend.getSettings().isDisplayStateColor()) {
             Color background = ThemeColors.GREY;
+            String text = state;
+
             if (state.equalsIgnoreCase("Alarm")) {
+                text = Localization.getString("mainWindow.status.alarm");
                 background = ThemeColors.RED;
             } else if (state.equalsIgnoreCase("Hold")) {
+                text = Localization.getString("mainWindow.status.hold");
                 background = ThemeColors.ORANGE;
             } else if (state.equalsIgnoreCase("Run")) {
+                text = Localization.getString("mainWindow.status.run");
                 background = ThemeColors.GREEN;
             } else if (state.equalsIgnoreCase("Jog")) {
+                text = Localization.getString("mainWindow.status.jog");
                 background = ThemeColors.GREEN;
             } else if (state.equalsIgnoreCase("Check")) {
+                text = Localization.getString("mainWindow.status.check");
                 background = ThemeColors.LIGHT_BLUE;
+            } else if (state.equalsIgnoreCase("Idle")) {
+                text = Localization.getString("mainWindow.status.idle");
+                background = ThemeColors.GREY;
             }
+
             this.activeStatePanel.setBackground(background);
+            this.activeStateValueLabel.setText(text.toUpperCase());
         }
     }
 
