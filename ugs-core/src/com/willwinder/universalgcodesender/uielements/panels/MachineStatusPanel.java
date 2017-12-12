@@ -310,7 +310,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {
-        String label = Localization.getString("mainWindow.status." + status.getState().toLowerCase());
         this.updateStatePanel(status.getState());
 
         if (status.getEnabledPins() != null) {
@@ -381,6 +380,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void updateStatePanel(String state) {
+
         if (backend.getSettings().isDisplayStateColor()) {
             Color background = ThemeColors.GREY;
             String text = state;
