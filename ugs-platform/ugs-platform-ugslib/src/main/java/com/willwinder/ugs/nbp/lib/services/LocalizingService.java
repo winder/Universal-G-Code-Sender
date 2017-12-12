@@ -151,6 +151,12 @@ public class LocalizingService {
     public final static String StateActionId = "com.willwinder.ugs.nbp.core.windows.StateTopComponent";
     public final static String StateCategory = CATEGORY_WINDOW;
 
+    public final static String DiagnosticsTitle = Localization.getString("platform.window.diagnostics", lang);
+    public final static String DiagnosticsTooltip = Localization.getString("platform.window.diagnostics.tooltip", lang);
+    public final static String DiagnosticsWindowPath = MENU_WINDOW;
+    public final static String DiagnosticsActionId = "com.willwinder.ugs.nbp.core.windows.DiagnosticsTopComponent";
+    public final static String DiagnosticsCategory = CATEGORY_WINDOW;
+
     public LocalizingService() throws IOException {
         ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
 
@@ -176,5 +182,6 @@ public class LocalizingService {
         ars.overrideActionName(SendStatusCategory, SendStatusActionId, SendStatusTitle);
         ars.overrideActionName(SerialConsoleCategory, SerialConsoleActionId, SerialConsoleTitle);
         ars.overrideActionName(StateCategory, StateActionId, StateTitle);
+        ars.overrideActionName(DiagnosticsCategory, DiagnosticsActionId, DiagnosticsTitle);
     }
 }
