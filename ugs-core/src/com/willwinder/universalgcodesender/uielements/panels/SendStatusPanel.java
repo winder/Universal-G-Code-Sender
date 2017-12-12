@@ -31,9 +31,15 @@ import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.Timer;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
@@ -52,12 +58,14 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     private final JLabel remainingRowsLabel = new JLabel(Localization.getString("mainWindow.swing.remainingRowsLabel"));
     private final JLabel remainingTimeLabel = new JLabel(Localization.getString("mainWindow.swing.remainingTimeLabel"));
     private final JLabel durationLabel = new JLabel(Localization.getString("mainWindow.swing.durationLabel"));
+    private final JLabel latestCommentLabel = new JLabel(Localization.getString("mainWindow.swing.latestCommentLabel"));
 
     private final JLabel rowsValue = new JLabel();
     private final JLabel sentRowsValue = new JLabel();
     private final JLabel remainingRowsValue = new JLabel();
     private final JLabel remainingTimeValue = new JLabel();
     private final JLabel durationValue = new JLabel();
+    private final JTextArea latestCommentValueLabel = new JTextArea();
 
     Timer timer;
 
@@ -185,7 +193,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     private void initComponents() {
         // MigLayout... 3rd party layout library.
-        setLayout(new MigLayout("fillx, wrap 2"));
+        setLayout(new MigLayout("fillx, wrap 2, inset 5", "grow"));
         add(rowsLabel, AL_RIGHT);
         add(rowsValue);
         add(sentRowsLabel, AL_RIGHT);
@@ -196,6 +204,19 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         add(remainingTimeValue);
         add(durationLabel, AL_RIGHT);
         add(durationValue);
+        add(latestCommentLabel, "span 2, wrap");
+        add(latestCommentValueLabel, "growx, span 2, wrap");
+
+        latestCommentValueLabel.setOpaque(false);
+        latestCommentValueLabel.setWrapStyleWord(true);
+        latestCommentValueLabel.setLineWrap(true);
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent event) {
+               latestCommentValueLabel.setMaximumSize(new Dimension(SendStatusPanel.this.getWidth() - 10, 30));
+            }
+        });
     }
 
     @Override
@@ -238,6 +259,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     @Override
     public void commandComment(String comment) {
+        latestCommentValueLabel.setText(comment);
     }
 
     @Override
