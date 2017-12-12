@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class FontManager {
+public class MachineStatusFontManager {
 
     private List<Font> workCoordinateFont = new ArrayList<>(3);
     private List<Font> machineCoordinateFont = new ArrayList<>(3);
