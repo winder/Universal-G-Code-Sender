@@ -184,7 +184,9 @@ public class PendantUI implements ControllerListener {
                         case "CANCEL_FILE":
                             break;
                         default:
-                            mainWindow.sendGcodeCommand(gCode);
+                        	for (String cmd : gCode.split(";")) {
+                        		mainWindow.sendGcodeCommand(cmd);
+                        	}
                             break;
                     }
                 } else {
