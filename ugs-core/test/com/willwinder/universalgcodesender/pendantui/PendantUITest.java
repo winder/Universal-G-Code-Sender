@@ -47,14 +47,14 @@ public class PendantUITest {
          * expect it to result in two separate calls to sendGcodeCommand, one for each gCode command
          * and because we call substituteValues(), it'll also call updateSystemState
          */
-		mockBackend.updateSystemState(EasyMock.anyObject(SystemStateBean.class));
-		EasyMock.expect(EasyMock.expectLastCall()).once();
+	    mockBackend.updateSystemState(EasyMock.anyObject(SystemStateBean.class));
+	    EasyMock.expect(EasyMock.expectLastCall()).once();
 
-		mockBackend.sendGcodeCommand("G91");
-        EasyMock.expect(EasyMock.expectLastCall()).once();
-        
-        mockBackend.sendGcodeCommand("G90");
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+	    mockBackend.sendGcodeCommand("G91");
+	    EasyMock.expect(EasyMock.expectLastCall()).once();
+
+	    mockBackend.sendGcodeCommand("G90");
+	    EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 2. Commands
         mockBackend.performHomingCycle();

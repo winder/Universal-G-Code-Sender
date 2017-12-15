@@ -185,12 +185,12 @@ public class PendantUI implements ControllerListener {
                         case "CANCEL_FILE":
                             break;
                         default:
-                        	try {
-                        		MacroHelper.executeCustomGcode(gCode, mainWindow);
-                        	} catch (Exception ex) {
-                        		System.err.println("pendant failed executing gCode [" + gCode + "]");
-                        		ex.printStackTrace();
-                        	}
+                            try {
+                                MacroHelper.executeCustomGcode(gCode, mainWindow);
+                            } catch (Exception ex) {
+                        	    System.err.println("pendant failed executing gCode [" + gCode + "]");
+                        	    ex.printStackTrace();
+                            }
                             break;
                     }
                 } else {

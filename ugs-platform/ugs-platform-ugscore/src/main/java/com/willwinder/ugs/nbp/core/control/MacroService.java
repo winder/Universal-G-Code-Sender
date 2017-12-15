@@ -97,17 +97,17 @@ public final class MacroService {
         public void actionPerformed(ActionEvent e) {
             Macro macro = settings.getMacro(macroIdx);
             if (macro != null && macro.getGcode() != null) {
-				EventQueue.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-						} catch (Exception ex) {
-							GUIHelpers.displayErrorDialog(ex.getMessage());
-							Exceptions.printStackTrace(ex);
-						}
-					}
-				});
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+                        } catch (Exception ex) {
+                            GUIHelpers.displayErrorDialog(ex.getMessage());
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                });
             }
         }
 

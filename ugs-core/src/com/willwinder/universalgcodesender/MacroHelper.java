@@ -54,9 +54,9 @@ public class MacroHelper {
          * specifically NOT catching exceptions on gCode commands, let them pass to the invoking method
          * so the error handling is aligned to the UI that triggered it (i.e. GUI button press versus Pendant UI http request)
          */
-		for (String cmd : parts) {
-			backend.sendGcodeCommand(cmd);
-		}
+        for (String cmd : parts) {
+            backend.sendGcodeCommand(cmd);
+        }
     }
     
     /**
