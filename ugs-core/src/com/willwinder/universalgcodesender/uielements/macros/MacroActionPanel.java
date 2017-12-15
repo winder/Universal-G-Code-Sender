@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -160,8 +161,17 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     private void customGcodeButtonActionPerformed(int macroIndex) {
-        Macro m = backend.getSettings().getMacro(macroIndex);
-        MacroHelper.executeCustomGcode(m.getGcode(), backend);
+        Macro macro = backend.getSettings().getMacro(macroIndex);
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+                } catch (Exception ex) {
+                    GUIHelpers.displayErrorDialog(ex.getMessage());
+                }
+            }
+        });
     }
 
     private void updateCustomGcodeControls(boolean enabled) {

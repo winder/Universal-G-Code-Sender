@@ -43,8 +43,17 @@ public class PendantUITest {
 	public void testStart() throws Exception {
 
         // This is what we're about to do...
-        // 1. Send a command
-        mockBackend.sendGcodeCommand("MyGcode");
+        /* 1. Send two gcode commands via a single http request "G91;G90"
+         * expect it to result in two separate calls to sendGcodeCommand, one for each gCode command
+         * and because we call substituteValues(), it'll also call updateSystemState
+         */
+		mockBackend.updateSystemState(EasyMock.anyObject(SystemStateBean.class));
+		EasyMock.expect(EasyMock.expectLastCall()).once();
+
+		mockBackend.sendGcodeCommand("G91");
+        EasyMock.expect(EasyMock.expectLastCall()).once();
+        
+        mockBackend.sendGcodeCommand("G90");
         EasyMock.expect(EasyMock.expectLastCall()).once();
 
         // 2. Commands
@@ -97,7 +106,7 @@ public class PendantUITest {
         assertTrue(indexPage.contains("$(function()"));
 
         // 1. Send a command
-        getResponse(url+"/sendGcode?gCode=MyGcode");
+        getResponse(url+"/sendGcode?gCode=G91%3BG90");
         // 2. Send commands
         getResponse(url+"/sendGcode?gCode=$H");
         getResponse(url+"/sendGcode?gCode=$X");
