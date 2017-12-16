@@ -24,7 +24,10 @@ import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
+
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -92,13 +95,19 @@ public final class MacroService {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Macro m = settings.getMacro(macroIdx);
-            try {
-                if (m != null && m.getGcode() != null) {
-                    MacroHelper.executeCustomGcode(m.getGcode(), backend);
-                }
-            } catch (Exception ex) {
-                Exceptions.printStackTrace(ex);
+            Macro macro = settings.getMacro(macroIdx);
+            if (macro != null && macro.getGcode() != null) {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+                        } catch (Exception ex) {
+                            GUIHelpers.displayErrorDialog(ex.getMessage());
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                });
             }
         }
 
