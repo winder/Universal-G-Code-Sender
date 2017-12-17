@@ -25,11 +25,8 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -38,7 +35,6 @@ import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
-
 
 /**
  * Top component which displays something.
@@ -63,7 +59,7 @@ import org.openide.windows.TopComponent;
 public final class DiagnosticsTopComponent extends TopComponent implements UGSEventListener {
   private final BackendAPI backend;
 
-  Map<String, JLabel> labels = new LinkedHashMap<>();
+  private Map<String, JLabel> labels = new LinkedHashMap<>();
 
   public DiagnosticsTopComponent() {
     setName(LocalizingService.DiagnosticsTitle);
@@ -165,7 +161,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
   }
 
   void readProperties(java.util.Properties p) {
-    String version = p.getProperty("version");
+    //String version = p.getProperty("version");
     // TODO read your settings according to their version
   }
 }

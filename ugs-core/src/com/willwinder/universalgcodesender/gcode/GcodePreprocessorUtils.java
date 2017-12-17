@@ -386,12 +386,6 @@ public class GcodePreprocessorUtils {
         return Double.NaN;
     }
     
-    static public List<String> convertArcsToLines(Position start, Position end) {
-        List<String> l = new ArrayList<>();
-        
-        return l;
-    }
-    
     /**
      * Generates the points along an arc including the start and end points.
      */
