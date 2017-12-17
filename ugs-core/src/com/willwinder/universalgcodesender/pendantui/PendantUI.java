@@ -30,6 +30,7 @@ import org.eclipse.jetty.util.resource.Resource;
 import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -184,7 +185,12 @@ public class PendantUI implements ControllerListener {
                         case "CANCEL_FILE":
                             break;
                         default:
-                            mainWindow.sendGcodeCommand(gCode);
+                            try {
+                                MacroHelper.executeCustomGcode(gCode, mainWindow);
+                            } catch (Exception ex) {
+                        	    System.err.println("pendant failed executing gCode [" + gCode + "]");
+                        	    ex.printStackTrace();
+                            }
                             break;
                     }
                 } else {

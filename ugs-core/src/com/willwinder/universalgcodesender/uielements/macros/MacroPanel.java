@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
+
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -160,7 +162,16 @@ public class MacroPanel extends JPanel implements UGSEventListener {
 
     private void customGcodeButtonActionPerformed(int i) {
         Macro macro = backend.getSettings().getMacro(i);
-        MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+                } catch (Exception ex) {
+                    GUIHelpers.displayErrorDialog(ex.getMessage());
+                }
+            }
+        });
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
