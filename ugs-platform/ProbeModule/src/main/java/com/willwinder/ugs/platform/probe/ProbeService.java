@@ -274,7 +274,7 @@ public class ProbeService implements UGSEventListener {
         String g = GcodeUtils.unitCommand(context.units);
         String g0 = "G90 " + g + " G0";
         if (context.zSpacing < 0) {
-            gcode(g0 + " Z" + (context.retractHeight - context.zSpacing));
+            gcode(g0 + " Z" + (context.retractHeight + context.zOffset));
         }
         stateMachine = null;
     }

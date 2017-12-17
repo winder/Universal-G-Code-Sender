@@ -71,7 +71,7 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z1.0");
         if (finalRetract) {
-            order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z" + (pc.retractHeight - pc.zSpacing));
+            order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z" + (pc.retractHeight + pc.zOffset));
         }
     }
 
