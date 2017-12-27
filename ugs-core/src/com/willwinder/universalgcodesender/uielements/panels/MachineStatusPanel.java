@@ -218,13 +218,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         resetPanel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.setBackground(ThemeColors.DARK_BLUE_GREY);
         resetPanel.setHoverBackground(ThemeColors.MED_BLUE_GREY);
-        resetPanel.setLayout(new MigLayout("inset 10 20 10 20"));
+        resetPanel.setLayout(new MigLayout("inset 5 15 5 15"));
         JLabel axisLabel = new JLabel(String.valueOf(axis));
         axisLabel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.add(axisLabel, "al center, dock center, id axis");
         JLabel zeroLabel = new JLabel("0");
         zeroLabel.setForeground(ThemeColors.LIGHT_BLUE);
-        resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 20)");
+        resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 25)");
 
         work.setForeground(ThemeColors.LIGHT_BLUE);
         machine.setForeground(ThemeColors.LIGHT_BLUE);
