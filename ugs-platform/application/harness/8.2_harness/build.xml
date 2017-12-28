@@ -136,7 +136,7 @@ jarsigner.enabled=${jarsigner.enabled}
         
         <property name="engine.dist.file.name" value="nbi-engine.jar"/>
 
-        <echo message="UUGGGGAAAA BUILDING HELLOWORLD EXT ENGINE =================================="/>
+        <echo message="BUILDING HELLOWORLD EXT ENGINE =================================="/>
         <ant dir="${nbi.ext.dir}/infra/build/engine" target="release-all">
             <property 
                 name="basedir" 
@@ -151,7 +151,7 @@ jarsigner.enabled=${jarsigner.enabled}
         </ant>
 
 
-	<echo message="MUGGAAAA BUILDING HELLOWORLD PRODUCT =================================="/>
+	<echo message="BUILDING HELLOWORLD PRODUCT =================================="/>
         <ant dir="${nbi.ext.dir}/infra/build/products/helloworld" target="release-all">
             <property 
                 name="basedir" 
