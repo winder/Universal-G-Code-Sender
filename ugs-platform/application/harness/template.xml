@@ -75,7 +75,7 @@
 
     <target name="prepare-sources">
         <copy todir="${installer.build.dir}">
-           <fileset dir="${nbi.stub.location}"/>
+          <fileset dir="${suite.location}/harness/8.2_harness"/>
         </copy>
         <copy todir="${installer.build.dir}/.common">
            <fileset dir="${nbi.stub.common.location}"/>

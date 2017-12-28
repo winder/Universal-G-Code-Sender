@@ -96,6 +96,8 @@
                 <configuration>
                     <!-- Set up the gephi.conf for the final artifact -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
+                    <!-- inject customized NB Platform harness via template.xml -->
+                    <templateFile>${basedir}/harness/template.xml</templateFile>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
