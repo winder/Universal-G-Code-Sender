@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This is the build script for the NetBeans IDE nbi engine instance.
+  
+  It inherits most of the functionality from the base script for building nbi 
+  engine instances, while providing this instance-specific values for several
+  core properties. For more details on the values of these properties see
+  the build.properties file.
+-->
+<project name="netbeans-engine" default="usage" basedir=".">
+    <!-- import the properties that are specific to this environment -->
+    <property file="${environment.properties}"/>
+    
+    <!-- import the properties that are specific to this engine instance -->
+    <property file="build.properties"/>
+    
+    <!-- import the base script for building the engine -->
+    <import file="${common.dir}/engine.xml" optional="false"/>
+    
+    <!-- ============================================================================
+      Default
+    ============================================================================= -->
+    
+    <!--
+      The default target. 
+      
+      Does nothing except printing the usage information.
+    -->
+    <target name="usage">
+        <echo>
+            In order to 'clean', 'checkout' and 'build' the engine use the 
+            'build-all' target. To 'clean', 'checkout', 'build' and 
+            'release' - use 'release-all'.
+            
+            For more details, please see the source of this build script.
+        </echo>
+    </target>
+</project>

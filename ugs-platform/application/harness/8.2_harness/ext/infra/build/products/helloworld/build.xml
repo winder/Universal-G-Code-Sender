@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  This is the build script for the helloworld product package.
+    
+  It inherits most of the functionality from the base script for building nbi 
+  product packages, while providing this instance-specific values for several
+  core properties. For more details on the values of these properties see
+  the build.properties file.
+-->
+<project name="helloworld-product" default="usage" basedir=".">
+    <!-- import the properties that are specific to this environment -->
+    <property file="${environment.properties}"/>
+    
+    <!-- import the properties that are specific to this product package -->
+    <property file="build.properties"/>
+    
+    <!-- import the base script for building product packages -->
+    <import file="${common.dir}/product.xml" optional="false"/>
+    
+    <target name="-pre-package">
+        <mkdir dir="${data.directory}/__tmpdir__"/>
+
+        <move todir="${data.directory}/__tmpdir__">
+            <fileset dir="${data.directory}/${product.data.sub.dir}">
+                <include name="**"/>
+            </fileset>
+        </move>
+        
+        <delete dir="${data.directory}/${product.data.sub.dir}" includeemptydirs="true"/>
+
+        <move todir="${data.directory}">
+            <fileset dir="${data.directory}/__tmpdir__">
+                <include name="**"/>
+            </fileset>
+        </move>
+        <delete dir="${data.directory}/__tmpdir__" includeemptydirs="true"/>
+        <!--
+        <exec executable="sh" failonerror="false" dir="${data.directory}">
+            <arg value="-c"/>
+            <arg value="chmod a+x bin/*.sh"/>
+        </exec>
+        -->
+    </target>
+
+    <!--
+      The default target. 
+      
+      Does nothing except printing the usage information.
+    -->
+    <target name="usage">
+        <echo>
+            In order to 'clean', 'checkout' and 'build' the group use the 
+            'build-all' target. To 'clean', 'checkout', 'build' and 
+            'release' - use 'release-all'.
+            
+            For more details, please see the source of this build script.
+        </echo>
+    </target>
+</project>
