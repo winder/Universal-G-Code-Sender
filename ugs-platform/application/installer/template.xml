@@ -81,6 +81,14 @@
            <fileset dir="${nbi.stub.common.location}"/>
         </copy>
 
+        <!-- Copy installer configuration logic -->
+        <copy file="${configuration.logic.file}"  overwrite="true"
+           tofile="${installer.build.dir}/ext/components/products/helloworld/src/org/mycompany/ConfigurationLogic.java"/>
+
+        <!-- Copy installer build script -->
+        <copy file="${nbi.stub.buildfile}"  overwrite="true"
+           tofile="${installer.build.dir}/build.xml"/>
+
         <property name="product-uid"  value="${suite.nbi.product.uid}"/>
 
         <condition property="icon.path" value="${nbi.icon.file}" else="${installer.build.dir}/ext/components/products/helloworld/data/icon48.png">

@@ -199,11 +199,51 @@ jarsigner.enabled=${jarsigner.enabled}
 
             <set property="bundle.extention" source="bundle.extention.${platform}"/>
 
+            <!-- replaced with os specific installers -->
+            <!--
             <create-bundle root="${output.dir}/registry-temp" 
                        platform="${platform}" 
                        target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
                 <component uid="${main.product.uid}" version="1.0.0.0.0"/>
             </create-bundle>
+            -->
+
+            <if property="platform" value="linux">
+                <create-bundle root="${output.dir}/registry-temp"
+                               platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/jre-linux.bin"/>
+                </create-bundle>
+            </if>
+
+            <if property="platform" value="windows">
+                <create-bundle root="${output.dir}/registry-temp"
+                               platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                    <property name="nbi.bundled.jvm.file" value="${basedir}/jre-windows.exe"/>
+                </create-bundle>
+            </if>
+
+            <if property="platform" value="macosx">
+                <!-- NOT bundling a JRE on Mac OSX -->
+                <create-bundle root="${output.dir}/registry-temp"
+                               platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                </create-bundle>
+            </if>
+
+            <if property="platform" value="solaris">
+                <!-- NOT bundling a JRE on Solaris. Check added just for completeness sake -->
+                <create-bundle root="${output.dir}/registry-temp"
+                               platform="${platform}"
+                               target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                    <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                </create-bundle>
+            </if>
+
             <if property="bundle.extention" value="zip">
                 <antcall target="zip-to-tgz">
                     <param name="input.file"  value="${bundles.release.dir}/${bundle.files.prefix}-${platform}.zip"/>
