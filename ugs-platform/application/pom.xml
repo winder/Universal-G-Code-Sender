@@ -96,6 +96,25 @@
                 <configuration>
                     <!-- Set up the gephi.conf for the final artifact -->
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
+
+                    <!-- Eventually enable some of these. -->
+                    <installerOsMacosx>false</installerOsMacosx>
+                    <installerOsSolaris>false</installerOsSolaris>
+                    <installerOsLinux>false</installerOsLinux>
+                    <installerOsWindows>false</installerOsWindows>
+
+                    <!-- Inject customized NB Platform harness via template.xml -->
+                    <templateFile>${basedir}/installer/template.xml</templateFile>
+                    <!--
+                         <installerPack200Enable>false</installerPack200Enable>
+                     -->
+
+                    <!-- Properties to pass into the ant build harness. -->
+                    <userSettings>
+                        <!-- Tell custom template.xml where these files are. -->
+                        <configuration.logic.file>${basedir}/installer/ConfigurationLogic.java</configuration.logic.file>
+                        <nbi.stub.buildfile>${basedir}/installer/build.xml</nbi.stub.buildfile>
+                    </userSettings>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
