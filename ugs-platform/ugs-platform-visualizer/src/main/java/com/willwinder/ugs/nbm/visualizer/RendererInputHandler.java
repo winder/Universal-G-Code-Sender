@@ -22,13 +22,10 @@
 package com.willwinder.ugs.nbm.visualizer;
 
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
-import com.google.common.eventbus.Subscribe;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
-import com.willwinder.ugs.nbm.visualizer.renderables.Highlight;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
-import com.willwinder.ugs.nbp.lib.eventbus.HighlightEvent;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -65,7 +62,6 @@ public class RendererInputHandler implements
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
     private final GcodeModel gcodeModel;
-    private final Highlight highlight;
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
     private final VisualizerPopupMenu visualizerPopupMenu;
@@ -83,12 +79,10 @@ public class RendererInputHandler implements
         settings = s;
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
-        highlight = new Highlight(gcodeModel, Localization.getString("platform.visualizer.renderable.highlight"));
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
 
         gr.registerRenderable(gcodeModel);
-        gr.registerRenderable(highlight);
         gr.registerRenderable(sizeDisplay);
         gr.registerRenderable(selection);
     }
@@ -98,12 +92,6 @@ public class RendererInputHandler implements
         animator.stop();
         animator.setFPS(fps);
         animator.start();
-    }
-
-
-    @Subscribe
-    public void highlightEventListener(HighlightEvent he) {
-        highlight.setHighlightedLines(he.getLines());
     }
 
     @Override

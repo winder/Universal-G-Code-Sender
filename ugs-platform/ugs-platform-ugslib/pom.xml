@@ -19,7 +19,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
-                        <publicPackage>com.willwinder.ugs.nbp.lib.eventbus</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.services</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbp.lib.lookup</publicPackage>
@@ -32,7 +31,6 @@
                         <package>com.google.common.cache</package>
                         <package>com.google.common.collect</package>
                         <package>com.google.common.escape</package>
-                        <package>com.google.common.eventbus</package>
                         <package>com.google.common.hash</package>
                         <package>com.google.common.html</package>
                         <package>com.google.common.io</package>

@@ -52,6 +52,11 @@
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency> 
+            <groupId>${project.groupId}</groupId>  
+            <artifactId>ugs-platform-visualizer</artifactId>  
+            <version>${project.version}</version> 
+        </dependency>  
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-core-multiview</artifactId>

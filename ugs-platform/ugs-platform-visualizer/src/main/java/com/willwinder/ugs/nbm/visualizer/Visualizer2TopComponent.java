@@ -23,7 +23,6 @@
 package com.willwinder.ugs.nbm.visualizer;
 
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
-import com.google.common.eventbus.EventBus;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
@@ -33,7 +32,6 @@ import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
 import java.util.prefs.Preferences;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
-import com.willwinder.ugs.nbp.lib.eventbus.HighlightEventBus;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
@@ -151,11 +149,6 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
 
         // Install listeners...
-
-        EventBus eb = Lookup.getDefault().lookup(HighlightEventBus.class);
-        if (eb != null) {
-            eb.register(this.rih);
-        }
 
         backend.addControllerListener(this.rih);
         backend.addUGSEventListener(this.rih);

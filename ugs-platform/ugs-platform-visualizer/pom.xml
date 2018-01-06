@@ -21,6 +21,7 @@
                     <publicPackages>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.shared</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.options</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbm.visualizer.renderables</publicPackage>
                     </publicPackages>
                 </configuration>
             </plugin>
