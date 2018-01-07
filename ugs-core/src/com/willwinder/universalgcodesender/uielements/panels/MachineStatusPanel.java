@@ -386,12 +386,14 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (backend.getSettings().isDisplayStateColor()) {
             Color background = ThemeColors.GREY;
             String text = state;
-
-            if (state.equalsIgnoreCase("Alarm")) {
+            if (state.toLowerCase().startsWith("alarm")) {
                 text = Localization.getString("mainWindow.status.alarm");
                 background = ThemeColors.RED;
             } else if (state.equalsIgnoreCase("Hold")) {
                 text = Localization.getString("mainWindow.status.hold");
+                background = ThemeColors.ORANGE;
+            } else if (state.toLowerCase().startsWith("door")) {
+                text = Localization.getString("mainWindow.status.door");
                 background = ThemeColors.ORANGE;
             } else if (state.equalsIgnoreCase("Run")) {
                 text = Localization.getString("mainWindow.status.run");
