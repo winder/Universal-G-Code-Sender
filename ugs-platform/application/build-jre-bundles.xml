@@ -5,16 +5,67 @@
     <delete dir="${project.build.directory}/bundles"/>
     <mkdir  dir="${project.build.directory}/bundles"/>
 
-    <!-- mac, windows, linux, RPi -->
-    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/mac"         bundle="${ugs.mac.bundle.jvm.version}"     url.prefix="${ugs.bundle.java.url}"/>
-    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/windows"     bundle="${ugs.windows.bundle.jvm.version}" url.prefix="${ugs.bundle.java.url}"/>
-    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/linux"       bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
-    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/raspberrypi" bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
+    <!-- download and extract jre  -->
+    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/macosx"      bundle="${ugs.mac.bundle.jvm.version}"     url.prefix="${ugs.bundle.java.url}"/>
+    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/windows"     bundle="${ugs.windows.bundle.jvm.version}" url.prefix="${ugs.bundle.java.url}"/>
+    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/linux"       bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
+    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/raspberrypi" bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
 
     <include-raspberrypi-javafx
       dir="${project.build.directory}/bundles/raspberrypi"
       url="${ugs.rpi.bundle.javafx.url}"/>
+
+    <!-- get 7zip executable -->
+    <condition property="platform.7zip" value="${basedir}/installer/7zip/7z.1602.MacOSX64">
+      <os family="mac"/>
+    </condition>
+
+    <condition property="platform.7zip" value="${basedir}/installer/7zip/7z.1602.Linux32">
+      <os family="unix"/>
+    </condition>
+
+    <condition property="platform.7zip" value="${basedir}/installer/7zip/7z.1602.Win32">
+      <os family="windows"/>
+    </condition>
+
+    <!-- create self extracting archives -->
+    <create-self-extracting-archive
+      exe="${platform.7zip}"
+      dir="${project.build.directory}/bundles/macosx"
+      sfx="7z.1602.ConMacOSX64.sfx"
+      sfxdir="${basedir}/installer/7zip"/>
+
+    <create-self-extracting-archive
+      exe="${platform.7zip}"
+      dir="${project.build.directory}/bundles/windows"
+      sfx="7z.1602.ConWin32.sfx"
+      sfxdir="${basedir}/installer/7zip"/>
+
+    <create-self-extracting-archive
+      exe="${platform.7zip}"
+      dir="${project.build.directory}/bundles/linux"
+      sfx="7z.1602.ConLinux32.sfx"
+      sfxdir="${basedir}/installer/7zip"/>
+
   </target>
+  
+  <macrodef name="create-self-extracting-archive">
+    <attribute name="exe"/>
+    <attribute name="dir"/>
+    <attribute name="sfx"/>
+    <attribute name="sfxdir"/>
+    <sequential>
+      <!--
+        7za a -sfx7z.1602.ConMacOSX64.sfx myarchive.7z.sfx /opt/Universal-G-Code-Sender/7z-SFX/test/
+          -->
+      <exec dir="@{sfxdir}" executable="@{exe}" failonerror="true">
+        <arg line="a"/>
+        <arg line="-sfx@{sfx}"/>
+        <arg line="@{dir}/bundle.sfx"/>
+        <arg line="@{dir}/jre"/>
+      </exec>
+    </sequential>
+  </macrodef>
 
   <!-- RaspberryPi doesn't ship with JavaFX. So download the gluon version
        and merge the libraries into the standard JRE -->
@@ -22,6 +73,7 @@
     <attribute name="dir"/>
     <attribute name="url"/>
     <sequential>
+      <!-- they don't support byte ranges, so no resume flag (-C) -->
       <exec dir="${project.build.directory}" executable="curl" failonerror="true">
         <arg line="@{url}"/>
         <arg line="-o"/>
@@ -53,26 +105,7 @@
     </sequential>
   </macrodef>
 
-  <!-- MacOSX bundle has a symlink that needs to be flattened. -->
-  <macrodef name="flatten-osx-jre">
-    <attribute name="dir"/>
-    <sequential>
-      <echo message="Attempting to flatten: @{dir}"/>
-
-      <if>
-        <available file="@{dir}/Contents"/>
-        <then>
-          <delete file="@{dir}/Contents/MacOS/libjli.dylib"/>
-          <copy file="@{dir}/Contents/Home/lib/jli/libjli.dylib" todir="@{dir}/Contents/MacOS"/>
-        </then>
-        <else>
-          <echo message="Not a MacOSX JRE: @{dir}"/>
-        </else>
-      </if>
-    </sequential>
-  </macrodef>
-
-  <macrodef name="create-jre-bundle">
+  <macrodef name="fetch-extract-jre">
     <attribute name="url.prefix"/>
     <attribute name="bundle"/>
     <attribute name="bundle.dir"/>
@@ -104,7 +137,14 @@
         <dirset dir="@{bundle.dir}" includes="*"/>
       </move>
 
-      <flatten-osx-jre dir="@{bundle.dir}/jre"/>
+      <!-- remove OSX symlink -->
+      <if>
+        <available file="@{bundle.dir}/jre/Contents"/>
+        <then>
+          <delete file="@{bundle.dir}/jre/Contents/MacOS/libjli.dylib"/>
+          <copy file="@{bundle.dir}/jre/Contents/Home/lib/jli/libjli.dylib" todir="@{bundle.dir}/jre/Contents/MacOS"/>
+        </then>
+      </if>
     </sequential>
   </macrodef>
 </project>
