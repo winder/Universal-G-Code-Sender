@@ -311,13 +311,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void onControllerStatusReceived(ControllerStatus status) {
         this.updateStatePanel(status.getState());
+        resetStatePinComponents();
 
         if (status.getEnabledPins() != null) {
 
             EnabledPins ep = status.getEnabledPins();
 
             List<String> enabled = new ArrayList<>();
-            enabled.add(ALARM + ":");
             if (ep.X) enabled.add(PIN_X);
             if (ep.Y) enabled.add(PIN_Y);
             if (ep.Z) enabled.add(PIN_Z);
@@ -326,11 +326,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             if (ep.Hold) enabled.add(PIN_HOLD);
             if (ep.SoftReset) enabled.add(PIN_SOFT_RESET);
             if (ep.CycleStart) enabled.add(PIN_CYCLE_STARY);
-            pinStatesLabel.setText(String.join(" ", enabled));
-            pinStatesLabel.setForeground(ThemeColors.RED);
-            pinStatePanel.setForeground(ThemeColors.RED);
-        } else {
-            resetStatePinComponents();
+
+            if (! enabled.isEmpty()) {
+                enabled.add(0, ALARM + ":");
+                pinStatesLabel.setText(String.join(" ", enabled));
+                pinStatesLabel.setForeground(ThemeColors.RED);
+                pinStatePanel.setForeground(ThemeColors.RED);
+            }
         }
 
         if (status.getMachineCoord() != null) {
@@ -384,12 +386,14 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (backend.getSettings().isDisplayStateColor()) {
             Color background = ThemeColors.GREY;
             String text = state;
-
-            if (state.equalsIgnoreCase("Alarm")) {
+            if (state.toLowerCase().startsWith("alarm")) {
                 text = Localization.getString("mainWindow.status.alarm");
                 background = ThemeColors.RED;
             } else if (state.equalsIgnoreCase("Hold")) {
                 text = Localization.getString("mainWindow.status.hold");
+                background = ThemeColors.ORANGE;
+            } else if (state.toLowerCase().startsWith("door")) {
+                text = Localization.getString("mainWindow.status.door");
                 background = ThemeColors.ORANGE;
             } else if (state.equalsIgnoreCase("Run")) {
                 text = Localization.getString("mainWindow.status.run");
