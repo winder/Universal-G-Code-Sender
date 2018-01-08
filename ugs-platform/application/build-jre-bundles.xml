@@ -55,9 +55,6 @@
     <attribute name="sfx"/>
     <attribute name="sfxdir"/>
     <sequential>
-      <!--
-        7za a -sfx7z.1602.ConMacOSX64.sfx myarchive.7z.sfx /opt/Universal-G-Code-Sender/7z-SFX/test/
-          -->
       <exec dir="@{sfxdir}" executable="@{exe}" failonerror="true">
         <arg line="a"/>
         <arg line="-sfx@{sfx}"/>
@@ -73,7 +70,6 @@
     <attribute name="dir"/>
     <attribute name="url"/>
     <sequential>
-      <!-- they don't support byte ranges, so no resume flag (-C) -->
       <exec dir="${project.build.directory}" executable="curl" failonerror="true">
         <arg line="@{url}"/>
         <arg line="-o"/>
@@ -116,8 +112,6 @@
       <!-- download -->
       <exec dir="${project.build.directory}" executable="curl" failonerror="true">
         <arg line="-L"/>
-        <arg line="-C"/>
-        <arg line="-"/>
         <arg line="-b"/>
         <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
         <arg line="-O"/>
