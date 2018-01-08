@@ -31,10 +31,12 @@
       </ugs.modules.specification.version>
 
       <!--==== JRE Bundle Properties ====-->
-      <ugs.bundle.java.url>http://download.oracle.com/otn-pub/java/jdk/8u144-b01/090f390dda5b47b9b721c7dfaa008135</ugs.bundle.java.url>
+      <ugs.bundle.java.url>http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf</ugs.bundle.java.url>
 
-      <ugs.mac.bundle.jvm.version>jre-8u144-macosx-x64</ugs.mac.bundle.jvm.version>
-      <ugs.rpi.bundle.jvm.version>jdk-8u144-linux-arm64-vfp-hflt</ugs.rpi.bundle.jvm.version>
+      <ugs.mac.bundle.jvm.version>jre-8u151-macosx-x64</ugs.mac.bundle.jvm.version>
+      <ugs.linux.bundle.jvm.version>jre-8u151-linux-i586</ugs.linux.bundle.jvm.version>
+      <ugs.windows.bundle.jvm.version>jre-8u151-windows-x64</ugs.windows.bundle.jvm.version>
+      <ugs.rpi.bundle.jvm.version>jdk-8u151-linux-arm64-vfp-hflt</ugs.rpi.bundle.jvm.version>
       <ugs.rpi.bundle.javafx.url>http://download.gluonhq.com/javafxports/embedded/armv6hf-sdk-8.60.9.zip</ugs.rpi.bundle.javafx.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->

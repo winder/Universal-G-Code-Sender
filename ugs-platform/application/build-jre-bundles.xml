@@ -1,0 +1,110 @@
+<project name="build jre bundles" default="create-jre-bundles" basedir=".">
+
+  <!-- entry point. -->
+  <target name="create-jre-bundles">
+    <delete dir="${project.build.directory}/bundles"/>
+    <mkdir  dir="${project.build.directory}/bundles"/>
+
+    <!-- mac, windows, linux, RPi -->
+    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/mac"         bundle="${ugs.mac.bundle.jvm.version}"     url.prefix="${ugs.bundle.java.url}"/>
+    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/windows"     bundle="${ugs.windows.bundle.jvm.version}" url.prefix="${ugs.bundle.java.url}"/>
+    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/linux"       bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
+    <create-jre-bundle bundle.dir="${project.build.directory}/bundles/raspberrypi" bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
+
+    <include-raspberrypi-javafx
+      dir="${project.build.directory}/bundles/raspberrypi"
+      url="${ugs.rpi.bundle.javafx.url}"/>
+  </target>
+
+  <!-- RaspberryPi doesn't ship with JavaFX. So download the gluon version
+       and merge the libraries into the standard JRE -->
+  <macrodef name="include-raspberrypi-javafx">
+    <attribute name="dir"/>
+    <attribute name="url"/>
+    <sequential>
+      <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+        <arg line="@{url}"/>
+        <arg line="-o"/>
+        <arg line="gluon.javafx.zip"/>
+      </exec>
+
+      <!-- Unzip -->
+      <mkdir dir="@{dir}/gluon"/>
+      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+        <arg line="-zxf"/>
+        <arg line="gluon.javafx.zip"/>
+        <arg line="-C @{dir}/gluon"/>
+      </exec>
+
+      <!-- Get the JavaFX folder name -->
+      <path id="javafx_name">
+        <dirset dir="@{dir}/gluon" includes="*"/>
+      </path>
+      <property name="bundle.javafx.path" refid="javafx_name"/>
+
+      <!-- Sync JavaFX libraries into JDK -->
+      <exec dir="${project.build.directory}" executable="rsync" failonerror="true">
+        <arg line="-a"/>
+        <arg line="${bundle.javafx.path}/"/>
+        <arg line="&quot;@{dir}/jre/&quot;"/>
+      </exec>
+
+      <delete dir="@{dir}/gluon"/>
+    </sequential>
+  </macrodef>
+
+  <!-- MacOSX bundle has a symlink that needs to be flattened. -->
+  <macrodef name="flatten-osx-jre">
+    <attribute name="dir"/>
+    <sequential>
+      <echo message="Attempting to flatten: @{dir}"/>
+
+      <if>
+        <available file="@{dir}/Contents"/>
+        <then>
+          <delete file="@{dir}/Contents/MacOS/libjli.dylib"/>
+          <copy file="@{dir}/Contents/Home/lib/jli/libjli.dylib" todir="@{dir}/Contents/MacOS"/>
+        </then>
+        <else>
+          <echo message="Not a MacOSX JRE: @{dir}"/>
+        </else>
+      </if>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="create-jre-bundle">
+    <attribute name="url.prefix"/>
+    <attribute name="bundle"/>
+    <attribute name="bundle.dir"/>
+    <sequential>
+      <echo message="Creating bundle for: @{bundle}"/>
+      <echo message="In: @{bundle.dir}"/>
+
+      <!-- download -->
+      <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+        <arg line="-L"/>
+        <arg line="-C"/>
+        <arg line="-"/>
+        <arg line="-b"/>
+        <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
+        <arg line="-O"/>
+        <arg line="@{url.prefix}/@{bundle}.tar.gz"/>
+      </exec>
+
+      <!-- extract -->
+      <mkdir dir="@{bundle.dir}"/>
+      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+        <arg line="-zxf"/>
+        <arg line="@{bundle}.tar.gz"/>
+        <arg line="-C &quot;@{bundle.dir}&quot;"/>
+      </exec>
+
+      <!-- rename directory to jre -->
+      <move tofile="@{bundle.dir}/jre">
+        <dirset dir="@{bundle.dir}" includes="*"/>
+      </move>
+
+      <flatten-osx-jre dir="@{bundle.dir}/jre"/>
+    </sequential>
+  </macrodef>
+</project>
