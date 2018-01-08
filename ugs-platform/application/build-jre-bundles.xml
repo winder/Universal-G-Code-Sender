@@ -9,7 +9,7 @@
     <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/macosx"      bundle="${ugs.mac.bundle.jvm.version}"     url.prefix="${ugs.bundle.java.url}"/>
     <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/windows"     bundle="${ugs.windows.bundle.jvm.version}" url.prefix="${ugs.bundle.java.url}"/>
     <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/linux"       bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
-    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/raspberrypi" bundle="${ugs.linux.bundle.jvm.version}"   url.prefix="${ugs.bundle.java.url}"/>
+    <fetch-extract-jre bundle.dir="${project.build.directory}/bundles/raspberrypi" bundle="${ugs.rpi.bundle.jvm.version}"     url.prefix="${ugs.bundle.java.url}"/>
 
     <include-raspberrypi-javafx
       dir="${project.build.directory}/bundles/raspberrypi"
@@ -78,11 +78,7 @@
 
       <!-- Unzip -->
       <mkdir dir="@{dir}/gluon"/>
-      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-        <arg line="-zxf"/>
-        <arg line="gluon.javafx.zip"/>
-        <arg line="-C @{dir}/gluon"/>
-      </exec>
+      <unzip src="${project.build.directory}/gluon.javafx.zip" dest="@{dir}/gluon"/>
 
       <!-- Get the JavaFX folder name -->
       <path id="javafx_name">
@@ -120,11 +116,10 @@
 
       <!-- extract -->
       <mkdir dir="@{bundle.dir}"/>
-      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-        <arg line="-zxf"/>
-        <arg line="@{bundle}.tar.gz"/>
-        <arg line="-C &quot;@{bundle.dir}&quot;"/>
-      </exec>
+      <untar
+        src="${project.build.directory}/@{bundle}.tar.gz"
+        dest="@{bundle.dir}"
+        compression="gzip"/>
 
       <!-- rename directory to jre -->
       <move tofile="@{bundle.dir}/jre">
