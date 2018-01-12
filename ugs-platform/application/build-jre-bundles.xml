@@ -57,6 +57,7 @@
     <sequential>
       <exec dir="@{sfxdir}" executable="@{exe}" failonerror="true">
         <arg line="a"/>
+        <arg line="-mx9 -m0d=48m"/> <!-- smaller dictionary for less memory usage. -->
         <arg line="-sfx@{sfx}"/>
         <arg line="@{dir}/bundle.sfx"/>
         <arg line="@{dir}/jre"/>
