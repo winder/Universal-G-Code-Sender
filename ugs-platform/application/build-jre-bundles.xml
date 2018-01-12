@@ -70,11 +70,7 @@
     <attribute name="dir"/>
     <attribute name="url"/>
     <sequential>
-      <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-        <arg line="@{url}"/>
-        <arg line="-o"/>
-        <arg line="gluon.javafx.zip"/>
-      </exec>
+      <get src="@{url}" dest="${project.build.directory}/gluon.javafx.zip" failonerror="true"/>
 
       <!-- Unzip -->
       <mkdir dir="@{dir}/gluon"/>
