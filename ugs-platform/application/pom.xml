@@ -98,18 +98,16 @@
                     <etcConfFile>${basedir}/target/${brandingToken}.conf</etcConfFile>
 
                     <!-- Eventually enable some of these. -->
-                    <!--
                     <installerOsMacosx>false</installerOsMacosx>
                     <installerOsSolaris>false</installerOsSolaris>
+                    <!--
                     <installerOsLinux>false</installerOsLinux>
                     <installerOsWindows>false</installerOsWindows>
                     -->
 
                     <!-- Inject customized NB Platform harness via template.xml -->
                     <templateFile>${basedir}/installer/template.xml</templateFile>
-                    <!--
-                         <installerPack200Enable>false</installerPack200Enable>
-                     -->
+                    <installerPack200Enable>false</installerPack200Enable>
 
                     <!-- Properties to pass into the ant build harness. -->
                     <userSettings>
