@@ -79,7 +79,12 @@
 
       <!-- Unzip -->
       <mkdir dir="@{dir}/gluon"/>
-      <unzip src="${project.build.directory}/gluon.javafx.zip" dest="@{dir}/gluon"/>
+      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+        <arg line="-zxf"/>
+        <arg line="gluon.javafx.zip"/>
+        <arg line="-C @{dir}/gluon"/>
+      </exec>
+
 
       <!-- Get the JavaFX folder name -->
       <path id="javafx_name">
@@ -117,10 +122,11 @@
 
       <!-- extract -->
       <mkdir dir="@{bundle.dir}"/>
-      <untar
-        src="${project.build.directory}/@{bundle}.tar.gz"
-        dest="@{bundle.dir}"
-        compression="gzip"/>
+      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+        <arg line="-zxf"/>
+        <arg line="@{bundle}.tar.gz"/>
+        <arg line="-C &quot;@{bundle.dir}&quot;"/>
+      </exec>
 
       <!-- rename directory to jre -->
       <move tofile="@{bundle.dir}/jre">
