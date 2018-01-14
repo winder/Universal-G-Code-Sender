@@ -32,35 +32,39 @@
     <create-self-extracting-archive
       exe="${platform.7zip}"
       dir="${project.build.directory}/bundles/macosx"
-      sfx="7z.1602.ConMacOSX64.sfx"
-      sfxdir="${basedir}/installer/7zip"/>
+      sfx.header="7z.1602.ConMacOSX64.sfx"
+      sfx.dir="${basedir}/installer/7zip"
+      sfx.output="bundle.bin"/>
 
     <create-self-extracting-archive
       exe="${platform.7zip}"
       dir="${project.build.directory}/bundles/windows"
-      sfx="7z.1602.ConWin32.sfx"
-      sfxdir="${basedir}/installer/7zip"/>
+      sfx.header="7z.1602.ConWin32.sfx"
+      sfx.dir="${basedir}/installer/7zip"
+      sfx.output="bundle.exe"/>
 
     <create-self-extracting-archive
       exe="${platform.7zip}"
       dir="${project.build.directory}/bundles/linux"
-      sfx="7z.1602.ConLinux32.sfx"
-      sfxdir="${basedir}/installer/7zip"/>
+      sfx.header="7z.1602.ConLinux32.sfx"
+      sfx.dir="${basedir}/installer/7zip"
+      sfx.output="bundle.sh"/>
 
   </target>
   
   <macrodef name="create-self-extracting-archive">
     <attribute name="exe"/>
     <attribute name="dir"/>
-    <attribute name="sfx"/>
-    <attribute name="sfxdir"/>
+    <attribute name="sfx.header"/>
+    <attribute name="sfx.dir"/>
+    <attribute name="sfx.output"/>
     <sequential>
-      <exec dir="@{sfxdir}" executable="@{exe}" failonerror="true">
+      <exec dir="@{sfx.dir}" executable="@{exe}" failonerror="true">
         <arg line="a"/>
         <arg line="-mx9 -m0d=8m -mmt=off"/> <!-- smaller dictionary for less memory usage. -->
-        <arg line="-sfx@{sfx}"/>
-        <arg line="@{dir}/bundle.sfx"/>
-        <arg line="@{dir}/jre"/>
+        <arg line="-sfx@{sfx.header}"/>
+        <arg line="@{dir}/@{sfx.output}"/>
+        <arg line="@{dir}/jre/*"/>
       </exec>
     </sequential>
   </macrodef>

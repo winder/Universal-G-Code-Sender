@@ -201,21 +201,21 @@ jarsigner.enabled=${jarsigner.enabled}
 
             <!-- Set 'nbi.bundled.jvm.file' for linux/windows -->
             <if property="platform" value="linux"> 
-                <property name="sfx.file" value="${bundles.release.dir}/bundles/${platform}/bundle.sfx"/>
+              <create-bundle root="${output.dir}/registry-temp" 
+                         platform="${platform}" 
+                         target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                  <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                  <property name="nbi.bundled.jvm.file" value="${bundles.release.dir}/bundles/${platform}/bundle.${bundle.extention}"/>
+              </create-bundle>
             </if>
-            <if property="platform" value="linux"> 
-                <property name="sfx.file" value="${bundles.release.dir}/bundles/${platform}/bundle.sfx"/>
+            <if property="platform" value="windows"> 
+              <create-bundle root="${output.dir}/registry-temp" 
+                         platform="${platform}" 
+                         target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
+                  <component uid="${main.product.uid}" version="1.0.0.0.0"/>
+                  <property name="nbi.bundled.jvm.file" value="${bundles.release.dir}/bundles/${platform}/bundle.${bundle.extention}"/>
+              </create-bundle>
             </if>
-
-            <echo message="TEST: jvm bundle: ${sfx.file}"/>
-            <echo message="TEST: sfx file: ${bundles.release.dir}/bundles/${platform}/bundle.sfx"/>
-
-            <create-bundle root="${output.dir}/registry-temp" 
-                       platform="${platform}" 
-                       target="${bundles.release.dir}/${bundle.files.prefix}-${platform}.${bundle.extention}">
-                <component uid="${main.product.uid}" version="1.0.0.0.0"/>
-                <property name="nbi.bundled.jvm.file" value="${sfx.file}"/>
-            </create-bundle>
 
             <if property="bundle.extention" value="zip">
                 <antcall target="zip-to-tgz">
