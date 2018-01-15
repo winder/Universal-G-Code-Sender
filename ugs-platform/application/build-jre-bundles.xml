@@ -79,10 +79,9 @@
 
       <!-- Unzip -->
       <mkdir dir="@{dir}/gluon"/>
-      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-        <arg line="-zxf"/>
+      <exec dir="${project.build.directory}" executable="unzip" failonerror="true">
         <arg line="gluon.javafx.zip"/>
-        <arg line="-C @{dir}/gluon"/>
+        <arg line="-d @{dir}/gluon"/>
       </exec>
 
 
