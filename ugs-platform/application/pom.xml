@@ -259,8 +259,6 @@
                               <!-- Download and untar JRE -->
                               <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                                   <arg line="-L"/>
-                                  <arg line="-C"/>
-                                  <arg line="-"/>
                                   <arg line="-b"/>
                                   <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
                                   <arg line="-O"/>
@@ -400,8 +398,6 @@
                      <!-- Download and untar JRE -->
                      <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                        <arg line="-L"/>
-                       <arg line="-C"/>
-                       <arg line="-"/>
                        <arg line="-b"/>
                        <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
                        <arg line="-O"/>
