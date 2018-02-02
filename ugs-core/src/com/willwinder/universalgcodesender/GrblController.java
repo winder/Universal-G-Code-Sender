@@ -669,9 +669,9 @@ public class GrblController extends AbstractController {
             if (zLocationMM > this.maxZLocationMM) {
                 maxZLocationMM = zLocationMM;
             }
-
-            dispatchStatusString(controllerStatus);
         }
+
+        dispatchStatusString(controllerStatus);
     }
     
     @Override
