@@ -58,7 +58,7 @@ import org.openide.util.actions.Presenter;
                 position = 975)
 })
 public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener, Presenter.Toolbar {
-    public static final String ICON_BASE = "resources/icons/connect.gif";
+    public static final String ICON_BASE = "resources/icons/connect.png";
     public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.png";
 
     public ImageIcon connectImage = null;
