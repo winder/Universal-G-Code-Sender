@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
@@ -53,16 +52,6 @@ public class RunActionService {
         if (canRunCommand()) {
             try {
                 backend.sendOverrideCommand(action);
-            } catch (Exception ex) {
-                GUIHelpers.displayErrorDialog(ex.getMessage());
-            }
-        }
-    }
-
-    public void runAction(ACTIONS action) {
-        if (canRunCommand()) {
-            try {
-                backend.performAction(action);
             } catch (Exception ex) {
                 GUIHelpers.displayErrorDialog(ex.getMessage());
             }
@@ -211,26 +200,6 @@ public class RunActionService {
         Overrides action;
 
         public OverrideAction(RunActionService service, Overrides action) {
-            gs = service;
-            this.action = action;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            gs.runAction(action);
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return gs.canRunCommand();
-        }
-    }
-    protected class GcodeAction extends AbstractAction {
-        RunActionService gs;
-        ACTIONS action;
-
-        public GcodeAction(RunActionService service, ACTIONS action) {
-            //super(name);
             gs = service;
             this.action = action;
         }
