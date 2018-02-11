@@ -48,7 +48,6 @@ import java.awt.event.ActionEvent;
 })
 public final class SoftResetAction extends AbstractAction implements UGSEventListener {
 
-    // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/reset.png";
 
     private BackendAPI backend;

@@ -51,7 +51,6 @@ import java.awt.event.ActionEvent;
 })
 public final class StopAction extends AbstractAction implements UGSEventListener {
 
-    // Icons: http://www.customicondesign.com/free-icons/flatastic-icon-set/
     public static final String ICON_BASE = "resources/icons/stop.png";
 
     private BackendAPI backend;

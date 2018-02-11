@@ -56,8 +56,7 @@ import org.openide.util.ImageUtilities;
                 path = LocalizingService.PendantWindowPath,
                 position = 1015)})
 public class PendantAction extends AbstractAction {
-    // http://www.flaticon.com/authors/dario-ferrando
-    // Pendant icon made by Dario Ferrando from www.flaticon.com is licensed by CC 3.0 BY
+
     public static final String ICON_BASE = "resources/icons/pendant.png";
 
     private final BackendAPI backend;
