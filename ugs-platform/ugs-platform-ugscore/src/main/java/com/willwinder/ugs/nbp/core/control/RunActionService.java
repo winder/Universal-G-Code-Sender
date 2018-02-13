@@ -82,17 +82,6 @@ public class RunActionService {
             String category;
             String localizedCategory;
 
-            // File menu actions.
-            localized = String.format("Menu/%s",
-                    Localization.getString("mainWindow.swing.fileLabel"));
-            menuPath = "Menu/File";
-            category = "File";
-            localizedCategory = Localization.getString("mainWindow.swing.fileLabel");
-
-            ars.registerAction(OpenGcodeFileAction.class.getCanonicalName(), Localization.getString("platform.menu.open"),
-                    category, localizedCategory, "M-O" , menuPath, localized,
-                    new OpenGcodeFileAction(backend));
-
             // Machine menu actions.
             // Start/Stop/Pause and Connect/Disconnect and Firmware Settings
             localized = String.format("Menu/%s",
