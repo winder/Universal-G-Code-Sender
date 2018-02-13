@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,16 +25,21 @@ import java.awt.Component;
 import org.openide.awt.StatusLineElementProvider;
 import org.openide.util.lookup.ServiceProvider;
 
+import javax.swing.*;
+
 /**
+ * A status line panel that displays the file send status
  *
  * @author wwinder
  */
 @ServiceProvider(service = StatusLineElementProvider.class, position=1)
-public class StatusLineService implements StatusLineElementProvider {
+public class SendStatusLineService implements StatusLineElementProvider {
 
     @Override
     public Component getStatusLineElement() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        return new SendStatusLine(backend);
+        JPanel panel = new JPanel();
+        panel.add(new SendStatusLine(backend));
+        return panel;
     }
 }

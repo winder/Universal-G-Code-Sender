@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -38,11 +38,12 @@ import org.openide.util.lookup.ServiceProvider;
 public class JogStatusLineService implements StatusLineElementProvider {
     @Override
     public Component getStatusLineElement() {
-        return new JogStatusLine(CentralLookup.getDefault().lookup(BackendAPI.class));
+        JogStatusLine jogStatusLine = new JogStatusLine(CentralLookup.getDefault().lookup(BackendAPI.class));
+        return new SeparatorPanel(jogStatusLine);
     }
 
     private class JogStatusLine extends JLabel implements UGSEventListener {
-        private static final String FORMAT = "Step size: %s%s ";
+        private static final String FORMAT = "Step size: %s%s";
         private final BackendAPI backend;
         public JogStatusLine(BackendAPI backend) {
             this.backend = backend;
