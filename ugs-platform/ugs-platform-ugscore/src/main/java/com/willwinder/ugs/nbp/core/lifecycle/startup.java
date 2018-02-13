@@ -22,10 +22,10 @@ import com.willwinder.ugs.nbp.core.control.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
-import com.willwinder.ugs.nbp.core.statusline.StatusLineService;
+import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
+import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Version;
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
+
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -62,10 +62,12 @@ public class startup extends OptionProcessor implements Runnable {
         Lookup.getDefault().lookup(RunActionService.class);
         System.out.println("Loading MacroService...");
         Lookup.getDefault().lookup(MacroService.class);
-        System.out.println("Loading StatusLineService...");
-        Lookup.getDefault().lookup(StatusLineService.class);
+        System.out.println("Loading SendStatusLineService...");
+        Lookup.getDefault().lookup(SendStatusLineService.class);
         System.out.println("Loading SettingsChangedNotificationService...");
         Lookup.getDefault().lookup(SettingsChangedNotificationService.class);
+        System.out.println("Loading WindowTitleUpdaterService...");
+        Lookup.getDefault().lookup(WindowTitleUpdaterService.class);
         System.out.println("Services loaded!");
 
         System.out.println("Setting UGP version title.");
@@ -86,12 +88,6 @@ public class startup extends OptionProcessor implements Runnable {
                 JOptionPane.showMessageDialog(new JFrame(), message,
                         "", JOptionPane.INFORMATION_MESSAGE);
             }
-            
-            String title = Localization.getString("platform-title")
-                    + " (" + Localization.getString("version")
-                    + " " + Version.getVersionString() + ")";
-            
-            WindowManager.getDefault().getMainWindow().setTitle(title);
         });
     }
 
