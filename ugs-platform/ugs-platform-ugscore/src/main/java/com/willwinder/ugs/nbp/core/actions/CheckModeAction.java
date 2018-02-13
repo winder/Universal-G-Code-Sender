@@ -1,5 +1,6 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
+
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,33 +35,32 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @ActionID(
-        category = LocalizingService.PauseCategory,
-        id = LocalizingService.PauseActionId)
+        category = LocalizingService.CheckModeCategory,
+        id = LocalizingService.CheckModeActionId)
 @ActionRegistration(
-        iconBase = PauseAction.ICON_BASE,
-        displayName = "resources.MessagesBundle#" + LocalizingService.PauseTitleKey,
+        iconBase = CheckModeAction.ICON_BASE,
+        displayName = "resources.MessagesBundle#" + LocalizingService.CheckModeTitleKey,
         lazy = false)
 @ActionReferences({
         @ActionReference(
-                path = LocalizingService.PauseWindowPath,
-                position = 1015),
-        @ActionReference(
-                path = "Toolbars/StartPauseStop",
-                position = 1015)
+                path = LocalizingService.CheckModeWindowPath,
+                position = 1040)
 })
-public final class PauseAction extends AbstractAction implements UGSEventListener {
+public final class CheckModeAction extends AbstractAction implements UGSEventListener {
 
-    public static final String ICON_BASE = "resources/icons/pause.png";
+    public static final String ICON_BASE = "resources/icons/check.png";
+
     private BackendAPI backend;
 
-    public PauseAction() {
+    public CheckModeAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.backend.addUGSEventListener(this);
 
         putValue("iconBase", ICON_BASE);
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
-        putValue("menuText", LocalizingService.PauseTitle);
-        putValue(NAME, LocalizingService.PauseTitle);
+        putValue("menuText", LocalizingService.CheckModeTitle);
+        putValue(NAME, LocalizingService.CheckModeTitle);
+
     }
 
     @Override
@@ -70,13 +70,13 @@ public final class PauseAction extends AbstractAction implements UGSEventListene
 
     @Override
     public boolean isEnabled() {
-        return backend != null && backend.canPause();
+        return backend.isIdle();
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.pauseResume();
+            backend.toggleCheckMode();
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

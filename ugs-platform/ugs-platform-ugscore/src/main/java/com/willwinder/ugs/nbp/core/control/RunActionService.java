@@ -22,7 +22,6 @@ import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.BackendAPI.ACTIONS;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
@@ -59,16 +58,6 @@ public class RunActionService {
         }
     }
 
-    public void runAction(ACTIONS action) {
-        if (canRunCommand()) {
-            try {
-                backend.performAction(action);
-            } catch (Exception ex) {
-                GUIHelpers.displayErrorDialog(ex.getMessage());
-            }
-        }
-    }
-
     public boolean canRunCommand() {
         return backend.getControlState() == UGSEvent.ControlState.COMM_IDLE;
     }
@@ -94,36 +83,6 @@ public class RunActionService {
                     category, localizedCategory, null , menuPath, localized,
                     new ConfigureFirmwareAction(backend));
 
-            // Machine/Actions menu items.
-            // Other actions
-            localized = String.format("Menu/%s/%s",
-                    Localization.getString("platform.menu.machine"),
-                    Localization.getString("platform.menu.actions"));
-            menuPath = "Menu/Machine/Actions";
-            category = "Machine";
-            localizedCategory = Localization.getString("platform.menu.machine");
-
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".returnToZero", Localization.getString("mainWindow.swing.returnToZeroButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.RETURN_TO_ZERO));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".issueSoftReset", Localization.getString("mainWindow.swing.softResetMachineControl"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.ISSUE_SOFT_RESET));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".resetCoordinatesToZero", Localization.getString("mainWindow.swing.resetCoordinatesButton"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.RESET_COORDINATES_TO_ZERO));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".killAlarmLock", Localization.getString("mainWindow.swing.alarmLock"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.KILL_ALARM_LOCK));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".toggleCheckMode", Localization.getString("mainWindow.swing.checkMode"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.TOGGLE_CHECK_MODE));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".requestParserState", Localization.getString("mainWindow.swing.getState"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.REQUEST_PARSER_STATE));
-            ars.registerAction(GcodeAction.class.getCanonicalName() + ".homingCycle", Localization.getString("mainWindow.swing.homeMachine"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new GcodeAction(this, ACTIONS.HOMING_CYCLE));
 
             // Feed Overrides
             category = "Overrides";
@@ -230,26 +189,6 @@ public class RunActionService {
         Overrides action;
 
         public OverrideAction(RunActionService service, Overrides action) {
-            gs = service;
-            this.action = action;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            gs.runAction(action);
-        }
-
-        @Override
-        public boolean isEnabled() {
-            return gs.canRunCommand();
-        }
-    }
-    protected class GcodeAction extends AbstractAction {
-        RunActionService gs;
-        ACTIONS action;
-
-        public GcodeAction(RunActionService service, ACTIONS action) {
-            //super(name);
             gs = service;
             this.action = action;
         }

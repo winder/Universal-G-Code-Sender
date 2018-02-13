@@ -127,6 +127,48 @@ public class LocalizingService {
     public final static String PendantActionId = "com.willwinder.ugs.nbp.core.actions.PendantAction";
     public final static String PendantCategory = CATEGORY_MACHINE;
 
+    public final static String HomeTitleKey = "mainWindow.swing.homeMachine";
+    public final static String HomeTitle = Localization.getString(HomeTitleKey, lang);
+    public final static String HomeWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String HomeActionId = "com.willwinder.ugs.nbp.core.actions.HomeAction";
+    public final static String HomeCategory = CATEGORY_MACHINE;
+
+    public final static String ReturnToZeroTitleKey = "mainWindow.swing.returnToZeroButton";
+    public final static String ReturnToZeroTitle = Localization.getString(ReturnToZeroTitleKey, lang);
+    public final static String ReturnToZeroWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String ReturnToZeroActionId = "com.willwinder.ugs.nbp.core.actions.ReturnToZeroAction";
+    public final static String ReturnToZeroCategory = CATEGORY_MACHINE;
+
+    public final static String UnlockTitleKey = "mainWindow.swing.alarmLock";
+    public final static String UnlockTitle = Localization.getString(UnlockTitleKey, lang);
+    public final static String UnlockWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String UnlockActionId = "com.willwinder.ugs.nbp.core.actions.UnlockAction";
+    public final static String UnlockCategory = CATEGORY_MACHINE;
+
+    public final static String SoftResetTitleKey = "mainWindow.swing.softResetMachineControl";
+    public final static String SoftResetTitle = Localization.getString(SoftResetTitleKey, lang);
+    public final static String SoftResetWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String SoftResetActionId = "com.willwinder.ugs.nbp.core.actions.SoftResetAction";
+    public final static String SoftResetCategory = CATEGORY_MACHINE;
+
+    public final static String ResetZeroTitleKey = "mainWindow.swing.resetCoordinatesButton";
+    public final static String ResetZeroTitle = Localization.getString(ResetZeroTitleKey, lang);
+    public final static String ResetZeroWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String ResetZeroActionId = "com.willwinder.ugs.nbp.core.actions.ResetCoordinatesToZeroAction";
+    public final static String ResetZeroCategory = CATEGORY_MACHINE;
+
+    public final static String CheckModeTitleKey = "mainWindow.swing.checkMode";
+    public final static String CheckModeTitle = Localization.getString(CheckModeTitleKey, lang);
+    public final static String CheckModeWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String CheckModeActionId = "com.willwinder.ugs.nbp.core.actions.CheckModeAction";
+    public final static String CheckModeCategory = CATEGORY_MACHINE;
+
+    public final static String GetStateTitleKey = "mainWindow.swing.getState";
+    public final static String GetStateTitle = Localization.getString(GetStateTitleKey, lang);
+    public final static String GetStateWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String GetStateActionId = "com.willwinder.ugs.nbp.core.actions.GetStateAction";
+    public final static String GetStateCategory = CATEGORY_MACHINE;
+
     public final static String ConnectDisconnectTitleConnect = Localization.getString("mainWindow.ui.connect", lang);
     public final static String ConnectDisconnectTitleDisconnect = Localization.getString("mainWindow.ui.disconnect", lang);
     public final static String ConnectDisconnectActionTitleKey = "mainWindow.ui.connectDisconnect";
