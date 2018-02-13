@@ -102,6 +102,12 @@
             <version>${netbeans.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor</artifactId>
+            <version>${netbeans.version}</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- UGS Module Dependencies -->
         <dependency>

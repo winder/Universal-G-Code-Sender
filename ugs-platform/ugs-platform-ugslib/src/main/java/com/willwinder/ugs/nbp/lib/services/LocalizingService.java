@@ -38,10 +38,13 @@ public class LocalizingService {
     public static final String MENU_WINDOW = "Menu/Window";
     public static final String MENU_WINDOW_PLUGIN = MENU_WINDOW +"/Plugins";
     public static final String MENU_WINDOW_CLASSIC = MENU_WINDOW + "/Classic";
+    public static final String MENU_FILE = "Menu/File";
     public static final String MENU_MACHINE = "Menu/Machine";
+    public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
 
     public static final String CATEGORY_WINDOW = "Window";
     public static final String CATEGORY_MACHINE = "Machine";
+    public static final String CATEGORY_FILE = "File";
 
     // Initialize backend (locale setting) before we load localized strings.
     public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();
@@ -93,6 +96,12 @@ public class LocalizingService {
     public final static String ActionsWindowPath = MENU_WINDOW_CLASSIC;
     public final static String ActionsActionId = "com.willwinder.ugs.nbp.control.ActionsTopComponent";
     public final static String ActionsCategory = CATEGORY_WINDOW;
+
+    public final static String OpenTitleKey = "platform.menu.open";
+    public final static String OpenTitle = Localization.getString(OpenTitleKey, lang);
+    public final static String OpenWindowPath = MENU_FILE;
+    public final static String OpenActionId = "com.willwinder.ugs.nbp.core.actions.OpenAction";
+    public final static String OpenCategory = CATEGORY_FILE;
 
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
     public final static String StartTitle = Localization.getString(StartTitleKey, lang);
