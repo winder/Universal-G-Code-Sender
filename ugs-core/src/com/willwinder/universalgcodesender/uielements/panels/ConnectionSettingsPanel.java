@@ -63,14 +63,11 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public String getHelpMessage() {
-        StringBuilder message = new StringBuilder()
-                .append(Localization.getString("sender.help.verbose.console")).append("\n\n")
-                .append(Localization.getString("sender.help.singlestep")).append("\n\n")
-                .append(Localization.getString("sender.help.status")).append("\n\n")
-                .append(Localization.getString("sender.help.status.rate")).append("\n\n")
-                .append(Localization.getString("sender.help.state")).append("\n\n")
-                ;
-        return message.toString();
+        return Localization.getString("sender.help.verbose.console") + "\n\n" +
+                Localization.getString("sender.help.singlestep") + "\n\n" +
+                Localization.getString("sender.help.status") + "\n\n" +
+                Localization.getString("sender.help.status.rate") + "\n\n" +
+                Localization.getString("sender.help.state") + "\n\n";
     }
 
     @Override
