@@ -97,9 +97,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         double feedRate = backend.getSettings().getJogFeedRate();
         feedRateSpinner.setModel(new SpinnerNumberModel(feedRate, null, null, 10));
 
-        keyboardMovementEnabled.setSelected(showKeyboardToggle ? 
-                backend.getSettings().isManualModeEnabled():
-                false);
+        keyboardMovementEnabled.setSelected(showKeyboardToggle && backend.getSettings().isManualModeEnabled());
         keyboardMovementEnabled.addActionListener(al -> keyboardMovementSelected());
 
         // MigLayout... 3rd party layout library.
