@@ -35,22 +35,22 @@ import javax.swing.*;
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
-    final Checkbox verboseConsoleOutput = new Checkbox(
+    private final Checkbox verboseConsoleOutput = new Checkbox(
                 Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
-    final Checkbox useZStepSize = new Checkbox(
+    private final Checkbox useZStepSize = new Checkbox(
                 Localization.getString("sender.step.separateZ"));
-    final Checkbox singleStepMode = new Checkbox(
+    private final Checkbox singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"));
-    final Checkbox statusPollingEnabled = new Checkbox(
+    private final Checkbox statusPollingEnabled = new Checkbox(
                 Localization.getString("sender.status"));
-    final Spinner statusPollRate = new Spinner(
+    private final Spinner statusPollRate = new Spinner(
                 Localization.getString("sender.status.rate"),
-                new SpinnerNumberModel((int)1, 1, null, 100));
-    final Checkbox stateColorDisplayEnabled = new Checkbox(
+                new SpinnerNumberModel(1, 1, null, 100));
+    private final Checkbox stateColorDisplayEnabled = new Checkbox(
                 Localization.getString("sender.state"));
-    final Checkbox showNightlyWarning = new Checkbox(
+    private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
-    final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
+    private final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
