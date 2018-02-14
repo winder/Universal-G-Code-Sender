@@ -379,8 +379,8 @@ public class GrblController extends AbstractController {
             default:
                 return ControlState.COMM_IDLE;
         }
-    };
-    
+    }
+
     /**
      * Sends the version specific homing cycle to the machine.
      */

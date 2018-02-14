@@ -58,8 +58,8 @@ public class UGSEvent {
         COMM_IDLE,
         COMM_SENDING,
         COMM_SENDING_PAUSED,
-    };
-    
+    }
+
     public EventType getEventType(){
         return evt;
     }

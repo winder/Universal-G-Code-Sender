@@ -646,7 +646,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public ControlState getControlState() {
         return this.currentState;
-    };
+    }
 
     @Override
     public Boolean isPaused() {
