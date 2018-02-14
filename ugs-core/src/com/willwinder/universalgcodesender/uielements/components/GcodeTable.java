@@ -3,7 +3,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -39,9 +39,7 @@ import javax.swing.table.TableColumn;
 public class GcodeTable extends JTable {
     private static final Logger logger = Logger.getLogger(GcodeTable.class.getName());
 
-    //GcodeTableModel model = null;
     private DefaultTableModel model = null;
-    private int maxLines = -1;
 
     private boolean autoWindowScroll = false;
     private int offset = 0;
@@ -138,7 +136,6 @@ public class GcodeTable extends JTable {
         int row = command.getCommandNumber() + offset;
         
         // Check for modified command string
-        String val = (String)model.getValueAt(row, COL_INDEX_COMMAND);
         if (!command.isComment() && commandString != model.getValueAt(row, COL_INDEX_COMMAND)) {
             String message = String.format(
                     "Row mismatch [%s] does not match row %d [%s].]\n",
