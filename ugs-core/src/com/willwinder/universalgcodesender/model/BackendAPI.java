@@ -1,8 +1,5 @@
-/**
- * API used by front ends to interface with the model.
- */
 /*
-    Copywrite 2015 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,11 +27,14 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.io.File;
 import java.io.IOException;
 
-public abstract interface BackendAPI extends BackendAPIReadOnly {
+/**
+ * API used by front ends to interface with the model.
+ */
+public interface BackendAPI extends BackendAPIReadOnly {
     // Config options
-    public void setGcodeFile(File file) throws Exception;
-    public void setTempDir(File file) throws IOException;
-    public void applySettings(Settings settings) throws Exception;
+    void setGcodeFile(File file) throws Exception;
+    void setTempDir(File file) throws IOException;
+    void applySettings(Settings settings) throws Exception;
 
     /**
      * Modify the currently processed gcode with a provided gcode parser.
@@ -42,41 +42,41 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
      * @param gcp externally configured gcode parser.
      * @throws Exception 
      */
-    public void applyGcodeParser(GcodeParser gcp) throws Exception;
+    void applyGcodeParser(GcodeParser gcp) throws Exception;
 
     /**
      * Process the currently loaded gcode file and export it to a file.
      * Intended primarily as "save and export" style preprocessor option.
      * @param f location to export processed gcode
      */
-    public void preprocessAndExportToFile(File f) throws Exception;
+    void preprocessAndExportToFile(File f) throws Exception;
     
     // Control options
-    public void connect(String firmware, String port, int baudRate) throws Exception;
-    public void disconnect() throws Exception;
-    public void sendGcodeCommand(String commandText) throws Exception;
-    public void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception;
-    public void sendGcodeCommand(GcodeCommand command) throws Exception;
-    public void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, double feedRate, Units units) throws Exception;
+    void connect(String firmware, String port, int baudRate) throws Exception;
+    void disconnect() throws Exception;
+    void sendGcodeCommand(String commandText) throws Exception;
+    void sendGcodeCommand(boolean restoreParserState, String commandText) throws Exception;
+    void sendGcodeCommand(GcodeCommand command) throws Exception;
+    void adjustManualLocation(int dirX, int dirY, int dirZ, double stepSize, double feedRate, Units units) throws Exception;
 
-    public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
-    public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
+    void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
+    void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
 
-    public void send() throws Exception;
-    public void pauseResume() throws Exception;
-    public void cancel() throws Exception;
-    public void returnToZero() throws Exception;
-    public void resetCoordinatesToZero() throws Exception;
-    public void resetCoordinateToZero(char coordinate) throws Exception;
-    public void restoreParserState() throws Exception;
+    void send() throws Exception;
+    void pauseResume() throws Exception;
+    void cancel() throws Exception;
+    void returnToZero() throws Exception;
+    void resetCoordinatesToZero() throws Exception;
+    void resetCoordinateToZero(char coordinate) throws Exception;
+    void restoreParserState() throws Exception;
     
-    public void killAlarmLock() throws Exception;
-    public void performHomingCycle() throws Exception;
-    public void toggleCheckMode() throws Exception;
-    public void issueSoftReset() throws Exception;
-    public void requestParserState() throws Exception;
+    void killAlarmLock() throws Exception;
+    void performHomingCycle() throws Exception;
+    void toggleCheckMode() throws Exception;
+    void issueSoftReset() throws Exception;
+    void requestParserState() throws Exception;
 
-    public enum ACTIONS {
+    enum ACTIONS {
         RETURN_TO_ZERO,
         RESET_COORDINATES_TO_ZERO,
         KILL_ALARM_LOCK,
@@ -87,14 +87,14 @@ public abstract interface BackendAPI extends BackendAPIReadOnly {
     }
 
     // Programatically call an action.
-    public void performAction(ACTIONS action) throws Exception;
+    void performAction(ACTIONS action) throws Exception;
 
     // Programatically call an override.
-    public void sendOverrideCommand(Overrides override) throws Exception;
+    void sendOverrideCommand(Overrides override) throws Exception;
            
     // Shouldn't be needed often.
-    public IController getController();
-    public void applySettingsToController(Settings settings, IController controller) throws Exception;
+    IController getController();
+    void applySettingsToController(Settings settings, IController controller) throws Exception;
 
     void sendMessageForConsole(String msg);
 }

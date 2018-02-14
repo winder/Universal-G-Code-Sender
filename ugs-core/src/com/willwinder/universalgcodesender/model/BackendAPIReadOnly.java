@@ -1,9 +1,5 @@
-/**
- * Read only API used by front ends to interface with the model.
- */
-
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +28,7 @@ import java.io.File;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
 /**
+ * Read only API used by front ends to interface with the model.
  *
  * @author wwinder
  */
@@ -39,48 +36,48 @@ public interface BackendAPIReadOnly {
     /**
      * Contains all common GUI events: state changes, probe events, settings changes and file changes.
      */
-    public void addUGSEventListener(UGSEventListener listener);
+    void addUGSEventListener(UGSEventListener listener);
 
     /**
      * Listener for controller status events, these come at regular intervals. 
      */
-    public void addControllerStateListener(ControllerStateListener listener);
+    void addControllerStateListener(ControllerStateListener listener);
 
     /**
      * Details internal controller listener.
      */
-    public void addControllerListener(ControllerListener listener);
+    void addControllerListener(ControllerListener listener);
     
     // Config options
-    public File getGcodeFile();
-    public File getProcessedGcodeFile();
+    File getGcodeFile();
+    File getProcessedGcodeFile();
 
     // Controller status
-    public boolean isConnected();
-    public boolean isActive();
-    public boolean isSendingFile();
-    public boolean isIdle();
-    public boolean isPaused();
-    public boolean canPause();
-    public boolean canCancel();
-    public boolean canSend();
-    public ControlState getControlState();
-    public Position getWorkPosition();
-    public Position getMachinePosition();
-    public GcodeState getGcodeState();
+    boolean isConnected();
+    boolean isActive();
+    boolean isSendingFile();
+    boolean isIdle();
+    boolean isPaused();
+    boolean canPause();
+    boolean canCancel();
+    boolean canSend();
+    ControlState getControlState();
+    Position getWorkPosition();
+    Position getMachinePosition();
+    GcodeState getGcodeState();
 
     // Send status
-    public long getNumRows();
-    public long getNumSentRows();
-    public long getNumRemainingRows();
+    long getNumRows();
+    long getNumSentRows();
+    long getNumRemainingRows();
 
-    public long getSendDuration();
-    public long getSendRemainingDuration();
-    public String getPauseResumeText();
+    long getSendDuration();
+    long getSendRemainingDuration();
+    String getPauseResumeText();
 
     // Bulk status getter.
-    public void updateSystemState(SystemStateBean systemStateBean);	
+    void updateSystemState(SystemStateBean systemStateBean);
 
     // Shouldn't be needed often.
-    public Settings getSettings();
+    Settings getSettings();
 }

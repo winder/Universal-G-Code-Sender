@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,5 +23,5 @@ package com.willwinder.universalgcodesender.utils;
  * @author wwinder
  */
 public interface SettingChangeListener {
-    public void settingChanged();
+    void settingChanged();
 }

@@ -1,6 +1,3 @@
-/**
- * Gcode parser interface.
- */
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
@@ -10,6 +7,7 @@ import java.util.List;
 import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
+ * Gcode parser interface.
  *
  * @author wwinder
  */
@@ -18,24 +16,24 @@ public interface IGcodeParser {
     /**
      * @return the number of command processors that have been added.
      */
-    public int numCommandProcessors();
+    int numCommandProcessors();
 
     /**
      * Add a preprocessor to use with the preprocessCommand method.
      */
-    public void addCommandProcessor(CommandProcessor p);
+    void addCommandProcessor(CommandProcessor p);
 
     /**
      * Clear out any processors that have been added.
      */
-    public void resetCommandProcessors();
+    void resetCommandProcessors();
 
     /**
      * Add a string of command(s) for parsing.
      * @param command
      * @return PointSegment representing the last command.
      */
-    public List<GcodeMeta> addCommand(String command) throws GcodeParserException;
+    List<GcodeMeta> addCommand(String command) throws GcodeParserException;
 
     /**
      * Add a string of command(s) and a line number associated with that string.
@@ -44,19 +42,19 @@ public interface IGcodeParser {
      * @return PointSegment(s) representing the command.
      * @throws GcodeParserException
      */
-    public List<GcodeMeta> addCommand(String command, int lineNumber) throws GcodeParserException;
+    List<GcodeMeta> addCommand(String command, int lineNumber) throws GcodeParserException;
 
     /**
      * The state of the machine as of the last command.
      * @return GcodeState
      */
-    public GcodeState getCurrentState();
+    GcodeState getCurrentState();
 
     /**
      * The current stats of the gcode file.
      * @return GcodeStats
      */
-    public GcodeStats getCurrentStats();
+    GcodeStats getCurrentStats();
 
     /**
      * Preprocesses a gcode string and returns one or more strings with the
@@ -66,5 +64,5 @@ public interface IGcodeParser {
      * @return a collection of postprocessed commands
      * @throws GcodeParserException 
      */
-    public List<String> preprocessCommand(String command, GcodeState initial) throws GcodeParserException;
+    List<String> preprocessCommand(String command, GcodeState initial) throws GcodeParserException;
 }

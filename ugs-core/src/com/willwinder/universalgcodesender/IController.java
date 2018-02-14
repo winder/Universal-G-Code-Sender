@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
-import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -40,88 +39,88 @@ public interface IController {
     /*
     Observable
     */
-    public void addListener(ControllerListener cl);
+    void addListener(ControllerListener cl);
 
     /*
     Actions
     */
-    public void performHomingCycle() throws Exception;
-    public void returnToHome() throws Exception;
-    public void resetCoordinatesToZero() throws Exception;
-    public void resetCoordinateToZero(final char coord) throws Exception;
-    public void killAlarmLock() throws Exception;
-    public void toggleCheckMode() throws Exception;
-    public void viewParserState() throws Exception;
-    public void issueSoftReset() throws Exception;
+    void performHomingCycle() throws Exception;
+    void returnToHome() throws Exception;
+    void resetCoordinatesToZero() throws Exception;
+    void resetCoordinateToZero(final char coord) throws Exception;
+    void killAlarmLock() throws Exception;
+    void toggleCheckMode() throws Exception;
+    void viewParserState() throws Exception;
+    void issueSoftReset() throws Exception;
 
     /**
      * Jog control. Jogs the machine in the direction specified by vector dirX,
      * dirY, dirZ a distance specified by stepSize * units.
      */
-    public void jogMachine(int dirX, int dirY, int dirZ,
-            double stepSize, double feedRate, Units units) throws Exception;
+    void jogMachine(int dirX, int dirY, int dirZ,
+                    double stepSize, double feedRate, Units units) throws Exception;
 
     /**
      * Probe control
      */
-    public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
-    public void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
+    void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception;
+    void offsetTool(String axis, double offset, UnitUtils.Units units) throws Exception;
 
     /*
     Overrides
     */
-    public void sendOverrideCommand(Overrides command) throws Exception;
+    void sendOverrideCommand(Overrides command) throws Exception;
 
     /*
     Behavior
     */
-    public void setSingleStepMode(boolean enabled);
-    public boolean getSingleStepMode();
+    void setSingleStepMode(boolean enabled);
+    boolean getSingleStepMode();
 
-    public void setStatusUpdatesEnabled(boolean enabled);
-    public boolean getStatusUpdatesEnabled();
+    void setStatusUpdatesEnabled(boolean enabled);
+    boolean getStatusUpdatesEnabled();
     
-    public void setStatusUpdateRate(int rate);
-    public int getStatusUpdateRate();
+    void setStatusUpdateRate(int rate);
+    int getStatusUpdateRate();
     
-    public GcodeCommandCreator getCommandCreator();
-    public long getJobLengthEstimate(File gcodeFile);
+    GcodeCommandCreator getCommandCreator();
+    long getJobLengthEstimate(File gcodeFile);
     
     /*
     Serial
     */
-    public Boolean openCommPort(String port, int portRate) throws Exception;
-    public Boolean closeCommPort() throws Exception;
-    public Boolean isCommOpen();
+    Boolean openCommPort(String port, int portRate) throws Exception;
+    Boolean closeCommPort() throws Exception;
+    Boolean isCommOpen();
     
     /*
     Stream information
     */
-    public Boolean isReadyToReceiveCommands() throws Exception;
-    public Boolean isReadyToStreamFile() throws Exception;
-    public Boolean isStreaming();
-    public long getSendDuration();
-    public int rowsInSend();
-    public int rowsSent();
-    public int rowsRemaining();
-    public GcodeCommand getActiveCommand();
-    public GcodeState getCurrentGcodeState();
+    Boolean isReadyToReceiveCommands() throws Exception;
+    Boolean isReadyToStreamFile() throws Exception;
+    Boolean isStreaming();
+    long getSendDuration();
+    int rowsInSend();
+    int rowsSent();
+    int rowsRemaining();
+    GcodeCommand getActiveCommand();
+    GcodeState getCurrentGcodeState();
     
     /*
     Stream control
     */
-    public void beginStreaming() throws Exception;
-    public void pauseStreaming() throws Exception;
-    public void resumeStreaming() throws Exception;
-    public Boolean isPaused();
-    public Boolean isIdle();
-    public void cancelSend() throws Exception;
-    public ControlState getControlState();
+    void beginStreaming() throws Exception;
+    void pauseStreaming() throws Exception;
+    void resumeStreaming() throws Exception;
+    Boolean isPaused();
+    Boolean isIdle();
+    void cancelSend() throws Exception;
+    ControlState getControlState();
 
     /**
      * In case a controller reset is detected.
      */
-    public void resetBuffers();
+    void resetBuffers();
 
     /**
      * Indicator to abstract GUIBackend implementation that the contract class
@@ -129,17 +128,17 @@ public interface IController {
      * things like completing the final command in a stream will not
      * automatically re-enable buttons.
      */
-    public Boolean handlesAllStateChangeEvents();
+    Boolean handlesAllStateChangeEvents();
     
     /*
     Stream content
     */
-    public GcodeCommand createCommand(String gcode) throws Exception;
-    public void sendCommandImmediately(GcodeCommand cmd) throws Exception;
-    public void queueCommand(GcodeCommand cmd) throws Exception;
-    public void queueStream(GcodeStreamReader r);
-    public void queueRawStream(Reader r);
+    GcodeCommand createCommand(String gcode) throws Exception;
+    void sendCommandImmediately(GcodeCommand cmd) throws Exception;
+    void queueCommand(GcodeCommand cmd) throws Exception;
+    void queueStream(GcodeStreamReader r);
+    void queueRawStream(Reader r);
 
-    public void restoreParserModalState();
-    public void updateParserModalState(GcodeCommand command);
+    void restoreParserModalState();
+    void updateParserModalState(GcodeCommand command);
 }
