@@ -168,7 +168,7 @@ public final class Visualizer2TopComponent extends TopComponent {
         // mouse...
         p.addMouseListener(this.rih);
 
-        p.addGLEventListener((GLEventListener) renderer);
+        p.addGLEventListener(renderer);
 
         return p;
     }

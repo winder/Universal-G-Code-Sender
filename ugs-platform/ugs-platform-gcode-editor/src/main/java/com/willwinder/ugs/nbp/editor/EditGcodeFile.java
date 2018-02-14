@@ -144,7 +144,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
       for (TopComponent tc: comps) {
         Node[] arr = tc.getActivatedNodes();
         for (int j = 0; arr != null && j < arr.length; j++) {
-          EditorCookie ec = (EditorCookie) arr[j].getCookie(EditorCookie.class);
+          EditorCookie ec = arr[j].getCookie(EditorCookie.class);
           if (ec != null) {
             result.add(tc);
           }
@@ -158,7 +158,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
       for (TopComponent tc: comps) {
         Node[] arr = tc.getActivatedNodes();
         for (int j = 0; arr != null && j < arr.length; j++) {
-          EditorCookie ec = (EditorCookie) arr[j].getCookie(EditorCookie.class);
+          EditorCookie ec = arr[j].getCookie(EditorCookie.class);
           if (ec != null) {
             JEditorPane[] panes = ec.getOpenedPanes();
             for (JEditorPane pane : panes) {

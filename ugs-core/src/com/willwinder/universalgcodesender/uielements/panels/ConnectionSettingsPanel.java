@@ -111,7 +111,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         statusPollingEnabled.setSelected(s.isStatusUpdatesEnabled());
         add(statusPollingEnabled);
 
-        statusPollRate.setValue((int)s.getStatusUpdateRate());
+        statusPollRate.setValue(s.getStatusUpdateRate());
         add(statusPollRate);
 
         stateColorDisplayEnabled.setSelected(s.isDisplayStateColor());

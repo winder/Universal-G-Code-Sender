@@ -58,7 +58,7 @@ public class MouseProjectionUtils {
         gl2.glGetDoublev( GL2.GL_PROJECTION_MATRIX, projectionMatrix, 0);
 
         //GL y coord pos - note viewport[3] is height of window in pixels
-        int realy = viewPort[3] - (int)mouseY - 1;
+        int realy = viewPort[3] - mouseY - 1;
         //realy = viewport[3] - (GLint) y - 1;
 
         double farDepth = 0.0;
