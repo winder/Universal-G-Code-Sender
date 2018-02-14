@@ -301,13 +301,13 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
   public void mousePressed(MouseEvent e) {
     prevMouseX = e.getX();
     prevMouseY = e.getY();
-    if ((e.getModifiers() & e.BUTTON3_MASK) != 0) {
+    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
       mouseRButtonDown = true;
     }
   }
     
   public void mouseReleased(MouseEvent e) {
-    if ((e.getModifiers() & e.BUTTON3_MASK) != 0) {
+    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
       mouseRButtonDown = false;
     }
   }

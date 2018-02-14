@@ -28,6 +28,7 @@ import static com.jogamp.opengl.GL.GL_DEPTH_TEST;
 import com.jogamp.opengl.GL2;
 import static com.jogamp.opengl.GL2ES3.GL_QUADS;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
@@ -89,10 +90,10 @@ public class OrientationCube extends Renderable {
     gl.glViewport(0, (int)(ySize*fromEdge), squareSize, squareSize);
 
     gl.glPushMatrix();
-        gl.glMatrixMode(gl.GL_PROJECTION);
+        gl.glMatrixMode(GLMatrixFunc.GL_PROJECTION);
         gl.glLoadIdentity();
         gl.glOrtho(-0.5, 0.5, -0.5, 0.5, -0.5, 0.5); //, maxSide, maxSide, maxSide, maxSide, maxSide);
-        gl.glMatrixMode(gl.GL_MODELVIEW);
+        gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW);
         
         drawCube(gl);
     gl.glPopMatrix();
