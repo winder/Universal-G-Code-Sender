@@ -17,29 +17,23 @@
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.ugs.nbm.visualizer.renderables;
-import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
-import com.jogamp.opengl.GLAutoDrawable;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
-import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_ARC;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_COMPLETE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_LINEAR;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_PLUNGE;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_RAPID;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.Color;
+import javax.vecmath.Point3d;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -47,7 +41,11 @@ import java.nio.FloatBuffer;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
+
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
+import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 
 /**
  *
@@ -73,7 +71,10 @@ public class GcodeModel extends Renderable {
     private FloatBuffer lineVertexBuffer = null;
     private ByteBuffer lineColorBuffer = null;
 
-    private Point3d objectMin, objectMax, objectSize, center;
+    private Point3d objectMin;
+    private Point3d objectMax;
+    private Point3d objectSize;
+    private Point3d center;
 
     // Preferences
     private Color linearColor;
