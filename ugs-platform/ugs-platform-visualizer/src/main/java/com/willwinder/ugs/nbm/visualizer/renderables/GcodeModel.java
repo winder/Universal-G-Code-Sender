@@ -74,7 +74,6 @@ public class GcodeModel extends Renderable {
     private Point3d objectMin;
     private Point3d objectMax;
     private Point3d objectSize;
-    private Point3d center;
 
     // Preferences
     private Color linearColor;
@@ -248,7 +247,7 @@ public class GcodeModel extends Renderable {
             System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
             System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
 
-            this.center = VisualizerUtils.findCenter(objectMin, objectMax);
+            Point3d center = VisualizerUtils.findCenter(objectMin, objectMax);
             System.out.println("Center = " + center.toString());
             System.out.println("Num Line Segments :" + gcodeLineList.size());
 
