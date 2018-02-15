@@ -35,7 +35,7 @@ public class GcodeFileTypeFilterTest {
     private GcodeFileTypeFilter target;
 
     @Before
-    public void setup() {
+    public void setUp() {
         target = new GcodeFileTypeFilter();
     }
 
