@@ -43,6 +43,8 @@ import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLException;
 import com.jogamp.opengl.util.awt.TextRenderer;
 import com.jogamp.opengl.util.texture.Texture;
+import org.apache.commons.lang3.StringUtils;
+
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
 
@@ -60,10 +62,7 @@ public class Overlay {
   private int textLocation = LOWER_RIGHT;
   private GLDrawable drawable;
   private TextRenderer renderer;
-  private int width;
-  private int height;
-  private int offset;
-  
+
   /** Creates a new Overlay with the given font size. An OpenGL
       context must be current at the time the constructor is called.
 
@@ -72,7 +71,7 @@ public class Overlay {
       @throws GLException if an OpenGL context is not current when the constructor is called
   */
   public Overlay(GLDrawable drawable, int textSize) throws GLException {
-    this(drawable, new Font("SansSerif", Font.BOLD, textSize));
+    this(drawable, new Font(Font.SANS_SERIF, Font.BOLD, textSize));
   }
 
   /** Creates a new Overlay with the given font. An OpenGL context
@@ -100,9 +99,22 @@ public class Overlay {
                     Font font,
                     boolean antialiased,
                     boolean useFractionalMetrics) throws GLException {
-    this.drawable = drawable;
-    renderer = new TextRenderer(font, antialiased, useFractionalMetrics);
+      this(drawable, new TextRenderer(font, antialiased, useFractionalMetrics));
   }
+
+    /** Creates a new Overlay with the given font and rendering
+     attributes. An OpenGL context must be current at the time the
+     constructor is called.
+
+     @param drawable the drawable to render the text to
+     @param renderer for rendering text
+     @throws GLException if an OpenGL context is not current when the constructor is called
+     */
+    public Overlay(GLDrawable drawable,
+                   TextRenderer renderer) throws GLException {
+        this.drawable = drawable;
+        this.renderer = renderer;
+    }
 
   /** Gets the relative location where the text of this Overlay
       will be drawn: one of UPPER_LEFT, UPPER_RIGHT, LOWER_LEFT, or
@@ -143,14 +155,15 @@ public class Overlay {
       once per frame.
   */
   public void draw(String text) {
-    text = text.trim();
-    if (text != null || text != "") {
+    if (StringUtils.isNotBlank(text)) {
+      text = text.trim();
+
       renderer.beginRendering(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
       
       Rectangle2D bounds = renderer.getBounds(text);
-      width = (int) bounds.getWidth();
-      height = (int) bounds.getHeight();
-      offset = (int) (height * 0.5f);
+      int width = (int) bounds.getWidth();
+      int height = (int) bounds.getHeight();
+      int offset = (int) (height * 0.5f);
       
       // Figure out the location at which to draw the text
       int x = 0;
