@@ -37,11 +37,11 @@ public interface CommandProcessor {
      * @param state State of the gcode parser when the command will run.
      * @return One or more gcode commands to replace the original command with.
      */
-    public List<String> processCommand(String command, GcodeState state) throws GcodeParserException;
+    List<String> processCommand(String command, GcodeState state) throws GcodeParserException;
 
     /**
      * Returns information about the current command and its configuration.
      * @return 
      */
-    public String getHelp();
+    String getHelp();
 }

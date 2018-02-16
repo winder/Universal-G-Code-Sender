@@ -495,8 +495,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         ps.insideXOffset = getDouble(insideXOffsetModel);
         ps.insideYOffset = getDouble(insideYOffsetModel);
 
-        ps.settingsWorkCoordinateIdx = (int) settingsWorkCoordinate.getSelectedIndex();
-        ps.settingsUnitsIdx = (int) settingsUnits.getSelectedIndex();
+        ps.settingsWorkCoordinateIdx = settingsWorkCoordinate.getSelectedIndex();
+        ps.settingsUnitsIdx = settingsUnits.getSelectedIndex();
         ps.settingsProbeDiameter = getDouble(settingsProbeDiameter);
         ps.settingsFastFindRate = getDouble(settingsFastFindRate);
         ps.settingsSlowMeasureRate = getDouble(settingsSlowMeasureRate);

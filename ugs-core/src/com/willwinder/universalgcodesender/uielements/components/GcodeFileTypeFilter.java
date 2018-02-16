@@ -53,17 +53,12 @@ public class GcodeFileTypeFilter extends FileFilter {
         }
  
         String extension = getExtension(f);
-        if (extension != null) {
-            return 
-                    extension.equals("cnc") ||
-                    extension.equals("nc")  ||
-                    extension.equals("ngc") ||
-                    extension.equals("tap") ||
-                    extension.equals("txt") ||
-                    extension.equals("gcode");
-        }
- 
-        return false;
+        return "cnc".equals(extension) ||
+                "nc".equals(extension)  ||
+                "ngc".equals(extension) ||
+                "tap".equals(extension) ||
+                "txt".equals(extension) ||
+                "gcode".equals(extension);
     }
  
     //The description of this filter

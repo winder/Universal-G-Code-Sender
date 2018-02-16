@@ -422,7 +422,7 @@ public class GrblUtils {
         // Search for a version.
         Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
         if (matcher.find()) {
-            retValue = matcher.group(0);;
+            retValue = matcher.group(0);
         }
 
         return retValue;

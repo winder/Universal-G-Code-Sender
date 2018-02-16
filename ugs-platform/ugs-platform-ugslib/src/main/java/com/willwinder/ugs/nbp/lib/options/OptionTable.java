@@ -142,7 +142,7 @@ public class OptionTable extends JTable {
             if (v.getClass() == Language.class) {
                 System.out.println("What?");
             }
-            value = (T)v;
+            value = v;
         }
 
         public T getValue() {

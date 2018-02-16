@@ -35,7 +35,7 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
     canvas.addGLEventListener(new JOGLGearsDemo());
     frame.add(canvas);
     frame.setSize(300, 300);
-    final Animator animator = new Animator((com.jogamp.opengl.GLAutoDrawable) canvas);
+    final Animator animator = new Animator(canvas);
     frame.addWindowListener(new WindowAdapter() {
         public void windowClosing(WindowEvent e) {
           // Run this on another thread than the AWT event queue to
@@ -301,13 +301,13 @@ public class JOGLGearsDemo implements GLEventListener, MouseListener, MouseMotio
   public void mousePressed(MouseEvent e) {
     prevMouseX = e.getX();
     prevMouseY = e.getY();
-    if ((e.getModifiers() & e.BUTTON3_MASK) != 0) {
+    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
       mouseRButtonDown = true;
     }
   }
     
   public void mouseReleased(MouseEvent e) {
-    if ((e.getModifiers() & e.BUTTON3_MASK) != 0) {
+    if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0) {
       mouseRButtonDown = false;
     }
   }

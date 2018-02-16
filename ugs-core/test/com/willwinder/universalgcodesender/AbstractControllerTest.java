@@ -229,7 +229,7 @@ public class AbstractControllerTest {
         EasyMock.expect(mockCommunicator.openCommPort(port, baud)).andReturn(true).once();
         mockCommunicator.closeCommPort();
         EasyMock.expect(EasyMock.expectLastCall()).once();
-        EasyMock.replay(instance, mockCommunicator, mockListener);;
+        EasyMock.replay(instance, mockCommunicator, mockListener);
 
         // Close a closed port.
         Boolean result = instance.closeCommPort();

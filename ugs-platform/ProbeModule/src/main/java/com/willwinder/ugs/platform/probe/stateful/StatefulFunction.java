@@ -7,5 +7,5 @@ package com.willwinder.ugs.platform.probe.stateful;
  */
 @FunctionalInterface
 public interface StatefulFunction<Context> {
-    public void transition(Context c);
+    void transition(Context c);
 }

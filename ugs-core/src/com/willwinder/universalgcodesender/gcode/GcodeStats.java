@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.model.Position;
  * @author wwinder
  */
 public interface GcodeStats {
-    public Position getMin();
-    public Position getMax();
-    public long getCommandCount();
+    Position getMin();
+    Position getMax();
+    long getCommandCount();
 }

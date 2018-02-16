@@ -158,8 +158,8 @@ public enum Code {
         Coolant,        // (Group 8)  Coolant
         Override,       // (Group 9)  Override Switches
 
-        Unknown;
-    };
+        Unknown
+    }
 
     static final Map<String,Code> codeLookup =
         Arrays.stream(Code.values())

@@ -20,7 +20,8 @@ package com.willwinder.ugs.nbp.lib.options;
 
 import com.willwinder.ugs.nbp.lib.options.OptionTable.Option;
 import com.willwinder.universalgcodesender.uielements.IChanged;
-import javax.swing.JPanel;
+
+import javax.swing.*;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
@@ -30,11 +31,12 @@ import javax.swing.event.TableModelListener;
  */
 public abstract class AbstractOptionsPanel extends JPanel implements TableModelListener {
 
+    protected final IChanged changer;
+    protected OptionTable optionTable;
+
     public abstract void load();
     public abstract void store();
     public abstract boolean valid();
-
-    protected IChanged changer;
 
     public AbstractOptionsPanel(IChanged change) {
         changer = change;
@@ -61,22 +63,18 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
         optionTable.clear();
     }
 
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextArea preferenceDescriptionTextArea;
-    public OptionTable optionTable;
 
     /**
      * Setup the UI.
      */
     private void initComponents() {
-        jScrollPane1 = new javax.swing.JScrollPane();
         optionTable = new OptionTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        preferenceDescriptionTextArea = new javax.swing.JTextArea();
+        JScrollPane jScrollPane1 = new JScrollPane();
+        JScrollPane jScrollPane2 = new JScrollPane();
+        JTextArea preferenceDescriptionTextArea = new JTextArea();
 
         jScrollPane1.setViewportView(optionTable);
-        optionTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        optionTable.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         if (optionTable.getColumnModel().getColumnCount() > 0) {
             optionTable.getColumnModel().getColumn(0).setResizable(false);
         }
@@ -85,19 +83,19 @@ public abstract class AbstractOptionsPanel extends JPanel implements TableModelL
         preferenceDescriptionTextArea.setRows(5);
         jScrollPane2.setViewportView(preferenceDescriptionTextArea);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        GroupLayout layout = new GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 480, Short.MAX_VALUE)
             .addComponent(jScrollPane2)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createParallelGroup(GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, 168, Short.MAX_VALUE)
+                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
         );
     }
 }

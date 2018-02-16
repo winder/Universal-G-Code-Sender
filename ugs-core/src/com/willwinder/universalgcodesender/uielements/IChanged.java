@@ -23,5 +23,5 @@ package com.willwinder.universalgcodesender.uielements;
  * @author wwinder
  */
 public interface IChanged {
-    public void changed();
+    void changed();
 }

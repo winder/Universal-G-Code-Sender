@@ -566,7 +566,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             for (Position[] row : scanner.getProbePositionGrid()) {
                 for (Position p : row) {
                     if (p != null) {
-                        probeData.add(ImmutableMap.<String,Double>of(
+                        probeData.add(ImmutableMap.of(
                                 "x", p.x,
                                 "y", p.y,
                                 "z", p.z

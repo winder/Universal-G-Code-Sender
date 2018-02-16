@@ -25,5 +25,5 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
  * @author wwinder
  */
 public interface ControllerStateListener {
-    public void UGSEvent(UGSEvent evt);
+    void UGSEvent(UGSEvent evt);
 }

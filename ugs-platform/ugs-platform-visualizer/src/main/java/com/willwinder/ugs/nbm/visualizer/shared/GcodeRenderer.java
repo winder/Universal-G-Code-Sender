@@ -221,8 +221,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
 
         */
 
-        this.fpsCounter = new FPSCounter((GLDrawable) drawable, new Font("SansSerif", Font.BOLD, 12));
-        this.overlay = new Overlay((GLDrawable) drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.fpsCounter = new FPSCounter(drawable, new Font("SansSerif", Font.BOLD, 12));
+        this.overlay = new Overlay(drawable, new Font("SansSerif", Font.BOLD, 12));
         this.overlay.setColor(127, 127, 127, 100);
         this.overlay.setTextLocation(Overlay.LOWER_LEFT);
 

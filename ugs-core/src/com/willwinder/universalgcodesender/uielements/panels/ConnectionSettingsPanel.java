@@ -35,22 +35,22 @@ import javax.swing.*;
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
-    final Checkbox verboseConsoleOutput = new Checkbox(
+    private final Checkbox verboseConsoleOutput = new Checkbox(
                 Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
-    final Checkbox useZStepSize = new Checkbox(
+    private final Checkbox useZStepSize = new Checkbox(
                 Localization.getString("sender.step.separateZ"));
-    final Checkbox singleStepMode = new Checkbox(
+    private final Checkbox singleStepMode = new Checkbox(
                 Localization.getString("sender.singlestep"));
-    final Checkbox statusPollingEnabled = new Checkbox(
+    private final Checkbox statusPollingEnabled = new Checkbox(
                 Localization.getString("sender.status"));
-    final Spinner statusPollRate = new Spinner(
+    private final Spinner statusPollRate = new Spinner(
                 Localization.getString("sender.status.rate"),
-                new SpinnerNumberModel((int)1, 1, null, 100));
-    final Checkbox stateColorDisplayEnabled = new Checkbox(
+                new SpinnerNumberModel(1, 1, null, 100));
+    private final Checkbox stateColorDisplayEnabled = new Checkbox(
                 Localization.getString("sender.state"));
-    final Checkbox showNightlyWarning = new Checkbox(
+    private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
-    final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
+    private final JComboBox languageCombo = new JComboBox(AvailableLanguages.getAvailableLanguages().toArray());
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -63,14 +63,11 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
     @Override
     public String getHelpMessage() {
-        StringBuilder message = new StringBuilder()
-                .append(Localization.getString("sender.help.verbose.console")).append("\n\n")
-                .append(Localization.getString("sender.help.singlestep")).append("\n\n")
-                .append(Localization.getString("sender.help.status")).append("\n\n")
-                .append(Localization.getString("sender.help.status.rate")).append("\n\n")
-                .append(Localization.getString("sender.help.state")).append("\n\n")
-                ;
-        return message.toString();
+        return Localization.getString("sender.help.verbose.console") + "\n\n" +
+                Localization.getString("sender.help.singlestep") + "\n\n" +
+                Localization.getString("sender.help.status") + "\n\n" +
+                Localization.getString("sender.help.status.rate") + "\n\n" +
+                Localization.getString("sender.help.state") + "\n\n";
     }
 
     @Override
@@ -111,7 +108,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         statusPollingEnabled.setSelected(s.isStatusUpdatesEnabled());
         add(statusPollingEnabled);
 
-        statusPollRate.setValue((int)s.getStatusUpdateRate());
+        statusPollRate.setValue(s.getStatusUpdateRate());
         add(statusPollRate);
 
         stateColorDisplayEnabled.setSelected(s.isDisplayStateColor());

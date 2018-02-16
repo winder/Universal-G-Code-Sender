@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,23 +19,21 @@
 package com.willwinder.universalgcodesender.uielements.actions;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 
 /**
  *
  * @author wwinder
  */
 public class OpenGcodeFileAction extends AbstractAction {
-    BackendAPI backend;
+    private BackendAPI backend;
 
     public OpenGcodeFileAction(BackendAPI backend) {
         this.backend = backend;

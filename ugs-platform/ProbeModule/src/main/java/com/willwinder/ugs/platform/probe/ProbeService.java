@@ -124,27 +124,27 @@ public class ProbeService implements UGSEventListener {
         return this.stateMachine != null;
     }
 
-    static enum Outside {
+    enum Outside {
         Waiting, Setup,
         SeekY, RetractY, ProbeY, StoreYReset,
         SeekX, RetractX, ProbeX, StoreXFinalize
     }
 
-    static enum Z {
+    enum Z {
         Waiting,
         SeekZ, RetractZ, ProbeZ,
         Finalize
     }
 
-    static enum OutsideXYZ {
+    enum OutsideXYZ {
         Waiting,
         SeekZ, RetractZ, ProbeZ, StoreZReset,
         SeekX, RetractX, ProbeX, StoreXReset,
         SeekY, RetractY, PorbeY, StoreYFinalize
     }
 
-    static enum Event {
-        Start, Probed, Idle;
+    enum Event {
+        Start, Probed, Idle
     }
 
     private void validateState() {
