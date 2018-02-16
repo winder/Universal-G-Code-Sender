@@ -46,9 +46,10 @@ import javax.swing.Timer;
 public class SendStatusLine extends JLabel implements UGSEventListener, ControllerListener {
     private static final String SEND_PREFIX = "Send Status: ";
     private static final String LOAD_PREFIX = "Loaded File: ";
-    private static final String SEND_FORMAT = SEND_PREFIX + "(%d/%d) %s / %s ";
-    private static final String COMPLETED_FORMAT = SEND_PREFIX + "completed after %s ";
-    private static final String ROWS_FORMAT = LOAD_PREFIX + "%d rows ";
+    private static final String NO_FILE_LOADED = "No file loaded";
+    private static final String SEND_FORMAT = SEND_PREFIX + "(%d/%d) %s / %s";
+    private static final String COMPLETED_FORMAT = SEND_PREFIX + "completed after %s";
+    private static final String ROWS_FORMAT = LOAD_PREFIX + "%d rows";
 
     private final BackendAPI backend;
     private Timer timer;
@@ -114,7 +115,10 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
                     setText(String.format(ROWS_FORMAT, gsr.getNumRows()));
                 }
             } catch (GcodeStreamReader.NotGcodeStreamFile | IOException ex){}
+        } else {
+            setText(NO_FILE_LOADED);
         }
+
     }
 
     @Override

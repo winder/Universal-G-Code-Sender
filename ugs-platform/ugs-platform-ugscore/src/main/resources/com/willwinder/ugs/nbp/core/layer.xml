@@ -12,16 +12,13 @@
     <folder name="Menu">
         <folder name="File">
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
+            <file name="org-openide-actions-SaveAction.shadow">
+                <attr name="position" intvalue="11"/>
+            </file>
+            <file name="org-openide-actions-SaveAsAction.shadow">
+                <attr name="position" intvalue="12"/>
+            </file>
         </folder>
-        <!--
-        <folder name="Machine">
-            <folder name="Jog"/>
-            <folder name="Actions"/>
-            <folder name="Macros"/>
-            <attr name="position" intvalue="20001"/>
-            <attr name="displayName" bundlevalue="resources.MessagesBundle#platform.menu.machine"/>
-        </folder>
-        -->
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>
             <file name="Separator2.instance_hidden"/>
@@ -49,8 +46,9 @@
         </folder>
     </folder>
     <folder name="Toolbars">
-        <folder name="File_hidden"/>
-        <folder name="FileBrowser_hidden"/>
+        <folder name="File">
+            <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
+        </folder>
         <folder name="UndoRedo_hidden"/>
         <folder name="Connection">
             <!-- deprecated item -->
@@ -64,9 +62,6 @@
         </folder>
         <folder name="Pendant">
             <attr intvalue="125" name="position"/>
-        </folder>
-        <folder name="GcodeBrowser">
-            <attr intvalue="150" name="position"/>
         </folder>
     </folder>
     <folder name="Windows2">

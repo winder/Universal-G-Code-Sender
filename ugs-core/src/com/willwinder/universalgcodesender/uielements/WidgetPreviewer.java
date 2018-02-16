@@ -98,7 +98,6 @@ public class WidgetPreviewer {
         panel.add(frameLauncherButton("JogPanel(true)", new JogPanel(backend, new JogService(backend), true)));
         panel.add(frameLauncherButton("JogPanel(false)", new JogPanel(backend, new JogService(backend), false)));
         panel.add(frameLauncherButton("MachineStatusPanel", new MachineStatusPanel(backend)));
-        panel.add(frameLauncherButton("FileBrowsePanel", new FileBrowsePanel(backend)));
 
         // Display the main frame.
         frame.pack();
