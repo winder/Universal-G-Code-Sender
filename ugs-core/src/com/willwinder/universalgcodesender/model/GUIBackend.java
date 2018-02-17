@@ -131,25 +131,60 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
-        logger.log(Level.INFO, "Adding control state listener.");
-        ugsEventListener.add(listener);
+        if (!ugsEventListener.contains(listener)) {
+            logger.log(Level.INFO, "Adding UGSEvent listener: " + listener.getClass().getSimpleName());
+            ugsEventListener.add(listener);
+        }
+    }
+
+    @Override
+    public void removeUGSEventListener(UGSEventListener listener) {
+        if (ugsEventListener.contains(listener)) {
+            logger.log(Level.INFO, "Removing UGSEvent listener: " + listener.getClass().getSimpleName());
+            ugsEventListener.remove(listener);
+        }
     }
 
     @Override
     public void addControllerStateListener(ControllerStateListener listener) {
-        logger.log(Level.INFO, "Adding control state listener.");
-        controllerStateListener.add(listener);
+        if (!controllerStateListener.contains(listener)) {
+            logger.log(Level.INFO, "Adding controller state listener: " + listener.getClass().getSimpleName());
+            controllerStateListener.add(listener);
+        }
     }
-    
+
+    @Override
+    public void removeControllerStateListener(ControllerStateListener listener) {
+        if (controllerStateListener.contains(listener)) {
+            logger.log(Level.INFO, "Removing controller state listener: " + listener.getClass().getSimpleName());
+            controllerStateListener.remove(listener);
+        }
+    }
+
     @Override
     public void addControllerListener(ControllerListener listener) {
-        logger.log(Level.INFO, "Adding controller listener.");
-        controllerListeners.add(listener);
+        if (!controllerListeners.contains(listener)) {
+            logger.log(Level.INFO, "Adding controller listener: " + listener.getClass().getSimpleName());
+            controllerListeners.add(listener);
+        }
+
         if (this.controller != null) {
             this.controller.addListener(listener);
         }
     }
-    
+
+    @Override
+    public void removeControllerListener(ControllerListener listener) {
+        if (controllerListeners.contains(listener)) {
+            logger.log(Level.INFO, "Removing controller state listener: " + listener.getClass().getSimpleName());
+            controllerListeners.remove(listener);
+        }
+
+        if (this.controller != null) {
+            this.controller.removeListener(listener);
+        }
+    }
+
     //////////////////
     // GUI API
     //////////////////

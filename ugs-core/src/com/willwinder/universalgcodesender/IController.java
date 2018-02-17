@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,10 +36,21 @@ import java.io.Reader;
  * @author will
  */
 public interface IController {
-    /*
-    Observable
-    */
-    void addListener(ControllerListener cl);
+
+    /**
+     * Adds listener for observing controller events such as connection status,
+     * file send status and machine status
+     *
+     * @param listener the listener to observe the controller
+     */
+    void addListener(ControllerListener listener);
+
+    /**
+     * Removes a listener for this controller
+     *
+     * @param listener to be removed
+     */
+    void removeListener(ControllerListener listener);
 
     /*
     Actions
