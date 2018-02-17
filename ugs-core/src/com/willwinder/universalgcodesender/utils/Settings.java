@@ -89,9 +89,7 @@ public class Settings {
     transient private String customGcode5 = null;
     //^^^ deprecated fields, still here to not break the old save files
 
-    private final Map<Integer, Macro> macros = new HashMap<Integer, Macro>() {{
-        put(1, new Macro(null, null, "G91 X0 Y0;"));
-    }};
+    private Map<Integer, Macro> macros = new HashMap<>();
 
     private String language = "en_US";
     
@@ -102,6 +100,9 @@ public class Settings {
      */
     public Settings() {
         System.out.println("Initializing...");
+
+        // Initialize macros with a default macro
+        macros.put(1, new Macro(null, null, "G91 X0 Y0;"));
     }
 
     /**
