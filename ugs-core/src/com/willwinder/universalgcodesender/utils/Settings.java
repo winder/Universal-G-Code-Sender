@@ -31,18 +31,6 @@ public class Settings {
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
 
-    /**
-     * This method should only be called once during setup, a runtime exception
-     * will be thrown if that contract is violated.
-     */
-    public void setSettingChangeListener(SettingChangeListener listener) {
-        this.listener = listener;
-    }
-
-    private void changed() {
-        listener.settingChanged();
-    }
-
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
     private String port = "";
@@ -129,6 +117,18 @@ public class Settings {
             updateMacro(5, null, null, customGcode5);
             customGcode5 = null;
         }
+    }
+
+    /**
+     * This method should only be called once during setup, a runtime exception
+     * will be thrown if that contract is violated.
+     */
+    public void setSettingChangeListener(SettingChangeListener listener) {
+        this.listener = listener;
+    }
+
+    private void changed() {
+        listener.settingChanged();
     }
 
     public String getFirmwareVersion() {
