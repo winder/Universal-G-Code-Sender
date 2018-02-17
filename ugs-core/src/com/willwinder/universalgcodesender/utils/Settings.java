@@ -46,7 +46,7 @@ public class Settings {
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
     private String port = "";
-    private String portRate = "9600";
+    private String portRate = "115200";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
     private boolean useZStepSize = true;
