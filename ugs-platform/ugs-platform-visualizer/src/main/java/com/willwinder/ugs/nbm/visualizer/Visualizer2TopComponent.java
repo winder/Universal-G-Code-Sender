@@ -100,6 +100,12 @@ public final class Visualizer2TopComponent extends TopComponent {
     @Override
     protected void componentClosed() {
         super.componentClosed();
+
+        if (rih != null) {
+            backend.removeControllerListener(rih);
+            backend.removeUGSEventListener(rih);
+        }
+
         System.out.println("Component closed, panel = " + panel);
         if (panel == null) return;
 
