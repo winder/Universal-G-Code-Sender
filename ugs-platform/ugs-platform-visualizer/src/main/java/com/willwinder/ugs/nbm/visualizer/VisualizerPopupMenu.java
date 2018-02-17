@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,13 +23,15 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.Component;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
-import java.util.Collection;
+import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
@@ -57,16 +59,16 @@ public class VisualizerPopupMenu extends JPopupMenu {
 
     @Override
     public void show(Component invoker, int x, int y) {
+        removeAll();
+
         IRenderableRegistrationService renderableService =
                 Lookup.getDefault().lookup(IRenderableRegistrationService.class);
         Collection<Renderable> renderables = renderableService.getRenderables();
 
-        this.removeAll();
-
-        for (Renderable r : renderables) {
-            JRenderableCheckBox box = new JRenderableCheckBox(r);
-            add(box);
-        }
+        renderables.stream()
+                .sorted(Comparator.comparing(Renderable::getTitle))
+                .map(JRenderableCheckBox::new)
+                .forEach(this::add);
 
         add(jogToHere);
 
