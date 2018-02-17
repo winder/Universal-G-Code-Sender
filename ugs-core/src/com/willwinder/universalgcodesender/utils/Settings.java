@@ -29,7 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Settings {
     // Transient, don't serialize or deserialize.
-    transient SettingChangeListener listener = null;
+    transient private SettingChangeListener listener = null;
 
     /**
      * This method should only be called once during setup, a runtime exception
@@ -75,51 +75,10 @@ public class Settings {
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
-    private int toolbarIconSize = 0; // 0 = small, 1 = large, ... = ?
 
-    public static class AutoLevelSettings {
-        public boolean equals(AutoLevelSettings obj) {
-            return
-                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
-                    Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
-                    this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
-                    this.stepResolution == obj.stepResolution &&
-                    this.probeSpeed == obj.probeSpeed &&
-                    this.zSurface == obj.zSurface;
-        }
+    private AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
 
-        // Setting window
-        public double autoLevelProbeZeroHeight = 0;
-        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
-        public double autoLevelArcSliceLength = 0.01;
-
-        // Main window
-        public double stepResolution = 10;
-        public double probeSpeed = 10;
-        public double zSurface = 0;
-    }
-
-    public static class FileStats {
-        public Position minCoordinate;
-        public Position maxCoordinate;
-        long numCommands;
-
-        public FileStats() {
-            this.minCoordinate = new Position(0, 0, 0, Units.MM);
-            this.maxCoordinate = new Position(0, 0, 0, Units.MM);
-            this.numCommands = 0;
-        }
-
-        public FileStats(Position min, Position max, long num) {
-            this.minCoordinate = min;
-            this.maxCoordinate = max;
-            this.numCommands = num;
-        }
-    }
-
-    AutoLevelSettings autoLevelSettings = new AutoLevelSettings();
-
-    FileStats fileStats = new FileStats();
+    private FileStats fileStats = new FileStats();
 
     //vvv deprecated fields, still here to not break the old save files
     // Transient, don't serialize or deserialize.
@@ -130,7 +89,7 @@ public class Settings {
     transient private String customGcode5 = null;
     //^^^ deprecated fields, still here to not break the old save files
 
-    private final Map<Integer, Macro> macros = new HashMap() {{
+    private final Map<Integer, Macro> macros = new HashMap<Integer, Macro>() {{
         put(1, new Macro(null, null, "G91 X0 Y0;"));
     }};
 
@@ -445,61 +404,6 @@ public class Settings {
         return autoReconnect;
     }
 
-    public void setAutoReconnect(boolean autoReconnect) {
-        this.autoReconnect = autoReconnect;
-        changed();
-    }
-
-    public void setAutoConnectEnabled(boolean autoConnect) {
-        this.autoConnect = autoConnect;
-        changed();
-    }
-
-    public void setToolbarIconSize(int size) {
-        this.toolbarIconSize = size;
-        changed();
-    }
-
-    public int getToolbarIconSize() {
-        return this.toolbarIconSize;
-    }
-
-    public double getProbeFeed() {
-        return probeFeed;
-    }
-
-    public void setProbeFeed(double probeFeed) {
-        this.probeFeed = probeFeed;
-        changed();
-    }
-
-    public double getProbeDistance() {
-        return probeDistance;
-    }
-
-    public void setProbeDistance(double probeDistance) {
-        this.probeDistance = probeDistance;
-        changed();
-    }
-
-    public double getProbeOffset() {
-        return this.probeOffset;
-    }
-
-    public void setProbeOffset(double probeOffset) {
-        this.probeOffset = probeOffset;
-        changed();
-    }
-
-    public double getRetractHeight() {
-        return this.retractHeight;
-    }
-
-    public void setRetractHeight(double retractHeight) {
-        this.retractHeight = retractHeight;
-        changed();
-    }
-
     public void setAutoLevelSettings(AutoLevelSettings settings) {
         if (! settings.equals(this.autoLevelSettings)) {
             this.autoLevelSettings = settings;
@@ -518,5 +422,45 @@ public class Settings {
 
     public FileStats getFileStats() {
         return this.fileStats;
+    }
+
+    public static class AutoLevelSettings {
+        public boolean equals(AutoLevelSettings obj) {
+            return
+                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
+                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
+                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
+                            this.stepResolution == obj.stepResolution &&
+                            this.probeSpeed == obj.probeSpeed &&
+                            this.zSurface == obj.zSurface;
+        }
+
+        // Setting window
+        public double autoLevelProbeZeroHeight = 0;
+        public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
+        public double autoLevelArcSliceLength = 0.01;
+
+        // Main window
+        public double stepResolution = 10;
+        public double probeSpeed = 10;
+        public double zSurface = 0;
+    }
+
+    public static class FileStats {
+        public Position minCoordinate;
+        public Position maxCoordinate;
+        long numCommands;
+
+        public FileStats() {
+            this.minCoordinate = new Position(0, 0, 0, Units.MM);
+            this.maxCoordinate = new Position(0, 0, 0, Units.MM);
+            this.numCommands = 0;
+        }
+
+        public FileStats(Position min, Position max, long num) {
+            this.minCoordinate = min;
+            this.maxCoordinate = max;
+            this.numCommands = num;
+        }
     }
 }
