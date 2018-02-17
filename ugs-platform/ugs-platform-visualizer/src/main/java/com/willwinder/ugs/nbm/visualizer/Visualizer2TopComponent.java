@@ -60,11 +60,9 @@ import org.openide.util.NbPreferences;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
-    static GLCapabilities glCaps;
+    private static GLCapabilities glCaps;
 
     private GLJPanel panel;
-    private GcodeRenderer renderer;
-    private FPSAnimator animator;
     private RendererInputHandler rih;
     private final BackendAPI backend;
 
@@ -129,12 +127,12 @@ public final class Visualizer2TopComponent extends TopComponent {
     private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
-        renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
+        GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
         if (renderer == null) {
             throw new IllegalArgumentException("Failed to access GcodeRenderer.");
         }
-        
-        animator = new FPSAnimator(p, 15);
+
+        FPSAnimator animator = new FPSAnimator(p, 15);
         this.rih = new RendererInputHandler(renderer, animator,
                 new VisualizerPopupMenu(backend),
                 backend.getSettings());
@@ -149,7 +147,6 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
 
         // Install listeners...
-
         backend.addControllerListener(this.rih);
         backend.addUGSEventListener(this.rih);
 
