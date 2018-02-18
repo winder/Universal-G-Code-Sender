@@ -57,7 +57,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
-    private static GLCapabilities glCaps;
+    private final static GLCapabilities glCaps = new GLCapabilities(null);
 
     private GLJPanel panel;
     private RendererInputHandler rih;
@@ -78,8 +78,7 @@ public final class Visualizer2TopComponent extends TopComponent {
 
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        glCaps = new GLCapabilities(null);
-
+        
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());

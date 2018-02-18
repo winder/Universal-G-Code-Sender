@@ -102,7 +102,7 @@ public class VisualizerPopupMenu extends JPopupMenu {
         menu.add(menuItem);
     }
 
-    void setJogLocation(double x, double y) {
+    public void setJogLocation(double x, double y) {
         String strX = decimalFormatter.format(x);
         String strY = decimalFormatter.format(y);
 
