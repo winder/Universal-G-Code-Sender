@@ -31,7 +31,6 @@ import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import javax.swing.*;
 
 import org.openide.util.Lookup;
