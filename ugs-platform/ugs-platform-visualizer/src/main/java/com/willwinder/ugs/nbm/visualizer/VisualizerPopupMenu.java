@@ -32,10 +32,8 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.swing.AbstractAction;
-import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
+import javax.swing.*;
+
 import org.openide.util.Lookup;
 
 /**
@@ -65,10 +63,12 @@ public class VisualizerPopupMenu extends JPopupMenu {
                 Lookup.getDefault().lookup(IRenderableRegistrationService.class);
         Collection<Renderable> renderables = renderableService.getRenderables();
 
+        JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.showFeatures"));
+        add(menu);
         renderables.stream()
                 .sorted(Comparator.comparing(Renderable::getTitle))
                 .map(JRenderableCheckBox::new)
-                .forEach(this::add);
+                .forEach(menu::add);
 
         add(jogToHere);
 
@@ -111,7 +111,7 @@ public class VisualizerPopupMenu extends JPopupMenu {
         }
     }
 
-    private class JRenderableCheckBox extends JCheckBox implements ItemListener {
+    private class JRenderableCheckBox extends JCheckBoxMenuItem implements ItemListener {
         private Renderable r;
 
         public JRenderableCheckBox(Renderable r) {
