@@ -1,11 +1,5 @@
 /*
- * 3D Canvas for GCode Visualizer.
- *
- * Created on Jan 29, 2013
- */
-
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,16 +19,11 @@
 package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GL;
-import static com.jogamp.opengl.GL.GL_LINES;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
-import com.jogamp.opengl.GLDrawable;
 import com.jogamp.opengl.GLEventListener;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
-import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
@@ -46,28 +35,33 @@ import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.visualizer.MouseProjectionUtils;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.event.*;
+import org.openide.util.lookup.ServiceProvider;
+import org.openide.util.lookup.ServiceProviders;
+
+import javax.vecmath.Point3d;
+import javax.vecmath.Vector3d;
+import java.awt.*;
+import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.vecmath.Point3d;
-import javax.vecmath.Vector3d;
-import org.openide.util.lookup.ServiceProvider;
-import org.openide.util.lookup.ServiceProviders;
+
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_MODELVIEW;
+import static com.jogamp.opengl.fixedfunc.GLMatrixFunc.GL_PROJECTION;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_BG;
 
 /**
+ * 3D Canvas for GCode Visualizer
  *
  * @author wwinder
- * 
  */
 @SuppressWarnings("serial")
 @ServiceProviders(value = {
-    @ServiceProvider(service = IRenderableRegistrationService.class),
-    @ServiceProvider(service = GcodeRenderer.class)})
+        @ServiceProvider(service = IRenderableRegistrationService.class),
+        @ServiceProvider(service = GcodeRenderer.class)})
 public class GcodeRenderer implements GLEventListener, IRenderableRegistrationService {
     private static final Logger logger = Logger.getLogger(GcodeRenderer.class.getName());
     
@@ -545,7 +539,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
             int dx = this.mouseCurrentWindow.x - this.mouseLastWindow.x;
             int dy = this.mouseCurrentWindow.y - this.mouseLastWindow.y;
 
-            rotation.x = this.rotation.x += dx / 2.0;
+            rotation.x += dx / 2.0;
             rotation.y = Math.min(0, Math.max(-180, this.rotation.y += dy / 2.0));
 
             if (ortho) {
@@ -631,13 +625,20 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
      * Reset the view angle and zoom.
      */
     public void resetView() {
-        this.zoomMultiplier = 1;
+        moveCamera(new Point3d(0, 0, 1.5), new Point3d(0, -30, 0), 1);
+    }
+
+    /**
+     * Moves the camera to a position and rotation
+     *
+     * @param position to the given position
+     * @param rotation directs the camera given this rotation
+     * @param zoom the zoom level
+     */
+    public void moveCamera(Point3d position, Point3d rotation, double zoom) {
+        this.zoomMultiplier = Math.min(Math.max(zoom, minZoomMultiplier), maxZoomMultiplier);
         this.scaleFactor = this.scaleFactorBase;
-        this.eye.x = 0;
-        this.eye.y = 0;
-        this.eye.z = 1.5;
-        this.rotation.x = 0;
-        this.rotation.y = -30;
-        this.rotation.z = 0;
+        this.eye = new Point3d(position);
+        this.rotation = new Point3d(rotation);
     }
 }
