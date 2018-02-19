@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,63 +18,91 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
+import com.willwinder.ugs.nbm.visualizer.actions.JogToHereAction;
+import com.willwinder.ugs.nbm.visualizer.actions.MoveCameraAction;
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbm.visualizer.shared.IRenderableRegistrationService;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.ugs.nbm.visualizer.shared.RenderableCheckBox;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.logging.Logger;
-import javax.swing.AbstractAction;
-import javax.swing.JCheckBox;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
 import org.openide.util.Lookup;
 
+import javax.swing.*;
+import java.awt.*;
+import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.Comparator;
+
 /**
- *
  * @author wwinder
  */
 public class VisualizerPopupMenu extends JPopupMenu {
-    private static final Logger logger = Logger.getLogger(VisualizerPopupMenu.class.getName());
     private final JogToHereAction jogToHereAction;
     private final JMenuItem jogToHere = new JMenuItem();
     private final DecimalFormat decimalFormatter =
             new DecimalFormat("#.#####", Localization.dfs);
 
-    public VisualizerPopupMenu(BackendAPI backend) {
+    private final GcodeRenderer gcodeRenderer;
+
+    public VisualizerPopupMenu(BackendAPI backend, GcodeRenderer gcodeRenderer) {
         jogToHereAction = new JogToHereAction(backend);
 
         jogToHere.setText(String.format(Localization.getString("platform.visualizer.jogToHere"), 0, 0));
 
         jogToHere.setAction(jogToHereAction);
+
+        this.gcodeRenderer = gcodeRenderer;
     }
 
     @Override
     public void show(Component invoker, int x, int y) {
-        IRenderableRegistrationService renderableService =
-                Lookup.getDefault().lookup(IRenderableRegistrationService.class);
-        Collection<Renderable> renderables = renderableService.getRenderables();
+        removeAll();
 
-        this.removeAll();
-
-        for (Renderable r : renderables) {
-            JRenderableCheckBox box = new JRenderableCheckBox(r);
-            add(box);
-        }
+        createViewPresetSubmenu();
+        createShowRenderablesSubmenu();
 
         add(jogToHere);
 
         super.show(invoker, x, y);
     }
 
-    public void setJogLocation(double x, double y) {
+    private void createShowRenderablesSubmenu() {
+        IRenderableRegistrationService renderableService =
+                Lookup.getDefault().lookup(IRenderableRegistrationService.class);
+        Collection<Renderable> renderables = renderableService.getRenderables();
 
+        JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.showFeatures"));
+        add(menu);
+        renderables.stream()
+                .sorted(Comparator.comparing(Renderable::getTitle))
+                .map(RenderableCheckBox::new)
+                .forEach(menu::add);
+    }
+
+    private void createViewPresetSubmenu() {
+
+        JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.viewPresets"));
+        add(menu);
+
+        JMenuItem menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_ISOMETRIC, 1));
+        menuItem.setText(Localization.getString("platform.visualizer.popup.presets.reset"));
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_TOP, 1));
+        menuItem.setText(Localization.getString("platform.visualizer.popup.presets.top"));
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_LEFT, 1));
+        menuItem.setText(Localization.getString("platform.visualizer.popup.presets.left"));
+        menu.add(menuItem);
+
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_FRONT, 1));
+        menuItem.setText(Localization.getString("platform.visualizer.popup.presets.front"));
+        menu.add(menuItem);
+    }
+
+    public void setJogLocation(double x, double y) {
         String strX = decimalFormatter.format(x);
         String strY = decimalFormatter.format(y);
 
@@ -82,50 +110,5 @@ public class VisualizerPopupMenu extends JPopupMenu {
         String jogToHereString = Localization.getString("platform.visualizer.popup.jogToHere");
         jogToHereString = jogToHereString.replaceAll("%f", "%s");
         jogToHere.setText(String.format(jogToHereString, strX, strY));
-    }
-
-    private static class JogToHereAction extends AbstractAction {
-        private String x = "0";
-        private String y = "0";
-        private final BackendAPI backend;
-
-        JogToHereAction(BackendAPI backend) {
-            this.backend = backend;
-        }
-
-        public void setJogLocation(String x, String y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            try {
-                backend.sendGcodeCommand("G0 X" + x + " Y" + y);
-            } catch (Exception ex) {
-                //logger.log(Level.SEVERE, ex.getLocalizedMessage(), ex);
-                GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
-            }
-        }
-    }
-
-    private class JRenderableCheckBox extends JCheckBox implements ItemListener {
-        private Renderable r;
-
-        public JRenderableCheckBox(Renderable r) {
-            super(r.getTitle(), r.isEnabled());
-            this.r = r;
-
-            this.addItemListener(this);
-        }
-
-        @Override
-        public void itemStateChanged(ItemEvent ie) {
-            if (ie.getStateChange() == ItemEvent.SELECTED) {
-                r.setEnabled(true);
-            } else if (ie.getStateChange() == ItemEvent.DESELECTED) {
-                r.setEnabled(false);
-            }
-        }
     }
 }

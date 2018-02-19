@@ -1,9 +1,5 @@
-/**
- * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
- */
-
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,30 +18,31 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
-import com.jogamp.opengl.GLEventListener;
-import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import java.awt.BorderLayout;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.awt.GLJPanel;
-import java.util.prefs.Preferences;
+import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptionsPanel;
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import java.io.File;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbPreferences;
+import org.openide.windows.TopComponent;
+
+import java.awt.*;
+import java.io.File;
+import java.util.prefs.Preferences;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 
 /**
- * Top component which displays something.
+ * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
  */
 @TopComponent.Description(
         preferredID = "Visualizer2TopComponent",
@@ -60,11 +57,9 @@ import org.openide.util.NbPreferences;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
-    static GLCapabilities glCaps;
+    private final static GLCapabilities glCaps = new GLCapabilities(null);
 
     private GLJPanel panel;
-    private GcodeRenderer renderer;
-    private FPSAnimator animator;
     private RendererInputHandler rih;
     private final BackendAPI backend;
 
@@ -83,8 +78,7 @@ public final class Visualizer2TopComponent extends TopComponent {
 
     public Visualizer2TopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        glCaps = new GLCapabilities(null);
-
+        
         setMinimumSize(new java.awt.Dimension(50, 50));
         setPreferredSize(new java.awt.Dimension(200, 200));
         setLayout(new java.awt.BorderLayout());
@@ -102,6 +96,12 @@ public final class Visualizer2TopComponent extends TopComponent {
     @Override
     protected void componentClosed() {
         super.componentClosed();
+
+        if (rih != null) {
+            backend.removeControllerListener(rih);
+            backend.removeUGSEventListener(rih);
+        }
+
         System.out.println("Component closed, panel = " + panel);
         if (panel == null) return;
 
@@ -129,14 +129,14 @@ public final class Visualizer2TopComponent extends TopComponent {
     private GLJPanel makeWindow(final GLCapabilities caps) {
         final GLJPanel p = new GLJPanel(caps);
 
-        renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
+        GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
         if (renderer == null) {
             throw new IllegalArgumentException("Failed to access GcodeRenderer.");
         }
-        
-        animator = new FPSAnimator(p, 15);
+
+        FPSAnimator animator = new FPSAnimator(p, 15);
         this.rih = new RendererInputHandler(renderer, animator,
-                new VisualizerPopupMenu(backend),
+                new VisualizerPopupMenu(backend, renderer),
                 backend.getSettings());
 
         Preferences pref = NbPreferences.forModule(VisualizerOptionsPanel.class);
@@ -149,7 +149,6 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
 
         // Install listeners...
-
         backend.addControllerListener(this.rih);
         backend.addUGSEventListener(this.rih);
 
@@ -171,17 +170,5 @@ public final class Visualizer2TopComponent extends TopComponent {
         p.addGLEventListener(renderer);
 
         return p;
-    }
-
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
-    }
-
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
     }
 }

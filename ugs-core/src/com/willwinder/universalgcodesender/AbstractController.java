@@ -57,12 +57,56 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
 
-    public class UnexpectedCommand extends Exception {
-        public UnexpectedCommand(String message) {
-            super(message);
-        }
-    }
-    
+    // These abstract objects are initialized in concrete class.
+    protected final AbstractCommunicator comm;
+    protected GcodeCommandCreator commandCreator;
+
+    // Outside influence
+    private boolean statusUpdatesEnabled = true;
+    private int statusUpdateRate = 200;
+
+    private UnitUtils.Units reportingUnits = UnitUtils.Units.UNKNOWN;
+
+    // Added value
+    private Boolean isStreaming = false;
+    private long streamStart = 0;
+    private long streamStop = 0;
+    private File gcodeFile;
+
+    // This metadata needs to be cached instead of looked up from queues and
+    // streams, because those sources may be compromised during a cancel.
+    private int numCommands = 0;
+    private int numCommandsSent = 0;
+    private int numCommandsSkipped = 0;
+    private int numCommandsCompleted = 0;
+
+    // Commands become active after the Communicator notifies us that they have
+    // been sent.
+    //
+    // Algorithm:
+    //   1) Send all manually queued commands to the Communicator.
+    //   2) Queue file stream(s).
+    //   3) As commands are sent by the Communicator create a GCodeCommand
+    //      (with command number) object and add it to the activeCommands list.
+    //   4) As commands are completed remove them from the activeCommand list.
+    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
+    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
+    private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
+    private GcodeStreamReader       streamCommands;    // The stream of commands to send.
+    private int                     errorCount;        // Number of 'error' responses.
+
+    // Listeners
+    private ArrayList<ControllerListener> listeners;
+
+    //Track current mode to restore after jogging
+    private String distanceModeCode = null;
+    private String unitsCode = null;
+
+    // Maintain the current state given actions performed.
+    // Concrete classes with a status field should override getControlState.
+    private ControlState currentState = COMM_DISCONNECTED;
+
+
     /** API Interface. */
 
     /**
@@ -246,64 +290,15 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     abstract protected void statusUpdatesEnabledValueChanged(boolean enabled);
     abstract protected void statusUpdatesRateValueChanged(int rate);
-    
-    // These abstract objects are initialized in concrete class.
-    protected final AbstractCommunicator comm;
-    protected GcodeCommandCreator commandCreator;
-    
+
     /**
      * Accessible so that it can be configured.
-     * @return 
+     * @return
      */
     public GcodeCommandCreator getCommandCreator() {
         return commandCreator;
     }
-    
-    // Outside influence
-    private boolean statusUpdatesEnabled = true;
-    private int statusUpdateRate = 200;
-    
-    private UnitUtils.Units reportingUnits = UnitUtils.Units.UNKNOWN;
-    
-    // Added value
-    private Boolean isStreaming = false;
-    private long streamStart = 0;
-    private long streamStop = 0;
-    private File gcodeFile;
-    
-    // This metadata needs to be cached instead of looked up from queues and
-    // streams, because those sources may be compromised during a cancel.
-    private int numCommands = 0;
-    private int numCommandsSent = 0;
-    private int numCommandsSkipped = 0;
-    private int numCommandsCompleted = 0;
-    
-    // Commands become active after the Communicator notifies us that they have
-    // been sent.
-    //
-    // Algorithm:
-    //   1) Send all manually queued commands to the Communicator.
-    //   2) Queue file stream(s).
-    //   3) As commands are sent by the Communicator create a GCodeCommand
-    //      (with command number) object and add it to the activeCommands list.
-    //   4) As commands are completed remove them from the activeCommand list.
-    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
-    private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
-    private GcodeStreamReader       streamCommands;    // The stream of commands to send.
-    private int                     errorCount;        // Number of 'error' responses.
-    
-    // Listeners
-    private ArrayList<ControllerListener> listeners;
 
-    //Track current mode to restore after jogging
-    private String distanceModeCode = null;
-    private String unitsCode = null;
-
-    // Maintain the current state given actions performed.
-    // Concrete classes with a status field should override getControlState.
-    private ControlState currentState = COMM_DISCONNECTED;
-        
     /**
      * Dependency injection constructor to allow a mock communicator.
      */
@@ -860,12 +855,18 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
     }
 
-    /**
-     * Listener management.
-     */
     @Override
-    public void addListener(ControllerListener cl) {
-        this.listeners.add(cl);
+    public void addListener(ControllerListener listener) {
+        if (!this.listeners.contains(listener)) {
+            this.listeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeListener(ControllerListener listener) {
+        if (this.listeners.contains(listener)) {
+            this.listeners.remove(listener);
+        }
     }
 
     protected void dispatchStatusString(ControllerStatus status) {
@@ -1031,6 +1032,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             sendCommandImmediately(command);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public class UnexpectedCommand extends Exception {
+        public UnexpectedCommand(String message) {
+            super(message);
         }
     }
 }

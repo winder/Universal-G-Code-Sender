@@ -33,10 +33,21 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
  * @author wwinder
  */
 public interface BackendAPIReadOnly {
+
     /**
-     * Contains all common GUI events: state changes, probe events, settings changes and file changes.
+     * Contains all common GUI events: state changes, probe events,
+     * settings changes and file changes.
+     *
+     * @param listener the listener to be added
      */
     void addUGSEventListener(UGSEventListener listener);
+
+    /**
+     * Removes a UGSEvent listener
+     *
+     * @param listener the listener to be removed
+     */
+    void removeUGSEventListener(UGSEventListener listener);
 
     /**
      * Listener for controller status events, these come at regular intervals. 
@@ -44,10 +55,25 @@ public interface BackendAPIReadOnly {
     void addControllerStateListener(ControllerStateListener listener);
 
     /**
+     * Removes a controller state listener
+     *
+     * @param listener the listener to be removed
+     */
+    void removeControllerStateListener(ControllerStateListener listener);
+
+    /**
      * Details internal controller listener.
      */
     void addControllerListener(ControllerListener listener);
-    
+
+    /**
+     * Removes a controller listener
+     *
+     * @param listener the listener to be removed
+     */
+    void removeControllerListener(ControllerListener listener);
+
+
     // Config options
     File getGcodeFile();
     File getProcessedGcodeFile();
