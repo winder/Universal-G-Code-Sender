@@ -1,5 +1,5 @@
 /*
-Copyright 2017 Will Winder
+Copyright 2017-2018 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -28,8 +28,6 @@ import com.willwinder.universalgcodesender.utils.CommUtils;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Component;
 import java.awt.FlowLayout;
-import static javax.swing.Action.NAME;
-import static javax.swing.Action.SMALL_ICON;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -91,7 +89,7 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
         refreshButton.setIcon(refreshIcon);
 
         JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel(Localization.getString("mainWindow.swing.baudLabel")));
+        panel.add(new JLabel(Localization.getString("mainWindow.swing.portLabel")));
         panel.add(refreshButton);
         panel.add(portCombo);
         c = panel;
