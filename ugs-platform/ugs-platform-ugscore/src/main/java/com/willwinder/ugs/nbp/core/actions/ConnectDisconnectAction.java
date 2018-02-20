@@ -1,5 +1,5 @@
 /*
-Copyright 2015-2017 Will Winder
+Copyright 2015-2018 Will Winder
 
 This file is part of Universal Gcode Sender (UGS).
 
@@ -26,20 +26,21 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import java.awt.Component;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.openide.util.Exceptions;
-import org.openide.util.actions.Presenter;
 
 /**
+ * An action for connecting or disconnecting to a controller
+ *
  * @author wwinder
  */
 @ActionID(
@@ -57,51 +58,40 @@ import org.openide.util.actions.Presenter;
                 path = "Toolbars/Connection",
                 position = 975)
 })
-public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener, Presenter.Toolbar {
+public class ConnectDisconnectAction extends AbstractAction implements UGSEventListener {
     public static final String ICON_BASE = "resources/icons/connect.png";
     public static final String ICON_BASE_DISCONNECT = "resources/icons/disconnect.png";
 
-    public ImageIcon connectImage = null;
-    public ImageIcon connectImageDisconnect = null;
-
     private static final Logger logger = Logger.getLogger(ConnectDisconnectAction.class.getName());
     private BackendAPI backend;
-    private JButton connectDisconnectButton = new JButton(this);
 
     public ConnectDisconnectAction() {
         this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-
-        try {
-            connectImage = new ImageIcon(this.getClass().getClassLoader().getResource(ICON_BASE));
-            connectImageDisconnect = new ImageIcon(this.getClass().getClassLoader().getResource(ICON_BASE_DISCONNECT));
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-        }
-
         if (this.backend != null) {
             this.backend.addUGSEventListener(this);
         }
 
-        connectDisconnectButton.setVerticalTextPosition(SwingConstants.CENTER);
-        connectDisconnectButton.setHorizontalTextPosition(SwingConstants.LEFT);
-
-        this.UGSEvent(null);
+        updateIconAndText();
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
+        if (cse != null && cse.isStateChangeEvent()) {
+            EventQueue.invokeLater(this::updateIconAndText);
+        }
+    }
+
+    private void updateIconAndText() {
         if (backend.isConnected()) {
-            putValue("iconBase", ICON_BASE);
             putValue(NAME, LocalizingService.ConnectDisconnectTitleDisconnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleDisconnect);
-            connectDisconnectButton.setIcon(connectImage);
-            connectDisconnectButton.setText(LocalizingService.ConnectDisconnectTitleDisconnect);
+            putValue("iconBase", ICON_BASE);
+            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         } else {
             putValue(NAME, LocalizingService.ConnectDisconnectTitleConnect);
             putValue("menuText", LocalizingService.ConnectDisconnectTitleConnect);
             putValue("iconBase", ICON_BASE_DISCONNECT);
-            connectDisconnectButton.setIcon(connectImageDisconnect);
-            connectDisconnectButton.setText(LocalizingService.ConnectDisconnectTitleConnect);
+            putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE_DISCONNECT, false));
         }
     }
 
@@ -134,7 +124,8 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
                     backend.connect(firmware, port, baudRate);
                 } catch (Exception e) {
                     GUIHelpers.displayErrorDialog(e.getMessage());
-                }});
+                }
+            });
         } else {
             try {
                 backend.disconnect();
@@ -142,10 +133,5 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
                 GUIHelpers.displayErrorDialog(e.getMessage());
             }
         }
-    }
-
-    @Override
-    public Component getToolbarPresenter() {
-        return connectDisconnectButton;
     }
 }
