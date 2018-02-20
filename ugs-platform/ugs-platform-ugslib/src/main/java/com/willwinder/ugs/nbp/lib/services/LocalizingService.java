@@ -176,6 +176,12 @@ public class LocalizingService {
     public final static String ConnectDisconnectActionId = "com.willwinder.ugs.nbp.core.actions.ConnectDisconnectAction";
     public final static String ConnectDisconnectCategory = CATEGORY_MACHINE;
 
+    public final static String ConfigureFirmwareTitle = Localization.getString("mainWindow.swing.firmwareSettingsMenu", lang);
+    public final static String ConfigureFirmwareActionTitleKey = "mainWindow.swing.firmwareSettingsMenu";
+    public final static String ConfigureFirmwareWindowPath = MENU_MACHINE;
+    public final static String ConfigureFirmwareActionId = "com.willwinder.ugs.nbp.core.actions.ConfigureFirmwareAction";
+    public final static String ConfigureFirmwareCategory = CATEGORY_MACHINE;
+
     public final static String ConnectionBaudRateToolbarTitle = Localization.getString("mainWindow.swing.baudrate.toolbarTitle", lang);
     public final static String ConnectionBaudRateToolbarTitleKey = "mainWindow.swing.baudrate.toolbarTitle";
     public final static String ConnectionBaudRateToolbarActionId = "com.willwinder.ugs.nbp.core.actions.BaudRateAction";
