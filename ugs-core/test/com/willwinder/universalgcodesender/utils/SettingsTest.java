@@ -54,7 +54,7 @@ public class SettingsTest {
         assertEquals(Double.valueOf(1.0), Double.valueOf(target.getManualModeStepSize()));
         assertNotNull(target.getPendantConfig());
         assertEquals("", target.getPort());
-        assertEquals("9600", target.getPortRate());
+        assertEquals("115200", target.getPortRate());
         assertTrue(target.isScrollWindowEnabled());
         assertTrue(target.isShowNightlyWarning());
         assertTrue(target.isShowSerialPortWarning());
