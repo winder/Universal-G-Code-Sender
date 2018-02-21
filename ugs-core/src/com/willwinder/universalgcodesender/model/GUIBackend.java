@@ -40,7 +40,6 @@ import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
 import java.awt.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -58,15 +57,12 @@ import java.util.regex.Pattern;
 public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
-    private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
     private IController controller = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
-    private Units reportUnits = Units.UNKNOWN;
 
-    private String state;
     private final Collection<ControllerListener> controllerListeners = new ArrayList<>();
     private final Collection<UGSEventListener> ugsEventListener = new ArrayList<>();
     private final Collection<ControllerStateListener> controllerStateListener = new ArrayList<>();
@@ -79,28 +75,20 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private String activeState;
     private long estimatedSendDuration = -1L;
     private boolean sendingFile = false;
-    //private long estimatedSendTimeRemaining = 0;
-    //private long rowsInFile = 0;
-    private String openCloseButtonText;
-    private boolean openCloseButtonEnabled;
-    private String pauseButtonText;
-    private String cancelButtonText;
     private String firmware = null;
-    private boolean reprocessFileAfterStreamComplete = false;
 
     private long lastResponse = Long.MIN_VALUE;
-    private long lastConnectAttempt = Long.MIN_VALUE;
     private boolean streamFailed = false;
     private boolean autoconnect = false;
-    private final java.util.Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
+    private final Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
     
-    public GcodeParser gcp = new GcodeParser();
+    private GcodeParser gcp = new GcodeParser();
 
     public GUIBackend() {
         scheduleTimers();
     }
 
-    protected final void scheduleTimers() {
+    private void scheduleTimers() {
         autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
             private int count = 0;
             @Override
@@ -214,9 +202,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         // Load command processors for this firmware.
         try {
-            Optional<List<CommandProcessor>> processor_ret = FirmwareUtils.getParserFor(firmware, settings);
-        }
-        catch (Exception e) {
+            FirmwareUtils.getParserFor(firmware, settings);
+        } catch (Exception e) {
             disconnect();
             throw new Exception("Bad configuration file for: " + firmware + " (" + e.getMessage() + ")");
         }
@@ -230,8 +217,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void connect(String firmware, String port, int baudRate) throws Exception {
         logger.log(Level.INFO, "Connecting to {0} on port {1}", new Object[]{firmware, port});
-        lastConnectAttempt = System.currentTimeMillis();
-
         updateWithFirmware(firmware);
 
         this.controller = fetchControllerFromFirmware(firmware);
@@ -335,7 +320,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    public void keepAwake() {
+    private void keepAwake() {
         logger.log(Level.INFO, "Moving the mouse location slightly to keep the computer awake.");
         try {
             Robot hal = new Robot();
@@ -402,11 +387,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.y));
             systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.z));
         }
-        systemStateBean.setSendButtonText(openCloseButtonText);
-        systemStateBean.setSendButtonEnabled(openCloseButtonEnabled);
-        systemStateBean.setPauseResumeButtonText(pauseButtonText);
+        systemStateBean.setSendButtonEnabled(this.canSend());
         systemStateBean.setPauseResumeButtonEnabled(this.canPause());
-        systemStateBean.setCancelButtonText(cancelButtonText);
         systemStateBean.setCancelButtonEnabled(this.canCancel());
     }
 
@@ -788,15 +770,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     public void fileStreamComplete(String filename, boolean success) {
         // If we were sending a file, we aren't anymore.
         this.sendingFile = false;
-
-        // Reprocess file if a custom pattern remover was added while streaming.
-        if (this.reprocessFileAfterStreamComplete) {
-            try {
-                updateWithFirmware(firmware);
-            } catch (Exception ex) {
-                Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
     }
 
     @Override
@@ -868,9 +841,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.activeState = status.getState();
         this.machineCoord = status.getMachineCoord();
         this.workCoord = status.getWorkCoord();
-        if (machineCoord != null) {
-            this.reportUnits = machineCoord.getUnits();
-        }
         this.lastResponse = System.currentTimeMillis();
         this.sendControllerStateEvent(new UGSEvent(status));
     }
@@ -932,7 +902,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     /////////////////////
     
     private boolean openCommConnection(String port, int baudRate) throws Exception {
-        boolean connected = false;
+        boolean connected;
         try {
             connected = controller.openCommPort(port, baudRate);
             
@@ -946,11 +916,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     private void initializeProcessedLines(boolean forceReprocess, File startFile, GcodeParser gcodeParser)
-            throws FileNotFoundException, Exception {
+            throws Exception {
         if (startFile != null) {
-            Charset cs;
             try (FileReader fr = new FileReader(startFile)) {
-                cs = Charset.forName(fr.getEncoding());
+                Charset.forName(fr.getEncoding());
             }
             logger.info("Start preprocessing");
             long start = System.currentTimeMillis();
@@ -980,12 +949,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             if (this.isConnected()) {
                 this.estimatedSendDuration = -1L;
 
-                Thread estimateThread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile);
-                    }
-                });
+                Thread estimateThread = new Thread(() ->
+                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile));
                 estimateThread.start();
             }
         }
