@@ -58,7 +58,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
 
-    private IController controller = null;
+    private AbstractController controller = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
@@ -232,7 +232,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    protected IController fetchControllerFromFirmware(String firmware) throws Exception {
+    protected AbstractController fetchControllerFromFirmware(String firmware) throws Exception {
         Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
         if (!c.isPresent()) {
             throw new Exception("Unable to create handler for: " + firmware);
@@ -890,8 +890,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void sendMessageForConsole(String msg) {
-        if (controller != null && controller instanceof SerialCommunicatorListener) {
-            ((SerialCommunicatorListener)controller).messageForConsole(msg);
+        if (controller != null ) {
+            controller.messageForConsole(msg);
         } else {
             //should still send!  Controller probably shouldn't ever be null.
         }

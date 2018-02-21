@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.model;
 
+import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -54,7 +55,7 @@ public class GUIBackendTest {
      */
     private ArgumentCaptor<UGSEvent> eventArgumentCaptor;
 
-    private IController controller;
+    private AbstractController controller;
 
     private Settings settings;
 
@@ -65,7 +66,7 @@ public class GUIBackendTest {
 
         // We need to mock the method that loads the controller
         instance = spy(new GUIBackend());
-        controller = mock(IController.class);
+        controller = mock(AbstractController.class);
         doReturn(controller).when(instance).fetchControllerFromFirmware(any());
 
         // Add a event listener that stores events in the argument captor
