@@ -20,46 +20,36 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.AbstractController;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
-import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
-import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
-import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
-import com.willwinder.universalgcodesender.utils.Settings.FileStats;
-import java.awt.AWTException;
-import java.awt.MouseInfo;
-import java.awt.Point;
-import java.awt.Robot;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 
 /**
  *
@@ -70,7 +60,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private static final String NEW_LINE = "\n    ";
     private static final int AUTO_DISCONNECT_THRESHOLD = 5000;
 
-    private AbstractController controller = null;
+    private IController controller = null;
     private Settings settings = null;
     private Position machineCoord = null;
     private Position workCoord = null;
@@ -244,11 +234,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         updateWithFirmware(firmware);
 
-        Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
-        if (!c.isPresent()) {
-            throw new Exception("Unable to create handler for: " + firmware);
-        }
-        this.controller = c.get();
+        this.controller = fetchControllerFromFirmware(firmware);
         applySettings(settings);
 
         this.controller.addListener(this);
@@ -259,6 +245,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         if (openCommConnection(port, baudRate)) {
             streamFailed = false;   //reset
         }
+    }
+
+    protected IController fetchControllerFromFirmware(String firmware) throws Exception {
+        Optional<AbstractController> c = FirmwareUtils.getControllerFor(firmware);
+        if (!c.isPresent()) {
+            throw new Exception("Unable to create handler for: " + firmware);
+        }
+        return c.get();
     }
 
     @Override
@@ -926,8 +920,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void sendMessageForConsole(String msg) {
-        if (controller != null) {
-            controller.messageForConsole(msg);
+        if (controller != null && controller instanceof SerialCommunicatorListener) {
+            ((SerialCommunicatorListener)controller).messageForConsole(msg);
         } else {
             //should still send!  Controller probably shouldn't ever be null.
         }

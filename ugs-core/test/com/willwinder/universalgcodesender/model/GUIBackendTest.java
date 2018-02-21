@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,646 +19,355 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
-import java.io.File;
-import java.lang.reflect.Field;
-import static org.easymock.EasyMock.createMock;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
 import static org.junit.Assert.*;
-import org.junit.Ignore;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 /**
+ * Unit test for GUIBackend
  *
  * @author wwinder
+ * @author Joacim Breiler
  */
-@Ignore
 public class GUIBackendTest {
-    
-    public GUIBackendTest() {
-    }
-    
-    private static IController mockController = createMock(IController.class);
+
+    private static final String FIRMWARE = "GRBL";
+    private static final String PORT = "/dev/ttyS0";
+    private static final int BAUD_RATE = 9600;
+
+    /**
+     * An argument captor for any UGS event fired from the application.
+     * Run your test and fetch any events using eventArgumentCaptor.getAllValues()
+     */
+    private ArgumentCaptor<UGSEvent> eventArgumentCaptor;
+
+    private IController controller;
+
+    private Settings settings;
+
     private GUIBackend instance;
 
     @Before
-    public void setUp() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-        instance = new GUIBackend();
+    public void setUp() throws Exception {
 
-        // Initialize private variable.
-        Field f = GUIBackend.class.getDeclaredField("controller");
-        f.setAccessible(true);
-        f.set(instance, mockController);
-    }
+        // We need to mock the method that loads the controller
+        instance = spy(new GUIBackend());
+        controller = mock(IController.class);
+        doReturn(controller).when(instance).fetchControllerFromFirmware(any());
 
-    ////////////////////////////////////////
-    // Test helpers
-    ////////////////////////////////////////
+        // Add a event listener that stores events in the argument captor
+        UGSEventListener ugsEventListener = mock(UGSEventListener.class);
+        eventArgumentCaptor = ArgumentCaptor.forClass(UGSEvent.class);
+        doNothing().when(ugsEventListener).UGSEvent(eventArgumentCaptor.capture());
+        instance.addUGSEventListener(ugsEventListener);
 
-    /**
-     * Test of preprocessAndExportToFile method, of class GUIBackend.
-     */
-    @Test
-    public void testPreprocessAndExportToFile() throws Exception {
-        System.out.println("preprocessAndExportToFile");
-        File f = null;
-        GUIBackend instance = new GUIBackend();
-        instance.preprocessAndExportToFile(f);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of connect method, of class GUIBackend.
-     */
-    @Test
-    public void testConnect() throws Exception {
-        System.out.println("connect");
-        System.out.println("-- cannot test connect because of static call --");
-    }
-
-    /**
-     * Test of isConnected method, of class GUIBackend.
-     */
-    @Test
-    public void testIsConnected() {
-        System.out.println("isConnected");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.isConnected();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of disconnect method, of class GUIBackend.
-     */
-    @Test
-    public void testDisconnect() throws Exception {
-        System.out.println("disconnect");
-        GUIBackend instance = new GUIBackend();
-        instance.disconnect();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of applySettings method, of class GUIBackend.
-     */
-    @Test
-    public void testApplySettings() throws Exception {
-        System.out.println("applySettings");
-        Settings settings = null;
-        GUIBackend instance = new GUIBackend();
+        // Add settings
+        settings = new Settings();
         instance.applySettings(settings);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
-    /**
-     * Test of updateSystemState method, of class GUIBackend.
-     */
     @Test
-    public void testUpdateSystemState() {
-        System.out.println("updateSystemState");
-        SystemStateBean systemStateBean = null;
-        GUIBackend instance = new GUIBackend();
-        instance.updateSystemState(systemStateBean);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void adjustManualLocationShouldBeOk() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        instance.adjustManualLocation(1, 0, 0, 10, 10, UnitUtils.Units.MM);
+        verify(controller, times(1)).jogMachine(1, 0, 0, 10, 10, UnitUtils.Units.MM);
     }
 
-    /**
-     * Test of sendGcodeCommand method, of class GUIBackend.
-     */
     @Test
-    public void testSendGcodeCommand() throws Exception {
-        System.out.println("sendGcodeCommand");
-        String commandText = "";
-        GUIBackend instance = new GUIBackend();
-        instance.sendGcodeCommand(commandText);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void adjustManualLocationWithNoDirectionShouldNotMoveTheMachine() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        instance.adjustManualLocation(0, 0, 0, 10, 10, UnitUtils.Units.MM);
+        verify(controller, times(0)).jogMachine(anyInt(), anyInt(), anyInt(), anyDouble(), anyDouble(), any(UnitUtils.Units.class));
     }
 
-    /**
-     * Test of adjustManualLocation method, of class GUIBackend.
-     */
     @Test
-    public void testAdjustManualLocation() throws Exception {
-        System.out.println("adjustManualLocation");
-        int dirX = 0;
-        int dirY = 0;
-        int dirZ = 0;
-        double stepSize = 0.0;
-        double feedRate = 0.0;
-        UnitUtils.Units units = null;
-        GUIBackend instance = new GUIBackend();
-        instance.adjustManualLocation(dirX, dirY, dirZ, stepSize, feedRate, units);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void probeShouldBeOk() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        instance.probe("Z", 10, 10, UnitUtils.Units.MM);
+        verify(controller, times(1)).probe(anyString(), anyDouble(), anyDouble(), any(UnitUtils.Units.class));
     }
 
-    /**
-     * Test of getSettings method, of class GUIBackend.
-     */
     @Test
-    public void testGetSettings() {
-        System.out.println("getSettings");
-        GUIBackend instance = new GUIBackend();
-        Settings expResult = null;
-        Settings result = instance.getSettings();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void pauseResumeWhenInIdleShouldThrowException() throws Exception {
+        when(controller.getControlState()).thenReturn(ControlState.COMM_IDLE);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        try {
+            instance.pauseResume();
+            fail("We should have had an exception here");
+        } catch (Exception e) {
+            // Expected!
+        }
+
+        verify(controller, times(0)).pauseStreaming();
+        verify(controller, times(0)).resumeStreaming();
     }
 
-    /**
-     * Test of getControlState method, of class GUIBackend.
-     */
     @Test
-    public void testGetControlState() {
-        System.out.println("getControlState");
-        GUIBackend instance = new GUIBackend();
-        ControlState expResult = null;
-        ControlState result = instance.getControlState();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void pauseResumeWhenDisconnectedShouldThrowException() throws Exception {
+        when(controller.getControlState()).thenReturn(ControlState.COMM_DISCONNECTED);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        try {
+            instance.pauseResume();
+            fail("We should have had an exception here");
+        } catch (Exception e) {
+            // Expected!
+        }
+
+        verify(controller, times(0)).pauseStreaming();
+        verify(controller, times(0)).resumeStreaming();
     }
 
-    /**
-     * Test of getController method, of class GUIBackend.
-     */
     @Test
-    public void testGetController() {
-        System.out.println("getController");
-        GUIBackend instance = new GUIBackend();
-        IController expResult = null;
-        IController result = instance.getController();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+    public void pauseResumeWhenSendingShouldPause() throws Exception {
+        when(controller.getControlState()).thenReturn(ControlState.COMM_SENDING);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
-    /**
-     * Test of setTempDir method, of class GUIBackend.
-     */
-    @Test
-    public void testSetTempDir() throws Exception {
-        System.out.println("setTempDir");
-        File file = null;
-        GUIBackend instance = new GUIBackend();
-        instance.setTempDir(file);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of setGcodeFile method, of class GUIBackend.
-     */
-    @Test
-    public void testSetGcodeFile() throws Exception {
-        System.out.println("setGcodeFile");
-        File file = null;
-        GUIBackend instance = new GUIBackend();
-        instance.setGcodeFile(file);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getGcodeFile method, of class GUIBackend.
-     */
-    @Test
-    public void testGetGcodeFile() {
-        System.out.println("getGcodeFile");
-        GUIBackend instance = new GUIBackend();
-        File expResult = null;
-        File result = instance.getGcodeFile();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of send method, of class GUIBackend.
-     */
-    @Test
-    public void testSend() throws Exception {
-        System.out.println("send");
-        GUIBackend instance = new GUIBackend();
-        instance.send();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getNumRows method, of class GUIBackend.
-     */
-    @Test
-    public void testGetNumRows() {
-        System.out.println("getNumRows");
-        GUIBackend instance = new GUIBackend();
-        long expResult = 0L;
-        long result = instance.getNumRows();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getNumSentRows method, of class GUIBackend.
-     */
-    @Test
-    public void testGetNumSentRows() {
-        System.out.println("getNumSentRows");
-        GUIBackend instance = new GUIBackend();
-        long expResult = 0L;
-        long result = instance.getNumSentRows();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getNumRemainingRows method, of class GUIBackend.
-     */
-    @Test
-    public void testGetNumRemainingRows() {
-        System.out.println("getNumRemainingRows");
-        GUIBackend instance = new GUIBackend();
-        long expResult = 0L;
-        long result = instance.getNumRemainingRows();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getSendDuration method, of class GUIBackend.
-     */
-    @Test
-    public void testGetSendDuration() {
-        System.out.println("getSendDuration");
-        GUIBackend instance = new GUIBackend();
-        long expResult = 0L;
-        long result = instance.getSendDuration();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getSendRemainingDuration method, of class GUIBackend.
-     */
-    @Test
-    public void testGetSendRemainingDuration() {
-        System.out.println("getSendRemainingDuration");
-        GUIBackend instance = new GUIBackend();
-        long expResult = 0L;
-        long result = instance.getSendRemainingDuration();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of pauseResume method, of class GUIBackend.
-     */
-    @Test
-    public void testPauseResume() throws Exception {
-        System.out.println("pauseResume");
-        GUIBackend instance = new GUIBackend();
         instance.pauseResume();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+
+        verify(controller, times(1)).pauseStreaming();
+        verify(controller, times(0)).resumeStreaming();
     }
 
-    /**
-     * Test of getPauseResumeText method, of class GUIBackend.
-     */
     @Test
-    public void testGetPauseResumeText() {
-        System.out.println("getPauseResumeText");
-        GUIBackend instance = new GUIBackend();
-        String expResult = "";
-        String result = instance.getPauseResumeText();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void pauseResumeWhenPausedShouldResume() throws Exception {
+        when(controller.getControlState()).thenReturn(ControlState.COMM_SENDING_PAUSED);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        instance.pauseResume();
+
+        verify(controller, times(0)).pauseStreaming();
+        verify(controller, times(1)).resumeStreaming();
     }
 
-    /**
-     * Test of isSending method, of class GUIBackend.
-     */
     @Test
-    public void testIsActive() {
-        System.out.println("isActive");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.isActive();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getSendRemainingDuration() throws Exception {
+        // Given
+        when(controller.rowsSent()).thenReturn(10);
+        when(controller.getSendDuration()).thenReturn(10L);
+        when(controller.rowsInSend()).thenReturn(1000);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        long remainingDuration = instance.getSendRemainingDuration();
+
+        // Then
+        assertEquals(990L, remainingDuration);
     }
 
-    /**
-     * Test of isSending method, of class GUIBackend.
-     */
     @Test
-    public void testIsSendingFile() {
-        System.out.println("isSending");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.isSendingFile();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void offsetShouldBeOk() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        instance.offsetTool("Z", 10, UnitUtils.Units.MM);
+        verify(controller, times(1)).offsetTool(anyString(), anyDouble(), any(UnitUtils.Units.class));
     }
 
-    /**
-     * Test of isPaused method, of class GUIBackend.
-     */
     @Test
-    public void testIsPaused() {
-        System.out.println("isPaused");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.isPaused();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void connectShouldBeOk() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        verify(controller).openCommPort(PORT, BAUD_RATE);
+        assertEquals(controller, instance.getController());
+        assertNull("The controller state is fetched from the controller which in this case is a mock", instance.getControlState());
+        assertEquals("No events should have been fired", 0, eventArgumentCaptor.getAllValues().size());
     }
 
-    /**
-     * Test of canPause method, of class GUIBackend.
-     */
-    @Test
-    public void testCanPause() {
-        System.out.println("canPause");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.canPause();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Test(expected = Exception.class)
+    public void connectWithUnknownFirmwareShouldNotBeOk() throws Exception {
+        instance.connect("unknown", PORT, BAUD_RATE);
     }
 
-    /**
-     * Test of canCancel method, of class GUIBackend.
-     */
-    @Test
-    public void testCanCancel() {
-        System.out.println("canCancel");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.canCancel();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Test(expected = Exception.class)
+    public void connectWhenFailingToOpenControllerConnectionShouldNotBeOk() throws Exception {
+        when(controller.openCommPort(PORT, BAUD_RATE)).thenThrow(new Exception());
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
     }
 
-    /**
-     * Test of canSend method, of class GUIBackend.
-     */
     @Test
-    public void testCanSend() {
-        System.out.println("canSend");
-        GUIBackend instance = new GUIBackend();
-        boolean expResult = false;
-        boolean result = instance.canSend();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void connectWhenOpenControllerConnectionWasNotPossibleShouldNotBeOk() throws Exception {
+        // Given
+        when(controller.openCommPort(PORT, BAUD_RATE)).thenReturn(false);
+
+        // When
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        //Then
+        assertFalse(instance.isConnected());
+        assertNotNull(instance.getController());
     }
 
-    /**
-     * Test of cancel method, of class GUIBackend.
-     */
     @Test
-    public void testCancel() throws Exception {
-        System.out.println("cancel");
-        GUIBackend instance = new GUIBackend();
-        instance.cancel();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void isConnectedShouldReturnTrueIfConnected() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(true);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        assertTrue(instance.isConnected());
     }
 
-    /**
-     * Test of returnToZero method, of class GUIBackend.
-     */
     @Test
-    public void testReturnToZero() throws Exception {
-        System.out.println("returnToZero");
-        GUIBackend instance = new GUIBackend();
-        instance.returnToZero();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void isConnectedShouldReturnFalseIfNotConnected() throws Exception {
+        // Given
+        when(controller.isCommOpen()).thenReturn(false);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        assertFalse(instance.isConnected());
     }
 
-    /**
-     * Test of resetCoordinatesToZero method, of class GUIBackend.
-     */
     @Test
-    public void testResetCoordinatesToZero() throws Exception {
-        System.out.println("resetCoordinatesToZero");
-        GUIBackend instance = new GUIBackend();
-        instance.resetCoordinatesToZero();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void isConnectedShouldReturnFalseIfNeverConnected() throws Exception {
+        assertFalse(instance.isConnected());
     }
 
-    /**
-     * Test of resetCoordinateToZero method, of class GUIBackend.
-     */
+
     @Test
-    public void testResetCoordinateToZero() throws Exception {
-        System.out.println("resetCoordinateToZero");
-        char coordinate = ' ';
-        GUIBackend instance = new GUIBackend();
-        instance.resetCoordinateToZero(coordinate);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void disconnectShouldCloseTheConnection() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        instance.disconnect();
+
+        // Then
+        verify(controller).closeCommPort();
+        assertNull("The instance should now be null", instance.getController());
+        assertEquals(ControlState.COMM_DISCONNECTED, instance.getControlState());
+        assertFalse(instance.isConnected());
+
+        assertEquals("Only one event should have been fired", 1, eventArgumentCaptor.getAllValues().size());
+        assertTrue(eventArgumentCaptor.getValue().isStateChangeEvent());
+        assertEquals(ControlState.COMM_DISCONNECTED, eventArgumentCaptor.getValue().getControlState());
     }
 
-    /**
-     * Test of killAlarmLock method, of class GUIBackend.
-     */
     @Test
-    public void testKillAlarmLock() throws Exception {
-        System.out.println("killAlarmLock");
-        GUIBackend instance = new GUIBackend();
-        instance.killAlarmLock();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void sendGcodeCommandWhenConnectedShouldBeOk() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(controller.isCommOpen()).thenReturn(true);
+
+        GcodeCommand gcodeCommand = new GcodeCommand("G00");
+        when(controller.createCommand(any())).thenReturn(gcodeCommand);
+
+        // When
+        instance.sendGcodeCommand("G00");
+
+        // Then
+        verify(controller, times(1)).sendCommandImmediately(any());
+        verify(controller, times(1)).sendCommandImmediately(gcodeCommand);
+        verify(controller, times(0)).restoreParserModalState();
     }
 
-    /**
-     * Test of performHomingCycle method, of class GUIBackend.
-     */
-    @Test
-    public void testPerformHomingCycle() throws Exception {
-        System.out.println("performHomingCycle");
-        GUIBackend instance = new GUIBackend();
-        instance.performHomingCycle();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    @Test(expected = Exception.class)
+    public void sendGcodeCommandWhenNotConnectedShouldThrowException() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        when(controller.isCommOpen()).thenReturn(false);
+
+        GcodeCommand gcodeCommand = new GcodeCommand("G00");
+        when(controller.createCommand(any())).thenReturn(gcodeCommand);
+
+        // When
+        instance.sendGcodeCommand("G00");
     }
 
-    /**
-     * Test of toggleCheckMode method, of class GUIBackend.
-     */
     @Test
-    public void testToggleCheckMode() throws Exception {
-        System.out.println("toggleCheckMode");
-        GUIBackend instance = new GUIBackend();
-        instance.toggleCheckMode();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getSettingsShouldBeOk() {
+        Settings result = instance.getSettings();
+        assertEquals(settings, result);
     }
 
-    /**
-     * Test of issueSoftReset method, of class GUIBackend.
-     */
     @Test
-    public void testIssueSoftReset() throws Exception {
-        System.out.println("issueSoftReset");
-        GUIBackend instance = new GUIBackend();
-        instance.issueSoftReset();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getControlStateShouldBeOkWhenConnected() throws Exception {
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        when(controller.getControlState()).thenReturn(ControlState.COMM_IDLE);
+        ControlState result = instance.getControlState();
+        assertEquals(ControlState.COMM_IDLE, result);
     }
 
-    /**
-     * Test of requestParserState method, of class GUIBackend.
-     */
     @Test
-    public void testRequestParserState() throws Exception {
-        System.out.println("requestParserState");
-        GUIBackend instance = new GUIBackend();
-        instance.requestParserState();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getControlStateShouldReturnStateDisconnectedWhenNotConnected() {
+        ControlState result = instance.getControlState();
+        assertEquals(ControlState.COMM_DISCONNECTED, result);
     }
 
-    /**
-     * Test of fileStreamComplete method, of class GUIBackend.
-     */
     @Test
-    public void testFileStreamComplete() {
-        System.out.println("fileStreamComplete");
-        String filename = "";
-        boolean success = false;
-        GUIBackend instance = new GUIBackend();
-        instance.fileStreamComplete(filename, success);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getControllerShouldBeOkWhenConnected() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        IController result = instance.getController();
+
+        // Then
+        assertEquals(controller, result);
     }
 
-    /**
-     * Test of commandQueued method, of class GUIBackend.
-     */
     @Test
-    public void testCommandQueued() {
-        System.out.println("commandQueued");
-        System.out.println("-NO-OP-");
+    public void setGcodeFileShouldBeOk() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        File tempFile = File.createTempFile("ugs-", ".gcode");
+        FileUtils.writeStringToFile(tempFile, "G0 X0 Y0\n");
+
+        // When
+        instance.setGcodeFile(tempFile);
+
+        // Then
+        List<UGSEvent> events = eventArgumentCaptor.getAllValues();
+        assertEquals(3, events.size());
+        assertEquals(UGSEvent.FileState.FILE_LOADING, events.get(0).getFileState());
+        assertEquals(UGSEvent.EventType.SETTING_EVENT, events.get(1).getEventType());
+        assertEquals(UGSEvent.FileState.FILE_LOADED, events.get(2).getFileState());
+
+        assertNotNull(instance.getProcessedGcodeFile());
     }
 
-    /**
-     * Test of commandSent method, of class GUIBackend.
-     */
-    @Test
-    public void testCommandSent() {
-        System.out.println("commandSent");
-        System.out.println("-NO-OP-");
+    @Test(expected = IOException.class)
+    public void getGcodeFileThatDoesNotExistShouldThrowException() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        instance.setGcodeFile(new File("does_not_exist.gcode"));
     }
 
-    /**
-     * Test of commandComplete method, of class GUIBackend.
-     */
     @Test
-    public void testCommandComplete() {
-        System.out.println("commandComplete");
-        GcodeCommand command = null;
-        GUIBackend instance = new GUIBackend();
-        instance.commandComplete(command);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void getNumRowsShouldReturnNumberFromController() throws Exception {
+        // Given
+        when(controller.rowsInSend()).thenReturn(42);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        long numRows = instance.getNumRows();
+
+        // Then
+        assertEquals(42, numRows);
     }
 
-    /**
-     * Test of commandComment method, of class GUIBackend.
-     */
     @Test
-    public void testCommandComment() {
-        System.out.println("commandComment");
-        String comment = "";
-        GUIBackend instance = new GUIBackend();
-        instance.commandComment(comment);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+    public void getNumSentRowsShouldReturnNumberFromController() throws Exception {
+        // Given
+        when(controller.rowsSent()).thenReturn(21);
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
-    /**
-     * Test of messageForConsole method, of class GUIBackend.
-     */
-    @Test
-    public void testMessageForConsole() {
-        System.out.println("messageForConsole");
-        String msg = "";
-        Boolean verbose = null;
-        GUIBackend instance = new GUIBackend();
-        //instance.messageForConsole(msg, verbose);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+        // When
+        long numRows = instance.getNumSentRows();
 
-    /**
-     * Test of statusStringListener method, of class GUIBackend.
-     */
-    @Test
-    public void testStatusStringListener() {
-        System.out.println("statusStringListener");
-        String state = "";
-        Position machineCoord = null;
-        Position workCoord = null;
-        GUIBackend instance = new GUIBackend();
-        instance.statusStringListener(new ControllerStatus(state, machineCoord, workCoord));
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        // Then
+        assertEquals(21, numRows);
     }
-
-    /**
-     * Test of postProcessData method, of class GUIBackend.
-     */
-    @Test
-    public void testPostProcessData() {
-        System.out.println("postProcessData");
-        int numRows = 0;
-        GUIBackend instance = new GUIBackend();
-        instance.postProcessData(numRows);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of applySettingsToController method, of class GUIBackend.
-     */
-    @Test
-    public void testApplySettingsToController() throws Exception {
-        System.out.println("applySettingsToController");
-        Settings settings = null;
-        IController controller = null;
-        GUIBackend instance = new GUIBackend();
-        instance.applySettingsToController(settings, controller);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-    
 }
