@@ -18,11 +18,8 @@ public class SystemStateBean {
 	private String remainingRows = "0";
 	private String estimatedTimeRemaining = "--:--:--";
 	private String duration = "00:00:00";
-	private String sendButtonText = "Send";
 	private boolean sendButtonEnabled = false;
-	private String pauseResumeButtonText = "Pause";
 	private boolean pauseResumeButtonEnabled = false;
-	private String cancelButtonText = "Cancel";
 	private boolean cancelButtonEnabled = false;
 	
 	public SystemStateBean() {
@@ -177,29 +174,4 @@ public class SystemStateBean {
 	public void setCancelButtonEnabled(boolean cancelButtonEnabled) {
 		this.cancelButtonEnabled = cancelButtonEnabled;
 	}
-
-	public String getPauseResumeButtonText() {
-		return pauseResumeButtonText;
-	}
-
-	public void setPauseResumeButtonText(String pauseResumeButtonText) {
-		this.pauseResumeButtonText = pauseResumeButtonText;
-	}
-
-	public String getSendButtonText() {
-		return sendButtonText;
-	}
-
-	public void setSendButtonText(String sendButtonText) {
-		this.sendButtonText = sendButtonText;
-	}
-
-	public String getCancelButtonText() {
-		return cancelButtonText;
-	}
-
-	public void setCancelButtonText(String cancelButtonText) {
-		this.cancelButtonText = cancelButtonText;
-	}
-
 }
