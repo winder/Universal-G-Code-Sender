@@ -296,7 +296,7 @@ public class GrblUtils {
      *                   and override status from previous status updates.
      * @param status the raw status string
      * @param version capabilities flags
-     * @param units units
+     * @param reportingUnits units
      * @return 
      */
     static protected ControllerStatus getStatusFromStatusString(
