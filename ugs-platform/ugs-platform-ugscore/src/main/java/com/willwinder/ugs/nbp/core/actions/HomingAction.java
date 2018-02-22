@@ -43,6 +43,9 @@ import java.awt.event.ActionEvent;
         lazy = false)
 @ActionReferences({
         @ActionReference(
+                path = "Toolbars/Machine Actions",
+                position = 980),
+        @ActionReference(
                 path = LocalizingService.HomeWindowPath,
                 position = 1000)
 })
