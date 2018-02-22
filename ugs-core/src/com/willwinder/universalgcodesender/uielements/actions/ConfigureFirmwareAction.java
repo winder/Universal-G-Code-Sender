@@ -56,4 +56,9 @@ public class ConfigureFirmwareAction extends AbstractAction {
                 displayErrorDialog(ex.getMessage());
         }
     }
+
+    @Override
+    public boolean isEnabled() {
+        return this.backend.isConnected() && this.backend.isIdle();
+    }
 }

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,8 +24,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction;
-import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
 import com.willwinder.universalgcodesender.uielements.panels.OverridesPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import java.awt.event.ActionEvent;
@@ -41,7 +39,7 @@ import org.openide.util.lookup.ServiceProvider;
  */
 @ServiceProvider(service=RunActionService.class)
 public class RunActionService {
-    BackendAPI backend;
+    private BackendAPI backend;
 
     public RunActionService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -70,19 +68,6 @@ public class RunActionService {
             String menuPath;
             String category;
             String localizedCategory;
-
-            // Machine menu actions.
-            // Start/Stop/Pause and Connect/Disconnect and Firmware Settings
-            localized = String.format("Menu/%s",
-                    Localization.getString("platform.menu.machine"));
-            menuPath = "Menu/Machine";
-            category = "Machine";
-            localizedCategory = Localization.getString("platform.menu.machine");
-
-            ars.registerAction(ConfigureFirmwareAction.class.getCanonicalName(), Localization.getString("mainWindow.swing.firmwareSettingsMenu"),
-                    category, localizedCategory, null , menuPath, localized,
-                    new ConfigureFirmwareAction(backend));
-
 
             // Feed Overrides
             category = "Overrides";
