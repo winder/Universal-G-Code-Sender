@@ -46,12 +46,12 @@ import org.junit.Ignore;
  */
 public class BufferedCommunicatorTest {
 
-    BufferedCommunicator instance;
-    LinkedBlockingDeque<String> cb;
-    LinkedBlockingDeque<GcodeCommand> asl;
+    private BufferedCommunicator instance;
+    private LinkedBlockingDeque<String> cb;
+    private LinkedBlockingDeque<GcodeCommand> asl;
 
-    final static Connection mockConnection = EasyMock.createMock(Connection.class);
-    final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
+    private final static Connection mockConnection = EasyMock.createMock(Connection.class);
+    private final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
     
     public BufferedCommunicatorTest() {
     }
@@ -69,13 +69,12 @@ public class BufferedCommunicatorTest {
     @Before
     public void setUp() throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
         EasyMock.reset(mockConnection, mockScl);
-
-        instance = new BufferedCommunicatorImpl();
-        instance.setConnection(mockConnection);
-        instance.setListenAll(mockScl);
         cb = new LinkedBlockingDeque<>();
         asl = new LinkedBlockingDeque<>();
-        instance.setQueuesForTesting(cb, asl);
+
+        instance = new BufferedCommunicatorImpl(cb, asl);
+        instance.setConnection(mockConnection);
+        instance.setListenAll(mockScl);
 
         // Initialize private variable.
         Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
@@ -429,6 +428,9 @@ public class BufferedCommunicatorTest {
     }
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
+        BufferedCommunicatorImpl(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+            super(cb, asl);
+        }
 
         public int getBufferSize() {
             return 101;

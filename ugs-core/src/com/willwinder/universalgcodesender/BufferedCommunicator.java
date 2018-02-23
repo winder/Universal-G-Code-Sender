@@ -43,20 +43,22 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     private GcodeCommand nextCommand;                      // Cached command.
     private BufferedReader    rawCommandStream;            // Arbitrary number of commands
     private GcodeStreamReader commandStream;               // Arbitrary number of commands
-    private LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
-    private LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
+    private final LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
+    private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
     
     private Boolean singleStepModeEnabled = false;
     
     abstract public int getBufferSize();
-    
-    protected void setQueuesForTesting(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+
+    public BufferedCommunicator() {
+        this.commandBuffer = new LinkedBlockingDeque<>();
+        this.activeCommandList = new LinkedBlockingDeque<>();
+    }
+
+    public BufferedCommunicator(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
         this.commandBuffer = cb;
         this.activeCommandList = asl;
-    }
-    
-    public BufferedCommunicator() {
     }
     
     @Override
@@ -355,8 +357,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         boolean ret = super.openCommPort(name, baud);
         
         if (ret) {
-            this.commandBuffer = new LinkedBlockingDeque<>();
-            this.activeCommandList = new LinkedBlockingDeque<>();
+            this.commandBuffer.clear();
+            this.activeCommandList.clear();
             this.sentBufferSize = 0;
         }
         return ret;
@@ -368,8 +370,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         super.closeCommPort();
         
         this.sendPaused = false;
-        this.commandBuffer = null;
-        this.activeCommandList = null;
+        this.commandBuffer.clear();
+        this.activeCommandList.clear();
     }
 
     @Override

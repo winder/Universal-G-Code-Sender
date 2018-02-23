@@ -40,13 +40,12 @@ public class GrblCommunicator extends BufferedCommunicator {
      */
     protected GrblCommunicator(
             LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
+        super(cb, asl);
         // Base constructor.
         //this();
         //TODO-f4grx-DONE: Mock connection
         this.conn = c;
         this.conn.setCommunicator(this);
-        
-        this.setQueuesForTesting(cb, asl);
     }
 
     @Override
