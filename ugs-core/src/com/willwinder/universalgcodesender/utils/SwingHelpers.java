@@ -14,7 +14,7 @@ import javax.swing.SpinnerNumberModel;
  * @author wwinder
  */
 public class SwingHelpers {
-  static final String[] UNIT_OPTIONS = {
+  private static final String[] UNIT_OPTIONS = {
     Localization.getString("mainWindow.swing.mmRadioButton"),
     Localization.getString("mainWindow.swing.inchRadioButton")
   };
