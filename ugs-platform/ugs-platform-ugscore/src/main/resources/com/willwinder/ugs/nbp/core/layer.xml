@@ -60,6 +60,9 @@
         <folder name="StartPauseStop">
             <attr intvalue="100" name="position"/>
         </folder>
+        <folder name="Machine Actions">
+            <attr intvalue="120" name="position"/>
+        </folder>
         <folder name="Pendant">
             <attr intvalue="125" name="position"/>
         </folder>
