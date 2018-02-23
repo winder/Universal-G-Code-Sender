@@ -32,6 +32,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore; 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +42,7 @@ import org.junit.Test;
  * @author wwinder
  */
 public class GrblControllerTest {
-    MockGrblCommunicator mgc;
+    private MockGrblCommunicator mgc;
     
     public GrblControllerTest() {
     }
@@ -616,7 +618,6 @@ public class GrblControllerTest {
         
         // Test 2. Command already streaming.
         instance.queueCommand(instance.createCommand("G0X1"));
-        Boolean check = false;
         caughtException = false;
         try {
             // Trigger the error.
@@ -1032,7 +1033,6 @@ public class GrblControllerTest {
     @Test
     public void testRawResponseListener() throws Exception {
         System.out.println("rawResponseListener");
-        String response = "";
         GrblController instance = new GrblController(mgc);
         instance.openCommPort("foo", 2400);
         instance.rawResponseHandler("Grbl 0.8c");
@@ -1050,7 +1050,6 @@ public class GrblControllerTest {
     @Ignore("This has problems on the CI server.")
     public void testPolling() {
         System.out.println("testPolling (via rawResponseListener)");
-        String response = "";
         GrblController instance = new GrblController(mgc);
         
         // Test 1. Check that polling works. (Grbl 0.8c)
@@ -1174,5 +1173,57 @@ public class GrblControllerTest {
         assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0\n", mgc.queuedStrings.get(2));
         assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(3));
         assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(4));
+    }
+
+    @Test
+    public void rawResponseHandlerWithKnownErrorShouldWriteMessageToConsole() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+        instance.commandSent(new GcodeCommand("G0"));
+
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+
+        // When
+        instance.rawResponseHandler("error:1");
+
+        //Then
+        String genericErrorMessage = "Error while processing response <error:1>\n";
+        verify(controllerListener, times(0)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+
+        String errorMessage = "An error was detected while sending 'G0': (error:1) G-code words consist of a letter and a value. Letter was not found. Streaming has been paused.\n";
+        verify(controllerListener).messageForConsole(ControllerListener.MessageType.ERROR, errorMessage);
+
+        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
+        instance.removeListener(controllerListener);
+
+        assertNull(instance.getActiveCommand());
+    }
+
+    @Test
+    public void rawResponseHandlerWithUnknownErrorShouldWriteGenericMessageToConsole() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+        instance.commandSent(new GcodeCommand("G21"));
+
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+
+        // When
+        instance.rawResponseHandler("error:18");
+
+        // Then
+        String genericErrorMessage = "An error was detected while sending 'G21': (error:18) An unknown error has occurred. Streaming has been paused.\n";
+        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
+        instance.removeListener(controllerListener);
+
+        assertNull(instance.getActiveCommand());
     }
 }
