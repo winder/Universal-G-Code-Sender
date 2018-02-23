@@ -24,12 +24,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
+
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.List;
 
 /**
  *
@@ -38,16 +35,6 @@ import java.util.List;
 public class Utils {
 
     public static NumberFormat formatter = new DecimalFormat("#.###", Localization.dfs);
-
-    public static String timeSince(long from){
-        long elapsedTime = millisSince(from);
-        return Utils.formattedMillis(elapsedTime);  
-    }
-    
-    public static long millisSince(long from) {
-        long until = System.currentTimeMillis();
-        return until - from;
-    }
 
     public static String formattedMillis(long millis) {
         String format = String.format("%%0%dd", 2);  
@@ -60,19 +47,7 @@ public class Utils {
         
         String seconds = String.format(format, elapsedTime);
 
-          
-        String time =  hours + ":" + minutes + ":" + seconds;  
-        return time;
-    }
-    
-    // Processes input file.
-    // This could theoretically scan it for errors, but GcodeSender just counts
-    // how many lines are in it.
-    public static List<String> processFile(File file) throws FileNotFoundException, IOException {
-        Charset encoding;
-        try (FileReader fileReader = new FileReader(file)) {
-            encoding = Charset.forName(fileReader.getEncoding());
-        }
-        return Files.readAllLines(file.toPath(), encoding);
+
+        return hours + ":" + minutes + ":" + seconds;
     }
 }

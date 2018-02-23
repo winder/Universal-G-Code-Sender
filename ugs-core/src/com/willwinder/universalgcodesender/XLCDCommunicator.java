@@ -18,14 +18,12 @@
  */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.types.GcodeCommand;
-
 /**
  * @author wwinder
  */
 public class XLCDCommunicator extends GrblCommunicator {
 
-    int UGSCommandCount = 0;
+    private int UGSCommandCount = 0;
     public XLCDCommunicator() {}
 
     @Override
