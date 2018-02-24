@@ -127,10 +127,13 @@ public class GrblController extends AbstractController {
                             return input;
                     }
 
-                    if (shortString)
+                    if (lookupParts == null) {
+                        return "(" + input + ") An unknown error has occurred";
+                    } else if (shortString ) {
                         return input + " (" + lookupParts[1] + ")";
-                    else 
+                    } else {
                         return "(" + input + ") " + lookupParts[2];
+                    }
                 }
             }
         }
