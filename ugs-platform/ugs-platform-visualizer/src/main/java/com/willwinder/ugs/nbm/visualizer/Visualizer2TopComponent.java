@@ -57,7 +57,6 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
-    private final static GLCapabilities glCaps = new GLCapabilities(null);
 
     private GLJPanel panel;
     private RendererInputHandler rih;
@@ -89,7 +88,7 @@ public final class Visualizer2TopComponent extends TopComponent {
         setName(VisualizerTitle);
         setToolTipText(VisualizerTooltip);
         super.componentOpened();
-        panel = makeWindow(glCaps);
+        panel = makeWindow();
         add(panel, BorderLayout.CENTER);
     }
 
@@ -126,8 +125,9 @@ public final class Visualizer2TopComponent extends TopComponent {
         }
     }
     
-    private GLJPanel makeWindow(final GLCapabilities caps) {
-        final GLJPanel p = new GLJPanel(caps);
+    private GLJPanel makeWindow() {
+        GLCapabilities glCaps = new GLCapabilities(null);
+        final GLJPanel p = new GLJPanel(glCaps);
 
         GcodeRenderer renderer = Lookup.getDefault().lookup(GcodeRenderer.class);
         if (renderer == null) {
