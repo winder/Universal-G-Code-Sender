@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,13 +19,15 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.GrblUtils.Capabilities;
-import static org.junit.Assert.*;
-import static org.assertj.core.api.Assertions.*;
-
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import java.util.ArrayList;
 import org.junit.Test;
+
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -413,4 +415,129 @@ public class GrblUtilsTest {
         assertThat(GrblUtils.parseFeedbackMessage("[GC:feedback]", capabilities)).isEqualTo("feedback");
     }
 
+    @Test
+    public void getStatusFromStringVersion1WithCompleteStatusString() {
+        String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|WCO:7.7,8.8,9.9|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals("Idle", controllerStatus.getState());
+
+        assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7.7,8.8,9.9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+
+        assertEquals(1, controllerStatus.getOverrides().feed);
+        assertEquals(2, controllerStatus.getOverrides().rapid);
+        assertEquals(3, controllerStatus.getOverrides().spindle);
+
+        assertEquals(Double.valueOf(12345.7), controllerStatus.getFeedSpeed());
+        assertEquals(Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
+
+        assertTrue(controllerStatus.getEnabledPins().CycleStart);
+        assertTrue(controllerStatus.getEnabledPins().Door);
+        assertTrue(controllerStatus.getEnabledPins().Hold);
+        assertTrue(controllerStatus.getEnabledPins().SoftReset);
+        assertTrue(controllerStatus.getEnabledPins().Probe);
+        assertTrue(controllerStatus.getEnabledPins().X);
+        assertTrue(controllerStatus.getEnabledPins().Y);
+        assertTrue(controllerStatus.getEnabledPins().Z);
+
+        assertTrue(controllerStatus.getAccessoryStates().Flood);
+        assertTrue(controllerStatus.getAccessoryStates().Mist);
+        assertTrue(controllerStatus.getAccessoryStates().SpindleCCW);
+        assertTrue(controllerStatus.getAccessoryStates().SpindleCW);
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WithoutWorkCoordinateOffsetStatusString() {
+        String status = "<Idle|MPos:1.1,2.2,3.3|WPos:4.4,5.5,6.6|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(0,0,0, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WithoutWorkCoordinateStatusString() {
+        String status = "<Idle|MPos:1.0,2.0,3.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(new Position(1,2,3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(-6,-6,-6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7,8,9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WithoutMachineCoordinateStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|F:12345.6|FS:12345.7,65432.1|Pn:XYZPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals(new Position(11,13,15, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
+        assertEquals(new Position(4,5,6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
+        assertEquals(new Position(7,8,9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WhereFeedOverridesFeedSpindleStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|Pn:XYZPDHRS|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertEquals( Double.valueOf(12345.6), controllerStatus.getFeedSpeed());
+        assertEquals( Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WithoutPinsStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6|A:SFMC>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertFalse(controllerStatus.getEnabledPins().CycleStart);
+        assertFalse(controllerStatus.getEnabledPins().Door);
+        assertFalse(controllerStatus.getEnabledPins().Hold);
+        assertFalse(controllerStatus.getEnabledPins().SoftReset);
+        assertFalse(controllerStatus.getEnabledPins().Probe);
+        assertFalse(controllerStatus.getEnabledPins().X);
+        assertFalse(controllerStatus.getEnabledPins().Y);
+        assertFalse(controllerStatus.getEnabledPins().Z);
+    }
+
+    @Test
+    public void getStatusFromStringVersion1WithoutAccessoryStatusString() {
+        String status = "<Idle|WPos:4.0,5.0,6.0|WCO:7.0,8.0,9.0|Ov:1,2,3|FS:12345.7,65432.1|F:12345.6>";
+        Capabilities version = new Capabilities();
+        version.V1_FORMAT = true;
+        UnitUtils.Units unit = UnitUtils.Units.MM;
+
+        ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
+
+        assertFalse(controllerStatus.getAccessoryStates().Flood);
+        assertFalse(controllerStatus.getAccessoryStates().Mist);
+        assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
+        assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
+    }
 }
