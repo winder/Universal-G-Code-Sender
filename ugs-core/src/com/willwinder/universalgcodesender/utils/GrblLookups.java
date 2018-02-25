@@ -34,7 +34,6 @@ import org.apache.commons.csv.CSVRecord;
  * @author wwinder
  */
 public class GrblLookups {
-    private String headers[] = null;
     private HashMap<String,String[]> lookups = new HashMap<>();
 
     private static String pathFor(String filename) {
