@@ -37,10 +37,14 @@ public class GrblLookups {
     private String headers[] = null;
     private HashMap<String,String[]> lookups = new HashMap<>();
 
+    private static String pathFor(String filename) {
+        return "/resources/grbl/" + filename;
+    }
+
     public GrblLookups(String prefix) {
         String filename = prefix + "_" + Localization.loadedLocale() + ".csv";
 
-        URL u = GrblLookups.class.getClassLoader().getResource(filename);
+        URL u = GrblLookups.class.getResource(pathFor(filename));
         if (u == null) {
             filename = prefix + "_en_US.csv";
         }
@@ -48,8 +52,7 @@ public class GrblLookups {
         try {
             try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(
-                            GrblLookups.class.getResourceAsStream(
-                                    "/resources/grbl/" + filename)))) {
+                            GrblLookups.class.getResourceAsStream(pathFor(filename))))) {
                 Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(reader);
                 for (CSVRecord record : records) {
                   List<String> list = Lists.newArrayList(record.iterator());
