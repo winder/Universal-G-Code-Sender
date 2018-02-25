@@ -18,21 +18,24 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.google.common.collect.Lists;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVRecord;
 
 /**
  *
  * @author wwinder
  */
 public class GrblLookups {
-    String headers[] = null;
-    HashMap<String,String[]> lookups = new HashMap<>();
+    private String headers[] = null;
+    private HashMap<String,String[]> lookups = new HashMap<>();
 
     public GrblLookups(String prefix) {
         String filename = prefix + "_" + Localization.loadedLocale() + ".csv";
@@ -43,15 +46,14 @@ public class GrblLookups {
         }
 
         try {
-            try (BufferedReader br = new BufferedReader(
+            try (BufferedReader reader = new BufferedReader(
                     new InputStreamReader(
                             GrblLookups.class.getResourceAsStream(
                                     "/resources/grbl/" + filename)))) {
-                headers = br.readLine().split(",");
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] parts = line.split(",");
-                    lookups.put(parts[0], parts);
+                Iterable<CSVRecord> records = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(reader);
+                for (CSVRecord record : records) {
+                  List<String> list = Lists.newArrayList(record.iterator());
+                  lookups.put(record.get(0), list.toArray(new String[0]));
                 }
             }
         } catch (IOException ex) {

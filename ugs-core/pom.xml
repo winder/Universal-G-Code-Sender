@@ -84,6 +84,11 @@
       <artifactId>miglayout</artifactId>
       <version>${miglayout.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-csv</artifactId>
+      <version>${commons-csv.version}</version>
+    </dependency>
 
     <!-- PendantUI -->
     <dependency>
@@ -249,6 +254,45 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>com.googlecode.maven-download-plugin</groupId>
+        <artifactId>download-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>error_codes_en_US</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://raw.githubusercontent.com/gnea/grbl/master/doc/csv/error_codes_en_US.csv</url>
+              <outputDirectory>${project.build.outputDirectory}/resources/grbl/</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>alarm_codes_en_US</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://raw.githubusercontent.com/gnea/grbl/master/doc/csv/alarm_codes_en_US.csv</url>
+              <outputDirectory>${project.build.outputDirectory}/resources/grbl/</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>setting_codes_en_US</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>wget</goal>
+            </goals>
+            <configuration>
+              <url>https://raw.githubusercontent.com/gnea/grbl/master/doc/csv/setting_codes_en_US.csv</url>
+              <outputDirectory>${project.build.outputDirectory}/resources/grbl/</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
