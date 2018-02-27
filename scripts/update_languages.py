@@ -10,6 +10,7 @@ API_ENDPOINT = 'https://poeditor.com/api/'
 PROJECT_ID = '52743'
 """ relative path and root of MessagesBundle property files """
 RESOURCE_ROOT = '../ugs-core/src/resources/MessagesBundle_'
+REFERENCE_LANGUAGE = 'en'
 
 try:
     API_KEY = os.environ['POEDITOR_API_KEY']
@@ -102,6 +103,9 @@ if __name__ == '__main__':
     checkForMissingMapping()
 
     for key, value in LANGUAGES.items():
+        if key is REFERENCE_LANGUAGE:
+            print('Skipping reference language "%s".' % key)
+            continue
         try:
             filename = RESOURCE_ROOT + value + '.properties'
             print('Updating %s: %s' % (key, filename))
