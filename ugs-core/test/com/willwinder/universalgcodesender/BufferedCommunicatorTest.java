@@ -20,8 +20,6 @@ package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import com.willwinder.universalgcodesender.connection.Connection;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -40,7 +38,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.junit.Ignore;
 import org.mockito.ArgumentCaptor;
