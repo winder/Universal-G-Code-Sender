@@ -37,7 +37,7 @@ public class LocalizationTest {
 
     @Test
     public void loadLocalizationThatDoesNotExistShouldRevertToEnglish() {
-        boolean containsAllTranslations = Localization.initialize("zh", "CN");
+        boolean containsAllTranslations = Localization.initialize("fake", "LOCALE");
         assertTrue("The english translations is the reference and should always contain every translatable string", containsAllTranslations);
         assertEquals("Description", Localization.getString(DESCRIPTION_KEY));
         assertEquals("en", Locale.getDefault().getLanguage());
