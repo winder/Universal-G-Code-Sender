@@ -20,15 +20,15 @@ package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import com.willwinder.universalgcodesender.connection.Connection;
+import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
+
+import java.io.*;
 import java.lang.reflect.Field;
 import java.util.concurrent.LinkedBlockingDeque;
 import org.apache.commons.io.FileUtils;
@@ -38,7 +38,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Ignore;
+import org.mockito.ArgumentCaptor;
 
 /**
  *
@@ -137,37 +142,6 @@ public class BufferedCommunicatorTest {
         // Test
         instance.queueStringForComm(input);
         instance.queueStringForComm(input);
-        instance.streamCommands();
-
-        EasyMock.verify(mockConnection, mockScl);
-    }
-
-    @Test
-    public void testSimpleRawStreamStream() throws Exception {
-        String[] inputs = {"input1", "input2"};
-
-
-        for (String i : inputs) {
-            mockScl.messageForConsole(EasyMock.anyString());
-            EasyMock.expect(EasyMock.expectLastCall());
-
-            mockConnection.sendStringToComm(i + "\n");
-            EasyMock.expect(EasyMock.expectLastCall());
-
-            mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
-            EasyMock.expect(EasyMock.expectLastCall());
-        }
-
-        EasyMock.replay(mockConnection, mockScl);
-
-        PipedReader in = new PipedReader();
-        try (PipedWriter out = new PipedWriter(in)) {
-            for(String i : inputs) {
-                out.append(i + "\n");
-            }
-        }
- 
-        instance.queueRawStreamForComm(in);
         instance.streamCommands();
 
         EasyMock.verify(mockConnection, mockScl);
@@ -426,6 +400,34 @@ public class BufferedCommunicatorTest {
         System.out.println("processedCommand");
         System.out.println("-N/A for abstract class-");
     }
+
+    @Test
+    public void testStreamCommandsOrderStringCommandsFirst() throws Exception {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+
+        ArgumentCaptor<String> commandCaptor = ArgumentCaptor.forClass(String.class);
+        doNothing().when(connection).sendStringToComm(commandCaptor.capture());
+
+        // Create a gcode file stream
+        File gcodeFile = new File(tempDir,"gcodeFile");
+        GcodeStreamWriter gcodeStreamWriter = new GcodeStreamWriter(gcodeFile);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.close();
+
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.queueStringForComm("G1");
+
+        // When
+        instance.streamCommands();
+
+        // Then
+        assertEquals(2, commandCaptor.getAllValues().size());
+        assertEquals("The first command processed should be the string command", "G1\n", commandCaptor.getAllValues().get(0));
+        assertEquals("The second command should be from the stream", "G0\n", commandCaptor.getAllValues().get(1));
+    }
+
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
         BufferedCommunicatorImpl(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
