@@ -389,6 +389,11 @@ public class Settings {
     }
 
     public String getLanguage() {
+        // "zh_CHS" is a legacy format that has been renamed.
+        if ("zh_CHS".equals(this.language)) {
+          this.language = "zh_CN";
+        }
+
         return this.language;
     }
     
