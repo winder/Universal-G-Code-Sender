@@ -344,20 +344,6 @@ public class AbstractControllerTest {
         EasyMock.verify(mockCommunicator, instance);
     }
 
-    /**
-     * Test of rowsInSend method, of class AbstractController.
-     */
-    @Test
-    public void testRowStatFailure() throws Exception {
-        System.out.println("rowsStatExceptions");
-
-        testQueueRawStreamForComm();
-
-        Assert.assertThat(instance.rowsSent(), CoreMatchers.equalTo(-1));
-        Assert.assertThat(instance.rowsRemaining(), CoreMatchers.equalTo(-1));
-        Assert.assertThat(instance.rowsInSend(), CoreMatchers.equalTo(-1));
-    }
-
     @Test
     public void testRowStats() throws Exception {
         testQueueStreamForComm();
@@ -445,43 +431,6 @@ public class AbstractControllerTest {
             alreadyStreaming = true;
         }
         assertTrue(alreadyStreaming);
-    }
-
-    /**
-     * Test of queueRawStream method, of class AbstractController.
-     */
-    @Test
-    public void testQueueRawStreamForComm() throws Exception {
-        System.out.println("queueStream");
-
-        String command = "command";
-        Collection<String> commands = Arrays.asList(command, command);
-        String port = "/some/port";
-        int rate = 1234;
-
-        PipedReader in = new PipedReader();
-        PipedWriter out = new PipedWriter(in);
-
-        for(String i : commands) {
-            out.append(i);
-        }
-
-        openInstanceExpectUtility(port, rate, false);
-        streamInstanceExpectUtility();
-        
-        // TODO Fix this
-        // Making sure the commands get queued.
-        mockCommunicator.queueRawStreamForComm(in);
-        EasyMock.expect(EasyMock.expectLastCall()).times(1);
-
-        EasyMock.replay(instance, mockCommunicator);
-
-        // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(port, rate);
-        instance.queueRawStream(in);
-        instance.beginStreaming();
-
-        EasyMock.verify(mockCommunicator, instance);
     }
 
     /**

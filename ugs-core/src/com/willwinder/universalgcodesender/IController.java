@@ -148,7 +148,6 @@ public interface IController {
     void sendCommandImmediately(GcodeCommand cmd) throws Exception;
     void queueCommand(GcodeCommand cmd) throws Exception;
     void queueStream(GcodeStreamReader r);
-    void queueRawStream(Reader r);
 
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);

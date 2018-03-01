@@ -81,11 +81,6 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
-    /**
-     * Use GcodeStreamReader to allow GUIs to display better execution progress.
-     */
-    @Deprecated
-    abstract public void queueRawStreamForComm(final Reader input);
     abstract public void queueStreamForComm(final GcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public String activeCommandSummary();

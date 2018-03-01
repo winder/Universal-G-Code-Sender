@@ -1,11 +1,5 @@
 /*
- * Localization messages.
- *
- * Created on Dec 15 2013
- */
-
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,13 +23,18 @@ import org.apache.commons.lang3.StringUtils;
 import java.text.DecimalFormatSymbols;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- *
+ * Localization messages.
+ * 
  * @author wwinder
  */
 public class Localization {
+    private static final Logger logger = Logger.getLogger(Localization.class.getName());
     public final static DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
     static {dfs.setDecimalSeparator('.');}
 
@@ -46,7 +45,8 @@ public class Localization {
     private static String region = null;
 
     /**
-     * Loads a given language.
+     * Loads a given language. If no translations is found for the given language it will default to english.
+     *
      * @param language IETF language tag with an underscore, like "en_US"
      * @return Returns false if some keys are missing compared to "en_US"
      */
@@ -56,17 +56,34 @@ public class Localization {
     }
 
     /**
-     * Loads a given language.
+     * Loads a given language. If no translations is found for the given language it will default to english.
+     *
      * @param language the language to load, ex: en, sv, de
      * @param region the region of the language to load, ex: US, SE, DE
      * @return Returns false if some keys are missing compared to "en_US"
      */
     synchronized public static boolean initialize(String language, String region) {
+        try {
+            loadResourceBundle(language, region);
+        } catch (MissingResourceException e) {
+            logger.log(Level.WARNING, "Couldn't find translations for the locale " + language + "_" + region + ". Reverts to en_US");
+            loadResourceBundle("en", "US");
+        }
+        return getKeyCount(bundle) >= getEnglishKeyCount();
+    }
+
+    /**
+     * Loads the resource bundle with all translations for the given language and region
+     *
+     * @param language the language to load, ex: en, sv, de
+     * @param region the region of the language to load, ex: US, SE, DE
+     * @throws MissingResourceException if the resource bundle couldn't be found
+     */
+    private static void loadResourceBundle(String language, String region) throws MissingResourceException {
         Localization.region = region;
         Locale locale = new Locale(language, region);
         Locale.setDefault(locale);
         bundle = ResourceBundle.getBundle("resources.MessagesBundle", locale);
-        return getKeyCount(bundle) >= getEnglishKeyCount();
     }
 
     public static String loadedLocale() {

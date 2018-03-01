@@ -27,9 +27,7 @@ import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCom
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -41,7 +39,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
-    private BufferedReader    rawCommandStream;            // Arbitrary number of commands
     private GcodeStreamReader commandStream;               // Arbitrary number of commands
     private final LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
     private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
@@ -84,20 +81,10 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         // Add command to queue
         this.commandBuffer.add(commandString);
     }
-    
 
     /**
      * Arbitrary length of commands to send to the communicator.
-     * @param input 
-     */
-    @Override
-    public void queueRawStreamForComm(final Reader input) {
-        rawCommandStream = new BufferedReader(input);
-    }
-
-    /**
-     * Arbitrary length of commands to send to the communicator.
-     * @param input 
+     * @param input
      */
     @Override
     public void queueStreamForComm(final GcodeStreamReader input) {
@@ -181,10 +168,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             nextCommand = new GcodeCommand(commandBuffer.pop());
         }
         else try {
-            if (rawCommandStream != null && rawCommandStream.ready()) {
-                nextCommand = new GcodeCommand(rawCommandStream.readLine());
-            }
-            else if (commandStream != null && commandStream.ready()) {
+            if (commandStream != null && commandStream.ready()) {
                 nextCommand = commandStream.getNextCommand();
             }
         } catch (IOException ex) {

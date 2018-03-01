@@ -1,8 +1,5 @@
 /*
- * Abstract Control layer, coordinates all aspects of control.
- */
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -50,6 +47,7 @@ import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Abstract Control layer, coordinates all aspects of control.
  *
  * @author wwinder
  */
@@ -91,7 +89,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //   4) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private Reader                  rawStreamCommands; // A stream of commands from a newline separated gcode file.
     private GcodeStreamReader       streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
 
@@ -450,10 +447,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * @return 
      */
     public int getRowStat(RowStat stat) {
-        if (this.rawStreamCommands != null) {
-            return -1;
-        }
-
         switch (stat) {
             case TOTAL_ROWS:
                 return this.numCommands;
@@ -550,12 +543,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueRawStream(Reader r) {
-        this.rawStreamCommands = r;
-        updateNumCommands();
-    }
-
-    @Override
     public void queueStream(GcodeStreamReader r) {
         this.streamCommands = r;
         updateNumCommands();
@@ -583,7 +570,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         // Throw if there's nothing queued.
         if (this.queuedCommands.size() == 0 &&
-                this.rawStreamCommands == null &&
                 this.streamCommands == null) {
             throw new Exception("There are no commands queued for streaming.");
         }
@@ -606,10 +592,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         try {
             while (this.queuedCommands.size() > 0) {
                 this.sendStringToComm(this.queuedCommands.remove(0).getCommandString());
-            }
-            
-            if (this.rawStreamCommands != null) {
-                comm.queueRawStreamForComm(this.rawStreamCommands);
             }
 
             if (this.streamCommands != null) {
