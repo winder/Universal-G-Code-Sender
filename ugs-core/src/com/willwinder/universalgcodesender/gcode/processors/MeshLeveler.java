@@ -1,8 +1,5 @@
-/**
- * Adjust Z heights based on a provided surface mesh.
- */
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,10 +29,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.util.Collections;
 import java.util.List;
-import javax.vecmath.Point2d;
-import javax.vecmath.Point3d;
 
 /**
+ * Adjust Z heights based on a provided surface mesh.
  *
  * @author wwinder
  */
@@ -43,9 +39,7 @@ public class MeshLeveler implements CommandProcessor {
     final private double materialSurfaceHeight;
     final private Position[][] surfaceMesh;
     final private Position lowerLeft;
-    final private Position upperRight;
     final private int xLen, yLen;
-    final private Point2d meshDimensions;
     final private double resolution;
 
     // Used during processing.
@@ -121,10 +115,6 @@ public class MeshLeveler implements CommandProcessor {
                 surfaceMesh[0][1].y-surfaceMesh[0][0].y);
 
         this.lowerLeft = surfaceMesh[0][0];
-        this.upperRight = surfaceMesh[xLen-1][yLen-1];
-        this.meshDimensions = new Point2d(
-                this.upperRight.x - this.lowerLeft.x,
-                this.upperRight.y - this.lowerLeft.y);
     }
 
     private boolean hasJustLines(List<GcodeMeta> commands) throws GcodeParserException {
