@@ -49,7 +49,7 @@ public class VisualizerUtils {
 
         final byte[] rgb;
 
-        private Color(int r, int g, int b) {
+        Color(int r, int g, int b) {
             rgb = new byte[]{(byte)r,(byte)g,(byte)b};
         }
 
