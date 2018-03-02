@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -55,6 +56,7 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
     public static final String WINOW_PATH = LocalizingService.MENU_WINDOW;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
     public static final String ACTION_ID = "com.willwinder.ugs.nbp.jog.JogTopComponent";
+    private static final double FEED_STEP_SIZE = 10;
 
     private final BackendAPI backend;
     private final JogPanel jogPanel;
@@ -131,6 +133,25 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
                     break;
                 case BUTTON_ZNEG:
                     jogService.adjustManualLocationZ(-1);
+                    break;
+                case BUTTON_TOGGLE_UNIT:
+                    if (jogService.getUnits() == UnitUtils.Units.MM) {
+                        jogService.setUnits(UnitUtils.Units.INCH);
+                    } else {
+                        jogService.setUnits(UnitUtils.Units.MM);
+                    }
+                    break;
+                case BUTTON_FEED_INC:
+                    jogService.setFeedRate(jogService.getFeedRate() + FEED_STEP_SIZE);
+                    break;
+                case BUTTON_FEED_DEC:
+                    jogService.setFeedRate(jogService.getFeedRate() - FEED_STEP_SIZE);
+                    break;
+                case BUTTON_STEP_INC:
+                    jogService.increaseStepSize();
+                    break;
+                case BUTTON_STEP_DEC:
+                    jogService.decreaseStepSize();
                     break;
                 default:
                     break;

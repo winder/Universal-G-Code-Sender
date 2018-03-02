@@ -141,6 +141,11 @@ public class JogPanel extends JPanel {
         diagXnegYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS));
         diagXposYnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG));
         diagXposYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS));
+        unitToggleButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_TOGGLE_UNIT));
+        feedIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_INC));
+        feedDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_DEC));
+        stepIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_STEP_INC));
+        stepDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_STEP_DEC));
     }
 
     private Component createFeedRateRow() {
