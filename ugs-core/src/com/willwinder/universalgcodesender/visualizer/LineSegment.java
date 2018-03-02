@@ -50,16 +50,13 @@ public class LineSegment {
         return lineNumber;
     }
     
-    public Point3d[] getPointArray()
-    {
-        Point3d[] pointarr = { first, second };
-        return pointarr;
+    public Point3d[] getPointArray() {
+        return new Point3d[]{ first, second };
     }
     
     public double[] getPoints()
     {
-        double[] points = {first.x, first.y, first.z , second.x, second.y, second.z };
-        return points;
+        return new double[]{first.x, first.y, first.z , second.x, second.y, second.z };
     }
     
     public Point3d getStart() {

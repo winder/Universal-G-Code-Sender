@@ -187,27 +187,26 @@ public class GcodeViewParse {
         // For a line segment list ALL arcs must be converted to lines.
         double minArcLength = 0;
         LineSegment ls;
-        PointSegment ps = endSegment;
-        ps.convertToMetric();
+        endSegment.convertToMetric();
         
         Position end = new Position(endSegment.point());
 
         // start is null for the first iteration.
         if (start != null) {
             // Expand arc for graphics.
-            if (ps.isArc()) {
+            if (endSegment.isArc()) {
                 List<Position> points =
                     GcodePreprocessorUtils.generatePointsAlongArcBDring(
-                        start, end, ps.center(), ps.isClockwise(),
-                        ps.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(ps.getPlaneState()));
+                        start, end, endSegment.center(), endSegment.isClockwise(),
+                        endSegment.getRadius(), minArcLength, arcSegmentLength, new PlaneFormatter(endSegment.getPlaneState()));
                 // Create line segments from points.
                 if (points != null) {
                     Position startPoint = start;
                     for (Position nextPoint : points) {
-                        ls = new LineSegment(startPoint, nextPoint, ps.getLineNumber());
-                        ls.setIsArc(ps.isArc());
-                        ls.setIsFastTraverse(ps.isFastTraverse());
-                        ls.setIsZMovement(ps.isZMovement());
+                        ls = new LineSegment(startPoint, nextPoint, endSegment.getLineNumber());
+                        ls.setIsArc(endSegment.isArc());
+                        ls.setIsFastTraverse(endSegment.isFastTraverse());
+                        ls.setIsZMovement(endSegment.isZMovement());
                         this.testExtremes(nextPoint);
                         ret.add(ls);
                         startPoint = nextPoint;
@@ -215,10 +214,10 @@ public class GcodeViewParse {
                 }
             // Line
             } else {
-                ls = new LineSegment(start, end, ps.getLineNumber());
-                ls.setIsArc(ps.isArc());
-                ls.setIsFastTraverse(ps.isFastTraverse());
-                ls.setIsZMovement(ps.isZMovement());
+                ls = new LineSegment(start, end, endSegment.getLineNumber());
+                ls.setIsArc(endSegment.isArc());
+                ls.setIsFastTraverse(endSegment.isFastTraverse());
+                ls.setIsZMovement(endSegment.isZMovement());
                 this.testExtremes(end);
                 ret.add(ls);
             }

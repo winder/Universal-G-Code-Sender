@@ -172,7 +172,6 @@ public class SettingsFactory {
 
     private static File getSettingsFile() {
         File settingDir = SettingsFactory.getSettingsDirectory();
-        File json = new File (settingDir, JSON_FILENAME);
-        return json;
+        return new File (settingDir, JSON_FILENAME);
     }
 }

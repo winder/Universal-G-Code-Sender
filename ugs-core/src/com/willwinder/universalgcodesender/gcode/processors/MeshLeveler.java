@@ -241,10 +241,8 @@ public class MeshLeveler implements CommandProcessor {
 
         double R1 = ((x2 - x)/(x2 - x1)) * Q11.z + ((x - x1)/(x2 - x1)) * Q21.z;
         double R2 = ((x2 - x)/(x2 - x1)) * Q12.z + ((x - x1)/(x2 - x1)) * Q22.z;
-        
-        double P = ((y2 - y)/(y2 - y1)) * R1 + ((y - y1)/(y2 - y1)) * R2;
 
-        return P;
+        return ((y2 - y)/(y2 - y1)) * R1 + ((y - y1)/(y2 - y1)) * R2;
     }
 
     @Override

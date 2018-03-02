@@ -40,8 +40,7 @@ public class StepSizeSpinner extends JSpinner {
         }
 
         BigDecimal bd = new BigDecimal(super.getValue().toString()).setScale(3, RoundingMode.HALF_EVEN);
-        double stepSize = bd.doubleValue();
-        return stepSize;
+        return bd.doubleValue();
     }
 
     @Override

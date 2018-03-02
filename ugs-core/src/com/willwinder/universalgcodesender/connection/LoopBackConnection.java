@@ -67,13 +67,10 @@ public class LoopBackConnection extends Connection {
                 String command = sent.take().trim();
                 Thread.sleep(ms);
 
-
-                String response;
                 if (command.equals(Byte.toString(GrblUtils.GRBL_STATUS_COMMAND))) {
                     String xyz = "0,0,0";
                     if (lastCommand != null) {
-                        Point3d p = lastCommand;
-                        xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
+                        xyz = String.format("%f,%f,%f", lastCommand.x, lastCommand.y, lastCommand.z);
                     }
                     comm.responseMessage(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
                 } else if (command.equals("G61")) {

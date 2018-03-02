@@ -75,11 +75,9 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * typically be control commands calculated by the application.
      */
     @Override
-    public void queueStringForComm(final String input) {        
-        String commandString = input;
-        
+    public void queueStringForComm(final String input) {
         // Add command to queue
-        this.commandBuffer.add(commandString);
+        this.commandBuffer.add(input);
     }
 
     /**
