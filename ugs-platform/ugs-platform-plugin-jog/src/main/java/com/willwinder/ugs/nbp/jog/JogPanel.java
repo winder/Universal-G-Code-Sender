@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.Button;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
@@ -28,6 +29,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
+/**
+ * A panel for displaying jog controls
+ *
+ * @author Joacim Breiler
+ */
 public class JogPanel extends JPanel {
     private static final int COMMON_RADIUS = 7;
     private static final int FONT_SIZE_SMALL = 12;
@@ -46,6 +52,7 @@ public class JogPanel extends JPanel {
     private final JLabel zLabel;
     private final JLabel feedRateLabel;
     private final JLabel xyStepLabel;
+    private final JLabel unitToggleLabel;
     private final Button unitToggleButton;
     private final Button feedIncButton;
     private final Button feedDecButton;
@@ -68,11 +75,6 @@ public class JogPanel extends JPanel {
         diagXposYnegButton = createImageButton("icons/diag-xpos-yneg.png");
         diagXnegYnegButton = createImageButton("icons/diag-xneg-yneg.png");
 
-        /*diagXposYposButton.setVisible(false);
-        diagXnegYposButton.setVisible(false);
-        diagXposYnegButton.setVisible(false);
-        diagXnegYnegButton.setVisible(false);*/
-
         feedIncButton = createImageButton("icons/xpos.png");
         feedDecButton = createImageButton("icons/xneg.png");
         stepIncButton = createImageButton("icons/xpos.png");
@@ -94,21 +96,21 @@ public class JogPanel extends JPanel {
         feedRateLabel.setForeground(ThemeColors.LIGHT_BLUE);
         feedRateLabel.setFont(font.deriveFont(Font.PLAIN, FONT_SIZE_SMALL));
 
-        xyStepLabel = new JLabel("<html><center>Feed rate<br><b>10 steps/min</b></center></html>");
+        xyStepLabel = new JLabel();
         xyStepLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         xyStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
         xyStepLabel.setForeground(ThemeColors.LIGHT_BLUE);
         xyStepLabel.setFont(font.deriveFont(Font.PLAIN, FONT_SIZE_SMALL));
 
-        final JLabel unitToggleLabel = new JLabel("mm");
+        unitToggleLabel = new JLabel();
         unitToggleLabel.setForeground(ThemeColors.LIGHT_BLUE);
         unitToggleLabel.setFont(font.deriveFont(Font.PLAIN, FONT_SIZE_SMALL));
         unitToggleButton = new Button(unitToggleLabel);
         unitToggleButton.addClickListener(() -> {
-            if (unitToggleLabel.getText().equalsIgnoreCase("mm")) {
-                unitToggleLabel.setText("inch");
+            if (unitToggleLabel.getText().equalsIgnoreCase(UnitUtils.Units.MM.name())) {
+                unitToggleLabel.setText(UnitUtils.Units.INCH.name().toLowerCase());
             } else {
-                unitToggleLabel.setText("mm");
+                unitToggleLabel.setText(UnitUtils.Units.MM.name().toLowerCase());
             }
         });
 
@@ -129,12 +131,16 @@ public class JogPanel extends JPanel {
     }
 
     private void initListeners() {
-        xposButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_XPOS));
-        xnegButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_XNEG));
-        yposButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_YPOS));
-        ynegButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_YNEG));
-        zposButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_ZPOS));
-        znegButton.addClickListener(new RoundedPanelButtonClickListener(listeners, JogPanelButtonEnum.BUTTON_ZNEG));
+        xposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XPOS));
+        xnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XNEG));
+        yposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_YPOS));
+        ynegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_YNEG));
+        zposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_ZPOS));
+        znegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_ZNEG));
+        diagXnegYnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG));
+        diagXnegYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS));
+        diagXposYnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG));
+        diagXposYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS));
     }
 
     private Component createFeedRateRow() {
@@ -236,6 +242,14 @@ public class JogPanel extends JPanel {
     }
 
     public void setJogFeedRate(int jogFeedRate) {
-        this.feedRateLabel.setText("<html><center>Feed rate<br><b>" + jogFeedRate + " steps/min</b></center></html>");
+        feedRateLabel.setText("<html><center>Feed rate<br><b>" + jogFeedRate + " steps/min</b></center></html>");
+    }
+
+    public void setXyStepLength(double xyStepLength) {
+        xyStepLabel.setText("<html><center>Step length<br><b>" + xyStepLength + "</b></center></html>");
+    }
+
+    public void setUnit(UnitUtils.Units unit) {
+        unitToggleLabel.setText(unit.name().toLowerCase());
     }
 }

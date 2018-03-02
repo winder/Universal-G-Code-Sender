@@ -4,12 +4,17 @@ import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 
 import java.util.List;
 
-public class RoundedPanelButtonClickListener implements RoundedPanel.RoundedPanelClickListener {
+/**
+ * Listens to RoundedPanel click events and relays them to JogPanelListeners
+ *
+ * @author Joacim Breiler
+ */
+public class JogPanelListenerProxy implements RoundedPanel.RoundedPanelClickListener {
 
     private final JogPanelButtonEnum button;
     private final List<JogPanelListener> listeners;
 
-    RoundedPanelButtonClickListener(java.util.List<JogPanelListener> listeners, JogPanelButtonEnum button) {
+    JogPanelListenerProxy(java.util.List<JogPanelListener> listeners, JogPanelButtonEnum button) {
         this.listeners = listeners;
         this.button = button;
     }
