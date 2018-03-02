@@ -28,7 +28,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 public class JogService {
     private double stepSizeXY = 1;
     private double stepSizeZ = 1;
-    private double feedRate = 1;
     private Units units;
 
     private final BackendAPI backend;
@@ -39,8 +38,7 @@ public class JogService {
         // Init from settings.
         stepSizeXY = backend.getSettings().getManualModeStepSize();
         stepSizeZ = backend.getSettings().getzJogStepSize();
-        feedRate = backend.getSettings().getJogFeedRate();
-        units = Units.getUnit(backend.getSettings().getDefaultUnits());
+        units = backend.getSettings().getPreferredUnits();
     }
 
     public void increaseStepSize() {
@@ -108,8 +106,11 @@ public class JogService {
     }
 
     public void setFeedRate(double rate) {
-        this.feedRate = rate;
-        backend.getSettings().setJogFeedRate(feedRate);
+        backend.getSettings().setJogFeedRate(rate);
+    }
+
+    public double getFeedRate() {
+        return backend.getSettings().getJogFeedRate();
     }
 
     public void setUnits(Units units) {
@@ -128,6 +129,7 @@ public class JogService {
      */
     public void adjustManualLocation(int x, int y, int z, double stepSize) {
         try {
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(x, y, z, stepSize, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
@@ -145,6 +147,7 @@ public class JogService {
             if (!this.backend.getSettings().useZStepSize()) {
                 stepSize = stepSizeXY;
             }
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(0, 0, z, stepSize, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
@@ -154,10 +157,12 @@ public class JogService {
 
     /**
      * Adjusts the XY axis location.
-     * @param z direction.
+     * @param x direction.
+     * @param y direction.
      */
     public void adjustManualLocationXY(int x, int y) {
         try {
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(x, y, 0, stepSizeXY, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
