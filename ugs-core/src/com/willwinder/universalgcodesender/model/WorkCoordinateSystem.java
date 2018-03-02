@@ -31,7 +31,7 @@ public enum WorkCoordinateSystem {
     G59(6);
 
     final int pValue;
-    private WorkCoordinateSystem(int pValue) {
+    WorkCoordinateSystem(int pValue) {
         this.pValue = pValue;
     }
     
