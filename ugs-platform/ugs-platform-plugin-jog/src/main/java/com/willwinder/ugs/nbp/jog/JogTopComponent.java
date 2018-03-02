@@ -48,12 +48,12 @@ import java.awt.*;
 @ActionReference(
         path = JogTopComponent.WINOW_PATH)
 @TopComponent.OpenActionRegistration(
-        displayName = "Jog",
+        displayName = "Jog Controller",
         preferredID = "JogTopComponent"
 )
 public final class JogTopComponent extends TopComponent implements JogPanelListener {
 
-    public static final String WINOW_PATH = LocalizingService.MENU_WINDOW;
+    public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
     public static final String ACTION_ID = "com.willwinder.ugs.nbp.jog.JogTopComponent";
     private static final double FEED_STEP_SIZE = 10;
