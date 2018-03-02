@@ -40,7 +40,7 @@ LANGUAGES = {
         'ru': 'ru_RU',
         'sv': 'sv_SE',
         'tr': 'tr_TR',
-        'zh-CN': 'zh_CHS'
+        'zh-CN': 'zh_CN'
         }
 
 
