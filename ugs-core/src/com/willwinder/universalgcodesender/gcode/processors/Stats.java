@@ -34,10 +34,10 @@ import com.willwinder.universalgcodesender.gcode.GcodeStats;
 public class Stats implements CommandProcessor, GcodeStats {
     private static Units defaultUnits = Units.MM;
 
-    Position min = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Units.MM);
-    Position max = new Position(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Units.MM);
+    private Position min = new Position(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, Units.MM);
+    private Position max = new Position(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE, Units.MM);
 
-    long commandCount = 0;
+    private long commandCount = 0;
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {

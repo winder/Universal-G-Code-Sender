@@ -1,9 +1,5 @@
 /*
- * A serial connection object implementing the connection API.
- */
-
-/*
-    Copywrite 2015 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,6 +24,7 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortException;
 
 /**
+ * A serial connection object implementing the connection API.
  *
  * @author wwinder
  */
@@ -143,25 +140,5 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
             System.exit(-1);
         }
     }
-
-    public static boolean supports(String portname, int baud) {
-        SerialPort serialPort = new SerialPort(portname);
-        try {
-            serialPort.openPort();
-            serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
-            serialPort.closePort();
-            return true;
-        } catch (SerialPortException e) {
-            return false;
-        } finally {
-            if (serialPort.isOpened()) {
-                try {
-                    serialPort.closePort();
-                } catch (SerialPortException e) {
-                    // noop
-                }
-            }
-        }
-    }        
 }
 

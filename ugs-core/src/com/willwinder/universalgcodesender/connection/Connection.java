@@ -1,9 +1,5 @@
 /*
- * Connection interface.
- */
-
-/*
-    Copywrite 2013-2015 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,9 +20,9 @@
 package com.willwinder.universalgcodesender.connection;
 
 import com.willwinder.universalgcodesender.AbstractCommunicator;
-import java.io.IOException;
 
 /**
+ * Connection interface.
  *
  * @author wwinder
  */
@@ -36,10 +32,6 @@ public abstract class Connection {
     public void setCommunicator(AbstractCommunicator ac) {
         comm = ac;
     }
-
-    // Implement this as static in the connection class. Use static function in
-    // ConnectionFactory.
-    //abstract public boolean supports(String portname);
     
     abstract public boolean openPort(String name, int baud) throws Exception;
     

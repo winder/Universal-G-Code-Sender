@@ -1,8 +1,5 @@
-/**
- * Adds a dwell command after an M3.
- */
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,6 +29,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
+ * Adds a dwell command after an M3.
  *
  * @author wwinder
  */
@@ -39,7 +37,7 @@ public class M3Dweller implements CommandProcessor {
     private final String dwellCommand;
 
     // Contains an M3 not followed by another digit (i.e. M30)
-    Pattern m3Pattern = Pattern.compile(".*[mM]3(?!\\d)(\\D.*)?");
+    private Pattern m3Pattern = Pattern.compile(".*[mM]3(?!\\d)(\\D.*)?");
 
     public M3Dweller(double dwellDuration) {
         this.dwellCommand = String.format(Locale.ROOT, "G4P%.2f", dwellDuration);
