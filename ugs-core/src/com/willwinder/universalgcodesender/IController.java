@@ -157,6 +157,11 @@ public interface IController {
     void queueCommand(GcodeCommand cmd) throws Exception;
     void queueStream(GcodeStreamReader r);
 
+    /**
+     * Cancel the running command and clear the command queue.
+     */
+    void cancelCommands();
+
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
 }
