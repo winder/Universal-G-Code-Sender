@@ -204,8 +204,10 @@ public class JogPanel extends JPanel {
         unitToggleButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_TOGGLE_UNIT));
         feedIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_INC));
         feedDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_DEC));
-        stepXYIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_STEP_INC));
-        stepXYDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_STEP_DEC));
+        stepXYIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XY_STEP_INC));
+        stepXYDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XY_STEP_DEC));
+        stepZIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_Z_STEP_INC));
+        stepZDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_Z_STEP_DEC));
     }
 
     private Component createUnitPanel() {

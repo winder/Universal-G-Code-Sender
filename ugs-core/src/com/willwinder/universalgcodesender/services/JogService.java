@@ -41,7 +41,7 @@ public class JogService {
         units = backend.getSettings().getPreferredUnits();
     }
 
-    public void increaseStepSize() {
+    public void increaseXYStepSize() {
         if (stepSizeXY >= 1) {
             stepSizeXY++;
         } else if (stepSizeXY >= 0.1) {
@@ -54,7 +54,7 @@ public class JogService {
         setStepSize(stepSizeXY);
     }
 
-    public void decreaseStepSize() {
+    public void decreaseXYStepSize() {
         if (stepSizeXY > 1) {
             stepSizeXY--;
         } else if (stepSizeXY > 0.1) {
@@ -63,6 +63,33 @@ public class JogService {
             stepSizeXY = stepSizeXY - 0.01;
         }
         setStepSize(stepSizeXY);
+    }
+
+
+    public void increaseZStepSize() {
+        double stepSize = this.stepSizeZ;
+        if (stepSize >= 1) {
+            stepSize++;
+        } else if (stepSize >= 0.1) {
+            stepSize = stepSize + 0.1;
+        } else if (stepSize >= 0.01) {
+            stepSize = stepSize + 0.01;
+        } else {
+            stepSize = 0.01;
+        }
+        setStepSizeZ(stepSize);
+    }
+
+    public void decreaseZStepSize() {
+        double stepSize = this.stepSizeZ;
+        if (stepSize > 1) {
+            stepSize--;
+        } else if (stepSize > 0.1) {
+            stepSize = stepSize - 0.1;
+        } else if (stepSize > 0.01) {
+            stepSize = stepSize - 0.01;
+        }
+        setStepSizeZ(stepSize);
     }
 
     public void divideStepSize() {
