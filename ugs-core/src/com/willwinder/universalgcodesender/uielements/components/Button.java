@@ -3,8 +3,11 @@ package com.willwinder.universalgcodesender.uielements.components;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.FilteredImageSource;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
@@ -26,7 +29,7 @@ public class Button extends RoundedPanel {
 
     public Button(Component component) {
         this();
-        add(component, "grow");
+        add(component, "al center");
     }
 
     public Button(ImageIcon icon) {
