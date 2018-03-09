@@ -132,9 +132,8 @@ public class MachineStatusFontManager {
         all.forEach(ge::registerFont);
     }
 
-    private static Font createFont(InputStream is, String fontName) {
+    public static Font createFont(InputStream is, String fontName) {
         try {
-            //Integer.parseInt("blah");
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
             is.close();
             return font;

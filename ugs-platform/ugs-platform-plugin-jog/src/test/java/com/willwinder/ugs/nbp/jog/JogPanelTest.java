@@ -3,8 +3,12 @@ package com.willwinder.ugs.nbp.jog;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.WindowConstants;
+import java.awt.Dimension;
 
 public class JogPanelTest extends JFrame {
     public static void main(String[] args) throws Exception {
@@ -15,7 +19,7 @@ public class JogPanelTest extends JFrame {
     private void start() throws Exception {
         BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
 
-        setPreferredSize(new Dimension(1024, 768));
+        setPreferredSize(new Dimension(400, 500));
 
         JogPanel jogPanel = new JogPanel();
         getContentPane().add(jogPanel);
@@ -26,6 +30,10 @@ public class JogPanelTest extends JFrame {
 
         pack();
         setVisible(true);
+
+        jogPanel.setJogFeedRate(10);
+        jogPanel.setXyStepLength(0.2);
+        jogPanel.setZStepLength(0.1);
     }
 
     private void createMenuBar(BackendAPI backendAPI) {
