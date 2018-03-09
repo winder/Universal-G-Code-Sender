@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class SteppedSizeManager {
 
-    private int currentSize = 0;
+    private int currentSize = -1;
     private JComponent component;
     private List<Dimension> dimensions;
     private List<SteppedSizeChangeListener> listeners = new ArrayList<>();
