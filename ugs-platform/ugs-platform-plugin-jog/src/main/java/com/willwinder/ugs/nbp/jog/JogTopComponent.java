@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
+import net.miginfocom.swing.MigLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -67,9 +68,9 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
 
-        setMinimumSize(new Dimension(200, 250));
-        setPreferredSize(new Dimension(200, 250));
-        setLayout(new BorderLayout());
+        setMinimumSize(new Dimension(210, 245));
+        setPreferredSize(new Dimension(250, 250));
+        setLayout(new MigLayout("fill, inset 0"));
         setName(LocalizingService.JogControlTitle);
         setToolTipText(LocalizingService.JogControlTooltip);
 
@@ -78,8 +79,9 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
         jogPanel.setEnabled(jogService.canJog());
         jogPanel.setJogFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
         jogPanel.setXyStepLength(backend.getSettings().getManualModeStepSize());
+        jogPanel.setZStepLength(backend.getSettings().getzJogStepSize());
         jogPanel.setUnit(backend.getSettings().getPreferredUnits());
-        add(jogPanel, BorderLayout.CENTER);
+        add(jogPanel, "grow");
     }
 
     private void onEvent(UGSEvent event) {
@@ -92,6 +94,7 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
         if (event.isSettingChangeEvent()) {
             jogPanel.setJogFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
             jogPanel.setXyStepLength(backend.getSettings().getManualModeStepSize());
+            jogPanel.setZStepLength(backend.getSettings().getzJogStepSize());
             jogPanel.setUnit(backend.getSettings().getPreferredUnits());
         }
     }
@@ -147,11 +150,17 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
                 case BUTTON_FEED_DEC:
                     jogService.setFeedRate(jogService.getFeedRate() - FEED_STEP_SIZE);
                     break;
-                case BUTTON_STEP_INC:
-                    jogService.increaseStepSize();
+                case BUTTON_XY_STEP_INC:
+                    jogService.increaseXYStepSize();
                     break;
-                case BUTTON_STEP_DEC:
-                    jogService.decreaseStepSize();
+                case BUTTON_XY_STEP_DEC:
+                    jogService.decreaseXYStepSize();
+                    break;
+                case BUTTON_Z_STEP_INC:
+                    jogService.increaseZStepSize();
+                    break;
+                case BUTTON_Z_STEP_DEC:
+                    jogService.decreaseZStepSize();
                     break;
                 default:
                     break;

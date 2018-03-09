@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.Button;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
+import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
@@ -31,19 +32,24 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Dimension;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A panel for displaying jog controls
  *
  * @author Joacim Breiler
  */
-public class JogPanel extends JPanel {
+public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener {
     private static final int COMMON_RADIUS = 7;
-    private static final int FONT_SIZE_LABEL_SMALL = 14;
-    private static final int FONT_SIZE_LABEL_LARGE = 19;
-    private static final int FONT_SIZE_VALUE = 19;
+    private static final float FONT_SIZE_LABEL_SMALL = 10;
+    private static final float FONT_SIZE_LABEL_MEDIUM = 14;
+    private static final float FONT_SIZE_LABEL_LARGE = 17;
+
+    private static final float FONT_SIZE_VALUE_SMALL = 17;
+    private static final float FONT_SIZE_VALUE_MEDIUM = 19;
 
     private final Button xposButton;
     private final Button xnegButton;
@@ -71,7 +77,7 @@ public class JogPanel extends JPanel {
     private final Button stepXYDecButton;
     private final Button stepZIncButton;
     private final Button stepZDecButton;
-    private java.util.List<JogPanelListener> listeners;
+    private Set<JogPanelListener> listeners;
 
     public JogPanel() {
         String fontPath = "/resources/";
@@ -79,12 +85,12 @@ public class JogPanel extends JPanel {
         String fontName = "OpenSans-Regular.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
         Font font = MachineStatusFontManager.createFont(is, fontName);
-        Font labelFontSmall = font.deriveFont(Font.PLAIN, FONT_SIZE_LABEL_SMALL);
+        Font labelFontSmall = font.deriveFont(Font.PLAIN, FONT_SIZE_LABEL_MEDIUM);
         Font labelFontLarge = font.deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
         fontName = "LED.ttf";
         is = getClass().getResourceAsStream(fontPath + fontName);
-        font =  MachineStatusFontManager.createFont(is, fontName);
-        Font valueFont = font.deriveFont(Font.PLAIN, FONT_SIZE_VALUE);
+        font = MachineStatusFontManager.createFont(is, fontName);
+        Font valueFont = font.deriveFont(Font.PLAIN, FONT_SIZE_VALUE_MEDIUM);
 
         xposButton = createImageButton("icons/xpos.png");
         xnegButton = createImageButton("icons/xneg.png");
@@ -130,14 +136,14 @@ public class JogPanel extends JPanel {
         feedRateValue.setFont(valueFont);
 
         // todo: i18n
-        xyStepLabel = new JLabel("X/Y STEP LENGTH");
+        xyStepLabel = new JLabel("X/Y STEP");
         xyStepLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         xyStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
         xyStepLabel.setForeground(ThemeColors.ORANGE);
         xyStepLabel.setFont(labelFontSmall);
 
         // todo: i18n
-        zStepLabel = new JLabel("Z STEP LENGTH");
+        zStepLabel = new JLabel("Z STEP");
         zStepLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         zStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
         zStepLabel.setForeground(ThemeColors.ORANGE);
@@ -148,7 +154,7 @@ public class JogPanel extends JPanel {
         xyStepValue.setHorizontalAlignment(SwingConstants.CENTER);
         xyStepValue.setForeground(ThemeColors.ORANGE);
         xyStepValue.setFont(valueFont);
-        
+
         zStepValue = new JLabel("--");
         zStepValue.setHorizontalTextPosition(SwingConstants.CENTER);
         zStepValue.setHorizontalAlignment(SwingConstants.CENTER);
@@ -167,7 +173,13 @@ public class JogPanel extends JPanel {
             }
         });
 
-        listeners = new ArrayList<>();
+        listeners = new HashSet<>();
+
+        SteppedSizeManager sizer = new SteppedSizeManager(this,
+                new Dimension(250, 250), // Scaling fonts to smaller
+                new Dimension(260, 0),  // Shortens text
+                new Dimension(280, 0)); // Full scale of everything
+        sizer.addListener(this);
 
         initComponents();
         initListeners();
@@ -231,11 +243,11 @@ public class JogPanel extends JPanel {
 
     private Component createParameterPanel(Component left, Component label, Component value, Component right) {
         RoundedPanel panel = createGroupPanel();
-        panel.setLayout(new MigLayout("fillx, inset 7", "[][grow][grow][]"));
+        panel.setLayout(new MigLayout("fill, inset 7", "[][grow][grow][]"));
 
         panel.add(left);
-        panel.add(label, "al right, pad 2 0 0 0");
-        panel.add(value, "pad 2 0 0 0");
+        panel.add(label, "growy, al right, pad 2 0 0 0");
+        panel.add(value, "growy, pad 2 0 0 0");
         panel.add(right);
 
         return panel;
@@ -328,5 +340,82 @@ public class JogPanel extends JPanel {
 
     public void setUnit(UnitUtils.Units unit) {
         unitToggleLabel.setText(unit.name().toUpperCase());
+    }
+
+    @Override
+    public void onSizeChange(int size) {
+        switch (size) {
+            case 0:
+                this.feedRateLabel.setText("F.RATE");
+                setSmallFontSizes();
+                break;
+            case 1:
+                this.feedRateLabel.setText("F.RATE");
+                setNormalFontSizes();
+                break;
+            default:
+                this.feedRateLabel.setText("FEED RATE");
+                setNormalFontSizes();
+                break;
+        }
+    }
+
+    private void setSmallFontSizes() {
+        Font font = this.xyLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.xyLabel.setFont(font);
+
+        font = this.zLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.zLabel.setFont(font);
+
+        font = this.unitToggleLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.unitToggleLabel.setFont(font);
+
+        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        this.feedRateLabel.setFont(font);
+
+        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        this.xyStepLabel.setFont(font);
+
+        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
+        this.zStepLabel.setFont(font);
+
+        font = this.feedRateValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
+        this.feedRateValue.setFont(font);
+
+        font = this.xyStepValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
+        this.xyStepValue.setFont(font);
+
+        font = this.zStepValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
+        this.zStepValue.setFont(font);
+    }
+
+    private void setNormalFontSizes() {
+        Font font;
+        font = this.xyLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.xyLabel.setFont(font);
+
+        font = this.zLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.zLabel.setFont(font);
+
+        font = this.unitToggleLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.unitToggleLabel.setFont(font);
+
+        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.feedRateLabel.setFont(font);
+
+        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.xyStepLabel.setFont(font);
+
+        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
+        this.zStepLabel.setFont(font);
+
+        font = this.feedRateValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
+        this.feedRateValue.setFont(font);
+
+        font = this.xyStepValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
+        this.xyStepValue.setFont(font);
+
+        font = this.zStepValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
+        this.zStepValue.setFont(font);
     }
 }
