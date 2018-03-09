@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,11 +21,14 @@ package com.willwinder.universalgcodesender.uielements.actions;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.JFrame;
+
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
  *
@@ -36,6 +39,19 @@ public class ConfigureFirmwareAction extends AbstractAction {
 
     public ConfigureFirmwareAction(BackendAPI backend) {
         this.backend = backend;
+        this.backend.addUGSEventListener(this::onEvent);
+        setEnabled(canConfigureFirmware());
+    }
+
+    private void onEvent(UGSEvent event) {
+        if (event != null && event.isStateChangeEvent()) {
+            EventQueue.invokeLater(() ->
+                    setEnabled(canConfigureFirmware()));
+        }
+    }
+
+    private boolean canConfigureFirmware() {
+        return this.backend.isConnected() && this.backend.isIdle();
     }
 
     @Override
@@ -55,10 +71,5 @@ public class ConfigureFirmwareAction extends AbstractAction {
         } catch (Exception ex) {
                 displayErrorDialog(ex.getMessage());
         }
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.backend.isConnected() && this.backend.isIdle();
     }
 }
