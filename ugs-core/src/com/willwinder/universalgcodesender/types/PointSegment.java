@@ -103,10 +103,8 @@ final public class PointSegment {
         return point;
     }
     
-    public double[] points()
-    {
-        double[] points = {point.x, point.y, point.z};
-        return points;
+    public double[] points() {
+        return new double[]{point.x, point.y, point.z};
     }
     
     public void setLineNumber(final int num) {
@@ -180,8 +178,7 @@ final public class PointSegment {
     public double[] centerPoints()
     {
         if (this.arcProperties != null && this.arcProperties.center != null) {
-            double[] points = {arcProperties.center.x, arcProperties.center.y, arcProperties.center.z};
-            return points;
+            return new double[]{arcProperties.center.x, arcProperties.center.y, arcProperties.center.z};
         }
         return null;
     }

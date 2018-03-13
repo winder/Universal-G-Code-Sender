@@ -139,7 +139,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
      * Get all the windows in the "Editor" mode, then filter to just editors.
      */
     private Collection<TopComponent> getCurrentlyOpenedEditors() {
-      final ArrayList<TopComponent> result = new ArrayList<TopComponent>();
+      final ArrayList<TopComponent> result = new ArrayList<>();
       Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
       for (TopComponent tc: comps) {
         Node[] arr = tc.getActivatedNodes();

@@ -74,7 +74,7 @@ public interface ControllerListener {
 
         private final String key;
 
-        private MessageType(String key) {
+        MessageType(String key) {
             this.key = key;
         }
 

@@ -37,7 +37,7 @@ public enum Plane {
     VW(G19_1);
 
     public final Code code;
-    private Plane(Code c) {
+    Plane(Code c) {
         code = c;
     }
 

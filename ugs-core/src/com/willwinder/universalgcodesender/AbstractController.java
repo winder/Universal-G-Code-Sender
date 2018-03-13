@@ -69,7 +69,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private Boolean isStreaming = false;
     private long streamStart = 0;
     private long streamStop = 0;
-    private File gcodeFile;
 
     // This metadata needs to be cached instead of looked up from queues and
     // streams, because those sources may be compromised during a cancel.
@@ -726,10 +725,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void checkStreamFinished() {
         if (this.isStreaming() && !this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
             String streamName = "queued commands";
-            if (this.gcodeFile != null) {
-                streamName = this.gcodeFile.getName();
-            }
-            
             boolean isSuccess = (this.errorCount == 0);
             this.fileStreamComplete(streamName, isSuccess);
         }

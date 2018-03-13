@@ -44,10 +44,8 @@ import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -62,7 +60,7 @@ public class WidgetPreviewer {
 
         // Create the main frame.
         JFrame frame = new JFrame("Widget Previewer");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(panel, BorderLayout.CENTER);

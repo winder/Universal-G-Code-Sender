@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * API used by front ends to interface with the model.
@@ -33,7 +32,6 @@ import java.io.IOException;
 public interface BackendAPI extends BackendAPIReadOnly {
     // Config options
     void setGcodeFile(File file) throws Exception;
-    void setTempDir(File file) throws IOException;
     void applySettings(Settings settings) throws Exception;
 
     /**
@@ -68,26 +66,12 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void returnToZero() throws Exception;
     void resetCoordinatesToZero() throws Exception;
     void resetCoordinateToZero(char coordinate) throws Exception;
-    void restoreParserState() throws Exception;
-    
+
     void killAlarmLock() throws Exception;
     void performHomingCycle() throws Exception;
     void toggleCheckMode() throws Exception;
     void issueSoftReset() throws Exception;
     void requestParserState() throws Exception;
-
-    enum ACTIONS {
-        RETURN_TO_ZERO,
-        RESET_COORDINATES_TO_ZERO,
-        KILL_ALARM_LOCK,
-        HOMING_CYCLE,
-        TOGGLE_CHECK_MODE,
-        ISSUE_SOFT_RESET,
-        REQUEST_PARSER_STATE
-    }
-
-    // Programatically call an action.
-    void performAction(ACTIONS action) throws Exception;
 
     // Programatically call an override.
     void sendOverrideCommand(Overrides override) throws Exception;

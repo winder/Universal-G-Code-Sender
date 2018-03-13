@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,13 +25,5 @@ package com.willwinder.universalgcodesender.connection;
 public class ConnectionFactory {
     static public Connection getConnectionFor(String address, int baud) {
         return new JSSCConnection();
-        
-        /*
-        if (JSSCConnection.supports(address, baud)) {
-            return new JSSCConnection();
-        }
-        
-        return null;
-        */
     }
 }
