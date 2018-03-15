@@ -184,12 +184,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void increaseStepActionPerformed() {
-        jogService.increaseStepSize();
+        jogService.increaseXYStepSize();
         xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
     public void decreaseStepActionPerformed() {
-        jogService.decreaseStepSize();
+        jogService.decreaseXYStepSize();
         xyStepSizeSpinner.setValue(getxyStepSize());
     }
 

@@ -86,6 +86,11 @@
             <artifactId>GcodeTools</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>ugs-platform-plugin-jog</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

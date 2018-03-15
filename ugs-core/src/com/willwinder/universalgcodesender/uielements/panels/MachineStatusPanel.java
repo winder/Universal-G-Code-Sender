@@ -217,6 +217,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         RoundedPanel resetPanel = new RoundedPanel(COMMON_RADIUS);
         resetPanel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.setBackground(ThemeColors.DARK_BLUE_GREY);
+        resetPanel.setBackgroundDisabled(ThemeColors.VERY_DARK_GREY);
         resetPanel.setHoverBackground(ThemeColors.MED_BLUE_GREY);
         resetPanel.setLayout(new MigLayout("inset 5 15 5 15"));
         JLabel axisLabel = new JLabel(String.valueOf(axis));
@@ -240,7 +241,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         add(axisPanel,"growx, span 2");
 
         resetPanel.addClickListener(() -> resetCoordinateButton(axis) );
-        axisResetControls.add(resetPanel);
+        axisResetControls.add(axisPanel);
     }
 
     private Timer createTimer() {

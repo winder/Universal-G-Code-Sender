@@ -30,6 +30,8 @@ public class ThemeColors {
     public static final Color LIGHT_BLUE = new Color(5, 212, 255);
     public static final Color DARK_BLUE_GREY = new Color(44, 65, 70);
     public static final Color MED_BLUE_GREY = new Color(47, 93, 103);
+    public static final Color LIGHT_BLUE_GREY = new Color(65, 129, 143);
+
     public static final Color RED = new Color(240, 0, 0);
 
 }
