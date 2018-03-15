@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugp.gcodetools;
+package com.willwinder.ugp.tools;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -55,7 +55,6 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.modules.OnStart;
@@ -88,17 +87,10 @@ public final class GcodeTilerTopComponent extends TopComponent {
   public final static String GcodeTilerActionId = "com.willwinder.ugp.gcodetools.GcodeTilerTopComponent";
   public final static String GcodeTilerCategory = LocalizingService.CATEGORY_WINDOW;
 
-  @OnStart
-  public static class Localizer extends TopComponentLocalizer {
-    public Localizer() {
-      super(GcodeTilerCategory, GcodeTilerActionId, GcodeTilerTitle);
-    }
-  }
-
   private final BackendAPI backend;
 
-  static String ERROR_GENERATING = "An error occurred generating tile program: ";
-  static String ERROR_LOADING = "An error occurred loading generated tile program: ";
+  private static String ERROR_GENERATING = "An error occurred generating tile program: ";
+  private static String ERROR_LOADING = "An error occurred loading generated tile program: ";
 
   private final JButton generateGcodeButton = new JButton(
           Localization.getString("platform.plugin.dowel-module.generate"));
@@ -114,7 +106,15 @@ public final class GcodeTilerTopComponent extends TopComponent {
   private static Double xWidth = null;
   private static Double yWidth = null;
 
-  File outputFile = null;
+  private File outputFile = null;
+
+  @OnStart
+  public static class Localizer extends TopComponentLocalizer {
+    public Localizer() {
+      super(GcodeTilerCategory, GcodeTilerActionId, GcodeTilerTitle);
+    }
+  }
+
 
   public GcodeTilerTopComponent() {
     setName(GcodeTilerTitle);
@@ -176,8 +176,8 @@ public final class GcodeTilerTopComponent extends TopComponent {
     UnitUtils.Units u = selectedUnit(this.units.getSelectedIndex());
     Position min = fs.minCoordinate.getPositionIn(u);
     Position max = fs.maxCoordinate.getPositionIn(u);
-    this.xWidth = max.x - min.x;
-    this.yWidth = max.y - min.y;
+    GcodeTilerTopComponent.xWidth = max.x - min.x;
+    GcodeTilerTopComponent.yWidth = max.y - min.y;
 
     return true;
   }
@@ -187,8 +187,8 @@ public final class GcodeTilerTopComponent extends TopComponent {
       if (this.outputFile == null) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(file))) {
           double padding = SwingHelpers.getDouble(this.padding);
-          double stepX = padding + this.xWidth;
-          double stepY = padding + this.yWidth;
+          double stepX = padding + GcodeTilerTopComponent.xWidth;
+          double stepY = padding + GcodeTilerTopComponent.yWidth;
 
           // loop over offsets and call generateOneTile a bunch
           for (int x = 0; x < SwingHelpers.getInt(this.numCopiesX); x++) {
@@ -263,7 +263,6 @@ public final class GcodeTilerTopComponent extends TopComponent {
             }
           }
       } catch (GcodeStreamReader.NotGcodeStreamFile e) {
-        List<String> linesInFile;
         try (
             FileInputStream fstream = new FileInputStream(file);
             DataInputStream dis = new DataInputStream(fstream);

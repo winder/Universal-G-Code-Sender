@@ -98,11 +98,7 @@ public class FirmwareUtils {
     }
     
     public static ArrayList<String> getFirmwareList() {
-        ArrayList<String> ret = new ArrayList<>();
-        for (String fw : configFiles.keySet()) {
-            ret.add(fw);
-        }
-        return ret;
+        return new ArrayList<>(configFiles.keySet());
     }
     
     /**

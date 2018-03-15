@@ -65,8 +65,16 @@ public interface IController {
     void issueSoftReset() throws Exception;
 
     /**
-     * Jog control. Jogs the machine in the direction specified by vector dirX,
-     * dirY, dirZ a distance specified by stepSize * units.
+     * Jogs the machine in the direction specified by vector dirX,
+     * dirY, dirZ given the direction as 1, 0 or -1. The distance is specified by stepSize in the given units.
+     *
+     * @param dirX if the jogging should happen in X-direction, possible values are 1, 0 or -1
+     * @param dirY if the jogging should happen in Y-direction, possible values are 1, 0 or -1
+     * @param dirZ if the jogging should happen in Z-direction, possible values are 1, 0 or -1
+     * @param stepSize how long should we jog and is given in mm or inches
+     * @param feedRate how fast should we jog in the direction
+     * @param units the units of the stepSize
+     * @throws Exception if something went wrong when jogging
      */
     void jogMachine(int dirX, int dirY, int dirZ,
                     double stepSize, double feedRate, Units units) throws Exception;

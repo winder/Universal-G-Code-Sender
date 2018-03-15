@@ -48,7 +48,8 @@ public class GcodeStreamWriter extends GcodeStream implements Closeable {
         file = f;
         fileWriter = new PrintWriter(f);
         // 50 bytes at the beginning of the file to store metadata
-        fileWriter.append(metadataReservedSize + "\n");
+        fileWriter.append(metadataReservedSize);
+        fileWriter.append("\n");
     }
 
     private String getString(String str) {

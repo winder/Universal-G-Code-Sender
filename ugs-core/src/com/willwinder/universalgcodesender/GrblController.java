@@ -432,11 +432,6 @@ public class GrblController extends AbstractController {
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
-            // Not using max for now, it was causing issue for many people.
-            double max = 0;
-            if (this.maxZLocationMM != -1) {
-                max = this.maxZLocationMM;
-            }
             ArrayList<String> commands = GrblUtils.getReturnToHomeCommands(this.grblVersion, this.grblVersionLetter, this.controllerStatus.getWorkCoord().z);
             if (!commands.isEmpty()) {
                 Iterator<String> iter = commands.iterator();

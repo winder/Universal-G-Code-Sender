@@ -1,10 +1,5 @@
-/**
- * A diagnostic class to test application speed, this is a connection that
- * responds with "ok" as fast as possible.
- */
-
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,7 +29,9 @@ import javax.vecmath.Point3d;
 import jssc.SerialPort;
 
 /**
- *
+ * A diagnostic class to test application speed, this is a connection that
+ * responds with "ok" as fast as possible.
+ * 
  * @author wwinder
  */
 public class LoopBackConnection extends Connection {
@@ -67,13 +64,10 @@ public class LoopBackConnection extends Connection {
                 String command = sent.take().trim();
                 Thread.sleep(ms);
 
-
-                String response;
                 if (command.equals(Byte.toString(GrblUtils.GRBL_STATUS_COMMAND))) {
                     String xyz = "0,0,0";
                     if (lastCommand != null) {
-                        Point3d p = lastCommand;
-                        xyz = String.format("%f,%f,%f", p.x, p.y, p.z);
+                        xyz = String.format("%f,%f,%f", lastCommand.x, lastCommand.y, lastCommand.z);
                     }
                     comm.responseMessage(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
                 } else if (command.equals("G61")) {
@@ -138,9 +132,5 @@ public class LoopBackConnection extends Connection {
     public void sendByteImmediately(byte b) throws Exception {
         this.sent.put(Byte.toString(b));
     }
-    
-    public static boolean supports(String portname, int baud) {
-        return false;
-    }        
 }
 

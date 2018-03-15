@@ -1,9 +1,5 @@
 /*
- * Collection of useful command preprocessor methods.
- */
-
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -39,12 +35,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
+ * Collection of useful command preprocessor methods.
  *
  * @author wwinder
  */
 public class GcodePreprocessorUtils {
 
-    public static final String EMPTY = "";
+    private static final String EMPTY = "";
     public static final Pattern COMMENT = Pattern.compile("\\(.*\\)|\\s*;.*|%$");
     private static final Pattern COMMENTPARSE = Pattern.compile("(?<=\\()[^\\(\\)]*|(?<=\\;).*|%");
     private static final Pattern GCODE_PATTERN = Pattern.compile("[Gg]0*(\\d+)");
@@ -300,7 +297,6 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
-        String noCommentsCommand = GcodePreprocessorUtils.removeComment(command);
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
@@ -503,7 +499,7 @@ public class GcodePreprocessorUtils {
         //if (h_x2_div_d < 0) { System.out.println("Error computing arc radius."); }
         h_x2_div_d = (-Math.sqrt(h_x2_div_d)) / Math.hypot(x, y);
 
-        if (clockwise == false) {
+        if (!clockwise) {
             h_x2_div_d = -h_x2_div_d;
         }
 
@@ -567,7 +563,7 @@ public class GcodePreprocessorUtils {
 
     /**
      * Helper method for arc calculation to calculate sweep from two angles.
-     * @returns sweep in radians.
+     * @return sweep in radians.
      */
     static private double calculateSweep(double startAngle, double endAngle, boolean isCw) {
         double sweep;

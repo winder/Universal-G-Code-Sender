@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender.gcode.util;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.*;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -169,13 +168,13 @@ public enum Code {
     private final boolean nonModalMotionCode;
     private final boolean motionOptional;
 
-    private Code(ModalGroup type){
+    Code(ModalGroup type){
         this.type = type;
         this.nonModalMotionCode = false;
         this.motionOptional = false;
     }
 
-    private Code(ModalGroup type, boolean nonModalMotionCode, boolean motionOptional){
+    Code(ModalGroup type, boolean nonModalMotionCode, boolean motionOptional){
         this.type = type;
         this.nonModalMotionCode = nonModalMotionCode;
         this.motionOptional = motionOptional;
@@ -201,7 +200,6 @@ public enum Code {
         return this.type;
     }
 
-    private static final Pattern CODE_PATTERN = Pattern.compile("(?:0?)+((?:\\d*\\.)?\\d+)");
     /**
      * Lookup code from lookup map.
      * @param code String representation of an enum, like G1 or G38.2

@@ -28,7 +28,10 @@ import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.*;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
@@ -41,7 +44,6 @@ import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.List;
@@ -461,14 +463,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.FINEST, "Getting controller");
         return this.controller;
     }
-    
-    @Override
-    public void setTempDir(File file) throws IOException {
-        if (file.isDirectory())
-            this.tempDir = file;
-        else
-            throw new IOException("Temp dir " + file.toString() + " is not a directory.");
-    }
 
     private File getTempDir() {
         if (tempDir == null) {
@@ -672,11 +666,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
-    public void restoreParserState() throws Exception {
-        this.controller.restoreParserModalState();
-    }
-
-    @Override
     public void resetCoordinateToZero(char coordinate) throws Exception {
         this.controller.resetCoordinateToZero(coordinate);
     }
@@ -704,35 +693,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void requestParserState() throws Exception {
         this.controller.viewParserState();
-    }
-
-    @Override
-    public void performAction(ACTIONS action) throws Exception {
-        switch (action) {
-            case RETURN_TO_ZERO:
-                returnToZero();
-                break;
-            case RESET_COORDINATES_TO_ZERO:
-                resetCoordinatesToZero();
-                break;
-            case KILL_ALARM_LOCK:
-                killAlarmLock();
-                break;
-            case HOMING_CYCLE:
-                performHomingCycle();
-                break;
-            case TOGGLE_CHECK_MODE:
-                toggleCheckMode();
-                break;
-            case ISSUE_SOFT_RESET:
-                issueSoftReset();
-                break;
-            case REQUEST_PARSER_STATE:
-                requestParserState();
-                break;
-            default:
-                break;
-        }
     }
 
     //////////////////
