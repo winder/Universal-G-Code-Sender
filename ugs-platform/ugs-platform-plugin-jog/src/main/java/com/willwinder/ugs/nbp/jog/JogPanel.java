@@ -18,24 +18,19 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.uielements.components.Button;
-import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A panel for displaying jog controls
@@ -43,257 +38,299 @@ import java.util.Set;
  * @author Joacim Breiler
  */
 public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener {
-    private static final int COMMON_RADIUS = 7;
-    private static final float FONT_SIZE_LABEL_SMALL = 10;
-    private static final float FONT_SIZE_LABEL_MEDIUM = 14;
-    private static final float FONT_SIZE_LABEL_LARGE = 17;
 
-    private static final float FONT_SIZE_VALUE_SMALL = 17;
-    private static final float FONT_SIZE_VALUE_MEDIUM = 19;
+    /**
+     * The minimum width and height of the jog buttons.
+     */
+    private static final int MINIMUM_BUTTON_SIZE = 52;
 
-    private final Button xposButton;
-    private final Button xnegButton;
-    private final Button yposButton;
-    private final Button ynegButton;
-    private final Button zposButton;
-    private final Button znegButton;
-    private final Button diagXnegYposButton;
-    private final Button diagXposYposButton;
-    private final Button diagXposYnegButton;
-    private final Button diagXnegYnegButton;
-    private final JLabel xyLabel;
-    private final JLabel zLabel;
+    private static final float FONT_SIZE_LABEL_SMALL = 8;
+    private static final float FONT_SIZE_LABEL_MEDIUM = 10;
+    private static final float FONT_SIZE_LABEL_LARGE = 14;
+
+    /**
+     * How long should the jog button be pressed before continuous
+     * jog is activated in milliseconds
+     */
+    private static final int LONG_PRESS_DELAY = 500;
+
+    /**
+     * The inteval in milliseconds to send jog commands to the controller
+     * when continuous jog is activated. This should be long enough so that
+     * the queue isn't filled up.
+     */
+    private static final int LONG_PRESS_INTERVAL = 500;
+
+    /**
+     * How long should the step size be for continuous jog commands. These should be
+     * long enough to keep the controller jogging before a new jog command is queued.
+     */
+    private static final int LONG_PRESS_STEP_SIZE = 100;
+
+    private final JButton xposButton;
+    private final JButton xnegButton;
+    private final JButton yposButton;
+    private final JButton ynegButton;
+    private final JButton zposButton;
+    private final JButton znegButton;
+    private final JButton diagXnegYposButton;
+    private final JButton diagXposYposButton;
+    private final JButton diagXposYnegButton;
+    private final JButton diagXnegYnegButton;
     private final JLabel feedRateLabel;
     private final JLabel xyStepLabel;
     private final JLabel zStepLabel;
-    private final JLabel feedRateValue;
-    private final JLabel xyStepValue;
-    private final JLabel zStepValue;
-    private final JLabel unitToggleLabel;
-    private final Button unitToggleButton;
-    private final Button feedIncButton;
-    private final Button feedDecButton;
-    private final Button stepXYIncButton;
-    private final Button stepXYDecButton;
-    private final Button stepZIncButton;
-    private final Button stepZDecButton;
-    private Set<JogPanelListener> listeners;
+    private final JButton unitToggleButton;
+    private final StepSizeSpinner zStepSizeSpinner;
+    private final StepSizeSpinner feedStepSizeSpinner;
+    private final StepSizeSpinner xyStepSizeSpinner;
+    private final JogService jogService;
 
-    public JogPanel() {
+    public JogPanel(JogService jogService) {
+        this.jogService = jogService;
+
         String fontPath = "/resources/";
         // https://www.fontsquirrel.com
         String fontName = "OpenSans-Regular.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
-        Font font = MachineStatusFontManager.createFont(is, fontName);
-        Font labelFontSmall = font.deriveFont(Font.PLAIN, FONT_SIZE_LABEL_MEDIUM);
-        Font labelFontLarge = font.deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
-        fontName = "LED.ttf";
-        is = getClass().getResourceAsStream(fontPath + fontName);
-        font = MachineStatusFontManager.createFont(is, fontName);
-        Font valueFont = font.deriveFont(Font.PLAIN, FONT_SIZE_VALUE_MEDIUM);
+        Font font = MachineStatusFontManager.createFont(is, fontName).deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
 
-        xposButton = createImageButton("icons/xpos.png");
-        xnegButton = createImageButton("icons/xneg.png");
-        yposButton = createImageButton("icons/ypos.png");
-        ynegButton = createImageButton("icons/yneg.png");
-        zposButton = createImageButton("icons/ypos.png");
-        znegButton = createImageButton("icons/yneg.png");
+        xposButton = createImageButton("icons/xpos.png", "X+", SwingConstants.CENTER, SwingConstants.LEFT);
+        xnegButton = createImageButton("icons/xneg.png", "X-", SwingConstants.CENTER, SwingConstants.RIGHT);
+        yposButton = createImageButton("icons/ypos.png", "Y+", SwingConstants.BOTTOM, SwingConstants.CENTER);
+        ynegButton = createImageButton("icons/yneg.png", "Y-", SwingConstants.TOP, SwingConstants.CENTER);
+        zposButton = createImageButton("icons/ypos.png", "Z+", SwingConstants.BOTTOM, SwingConstants.CENTER);
+        znegButton = createImageButton("icons/yneg.png", "Z-", SwingConstants.TOP, SwingConstants.CENTER);
 
         diagXposYposButton = createImageButton("icons/diag-xpos-ypos.png");
         diagXnegYposButton = createImageButton("icons/diag-xneg-ypos.png");
         diagXposYnegButton = createImageButton("icons/diag-xpos-yneg.png");
         diagXnegYnegButton = createImageButton("icons/diag-xneg-yneg.png");
 
-        feedIncButton = createImageButton("icons/xpos.png");
-        feedDecButton = createImageButton("icons/xneg.png");
-        stepXYIncButton = createImageButton("icons/xpos.png");
-        stepXYDecButton = createImageButton("icons/xneg.png");
-        stepZIncButton = createImageButton("icons/xpos.png");
-        stepZDecButton = createImageButton("icons/xneg.png");
+        feedStepSizeSpinner = new StepSizeSpinner();
+        xyStepSizeSpinner = new StepSizeSpinner();
+        zStepSizeSpinner = new StepSizeSpinner();
 
         // todo: could use a number of factory methods here to build similar stuff
-        xyLabel = new JLabel("X/Y");
-        xyLabel.setForeground(ThemeColors.ORANGE);
-        xyLabel.setFont(labelFontLarge);
-        xyLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        feedRateLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.feedRate").toUpperCase());
+        xyStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeXY").toUpperCase());
+        zStepLabel = createSettingLabel(font, Localization.getString("platform.plugin.jog.stepSizeZ").toUpperCase());
 
-        zLabel = new JLabel("Z");
-        zLabel.setForeground(ThemeColors.ORANGE);
-        zLabel.setFont(labelFontLarge);
-        zLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // todo: i18n
-        feedRateLabel = new JLabel("FEED RATE");
-        feedRateLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-        feedRateLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        feedRateLabel.setForeground(ThemeColors.ORANGE);
-        feedRateLabel.setFont(labelFontSmall);
-
-        feedRateValue = new JLabel("--");
-        feedRateValue.setHorizontalTextPosition(SwingConstants.CENTER);
-        feedRateValue.setHorizontalAlignment(SwingConstants.CENTER);
-        feedRateValue.setForeground(ThemeColors.ORANGE);
-        feedRateValue.setFont(valueFont);
-
-        // todo: i18n
-        xyStepLabel = new JLabel("X/Y STEP");
-        xyStepLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-        xyStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        xyStepLabel.setForeground(ThemeColors.ORANGE);
-        xyStepLabel.setFont(labelFontSmall);
-
-        // todo: i18n
-        zStepLabel = new JLabel("Z STEP");
-        zStepLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-        zStepLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        zStepLabel.setForeground(ThemeColors.ORANGE);
-        zStepLabel.setFont(labelFontSmall);
-
-        xyStepValue = new JLabel("--");
-        xyStepValue.setHorizontalTextPosition(SwingConstants.CENTER);
-        xyStepValue.setHorizontalAlignment(SwingConstants.CENTER);
-        xyStepValue.setForeground(ThemeColors.ORANGE);
-        xyStepValue.setFont(valueFont);
-
-        zStepValue = new JLabel("--");
-        zStepValue.setHorizontalTextPosition(SwingConstants.CENTER);
-        zStepValue.setHorizontalAlignment(SwingConstants.CENTER);
-        zStepValue.setForeground(ThemeColors.ORANGE);
-        zStepValue.setFont(valueFont);
-
-        unitToggleLabel = new JLabel("--");
-        unitToggleLabel.setForeground(ThemeColors.LIGHT_BLUE);
-        unitToggleLabel.setFont(labelFontLarge);
-        unitToggleButton = new Button(unitToggleLabel);
-        unitToggleButton.addClickListener(() -> {
-            if (unitToggleLabel.getText().equalsIgnoreCase(UnitUtils.Units.MM.name())) {
-                unitToggleLabel.setText(UnitUtils.Units.INCH.name().toUpperCase());
-            } else {
-                unitToggleLabel.setText(UnitUtils.Units.MM.name().toUpperCase());
-            }
-        });
-
-        listeners = new HashSet<>();
+        unitToggleButton = new JButton("--");
+        unitToggleButton.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
+        unitToggleButton.setFocusable(false);
 
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(250, 250), // Scaling fonts to smaller
-                new Dimension(260, 0),  // Shortens text
-                new Dimension(280, 0)); // Full scale of everything
+                new Dimension(230, 0), // Scaling fonts to extra small
+                new Dimension(250, 0)  // Scaling fonts to small
+        );
         sizer.addListener(this);
 
-        initComponents();
+        initPanels();
         initListeners();
+
+        setEnabled(jogService.canJog());
+        setFeedRate(Double.valueOf(jogService.getFeedRate()).intValue());
+        setStepSizeXY(jogService.getStepSizeXY());
+        setStepSizeZ(jogService.getStepSizeZ());
+        setUnit(jogService.getUnits());
+        setUseStepSizeZ(jogService.useStepSizeZ());
+
+        if (isDarkLaF()) {
+            xposButton.setForeground(ThemeColors.LIGHT_BLUE);
+            xnegButton.setForeground(ThemeColors.LIGHT_BLUE);
+            yposButton.setForeground(ThemeColors.LIGHT_BLUE);
+            ynegButton.setForeground(ThemeColors.LIGHT_BLUE);
+            zposButton.setForeground(ThemeColors.LIGHT_BLUE);
+            znegButton.setForeground(ThemeColors.LIGHT_BLUE);
+            feedRateLabel.setForeground(ThemeColors.ORANGE);
+            xyStepLabel.setForeground(ThemeColors.ORANGE);
+            zStepLabel.setForeground(ThemeColors.ORANGE);
+            unitToggleButton.setForeground(ThemeColors.LIGHT_BLUE);
+        }
     }
 
-    private void initComponents() {
-        String debug = "";
-        //debug = "debug, ";
-        setLayout(new MigLayout(debug + "fill, inset 5, gap 4", "[73%][27%]"));
+    private static boolean isDarkLaF() {
+        return UIManager.getBoolean("nb.dark.theme"); //NOI18N
+    }
 
-        JPanel movementPanel = createGroupPanel();
-        movementPanel.setLayout(new MigLayout(debug + "fill, inset 0, gap 0", "[75%][25%]"));
-        movementPanel.add(createXYJogPanel(), "grow");
-        movementPanel.add(createZJogPanel(), "grow");
-        add(movementPanel, "grow, wrap, spanx 2");
+    private JLabel createSettingLabel(Font font, String text) {
+        JLabel label = new JLabel(text);
+        label.setHorizontalTextPosition(SwingConstants.RIGHT);
+        label.setHorizontalAlignment(SwingConstants.RIGHT);
+        label.setFont(font);
+        return label;
+    }
 
-        add(createJogXYSizePanel(), "growx");
-        add(createUnitPanel(), "grow, wrap, spany 3");
-        add(createJogZSizePanel(), "growx, wrap");
-        add(createFeedRatePanel(), "growx");
+    public void setFeedRate(int feedRate) {
+        feedStepSizeSpinner.setValue(String.valueOf(feedRate));
+    }
+
+    public void setStepSizeXY(double stepSize) {
+        xyStepSizeSpinner.setValue(stepSize);
+    }
+
+    public void setStepSizeZ(double stepSize) {
+        zStepSizeSpinner.setValue(stepSize);
+    }
+
+    public void setUnit(UnitUtils.Units unit) {
+        unitToggleButton.setText(unit.name());
+    }
+
+    public void setUseStepSizeZ(boolean useStepSizeZ) {
+        if (useStepSizeZ) {
+            zStepLabel.setVisible(true);
+            zStepSizeSpinner.setVisible(true);
+            xyStepLabel.setText(Localization.getString("platform.plugin.jog.stepSizeXY").toUpperCase());
+        } else {
+            zStepLabel.setVisible(false);
+            zStepSizeSpinner.setVisible(false);
+            xyStepLabel.setText(Localization.getString("platform.plugin.jog.stepSize").toUpperCase());
+        }
+    }
+
+    private void initPanels() {
+        setLayout(new MigLayout("fill, inset 5, gap 7"));
+        add(createXYZPanel(), "grow, wrap");
+        add(createConfigurationPanel(), "grow");
+    }
+
+    private JPanel createConfigurationPanel() {
+        JPanel configurationPanel = new JPanel();
+        configurationPanel.setLayout(new MigLayout("fill, inset 0, gap 2", "[55%, shrinkprio 100, right][20%, shrinkprio 100][25%, center, shrinkprio 0]", "[center][center][center]"));
+
+        configurationPanel.add(xyStepLabel, "growx");
+        configurationPanel.add(xyStepSizeSpinner, "growx");
+        configurationPanel.add(unitToggleButton, "grow, spany, wrap");
+
+        configurationPanel.add(zStepLabel, "growx, hidemode 3");
+        configurationPanel.add(zStepSizeSpinner, "growx, hidemode 3, wrap");
+
+        configurationPanel.add(feedRateLabel, "growx");
+        configurationPanel.add(feedStepSizeSpinner, "growx, wrap");
+        return configurationPanel;
+    }
+
+    private JPanel createXYZPanel() {
+        JPanel xyzPanel = new JPanel();
+        xyzPanel.setLayout(new MigLayout("fill, wrap 4, inset 0, gap 2", "[25%, center][25%, center][25%, center][25%, center]", "[33%, center][33%, center][33%, center]"));
+
+        xyzPanel.add(diagXnegYposButton, "grow");
+        xyzPanel.add(yposButton, "grow");
+        xyzPanel.add(diagXposYposButton, "grow");
+        xyzPanel.add(zposButton, "grow");
+
+        xyzPanel.add(xnegButton, "grow");
+        JPanel space = new JPanel();
+        space.setOpaque(false);
+        xyzPanel.add(space, "grow");
+        xyzPanel.add(xposButton, "grow");
+        space = new JPanel();
+        space.setOpaque(false);
+        xyzPanel.add(space, "grow");
+
+        xyzPanel.add(diagXnegYnegButton, "grow");
+        xyzPanel.add(ynegButton, "grow");
+        xyzPanel.add(diagXposYnegButton, "grow");
+        xyzPanel.add(znegButton, "grow");
+
+        return xyzPanel;
     }
 
     private void initListeners() {
-        xposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XPOS));
-        xnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XNEG));
-        yposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_YPOS));
-        ynegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_YNEG));
-        zposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_ZPOS));
-        znegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_ZNEG));
-        diagXnegYnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG));
-        diagXnegYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XNEG_YPOS));
-        diagXposYnegButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG));
-        diagXposYposButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_DIAG_XPOS_YPOS));
-        unitToggleButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_TOGGLE_UNIT));
-        feedIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_INC));
-        feedDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_FEED_DEC));
-        stepXYIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XY_STEP_INC));
-        stepXYDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_XY_STEP_DEC));
-        stepZIncButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_Z_STEP_INC));
-        stepZDecButton.addClickListener(new JogPanelListenerProxy(listeners, JogPanelButtonEnum.BUTTON_Z_STEP_DEC));
+        xposButton.addMouseListener(buildJogButtonListener(1, 0, 0));
+        xnegButton.addMouseListener(buildJogButtonListener(-1, 0, 0));
+        yposButton.addMouseListener(buildJogButtonListener(0, 1, 0));
+        ynegButton.addMouseListener(buildJogButtonListener(0, -1, 0));
+        zposButton.addMouseListener(buildJogButtonListener(0, 0, 1));
+        znegButton.addMouseListener(buildJogButtonListener(0, 0, -1));
+        diagXnegYnegButton.addMouseListener(buildJogButtonListener(-1, -1, 0));
+        diagXnegYposButton.addMouseListener(buildJogButtonListener(-1, 1, 0));
+        diagXposYnegButton.addMouseListener(buildJogButtonListener(1, -1, 0));
+        diagXposYposButton.addMouseListener(buildJogButtonListener(1, 1, 0));
+
+        unitToggleButton.addActionListener((event) -> {
+            if (jogService.getUnits() == UnitUtils.Units.MM) {
+                jogService.setUnits(UnitUtils.Units.INCH);
+            } else {
+                jogService.setUnits(UnitUtils.Units.MM);
+            }
+            unitToggleButton.setText(jogService.getUnits().name());
+        });
+
+        xyStepSizeSpinner.addChangeListener((event) -> jogService.setStepSize(xyStepSizeSpinner.getValue()));
+        zStepSizeSpinner.addChangeListener((event) -> jogService.setStepSizeZ(zStepSizeSpinner.getValue()));
+        feedStepSizeSpinner.addChangeListener((event) -> jogService.setFeedRate(feedStepSizeSpinner.getValue()));
     }
 
-    private Component createUnitPanel() {
-        RoundedPanel panel = createGroupPanel();
-        panel.setLayout(new MigLayout("fill, inset 7"));
-        panel.add(unitToggleButton, "grow");
-        return panel;
+    /**
+     * Creates a jog button listener that will initialize jog actions to a specific direction.
+     *
+     * @param x should jogging on x-axis be activated, can have values (-1, 0, 1)
+     * @param y should jogging on y-axis be activated, can have values (-1, 0, 1)
+     * @param z should jogging on z-axis be activated, can have values (-1, 0, 1)
+     * @return a jog button listener
+     */
+    private JogButtonListener buildJogButtonListener(int x, int y, int z) {
+        return new JogButtonListener(LONG_PRESS_DELAY, LONG_PRESS_INTERVAL,
+                () -> {
+                    if (z != 0) {
+                        jogService.adjustManualLocationZ(z);
+                    }
+
+                    if (x != 0 || y != 0) {
+                        jogService.adjustManualLocationXY(x, y);
+                    }
+                },
+                () -> jogService.adjustManualLocation(x, y, z, LONG_PRESS_STEP_SIZE),
+                jogService::cancelJog
+        );
     }
 
-    private Component createFeedRatePanel() {
-        return createParameterPanel(feedDecButton, feedRateLabel, feedRateValue, feedIncButton);
+    /**
+     * Creates a image button with a text.
+     *
+     * @param baseUri            the base uri of the image
+     * @param text               the text to be shown togheter with the icon
+     * @param verticalAligment   Sets the vertical position of the text relative to the icon
+     *                           and can have one of the following values
+     *                           <ul>
+     *                           <li>{@code SwingConstants.CENTER} (the default)
+     *                           <li>{@code SwingConstants.TOP}
+     *                           <li>{@code SwingConstants.BOTTOM}
+     *                           </ul>
+     * @param horisontalAligment Sets the horizontal position of the text relative to the
+     *                           icon and can have one of the following values:
+     *                           <ul>
+     *                           <li>{@code SwingConstants.RIGHT}
+     *                           <li>{@code SwingConstants.LEFT}
+     *                           <li>{@code SwingConstants.CENTER}
+     *                           <li>{@code SwingConstants.LEADING}
+     *                           <li>{@code SwingConstants.TRAILING} (the default)
+     *                           </ul>
+     * @return the button
+     */
+    private JButton createImageButton(String baseUri, String text, int verticalAligment, int horisontalAligment) {
+        JButton button = createImageButton(baseUri);
+        button.setText(text);
+        button.setVerticalTextPosition(verticalAligment);
+        button.setHorizontalTextPosition(horisontalAligment);
+        return button;
     }
 
-    private Component createJogXYSizePanel() {
-        return createParameterPanel(stepXYDecButton, xyStepLabel, xyStepValue, stepXYIncButton);
-    }
-
-    private Component createJogZSizePanel() {
-        return createParameterPanel(stepZDecButton, zStepLabel, zStepValue, stepZIncButton);
-    }
-
-    private Component createParameterPanel(Component left, Component label, Component value, Component right) {
-        RoundedPanel panel = createGroupPanel();
-        panel.setLayout(new MigLayout("fill, inset 7", "[][grow][grow][]"));
-
-        panel.add(left);
-        panel.add(label, "growy, al right, pad 2 0 0 0");
-        panel.add(value, "growy, pad 2 0 0 0");
-        panel.add(right);
-
-        return panel;
-    }
-
-    private Component createXYJogPanel() {
-        JPanel xyPanel = new JPanel();
-        xyPanel.setOpaque(false);
-        xyPanel.setLayout(new MigLayout("fill, wrap 3, inset 7, gap 7", "[33%][33%][33%]", "[33%][33%][33%]"));
-
-        xyPanel.add(diagXnegYposButton, "grow");
-        xyPanel.add(yposButton, "grow");
-        xyPanel.add(diagXposYposButton, "grow");
-
-        xyPanel.add(xnegButton, "grow");
-        xyPanel.add(xyLabel, "grow");
-        xyPanel.add(xposButton, "grow");
-
-        xyPanel.add(diagXnegYnegButton, "grow");
-        xyPanel.add(ynegButton, "grow");
-        xyPanel.add(diagXposYnegButton, "grow");
-
-        return xyPanel;
-    }
-
-    private Component createZJogPanel() {
-        JPanel zPanel = new JPanel();
-        zPanel.setOpaque(false);
-        zPanel.setLayout(new MigLayout("fill, wrap1, inset 7", "", "[33%][33%][33%]"));
-
-        zPanel.add(zposButton, "grow");
-        zPanel.add(zLabel, "grow");
-        zPanel.add(znegButton, "grow");
-
-        return zPanel;
-    }
-
-    private RoundedPanel createGroupPanel() {
-        RoundedPanel panel = new RoundedPanel(COMMON_RADIUS);
-        panel.setBackground(ThemeColors.VERY_DARK_GREY);
-        panel.setForeground(ThemeColors.LIGHT_BLUE);
-        return panel;
-    }
-
-    private Button createImageButton(String baseUri) {
-        return new Button(ImageUtilities.loadImageIcon(baseUri, false));
+    /**
+     * Creates a image button.
+     *
+     * @param baseUri the base uri of the image
+     * @return the button
+     */
+    private JButton createImageButton(String baseUri) {
+        ImageIcon imageIcon = ImageUtilities.loadImageIcon(baseUri, false);
+        JButton button = new JButton(imageIcon);
+        button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
+        button.setFocusable(false);
+        return button;
     }
 
     @Override
@@ -305,70 +342,39 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         ynegButton.setEnabled(enabled);
         zposButton.setEnabled(enabled);
         znegButton.setEnabled(enabled);
-
         diagXnegYposButton.setEnabled(enabled);
         diagXposYposButton.setEnabled(enabled);
         diagXposYnegButton.setEnabled(enabled);
         diagXnegYnegButton.setEnabled(enabled);
-
-        stepXYDecButton.setEnabled(enabled);
-        stepXYIncButton.setEnabled(enabled);
-        stepZDecButton.setEnabled(enabled);
-        stepZIncButton.setEnabled(enabled);
-
-        feedDecButton.setEnabled(enabled);
-        feedIncButton.setEnabled(enabled);
-
         unitToggleButton.setEnabled(enabled);
-    }
 
-    public void addJogPanelListener(JogPanelListener listener) {
-        listeners.add(listener);
-    }
+        xyStepSizeSpinner.setEnabled(enabled);
+        zStepSizeSpinner.setEnabled(enabled);
+        feedStepSizeSpinner.setEnabled(enabled);
 
-    public void setJogFeedRate(int jogFeedRate) {
-        feedRateValue.setText(String.valueOf(jogFeedRate));
-    }
-
-    public void setXyStepLength(double xyStepLength) {
-        xyStepValue.setText(String.valueOf(xyStepLength));
-    }
-
-    public void setZStepLength(double zStepLength) {
-        zStepValue.setText(String.valueOf(zStepLength));
-    }
-
-    public void setUnit(UnitUtils.Units unit) {
-        unitToggleLabel.setText(unit.name().toUpperCase());
+        xyStepLabel.setEnabled(enabled);
+        zStepLabel.setEnabled(enabled);
+        feedRateLabel.setEnabled(enabled);
     }
 
     @Override
     public void onSizeChange(int size) {
         switch (size) {
             case 0:
-                this.feedRateLabel.setText("F.RATE");
-                setSmallFontSizes();
+                setFontSizeExtraSmall();
                 break;
             case 1:
-                this.feedRateLabel.setText("F.RATE");
-                setNormalFontSizes();
+                setFontSizeSmall();
                 break;
             default:
-                this.feedRateLabel.setText("FEED RATE");
-                setNormalFontSizes();
+                setFontSizeNormal();
                 break;
         }
     }
 
-    private void setSmallFontSizes() {
-        Font font = this.xyLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.xyLabel.setFont(font);
-
-        font = this.zLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.zLabel.setFont(font);
-
-        font = this.unitToggleLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
-        this.unitToggleLabel.setFont(font);
+    private void setFontSizeExtraSmall() {
+        Font font = this.unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.unitToggleButton.setFont(font);
 
         font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
         this.feedRateLabel.setFont(font);
@@ -378,27 +384,11 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_SMALL);
         this.zStepLabel.setFont(font);
-
-        font = this.feedRateValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
-        this.feedRateValue.setFont(font);
-
-        font = this.xyStepValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
-        this.xyStepValue.setFont(font);
-
-        font = this.zStepValue.getFont().deriveFont(FONT_SIZE_VALUE_SMALL);
-        this.zStepValue.setFont(font);
     }
 
-    private void setNormalFontSizes() {
-        Font font;
-        font = this.xyLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.xyLabel.setFont(font);
-
-        font = this.zLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.zLabel.setFont(font);
-
-        font = this.unitToggleLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
-        this.unitToggleLabel.setFont(font);
+    private void setFontSizeSmall() {
+        Font font = this.unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.unitToggleButton.setFont(font);
 
         font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
         this.feedRateLabel.setFont(font);
@@ -408,14 +398,19 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_MEDIUM);
         this.zStepLabel.setFont(font);
+    }
 
-        font = this.feedRateValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
-        this.feedRateValue.setFont(font);
+    private void setFontSizeNormal() {
+        Font font = this.unitToggleButton.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.unitToggleButton.setFont(font);
 
-        font = this.xyStepValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
-        this.xyStepValue.setFont(font);
+        font = this.feedRateLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.feedRateLabel.setFont(font);
 
-        font = this.zStepValue.getFont().deriveFont(FONT_SIZE_VALUE_MEDIUM);
-        this.zStepValue.setFont(font);
+        font = this.xyStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.xyStepLabel.setFont(font);
+
+        font = this.zStepLabel.getFont().deriveFont(FONT_SIZE_LABEL_LARGE);
+        this.zStepLabel.setFont(font);
     }
 }

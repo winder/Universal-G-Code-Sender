@@ -1,15 +1,12 @@
 package com.willwinder.ugs.nbp.jog;
 
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.JogService;
+import org.mockito.Mockito;
 
 import javax.swing.*;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.beans.PropertyChangeListener;
+
+import static org.mockito.Mockito.when;
 
 public class JogPanelTest extends JFrame {
     private JogPanel jogPanel;
@@ -20,22 +17,22 @@ public class JogPanelTest extends JFrame {
     }
 
     private void start() throws Exception {
-        setMinimumSize(new Dimension(100, 100));
-        setPreferredSize(new Dimension(250, 300));
-
-        jogPanel = new JogPanel();
+        JogService jogService = Mockito.mock(JogService.class);
+        when(jogService.getUnits()).thenReturn(UnitUtils.Units.INCH);
+        jogPanel = new JogPanel(jogService);
         getContentPane().add(jogPanel);
 
         createMenuBar();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        pack();
         setVisible(true);
 
-        jogPanel.setJogFeedRate(1000);
-        jogPanel.setXyStepLength(100);
-        jogPanel.setZStepLength(0.01);
+        jogPanel.setFeedRate(1000);
+        jogPanel.setStepSizeXY(100);
+        jogPanel.setStepSizeZ(0.01);
+
+        setMinimumSize(jogPanel.getMinimumSize());
     }
 
     private void createMenuBar() {
@@ -49,6 +46,14 @@ public class JogPanelTest extends JFrame {
 
         menuItem = new JMenuItem("Disabled");
         menuItem.addActionListener(e -> jogPanel.setEnabled(false));
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Use Z step size");
+        menuItem.addActionListener(e -> jogPanel.setUseStepSizeZ(true));
+        fileMenu.add(menuItem);
+
+        menuItem = new JMenuItem("Don't use Z step size");
+        menuItem.addActionListener(e -> jogPanel.setUseStepSizeZ(false));
         fileMenu.add(menuItem);
 
         setJMenuBar(menuBar);

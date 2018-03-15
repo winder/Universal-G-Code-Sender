@@ -20,11 +20,10 @@ package com.willwinder.ugs.nbp.jog;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
-import net.miginfocom.swing.MigLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
@@ -42,7 +41,7 @@ import java.awt.*;
 )
 @TopComponent.Registration(
         mode = "top_left",
-        openAtStartup = true)
+        openAtStartup = false)
 @ActionID(
         category = JogTopComponent.CATEGORY,
         id = JogTopComponent.ACTION_ID)
@@ -52,12 +51,11 @@ import java.awt.*;
         displayName = "Jog Controller",
         preferredID = "JogTopComponent"
 )
-public final class JogTopComponent extends TopComponent implements JogPanelListener {
+public final class JogTopComponent extends TopComponent implements UGSEventListener {
 
     public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
     public static final String ACTION_ID = "com.willwinder.ugs.nbp.jog.JogTopComponent";
-    private static final double FEED_STEP_SIZE = 10;
 
     private final BackendAPI backend;
     private final JogPanel jogPanel;
@@ -65,117 +63,38 @@ public final class JogTopComponent extends TopComponent implements JogPanelListe
 
     public JogTopComponent() {
         jogService = CentralLookup.getDefault().lookup(JogService.class);
+        jogPanel = new JogPanel(jogService);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backend.addUGSEventListener(this::onEvent);
+        backend.addUGSEventListener(this);
 
-        setMinimumSize(new Dimension(210, 245));
-        setPreferredSize(new Dimension(250, 250));
-        setLayout(new MigLayout("fill, inset 0"));
+        setLayout(new BorderLayout());
         setName(LocalizingService.JogControlTitle);
         setToolTipText(LocalizingService.JogControlTooltip);
 
-        jogPanel = new JogPanel();
-        jogPanel.addJogPanelListener(this);
-        jogPanel.setEnabled(jogService.canJog());
-        jogPanel.setJogFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
-        jogPanel.setXyStepLength(backend.getSettings().getManualModeStepSize());
-        jogPanel.setZStepLength(backend.getSettings().getzJogStepSize());
-        jogPanel.setUnit(backend.getSettings().getPreferredUnits());
-        add(jogPanel, "grow");
+        setPreferredSize(new Dimension(250, 270));
+
+        add(jogPanel, BorderLayout.CENTER);
     }
 
-    private void onEvent(UGSEvent event) {
-        // Only update the panel if required
+    @Override
+    protected void componentClosed() {
+        super.componentClosed();
+        backend.removeUGSEventListener(this);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent event) {
         boolean canJog = jogService.canJog();
         if (canJog != jogPanel.isEnabled()) {
             jogPanel.setEnabled(canJog);
         }
 
         if (event.isSettingChangeEvent()) {
-            jogPanel.setJogFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
-            jogPanel.setXyStepLength(backend.getSettings().getManualModeStepSize());
-            jogPanel.setZStepLength(backend.getSettings().getzJogStepSize());
+            jogPanel.setFeedRate(Double.valueOf(backend.getSettings().getJogFeedRate()).intValue());
+            jogPanel.setStepSizeXY(backend.getSettings().getManualModeStepSize());
+            jogPanel.setStepSizeZ(backend.getSettings().getzJogStepSize());
             jogPanel.setUnit(backend.getSettings().getPreferredUnits());
+            jogPanel.setUseStepSizeZ(backend.getSettings().useZStepSize());
         }
-    }
-
-    @Override
-    public void onClick(JogPanelButtonEnum button) {
-        if (!jogService.canJog()) {
-            return;
-        }
-
-        try {
-            switch (button) {
-                case BUTTON_XPOS:
-                    jogService.adjustManualLocationXY(1, 0);
-                    break;
-                case BUTTON_XNEG:
-                    jogService.adjustManualLocationXY(-1, 0);
-                    break;
-                case BUTTON_YPOS:
-                    jogService.adjustManualLocationXY(0, 1);
-                    break;
-                case BUTTON_YNEG:
-                    jogService.adjustManualLocationXY(0, -1);
-                    break;
-                case BUTTON_DIAG_XNEG_YNEG:
-                    jogService.adjustManualLocationXY(-1, -1);
-                    break;
-                case BUTTON_DIAG_XPOS_YNEG:
-                    jogService.adjustManualLocationXY(1, -1);
-                    break;
-                case BUTTON_DIAG_XNEG_YPOS:
-                    jogService.adjustManualLocationXY(-1, 1);
-                    break;
-                case BUTTON_DIAG_XPOS_YPOS:
-                    jogService.adjustManualLocationXY(1, 1);
-                    break;
-                case BUTTON_ZPOS:
-                    jogService.adjustManualLocationZ(1);
-                    break;
-                case BUTTON_ZNEG:
-                    jogService.adjustManualLocationZ(-1);
-                    break;
-                case BUTTON_TOGGLE_UNIT:
-                    if (jogService.getUnits() == UnitUtils.Units.MM) {
-                        jogService.setUnits(UnitUtils.Units.INCH);
-                    } else {
-                        jogService.setUnits(UnitUtils.Units.MM);
-                    }
-                    break;
-                case BUTTON_FEED_INC:
-                    jogService.setFeedRate(jogService.getFeedRate() + FEED_STEP_SIZE);
-                    break;
-                case BUTTON_FEED_DEC:
-                    jogService.setFeedRate(jogService.getFeedRate() - FEED_STEP_SIZE);
-                    break;
-                case BUTTON_XY_STEP_INC:
-                    jogService.increaseXYStepSize();
-                    break;
-                case BUTTON_XY_STEP_DEC:
-                    jogService.decreaseXYStepSize();
-                    break;
-                case BUTTON_Z_STEP_INC:
-                    jogService.increaseZStepSize();
-                    break;
-                case BUTTON_Z_STEP_DEC:
-                    jogService.decreaseZStepSize();
-                    break;
-                default:
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    @Override
-    public void onPressed(JogPanelButtonEnum button) {
-    }
-
-    @Override
-    public void onReleased(JogPanelButtonEnum button) {
     }
 }
