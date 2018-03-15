@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -29,6 +30,7 @@ import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
+import org.openide.util.Lookup;
 
 /**
  * The jog control panel in NetBeans
@@ -63,7 +65,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     public JogTopComponent() {
         jogService = CentralLookup.getDefault().lookup(JogService.class);
-        jogPanel = new JogPanel(jogService);
+        UseSeparateStepSizeAction action = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
+        jogPanel = new JogPanel(jogService, action);
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 

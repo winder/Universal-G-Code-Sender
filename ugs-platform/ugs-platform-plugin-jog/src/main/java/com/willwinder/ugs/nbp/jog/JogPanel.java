@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
@@ -85,8 +86,10 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private final StepSizeSpinner feedStepSizeSpinner;
     private final StepSizeSpinner xyStepSizeSpinner;
     private final JogService jogService;
+    private final JPopupMenu popupMenu;
 
-    public JogPanel(JogService jogService) {
+
+    public JogPanel(JogService jogService, UseSeparateStepSizeAction action) {
         this.jogService = jogService;
 
         String fontPath = "/resources/";
@@ -94,6 +97,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         String fontName = "OpenSans-Regular.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
         Font font = MachineStatusFontManager.createFont(is, fontName).deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
+
+        popupMenu = new JPopupMenu();
+        if (action != null) {
+            popupMenu.add(action.getMenuPresenter());
+            setComponentPopupMenu(popupMenu);
+        }
 
         xposButton = createImageButton("icons/xpos.png", "X+", SwingConstants.CENTER, SwingConstants.LEFT);
         xnegButton = createImageButton("icons/xneg.png", "X-", SwingConstants.CENTER, SwingConstants.RIGHT);
