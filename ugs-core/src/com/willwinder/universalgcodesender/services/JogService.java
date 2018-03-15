@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,11 +21,15 @@ package com.willwinder.universalgcodesender.services;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author wwinder
  */
 public class JogService {
+    private static final Logger logger = Logger.getLogger(JogService.class.getSimpleName());
     private double stepSizeXY = 1;
     private double stepSizeZ = 1;
     private Units units;
@@ -133,11 +137,15 @@ public class JogService {
     }
 
     public void setFeedRate(double rate) {
-        backend.getSettings().setJogFeedRate(rate);
+        if( rate < 1 ) {
+            backend.getSettings().setJogFeedRate(1);
+        } else {
+            backend.getSettings().setJogFeedRate(rate);
+        }
     }
 
-    public double getFeedRate() {
-        return backend.getSettings().getJogFeedRate();
+    public int getFeedRate() {
+        return Double.valueOf(backend.getSettings().getJogFeedRate()).intValue();
     }
 
     public void setUnits(Units units) {
@@ -171,7 +179,7 @@ public class JogService {
     public void adjustManualLocationZ(int z) {
         try {
             double stepSize = stepSizeZ;
-            if (!this.backend.getSettings().useZStepSize()) {
+            if (!useStepSizeZ()) {
                 stepSize = stepSizeXY;
             }
             double feedRate = backend.getSettings().getJogFeedRate();
@@ -180,6 +188,10 @@ public class JogService {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             //DialogDisplayer.getDefault().notify(nd);
         }
+    }
+
+    public boolean useStepSizeZ() {
+        return this.backend.getSettings().useZStepSize();
     }
 
     /**
@@ -199,6 +211,22 @@ public class JogService {
 
     public boolean canJog() {
         return backend.isConnected() && !backend.isSendingFile();
+    }
+
+    public double getStepSizeXY() {
+        return backend.getSettings().getManualModeStepSize();
+    }
+
+    public double getStepSizeZ() {
+        return backend.getSettings().getzJogStepSize();
+    }
+
+    public void cancelJog() {
+        try {
+            this.backend.getController().cancelSend();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Couldn't cancel the jog", e);
+        }
     }
 }
 
