@@ -40,6 +40,8 @@ public class LocalizingService {
     public static final String MENU_WINDOW_CLASSIC = MENU_WINDOW + "/Classic";
     public static final String MENU_FILE = "Menu/File";
     public static final String MENU_MACHINE = "Menu/Machine";
+    public static final String MENU_MACHINE_JOG = "Menu/Machine/Jog";
+    public static final String MENU_MACHINE_JOG_STEP_SIZE = "Menu/Machine/Jog/Step Size";
     public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
 
     public static final String CATEGORY_WINDOW = "Window";
