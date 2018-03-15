@@ -2,4 +2,4 @@ Manifest-Version: 1.0
 OpenIDE-Module-Localizing-Bundle: resources/MessagesBundle.properties
 OpenIDE-Module-Java-Dependencies: Java > 1.8
 OpenIDE-Module-Specification-Version: ${ugs.modules.specification.version}
-AutoUpdate-Essential-Module: true
+AutoUpdate-Essential-Module: false
