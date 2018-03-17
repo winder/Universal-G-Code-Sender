@@ -224,6 +224,8 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
                 } else {
                     jogService.setUnits(UnitUtils.Units.MM);
                 }
+                break;
+            default:
         }
     }
 
@@ -272,6 +274,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
                 case BUTTON_ZPOS:
                     jogService.adjustManualLocation(0, 0, 1, stepSize);
                     break;
+                default:
             }
         }, 0, LONG_PRESS_JOG_INTERVAL, TimeUnit.MILLISECONDS);
     }

@@ -103,6 +103,7 @@ public abstract class LongPressMouseListener implements MouseListener {
     public void mouseReleased(MouseEvent e) {
         if (isLongPressed) {
             onMouseLongRelease(e);
+            onMouseLongClicked(e);
         } else if (longPressTimer != null) {
             longPressTimer.cancel(true);
             onMouseRelease(e);

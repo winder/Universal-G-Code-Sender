@@ -69,6 +69,21 @@ public class LongPressMouseListenerTest {
 
         Thread.sleep(LONG_PRESS_DELAY + 10); // add a couple of milliseconds to make sure it gets triggered
         assertTrue(isMouseLongPressed);
+        assertFalse(isMouseLongRelease);
+    }
+
+    @Test
+    public void mousePressedShouldTriggerLongReleaseAfterDelay() throws InterruptedException {
+        longPressMouseListener.mousePressed(null);
+        assertTrue(isMousePressed);
+        assertFalse(isMouseLongPressed);
+
+        Thread.sleep(LONG_PRESS_DELAY + 10); // add a couple of milliseconds to make sure it gets triggered
+        longPressMouseListener.mouseReleased(null);
+
+        assertTrue(isMouseLongPressed);
+        assertTrue(isMouseLongRelease);
+        assertTrue(isMouseLongClicked);
     }
 
     @Test
@@ -85,5 +100,6 @@ public class LongPressMouseListenerTest {
         assertTrue(isMouseRelease);
         assertFalse(isMouseClicked);
         assertFalse(isMouseLongPressed);
+        assertFalse(isMouseLongRelease);
     }
 }
