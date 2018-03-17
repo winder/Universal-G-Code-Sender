@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,14 +21,17 @@ package com.willwinder.universalgcodesender.services;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  *
  * @author wwinder
  */
 public class JogService {
+    private static final Logger logger = Logger.getLogger(JogService.class.getSimpleName());
     private double stepSizeXY = 1;
     private double stepSizeZ = 1;
-    private double feedRate = 1;
     private Units units;
 
     private final BackendAPI backend;
@@ -39,11 +42,10 @@ public class JogService {
         // Init from settings.
         stepSizeXY = backend.getSettings().getManualModeStepSize();
         stepSizeZ = backend.getSettings().getzJogStepSize();
-        feedRate = backend.getSettings().getJogFeedRate();
-        units = Units.getUnit(backend.getSettings().getDefaultUnits());
+        units = backend.getSettings().getPreferredUnits();
     }
 
-    public void increaseStepSize() {
+    public void increaseXYStepSize() {
         if (stepSizeXY >= 1) {
             stepSizeXY++;
         } else if (stepSizeXY >= 0.1) {
@@ -56,7 +58,7 @@ public class JogService {
         setStepSize(stepSizeXY);
     }
 
-    public void decreaseStepSize() {
+    public void decreaseXYStepSize() {
         if (stepSizeXY > 1) {
             stepSizeXY--;
         } else if (stepSizeXY > 0.1) {
@@ -65,6 +67,33 @@ public class JogService {
             stepSizeXY = stepSizeXY - 0.01;
         }
         setStepSize(stepSizeXY);
+    }
+
+
+    public void increaseZStepSize() {
+        double stepSize = this.stepSizeZ;
+        if (stepSize >= 1) {
+            stepSize++;
+        } else if (stepSize >= 0.1) {
+            stepSize = stepSize + 0.1;
+        } else if (stepSize >= 0.01) {
+            stepSize = stepSize + 0.01;
+        } else {
+            stepSize = 0.01;
+        }
+        setStepSizeZ(stepSize);
+    }
+
+    public void decreaseZStepSize() {
+        double stepSize = this.stepSizeZ;
+        if (stepSize > 1) {
+            stepSize--;
+        } else if (stepSize > 0.1) {
+            stepSize = stepSize - 0.1;
+        } else if (stepSize > 0.01) {
+            stepSize = stepSize - 0.01;
+        }
+        setStepSizeZ(stepSize);
     }
 
     public void divideStepSize() {
@@ -108,8 +137,15 @@ public class JogService {
     }
 
     public void setFeedRate(double rate) {
-        this.feedRate = rate;
-        backend.getSettings().setJogFeedRate(feedRate);
+        if( rate < 1 ) {
+            backend.getSettings().setJogFeedRate(1);
+        } else {
+            backend.getSettings().setJogFeedRate(rate);
+        }
+    }
+
+    public int getFeedRate() {
+        return Double.valueOf(backend.getSettings().getJogFeedRate()).intValue();
     }
 
     public void setUnits(Units units) {
@@ -128,6 +164,7 @@ public class JogService {
      */
     public void adjustManualLocation(int x, int y, int z, double stepSize) {
         try {
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(x, y, z, stepSize, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
@@ -142,9 +179,10 @@ public class JogService {
     public void adjustManualLocationZ(int z) {
         try {
             double stepSize = stepSizeZ;
-            if (!this.backend.getSettings().useZStepSize()) {
+            if (!useStepSizeZ()) {
                 stepSize = stepSizeXY;
             }
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(0, 0, z, stepSize, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
@@ -152,12 +190,18 @@ public class JogService {
         }
     }
 
+    public boolean useStepSizeZ() {
+        return this.backend.getSettings().useZStepSize();
+    }
+
     /**
      * Adjusts the XY axis location.
-     * @param z direction.
+     * @param x direction.
+     * @param y direction.
      */
     public void adjustManualLocationXY(int x, int y) {
         try {
+            double feedRate = backend.getSettings().getJogFeedRate();
             this.backend.adjustManualLocation(x, y, 0, stepSizeXY, feedRate, units);
         } catch (Exception e) {
             //NotifyDescriptor nd = new NotifyDescriptor.Message(e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
@@ -167,6 +211,22 @@ public class JogService {
 
     public boolean canJog() {
         return backend.isConnected() && !backend.isSendingFile();
+    }
+
+    public double getStepSizeXY() {
+        return backend.getSettings().getManualModeStepSize();
+    }
+
+    public double getStepSizeZ() {
+        return backend.getSettings().getzJogStepSize();
+    }
+
+    public void cancelJog() {
+        try {
+            this.backend.getController().cancelSend();
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Couldn't cancel the jog", e);
+        }
     }
 }
 

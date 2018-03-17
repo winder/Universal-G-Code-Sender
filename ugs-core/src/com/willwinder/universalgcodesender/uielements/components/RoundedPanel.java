@@ -19,22 +19,23 @@
 
 package com.willwinder.universalgcodesender.uielements.components;
 
-import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RoundedPanel extends JPanel implements MouseListener {
 
     private int radius;
     private Color hoverBackground;
+    private Color pressedBackground;
+    private Color backgroundDisabled;
+    private Color foregroundDisabled;
     private boolean mouseOver = false;
+    private boolean mousePressed = false;
     private List<RoundedPanelClickListener> listeners = new ArrayList<>();
 
     public RoundedPanel(int radius) {
@@ -44,12 +45,26 @@ public class RoundedPanel extends JPanel implements MouseListener {
         addMouseListener(this);
     }
 
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        Arrays.stream(getComponents()).forEach(c -> c.setEnabled(enabled));
+    }
+
     public Color getHoverBackground() {
         return hoverBackground;
     }
 
     public void setHoverBackground(Color hoverBackground) {
         this.hoverBackground = hoverBackground;
+    }
+
+    public Color getBackgroundDisabled() {
+        return backgroundDisabled;
+    }
+
+    public void setBackgroundDisabled(Color backgroundDisabled) {
+        this.backgroundDisabled = backgroundDisabled;
     }
 
     public void addClickListener(RoundedPanelClickListener listener) {
@@ -65,29 +80,51 @@ public class RoundedPanel extends JPanel implements MouseListener {
         gfx2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         // background
-        Color backGround;
-        if (mouseOver && hoverBackground != null && isEnabled()) backGround = hoverBackground;
-        else backGround = getBackground();
+        Color background = getBackground();
+        if (!isEnabled() && backgroundDisabled != null) {
+            background = backgroundDisabled;
+        } else if (mousePressed && pressedBackground != null && isEnabled()) {
+            background = pressedBackground;
+        } else if (mouseOver && hoverBackground != null && isEnabled()) {
+            background = hoverBackground;
+        }
 
-        gfx2d.setColor(backGround);
+        Color foreground = getForeground();
+        if (!isEnabled() && foregroundDisabled != null) {
+            foreground = foregroundDisabled;
+        }
+
+        gfx2d.setColor(background);
         gfx2d.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcs.width, arcs.height);
 
         // border
-        gfx2d.setColor(getForeground());
+        gfx2d.setColor(foreground);
         gfx2d.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, arcs.width, arcs.height);
     }
 
     @Override
     public void mouseClicked(MouseEvent exc) {
-        if (! isEnabled()) return;
+        if (!isEnabled()) return;
         listeners.forEach(RoundedPanelClickListener::onClick);
     }
 
     @Override
-    public void mousePressed(MouseEvent exc) {}
+    public void mousePressed(MouseEvent exc) {
+        this.mousePressed = true;
+        this.repaint();
+
+        if (!isEnabled()) return;
+        listeners.forEach(RoundedPanelClickListener::onPressed);
+    }
 
     @Override
-    public void mouseReleased(MouseEvent exc) {}
+    public void mouseReleased(MouseEvent exc) {
+        this.mousePressed = false;
+        this.repaint();
+
+        if (!isEnabled()) return;
+        listeners.forEach(RoundedPanelClickListener::onReleased);
+    }
 
     @Override
     public void mouseEntered(MouseEvent exc) {
@@ -101,7 +138,21 @@ public class RoundedPanel extends JPanel implements MouseListener {
         this.repaint();
     }
 
+    public void setPressedBackground(Color pressedBackground) {
+        this.pressedBackground = pressedBackground;
+    }
+
+    public Color getForegroundDisabled() {
+        return foregroundDisabled;
+    }
+
+    public void setForegroundDisabled(Color foregroundDisabled) {
+        this.foregroundDisabled = foregroundDisabled;
+    }
+
     public interface RoundedPanelClickListener {
         void onClick();
+        default void onPressed() {}
+        default void onReleased() {}
     }
 }

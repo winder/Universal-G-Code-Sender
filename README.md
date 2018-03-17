@@ -1,7 +1,11 @@
 Universal GcodeSender is a Java based GRBL compatible cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
 
 Online documentation available here: http://winder.github.io/ugs_website/
+
+![Universal Gcode Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
+
 <br />
+
 Documentation contributions can be made here: https://github.com/winder/ugs_website
 
 To run simply unzip the .zip file and double click the .jar file.
@@ -40,16 +44,24 @@ Downloads
 [Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
 <br />
 
+Screenshots from the Platform version of UGS
+![UGS Platform](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_ugs_platform.png "UGS Platform")
 
-![Command table tab during a file send](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_command_table.png "Command table tab during a file send.")
-![3D Visualizer Window](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_visualizer.png "Visualizer window during a file send.")
-![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_job_finished.png "Popup after finishing a file send.")
-![Finished sending a file](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/1.0.6_advanced_machine_control.png "Advanced GRBL control buttons.")
+Customizable panel layout
+![Customizable panel layout](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_customizable_panels.png "Customizable panel layout")
+
+Menu actions with customizable keybindings
+![Actions](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_actions_menu.png "Actions")
+![Plugins](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_plugins_menu.png "Plugins")
+
+One of many plugins
+![Dowel Maker](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_dowel_maker_plugin.png "Dowel maker plugin")
 
 Technical details:
 * JSSC for serial communication (RXTX was used up through v1.0.8)
 * JogAmp for OpenGL.
 * Developed with NetBeans 8.0.2 or later.
+* Built with Netbeans Platform
 
 Development
 -----------

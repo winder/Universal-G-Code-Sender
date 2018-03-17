@@ -139,10 +139,10 @@ public class JogActionService {
                         js.divideStepSize();
                         break;
                     case '+':
-                        js.increaseStepSize();
+                        js.increaseXYStepSize();
                         break;
                     case '-':
-                        js.decreaseStepSize();
+                        js.decreaseXYStepSize();
                         break;
                     default:
                         break;
