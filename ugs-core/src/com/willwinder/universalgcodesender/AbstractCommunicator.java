@@ -164,43 +164,43 @@ public abstract class AbstractCommunicator {
         this.removeCommRawResponseListener(scl);
     }
 
-    void addCommandEventListener(SerialCommunicatorListener scl) {
+    private void addCommandEventListener(SerialCommunicatorListener scl) {
         if (!this.commandEventListeners.contains(scl)) {
             this.commandEventListeners.add(scl);
         }
     }
 
-    void removeCommandEventListener(SerialCommunicatorListener scl) {
+    private void removeCommandEventListener(SerialCommunicatorListener scl) {
         this.commandEventListeners.remove(scl);
     }
 
-    void addCommConsoleListener(SerialCommunicatorListener scl) {
+    private void addCommConsoleListener(SerialCommunicatorListener scl) {
         if (!this.commConsoleListeners.contains(scl)) {
             this.commConsoleListeners.add(scl);
         }
     }
 
-    void removeCommConsoleListener(SerialCommunicatorListener scl) {
+    private void removeCommConsoleListener(SerialCommunicatorListener scl) {
         this.commConsoleListeners.remove(scl);
     }
 
-    void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
+    private void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
         if (!this.commVerboseConsoleListeners.contains(scl)) {
             this.commVerboseConsoleListeners.add(scl);
         }
     }
 
-    void removeCommVerboseConsoleListener(SerialCommunicatorListener scl) {
+    private void removeCommVerboseConsoleListener(SerialCommunicatorListener scl) {
         this.commVerboseConsoleListeners.remove(scl);
     }
 
-    void addCommRawResponseListener(SerialCommunicatorListener scl) {
+    private void addCommRawResponseListener(SerialCommunicatorListener scl) {
         if (!this.commRawResponseListener.contains(scl)) {
             this.commRawResponseListener.add(scl);
         }
     }
 
-    void removeCommRawResponseListener(SerialCommunicatorListener scl) {
+    private void removeCommRawResponseListener(SerialCommunicatorListener scl) {
         this.commRawResponseListener.remove(scl);
     }
 

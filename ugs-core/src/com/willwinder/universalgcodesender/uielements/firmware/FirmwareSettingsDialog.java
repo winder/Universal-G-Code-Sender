@@ -114,7 +114,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         settingsTable.getColumnModel().getColumn(0).setMaxWidth(80);
         settingsTable.getColumnModel().getColumn(2).setPreferredWidth(85);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

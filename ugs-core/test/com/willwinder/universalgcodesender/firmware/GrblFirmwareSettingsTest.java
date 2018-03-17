@@ -2,13 +2,11 @@ package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 

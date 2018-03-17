@@ -62,14 +62,12 @@ public class GUIBackendTest {
 
     private GUIBackend instance;
 
-    private IFirmwareSettings firmwareSettings;
-
     @Before
     public void setUp() throws Exception {
 
         // We need to mock the method that loads the controller
         instance = spy(new GUIBackend());
-        firmwareSettings = mock(IFirmwareSettings.class);
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
         controller = mock(AbstractController.class);
         doReturn(controller).when(instance).fetchControllerFromFirmware(any());
         doReturn(firmwareSettings).when(controller).getFirmwareSettings();
