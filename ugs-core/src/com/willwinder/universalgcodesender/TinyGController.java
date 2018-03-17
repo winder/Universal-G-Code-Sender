@@ -40,7 +40,7 @@ import javax.vecmath.Point3d;
 public class TinyGController extends AbstractController {
 
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
-    private final DefaultFirmwareSettings firmwareSettingsManager;
+    private final DefaultFirmwareSettings firmwareSettings;
 
     private boolean isReady = false;
 
@@ -52,7 +52,7 @@ public class TinyGController extends AbstractController {
         super(comm);
         
         this.commandCreator = new TinyGGcodeCommandCreator();
-        this.firmwareSettingsManager = new DefaultFirmwareSettings();
+        this.firmwareSettings = new DefaultFirmwareSettings();
         //this.positionPollTimer = createPositionPollTimer();
     }
     
@@ -67,7 +67,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     public IFirmwareSettings getFirmwareSettings() {
-        return firmwareSettingsManager;
+        return firmwareSettings;
     }
 
     @Override

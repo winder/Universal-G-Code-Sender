@@ -26,7 +26,7 @@ import java.util.Optional;
 
 /**
  * A default implementation of the firmware settings to be used for controllers that
- * doesn't yet implement firmware settings.
+ * doesn't yet support this.
  *
  * @author Joacim Breiler
  */
