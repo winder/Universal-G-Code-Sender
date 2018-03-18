@@ -20,7 +20,7 @@ public class JogPanelTest extends JFrame {
     private void start() throws Exception {
         JogService jogService = Mockito.mock(JogService.class);
         when(jogService.getUnits()).thenReturn(UnitUtils.Units.INCH);
-        jogPanel = new JogPanel(jogService, new UseSeparateStepSizeAction());
+        jogPanel = new JogPanel(jogService, new UseSeparateStepSizeAction().getMenuPresenter());
         getContentPane().add(jogPanel);
 
         createMenuBar();

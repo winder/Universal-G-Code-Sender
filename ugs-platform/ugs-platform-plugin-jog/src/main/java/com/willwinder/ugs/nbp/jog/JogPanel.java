@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontM
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
@@ -89,7 +90,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private final JPopupMenu popupMenu;
 
 
-    public JogPanel(JogService jogService, UseSeparateStepSizeAction action) {
+    public JogPanel(JogService jogService, JMenuItem menuItem) {
         this.jogService = jogService;
 
         String fontPath = "/resources/";
@@ -97,12 +98,6 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         String fontName = "OpenSans-Regular.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
         Font font = MachineStatusFontManager.createFont(is, fontName).deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
-
-        popupMenu = new JPopupMenu();
-        if (action != null) {
-            popupMenu.add(action.getMenuPresenter());
-            setComponentPopupMenu(popupMenu);
-        }
 
         xposButton = createImageButton("icons/xpos.png", "X+", SwingConstants.CENTER, SwingConstants.LEFT);
         xnegButton = createImageButton("icons/xneg.png", "X-", SwingConstants.CENTER, SwingConstants.RIGHT);
@@ -144,6 +139,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         setStepSizeZ(jogService.getStepSizeZ());
         setUnit(jogService.getUnits());
         setUseStepSizeZ(jogService.useStepSizeZ());
+
+        popupMenu = new JPopupMenu();
+        if (menuItem != null) {
+            popupMenu.add(menuItem);
+            SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(popupMenu));
+        }
 
         if (isDarkLaF()) {
             xposButton.setForeground(ThemeColors.LIGHT_BLUE);

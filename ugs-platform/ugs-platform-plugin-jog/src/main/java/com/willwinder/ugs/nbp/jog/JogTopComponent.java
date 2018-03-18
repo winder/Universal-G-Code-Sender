@@ -66,7 +66,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     public JogTopComponent() {
         jogService = CentralLookup.getDefault().lookup(JogService.class);
         UseSeparateStepSizeAction action = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
-        jogPanel = new JogPanel(jogService, action);
+        jogPanel = new JogPanel(jogService, action.getMenuPresenter());
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
 
