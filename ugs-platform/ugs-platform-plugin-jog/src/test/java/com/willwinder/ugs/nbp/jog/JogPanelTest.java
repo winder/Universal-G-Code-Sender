@@ -1,13 +1,7 @@
 package com.willwinder.ugs.nbp.jog;
 
-import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
-import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.services.JogService;
-import org.mockito.Mockito;
 
 import javax.swing.*;
-
-import static org.mockito.Mockito.when;
 
 public class JogPanelTest extends JFrame {
     private JogPanel jogPanel;
@@ -18,9 +12,7 @@ public class JogPanelTest extends JFrame {
     }
 
     private void start() throws Exception {
-        JogService jogService = Mockito.mock(JogService.class);
-        when(jogService.getUnits()).thenReturn(UnitUtils.Units.INCH);
-        jogPanel = new JogPanel(jogService, new UseSeparateStepSizeAction().getMenuPresenter());
+        jogPanel = new JogPanel();
         getContentPane().add(jogPanel);
 
         createMenuBar();
