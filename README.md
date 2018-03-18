@@ -29,7 +29,7 @@ Downloads
 * [classic GUI](http://bit.ly/1hftIhy) - The classic UGS interface.
 * [classic GUI](http://bit.ly/2ssmIqt) - Somewhat stable build classic UGS interface.
 * [UGS Platform](http://bit.ly/1DkClRW) - Universal Gcode Platform, the next generation platform-based interface
-* [UGS Platform](http://bit.ly/2rk84y2) - Somewhat stable build Universal Gcode Platform, the next generation platform-based interface
+* [UGS Platform](http://bit.ly/2rk84y2) - Somewhat stable build Universal Gcode Platform, the next generation platform-based interface (Requires Java 8)
 
 <b>Stable builds</b>
 <br />
