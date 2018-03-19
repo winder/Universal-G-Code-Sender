@@ -59,7 +59,7 @@ import java.util.concurrent.TimeUnit;
         displayName = "Jog Controller",
         preferredID = "JogTopComponent"
 )
-public final class JogTopComponent extends TopComponent implements UGSEventListener, ControllerListener, JogPanelButtonListener {
+public final class JogTopComponent extends TopComponent implements UGSEventListener, ControllerListener, JogPanelListener {
 
     public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
@@ -285,5 +285,20 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
             continuousJogSchedule.cancel(true);
         }
         jogService.cancelJog();
+    }
+
+    @Override
+    public void onStepSizeZChanged(double value) {
+        jogService.setStepSizeZ(value);
+    }
+
+    @Override
+    public void onStepSizeXYChanged(double value) {
+        jogService.setStepSize(value);
+    }
+
+    @Override
+    public void onFeedRateChanged(int value) {
+        jogService.setFeedRate(value);
     }
 }
