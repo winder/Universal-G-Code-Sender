@@ -1,8 +1,5 @@
 /*
- * GRBL Control layer, coordinates all aspects of control.
- */
-/*
-    Copyright 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -46,6 +43,7 @@ import javax.swing.Timer;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * GRBL Control layer, coordinates all aspects of control.
  *
  * @author wwinder
  */
@@ -170,13 +168,21 @@ public class GrblController extends AbstractController {
                     dispatchStateChange(COMM_IDLE);
                 }
 
-                GcodeCommand command = this.getActiveCommand();
-                processed =
-                        String.format(Localization.getString("controller.exception.sendError"),
-                                command.getCommandString(),
-                                lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                this.errorMessageForConsole(processed + "\n");
-                this.commandComplete(processed);
+                // If there is an active command, mark it as completed with error
+                Optional<GcodeCommand> activeCommand = this.getActiveCommand();
+                if( activeCommand.isPresent() ) {
+                    processed =
+                            String.format(Localization.getString("controller.exception.sendError"),
+                                    activeCommand.get().getCommandString(),
+                                    lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
+                    this.errorMessageForConsole(processed + "\n");
+                    this.commandComplete(processed);
+                } else {
+                    processed =
+                            String.format(Localization.getString("controller.exception.unexpectedError"),
+                                    lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
+                    this.errorMessageForConsole(processed + "\n");
+                }
                 processed = "";
             }
 

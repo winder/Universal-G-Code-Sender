@@ -477,11 +477,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public GcodeCommand getActiveCommand() {
+    public Optional<GcodeCommand> getActiveCommand() {
         if (activeCommands.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return activeCommands.get(0);
+        return Optional.of(activeCommands.get(0));
     }
 
     @Override

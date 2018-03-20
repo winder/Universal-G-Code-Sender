@@ -1200,7 +1200,7 @@ public class GrblControllerTest {
         verify(controllerListener, times(1)).messageForConsole(any(), anyString());
         instance.removeListener(controllerListener);
 
-        assertNull(instance.getActiveCommand());
+        assertFalse(instance.getActiveCommand().isPresent());
     }
 
     @Test
@@ -1224,6 +1224,29 @@ public class GrblControllerTest {
         verify(controllerListener, times(1)).messageForConsole(any(), anyString());
         instance.removeListener(controllerListener);
 
-        assertNull(instance.getActiveCommand());
+        assertFalse(instance.getActiveCommand().isPresent());
+    }
+
+    @Test
+    public void rawResponseHandlerOnErrorWithNoSentCommandsShouldSendMessageToConsole() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+
+        // When
+        instance.rawResponseHandler("error:1");
+
+        // Then
+        String genericErrorMessage = "An unexpected error was detected: (error:1) G-code words consist of a letter and a value. Letter was not found.\n";
+        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
+        instance.removeListener(controllerListener);
+
+        assertFalse(instance.getActiveCommand().isPresent());
     }
 }
