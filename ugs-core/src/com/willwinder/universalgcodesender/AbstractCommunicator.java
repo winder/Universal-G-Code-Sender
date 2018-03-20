@@ -1,9 +1,5 @@
 /*
- * An Abstract communicator interface which implements listeners.
- */
-
-/*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,12 +29,17 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * An Abstract communicator interface which implements listeners.
  *
  * @author wwinder
  */
 public abstract class AbstractCommunicator {
+    private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
+
     public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
     private int commandCounter = 0;
@@ -270,7 +271,9 @@ public abstract class AbstractCommunicator {
             try {
                 EventData e = eventQueue.take();
                 sendEventToListeners(e.event, e.sclList, e.string, e.command);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Couldn't send command", e);
+            }
         }
     });
 
