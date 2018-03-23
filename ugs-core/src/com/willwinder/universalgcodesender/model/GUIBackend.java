@@ -716,40 +716,38 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        if (command.isError()) {
-            if ( this.controller.isStreaming() && !this.isPaused()) {
-                try {
-                    this.pauseResume();
-                } catch (Exception e) {
-                    GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
-                }
-
-                /*
-                String error =
-                        String.format(Localization.getString("controller.exception.sendError"),
-                                command.getCommandString(),
-                                command.getResponse()).replaceAll("\\.\\.", "\\.");
-                messageForConsole(MessageType.INFO, error);
-
-                // The logic below used to automatically add "pattern processor remover" entries to the gcode processor.
-                // It was causing a lot of issues where users were adding commands which shouldn't be added.
-                String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
-                Object[] params = {String.format(NarrowOptionPane.pattern, 300, error), checkboxQuestion};
-                int n = JOptionPane.showConfirmDialog(new JFrame(),
-                        params,
-                        Localization.getString("error"),
-                        JOptionPane.YES_NO_OPTION);
-                if (n == JOptionPane.YES_OPTION) {
-                    try {
-                        FirmwareUtils.addPatternRemoverForFirmware(firmware,
-                                Matcher.quoteReplacement(command.getCommandString()));
-                        this.reprocessFileAfterStreamComplete = true;
-                    } catch (IOException ex) {
-                        GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
-                    }
-                }
-                */
+        if (command.isError() && this.controller.isStreaming() && !this.isPaused()) {
+            try {
+                this.pauseResume();
+            } catch (Exception e) {
+                GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
             }
+
+            /*
+            String error =
+                    String.format(Localization.getString("controller.exception.sendError"),
+                            command.getCommandString(),
+                            command.getResponse()).replaceAll("\\.\\.", "\\.");
+            messageForConsole(MessageType.INFO, error);
+
+            // The logic below used to automatically add "pattern processor remover" entries to the gcode processor.
+            // It was causing a lot of issues where users were adding commands which shouldn't be added.
+            String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
+            Object[] params = {String.format(NarrowOptionPane.pattern, 300, error), checkboxQuestion};
+            int n = JOptionPane.showConfirmDialog(new JFrame(),
+                    params,
+                    Localization.getString("error"),
+                    JOptionPane.YES_NO_OPTION);
+            if (n == JOptionPane.YES_OPTION) {
+                try {
+                    FirmwareUtils.addPatternRemoverForFirmware(firmware,
+                            Matcher.quoteReplacement(command.getCommandString()));
+                    this.reprocessFileAfterStreamComplete = true;
+                } catch (IOException ex) {
+                    GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+                }
+            }
+            */
         }
     }
 

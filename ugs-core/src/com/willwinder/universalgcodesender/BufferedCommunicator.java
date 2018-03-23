@@ -324,7 +324,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                     || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
 
             pauseSend();
-            dispatchListenerEvents(SerialCommunicatorEvent.PAUSED, "");
+            dispatchListenerEvents(PAUSED, "");
         }
 
         // Keep the data flow going in case of an "ok" or an "error".

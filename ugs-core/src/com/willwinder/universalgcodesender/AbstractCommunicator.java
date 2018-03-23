@@ -39,7 +39,6 @@ import java.util.logging.Logger;
 public abstract class AbstractCommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
-    public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
     private int commandCounter = 0;
 
@@ -69,12 +68,12 @@ public abstract class AbstractCommunicator {
         this.commRawResponseListener     = new ArrayList<>();
 
         this.eventMap = new HashMap<>();
-        eventMap.put(SerialCommunicatorEvent.COMMAND_SENT,            commandEventListeners);
-        eventMap.put(SerialCommunicatorEvent.COMMAND_SKIPPED,         commandEventListeners);
-        eventMap.put(SerialCommunicatorEvent.PAUSED,                  commandEventListeners);
-        eventMap.put(SerialCommunicatorEvent.CONSOLE_MESSAGE,         commConsoleListeners);
-        eventMap.put(SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
-        eventMap.put(SerialCommunicatorEvent.RAW_RESPONSE,            commRawResponseListener);
+        eventMap.put(COMMAND_SENT,            commandEventListeners);
+        eventMap.put(COMMAND_SKIPPED,         commandEventListeners);
+        eventMap.put(PAUSED,                  commandEventListeners);
+        eventMap.put(CONSOLE_MESSAGE,         commConsoleListeners);
+        eventMap.put(VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
+        eventMap.put(RAW_RESPONSE,            commRawResponseListener);
     }
     
     /*********************/

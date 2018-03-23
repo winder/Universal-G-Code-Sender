@@ -40,7 +40,6 @@ import org.junit.Ignore;
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
