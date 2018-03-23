@@ -1,9 +1,5 @@
 /*
- * GRBL serial port interface class.
- */
-
-/*
-    Copyright 2012-2017 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,13 +25,17 @@ import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * GRBL serial port interface class.
  *
  * @author wwinder
  */
 public abstract class BufferedCommunicator extends AbstractCommunicator {
-    
+    private static final Logger logger = Logger.getLogger(BufferedCommunicator.class.getName());
+
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
@@ -130,14 +130,16 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     public boolean areActiveCommands() {
         return (this.activeCommandList.size() > 0)
-                || (this.commandStream != null && this.commandStream.getNumRowsRemaining() > 0);
+                || (this.commandStream != null && this.commandStream.getNumRowsRemaining() > 0)
+                || nextCommand != null;
     }
 
     @Override
     public int numActiveCommands() {
         int streamingCount =
                 commandStream == null ? 0 : commandStream.getNumRowsRemaining();
-        return this.activeCommandList.size() + streamingCount;
+        int cachedCommand = nextCommand == null ? 0 : 1;
+        return this.activeCommandList.size() + streamingCount + cachedCommand;
     }
 
     public int numBufferedCommands() {
@@ -160,7 +162,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * 1. nextCommand object if set.
      * 2. Front of the commandBuffer collection.
      * 3. Next line in the commandStream.
-     * @return 
+     * @return the next command to be streamed
      */
     private GcodeCommand getNextCommand() {
         if (nextCommand != null) {
@@ -173,7 +175,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             if (commandStream != null && commandStream.ready()) {
                 nextCommand = commandStream.getNextCommand();
             }
-        } catch (IOException ex) {
+        } catch (IOException ignored) {
             // Fall through to null handling.
         }
 
@@ -195,20 +197,24 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     synchronized public void streamCommands() {
         // If there are no commands to send, exit.
         if (this.getNextCommand() == null) {
+            logger.log(Level.INFO, "There are no more commands to stream");
             return;
         }
         
         // If streaming is paused, exit.
-        if (this.sendPaused) {
+        if (isPaused()) {
+            logger.log(Level.INFO, "Could not stream commands because the communicator is paused");
             // Another NO-OP
             return;
         }
         
         // Send command if:
         // There is room in the buffer.
+        // AND we are NOT paused
         // AND We are NOT in single step mode.
         // OR  We are in single command mode and there are no active commands.
         while (this.getNextCommand() != null &&
+                !isPaused() &&
                 CommUtils.checkRoomInBuffer(
                     this.sentBufferSize,
                     this.getNextCommand().getCommandString(),
@@ -263,6 +269,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     public void cancelSend() {
         this.nextCommand = null;
         this.commandBuffer.clear();
+        this.activeCommandList.clear();
         this.commandStream = null;
         this.sendPaused = false;
     }
@@ -272,10 +279,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      */
     @Override
     public void softReset() {
-        this.commandBuffer.clear();
-        this.activeCommandList.clear();
         this.sentBufferSize = 0;
-        this.sendPaused = false;
+        cancelSend();
     }
 
     /**
@@ -311,28 +316,25 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
 
 
-        // Pause if there is an error.
-        // FIXME: This prevents more commands from being sent, but does not
-        //        issue a FEED HOLD event. The GUI will appear to hang if the
-        //        controller does not detect the error and update the GUI.
-        //
-        // This is handled in two ways:
-        //        1) In GUIBackend.java if we were streaming a feed hold command
-        //           is sent to pause whatever command is currently running.
-        //        2) In AbstractController.java commandComplete we reset
-        //           sendPaused if this command wasn't part of a file stream.
-        if (processedCommandIsError(response)) {
-            this.sendPaused = true;
+        // Pause if there was an error and if there are more commands queued
+        if (processedCommandIsError(response) &&
+                (nextCommand != null                    // No cached command
+                    || (activeCommandList.size() > 1)   // No more commands (except for the one being popped further down)
+                    || (commandStream != null && commandStream.getNumRowsRemaining() > 0) // No more rows in stream
+                    || (commandBuffer != null && commandBuffer.size() > 0))) { // No commands in buffer
+
+            pauseSend();
+            dispatchListenerEvents(SerialCommunicatorEvent.PAUSED, "");
         }
 
-        // Keep the data flow going in case of an "ok".
+        // Keep the data flow going in case of an "ok" or an "error".
         if (processedCommand(response)) {
             // Pop the front of the active list.
             if (this.activeCommandList != null && this.activeCommandList.size() > 0) {
                 GcodeCommand command = this.activeCommandList.pop();
                 this.sentBufferSize -= (command.getCommandString().length() + 1);
 
-                if (this.sendPaused == false) {
+                if (!isPaused()) {
                     this.streamCommands();
                 }
             }
