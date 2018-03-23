@@ -356,7 +356,7 @@ public class GrblCommunicatorTest {
         instance.streamCommands();
         instance.cancelSend();
         // Verify that there are several active commands.
-        expectedBool = true;
+        expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());
         
         grblReceiveString = mg.readStringFromGrblBuffer();
@@ -401,45 +401,96 @@ public class GrblCommunicatorTest {
         assertEquals(expectedBool, instance.areActiveCommands());
     }
 
-    /**
-     * Test of sendStringToComm method, of class GrblCommunicator.
-     */
     @Test
-    public void testErrorResponse() {
+    public void errorResponseShouldPauseTheCommunicator() {
         System.out.println("streamCommands");
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         instance.setSingleStepMode(true);
-        String term = "\n";
-        String thirtyNineCharString = "thirty-nine character command here.....";
-
-        boolean result;
-        boolean expResult;
-        
-        // Make sure CommUtil is still an overly cautious jerk.
-        LinkedList<GcodeCommand> l = new LinkedList<>();
-        l.add(new GcodeCommand("12characters"));
+        String thirtyEightCharString = "thirty-nine character command here....";
 
         // Add a bunch of commands so that the buffer is full.
         // 39*3 + 3 newlines + 3 CommUtils caution  = 123 == buffer size.
-        instance.queueStringForComm(thirtyNineCharString);
-        instance.queueStringForComm(thirtyNineCharString);
-        instance.queueStringForComm(thirtyNineCharString);
-        instance.queueStringForComm(thirtyNineCharString);
+        instance.queueStringForComm("1" + thirtyEightCharString);
+        instance.queueStringForComm("2" + thirtyEightCharString);
+        instance.queueStringForComm("3" + thirtyEightCharString);
+        instance.queueStringForComm("4" + thirtyEightCharString);
 
-        // First command activated, next loaded (not tested) and two queued.
+        // We should have no active comands and a buffer of four commands
+        assertEquals(0, asl.size());
+        assertEquals(4, cb.size());
+        assertFalse(instance.isPaused());
+
+        // First command active, second is cached (not tested) and two queued.
         instance.streamCommands();
         assertEquals(1, asl.size());
         assertEquals(2, cb.size());
+        assertFalse(instance.isPaused());
 
-        // Complete one command, next becomes active, one left in the queue.
-        mc.sendResponse("ok");
+        // Complete first command, second becomes active, third is cached, one left in the queue.
+        mc.sendResponse("ok"); // First command ok
         assertEquals(1, asl.size());
         assertEquals(1, cb.size());
+        assertFalse(instance.isPaused());
 
-        // After an error the active command completes but queue is not changed.
-        mc.sendResponse("error");
+        // After an error on the second command it's completed but the third command is still cached and queue is not changed.
+        mc.sendResponse("error"); // Second command error
         assertEquals(0, asl.size());
         assertEquals(1, cb.size());
+        assertTrue("The communicator should be paused", instance.isPaused());
+
+        // Resumes the queue and the third command is sent and fourth command becomes active
+        instance.resumeSend();
+        assertEquals(1, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse(instance.isPaused());
+
+        // Complete third command, the fourth become active
+        mc.sendResponse("ok");
+        assertEquals(1, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse(instance.isPaused());
+
+        // Complete fourth and last command
+        mc.sendResponse("ok");
+        assertEquals(0, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse(instance.isPaused());
+    }
+
+    @Test
+    public void errorResponseOnLastCommandInStreamShouldNotPauseTheCommunicator() {
+        System.out.println("streamCommands");
+        MockConnection mc = new MockConnection(mg.in, mg.out);
+        GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
+        instance.setSingleStepMode(true);
+        String thirtyEightCharString = "thirty-nine character command here....";
+
+        // Add a bunch of commands
+        instance.queueStringForComm("1" + thirtyEightCharString);
+        instance.queueStringForComm("2" + thirtyEightCharString);
+
+        // We should have no active comands, only buffered commands
+        assertEquals(0, asl.size());
+        assertEquals(2, cb.size());
+        assertFalse(instance.isPaused());
+
+        // First command active, second is cached
+        instance.streamCommands();
+        assertEquals(1, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse(instance.isPaused());
+
+        // Complete first command, second becomes active
+        mc.sendResponse("ok"); // First command ok
+        assertEquals(1, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse(instance.isPaused());
+
+        // After an error on the second command it's completed
+        mc.sendResponse("error"); // Second command error
+        assertEquals(0, asl.size());
+        assertEquals(0, cb.size());
+        assertFalse("The communicator should not be paused when last command has an error", instance.isPaused());
     }
 }

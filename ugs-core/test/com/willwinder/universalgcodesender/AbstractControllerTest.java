@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -305,7 +306,8 @@ public class AbstractControllerTest {
         int rate = 1234;
 
         startStreamExpectation(port, rate, command, false);
-
+        expect(mockCommunicator.numActiveCommands()).andReturn(1);
+        expect(mockCommunicator.numActiveCommands()).andReturn(0);
         EasyMock.replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
@@ -630,7 +632,7 @@ public class AbstractControllerTest {
         // Setup test with commands sent by communicator waiting on response.
         testCommandSent();
         reset(instance, mockCommunicator, mockListener);
-        EasyMock.expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
+        expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
 
         // Make sure the events are triggered.
         Capture<GcodeCommand> gc1 = newCapture();
@@ -643,11 +645,12 @@ public class AbstractControllerTest {
         mockListener.messageForConsole(anyObject(), anyString());
         expect(expectLastCall());
         mockListener.fileStreamComplete("queued commands", true);
+        mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
         expect(expectLastCall());
 
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
-
+        expect(mockCommunicator.numActiveCommands()).andReturn(0);
         replay(instance, mockCommunicator, mockListener);
 
         GcodeCommand first = instance.getActiveCommand().get();
