@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -76,7 +76,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private String lastComment;
     private String activeState;
     private long estimatedSendDuration = -1L;
-    private boolean sendingFile = false;
     private String firmware = null;
 
     private long lastResponse = Long.MIN_VALUE;
@@ -521,7 +520,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         //       the rowsValueLabel that was just reset.
 
         try {
-            this.sendingFile = true;
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
@@ -586,7 +584,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             switch(getControlState()) {
                 case COMM_IDLE:
                 default:
-                    if (!sendingFile) {
+                    if (!this.controller.isStreaming()) {
                         throw new Exception("Cannot pause while '" + getControlState() + "'.");
                     }
                     // Fall through if we're really sending a file.
@@ -620,7 +618,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public boolean isSendingFile() {
-        return sendingFile;
+        return this.controller != null && this.controller.isStreaming();
     }
 
     @Override
@@ -706,8 +704,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        // If we were sending a file, we aren't anymore.
-        this.sendingFile = false;
     }
 
     @Override
@@ -721,7 +717,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void commandComplete(GcodeCommand command) {
         if (command.isError()) {
-            if (this.sendingFile && !this.isPaused()) {
+            if ( this.controller.isStreaming() && !this.isPaused()) {
                 try {
                     this.pauseResume();
                 } catch (Exception e) {
