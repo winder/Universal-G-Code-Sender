@@ -115,6 +115,10 @@ public class GrblSettingsListener implements ControllerListener, SerialCommunica
     }
 
     @Override
+    public void communicatorPaused() {
+    }
+
+    @Override
     public void messageForConsole(String msg) {
     }
 
