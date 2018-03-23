@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -53,6 +52,7 @@ public abstract class AbstractCommunicator {
         COMMAND_SKIPPED,
         RAW_RESPONSE,
         CONSOLE_MESSAGE,
+        PAUSED,
         VERBOSE_CONSOLE_MESSAGE
     }
     // Callback interfaces
@@ -71,6 +71,7 @@ public abstract class AbstractCommunicator {
         this.eventMap = new HashMap<>();
         eventMap.put(SerialCommunicatorEvent.COMMAND_SENT,            commandEventListeners);
         eventMap.put(SerialCommunicatorEvent.COMMAND_SKIPPED,         commandEventListeners);
+        eventMap.put(SerialCommunicatorEvent.PAUSED,                  commandEventListeners);
         eventMap.put(SerialCommunicatorEvent.CONSOLE_MESSAGE,         commConsoleListeners);
         eventMap.put(SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
         eventMap.put(SerialCommunicatorEvent.RAW_RESPONSE,            commRawResponseListener);
@@ -253,6 +254,10 @@ public abstract class AbstractCommunicator {
             case RAW_RESPONSE:
                 for (SerialCommunicatorListener scl : sclList)
                     scl.rawResponseListener(string);
+                break;
+            case PAUSED:
+                sclList.forEach(SerialCommunicatorListener::communicatorPaused);
+                break;
             default:
 
         }
@@ -271,8 +276,11 @@ public abstract class AbstractCommunicator {
             try {
                 EventData e = eventQueue.take();
                 sendEventToListeners(e.event, e.sclList, e.string, e.command);
+            } catch (InterruptedException ignored) {
+                stop = true;
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Couldn't send command", e);
+                logger.log(Level.WARNING, "Couldn't send event", e);
+                stop = true;
             }
         }
     });
