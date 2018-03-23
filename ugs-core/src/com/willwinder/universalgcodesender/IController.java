@@ -159,4 +159,6 @@ public interface IController {
 
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
+
+    AbstractCommunicator getCommunicator();
 }
