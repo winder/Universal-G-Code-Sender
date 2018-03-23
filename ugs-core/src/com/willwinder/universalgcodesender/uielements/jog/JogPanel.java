@@ -156,6 +156,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         switch (backend.getControlState()) {
             case COMM_DISCONNECTED:
             case COMM_SENDING_PAUSED:
+            case COMM_CHECK:
             default:
                 updateManualControls(false);
                 break;
