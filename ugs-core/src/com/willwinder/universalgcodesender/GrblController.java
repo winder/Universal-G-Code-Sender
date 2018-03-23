@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -66,13 +67,19 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = null;
+    private ControllerStatus controllerStatus = new ControllerStatus("Idle", new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
     private int attemptsRemaining;
     private Position lastLocation;
-    
+
+    /**
+     * For storing a temporary state if using single step mode when entering the state
+     * check mode. When leaving check mode the temporary single step mode will be reverted.
+     */
+    private boolean temporaryCheckSingleStepMode = false;
+
     public GrblController(AbstractCommunicator comm) {
         super(comm);
         
@@ -183,6 +190,7 @@ public class GrblController extends AbstractController {
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
                     this.errorMessageForConsole(processed + "\n");
                 }
+                checkStreamFinished();
                 processed = "";
             }
 
@@ -358,7 +366,7 @@ public class GrblController extends AbstractController {
     @Override
     protected Boolean isIdleEvent() {
         if (this.capabilities.REAL_TIME) {
-            return getControlState() == COMM_IDLE;
+            return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
         }
         // Otherwise let the abstract controller decide.
         return true;
@@ -370,7 +378,7 @@ public class GrblController extends AbstractController {
             return super.getControlState();
         }
 
-        String state = this.controllerStatus == null ? "" : this.controllerStatus.getState();
+        String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getState());
         switch(state.toLowerCase()) {
             case "jog":
             case "run":
@@ -382,9 +390,19 @@ public class GrblController extends AbstractController {
             case "idle":
                 if (isStreaming()){
                     return ControlState.COMM_SENDING_PAUSED;
+                } else {
+                    return ControlState.COMM_IDLE;
                 }
             case "alarm":
+                return ControlState.COMM_IDLE;
             case "check":
+                if (isStreaming() && comm.isPaused()) {
+                    return ControlState.COMM_SENDING_PAUSED;
+                } else if (isStreaming() && !comm.isPaused()) {
+                    return ControlState.COMM_SENDING;
+                } else {
+                    return COMM_CHECK;
+                }
             default:
                 return ControlState.COMM_IDLE;
         }
@@ -477,6 +495,13 @@ public class GrblController extends AbstractController {
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
+
+                if (getControlState() == COMM_CHECK) {
+                    setSingleStepMode(temporaryCheckSingleStepMode);
+                } else if (getControlState() == COMM_IDLE) {
+                    temporaryCheckSingleStepMode = getSingleStepMode();
+                    setSingleStepMode(true);
+                }
                 return;
             }
         }
@@ -640,8 +665,11 @@ public class GrblController extends AbstractController {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
                 // If the machine goes into idle, we no longer need to cancel.
-                if (this.controllerStatus.getState().equals("Idle")) {
+                if (this.controllerStatus.getState().equals("Idle") || this.controllerStatus.getState().equalsIgnoreCase("Check")) {
                     isCanceling = false;
+
+                    // Make sure the GUI gets updated
+                    this.dispatchStateChange(getControlState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
                 else if ((this.controllerStatus.getState().equals("Hold")
