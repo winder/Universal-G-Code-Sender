@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
@@ -66,8 +67,10 @@ public class GUIBackendTest {
 
         // We need to mock the method that loads the controller
         instance = spy(new GUIBackend());
+        IFirmwareSettings firmwareSettings = mock(IFirmwareSettings.class);
         controller = mock(AbstractController.class);
         doReturn(controller).when(instance).fetchControllerFromFirmware(any());
+        doReturn(firmwareSettings).when(controller).getFirmwareSettings();
 
         // Add a event listener that stores events in the argument captor
         UGSEventListener ugsEventListener = mock(UGSEventListener.class);

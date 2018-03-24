@@ -1,5 +1,5 @@
 /*
-    Copywrite 2012-2017 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,7 +33,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
-import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.firmware.FirmwareSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
@@ -376,7 +376,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             if (!this.backend.isConnected()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             } else if (this.backend.getController() instanceof GrblController) {
-                    GrblFirmwareSettingsDialog gfsd = new GrblFirmwareSettingsDialog(this, true, this.backend);
+                    FirmwareSettingsDialog gfsd = new FirmwareSettingsDialog(this, true, this.backend);
                     gfsd.setVisible(true);
             } else {
                 displayErrorDialog(Localization.getString("mainWindow.error.notGrbl"));

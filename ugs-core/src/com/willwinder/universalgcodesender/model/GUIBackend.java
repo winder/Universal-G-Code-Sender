@@ -37,6 +37,8 @@ import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
@@ -56,7 +58,7 @@ import java.util.regex.Pattern;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener {
+public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
 
@@ -228,7 +230,9 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         for (ControllerListener l : controllerListeners) {
             this.controller.addListener(l);
         }
-        
+
+        this.controller.getFirmwareSettings().addListener(this);
+
         if (openCommConnection(port, baudRate)) {
             streamFailed = false;   //reset
         }
@@ -259,6 +263,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         logger.log(Level.INFO, "Disconnecting.");
         if (this.controller != null) {
             this.controller.closeCommPort();
+            this.controller.removeListener(this);
+            this.controller.getFirmwareSettings().removeListener(this);
             this.controller = null;
             this.sendUGSEvent(new UGSEvent(ControlState.COMM_DISCONNECTED), false);
         }
@@ -925,5 +931,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void settingChanged() {
         this.sendUGSEvent(new UGSEvent(EventType.SETTING_EVENT), false);
+    }
+
+    @Override
+    public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
+        this.sendUGSEvent(new UGSEvent(EventType.FIRMWARE_SETTING_EVENT), false);
     }
 }

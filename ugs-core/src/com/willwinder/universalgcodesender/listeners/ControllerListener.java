@@ -1,8 +1,5 @@
 /*
- * Controler Listener event interface
- */
-/*
-    Copywrite 2013-2017 Will Winder
+    Copywrite 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +24,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
+ * Controller listener event interface
  *
  * @author wwinder
  */
@@ -91,7 +89,6 @@ public interface ControllerListener {
     /**
      * Controller status information.
      */
-    //void statusStringListener(String state, Position machineCoord, Position workCoord);
     void statusStringListener(ControllerStatus status);
     
     /**
