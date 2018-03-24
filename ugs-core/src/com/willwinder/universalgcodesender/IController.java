@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
@@ -157,6 +158,11 @@ public interface IController {
     void queueCommand(GcodeCommand cmd) throws Exception;
     void queueStream(GcodeStreamReader r);
 
+    /**
+     * Cancel the running command and clear the command queue.
+     */
+    void cancelCommands();
+
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
 
@@ -166,4 +172,12 @@ public interface IController {
      * @return the supported capabilities for the controller.
      */
     Capabilities getCapabilities();
+
+    /**
+     * Fetches the firmware settings for the controller that can be used for
+     * both querying and changing its settings.
+     *
+     * @return the firmware settings for the controller.
+     */
+    IFirmwareSettings getFirmwareSettings();
 }

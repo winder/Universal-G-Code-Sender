@@ -19,6 +19,8 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.Objects;
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
@@ -54,6 +56,11 @@ public class Position extends Point3d {
             return super.equals(o) && units == ((Position)o).units;
         }
         return super.equals(o);
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**

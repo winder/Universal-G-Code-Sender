@@ -22,12 +22,13 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -59,6 +60,7 @@ public class GrblController extends AbstractController {
     protected Boolean isReady = false;          // Not ready until version is received.
     private GrblSettingsListener settings;
     private Capabilities capabilities = new Capabilities();
+    private final GrblFirmwareSettings firmwareSettings;
 
     // Grbl status members.
     private double maxZLocationMM;
@@ -80,10 +82,9 @@ public class GrblController extends AbstractController {
         this.positionPollTimer = createPositionPollTimer();
         this.maxZLocationMM = -1;
 
-        // Listen for any setting changes.
-        this.settings = new GrblSettingsListener();
-        this.comm.setListenAll(settings);
-        this.addListener(settings);
+        // Add our controller settings manager
+        this.firmwareSettings = new GrblFirmwareSettings(this);
+        this.comm.setListenAll(firmwareSettings);
     }
     
     public GrblController() {
@@ -98,6 +99,11 @@ public class GrblController extends AbstractController {
     @Override
     public Capabilities getCapabilities() {
         return capabilities;
+    }
+
+    @Override
+    public IFirmwareSettings getFirmwareSettings() {
+        return firmwareSettings;
     }
 
     @Override
@@ -223,7 +229,7 @@ public class GrblController extends AbstractController {
             }
             
             else if (GrblUtils.isGrblProbeMessage(response)) {
-                Position p = GrblUtils.parseProbePosition(response, getReportingUnits());
+                Position p = GrblUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
                 if (p != null) {
                     dispatchProbeCoordinates(p);
                 }
@@ -252,9 +258,6 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isGrblSettingMessage(response)) {
                 GrblSettingMessage message = new GrblSettingMessage(response);
                 processed = message.toString();
-                if (message.isReportingUnits()) {
-                    setReportingUnits(message.getReportingUnits());
-                }
             }
 
             if (StringUtils.isNotBlank(processed)) {
@@ -626,7 +629,7 @@ public class GrblController extends AbstractController {
         String beforeState = controllerStatus == null ? "" : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
-                controllerStatus, string, capabilities, getReportingUnits());
+                controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
         if (before != getControlState()) {

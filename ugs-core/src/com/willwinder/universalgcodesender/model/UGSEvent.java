@@ -43,6 +43,7 @@ public class UGSEvent {
         STATE_EVENT,
         FILE_EVENT,
         SETTING_EVENT,
+        FIRMWARE_SETTING_EVENT,
         PROBE_EVENT,
         CONTROLLER_STATUS_EVENT,
         GCODE_STATE_EVENT

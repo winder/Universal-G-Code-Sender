@@ -1,9 +1,5 @@
 /*
- * TinyG Control layer, coordinates all aspects of control.
- */
-
-/*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,22 +25,24 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.firmware.DefaultFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.File;
 import java.io.IOException;
 import javax.vecmath.Point3d;
 
 /**
+ * TinyG Control layer, coordinates all aspects of control.
  *
  * @author wwinder
  */
 public class TinyGController extends AbstractController {
 
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
+    private final DefaultFirmwareSettings firmwareSettings;
 
     private boolean isReady = false;
-    private Units units;
 
     private String state = "";
     private Position machineLocation = new Position();
@@ -55,6 +53,7 @@ public class TinyGController extends AbstractController {
         super(comm);
         
         this.commandCreator = new TinyGGcodeCommandCreator();
+        this.firmwareSettings = new DefaultFirmwareSettings();
         //this.positionPollTimer = createPositionPollTimer();
     }
     
@@ -70,6 +69,11 @@ public class TinyGController extends AbstractController {
     @Override
     public Capabilities getCapabilities() {
         return capabilities;
+    }
+
+    @Override
+    public IFirmwareSettings getFirmwareSettings() {
+        return firmwareSettings;
     }
 
     @Override
