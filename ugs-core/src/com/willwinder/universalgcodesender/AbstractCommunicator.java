@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * An Abstract communicator interface which implements listeners.
@@ -36,6 +38,9 @@ import java.util.concurrent.LinkedBlockingDeque;
  * @author wwinder
  */
 public abstract class AbstractCommunicator {
+    private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
+
+    public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
     private int commandCounter = 0;
 
@@ -297,7 +302,9 @@ public abstract class AbstractCommunicator {
             try {
                 EventData e = eventQueue.take();
                 sendEventToListeners(e.event, e.sclList, e.string, e.command);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Couldn't send command", e);
+            }
         }
     });
 

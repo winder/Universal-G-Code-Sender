@@ -23,7 +23,7 @@ package com.willwinder.ugs.nbp.jog;
  *
  * @author Joacim Breiler
  */
-public interface JogPanelButtonListener {
+public interface JogPanelListener {
 
     /**
      * Is called when the button was single clicked
@@ -45,4 +45,25 @@ public interface JogPanelButtonListener {
      * @param button the enum for the button
      */
     void onButtonLongReleased(JogPanelButtonEnum button);
+
+    /**
+     * Is called when the step size of the Z-axis is changed
+     *
+     * @param value the step size
+     */
+    void onStepSizeZChanged(double value);
+
+    /**
+     * Is called when the step size of the XY-axis is changed
+     *
+     * @param value the step size
+     */
+    void onStepSizeXYChanged(double value);
+
+    /**
+     * Is called when the feed rate is changed
+     *
+     * @param value the feed rate
+     */
+    void onFeedRateChanged(int value);
 }

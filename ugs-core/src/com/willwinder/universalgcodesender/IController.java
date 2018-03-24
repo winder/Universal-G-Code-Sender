@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.File;
+import java.util.Optional;
 
 /**
  *
@@ -122,7 +123,7 @@ public interface IController {
     int rowsInSend();
     int rowsSent();
     int rowsRemaining();
-    GcodeCommand getActiveCommand();
+    Optional<GcodeCommand> getActiveCommand();
     GcodeState getCurrentGcodeState();
     
     /*
