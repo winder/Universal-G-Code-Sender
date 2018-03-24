@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Optional;
 
 import static com.willwinder.universalgcodesender.Utils.formatter;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
