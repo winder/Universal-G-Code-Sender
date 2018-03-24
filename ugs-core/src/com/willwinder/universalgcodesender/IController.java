@@ -159,4 +159,11 @@ public interface IController {
 
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
+
+    /**
+     * Returns the capabilities that is supported by the controller
+     *
+     * @return the supported capabilities for the controller.
+     */
+    Capabilities getCapabilities();
 }

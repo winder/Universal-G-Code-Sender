@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.concurrent.Executors;
@@ -75,6 +76,10 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        if(!isSourceEnabled(e)) {
+            return;
+        }
+
         if (!isLongPressed) {
             onMouseClicked(e);
         } else {
@@ -84,6 +89,10 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        if(!isSourceEnabled(e)) {
+            return;
+        }
+
         isLongPressed = false;
         onMousePressed(e);
 
@@ -101,6 +110,10 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
+        if(!isSourceEnabled(e)) {
+            return;
+        }
+
         if (isLongPressed) {
             onMouseLongRelease(e);
             onMouseLongClicked(e);
@@ -119,6 +132,10 @@ public abstract class LongPressMouseListener implements MouseListener {
 
     @Override
     public void mouseExited(MouseEvent e) {
+    }
+
+    private boolean isSourceEnabled(MouseEvent e) {
+        return ((Component)e.getSource()).isEnabled();
     }
 
     /**
