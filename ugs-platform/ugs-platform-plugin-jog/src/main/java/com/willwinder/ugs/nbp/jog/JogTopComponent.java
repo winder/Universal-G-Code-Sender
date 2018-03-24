@@ -231,52 +231,55 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void onButtonLongPressed(JogPanelButtonEnum button) {
-        // Cancel any previous jogging
-        if( continuousJogSchedule != null ) {
-            continuousJogSchedule.cancel(true);
+        if (backend.getController().getCapabilities().hasContinuousJogging()) {
+
+            // Cancel any previous jogging
+            if (continuousJogSchedule != null) {
+                continuousJogSchedule.cancel(true);
+            }
+
+            continuousJogSchedule = EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
+                // TODO add a check so that no more than one or two jog commands are queued on the controller. Otherwise a soft limit may trigger if too many commands are queued.
+                double stepSize = LONG_PRESS_MM_STEP_SIZE;
+                if (jogService.getUnits() == UnitUtils.Units.INCH) {
+                    stepSize = LONG_PRESS_INCH_STEP_SIZE;
+                }
+
+                switch (button) {
+                    case BUTTON_XNEG:
+                        jogService.adjustManualLocation(-1, 0, 0, stepSize);
+                        break;
+                    case BUTTON_XPOS:
+                        jogService.adjustManualLocation(1, 0, 0, stepSize);
+                        break;
+                    case BUTTON_YNEG:
+                        jogService.adjustManualLocation(0, -10, 0, stepSize);
+                        break;
+                    case BUTTON_YPOS:
+                        jogService.adjustManualLocation(0, 10, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XNEG_YNEG:
+                        jogService.adjustManualLocation(-1, -1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XNEG_YPOS:
+                        jogService.adjustManualLocation(-1, 1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XPOS_YNEG:
+                        jogService.adjustManualLocation(1, -1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XPOS_YPOS:
+                        jogService.adjustManualLocation(1, 1, 0, stepSize);
+                        break;
+                    case BUTTON_ZNEG:
+                        jogService.adjustManualLocation(0, 0, -1, stepSize);
+                        break;
+                    case BUTTON_ZPOS:
+                        jogService.adjustManualLocation(0, 0, 1, stepSize);
+                        break;
+                    default:
+                }
+            }, 0, LONG_PRESS_JOG_INTERVAL, TimeUnit.MILLISECONDS);
         }
-
-        continuousJogSchedule = EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
-            // TODO add a check so that no more than one or two jog commands are queued on the controller. Otherwise a soft limit may trigger if too many commands are queued.
-            double stepSize = LONG_PRESS_MM_STEP_SIZE;
-            if( jogService.getUnits() == UnitUtils.Units.INCH) {
-                stepSize = LONG_PRESS_INCH_STEP_SIZE;
-            }
-
-            switch (button) {
-                case BUTTON_XNEG:
-                    jogService.adjustManualLocation(-1, 0, 0, stepSize);
-                    break;
-                case BUTTON_XPOS:
-                    jogService.adjustManualLocation(1, 0, 0, stepSize);
-                    break;
-                case BUTTON_YNEG:
-                    jogService.adjustManualLocation(0, -10, 0, stepSize);
-                    break;
-                case BUTTON_YPOS:
-                    jogService.adjustManualLocation(0, 10, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XNEG_YNEG:
-                    jogService.adjustManualLocation(-1, -1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XNEG_YPOS:
-                    jogService.adjustManualLocation(-1, 1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XPOS_YNEG:
-                    jogService.adjustManualLocation(1, -1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XPOS_YPOS:
-                    jogService.adjustManualLocation(1, 1, 0, stepSize);
-                    break;
-                case BUTTON_ZNEG:
-                    jogService.adjustManualLocation(0, 0, -1, stepSize);
-                    break;
-                case BUTTON_ZPOS:
-                    jogService.adjustManualLocation(0, 0, 1, stepSize);
-                    break;
-                default:
-            }
-        }, 0, LONG_PRESS_JOG_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override

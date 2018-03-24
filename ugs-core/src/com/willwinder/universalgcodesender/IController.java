@@ -167,6 +167,13 @@ public interface IController {
     void updateParserModalState(GcodeCommand command);
 
     /**
+     * Returns the capabilities that is supported by the controller
+     *
+     * @return the supported capabilities for the controller.
+     */
+    Capabilities getCapabilities();
+
+    /**
      * Fetches the firmware settings for the controller that can be used for
      * both querying and changing its settings.
      *

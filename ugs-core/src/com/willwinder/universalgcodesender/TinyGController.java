@@ -47,6 +47,7 @@ public class TinyGController extends AbstractController {
     private String state = "";
     private Position machineLocation = new Position();
     private Position workLocation = new Position();
+    private Capabilities capabilities = new Capabilities();
     
     protected TinyGController(TinyGCommunicator comm) {
         super(comm);
@@ -63,6 +64,11 @@ public class TinyGController extends AbstractController {
     @Override
     public Boolean handlesAllStateChangeEvents() {
         return false;
+    }
+
+    @Override
+    public Capabilities getCapabilities() {
+        return capabilities;
     }
 
     @Override

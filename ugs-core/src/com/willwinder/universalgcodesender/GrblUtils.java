@@ -74,15 +74,8 @@ public class GrblUtils {
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
-    
-    public static class Capabilities {
-        public boolean REAL_TIME = false;
-        public boolean OVERRIDES = false;
-        public boolean V1_FORMAT = false;
-        public boolean JOG_MODE = false;
-    }
-    
-    /** 
+
+    /**
      * Checks if the string contains the GRBL version.
      */
     static Boolean isGrblVersionString(final String response) {
@@ -216,22 +209,24 @@ public class GrblUtils {
      */
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
+        ret.addCapability(CapabilitiesConstants.JOGGING);
 
         // Check if real time commands are enabled.
         if (version==0.8 && (letter != null) && (letter >= 'c')) {
-            ret.REAL_TIME = true;
+            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         } else if (version >= 0.9) {
-            ret.REAL_TIME = true;
+            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         }
 
         // Check for V1.x features
         if (version >= 1.1) {
-            ret.REAL_TIME = true;
+            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
 
             // GRBL 1.1
-            ret.V1_FORMAT = true;
-            ret.OVERRIDES = true;
-            ret.JOG_MODE = true;
+            ret.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+            ret.addCapability(CapabilitiesConstants.OVERRIDES);
+            ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
+            ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         }
 
         return ret;
@@ -266,7 +261,7 @@ public class GrblUtils {
     private static final String FEEDBACK_REGEX = "\\[.*\\]";
     private static final Pattern FEEDBACK_PATTERN = Pattern.compile(FEEDBACK_REGEX);
     static protected Boolean isGrblFeedbackMessage(final String response, Capabilities c) {
-        if (c.V1_FORMAT) {
+        if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
             return response.startsWith("[GC:");
         } else {
             return FEEDBACK_PATTERN.matcher(response).find();
@@ -274,7 +269,7 @@ public class GrblUtils {
     }
 
     static protected String parseFeedbackMessage(final String response, Capabilities c) {
-        if (c.V1_FORMAT) {
+        if (c.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
             return response.substring(4, response.length() - 1);
         } else {
             return response.substring(1, response.length() - 1);
@@ -303,7 +298,7 @@ public class GrblUtils {
             ControllerStatus lastStatus, final String status,
             final Capabilities version, Units reportingUnits) {
         // Legacy status.
-        if (!version.V1_FORMAT) {
+        if (!version.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
             return new ControllerStatus(
                 getStateFromStatusString(status, version),
                 getMachinePositionFromStatusString(status, version, reportingUnits),
@@ -415,7 +410,7 @@ public class GrblUtils {
     static protected String getStateFromStatusString(final String status, final Capabilities version) {
         String retValue = null;
         
-        if (!version.REAL_TIME) {
+        if (!version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return null;
         }
         
@@ -430,7 +425,7 @@ public class GrblUtils {
     
     static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
     static protected Units getUnitsFromStatusString(final String status, final Capabilities version) {
-        if (version.REAL_TIME) {
+        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             if (mmPattern.matcher(status).find()) {
                 return Units.MM;
             } else {
@@ -445,7 +440,7 @@ public class GrblUtils {
     static Pattern workPattern = Pattern.compile("(?<=WPos:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
     static Pattern wcoPattern = Pattern.compile("(?<=WCO:)(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*),(\\-?\\d*\\..\\d*)");
     static protected Position getMachinePositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version.REAL_TIME) {
+        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
         } else {
             return null;
@@ -453,7 +448,7 @@ public class GrblUtils {
     }
     
     static protected Position getWorkPositionFromStatusString(final String status, final Capabilities version, Units reportingUnits) {
-        if (version.REAL_TIME) {
+        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
         } else {
             return null;
@@ -476,7 +471,7 @@ public class GrblUtils {
      * Map version enum to GRBL real time command byte.
      */
     static public Byte getOverrideForEnum(final Overrides command, final Capabilities version) {
-        if (version != null && version.OVERRIDES) {
+        if (version != null && version.hasOverrides()) {
             switch (command) {
                 //CMD_DEBUG_REPORT, // 0x85 // Only when DEBUG enabled, sends debug report in '{}' braces.
                 case CMD_FEED_OVR_RESET:
