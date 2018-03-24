@@ -16,33 +16,19 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.jog;
+package com.willwinder.universalgcodesender.firmware;
 
 /**
- * A listener for button events in the {@link JogPanel}.
+ * An exception that can occur when handling firmware settings
  *
  * @author Joacim Breiler
  */
-public interface JogPanelButtonListener {
+public class FirmwareSettingsException extends Exception {
+    public FirmwareSettingsException(String message) {
+        super(message);
+    }
 
-    /**
-     * Is called when the button was single clicked
-     *
-     * @param button the enum for the button
-     */
-    void onButtonClicked(JogPanelButtonEnum button);
-
-    /**
-     * Is called when the button has been long pressed
-     *
-     * @param button the enum for the button
-     */
-    void onButtonLongPressed(JogPanelButtonEnum button);
-
-    /**
-     * Is called when a long pressed button has been released
-     *
-     * @param button the enum for the button
-     */
-    void onButtonLongReleased(JogPanelButtonEnum button);
+    public FirmwareSettingsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

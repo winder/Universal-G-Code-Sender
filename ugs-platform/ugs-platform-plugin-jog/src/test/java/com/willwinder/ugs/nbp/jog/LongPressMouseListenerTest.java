@@ -3,6 +3,7 @@ package com.willwinder.ugs.nbp.jog;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.swing.JLabel;
 import java.awt.event.MouseEvent;
 
 import static org.junit.Assert.assertFalse;
@@ -18,6 +19,7 @@ public class LongPressMouseListenerTest {
     private boolean isMouseRelease;
     private boolean isMouseLongPressed;
     private boolean isMouseLongRelease;
+    private MouseEvent event;
 
     @Before
     public void setUp() {
@@ -27,6 +29,10 @@ public class LongPressMouseListenerTest {
         isMouseRelease = false;
         isMouseLongPressed = false;
         isMouseLongRelease = false;
+
+        JLabel component = new JLabel();
+        component.setEnabled(true);
+        event = new MouseEvent(component, 0, 0, 0, 0, 0, 0, false, 0);
 
         longPressMouseListener = new LongPressMouseListener(LONG_PRESS_DELAY) {
             @Override
@@ -63,7 +69,7 @@ public class LongPressMouseListenerTest {
 
     @Test
     public void mousePressedShouldTriggerLongPressedAfterDelay() throws InterruptedException {
-        longPressMouseListener.mousePressed(null);
+        longPressMouseListener.mousePressed(event);
         assertTrue(isMousePressed);
         assertFalse(isMouseLongPressed);
 
@@ -74,12 +80,12 @@ public class LongPressMouseListenerTest {
 
     @Test
     public void mousePressedShouldTriggerLongReleaseAfterDelay() throws InterruptedException {
-        longPressMouseListener.mousePressed(null);
+        longPressMouseListener.mousePressed(event);
         assertTrue(isMousePressed);
         assertFalse(isMouseLongPressed);
 
         Thread.sleep(LONG_PRESS_DELAY + 10); // add a couple of milliseconds to make sure it gets triggered
-        longPressMouseListener.mouseReleased(null);
+        longPressMouseListener.mouseReleased(event);
 
         assertTrue(isMouseLongPressed);
         assertTrue(isMouseLongRelease);
@@ -88,13 +94,13 @@ public class LongPressMouseListenerTest {
 
     @Test
     public void mousePressedShouldNotTriggerLongPressedIfReleasedBeforeDelay() throws InterruptedException {
-        longPressMouseListener.mousePressed(null);
+        longPressMouseListener.mousePressed(event);
         assertTrue(isMousePressed);
         assertFalse(isMouseClicked);
         assertFalse(isMouseRelease);
         assertFalse(isMouseLongPressed);
 
-        longPressMouseListener.mouseReleased(null);
+        longPressMouseListener.mouseReleased(event);
 
         Thread.sleep(LONG_PRESS_DELAY);
         assertTrue(isMouseRelease);

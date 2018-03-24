@@ -25,11 +25,12 @@ import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
 import java.io.File;
-import java.io.Reader;
+import java.util.Optional;
 
 /**
  *
@@ -122,7 +123,7 @@ public interface IController {
     int rowsInSend();
     int rowsSent();
     int rowsRemaining();
-    GcodeCommand getActiveCommand();
+    Optional<GcodeCommand> getActiveCommand();
     GcodeState getCurrentGcodeState();
     
     /*
@@ -157,6 +158,26 @@ public interface IController {
     void queueCommand(GcodeCommand cmd) throws Exception;
     void queueStream(GcodeStreamReader r);
 
+    /**
+     * Cancel the running command and clear the command queue.
+     */
+    void cancelCommands();
+
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
+
+    /**
+     * Returns the capabilities that is supported by the controller
+     *
+     * @return the supported capabilities for the controller.
+     */
+    Capabilities getCapabilities();
+
+    /**
+     * Fetches the firmware settings for the controller that can be used for
+     * both querying and changing its settings.
+     *
+     * @return the firmware settings for the controller.
+     */
+    IFirmwareSettings getFirmwareSettings();
 }

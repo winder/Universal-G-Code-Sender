@@ -650,9 +650,9 @@ public class AbstractControllerTest {
 
         replay(instance, mockCommunicator, mockListener);
 
-        GcodeCommand first = instance.getActiveCommand();
+        GcodeCommand first = instance.getActiveCommand().get();
         instance.commandComplete("ok");
-        GcodeCommand second = instance.getActiveCommand();
+        GcodeCommand second = instance.getActiveCommand().get();
         instance.commandComplete("ok");
 
         assertEquals(true, gc1.getValue().isDone());

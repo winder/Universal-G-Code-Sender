@@ -139,7 +139,11 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
                 commandStream == null ? 0 : commandStream.getNumRowsRemaining();
         return this.activeCommandList.size() + streamingCount;
     }
-    
+
+    public int numBufferedCommands() {
+        return commandBuffer.size();
+    }
+
     // Helper for determining if commands should be throttled.
     private boolean allowMoreCommands() {
         if (this.singleStepModeEnabled) {
@@ -271,6 +275,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.commandBuffer.clear();
         this.activeCommandList.clear();
         this.sentBufferSize = 0;
+        this.sendPaused = false;
     }
 
     /**

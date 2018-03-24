@@ -1,9 +1,5 @@
 /*
- * An Abstract communicator interface which implements listeners.
- */
-
-/*
-    Copywrite 2013-2016 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,16 +25,21 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.io.Reader;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
+ * An Abstract communicator interface which implements listeners.
  *
  * @author wwinder
  */
 public abstract class AbstractCommunicator {
+    private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
+
     public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
     private int commandCounter = 0;
@@ -161,20 +162,51 @@ public abstract class AbstractCommunicator {
         this.addCommRawResponseListener(scl);
     }
 
-    void addCommandEventListener(SerialCommunicatorListener scl) {
-        this.commandEventListeners.add(scl);
+    public void removeListenAll(SerialCommunicatorListener scl) {
+        this.removeCommandEventListener(scl);
+        this.removeCommConsoleListener(scl);
+        this.removeCommVerboseConsoleListener(scl);
+        this.removeCommRawResponseListener(scl);
     }
 
-    void addCommConsoleListener(SerialCommunicatorListener scl) {
-        this.commConsoleListeners.add(scl);
+    private void addCommandEventListener(SerialCommunicatorListener scl) {
+        if (!this.commandEventListeners.contains(scl)) {
+            this.commandEventListeners.add(scl);
+        }
     }
 
-    void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        this.commVerboseConsoleListeners.add(scl);
+    private void removeCommandEventListener(SerialCommunicatorListener scl) {
+        this.commandEventListeners.remove(scl);
     }
-    
-    void addCommRawResponseListener(SerialCommunicatorListener scl) {
-        this.commRawResponseListener.add(scl);
+
+    private void addCommConsoleListener(SerialCommunicatorListener scl) {
+        if (!this.commConsoleListeners.contains(scl)) {
+            this.commConsoleListeners.add(scl);
+        }
+    }
+
+    private void removeCommConsoleListener(SerialCommunicatorListener scl) {
+        this.commConsoleListeners.remove(scl);
+    }
+
+    private void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
+        if (!this.commVerboseConsoleListeners.contains(scl)) {
+            this.commVerboseConsoleListeners.add(scl);
+        }
+    }
+
+    private void removeCommVerboseConsoleListener(SerialCommunicatorListener scl) {
+        this.commVerboseConsoleListeners.remove(scl);
+    }
+
+    private void addCommRawResponseListener(SerialCommunicatorListener scl) {
+        if (!this.commRawResponseListener.contains(scl)) {
+            this.commRawResponseListener.add(scl);
+        }
+    }
+
+    private void removeCommRawResponseListener(SerialCommunicatorListener scl) {
+        this.commRawResponseListener.remove(scl);
     }
 
     // Helper for the console listener.              
@@ -270,7 +302,9 @@ public abstract class AbstractCommunicator {
             try {
                 EventData e = eventQueue.take();
                 sendEventToListeners(e.event, e.sclList, e.string, e.command);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, "Couldn't send command", e);
+            }
         }
     });
 

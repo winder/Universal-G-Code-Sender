@@ -31,6 +31,8 @@ import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
@@ -42,7 +44,7 @@ import java.util.Set;
  *
  * @author Joacim Breiler
  */
-public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener {
+public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeChangeListener, ChangeListener {
 
     /**
      * The minimum width and height of the jog buttons.
@@ -62,7 +64,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     /**
      * A list of listeners
      */
-    private final Set<JogPanelButtonListener> buttonListeners = new HashSet<>();
+    private final Set<JogPanelListener> listeners = new HashSet<>();
 
     /**
      * A map with all buttons that allows bi-directional lookups with key->value and value->key
@@ -80,7 +82,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
      * Spinners for jog settings
      */
     private StepSizeSpinner zStepSizeSpinner;
-    private StepSizeSpinner feedStepSizeSpinner;
+    private StepSizeSpinner feedRateSpinner;
     private StepSizeSpinner xyStepSizeSpinner;
 
     public JogPanel() {
@@ -112,7 +114,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XPOS_YNEG, createImageButton("icons/diag-xpos-yneg.png"));
         buttons.put(JogPanelButtonEnum.BUTTON_DIAG_XNEG_YNEG, createImageButton("icons/diag-xneg-yneg.png"));
 
-        feedStepSizeSpinner = new StepSizeSpinner();
+        feedRateSpinner = new StepSizeSpinner();
         xyStepSizeSpinner = new StepSizeSpinner();
         zStepSizeSpinner = new StepSizeSpinner();
 
@@ -144,7 +146,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     }
 
     public void setFeedRate(int feedRate) {
-        feedStepSizeSpinner.setValue(String.valueOf(feedRate));
+        feedRateSpinner.setValue(String.valueOf(feedRate));
     }
 
     public void setStepSizeXY(double stepSize) {
@@ -189,7 +191,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         configurationPanel.add(zStepSizeSpinner, "growx, hidemode 3, wrap");
 
         configurationPanel.add(feedRateLabel, "growx");
-        configurationPanel.add(feedStepSizeSpinner, "growx, wrap");
+        configurationPanel.add(feedRateSpinner, "growx, wrap");
         return configurationPanel;
     }
 
@@ -233,7 +235,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
             @Override
             protected void onMouseClicked(MouseEvent e) {
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                buttonListeners.forEach(a -> a.onButtonClicked(buttonEnum));
+                listeners.forEach(a -> a.onButtonClicked(buttonEnum));
             }
 
             @Override
@@ -254,17 +256,21 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
             @Override
             protected void onMouseLongPressed(MouseEvent e) {
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                buttonListeners.forEach(a -> a.onButtonLongPressed(buttonEnum));
+                listeners.forEach(a -> a.onButtonLongPressed(buttonEnum));
             }
 
             @Override
             protected void onMouseLongRelease(MouseEvent e) {
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
-                buttonListeners.forEach(a -> a.onButtonLongReleased(buttonEnum));
+                listeners.forEach(a -> a.onButtonLongReleased(buttonEnum));
             }
         };
 
         buttons.values().forEach(button -> button.addMouseListener(longPressMouseListener));
+
+        xyStepSizeSpinner.addChangeListener(this);
+        zStepSizeSpinner.addChangeListener(this);
+        feedRateSpinner.addChangeListener(this);
     }
 
     /**
@@ -341,7 +347,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
         xyStepSizeSpinner.setEnabled(enabled);
         zStepSizeSpinner.setEnabled(enabled);
-        feedStepSizeSpinner.setEnabled(enabled);
+        feedRateSpinner.setEnabled(enabled);
 
         xyStepLabel.setEnabled(enabled);
         zStepLabel.setEnabled(enabled);
@@ -408,7 +414,18 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         this.zStepLabel.setFont(font);
     }
 
-    public void addListener(JogPanelButtonListener listener) {
-        this.buttonListeners.add(listener);
+    public void addListener(JogPanelListener listener) {
+        this.listeners.add(listener);
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (e.getSource() == zStepSizeSpinner) {
+            this.listeners.forEach(listener -> listener.onStepSizeZChanged(zStepSizeSpinner.getValue()));
+        } else if (e.getSource() == xyStepSizeSpinner) {
+            this.listeners.forEach(listener -> listener.onStepSizeXYChanged(xyStepSizeSpinner.getValue()));
+        } else if (e.getSource() == feedRateSpinner) {
+            this.listeners.forEach(listener -> listener.onFeedRateChanged(feedRateSpinner.getValue().intValue()));
+        }
     }
 }

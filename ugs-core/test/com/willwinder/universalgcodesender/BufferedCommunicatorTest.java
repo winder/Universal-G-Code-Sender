@@ -425,6 +425,27 @@ public class BufferedCommunicatorTest {
         assertEquals("The second command should be from the stream", "G0\n", commandCaptor.getAllValues().get(1));
     }
 
+    @Test
+    public void softResetShouldClearBuffersAndResumeOperation() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        asl.add(new GcodeCommand("G0"));
+        cb.add("G0");
+
+        instance.pauseSend();
+        assertTrue(instance.isPaused());
+        assertEquals(1, instance.numActiveCommands());
+        assertEquals(1, instance.numBufferedCommands());
+
+        // When
+        instance.softReset();
+
+        // Then
+        assertFalse("The communicator should resume operation after a reset", instance.isPaused());
+        assertEquals("There should be no active commands", 0, instance.numActiveCommands());
+        assertEquals("There should be no buffered manual commands", 0, instance.numBufferedCommands());
+    }
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
         BufferedCommunicatorImpl(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {

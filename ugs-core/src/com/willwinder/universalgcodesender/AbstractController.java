@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender;
 
-import static com.willwinder.universalgcodesender.Utils.formatter;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -30,21 +29,21 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import com.willwinder.universalgcodesender.model.UnitUtils;
-import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
-import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Optional;
+
+import static com.willwinder.universalgcodesender.Utils.formatter;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
+import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
 /**
  * Abstract Control layer, coordinates all aspects of control.
@@ -62,8 +61,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     // Outside influence
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-
-    private UnitUtils.Units reportingUnits = UnitUtils.Units.UNKNOWN;
 
     // Added value
     private Boolean isStreaming = false;
@@ -477,11 +474,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public GcodeCommand getActiveCommand() {
+    public Optional<GcodeCommand> getActiveCommand() {
         if (activeCommands.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        return activeCommands.get(0);
+        return Optional.of(activeCommands.get(0));
     }
 
     @Override
@@ -653,11 +650,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         // to make way for the queued commands.
         //this.prepQueue.clear();
         
-        //flushSendQueues();
-        flushQueuedCommands();
-
-        
-        this.comm.cancelSend();
+        cancelCommands();
         
         // If there are no active commands, done streaming. Otherwise wait for
         // them to finish.
@@ -666,6 +659,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
 
         cancelSendAfterEvent();
+    }
+
+    @Override
+    public void cancelCommands() {
+        flushQueuedCommands();
+        this.comm.cancelSend();
     }
 
     @Override
@@ -931,21 +930,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 c.probeCoordinates(p);
             }
         }
-    }
-
-    /**
-     * Get current machine reporting units
-     */
-    protected UnitUtils.Units getReportingUnits() {
-        return reportingUnits;
-    }
-
-    /**
-     * Set current machine reporting units
-     * @param units
-     */
-    protected void setReportingUnits(UnitUtils.Units units) {
-        this.reportingUnits = units;
     }
 
     protected String getUnitsCode() {

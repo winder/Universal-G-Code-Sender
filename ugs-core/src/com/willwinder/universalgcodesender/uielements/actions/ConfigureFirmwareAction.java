@@ -22,7 +22,7 @@ import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.uielements.GrblFirmwareSettingsDialog;
+import com.willwinder.universalgcodesender.uielements.firmware.FirmwareSettingsDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +31,6 @@ import java.awt.event.ActionEvent;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
- *
  * @author wwinder
  */
 public class ConfigureFirmwareAction extends AbstractAction {
@@ -60,16 +59,16 @@ public class ConfigureFirmwareAction extends AbstractAction {
             if (!this.backend.isConnected()) {
                 displayErrorDialog(Localization.getString("controller.log.notconnected"));
             } else if (this.backend.getController().getClass().equals(GrblController.class)) {
-                    GrblFirmwareSettingsDialog gfsd = 
-                            new GrblFirmwareSettingsDialog(new JFrame(), true, this.backend);
-                    gfsd.setVisible(true);
+                FirmwareSettingsDialog gfsd =
+                        new FirmwareSettingsDialog(new JFrame(), true, this.backend);
+                gfsd.setVisible(true);
             }
             // Add additional firmware setting windows here.
             else {
                 displayErrorDialog(Localization.getString("mainWindow.error.noFirmware"));
             }
         } catch (Exception ex) {
-                displayErrorDialog(ex.getMessage());
+            displayErrorDialog(ex.getMessage());
         }
     }
 }

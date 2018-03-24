@@ -113,6 +113,7 @@
                         <package>com.willwinder.universalgcodesender.gcode</package>
                         <package>com.willwinder.universalgcodesender.gcode.util</package>
                         <package>com.willwinder.universalgcodesender.gcode.processors</package>
+                        <package>com.willwinder.universalgcodesender.firmware</package>
                         <package>com.willwinder.universalgcodesender.i18n</package>
                         <package>com.willwinder.universalgcodesender.listeners</package>
                         <package>com.willwinder.universalgcodesender.model</package>
@@ -127,6 +128,7 @@
                         <package>com.willwinder.universalgcodesender.uielements.jog</package>
                         <package>com.willwinder.universalgcodesender.uielements.macros</package>
                         <package>com.willwinder.universalgcodesender.uielements.panels</package>
+                        <package>com.willwinder.universalgcodesender.uielements.firmware</package>
                         <package>com.willwinder.universalgcodesender.uielements.toolbars</package>
                         <package>com.willwinder.universalgcodesender.utils</package>
                         <package>com.willwinder.universalgcodesender.utils.SettingsFactory</package>
