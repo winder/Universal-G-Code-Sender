@@ -210,7 +210,9 @@ public class JogService {
     }
 
     public boolean canJog() {
-        return backend.isConnected() && !backend.isSendingFile();
+        return backend.isConnected() &&
+                !backend.isSendingFile() &&
+                backend.getController().getCapabilities().hasJogging();
     }
 
     public double getStepSizeXY() {
