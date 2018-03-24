@@ -58,7 +58,6 @@ public class GrblController extends AbstractController {
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
     private Character grblVersionLetter = null; // The c in 'Grbl 0.8c'
     protected Boolean isReady = false;          // Not ready until version is received.
-    private GrblSettingsListener settings;
     private Capabilities capabilities = new Capabilities();
     private final GrblFirmwareSettings firmwareSettings;
 
