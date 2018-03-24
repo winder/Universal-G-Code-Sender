@@ -30,31 +30,31 @@ If you are experiencing problems, have a look at the troubleshooting guides: htt
 ### Specifications
 #### Version
 <!-- 
- Check all that apply.  You find the version in the title bar of the application.
+  What versions of the application does the issue exist in.  You find the version 
+  in the title bar of the application. Example:
+  
+  UGS Platform 2.0 - Nightly Build Mar 23, 2018
+  UGS Classic 1.0.9
 -->
-- [ ] UGS Platform 2.0 - Nightly Build
-- [ ] UGS Platform 2.0 - Stable
-- [ ] UGS Classic 2.0 - Nightly Build
-- [ ] UGS Classic 2.0 - Stable
-- [ ] UGS Classic 1.0.9
-- [ ] UGS Classic 1.0.8
-- [ ] UGS Classic 1.0.7
 
 #### Operating system
-<!-- Check all that apply -->
-- [ ] Windows
-- [ ] Linux
-- [ ] Linux on RaspberryPI
-- [ ] Mac OSX
-- [ ] Other
+<!-- 
+  What operating system are you running. Example: 
+  Windows 10
+  Linux Ubuntu
+  Linux on RaspberryPI
+  Mac OSX
+-->
+
 
 #### Platform
-<!-- Check all that apply -->
-- [ ] GRBL 1.0 or later
-- [ ] GRBL 0.9
-- [ ] GRBL 0.8
-- [ ] TinyG
-- [ ] SmoothieBoard
+<!-- 
+  What hardware are you using. Example:
+  GRBL 1.1f
+  TinyG
+  SmoothieBoard 
+-->
+
 
 #### Other
 <!-- Please provide screen shots, gcode-files, output from $$-command that you think may help us to  identify the problem. -->
