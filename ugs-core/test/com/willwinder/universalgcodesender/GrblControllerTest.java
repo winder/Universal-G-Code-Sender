@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -39,6 +39,7 @@ import org.junit.Ignore;
 
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -90,8 +91,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         String result;
         String expResult;
-        String versionString;
-        
+
         expResult = "<Not connected>";
         result = instance.getGrblVersion();
         assertEquals(expResult, result);
@@ -435,9 +435,6 @@ public class GrblControllerTest {
         instance.openCommPort("blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
 
-        int expResult;
-        int result;
-
         // Test 1.
         // When not sending, no commands queues, everything should be zero.
         assertCounts(instance, 0, 0, 0);
@@ -745,7 +742,6 @@ public class GrblControllerTest {
 
         // 0. Test GRBL not returning to idle during cancel.
         instance.rawResponseHandler("Grbl 0.8c");
-        String error = "";
         instance.cancelSend();
         for (int i = 0; i < 50; i++) {
             instance.rawResponseHandler("<Running,MPos:1.0,2.0,3.0>");
@@ -1277,6 +1273,43 @@ public class GrblControllerTest {
         // Then
         assertTrue(instance.isIdle());
         assertTrue(instance.isIdleEvent());
+        assertEquals(COMM_CHECK, instance.getControlState());
+    }
+
+    @Test
+    public void versionStringShouldResetStatus() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f");
+        instance.rawResponseHandler("<Run|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertEquals("We should be in sending mode", COMM_SENDING, instance.getControlState());
+
+        // When
+        instance.rawResponseHandler("Grbl 1.1f");
+
+        // Then
+        assertEquals(COMM_IDLE, instance.getControlState());
+    }
+
+    /**
+     * When exiting check mode the controller does a soft reset and sends a new version string. The
+     * default behavior is to reset the controller status. But we need it to determine if single
+     * step mode is supposed to be activated.
+     */
+    @Test
+    public void versionStringShouldNotResetStatusWhenInCheckMode() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f");
+        instance.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertEquals("We should be in check mode", COMM_CHECK, instance.getControlState());
+
+        // When
+        instance.rawResponseHandler("Grbl 1.1f");
+
+        // Then
         assertEquals(COMM_CHECK, instance.getControlState());
     }
 

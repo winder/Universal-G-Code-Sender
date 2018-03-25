@@ -129,9 +129,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     @Override
     public boolean areActiveCommands() {
-        return (this.activeCommandList.size() > 0)
-                || (this.commandStream != null && this.commandStream.getNumRowsRemaining() > 0)
-                || nextCommand != null;
+        return numActiveCommands() > 0;
     }
 
     @Override
@@ -198,13 +196,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         // If there are no commands to send, exit.
         if (this.getNextCommand() == null) {
             logger.log(Level.INFO, "There are no more commands to stream");
-            return;
-        }
-        
-        // If streaming is paused, exit.
-        if (isPaused()) {
-            logger.log(Level.INFO, "Could not stream commands because the communicator is paused");
-            // Another NO-OP
             return;
         }
         

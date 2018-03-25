@@ -22,7 +22,6 @@ import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.mockobjects.MockConnection;
 import com.willwinder.universalgcodesender.mockobjects.MockGrbl;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
 import static org.junit.Assert.*;
@@ -34,9 +33,9 @@ import org.junit.Test;
  * @author wwinder
  */
 public class GrblCommunicatorTest {
-    MockGrbl mg;
-    LinkedBlockingDeque<String> cb;
-    LinkedBlockingDeque<GcodeCommand> asl;
+    private MockGrbl mg;
+    private LinkedBlockingDeque<String> cb;
+    private LinkedBlockingDeque<GcodeCommand> asl;
     
     public GrblCommunicatorTest() {
     }
@@ -355,7 +354,7 @@ public class GrblCommunicatorTest {
         }
         instance.streamCommands();
         instance.cancelSend();
-        // Verify that there are several active commands.
+        // Make sure cancelSend clears out the commands
         expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());
         
@@ -384,8 +383,6 @@ public class GrblCommunicatorTest {
         MockConnection mc = new MockConnection(mg.in, mg.out);
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         String twentyCharString = "twenty characters...";
-        String grblReceiveString;
-        String arr[];
         int expectedInt;
         Boolean expectedBool;
         

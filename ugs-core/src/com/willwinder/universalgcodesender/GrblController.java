@@ -208,7 +208,13 @@ public class GrblController extends AbstractController {
                 this.isReady = true;
                 resetBuffers();
 
-                this.controllerStatus = null;
+                // When exiting COMM_CHECK mode a soft reset is done, do not clear the
+                // controller status because we need to know the previous state for resetting
+                // single step mode
+                if (getControlState() != COMM_CHECK) {
+                    this.controllerStatus = null;
+                }
+
                 this.stopPollingPosition();
                 positionPollTimer = createPositionPollTimer();
                 this.beginPollingPosition();
@@ -502,13 +508,6 @@ public class GrblController extends AbstractController {
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);
-
-                if (getControlState() == COMM_CHECK) {
-                    setSingleStepMode(temporaryCheckSingleStepMode);
-                } else if (getControlState() == COMM_IDLE) {
-                    temporaryCheckSingleStepMode = getSingleStepMode();
-                    setSingleStepMode(true);
-                }
                 return;
             }
         }
@@ -663,6 +662,14 @@ public class GrblController extends AbstractController {
         // GRBL 1.1 jog complete transition
         if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getState().equals("Idle")) {
             this.comm.cancelSend();
+        }
+
+        // Set and restore the step mode when transitioning from CHECK mode to IDLE.
+        if (before == COMM_CHECK && getControlState() != COMM_CHECK) {
+            setSingleStepMode(temporaryCheckSingleStepMode);
+        } else if (before != COMM_CHECK && getControlState() == COMM_CHECK) {
+            temporaryCheckSingleStepMode = getSingleStepMode();
+            setSingleStepMode(true);
         }
 
         // Prior to GRBL v1.1 the GUI is required to keep checking locations
