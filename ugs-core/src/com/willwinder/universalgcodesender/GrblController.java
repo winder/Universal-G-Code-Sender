@@ -22,13 +22,14 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.GrblSettingsListener;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -58,10 +59,10 @@ public class GrblController extends AbstractController {
     private double grblVersion = 0.0;           // The 0.8 in 'Grbl 0.8c'
     private Character grblVersionLetter = null; // The c in 'Grbl 0.8c'
     protected Boolean isReady = false;          // Not ready until version is received.
-    private GrblSettingsListener settings;
+    private Capabilities capabilities = new Capabilities();
+    private final GrblFirmwareSettings firmwareSettings;
 
     // Grbl status members.
-    private GrblUtils.Capabilities capabilities = new GrblUtils.Capabilities();
     private double maxZLocationMM;
 
     // Polling state
@@ -87,10 +88,9 @@ public class GrblController extends AbstractController {
         this.positionPollTimer = createPositionPollTimer();
         this.maxZLocationMM = -1;
 
-        // Listen for any setting changes.
-        this.settings = new GrblSettingsListener();
-        this.comm.setListenAll(settings);
-        this.addListener(settings);
+        // Add our controller settings manager
+        this.firmwareSettings = new GrblFirmwareSettings(this);
+        this.comm.setListenAll(firmwareSettings);
     }
     
     public GrblController() {
@@ -99,7 +99,17 @@ public class GrblController extends AbstractController {
 
     @Override
     public Boolean handlesAllStateChangeEvents() {
-        return capabilities.REAL_TIME;
+        return capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME);
+    }
+
+    @Override
+    public Capabilities getCapabilities() {
+        return capabilities;
+    }
+
+    @Override
+    public IFirmwareSettings getFirmwareSettings() {
+        return firmwareSettings;
     }
 
     @Override
@@ -222,11 +232,11 @@ public class GrblController extends AbstractController {
                 Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
                         "{0} = {1}{2}", new Object[]{Localization.getString("controller.log.version"), this.grblVersion, this.grblVersionLetter});
                 Logger.getLogger(GrblController.class.getName()).log(Level.CONFIG, 
-                        "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.REAL_TIME});
+                        "{0} = {1}", new Object[]{Localization.getString("controller.log.realtime"), this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)});
             }
             
             else if (GrblUtils.isGrblProbeMessage(response)) {
-                Position p = GrblUtils.parseProbePosition(response, getReportingUnits());
+                Position p = GrblUtils.parseProbePosition(response, getFirmwareSettings().getReportingUnits());
                 if (p != null) {
                     dispatchProbeCoordinates(p);
                 }
@@ -255,9 +265,6 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isGrblSettingMessage(response)) {
                 GrblSettingMessage message = new GrblSettingMessage(response);
                 processed = message.toString();
-                if (message.isReportingUnits()) {
-                    setReportingUnits(message.getReportingUnits());
-                }
             }
 
             if (StringUtils.isNotBlank(processed)) {
@@ -282,14 +289,14 @@ public class GrblController extends AbstractController {
 
     @Override
     protected void pauseStreamingEvent() throws Exception {
-        if (this.capabilities.REAL_TIME) {
+        if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_PAUSE_COMMAND);
         }
     }
     
     @Override
     protected void resumeStreamingEvent() throws Exception {
-        if (this.capabilities.REAL_TIME) {
+        if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESUME_COMMAND);
         }
     }
@@ -330,17 +337,17 @@ public class GrblController extends AbstractController {
         boolean paused = isPaused();
         // The cancel button is left enabled at all times now, but can only be
         // used for some versions of GRBL.
-        if (paused && !this.capabilities.REAL_TIME) {
+        if (paused && !this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             throw new Exception("Cannot cancel while paused with this version of GRBL. Reconnect to reset GRBL.");
         }
 
         // If we're canceling a "jog" just send the door hold command.
-        if (this.capabilities.JOG_MODE && controllerStatus != null &&
+        if (capabilities.hasJogging() && controllerStatus != null &&
                 "jog".equalsIgnoreCase(controllerStatus.getState())) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
         // Otherwise, check if we can get fancy with a soft reset.
-        else if (!paused && this.capabilities.REAL_TIME) {
+        else if (!paused && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             try {
                 this.pauseStreaming();
                 this.dispatchStateChange(ControlState.COMM_SENDING_PAUSED);
@@ -353,7 +360,7 @@ public class GrblController extends AbstractController {
     
     @Override
     protected void cancelSendAfterEvent() throws Exception {
-        if (this.capabilities.REAL_TIME && this.getStatusUpdatesEnabled()) {
+        if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME) && this.getStatusUpdatesEnabled()) {
             // Trigger the position listener to watch for the machine to stop.
             this.attemptsRemaining = 50;
             this.isCanceling = true;
@@ -365,7 +372,7 @@ public class GrblController extends AbstractController {
 
     @Override
     protected Boolean isIdleEvent() {
-        if (this.capabilities.REAL_TIME) {
+        if (this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return getControlState() == COMM_IDLE || getControlState() == COMM_CHECK;
         }
         // Otherwise let the abstract controller decide.
@@ -374,7 +381,7 @@ public class GrblController extends AbstractController {
 
     @Override
     public ControlState getControlState() {
-        if (!this.capabilities.REAL_TIME) {
+        if (!this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             return super.getControlState();
         }
 
@@ -528,7 +535,7 @@ public class GrblController extends AbstractController {
      */
     @Override
     public void softReset() throws Exception {
-        if (this.isCommOpen() && this.capabilities.REAL_TIME) {
+        if (this.isCommOpen() && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
             this.comm.softReset();
@@ -538,7 +545,7 @@ public class GrblController extends AbstractController {
     @Override
     public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
             double feedRate, Units units) throws Exception {
-        if (capabilities.JOG_MODE) {
+        if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
             // Format step size from spinner.
             String formattedStepSize = Utils.formatter.format(stepSize);
             String formattedFeedRate = Utils.formatter.format(feedRate);
@@ -646,7 +653,7 @@ public class GrblController extends AbstractController {
         String beforeState = controllerStatus == null ? "" : controllerStatus.getState();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
-                controllerStatus, string, capabilities, getReportingUnits());
+                controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
 
         // Make UGS more responsive to the state being reported by GRBL.
         if (before != getControlState()) {

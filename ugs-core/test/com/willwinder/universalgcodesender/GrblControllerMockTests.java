@@ -20,10 +20,12 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import org.hamcrest.CoreMatchers;
+import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -40,6 +42,10 @@ public class GrblControllerMockTests {
   public void testFillInSettings() {
     GrblController gc = Mockito.spy(new GrblController());
 
+    GrblFirmwareSettings firmwareSettings = Mockito.mock(GrblFirmwareSettings.class);
+    Mockito.when(firmwareSettings.getReportingUnits()).thenReturn(Units.MM);
+    doReturn(firmwareSettings).when(gc).getFirmwareSettings();
+
     String description = "Status report options, mask";
     gc.rawResponseListener("$10=100");
 
@@ -51,9 +57,11 @@ public class GrblControllerMockTests {
   @Test
   public void testProbeResponse() {
     GrblController gc = Mockito.spy(new GrblController());
-    doReturn(Units.MM).when(gc).getReportingUnits();
 
-    String description = "Status report options, mask";
+    GrblFirmwareSettings firmwareSettings = Mockito.mock(GrblFirmwareSettings.class);
+    Mockito.when(firmwareSettings.getReportingUnits()).thenReturn(Units.MM);
+    doReturn(firmwareSettings).when(gc).getFirmwareSettings();
+
     gc.rawResponseListener("[PRB:-192.200,-202.000,-40.400:1]");
 
     ArgumentCaptor<Position> probeCaptor = ArgumentCaptor.forClass(Position.class);

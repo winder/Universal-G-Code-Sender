@@ -3,8 +3,11 @@ package com.willwinder.universalgcodesender.utils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
+import java.awt.Component;
+import java.awt.Container;
 import java.io.File;
 import java.util.Optional;
+import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
@@ -63,5 +66,26 @@ public class SwingHelpers {
     } else {
       return Optional.empty();
     }  
+  }
+
+  @FunctionalInterface
+  public interface ApplyToComponent {
+    public void apply(JComponent component);
+  }
+
+  /**
+   * Provides component hierarchy traversal.
+   *
+   * @param aContainer start node for the traversal.
+   */
+  public static void traverse(Container aContainer, ApplyToComponent applicator) {
+      for (final Component comp : aContainer.getComponents()) {
+          if (comp instanceof JComponent) {
+            applicator.apply((JComponent) comp);
+          }
+          if (comp instanceof Container) {
+              traverse((Container) comp, applicator);
+          }
+      }
   }
 }

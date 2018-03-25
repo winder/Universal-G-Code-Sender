@@ -1,5 +1,6 @@
 package com.willwinder.ugs.nbp.jog;
 
+
 import javax.swing.*;
 
 public class JogPanelTest extends JFrame {

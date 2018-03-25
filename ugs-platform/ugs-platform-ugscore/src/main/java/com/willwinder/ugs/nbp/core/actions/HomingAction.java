@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -67,12 +68,17 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if(backend.getController() != null && backend.getController().getFirmwareSettings() != null ) {
+            java.awt.EventQueue.invokeLater(() -> {
+                updateToolTip();
+                setEnabled(isEnabled());
+            });
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isIdle() && backend.getController().getFirmwareSettings().isHomingEnabled();
     }
 
     @Override
@@ -81,6 +87,14 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
             backend.performHomingCycle();
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
+        }
+    }
+
+    private void updateToolTip() {
+        if (backend.getController().getFirmwareSettings().isHomingEnabled()) {
+            putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
+        } else {
+            putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.disabled.tooltip"));
         }
     }
 }

@@ -28,18 +28,25 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  * @author wwinder
  */
 public interface SerialCommunicatorListener {
+
+    /**
+     * Is called when a raw response message is received from the controller
+     *
+     * @param response a response message from the controller
+     */
     void rawResponseListener(String response);
 
     /**
-     * This method will be called when a command has
-     * @param command
+     * When a command has been sent by the controller
+     *
+     * @param command the command successfully sent to the controller
      */
     void commandSent(GcodeCommand command);
 
     /**
-     * This method will be called when a command has been skipped.
+     * The command skipped and not sent by the controller
      *
-     * @param command the command being skipped
+     * @param command the command that has been skipped
      */
     void commandSkipped(GcodeCommand command);
 
@@ -48,8 +55,24 @@ public interface SerialCommunicatorListener {
      */
     void communicatorPaused();
 
-
+    /**
+     * A message to be displayed in the console
+     *
+     * @param msg a text message
+     */
     void messageForConsole(String msg);
+
+    /**
+     * A verbose message to be displayed in the console.
+     *
+     * @param msg a text message
+     */
     void verboseMessageForConsole(String msg);
+
+    /**
+     * An error message to be displayed in the console
+     *
+     * @param msg a text message
+     */
     void errorMessageForConsole(String msg);
 }

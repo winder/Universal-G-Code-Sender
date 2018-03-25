@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -82,16 +83,14 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
 
         scrollWindowMenuItem.addActionListener(e -> checkScrollWindow());
 
-        menu.add(showVerboseMenuItem);
-        menu.add(scrollWindowMenuItem);
-        setComponentPopupMenu(menu);
-        consoleTextArea.setComponentPopupMenu(menu);
-        commandTextField.setComponentPopupMenu(menu);
-
         setLayout(new MigLayout("inset 0 0 5 0, fill, wrap 1", "", "[][min!]"));
         add(scrollPane, "grow, growy");
         add(commandLabel, "gapleft 5, al left, split 2");
         add(commandTextField, "gapright 5, r, grow");
+
+        menu.add(showVerboseMenuItem);
+        menu.add(scrollWindowMenuItem);
+        SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(menu));
     }
 
     @Override
