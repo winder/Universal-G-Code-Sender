@@ -26,7 +26,6 @@ import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontM
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
-import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
