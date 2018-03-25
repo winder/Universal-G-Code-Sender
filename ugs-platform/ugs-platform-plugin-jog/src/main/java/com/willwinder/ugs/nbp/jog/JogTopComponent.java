@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -29,15 +30,18 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
+import org.openide.util.Lookup;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.swing.JPopupMenu;
 
 /**
  * The jog control panel in NetBeans
@@ -88,6 +92,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
+        UseSeparateStepSizeAction action = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
 
         jogPanel = new JogPanel();
         jogPanel.setEnabled(jogService.canJog());
@@ -97,6 +102,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.setUnit(jogService.getUnits());
         jogPanel.setUseStepSizeZ(jogService.useStepSizeZ());
         jogPanel.addListener(this);
+        
         backend.addUGSEventListener(this);
         backend.addControllerListener(this);
 
@@ -107,6 +113,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         setPreferredSize(new Dimension(250, 270));
 
         add(jogPanel, BorderLayout.CENTER);
+
+        if (action != null) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            popupMenu.add(action);
+            SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(popupMenu));
+        }
     }
 
     @Override
