@@ -751,7 +751,7 @@ public class GrblControllerTest {
         assertEquals(0, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
-        setState(instance, ControlState.COMM_IDLE);
+        setState(instance, COMM_IDLE);
 
         // Test 1.1 Cancel when nothing is running (Grbl 0.7).
         instance.rawResponseHandler("Grbl 0.7");
