@@ -287,7 +287,7 @@ public abstract class AbstractCommunicator {
                     scl.rawResponseListener(string);
                 break;
             case PAUSED:
-                sclList.forEach(SerialCommunicatorListener::communicatorPaused);
+                sclList.forEach(SerialCommunicatorListener::communicatorPausedOnError);
                 break;
             default:
 

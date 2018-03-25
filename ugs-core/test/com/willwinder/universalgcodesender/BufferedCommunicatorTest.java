@@ -485,7 +485,7 @@ public class BufferedCommunicatorTest {
 
         // Then
         assertTrue(instance.isPaused());
-        verify(serialCommunicatorListener, times(1)).communicatorPaused();
+        verify(serialCommunicatorListener, times(1)).communicatorPausedOnError();
     }
 
     @Test

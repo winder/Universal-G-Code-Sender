@@ -51,9 +51,10 @@ public interface SerialCommunicatorListener {
     void commandSkipped(GcodeCommand command);
 
     /**
-     * This method will be called when the communicator is paused.
+     * This method will be called when the communicator is paused due to an error during
+     * processing of commands.
      */
-    void communicatorPaused();
+    void communicatorPausedOnError();
 
     /**
      * A message to be displayed in the console

@@ -726,7 +726,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void communicatorPaused() {
+    public void communicatorPausedOnError() {
         dispatchConsoleMessage(MessageType.INFO, "**** The communicator has been paused ****\n");
         try {
             // FIXME the dispatchStateChange has logic for resuming send operations, this should have it's own handler.

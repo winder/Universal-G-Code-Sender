@@ -153,8 +153,8 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public void communicatorPaused() {
-        serialCommunicatorDelegate.communicatorPaused();
+    public void communicatorPausedOnError() {
+        serialCommunicatorDelegate.communicatorPausedOnError();
     }
 
     @Override

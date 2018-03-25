@@ -262,8 +262,8 @@ public class GrblFirmwareSettingsSerialCommunicator implements SerialCommunicato
     }
 
     @Override
-    public void communicatorPaused() {
-        
+    public void communicatorPausedOnError() {
+
     }
 
     @Override
