@@ -804,11 +804,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * that the stream is complete once the last command has finished.
      */
     public void commandComplete(String response) throws UnexpectedCommand {
-        // Auto-paused while we weren't streaming, resume the comm.
-        if (!isStreaming() && !isPaused() && comm.isPaused()) {
-            comm.resumeSend();
-        }
-
         if (this.activeCommands.isEmpty()) {
             throw new UnexpectedCommand(
                     Localization.getString("controller.exception.unexpectedCommand"));
