@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="stop_dark.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/stop_dark.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/stop32_dark.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <marker
@@ -278,7 +278,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.5935568"
-     inkscape:cx="-62.528768"
+     inkscape:cx="-125.18404"
      inkscape:cy="19.639487"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -321,7 +321,7 @@
      style="display:inline"
      transform="translate(0,-1020.3622)">
     <rect
-       style="opacity:1;fill:#05d4ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       style="opacity:1;fill:#0ac9f1;fill-opacity:0.99607843;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect5561"
        width="32"
        height="32"

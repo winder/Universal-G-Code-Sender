@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="check_dark.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/check_dark.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/check32_dark.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <marker
@@ -278,7 +278,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.0510179"
-     inkscape:cx="-57.033779"
+     inkscape:cx="-110.29469"
      inkscape:cy="54.127188"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -321,7 +321,7 @@
      style="display:inline"
      transform="translate(0,-1020.3622)">
     <path
-       style="opacity:0.92000002;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#05d4ff;stroke-width:6.50490236;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:6.50490236;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99607843;marker-end:"
        d="m 3.2853013,1037.0978 8.0118717,8.0121 17.417525,-17.4175"
        id="path9393"
        inkscape:connector-curvature="0" />

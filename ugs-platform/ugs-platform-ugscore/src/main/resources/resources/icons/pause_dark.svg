@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="pause_dark.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/pause32_dark.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/pause_dark.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
   <defs
      id="defs4">
     <marker
@@ -278,7 +278,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.12"
-     inkscape:cx="-52.027338"
+     inkscape:cx="-104.11067"
      inkscape:cy="15.788272"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -323,9 +323,9 @@
     <g
        id="g4231"
        transform="matrix(2.0342332,0,0,2.0342332,-46.664306,171.19271)"
-       style="fill:#05d4ff;fill-opacity:1">
+       style="fill:#0ac9f1;fill-opacity:0.99607843">
       <rect
-         style="opacity:1;fill:#05d4ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         style="opacity:1;fill:#0ac9f1;fill-opacity:0.99607843;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
          id="rect5076"
          width="6.5973105"
          height="15.730743"
@@ -339,7 +339,7 @@
          height="15.730743"
          width="6.5973105"
          id="rect5078"
-         style="opacity:1;fill:#05d4ff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+         style="opacity:1;fill:#0ac9f1;fill-opacity:0.99607843;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
     </g>
     <g
        id="g5096"

@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="zero_dark.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/zero32_dark.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/zero_dark.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
   <defs
      id="defs4">
     <marker
@@ -32,7 +32,7 @@
        inkscape:stockid="Arrow1Mstart">
       <path
          transform="matrix(0.4,0,0,0.4,4,0)"
-         style="fill:#05d4ff;fill-opacity:1;fill-rule:evenodd;stroke:#05d4ff;stroke-width:1pt;stroke-opacity:1"
+         style="fill:#0ac9f1;fill-opacity:0.99607843;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:1pt;stroke-opacity:0.99607843"
          d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
          id="path9445"
          inkscape:connector-curvature="0" />
@@ -278,7 +278,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.5935568"
-     inkscape:cx="-62.528768"
+     inkscape:cx="-125.18404"
      inkscape:cy="4.2166513"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -325,9 +325,9 @@
        inkscape:connector-curvature="0"
        id="path7375"
        d="M 8.9589389,1043.2786 30.787502,1022.5903"
-       style="fill:#05d4ff;fill-opacity:1;fill-rule:evenodd;stroke:#05d4ff;stroke-width:3.43571162;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker9443)" />
+       style="fill:#0ac9f1;fill-opacity:0.99607843;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:3.43571162;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.99607843;marker-start:url(#marker9443)" />
     <path
-       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#05d4ff;stroke-width:2.69634891;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.69634911, 2.69634910999999988;stroke-dashoffset:1.4000001;stroke-opacity:1"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#0ac9f1;stroke-width:2.69634891;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.69634911, 2.69634910999999988;stroke-dashoffset:1.4000001;stroke-opacity:0.99607843"
        d="m 1.3482242,1020.8132 0,30.0008 30.6518258,0"
        id="path8639"
        inkscape:connector-curvature="0"
