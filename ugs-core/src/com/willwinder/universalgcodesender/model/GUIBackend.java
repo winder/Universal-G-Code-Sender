@@ -722,13 +722,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        if (command.isError() && isSendingFile() && !this.isPaused()) {
-            try {
-                this.pauseResume();
-            } catch (Exception e) {
-                GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
-            }
-        }
     }
 
     @Override

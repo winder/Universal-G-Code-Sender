@@ -729,11 +729,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void communicatorPausedOnError() {
         dispatchConsoleMessage(MessageType.INFO, "**** The communicator has been paused ****\n");
         try {
-            // FIXME the dispatchStateChange has logic for resuming send operations, this should have it's own handler.
-            // We can not use setCurrentState-method because in some cases the state change will not be dispatched
-            // if handleAllStateChangeEvents returns true.
-            dispatchStateChange(COMM_SENDING_PAUSED);
-            this.currentState = COMM_SENDING_PAUSED;
+            // Synchronize the controller <> communicator state.
+            if (!this.isStreaming()) {
+                this.comm.resumeSend();
+            }
+            else {
+                this.pauseStreaming();
+            }
         } catch (Exception ignored) {
             logger.log(Level.SEVERE, "Couldn't set the state to paused.");
         }
@@ -886,10 +888,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     protected void dispatchStateChange(ControlState state) {
-        if (this.currentState == COMM_SENDING_PAUSED && state != this.currentState
-                && this.comm.isPaused() && !this.isStreaming()) {
-            this.comm.resumeSend();
-        }
         if (listeners != null) {
             for (ControllerListener c : listeners) {
                 c.controlStateChange(state);
