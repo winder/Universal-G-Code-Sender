@@ -1,5 +1,5 @@
 /*
-    Copywrite 2013 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,12 +25,22 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore; 
+import org.junit.Ignore;
+
+import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -81,8 +91,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         String result;
         String expResult;
-        String versionString;
-        
+
         expResult = "<Not connected>";
         result = instance.getGrblVersion();
         assertEquals(expResult, result);
@@ -426,9 +435,6 @@ public class GrblControllerTest {
         instance.openCommPort("blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
 
-        int expResult;
-        int result;
-
         // Test 1.
         // When not sending, no commands queues, everything should be zero.
         assertCounts(instance, 0, 0, 0);
@@ -736,7 +742,6 @@ public class GrblControllerTest {
 
         // 0. Test GRBL not returning to idle during cancel.
         instance.rawResponseHandler("Grbl 0.8c");
-        String error = "";
         instance.cancelSend();
         for (int i = 0; i < 50; i++) {
             instance.rawResponseHandler("<Running,MPos:1.0,2.0,3.0>");
@@ -746,7 +751,7 @@ public class GrblControllerTest {
         assertEquals(0, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
-        setState(instance, ControlState.COMM_IDLE);
+        setState(instance, COMM_IDLE);
 
         // Test 1.1 Cancel when nothing is running (Grbl 0.7).
         instance.rawResponseHandler("Grbl 0.7");
@@ -868,7 +873,7 @@ public class GrblControllerTest {
     public void testPauseAndCancelSend() throws Exception {
         System.out.println("Pause + cancelSend");
         GrblController instance = new GrblController(mgc);
-        setState(instance, ControlState.COMM_SENDING);
+        setState(instance, COMM_SENDING);
         instance.openCommPort("blah", 1234);
 
         // Test 1.1 cancel throws an exception (Grbl 0.7).
@@ -1200,7 +1205,7 @@ public class GrblControllerTest {
         verify(controllerListener, times(1)).messageForConsole(any(), anyString());
         instance.removeListener(controllerListener);
 
-        assertNull(instance.getActiveCommand());
+        assertFalse(instance.getActiveCommand().isPresent());
     }
 
     @Test
@@ -1224,6 +1229,137 @@ public class GrblControllerTest {
         verify(controllerListener, times(1)).messageForConsole(any(), anyString());
         instance.removeListener(controllerListener);
 
-        assertNull(instance.getActiveCommand());
+        assertFalse(instance.getActiveCommand().isPresent());
+    }
+
+    @Test
+    public void rawResponseHandlerOnErrorWithNoSentCommandsShouldSendMessageToConsole() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort("foo", 2400);
+
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        instance.addListener(controllerListener);
+
+        // When
+        instance.rawResponseHandler("error:1");
+
+        // Then
+        String genericErrorMessage = "An unexpected error was detected: (error:1) G-code words consist of a letter and a value. Letter was not found.\n";
+        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
+        instance.removeListener(controllerListener);
+
+        assertFalse(instance.getActiveCommand().isPresent());
+    }
+
+    @Test
+    public void controllerShouldBeIdleWhenInCheckMode() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
+        instance.rawResponseHandler("<Hold|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertFalse("We should start with a non idle state", instance.isIdle());
+
+        // When
+        instance.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+
+        // Then
+        assertTrue(instance.isIdle());
+        assertTrue(instance.isIdleEvent());
+        assertEquals(COMM_CHECK, instance.getControlState());
+    }
+
+    @Test
+    public void versionStringShouldResetStatus() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f");
+        instance.rawResponseHandler("<Run|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertEquals("We should be in sending mode", COMM_SENDING, instance.getControlState());
+
+        // When
+        instance.rawResponseHandler("Grbl 1.1f");
+
+        // Then
+        assertEquals(COMM_IDLE, instance.getControlState());
+    }
+
+    /**
+     * When exiting check mode the controller does a soft reset and sends a new version string. The
+     * default behavior is to reset the controller status. But we need it to determine if single
+     * step mode is supposed to be activated.
+     */
+    @Test
+    public void versionStringShouldNotResetStatusWhenInCheckMode() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f");
+        instance.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertEquals("We should be in check mode", COMM_CHECK, instance.getControlState());
+
+        // When
+        instance.rawResponseHandler("Grbl 1.1f");
+
+        // Then
+        assertEquals(COMM_CHECK, instance.getControlState());
+    }
+
+    @Test
+    public void controllerShouldHaveStateRunningWhenStreamingAndInCheckMode() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
+        instance.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertTrue(instance.isIdle());
+
+        // Create a gcode file stream
+        File gcodeFile = new File(tempDir, "gcodeFile");
+        GcodeStreamWriter gcodeStreamWriter = new GcodeStreamWriter(gcodeFile);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.close();
+
+        // When
+        instance.queueStream(new GcodeStreamReader(gcodeFile));
+        instance.beginStreaming();
+
+        // Then
+        assertFalse(instance.isIdle());
+        assertFalse(instance.isPaused());
+        assertEquals(COMM_SENDING, instance.getControlState());
+    }
+
+    @Test
+    public void controllerShouldBeIdleWhenInCheckModeWithOldStatusFormat() throws Exception {
+        // Given
+        GrblController instance = new GrblController(mgc);
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+
+        instance.openCommPort("foo", 2400);
+        instance.rawResponseHandler("Grbl 0.8c"); // We will assume that we are using version Grbl without streaming support
+        instance.rawResponseHandler("<Hold,MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        assertFalse("We should start with a non idle state", instance.isIdle());
+
+        // When
+        instance.rawResponseHandler("<Check,MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+
+        // Then
+        assertTrue(instance.isIdle());
+        assertTrue(instance.isIdleEvent());
+        assertEquals(COMM_CHECK, instance.getControlState());
     }
 }

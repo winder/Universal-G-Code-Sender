@@ -32,6 +32,7 @@ import org.openide.util.actions.Presenter;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import org.openide.util.lookup.ServiceProvider;
 
 /**
  * An action for activating/deactivating separate step values for XY and Z axis.
@@ -50,6 +51,7 @@ import java.awt.event.ActionEvent;
                 position = 10000,
                 separatorAfter = 10001)
 })
+@ServiceProvider(service = UseSeparateStepSizeAction.class)
 public class UseSeparateStepSizeAction extends AbstractAction implements Presenter.Menu {
 
     private final BackendAPI backend;

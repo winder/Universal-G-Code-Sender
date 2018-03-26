@@ -1,10 +1,5 @@
 /*
- * These objects are passed around by the GUI API to notify listeners of state
- * changes.
- */
-
-/*
-    Copywrite 2012-2017 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +22,8 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 
 /**
+ * These objects are passed around by the GUI API to notify listeners of state
+ * changes.
  *
  * @author wwinder
  */
@@ -43,6 +40,7 @@ public class UGSEvent {
         STATE_EVENT,
         FILE_EVENT,
         SETTING_EVENT,
+        FIRMWARE_SETTING_EVENT,
         PROBE_EVENT,
         CONTROLLER_STATUS_EVENT,
         GCODE_STATE_EVENT
@@ -58,6 +56,7 @@ public class UGSEvent {
         COMM_IDLE,
         COMM_SENDING,
         COMM_SENDING_PAUSED,
+        COMM_CHECK
     }
 
     public EventType getEventType(){

@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.jog;
 
+import com.willwinder.ugs.nbp.jog.actions.UseSeparateStepSizeAction;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -29,15 +30,18 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 
 import java.awt.*;
+import org.openide.util.Lookup;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import javax.swing.JPopupMenu;
 
 /**
  * The jog control panel in NetBeans
@@ -59,7 +63,7 @@ import java.util.concurrent.TimeUnit;
         displayName = "Jog Controller",
         preferredID = "JogTopComponent"
 )
-public final class JogTopComponent extends TopComponent implements UGSEventListener, ControllerListener, JogPanelButtonListener {
+public final class JogTopComponent extends TopComponent implements UGSEventListener, ControllerListener, JogPanelListener {
 
     public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
@@ -88,6 +92,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     public JogTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         jogService = CentralLookup.getDefault().lookup(JogService.class);
+        UseSeparateStepSizeAction action = Lookup.getDefault().lookup(UseSeparateStepSizeAction.class);
 
         jogPanel = new JogPanel();
         jogPanel.setEnabled(jogService.canJog());
@@ -97,6 +102,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.setUnit(jogService.getUnits());
         jogPanel.setUseStepSizeZ(jogService.useStepSizeZ());
         jogPanel.addListener(this);
+        
         backend.addUGSEventListener(this);
         backend.addControllerListener(this);
 
@@ -107,6 +113,12 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         setPreferredSize(new Dimension(250, 270));
 
         add(jogPanel, BorderLayout.CENTER);
+
+        if (action != null) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            popupMenu.add(action);
+            SwingHelpers.traverse(this, (comp) -> comp.setComponentPopupMenu(popupMenu));
+        }
     }
 
     @Override
@@ -231,52 +243,55 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void onButtonLongPressed(JogPanelButtonEnum button) {
-        // Cancel any previous jogging
-        if( continuousJogSchedule != null ) {
-            continuousJogSchedule.cancel(true);
+        if (backend.getController().getCapabilities().hasContinuousJogging()) {
+
+            // Cancel any previous jogging
+            if (continuousJogSchedule != null) {
+                continuousJogSchedule.cancel(true);
+            }
+
+            continuousJogSchedule = EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
+                // TODO add a check so that no more than one or two jog commands are queued on the controller. Otherwise a soft limit may trigger if too many commands are queued.
+                double stepSize = LONG_PRESS_MM_STEP_SIZE;
+                if (jogService.getUnits() == UnitUtils.Units.INCH) {
+                    stepSize = LONG_PRESS_INCH_STEP_SIZE;
+                }
+
+                switch (button) {
+                    case BUTTON_XNEG:
+                        jogService.adjustManualLocation(-1, 0, 0, stepSize);
+                        break;
+                    case BUTTON_XPOS:
+                        jogService.adjustManualLocation(1, 0, 0, stepSize);
+                        break;
+                    case BUTTON_YNEG:
+                        jogService.adjustManualLocation(0, -10, 0, stepSize);
+                        break;
+                    case BUTTON_YPOS:
+                        jogService.adjustManualLocation(0, 10, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XNEG_YNEG:
+                        jogService.adjustManualLocation(-1, -1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XNEG_YPOS:
+                        jogService.adjustManualLocation(-1, 1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XPOS_YNEG:
+                        jogService.adjustManualLocation(1, -1, 0, stepSize);
+                        break;
+                    case BUTTON_DIAG_XPOS_YPOS:
+                        jogService.adjustManualLocation(1, 1, 0, stepSize);
+                        break;
+                    case BUTTON_ZNEG:
+                        jogService.adjustManualLocation(0, 0, -1, stepSize);
+                        break;
+                    case BUTTON_ZPOS:
+                        jogService.adjustManualLocation(0, 0, 1, stepSize);
+                        break;
+                    default:
+                }
+            }, 0, LONG_PRESS_JOG_INTERVAL, TimeUnit.MILLISECONDS);
         }
-
-        continuousJogSchedule = EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
-            // TODO add a check so that no more than one or two jog commands are queued on the controller. Otherwise a soft limit may trigger if too many commands are queued.
-            double stepSize = LONG_PRESS_MM_STEP_SIZE;
-            if( jogService.getUnits() == UnitUtils.Units.INCH) {
-                stepSize = LONG_PRESS_INCH_STEP_SIZE;
-            }
-
-            switch (button) {
-                case BUTTON_XNEG:
-                    jogService.adjustManualLocation(-1, 0, 0, stepSize);
-                    break;
-                case BUTTON_XPOS:
-                    jogService.adjustManualLocation(1, 0, 0, stepSize);
-                    break;
-                case BUTTON_YNEG:
-                    jogService.adjustManualLocation(0, -10, 0, stepSize);
-                    break;
-                case BUTTON_YPOS:
-                    jogService.adjustManualLocation(0, 10, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XNEG_YNEG:
-                    jogService.adjustManualLocation(-1, -1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XNEG_YPOS:
-                    jogService.adjustManualLocation(-1, 1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XPOS_YNEG:
-                    jogService.adjustManualLocation(1, -1, 0, stepSize);
-                    break;
-                case BUTTON_DIAG_XPOS_YPOS:
-                    jogService.adjustManualLocation(1, 1, 0, stepSize);
-                    break;
-                case BUTTON_ZNEG:
-                    jogService.adjustManualLocation(0, 0, -1, stepSize);
-                    break;
-                case BUTTON_ZPOS:
-                    jogService.adjustManualLocation(0, 0, 1, stepSize);
-                    break;
-                default:
-            }
-        }, 0, LONG_PRESS_JOG_INTERVAL, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -285,5 +300,20 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
             continuousJogSchedule.cancel(true);
         }
         jogService.cancelJog();
+    }
+
+    @Override
+    public void onStepSizeZChanged(double value) {
+        jogService.setStepSizeZ(value);
+    }
+
+    @Override
+    public void onStepSizeXYChanged(double value) {
+        jogService.setStepSize(value);
+    }
+
+    @Override
+    public void onFeedRateChanged(int value) {
+        jogService.setFeedRate(value);
     }
 }

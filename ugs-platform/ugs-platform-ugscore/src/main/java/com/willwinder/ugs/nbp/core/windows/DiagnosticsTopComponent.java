@@ -20,16 +20,17 @@ package com.willwinder.ugs.nbp.core.windows;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import java.awt.BorderLayout;
+
+import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.*;
+
 import net.miginfocom.swing.MigLayout;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -67,7 +68,6 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
     initComponents();
 
     backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-    backend.addUGSEventListener(this);
   }
 
   private void initComponents() {
@@ -92,6 +92,12 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
     this.labels.put("controller:getStatusUpdatesEnabled", new JLabel("-----"));
     this.labels.put("controller:getStatusUpdateRate", new JLabel("-----"));
 
+    this.labels.put("communicator:numActiveCommands", new JLabel("-----"));
+    this.labels.put("communicator:isPaused", new JLabel("-----"));
+    this.labels.put("communicator:getSingleStepMode", new JLabel("-----"));
+
+    this.labels.put("settings:isHomingEnabled", new JLabel("-----"));
+    this.labels.put("settings:getReportingUnits", new JLabel("-----"));
     setLayout(new BorderLayout());
 
 
@@ -101,8 +107,14 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
       labelPanel.add(new JLabel(dp.getKey()));
       labelPanel.add(dp.getValue());
     }
+
+    JButton refresh = new JButton("Refresh");
+    refresh.addActionListener((event) -> refreshValues());
+    labelPanel.add(refresh, "spanx 2");
+
     JScrollPane scrollPane = new JScrollPane(labelPanel);
     add(scrollPane, BorderLayout.CENTER);
+    setMinimumSize(new Dimension(100, 200));
   }
 
   private void refreshValues() {
@@ -133,8 +145,17 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         labels.get("controller:getSingleStepMode").setText(String.valueOf(controller.getSingleStepMode()));
         labels.get("controller:getStatusUpdatesEnabled").setText(String.valueOf(controller.getStatusUpdatesEnabled()));
         labels.get("controller:getStatusUpdateRate").setText(String.valueOf(controller.getStatusUpdateRate()));
-      }
 
+        labels.get("settings:isHomingEnabled").setText(String.valueOf(controller.getFirmwareSettings().isHomingEnabled()));
+        labels.get("settings:getReportingUnits").setText(controller.getFirmwareSettings().getReportingUnits().toString());
+
+        AbstractCommunicator communicator = controller.getCommunicator();
+        if ( communicator != null) {
+          labels.get("communicator:numActiveCommands").setText(String.valueOf(communicator.numActiveCommands()));
+          labels.get("communicator:isPaused").setText(String.valueOf(communicator.isPaused()));
+          labels.get("communicator:getSingleStepMode").setText(String.valueOf(communicator.getSingleStepMode()));
+        }
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -147,10 +168,12 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
 
   @Override
   public void componentOpened() {
+    backend.addUGSEventListener(this);
   }
 
   @Override
   public void componentClosed() {
+    backend.removeUGSEventListener(this);
   }
 
   void writeProperties(java.util.Properties p) {

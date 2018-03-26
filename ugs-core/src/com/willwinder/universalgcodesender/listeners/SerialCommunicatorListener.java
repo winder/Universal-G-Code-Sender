@@ -1,10 +1,5 @@
 /*
- * This is the interface which the SerialCommunicator class uses to notify
- * external programs of important events during communication.
- */
-
-/*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,16 +22,58 @@ package com.willwinder.universalgcodesender.listeners;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 
 /**
+ * This is the interface which the SerialCommunicator class uses to notify
+ * external programs of important events during communication.
  *
  * @author wwinder
  */
 public interface SerialCommunicatorListener {
-    //void capabilitiesListener(CommUtils.Capabilities capability);
+
+    /**
+     * Is called when a raw response message is received from the controller
+     *
+     * @param response a response message from the controller
+     */
     void rawResponseListener(String response);
-    
+
+    /**
+     * When a command has been sent by the controller
+     *
+     * @param command the command successfully sent to the controller
+     */
     void commandSent(GcodeCommand command);
+
+    /**
+     * The command skipped and not sent by the controller
+     *
+     * @param command the command that has been skipped
+     */
     void commandSkipped(GcodeCommand command);
+
+    /**
+     * This method will be called when the communicator is paused due to an error during
+     * processing of commands.
+     */
+    void communicatorPausedOnError();
+
+    /**
+     * A message to be displayed in the console
+     *
+     * @param msg a text message
+     */
     void messageForConsole(String msg);
+
+    /**
+     * A verbose message to be displayed in the console.
+     *
+     * @param msg a text message
+     */
     void verboseMessageForConsole(String msg);
+
+    /**
+     * An error message to be displayed in the console
+     *
+     * @param msg a text message
+     */
     void errorMessageForConsole(String msg);
 }

@@ -18,43 +18,47 @@
  */
 package com.willwinder.universalgcodesender;
 
-import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
-
-import java.io.*;
-import java.lang.reflect.Field;
-import java.util.concurrent.LinkedBlockingDeque;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-
 import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 /**
- *
  * @author wwinder
  */
 public class BufferedCommunicatorTest {
 
+    private final static Connection mockConnection = EasyMock.createMock(Connection.class);
+    private final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
     private BufferedCommunicator instance;
     private LinkedBlockingDeque<String> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
 
-    private final static Connection mockConnection = EasyMock.createMock(Connection.class);
-    private final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
-    
     public BufferedCommunicatorTest() {
     }
     
@@ -425,6 +429,157 @@ public class BufferedCommunicatorTest {
         assertEquals("The second command should be from the stream", "G0\n", commandCaptor.getAllValues().get(1));
     }
 
+    @Test
+    public void softResetShouldClearBuffersAndResumeOperation() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        asl.add(new GcodeCommand("G0"));
+        cb.add("G0");
+
+        instance.pauseSend();
+        assertTrue(instance.isPaused());
+        assertEquals(1, instance.numActiveCommands());
+        assertEquals(1, instance.numBufferedCommands());
+
+        // When
+        instance.softReset();
+
+        // Then
+        assertFalse("The communicator should resume operation after a reset", instance.isPaused());
+        assertEquals("There should be no active commands", 0, instance.numActiveCommands());
+        assertEquals("There should be no buffered manual commands", 0, instance.numBufferedCommands());
+    }
+
+    @Test
+    public void responseMessageOnErrorShouldPauseTheCommunicator() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        asl.add(new GcodeCommand("G0"));
+        asl.add(new GcodeCommand("G0"));
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertTrue(instance.isPaused());
+    }
+
+    @Test
+    public void responseMessageOnErrorShouldDispatchPauseEvent() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+
+        SerialCommunicatorListener serialCommunicatorListener = mock(SerialCommunicatorListener.class);
+        instance.addCommandEventListener(serialCommunicatorListener);
+
+        asl.add(new GcodeCommand("G0"));
+        asl.add(new GcodeCommand("G0"));
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertTrue(instance.isPaused());
+        verify(serialCommunicatorListener, times(1)).communicatorPausedOnError();
+    }
+
+    @Test
+    public void responseMessageOnErrorOnManualCommandShouldPauseTheCommunicator() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        cb.add("G0");
+        cb.add("G0");
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertTrue(instance.isPaused());
+    }
+
+    @Test
+    public void responseMessageOnErrorOnLastManualCommandShouldNotPauseTheCommunicator() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        cb.add("G0");
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertFalse(instance.isPaused());
+    }
+
+    @Test
+    public void responseMessageOnErrorOnLastCommandShouldNotPauseTheCommunicator() {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+        asl.add(new GcodeCommand("G0"));
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertFalse(instance.isPaused());
+    }
+
+    @Test
+    public void responseMessageOnErrorOnCommandStreamShouldPauseTheCommunicator() throws IOException, GcodeStreamReader.NotGcodeStreamFile {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+
+        // Create a gcode file stream
+        File gcodeFile = new File(tempDir, "gcodeFile");
+        GcodeStreamWriter gcodeStreamWriter = new GcodeStreamWriter(gcodeFile);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.close();
+
+        // Stream
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertTrue(instance.isPaused());
+    }
+
+    @Test
+    public void responseMessageOnErrorOnLastCommandStreamShouldNotPauseTheCommunicator() throws IOException, GcodeStreamReader.NotGcodeStreamFile {
+        // Given
+        Connection connection = mock(Connection.class);
+        instance.setConnection(connection);
+
+        // Create a gcode file stream
+        File gcodeFile = new File(tempDir, "gcodeFile");
+        GcodeStreamWriter gcodeStreamWriter = new GcodeStreamWriter(gcodeFile);
+        gcodeStreamWriter.addLine("G0", "G0", null, 0);
+        gcodeStreamWriter.close();
+
+        // Stream
+        instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
+        instance.streamCommands();
+
+        // When
+        instance.responseMessage("error");
+
+        // Then
+        assertFalse(instance.isPaused());
+    }
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
         BufferedCommunicatorImpl(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
