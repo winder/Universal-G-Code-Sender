@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -78,7 +78,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private String lastComment;
     private String activeState;
     private long estimatedSendDuration = -1L;
-    private boolean sendingFile = false;
     private String firmware = null;
 
     private long lastResponse = Long.MIN_VALUE;
@@ -527,7 +526,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         //       the rowsValueLabel that was just reset.
 
         try {
-            this.sendingFile = true;
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
@@ -592,7 +590,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             switch(getControlState()) {
                 case COMM_IDLE:
                 default:
-                    if (!sendingFile) {
+                    if (!isSendingFile()) {
                         throw new Exception("Cannot pause while '" + getControlState() + "'.");
                     }
                     // Fall through if we're really sending a file.
@@ -626,7 +624,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public boolean isSendingFile() {
-        return sendingFile;
+        return this.controller != null && this.controller.isStreaming();
     }
 
     @Override
@@ -712,8 +710,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        // If we were sending a file, we aren't anymore.
-        this.sendingFile = false;
     }
 
     @Override
@@ -726,39 +722,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComplete(GcodeCommand command) {
-        if (command.isError()) {
-            if (this.sendingFile && !this.isPaused()) {
-                try {
-                    this.pauseResume();
-                } catch (Exception e) {
-                    GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
-                }
-
-                /*
-                String error =
-                        String.format(Localization.getString("controller.exception.sendError"),
-                                command.getCommandString(),
-                                command.getResponse()).replaceAll("\\.\\.", "\\.");
-                messageForConsole(MessageType.INFO, error);
-
-                // The logic below used to automatically add "pattern processor remover" entries to the gcode processor.
-                // It was causing a lot of issues where users were adding commands which shouldn't be added.
-                String checkboxQuestion = Localization.getString("controller.exception.ignoreFutureErrors");
-                Object[] params = {String.format(NarrowOptionPane.pattern, 300, error), checkboxQuestion};
-                int n = JOptionPane.showConfirmDialog(new JFrame(),
-                        params,
-                        Localization.getString("error"),
-                        JOptionPane.YES_NO_OPTION);
-                if (n == JOptionPane.YES_OPTION) {
-                    try {
-                        FirmwareUtils.addPatternRemoverForFirmware(firmware,
-                                Matcher.quoteReplacement(command.getCommandString()));
-                        this.reprocessFileAfterStreamComplete = true;
-                    } catch (IOException ex) {
-                        GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
-                    }
-                }
-                */
+        if (command.isError() && isSendingFile() && !this.isPaused()) {
+            try {
+                this.pauseResume();
+            } catch (Exception e) {
+                GUIHelpers.displayErrorDialog(e.getLocalizedMessage());
             }
         }
     }

@@ -40,7 +40,6 @@ import java.util.logging.Logger;
 public abstract class AbstractCommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
-    public static String DEFAULT_TERMINATOR = "\r\n";
     protected Connection conn;
     private int commandCounter = 0;
 
@@ -53,6 +52,7 @@ public abstract class AbstractCommunicator {
         COMMAND_SKIPPED,
         RAW_RESPONSE,
         CONSOLE_MESSAGE,
+        PAUSED,
         VERBOSE_CONSOLE_MESSAGE
     }
     // Callback interfaces
@@ -69,11 +69,12 @@ public abstract class AbstractCommunicator {
         this.commRawResponseListener     = new ArrayList<>();
 
         this.eventMap = new HashMap<>();
-        eventMap.put(SerialCommunicatorEvent.COMMAND_SENT,            commandEventListeners);
-        eventMap.put(SerialCommunicatorEvent.COMMAND_SKIPPED,         commandEventListeners);
-        eventMap.put(SerialCommunicatorEvent.CONSOLE_MESSAGE,         commConsoleListeners);
-        eventMap.put(SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
-        eventMap.put(SerialCommunicatorEvent.RAW_RESPONSE,            commRawResponseListener);
+        eventMap.put(COMMAND_SENT,            commandEventListeners);
+        eventMap.put(COMMAND_SKIPPED,         commandEventListeners);
+        eventMap.put(PAUSED,                  commandEventListeners);
+        eventMap.put(CONSOLE_MESSAGE,         commConsoleListeners);
+        eventMap.put(VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
+        eventMap.put(RAW_RESPONSE,            commRawResponseListener);
     }
     
     /*********************/
@@ -169,7 +170,7 @@ public abstract class AbstractCommunicator {
         this.removeCommRawResponseListener(scl);
     }
 
-    private void addCommandEventListener(SerialCommunicatorListener scl) {
+    public void addCommandEventListener(SerialCommunicatorListener scl) {
         if (!this.commandEventListeners.contains(scl)) {
             this.commandEventListeners.add(scl);
         }
@@ -284,6 +285,10 @@ public abstract class AbstractCommunicator {
             case RAW_RESPONSE:
                 for (SerialCommunicatorListener scl : sclList)
                     scl.rawResponseListener(string);
+                break;
+            case PAUSED:
+                sclList.forEach(SerialCommunicatorListener::communicatorPausedOnError);
+                break;
             default:
 
         }
@@ -302,8 +307,11 @@ public abstract class AbstractCommunicator {
             try {
                 EventData e = eventQueue.take();
                 sendEventToListeners(e.event, e.sclList, e.string, e.command);
+            } catch (InterruptedException ignored) {
+                stop = true;
             } catch (Exception e) {
-                logger.log(Level.SEVERE, "Couldn't send command", e);
+                logger.log(Level.WARNING, "Couldn't send event", e);
+                stop = true;
             }
         }
     });

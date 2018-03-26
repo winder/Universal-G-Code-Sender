@@ -40,8 +40,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Optional;
 
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import static com.willwinder.universalgcodesender.Utils.formatter;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
@@ -632,7 +636,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public Boolean isIdle() {
         try {
-            return getControlState() == COMM_IDLE && isIdleEvent();
+            return (getControlState() == COMM_IDLE || getControlState() == COMM_CHECK) && isIdleEvent();
         } catch (Exception e) {
             return false;
         }
@@ -721,11 +725,28 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         dispatchCommandSent(command);
     }
 
+    @Override
+    public void communicatorPausedOnError() {
+        dispatchConsoleMessage(MessageType.INFO, "**** The communicator has been paused ****\n");
+        try {
+            // FIXME the dispatchStateChange has logic for resuming send operations, this should have it's own handler.
+            // We can not use setCurrentState-method because in some cases the state change will not be dispatched
+            // if handleAllStateChangeEvents returns true.
+            dispatchStateChange(COMM_SENDING_PAUSED);
+            this.currentState = COMM_SENDING_PAUSED;
+        } catch (Exception ignored) {
+            logger.log(Level.SEVERE, "Couldn't set the state to paused.");
+        }
+    }
+
     public void checkStreamFinished() {
-        if (this.isStreaming() && !this.comm.areActiveCommands() && (this.activeCommands.size() == 0)) {
+        if (this.isStreaming() && !this.comm.areActiveCommands() && this.comm.numActiveCommands() == 0) {
             String streamName = "queued commands";
             boolean isSuccess = (this.errorCount == 0);
             this.fileStreamComplete(streamName, isSuccess);
+
+            // Make sure the GUI gets updated when the file finishes
+            this.dispatchStateChange(getControlState());
         }
     }
 
@@ -978,6 +999,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (gcode.contains("G21")) {
             unitsCode = "G21";
         }
+    }
+
+    @Override
+    public AbstractCommunicator getCommunicator() {
+        return comm;
     }
 
     @Override

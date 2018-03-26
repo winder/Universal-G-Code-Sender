@@ -51,12 +51,17 @@ public interface SerialCommunicatorListener {
     void commandSkipped(GcodeCommand command);
 
     /**
+     * This method will be called when the communicator is paused due to an error during
+     * processing of commands.
+     */
+    void communicatorPausedOnError();
+
+    /**
      * A message to be displayed in the console
      *
      * @param msg a text message
      */
     void messageForConsole(String msg);
-
 
     /**
      * A verbose message to be displayed in the console.
@@ -64,7 +69,6 @@ public interface SerialCommunicatorListener {
      * @param msg a text message
      */
     void verboseMessageForConsole(String msg);
-
 
     /**
      * An error message to be displayed in the console
