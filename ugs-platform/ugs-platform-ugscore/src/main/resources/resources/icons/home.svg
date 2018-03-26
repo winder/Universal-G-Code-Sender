@@ -278,13 +278,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.5935568"
-     inkscape:cx="-15.296334"
+     inkscape:cx="-140.60687"
      inkscape:cy="67.556658"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="820"
+     inkscape:window-height="819"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -310,7 +310,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -323,51 +323,70 @@
     <g
        id="g5302"
        transform="matrix(0.06952025,0,0,0.06952025,3.8755438e-5,1021.1292)"
-       style="opacity:0.92000002">
+       style="opacity:1;fill:#353a40;fill-opacity:1">
       <g
-         id="g5258">
+         id="g5258"
+         style="fill:#353a40;fill-opacity:1">
         <g
-           id="g5260">
+           id="g5260"
+           style="fill:#353a40;fill-opacity:1">
           <path
              id="path5262"
              d="M 230.149,120.939 65.986,256.274 c 0,0.191 -0.048,0.472 -0.144,0.855 -0.094,0.38 -0.144,0.656 -0.144,0.852 l 0,137.041 c 0,4.948 1.809,9.236 5.426,12.847 3.616,3.613 7.898,5.431 12.847,5.431 l 109.63,0 0,-109.636 73.097,0 0,109.64 109.629,0 c 4.948,0 9.236,-1.814 12.847,-5.435 3.617,-3.607 5.432,-7.898 5.432,-12.847 l 0,-137.041 c 0,-0.76 -0.104,-1.334 -0.288,-1.707 L 230.149,120.939 Z"
-             inkscape:connector-curvature="0" />
+             inkscape:connector-curvature="0"
+             style="fill:#353a40;fill-opacity:1" />
           <path
              id="path5264"
              d="m 457.122,225.438 -62.522,-51.962 0,-116.487 c 0,-2.663 -0.856,-4.853 -2.574,-6.567 -1.704,-1.712 -3.894,-2.568 -6.563,-2.568 l -54.816,0 c -2.666,0 -4.855,0.856 -6.57,2.568 -1.711,1.714 -2.566,3.905 -2.566,6.567 l 0,55.673 -69.662,-58.245 c -6.084,-4.949 -13.318,-7.423 -21.694,-7.423 -8.375,0 -15.608,2.474 -21.698,7.423 L 3.172,225.438 c -1.903,1.52 -2.946,3.566 -3.14,6.136 -0.193,2.568 0.472,4.811 1.997,6.713 l 17.701,21.128 c 1.525,1.712 3.521,2.759 5.996,3.142 2.285,0.192 4.57,-0.476 6.855,-1.998 L 230.149,95.817 427.719,260.558 c 1.526,1.328 3.521,1.991 5.996,1.991 l 0.858,0 c 2.471,-0.376 4.463,-1.43 5.996,-3.138 l 17.703,-21.125 c 1.522,-1.906 2.189,-4.145 1.991,-6.716 -0.195,-2.563 -1.242,-4.609 -3.141,-6.132 z"
-             inkscape:connector-curvature="0" />
+             inkscape:connector-curvature="0"
+             style="fill:#353a40;fill-opacity:1" />
         </g>
       </g>
       <g
-         id="g5266" />
+         id="g5266"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5268" />
+         id="g5268"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5270" />
+         id="g5270"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5272" />
+         id="g5272"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5274" />
+         id="g5274"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5276" />
+         id="g5276"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5278" />
+         id="g5278"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5280" />
+         id="g5280"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5282" />
+         id="g5282"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5284" />
+         id="g5284"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5286" />
+         id="g5286"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5288-5" />
+         id="g5288-5"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5290" />
+         id="g5290"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5292" />
+         id="g5292"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5294" />
+         id="g5294"
+         style="fill:#353a40;fill-opacity:1" />
     </g>
     <g
        id="g5096"
