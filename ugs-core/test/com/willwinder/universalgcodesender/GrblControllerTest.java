@@ -39,9 +39,7 @@ import org.junit.Ignore;
 
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -1377,7 +1375,7 @@ public class GrblControllerTest {
         gc.rawResponseHandler("error:1");
 
         // Then
-        assertEquals(gc.getControlState(), ControlState.COMM_CHECK);
+        assertEquals(gc.getControlState(), COMM_CHECK);
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).resumeSend();
     }
@@ -1400,9 +1398,9 @@ public class GrblControllerTest {
         gc.rawResponseHandler("error:1");
 
         // Then
-        assertEquals(gc.getControlState(), ControlState.COMM_CHECK);
+        assertEquals(gc.getControlState(), COMM_CHECK);
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);
-        verify(controllerListener, times(1)).controlStateChange(ControlState.COMM_SENDING_PAUSED);
+        verify(controllerListener, times(1)).controlStateChange(COMM_SENDING_PAUSED);
     }
 }
