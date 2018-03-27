@@ -72,7 +72,7 @@ public class AbstractControllerTest {
     static AbstractController niceInstance;
     static IMockBuilder<AbstractController> instanceBuilder;
 
-    static File tempDir = null;
+    private static File tempDir = null;
 
     //@BeforeClass
     public static void init() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
@@ -109,7 +109,6 @@ public class AbstractControllerTest {
     @BeforeClass
     static public void setup() throws IOException {
         tempDir = GcodeStreamTest.createTempDirectory();
-
     }
 
     @AfterClass

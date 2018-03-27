@@ -37,13 +37,16 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 
-import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
+import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -52,10 +55,21 @@ import org.junit.Test;
  */
 public class GrblControllerTest {
     private MockGrblCommunicator mgc;
+    private static File tempDir;
     
     public GrblControllerTest() {
     }
     
+    @BeforeClass
+    static public void setup() throws IOException {
+        tempDir = GcodeStreamTest.createTempDirectory();
+    }
+
+    @AfterClass
+    static public void teardown() throws IOException {
+        FileUtils.forceDelete(tempDir);
+    }
+
     @Before
     public void setUp() throws Exception {
         this.mgc = new MockGrblCommunicator();
