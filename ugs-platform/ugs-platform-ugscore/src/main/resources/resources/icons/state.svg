@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="state.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/state32.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/state.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
   <defs
      id="defs4">
     <marker
@@ -278,13 +278,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.0510179"
-     inkscape:cx="-3.7728659"
+     inkscape:cx="-57.033779"
      inkscape:cy="67.237567"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="820"
+     inkscape:window-height="819"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -323,41 +323,57 @@
     <g
        id="g5239"
        transform="matrix(0.56173858,0,0,0.56173858,0.04724924,1020.3622)"
-       style="opacity:0.92000002">
+       style="opacity:0.92000002;fill:#353a40;fill-opacity:1">
       <path
          id="path5201"
          d="M 55.146,51.887 41.588,37.786 c 3.486,-4.144 5.396,-9.358 5.396,-14.786 0,-12.682 -10.318,-23 -23,-23 -12.682,0 -23,10.318 -23,23 0,12.682 10.318,23 23,23 4.761,0 9.298,-1.436 13.177,-4.162 l 13.661,14.208 c 0.571,0.593 1.339,0.92 2.162,0.92 0.779,0 1.518,-0.297 2.079,-0.837 1.192,-1.147 1.23,-3.049 0.083,-4.242 z M 23.984,6 c 9.374,0 17,7.626 17,17 0,9.374 -7.626,17 -17,17 -9.374,0 -17,-7.626 -17,-17 0,-9.374 7.626,-17 17,-17 z"
-         inkscape:connector-curvature="0" />
+         inkscape:connector-curvature="0"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5203" />
+         id="g5203"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5205" />
+         id="g5205"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5207" />
+         id="g5207"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5209" />
+         id="g5209"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5211" />
+         id="g5211"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5213" />
+         id="g5213"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5215" />
+         id="g5215"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5217" />
+         id="g5217"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5219" />
+         id="g5219"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5221-0" />
+         id="g5221-0"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5223" />
+         id="g5223"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5225" />
+         id="g5225"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5227" />
+         id="g5227"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5229" />
+         id="g5229"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5231" />
+         id="g5231"
+         style="fill:#353a40;fill-opacity:1" />
     </g>
     <g
        id="g5096"
