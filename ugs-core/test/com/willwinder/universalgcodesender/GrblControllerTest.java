@@ -38,9 +38,8 @@ import org.junit.Assert;
 import org.junit.Ignore;
 
 import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -1361,5 +1360,47 @@ public class GrblControllerTest {
         assertTrue(instance.isIdle());
         assertTrue(instance.isIdleEvent());
         assertEquals(COMM_CHECK, instance.getControlState());
+    }
+
+    @Test
+    public void errorInCheckModeNotSending() throws Exception {
+        // Given
+        AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        GrblController gc = new GrblController(communicator);
+        gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
+        gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+
+        // When
+        gc.communicatorPausedOnError();
+        gc.rawResponseHandler("error:1");
+
+        // Then
+        assertEquals(gc.getControlState(), COMM_CHECK);
+        assertFalse(gc.isPaused());
+        verify(communicator, times(1)).resumeSend();
+    }
+
+    @Test
+    public void errorInCheckModeSending() throws Exception {
+        // Given
+        AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        ControllerListener controllerListener = mock(ControllerListener.class);
+        GrblController gc = new GrblController(communicator);
+        gc.addListener(controllerListener);
+        gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
+        gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
+        doReturn(true).when(communicator).isCommOpen();
+
+        // When
+        gc.queueCommand(new GcodeCommand("G0 X10"));
+        gc.beginStreaming();
+        gc.communicatorPausedOnError();
+        gc.rawResponseHandler("error:1");
+
+        // Then
+        assertEquals(gc.getControlState(), COMM_CHECK);
+        assertFalse(gc.isPaused());
+        verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);
+        verify(controllerListener, times(1)).controlStateChange(COMM_SENDING_PAUSED);
     }
 }
