@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="connect.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/connect.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/connect32.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <marker
@@ -502,7 +502,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.27"
-     inkscape:cx="-48.654757"
+     inkscape:cx="-120.24066"
      inkscape:cy="41.509237"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -534,7 +534,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
