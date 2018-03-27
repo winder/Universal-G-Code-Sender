@@ -735,6 +735,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             }
             else {
                 this.pauseStreaming();
+                // In check mode there is no state transition, so we need to manually make the notification.
+                this.dispatchStateChange(COMM_SENDING_PAUSED);
             }
         } catch (Exception ignored) {
             logger.log(Level.SEVERE, "Couldn't set the state to paused.");
