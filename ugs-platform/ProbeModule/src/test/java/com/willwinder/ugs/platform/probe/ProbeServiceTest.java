@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,7 @@
 package com.willwinder.ugs.platform.probe;
 
 import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -46,23 +46,22 @@ public class ProbeServiceTest {
     public void testProbeServiceZ() throws Exception {
         doReturn(true).when(backend).isIdle();
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
         testZProbe(pc, pc.zSpacing < 0);
 
-        pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
+        pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, -10., 1, 1, 1, 100, 25, 5, Units.INCH, G54);
         testZProbe(pc, pc.zSpacing < 0);
     }
 
-    private void testZProbe(ProbeContext pc, boolean finalRetract) throws Exception {
+    private void testZProbe(ProbeParameters pc, boolean finalRetract) throws Exception {
         ProbeService ps = new ProbeService(backend);
 
         ps.performZProbe(pc);
 
         Position probeZ = new Position(5, 5, 3, Units.MM);
         ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeZ));
+        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
 
         InOrder order = inOrder(backend);
 
@@ -81,44 +80,37 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
         ps.performOutsideCornerProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);
         Position probeX = new Position(1.0, 1.0, 0, Units.MM);
 
         // Events to transition between states.
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(new ControllerStatus(null, probeY,null,0.,0.,null,null,null,null)));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(new ControllerStatus(null, probeX,null,0.,0.,null,null,null,null)));
+        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
 
         InOrder order = inOrder(backend);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0.0Y0.0");
+
         // probe Y axis
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + pc.xSpacing);
         order.verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing));
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + (pc.startPosition.y-probeY.y));
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + -pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
 
         // probe X axis
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + pc.ySpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y" + pc.ySpacing);
         order.verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing));
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + (pc.startPosition.x-probeX.x));
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + -pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y0.0");
 
         // Verify the correct offset
         double radius = pc.probeDiameter / 2;
@@ -127,7 +119,7 @@ public class ProbeServiceTest {
         double xProbeOffset = pc.startPosition.x - probeX.x + xDir * (radius + Math.abs(pc.xOffset));
         double yProbeOffset = pc.startPosition.y - probeY.y + yDir * (radius + Math.abs(pc.yOffset));
 
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X" + xProbeOffset + " Y" + yProbeOffset);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X" + xProbeOffset + "Y" + yProbeOffset);
     }
 
     @Test
@@ -136,7 +128,7 @@ public class ProbeServiceTest {
 
         ProbeService ps = new ProbeService(backend);
 
-        ProbeContext pc = new ProbeContext(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
+        ProbeParameters pc = new ProbeParameters(1, new Position(5, 5, 5, Units.MM), 10, 10, 0., 1, 1, 1, 100, 25, 5, Units.MM, G55);
         ps.performXYZProbe(pc);
 
         Position probeY = new Position(2.0, 2.0, 0, Units.MM);
@@ -144,53 +136,41 @@ public class ProbeServiceTest {
         Position probeZ = new Position(0., 0., 3.0, Units.MM);
 
         // Events to transition between states.
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeZ));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeX));
-        ps.UGSEvent(new UGSEvent(new ControllerStatus(null, probeX,null,0.,0.,null,null,null,null)));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_SENDING));
-        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
         ps.UGSEvent(new UGSEvent(probeY));
-        ps.UGSEvent(new UGSEvent(new ControllerStatus(null, probeY,null,0.,0.,null,null,null,null)));
+        ps.UGSEvent(new UGSEvent(UGSEvent.ControlState.COMM_IDLE));
 
-        // TODO: Finish all these
         InOrder order = inOrder(backend);
+
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P2 X0.0Y0.0Z0.0");
 
         // Probe Z axis
         order.verify(backend, times(1)).probe("Z", pc.feedRate, pc.zSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + retractDistance(pc.zSpacing));
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + (pc.startPosition.z-probeZ.z));
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + -pc.xSpacing);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Z" + pc.zSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z" + pc.zSpacing);
 
         // probe X axis
         order.verify(backend, times(1)).probe("X", pc.feedRate, pc.xSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + retractDistance(pc.ySpacing));
         order.verify(backend, times(1)).probe("X", pc.feedRateSlow, pc.xSpacing, pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + (pc.startPosition.x - pc.xSpacing - probeX.x));
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + -pc.ySpacing);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 X" + pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + -pc.xSpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Y" + -pc.ySpacing);
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X" + pc.xSpacing);
 
         // probe Y axis
         order.verify(backend, times(1)).probe("Y", pc.feedRate, pc.ySpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + retractDistance(pc.ySpacing));
         order.verify(backend, times(1)).probe("Y", pc.feedRateSlow, pc.ySpacing, pc.units);
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + (pc.startPosition.y - pc.ySpacing - probeY.y));
-        order.verify(backend, times(1)).sendGcodeCommand(true, "G91 G21 G0 Y" + pc.ySpacing);
 
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 Z0.0");
+        order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G21 G0 X0.0 Y0.0");
 
         // Verify the correct offset
         double radius = pc.probeDiameter / 2;
@@ -201,6 +181,6 @@ public class ProbeServiceTest {
         double zProbeOffset = pc.startPosition.z - probeZ.z;
 
         order.verify(backend, times(1)).sendGcodeCommand(true,
-                "G10 L20 P2 X" + xProbeOffset + " Y" + yProbeOffset + " Z" + zProbeOffset);
+                "G10 L20 P2 X" + xProbeOffset + "Y" + yProbeOffset + "Z" + zProbeOffset);
     }
 }
