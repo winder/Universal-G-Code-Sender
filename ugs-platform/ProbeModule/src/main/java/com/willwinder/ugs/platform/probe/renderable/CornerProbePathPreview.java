@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,13 +18,12 @@
  */
 package com.willwinder.ugs.platform.probe.renderable;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.util.gl2.GLUT;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.NEGATIVE;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.POSITIVE;
@@ -37,17 +36,11 @@ import javax.vecmath.Point3d;
  * @author wwinder
  */
 public class CornerProbePathPreview extends Renderable {
-    private Point3d spacing = new Point3d(0, 0, 0);
-    private Point3d thickness = new Point3d(0, 0, 0);
-    /*
-    private Double xSpacing = null;
-    private Double ySpacing = null;
-    private Double xThickness = null;
-    private Double yThickness = null;
-*/
+    private final Point3d spacing = new Point3d(0, 0, 0);
+    private final Point3d thickness = new Point3d(0, 0, 0);
     private Point3d startWork = null;
     private Point3d startMachine = null;
-    private ProbeContext pc = null;
+    private ProbeParameters pc = null;
 
     private final GLUT glut;
 
@@ -56,7 +49,7 @@ public class CornerProbePathPreview extends Renderable {
         glut = new GLUT();
     }
 
-    public void setContext(ProbeContext pc, Point3d startWork, Point3d startMachine) {
+    public void setContext(ProbeParameters pc, Point3d startWork, Point3d startMachine) {
         this.pc = pc;
         this.startWork = startWork;
         this.startMachine = startMachine;
@@ -188,19 +181,17 @@ public class CornerProbePathPreview extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
 
-        if (startWork != null) {
-            // After the probe, move it back to the original location
-            if (pc != null && pc.xWcsOffset != null && pc.yWcsOffset != null && pc.zWcsOffset != null) {
-                //Point3d originalOffset = new Point3d(this.startMachine);
-                //originalOffset.sub(this.startWork);
-                gl.glTranslated(
-                        pc.xWcsOffset,
-                        pc.yWcsOffset,
-                        pc.zWcsOffset);
-            } else {
+        if (startWork != null && pc.endPosition == null) {
+            // The WCS is reset at the start of these operations.
+            if (pc.startPosition != null) {
+            }
+            // Follow tool.
+            else {
                 gl.glTranslated(startWork.x, startWork.y, startWork.z);
             }
-        } else {
+        }
+        // Follow tool.
+        else {
             gl.glTranslated(workCoord.x, workCoord.y, workCoord.z);
         }
 

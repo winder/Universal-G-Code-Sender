@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,24 +18,8 @@
  */
 package com.willwinder.ugs.platform.probe;
 
-import static com.willwinder.ugs.platform.probe.ProbeService.Event.Idle;
-import static com.willwinder.ugs.platform.probe.ProbeService.Event.Probed;
-import static com.willwinder.ugs.platform.probe.ProbeService.Event.Start;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.ProbeY;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.RetractY;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekX;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.SeekY;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Setup;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreXFinalize;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.StoreYReset;
-import static com.willwinder.ugs.platform.probe.ProbeService.Outside.Waiting;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 
-import com.willwinder.ugs.platform.probe.stateful.StateMachine;
-import com.willwinder.ugs.platform.probe.stateful.StateMachineBuilder;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -43,32 +27,65 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
-
-import org.openide.util.Exceptions;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
+ * Methods that run various probe routines.
+ * 
  * @author wwinder
  */
 public class ProbeService implements UGSEventListener {
-    private StateMachine stateMachine = null;
-    private ProbeContext context = null;
+    protected static BackendAPI backend;
+    private List<Position> probePositions = new ArrayList<>();
+    static String WCS_PATTERN = "G10 L20 P%d %s";
+    private ProbeOperation currentOperation = ProbeOperation.NONE;
+    private ProbeParameters params = null;
+    private Finalizer finalizer = null;
 
-    protected final BackendAPI backend;
-
-    public ProbeService(BackendAPI backend) {
-        this.backend = backend;
-        this.backend.addUGSEventListener(this);
+    @FunctionalInterface
+    private interface Finalizer {
+        public void finalize(ProbeParameters params, List<Position> probePositions)
+                throws Exception;
     }
 
-    protected static double retractDistance(double spacing) {
-        return (spacing < 0) ? 1 : -1;
-    }
+    private enum ProbeOperation {
+        NONE         (0                       ),
+        Z            (2, zFinalizer           ),
+        OUTSIDE_XY   (4, outsideXYFinalizer   ),
+        OUTSIDE_XYZ  (6, outsideXYZFinalizer  ),
+        //INSIDE_XY    (4, insideXYFinalizer    ),
+        //INSIDE_CIRCLE(4, insideCircleFinalizer)
+        ;
+
+        private final int numProbes;
+        private final Finalizer finalizer;
+
+        private ProbeOperation(int probes) {
+            this(probes, null);
+        }
+
+        private ProbeOperation(int probes, Finalizer finalizer) {
+            this.numProbes = probes;
+            this.finalizer = finalizer;
+        }
+
+        /**
+         * @return Expected number of probes.
+         */
+        public int getNumProbes() { return numProbes; }
+
+        public void finalize(ProbeParameters params, List<Position> probePositions) throws Exception {
+          if (finalizer != null) {
+            finalizer.finalize(params, probePositions);
+          }
+        }
+    };
 
     /**
-     * Context passed into state machine for each transition.
+     * Parameters passed into the probe operations.
      */
-    public static class ProbeContext {
+    public static class ProbeParameters {
         public String errorMessage;
         public UGSEvent event;
         public final double probeDiameter;
@@ -86,18 +103,14 @@ public class ProbeService implements UGSEventListener {
 
         // Results
         public final Position startPosition;
-        public Position probePositionX;
-        public Position probePositionY;
-        public Position probePositionZ;
-        public Double xWcsOffset;
-        public Double yWcsOffset;
-        public Double zWcsOffset;
+        public Position endPosition;
 
-        public ProbeContext(double diameter, Position start,
+        public ProbeParameters(double diameter, Position start,
                 double xSpacing, double ySpacing, double zSpacing,
                 double xOffset, double yOffset, double zOffset,
                 double feedRate, double feedRateSlow, double retractHeight,
                 Units u, WorkCoordinateSystem wcs) {
+            this.endPosition = null;
             this.probeDiameter = diameter;
             this.startPosition = start;
             this.xSpacing = xSpacing;
@@ -111,314 +124,245 @@ public class ProbeService implements UGSEventListener {
             this.retractHeight = retractHeight;
             this.units = u;
             this.wcsToUpdate = wcs;
-
-            this.probePositionY = null;
-            this.probePositionX = null;
-            this.xWcsOffset = null;
-            this.yWcsOffset = null;
-            this.zWcsOffset = null;
         }
     }
 
+    public ProbeService(BackendAPI backend) {
+        this.backend = backend;
+        this.backend.addUGSEventListener(this);
+    }
+
+    protected static double retractDistance(double spacing) {
+        return (spacing < 0) ? 1 : -1;
+    }
+
+    private void resetProbe() {
+        this.probePositions.clear();
+        this.finalizer = null;
+        this.params = null;
+        this.currentOperation = ProbeOperation.NONE;
+    }
+
     public boolean probeCycleActive() {
-        return this.stateMachine != null;
-    }
-
-    enum Outside {
-        Waiting, Setup,
-        SeekY, RetractY, ProbeY, StoreYReset,
-        SeekX, RetractX, ProbeX, StoreXFinalize
-    }
-
-    enum Z {
-        Waiting,
-        SeekZ, RetractZ, ProbeZ,
-        Finalize
-    }
-
-    enum OutsideXYZ {
-        Waiting,
-        SeekZ, RetractZ, ProbeZ, StoreZReset,
-        SeekX, RetractX, ProbeX, StoreXReset,
-        SeekY, RetractY, PorbeY, StoreYFinalize
-    }
-
-    enum Event {
-        Start, Probed, Idle
+        return this.currentOperation != ProbeOperation.NONE;
     }
 
     private void validateState() {
         if (!backend.isIdle()) {
             throw new IllegalStateException("Can only begin probing while IDLE.");
         }
+    }
 
-        /*
-        if (stateMachine != null) {
-            throw new IllegalStateException("A probe operation is already active.");
+    void performZProbe(ProbeParameters params) throws IllegalStateException {
+        validateState();
+
+        try {
+            String unit = GcodeUtils.unitCommand(params.units);
+            probe('Z', params.feedRate, params.zSpacing, params.units);
+            gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing));
+            probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+
+            this.finalizer = zFinalizer;
+            this.params = params;
+            this.currentOperation = ProbeOperation.Z;
+        } catch (Exception e) {
+            resetProbe();
+            e.printStackTrace();
         }
-        */
     }
 
-    void performZProbe(ProbeContext context) throws IllegalStateException {
-        validateState();
+    private static Finalizer zFinalizer = (params, list) -> {
+        if (list.size() != 2) throw new IllegalArgumentException("Unexpected number of probe positions.");
+        Position probe = list.get(1);
+        updateWCS(params.wcsToUpdate, null, null, params.startPosition.z - (probe.z + params.zOffset));
 
-        String g = GcodeUtils.unitCommand(context.units);
-        String g0 = "G91 " + g + " G0";
-
-        this.context = context;
-        stateMachine = new StateMachineBuilder<Z, Event, ProbeContext>(Z.Waiting)
-                .addTransition(Z.Waiting,  Start,  Z.SeekZ)
-                .addTransition(Z.SeekZ,    Probed, Z.RetractZ)
-                .addTransition(Z.RetractZ, Idle,   Z.ProbeZ)
-                .addTransition(Z.ProbeZ,   Probed, Z.Finalize)
-
-                .onEnter(Z.SeekZ,    c -> probe('Z', context.feedRate, context.zSpacing, context.units))
-                .onEnter(Z.RetractZ, c -> gcode(g0 + " Z" + retractDistance(c.zSpacing)))
-                .onEnter(Z.ProbeZ,   c -> probe('Z', context.feedRateSlow, context.zSpacing, context.units))
-                .onEnter(Z.Finalize, c -> finalizeZProbe(c))
-
-                .throwOnNoOpApply(false)
-                .build();
-
-        stateMachine.apply(Start, context);
-    }
-
-    void performOutsideCornerProbe(ProbeContext context) throws IllegalStateException {
-        validateState();
-
-        String g = GcodeUtils.unitCommand(context.units);
-        String g0 = "G91 " + g + " G0";
-
-        this.context = context;
-        stateMachine = new StateMachineBuilder<Outside, Event, ProbeContext>(Outside.Waiting)
-                .addTransition(Waiting,     Start,  Setup)
-                .addTransition(Setup,       Idle,   SeekY)
-                .addTransition(SeekY,       Probed, RetractY)
-                .addTransition(RetractY,    Idle,   ProbeY)
-                .addTransition(ProbeY,      Probed, StoreYReset)
-                .addTransition(StoreYReset, Idle,   SeekX)
-                .addTransition(SeekX,       Probed, RetractX)
-                .addTransition(RetractX,    Idle,   ProbeX)
-                .addTransition(ProbeX,      Probed, StoreXFinalize)
-
-                .onEnter(Setup,          c -> gcode(g0 + " X" + c.xSpacing))
-                .onEnter(SeekY,          c -> probe('Y', c.feedRate, c.ySpacing, c.units))
-                .onEnter(RetractY,       c -> gcode(g0 + " Y" + retractDistance(c.ySpacing)))
-                .onEnter(ProbeY,         c -> probe('Y', c.feedRateSlow, c.ySpacing, c.units))
-                .onEnter(StoreYReset,    c -> setup(StoreYReset, c))
-                .onEnter(SeekX,          c -> probe('X', c.feedRate, c.xSpacing, c.units))
-                .onEnter(RetractX,       c -> gcode(g0 + " X" + retractDistance(c.xSpacing)))
-                .onEnter(ProbeX,         c -> probe('X', c.feedRateSlow, c.xSpacing, c.units))
-                .onEnter(StoreXFinalize, c -> setup(StoreXFinalize, c))
-
-                .throwOnNoOpApply(false)
-                .build();
-
-        stateMachine.apply(Start, context);
-    }
-
-    void performXYZProbe(ProbeContext context) throws IllegalStateException {
-        validateState();
-
-        String g = GcodeUtils.unitCommand(context.units);
-        String g0 = "G91 " + g + " G0";
-
-        this.context = context;
-        stateMachine = new StateMachineBuilder<OutsideXYZ, Event, ProbeContext>(OutsideXYZ.Waiting)
-                .addTransition(OutsideXYZ.Waiting,     Start,  OutsideXYZ.SeekZ)
-                // Z Transitions
-                .addTransition(OutsideXYZ.SeekZ,       Probed, OutsideXYZ.RetractZ)
-                .addTransition(OutsideXYZ.RetractZ,    Idle,   OutsideXYZ.ProbeZ)
-                .addTransition(OutsideXYZ.ProbeZ,      Probed, OutsideXYZ.StoreZReset)
-
-                // X Transitions
-                .addTransition(OutsideXYZ.StoreZReset, Idle,   OutsideXYZ.SeekX)
-                .addTransition(OutsideXYZ.SeekX,       Probed, OutsideXYZ.RetractX)
-                .addTransition(OutsideXYZ.RetractX,    Idle,   OutsideXYZ.ProbeX)
-                .addTransition(OutsideXYZ.ProbeX,      Probed, OutsideXYZ.StoreXReset)
-
-                // Y Transitions
-                .addTransition(OutsideXYZ.StoreXReset, Idle,   OutsideXYZ.SeekY)
-                .addTransition(OutsideXYZ.SeekY,       Probed, OutsideXYZ.RetractY)
-                .addTransition(OutsideXYZ.RetractY,    Idle,   OutsideXYZ.PorbeY)
-                .addTransition(OutsideXYZ.PorbeY,      Probed, OutsideXYZ.StoreYFinalize)
-
-                // Z Callbacks
-                .onEnter(OutsideXYZ.SeekZ,          c -> probe('Z', c.feedRate, c.zSpacing, c.units))
-                .onEnter(OutsideXYZ.RetractZ,       c -> gcode(g0 + " Z" + retractDistance(c.zSpacing)))
-                .onEnter(OutsideXYZ.ProbeZ,         c -> probe('Z', c.feedRateSlow, c.zSpacing, c.units))
-                .onEnter(OutsideXYZ.StoreZReset,    c -> setup(OutsideXYZ.StoreZReset, c))
-
-                // X Callbacks
-                .onEnter(OutsideXYZ.SeekX,          c -> probe('X', c.feedRate, c.xSpacing, c.units))
-                .onEnter(OutsideXYZ.RetractX,       c -> gcode(g0 + " X" + retractDistance(c.xSpacing)))
-                .onEnter(OutsideXYZ.ProbeX,         c -> probe('X', c.feedRateSlow, c.xSpacing, c.units))
-                .onEnter(OutsideXYZ.StoreXReset,    c -> setup(OutsideXYZ.StoreXReset, c))
-
-                // Y Callbacks
-                .onEnter(OutsideXYZ.SeekY,          c -> probe('Y', c.feedRate, c.ySpacing, c.units))
-                .onEnter(OutsideXYZ.RetractY,       c -> gcode(g0 + " Y" + retractDistance(c.ySpacing)))
-                .onEnter(OutsideXYZ.PorbeY,         c -> probe('Y', c.feedRateSlow, c.ySpacing, c.units))
-                .onEnter(OutsideXYZ.StoreYFinalize, c -> setup(OutsideXYZ.StoreYFinalize, c))
-
-                .throwOnNoOpApply(false)
-                .build();
-
-        stateMachine.apply(Start, context);
-    }
-
-    public void finalizeZProbe(ProbeContext context) {
-        // Update WCS
-        gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Z"+ context.zOffset);
-
-        String g = GcodeUtils.unitCommand(context.units);
+        // Final retract
+        String g = GcodeUtils.unitCommand(params.units);
         String g0 = "G90 " + g + " G0";
-        if (context.zSpacing < 0) {
-            gcode(g0 + " Z" + (context.retractHeight + context.zOffset));
+        if (params.zSpacing < 0) {
+            gcode(g0 + " Z" + (params.retractHeight + params.zOffset));
         }
-        stateMachine = null;
-    }
+    };
 
-    // Outside probe callbacks.
-    public void setup(Outside s, ProbeContext context) {
-        String g = GcodeUtils.unitCommand(context.units);
-        String g0 = "G91 " + g + " G0";
-        double radius = context.probeDiameter / 2;
-        double xDir = Math.signum(context.xSpacing) * -1;
-        double yDir = Math.signum(context.ySpacing) * -1;
-        double xProbedOffset = xDir * (radius + context.xOffset);
-        double yProbedOffset = yDir * (radius + context.yOffset);
+    void performOutsideCornerProbe(ProbeParameters params) throws IllegalStateException {
+        validateState();
+
+        String g = GcodeUtils.unitCommand(params.units);
+        String g0Abs = "G90 " + g + " G0";
+        String g0Rel = "G91 " + g + " G0";
+
         try {
-            switch(s) {
-                case StoreYReset:
-                {
-                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Y"+ (context.yOffset + yRadiusOffset));
+            // Reset (0,0,_) to make it easier to retract.
+            updateWCS(params.wcsToUpdate, 0.0, 0.0, null);
 
-                    context.probePositionY = context.event.getProbePosition();
-                    double offset =  context.startPosition.y - context.probePositionY.y;
-                    backend.sendGcodeCommand(true, g0 + " Y" + offset);
-                    backend.sendGcodeCommand(true, g0 + " X" + -context.xSpacing);
-                    backend.sendGcodeCommand(true, g0 + " Y" + context.ySpacing);
-                    break;
-                }
-                case StoreXFinalize:
-                {
-                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " X"+ (context.xOffset + xRadiusOffset));
+            gcode(g0Abs + " X" + params.xSpacing);
+            probe('Y', params.feedRate, params.ySpacing, params.units);
+            gcode(g0Rel + " Y" + retractDistance(params.ySpacing));
+            probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+            gcode(g0Abs + " Y0.0");
+            gcode(g0Abs + " X0.0");
+            gcode(g0Abs + " Y" + params.ySpacing);
+            probe('X', params.feedRate, params.xSpacing, params.units);
+            gcode(g0Rel + " X" + retractDistance(params.xSpacing));
+            probe('X', params.feedRateSlow, params.xSpacing, params.units);
+            gcode(g0Abs + " X0.0");
+            gcode(g0Abs + " Y0.0");
 
-                    context.probePositionX = context.event.getProbePosition();
-                    double offset =  context.startPosition.x - context.probePositionX.x;
-                    backend.sendGcodeCommand(true, g0 + " X" + offset);
-                    backend.sendGcodeCommand(true, g0 + " Y" + -context.ySpacing);
-
-                    context.yWcsOffset = context.startPosition.y - context.probePositionY.y + yProbedOffset;
-                    context.xWcsOffset = context.startPosition.x - context.probePositionX.x + xProbedOffset;
-                    context.zWcsOffset = 0.;
-                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue()
-                            + " X"+ context.xWcsOffset+ " Y"+ context.yWcsOffset);
-
-                    stateMachine = null;
-                    break;
-                }
-            }
-        } catch (Exception ex) {
-            stateMachine = null;
-            Exceptions.printStackTrace(ex);
+            this.finalizer = outsideXYFinalizer;
+            this.params = params;
+            this.currentOperation = ProbeOperation.OUTSIDE_XY;
+        } catch (Exception e) {
+            resetProbe();
+            e.printStackTrace();
         }
     }
 
-    // Outside probe callbacks.
-    public void setup(OutsideXYZ s, ProbeContext context) {
-        String g = GcodeUtils.unitCommand(context.units);
-        String g0 = "G91 " + g + " G0";
-        double radius = context.probeDiameter / 2;
-        double xDir = Math.signum(context.xSpacing) * -1;
-        double yDir = Math.signum(context.ySpacing) * -1;
-        double zDir = Math.signum(context.zSpacing) * -1;
-        double xProbedOffset = xDir * (radius + context.xOffset);
-        double yProbedOffset = yDir * (radius + context.yOffset);
-        double zProbedOffset = zDir * context.zOffset;
+    private static Finalizer outsideXYFinalizer = (params, list) -> {
+        if (list.size() != 4) throw new IllegalArgumentException("Unexpected number of probe positions.");
+
+        Position probeY = list.get(1);
+        Position probeX = list.get(3);
+
+        double radius = params.probeDiameter / 2;
+        double xDir = Math.signum(params.xSpacing) * -1;
+        double yDir = Math.signum(params.ySpacing) * -1;
+        double xProbedOffset = xDir * (radius + params.xOffset);
+        double yProbedOffset = yDir * (radius + params.yOffset);
+
+        updateWCS(params.wcsToUpdate,
+                params.startPosition.x - probeX.x + xProbedOffset,
+                params.startPosition.y - probeY.y + yProbedOffset,
+                null);
+    };
+
+    void performXYZProbe(ProbeParameters params) throws IllegalStateException {
+        validateState();
+
+        String g = GcodeUtils.unitCommand(params.units);
+
+        String g0Abs = "G90 " + g + " G0";
+        String g0Rel = "G91 " + g + " G0";
+
         try {
-            switch(s) {
-                case StoreZReset:
-                {
-                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " Y"+ (context.yOffset + yRadiusOffset));
+            // Reset (0,0,0) to make it easier to retract.
+            updateWCS(params.wcsToUpdate, 0.0, 0.0, 0.0);
 
-                    context.probePositionZ = context.event.getProbePosition();
-                    double offset =  context.startPosition.z - context.probePositionZ.z;
-                    backend.sendGcodeCommand(true, g0 + " Z" + offset);
-                    backend.sendGcodeCommand(true, g0 + " X" + -context.xSpacing);
-                    backend.sendGcodeCommand(true, g0 + " Z" + context.zSpacing);
-                    break;
-                }
+            // Z
+            probe('Z', params.feedRate, params.zSpacing, params.units);
+            gcode(g0Rel + " Z" + retractDistance(params.zSpacing));
+            probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+            gcode(g0Abs + " Z0.0");
+            gcode(g0Abs + " X" + -params.xSpacing);
+            gcode(g0Abs + " Z" + params.zSpacing); // Probe motion for safety?
 
-                case StoreXReset:
-                {
-                    context.probePositionX = context.event.getProbePosition();
-                    double offset =  context.startPosition.x - context.xSpacing - context.probePositionX.x;
-                    backend.sendGcodeCommand(true, g0 + " X" + offset);
-                    backend.sendGcodeCommand(true, g0 + " Y" + -context.ySpacing);
-                    backend.sendGcodeCommand(true, g0 + " X" + context.xSpacing);
-                    break;
-                }
+            // X
+            probe('X', params.feedRate, params.xSpacing, params.units);
+            gcode(g0Rel + " X" + retractDistance(params.xSpacing));
+            probe('X', params.feedRateSlow, params.xSpacing, params.units);
+            gcode(g0Abs + " X" + -params.xSpacing);
+            gcode(g0Abs + " Y" + -params.ySpacing);
+            gcode(g0Abs + " X" + params.xSpacing);
 
-                case StoreYFinalize:
-                {
-                    context.probePositionY = context.event.getProbePosition();
-                    double offset =  context.startPosition.y - context.ySpacing - context.probePositionY.y;
-                    backend.sendGcodeCommand(true, g0 + " Y" + offset);
-                    backend.sendGcodeCommand(true, g0 + " Z" + -context.zSpacing);
-                    backend.sendGcodeCommand(true, g0 + " Y" + context.ySpacing);
+            // Y
+            probe('Y', params.feedRate, params.ySpacing, params.units);
+            gcode(g0Rel + " Y" + retractDistance(params.ySpacing));
+            probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+            gcode(g0Abs + " Y" + -params.ySpacing);
 
-                    //gcode("G10 L20 P" +context.wcsToUpdate.getPValue() + " X"+ (context.xOffset + xRadiusOffset));
-                    context.yWcsOffset = context.startPosition.y - context.probePositionY.y + yProbedOffset;
-                    context.xWcsOffset = context.startPosition.x - context.probePositionX.x + xProbedOffset;
-                    context.zWcsOffset = context.startPosition.z - context.probePositionZ.z + zProbedOffset;
-                    gcode("G10 L20 P" +context.wcsToUpdate.getPValue()
-                            + " X" + context.xWcsOffset + " Y" + context.yWcsOffset + " Z" + context.zWcsOffset);
+            // Back to zero
+            gcode(g0Abs + " Z0.0");
+            gcode(g0Abs + " X0.0 Y0.0");
 
-                    stateMachine = null;
-                    break;
-                }
-            }
-        } catch (Exception ex) {
-            stateMachine = null;
-            Exceptions.printStackTrace(ex);
+            this.finalizer = outsideXYZFinalizer;
+            this.params = params;
+            this.currentOperation = ProbeOperation.OUTSIDE_XYZ;
+        } catch (Exception e) {
+            resetProbe();
+            e.printStackTrace();
         }
     }
 
-    public void gcode(String s) {
-        try {
-            backend.sendGcodeCommand(true, s);
-        } catch (Exception ex) {
-            stateMachine = null;
-            Exceptions.printStackTrace(ex);
+    private static Finalizer outsideXYZFinalizer = (params, list) -> {
+        if (list.size() != 6) {
+          throw new IllegalArgumentException("Unexpected number of probe positions.");
         }
+
+        Position probeX = list.get(3);
+        Position probeY = list.get(5);
+        Position probeZ = list.get(1);
+
+        double radius = params.probeDiameter / 2;
+        double xDir = Math.signum(params.xSpacing) * -1;
+        double yDir = Math.signum(params.ySpacing) * -1;
+        double zDir = Math.signum(params.zSpacing) * -1;
+        double xProbedOffset = xDir * (radius + params.xOffset);
+        double yProbedOffset = yDir * (radius + params.yOffset);
+        double zProbedOffset = zDir * params.zOffset;
+
+        updateWCS(params.wcsToUpdate,
+                params.startPosition.x - probeX.x + xProbedOffset,
+                params.startPosition.y - probeY.y + yProbedOffset,
+                params.startPosition.z - probeZ.z + zProbedOffset);
+    };
+
+    private static void updateWCS(WorkCoordinateSystem wcs, Double x, Double y, Double z) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        if (x != null) {
+            sb.append("X").append(x);
+        }
+        if (y != null) {
+            sb.append("Y").append(y);
+        }
+        if (z != null) {
+            sb.append("Z").append(z);
+        }
+
+        gcode(String.format(WCS_PATTERN, wcs.getPValue(), sb.toString()));
     }
 
-    public void probe(char axis, double rate, double distance, Units u) {
-        try {
-            backend.probe(String.valueOf(axis), rate, distance, u);
-        } catch (Exception ex) {
-            stateMachine = null;
-            Exceptions.printStackTrace(ex);
-        }
+    /**
+     * Send a gcode command and handle any possible error.
+     */
+    private static void gcode(String s) throws Exception {
+        backend.sendGcodeCommand(true, s);
+    }
+
+    /**
+     * Send a probe command and handle any possible error.
+     */
+    private static void probe(char axis, double rate, double distance, Units u) throws Exception {
+        backend.probe(String.valueOf(axis), rate, distance, u);
     }
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (stateMachine == null) return;
-        context.event = evt;
+        if (this.currentOperation == ProbeOperation.NONE) return;
 
         switch(evt.getEventType()){
             case STATE_EVENT:
-                if (evt.getControlState() == COMM_IDLE){
-                    stateMachine.apply(Idle, context);
-                } if (evt.getControlState() == COMM_DISCONNECTED) {
-                    stateMachine = null;
+                switch(evt.getControlState()) {
+                  case COMM_DISCONNECTED:
+                      resetProbe();
+                      break;
+                  case COMM_IDLE:
+                      // Finalize
+                      if (this.currentOperation.getNumProbes() <= this.probePositions.size()) {
+                          try {
+                              this.currentOperation.finalize(params, probePositions);
+                          } catch (Exception e) {
+                              e.printStackTrace();
+                          } finally {
+                              params.endPosition = this.backend.getMachinePosition();
+                              this.resetProbe();
+                          }
+                      }
+                      break;
+                  default:
+                      break;
                 }
                 break;
             case PROBE_EVENT:
-                stateMachine.apply(Probed, context);
+                this.probePositions.add(evt.getProbePosition());
                 break;
             case FILE_EVENT:
                 default:

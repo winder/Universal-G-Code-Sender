@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -34,7 +34,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
-import com.willwinder.ugs.platform.probe.ProbeService.ProbeContext;
+import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
 import com.willwinder.ugs.platform.probe.renderable.ZProbePathPreview;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -230,7 +230,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsRetractAmount = new SpinnerNumberModel(15., 10, largeSpinner, 1.);
 
         measureXYZ.addActionListener(e -> {
-                ProbeContext pc = new ProbeContext(
+                ProbeParameters pc = new ProbeParameters(
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         getDouble(xyzXDistanceModel), getDouble(xyzYDistanceModel), getDouble(xyzZDistanceModel),
                         getDouble(xyzXOffsetModel), getDouble(xyzYOffsetModel), getDouble(xyzZOffsetModel),
@@ -241,7 +241,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
             });
 
         measureOutside.addActionListener(e -> {
-                ProbeContext pc = new ProbeContext(
+                ProbeParameters pc = new ProbeParameters(
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         getDouble(outsideXDistanceModel), getDouble(outsideYDistanceModel), 0.,
                         getDouble(outsideXOffsetModel), getDouble(outsideYOffsetModel), 0.,
@@ -261,7 +261,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         */
 
         zProbeButton.addActionListener(e -> {
-                ProbeContext pc = new ProbeContext(
+                ProbeParameters pc = new ProbeParameters(
                         getDouble(settingsProbeDiameter), backend.getMachinePosition(),
                         0., 0., getDouble(zProbeDistance),
                         0., 0., getDouble(zProbeOffset),
