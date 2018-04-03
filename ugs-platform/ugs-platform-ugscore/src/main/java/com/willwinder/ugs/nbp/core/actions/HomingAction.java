@@ -68,17 +68,18 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if(backend.getController() != null && backend.getController().getFirmwareSettings() != null ) {
-            java.awt.EventQueue.invokeLater(() -> {
-                updateToolTip();
-                setEnabled(isEnabled());
-            });
-        }
+        java.awt.EventQueue.invokeLater(() -> {
+            updateToolTip();
+            setEnabled(isEnabled());
+        });
     }
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle() && backend.getController().getFirmwareSettings().isHomingEnabled();
+        return backend.getController() != null &&
+                backend.getController().getFirmwareSettings() != null &&
+                backend.isIdle() &&
+                backend.getController().getFirmwareSettings().isHomingEnabled();
     }
 
     @Override
@@ -91,10 +92,12 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
     }
 
     private void updateToolTip() {
-        if (backend.getController().getFirmwareSettings().isHomingEnabled()) {
-            putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
-        } else {
+        if (backend.getController() != null &&
+                backend.getController().getFirmwareSettings() != null &&
+                !backend.getController().getFirmwareSettings().isHomingEnabled()) {
             putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.disabled.tooltip"));
+        } else {
+            putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
         }
     }
 }
