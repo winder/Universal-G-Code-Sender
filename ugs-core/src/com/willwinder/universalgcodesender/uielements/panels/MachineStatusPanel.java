@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
@@ -305,13 +306,13 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         if (!backend.isConnected()) {
             // Clear out the status color.
-            this.updateStatePanel("");
+            this.updateStatePanel(ControllerState.UNKNOWN);
             resetStatePinComponents();
         }
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {
-        this.updateStatePanel(status.getStateString());
+        this.updateStatePanel(status.getState());
         resetStatePinComponents();
 
         if (status.getEnabledPins() != null) {
@@ -382,30 +383,30 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
     }
 
-    private void updateStatePanel(String state) {
+    private void updateStatePanel(ControllerState state) {
 
         if (backend.getSettings().isDisplayStateColor()) {
             Color background = ThemeColors.GREY;
-            String text = state;
-            if (state.toLowerCase().startsWith("alarm")) {
+            String text = state.name();
+            if (state == ControllerState.ALARM) {
                 text = Localization.getString("mainWindow.status.alarm");
                 background = ThemeColors.RED;
-            } else if (state.equalsIgnoreCase("Hold")) {
+            } else if (state == ControllerState.HOLD) {
                 text = Localization.getString("mainWindow.status.hold");
                 background = ThemeColors.ORANGE;
-            } else if (state.toLowerCase().startsWith("door")) {
+            } else if (state == ControllerState.DOOR) {
                 text = Localization.getString("mainWindow.status.door");
                 background = ThemeColors.ORANGE;
-            } else if (state.equalsIgnoreCase("Run")) {
+            } else if (state == ControllerState.RUN) {
                 text = Localization.getString("mainWindow.status.run");
                 background = ThemeColors.GREEN;
-            } else if (state.equalsIgnoreCase("Jog")) {
+            } else if (state == ControllerState.JOG) {
                 text = Localization.getString("mainWindow.status.jog");
                 background = ThemeColors.GREEN;
-            } else if (state.equalsIgnoreCase("Check")) {
+            } else if (state == ControllerState.CHECK) {
                 text = Localization.getString("mainWindow.status.check");
                 background = ThemeColors.LIGHT_BLUE;
-            } else if (state.equalsIgnoreCase("Idle")) {
+            } else if (state == ControllerState.IDLE) {
                 text = Localization.getString("mainWindow.status.idle");
                 background = ThemeColors.GREY;
             }

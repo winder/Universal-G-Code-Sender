@@ -330,7 +330,7 @@ public class GrblController extends AbstractController {
     @Override
     protected void isReadyToStreamCommandsEvent() throws Exception {
         isReadyToSendCommandsEvent();
-        if (this.controllerStatus != null && this.controllerStatus.getStateString().equals("Alarm")) {
+        if (this.controllerStatus != null && this.controllerStatus.getState() == ControllerState.ALARM) {
             throw new Exception(Localization.getString("grbl.exception.Alarm"));
         }
     }
@@ -353,7 +353,7 @@ public class GrblController extends AbstractController {
 
         // If we're canceling a "jog" just send the door hold command.
         if (capabilities.hasJogging() && controllerStatus != null &&
-                "jog".equalsIgnoreCase(controllerStatus.getStateString())) {
+                controllerStatus.getState() == ControllerState.JOG) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
         // Otherwise, check if we can get fancy with a soft reset.
