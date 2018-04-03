@@ -68,7 +68,7 @@ public class JogService {
         return size;
     }
 
-    private static double divideStepSize(double size) {
+    private static double divideSize(double size) {
         if (size > 100) {
             return 100;
         } else if (size <= 100 && size > 10) {
@@ -83,7 +83,7 @@ public class JogService {
         return size;
     }
 
-    private static double multiplyStepSize(double size) {
+    private static double multiplySize(double size) {
         if (size < 0.01) {
             return 0.01;
         } else if (size >= 0.01 && size < 0.1) {
@@ -115,19 +115,27 @@ public class JogService {
     }
 
     public void divideXYStepSize() {
-        setStepSizeXY(divideStepSize(stepSizeXY));
+        setStepSizeXY(divideSize(stepSizeXY));
     }
 
     public void divideZStepSize() {
-        setStepSizeZ(divideStepSize(stepSizeZ));
+        setStepSizeZ(divideSize(stepSizeZ));
     }
 
     public void multiplyXYStepSize() {
-        setStepSizeXY(multiplyStepSize(stepSizeXY));
+        setStepSizeXY(multiplySize(stepSizeXY));
     }
 
     public void multiplyZStepSize() {
-        setStepSizeZ(multiplyStepSize(stepSizeZ));
+        setStepSizeZ(multiplySize(stepSizeZ));
+    }
+
+    public void multiplyFeedRate() {
+        setFeedRate(multiplySize(getFeedRate()));
+    }
+
+    public void divideFeedRate() {
+        setFeedRate(divideSize(getFeedRate()));
     }
 
     public void increaseFeedRate() {

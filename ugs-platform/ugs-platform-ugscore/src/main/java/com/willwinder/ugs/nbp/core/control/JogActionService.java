@@ -127,6 +127,10 @@ public class JogActionService {
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, FEED_MINUS));
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".increase.feed", Localization.getString("jogging.increase.feed"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, FEED_PLUS));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".multiply.feed", Localization.getString("jogging.multiply.feed"),
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, FEED_MULTIPLY));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".divide.feed", Localization.getString("jogging.divide.feed"),
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, FEED_DIVIDE));
 
             // Units
             ars.registerAction(JogSizeAction.class.getCanonicalName() + ".inch", Localization.getString("mainWindow.swing.inchRadioButton"),
