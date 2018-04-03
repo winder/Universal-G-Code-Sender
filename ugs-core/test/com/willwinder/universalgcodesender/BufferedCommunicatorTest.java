@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static com.willwinder.universalgcodesender.AbstractControllerTest.tempDir;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -53,6 +52,7 @@ import static org.mockito.Mockito.verify;
  */
 public class BufferedCommunicatorTest {
 
+    private static File tempDir;
     private final static Connection mockConnection = EasyMock.createMock(Connection.class);
     private final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
     private BufferedCommunicator instance;

@@ -32,7 +32,7 @@
        inkscape:stockid="Arrow1Mstart">
       <path
          transform="matrix(0.4,0,0,0.4,4,0)"
-         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         style="fill:#353a40;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:1pt;stroke-opacity:1"
          d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
          id="path9445"
          inkscape:connector-curvature="0" />
@@ -278,13 +278,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.5935568"
-     inkscape:cx="0.12650149"
+     inkscape:cx="-125.18404"
      inkscape:cy="4.2166513"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="820"
+     inkscape:window-height="819"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -320,26 +320,18 @@
      id="layer1"
      style="display:inline"
      transform="translate(0,-1020.3622)">
-    <g
-       id="g9541"
-       transform="matrix(2.696349,0,0,2.696349,-4915.5825,-87.464049)"
-       style="opacity:0.92000002">
-      <g
-         id="g9537">
-        <path
-           sodipodi:nodetypes="cc"
-           inkscape:connector-curvature="0"
-           id="path7375"
-           d="m 1826.3739,419.36065 8.0956,-7.67272"
-           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1.27420878;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker9443)" />
-        <path
-           style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:1.00000004, 1.00000004;stroke-dashoffset:1.4000001;stroke-opacity:1"
-           d="m 1823.5513,411.02885 0,11.12647 11.3679,0"
-           id="path8639"
-           inkscape:connector-curvature="0"
-           sodipodi:nodetypes="ccc" />
-      </g>
-    </g>
+    <path
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       id="path7375"
+       d="M 8.9589389,1043.2786 30.787502,1022.5903"
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:3.43571162;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#marker9443)" />
+    <path
+       style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#353a40;stroke-width:2.6960001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:2.6960001,2.6960001;stroke-dashoffset:3.63960013;stroke-opacity:1"
+       d="m 1.3482242,1020.8132 0,30.0008 30.6518258,0"
+       id="path8639"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccc" />
     <g
        id="g5096"
        transform="matrix(0.03677509,0,0,0.03677509,21.7395,310.08623)" />

@@ -17,9 +17,9 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="reset.svg"
-   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/reset.png"
-   inkscape:export-xdpi="45"
-   inkscape:export-ydpi="45">
+   inkscape:export-filename="/Users/zefal/Development/Universal-G-Code-Sender/ugs-platform/ugs-platform-ugscore/src/main/resources/resources/icons/reset32.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4">
     <marker
@@ -278,13 +278,13 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.5935568"
-     inkscape:cx="0.12650149"
+     inkscape:cx="-62.528768"
      inkscape:cy="19.639487"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
-     inkscape:window-height="820"
+     inkscape:window-height="819"
      inkscape:window-x="0"
      inkscape:window-y="1"
      inkscape:window-maximized="1"
@@ -310,7 +310,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -323,44 +323,61 @@
     <g
        id="g5630"
        transform="matrix(0.07297023,0,0,0.07297023,0,1020.3623)"
-       style="opacity:0.92000002">
+       style="opacity:1;fill:#353a40;fill-opacity:1">
       <g
-         id="g5590">
+         id="g5590"
+         style="fill:#353a40;fill-opacity:1">
         <path
            id="path5592"
            d="M 421.125,134.191 C 409.517,107.161 393.908,83.844 374.306,64.242 354.7,44.639 331.384,29.033 304.353,17.42 277.325,5.807 248.969,0.005 219.275,0.005 191.297,0.005 164.223,5.282 138.048,15.848 111.879,26.412 88.61,41.305 68.243,60.531 L 31.123,23.696 C 25.412,17.795 18.848,16.464 11.422,19.697 3.807,22.937 0,28.554 0,36.547 l 0,127.907 c 0,4.948 1.809,9.231 5.426,12.847 3.619,3.617 7.902,5.426 12.85,5.426 l 127.907,0 c 7.996,0 13.61,-3.807 16.846,-11.421 3.234,-7.423 1.903,-13.988 -3.999,-19.701 l -39.115,-39.398 c 13.328,-12.563 28.553,-22.222 45.683,-28.98 17.131,-6.757 35.021,-10.138 53.675,-10.138 19.793,0 38.687,3.858 56.674,11.563 17.99,7.71 33.544,18.131 46.679,31.265 13.134,13.131 23.555,28.69 31.265,46.679 7.703,17.987 11.56,36.875 11.56,56.674 0,19.798 -3.856,38.686 -11.56,56.672 -7.71,17.987 -18.131,33.544 -31.265,46.679 -13.135,13.134 -28.695,23.558 -46.679,31.265 -17.987,7.707 -36.881,11.561 -56.674,11.561 -22.651,0 -44.064,-4.949 -64.241,-14.843 -20.174,-9.894 -37.209,-23.883 -51.104,-41.973 -1.331,-1.902 -3.521,-3.046 -6.567,-3.429 -2.856,0 -5.236,0.855 -7.139,2.566 L 51.108,347.17 c -1.521,1.53 -2.33,3.478 -2.426,5.853 -0.094,2.385 0.527,4.524 1.858,6.427 20.749,25.125 45.871,44.587 75.373,58.382 29.502,13.798 60.625,20.701 93.362,20.701 29.694,0 58.05,-5.808 85.078,-17.416 27.031,-11.607 50.34,-27.22 69.949,-46.821 19.605,-19.609 35.211,-42.921 46.822,-69.949 11.611,-27.028 17.411,-55.392 17.411,-85.08 10e-4,-29.698 -5.803,-58.047 -17.41,-85.076 z"
-           inkscape:connector-curvature="0" />
+           inkscape:connector-curvature="0"
+           style="fill:#353a40;fill-opacity:1" />
       </g>
       <g
-         id="g5594" />
+         id="g5594"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5596" />
+         id="g5596"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5598" />
+         id="g5598"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5600" />
+         id="g5600"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5602" />
+         id="g5602"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5604" />
+         id="g5604"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5606" />
+         id="g5606"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5608" />
+         id="g5608"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5610" />
+         id="g5610"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5612" />
+         id="g5612"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5614" />
+         id="g5614"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5616" />
+         id="g5616"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5618" />
+         id="g5618"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5620" />
+         id="g5620"
+         style="fill:#353a40;fill-opacity:1" />
       <g
-         id="g5622" />
+         id="g5622"
+         style="fill:#353a40;fill-opacity:1" />
     </g>
     <g
        id="g5096"
