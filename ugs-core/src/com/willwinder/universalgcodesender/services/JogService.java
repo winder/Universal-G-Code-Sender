@@ -45,88 +45,100 @@ public class JogService {
         units = backend.getSettings().getPreferredUnits();
     }
 
-    public void increaseXYStepSize() {
-        if (stepSizeXY >= 1) {
-            stepSizeXY++;
-        } else if (stepSizeXY >= 0.1) {
-            stepSizeXY = stepSizeXY + 0.1;
-        } else if (stepSizeXY >= 0.01) {
-            stepSizeXY = stepSizeXY + 0.01;
+    public static double increaseSize(double size) {
+        if (size >= 1) {
+            return size + 1;
+        } else if (size >= 0.1) {
+            return size + 0.1;
+        } else if (size >= 0.01) {
+            return size + 0.01;
         } else {
-            stepSizeXY = 0.01;
+            return 0.01;
         }
-        setStepSize(stepSizeXY);
+    }
+
+    public static double decreaseSize(double size) {
+        if (size > 1) {
+            return size - 1;
+        } else if (size > 0.1) {
+            return size - 0.1;
+        } else if (size > 0.01) {
+            return size - 0.01;
+        }
+        return size;
+    }
+
+    private static double divideStepSize(double size) {
+        if (size > 100) {
+            return 100;
+        } else if (size <= 100 && size > 10) {
+            return 10;
+        } else if (size <= 10 && size > 1) {
+            return 1;
+        } else if (size <= 1 && size > 0.1) {
+            return 0.1;
+        } else if (size <= 0.1 ) {
+            return 0.01;
+        }
+        return size;
+    }
+
+    private static double multiplyStepSize(double size) {
+        if (size < 0.01) {
+            return 0.01;
+        } else if (size >= 0.01 && size < 0.1) {
+            return 0.1;
+        }  else if (size >= 0.1 && size < 1) {
+            return 1;
+        }  else if (size >= 1 && size < 10) {
+            return 10;
+        }  else if (size >= 10) {
+            return 100;
+        }
+        return size;
+    }
+
+    public void increaseXYStepSize() {
+        setStepSizeXY(increaseSize(stepSizeXY));
     }
 
     public void decreaseXYStepSize() {
-        if (stepSizeXY > 1) {
-            stepSizeXY--;
-        } else if (stepSizeXY > 0.1) {
-            stepSizeXY = stepSizeXY - 0.1;
-        } else if (stepSizeXY > 0.01) {
-            stepSizeXY = stepSizeXY - 0.01;
-        }
-        setStepSize(stepSizeXY);
+        setStepSizeXY(decreaseSize(stepSizeXY));
     }
 
-
     public void increaseZStepSize() {
-        double stepSize = this.stepSizeZ;
-        if (stepSize >= 1) {
-            stepSize++;
-        } else if (stepSize >= 0.1) {
-            stepSize = stepSize + 0.1;
-        } else if (stepSize >= 0.01) {
-            stepSize = stepSize + 0.01;
-        } else {
-            stepSize = 0.01;
-        }
-        setStepSizeZ(stepSize);
+        setStepSizeZ(increaseSize(stepSizeZ));
     }
 
     public void decreaseZStepSize() {
-        double stepSize = this.stepSizeZ;
-        if (stepSize > 1) {
-            stepSize--;
-        } else if (stepSize > 0.1) {
-            stepSize = stepSize - 0.1;
-        } else if (stepSize > 0.01) {
-            stepSize = stepSize - 0.01;
-        }
-        setStepSizeZ(stepSize);
+        setStepSizeZ(decreaseSize(stepSizeZ));
     }
 
-    public void divideStepSize() {
-        if (stepSizeXY > 100) {
-            stepSizeXY = 100;
-        } else if (stepSizeXY <= 100 && stepSizeXY > 10) {
-            stepSizeXY = 10;
-        } else if (stepSizeXY <= 10 && stepSizeXY > 1) {
-            stepSizeXY = 1;
-        } else if (stepSizeXY <= 1 && stepSizeXY > 0.1) {
-            stepSizeXY = 0.1;
-        } else if (stepSizeXY <= 0.1 ) {
-            stepSizeXY = 0.01;
-        }
-        setStepSize(stepSizeXY);
+    public void divideXYStepSize() {
+        setStepSizeXY(divideStepSize(stepSizeXY));
     }
 
-    public void multiplyStepSize() {
-        if (stepSizeXY < 0.01) {
-            stepSizeXY = 0.01;
-        } else if (stepSizeXY >= 0.01 && stepSizeXY < 0.1) {
-            stepSizeXY = 0.1;
-        }  else if (stepSizeXY >= 0.1 && stepSizeXY < 1) {
-            stepSizeXY = 1;
-        }  else if (stepSizeXY >= 1 && stepSizeXY < 10) {
-            stepSizeXY = 10;
-        }  else if (stepSizeXY >= 10) {
-            stepSizeXY = 100;
-        }
-        setStepSize(stepSizeXY);
+    public void divideZStepSize() {
+        setStepSizeZ(divideStepSize(stepSizeZ));
     }
 
-    public void setStepSize(double size) {
+    public void multiplyXYStepSize() {
+        setStepSizeXY(multiplyStepSize(stepSizeXY));
+    }
+
+    public void multiplyZStepSize() {
+        setStepSizeZ(multiplyStepSize(stepSizeZ));
+    }
+
+    public void increaseFeedRate() {
+        setFeedRate(increaseSize(getFeedRate()));
+    }
+
+    public void decreaseFeedRate() {
+        setFeedRate(decreaseSize(getFeedRate()));
+    }
+
+    public void setStepSizeXY(double size) {
         this.stepSizeXY = size;
         backend.getSettings().setManualModeStepSize(stepSizeXY);
     }
@@ -231,4 +243,3 @@ public class JogService {
         }
     }
 }
-
