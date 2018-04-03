@@ -70,7 +70,7 @@ public class ControllerStatus {
     /**
      * Returns the controller state as a string.
      *
-     * @deprecated because different controllers have different state strings it's unsafe to build logic using these strings
+     * @deprecated because different controllers have different state strings it's unsafe to build logic using these strings. Use {@link ControllerStatus#getState()} instead.
      * @return the state as a string
      */
     public String getStateString() {
