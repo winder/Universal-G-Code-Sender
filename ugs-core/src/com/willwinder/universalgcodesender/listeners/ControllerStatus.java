@@ -34,26 +34,29 @@ public class ControllerStatus {
     private final OverridePercents overrides;
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
+    private final ControllerState state;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
      * @param stateString controller state, i.e. idle/hold/running
+     * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
-    public ControllerStatus(String stateString, Position machineCoord, Position workCoord) {
-        this(stateString, machineCoord, workCoord, null, null, null, null, null, null);
+    public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
+        this(stateString, state, machineCoord, workCoord, null, null, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
-    public ControllerStatus(String stateString, Position machineCoord,
+    public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
                             Position workCoord, Double feedSpeed, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {
         this.stateString = stateString;
+        this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
@@ -72,6 +75,10 @@ public class ControllerStatus {
      */
     public String getStateString() {
         return stateString;
+    }
+
+    public ControllerState getState() {
+        return state;
     }
 
     public Position getMachineCoord() {
