@@ -311,7 +311,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     }
 
     private void onControllerStatusReceived(ControllerStatus status) {
-        this.updateStatePanel(status.getState());
+        this.updateStatePanel(status.getStateString());
         resetStatePinComponents();
 
         if (status.getEnabledPins() != null) {

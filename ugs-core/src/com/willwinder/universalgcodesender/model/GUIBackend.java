@@ -743,7 +743,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.activeState = status.getState();
+        this.activeState = status.getStateString();
         this.machineCoord = status.getMachineCoord();
         this.workCoord = status.getWorkCoord();
         this.lastResponse = System.currentTimeMillis();

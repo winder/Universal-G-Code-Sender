@@ -433,7 +433,7 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals("Idle", controllerStatus.getState());
+        assertEquals("Idle", controllerStatus.getStateString());
 
         assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());

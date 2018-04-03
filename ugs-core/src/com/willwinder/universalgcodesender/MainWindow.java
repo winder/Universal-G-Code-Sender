@@ -2013,8 +2013,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             return;
         }
 
-        this.activeStateValueLabel.setText( status.getState() );
-        this.setStatusColorForState( status.getState() );
+        this.activeStateValueLabel.setText( status.getStateString() );
+        this.setStatusColorForState( status.getStateString() );
 
         if (status.getMachineCoord() != null) {
             this.machinePositionXValueLabel.setText( Utils.formatter.format(status.getMachineCoord().x) + status.getMachineCoord().getUnits().abbreviation );

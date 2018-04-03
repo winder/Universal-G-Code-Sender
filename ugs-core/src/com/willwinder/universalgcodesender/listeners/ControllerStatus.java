@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.model.Position;
  * @author wwinder
  */
 public class ControllerStatus {
-    private final String state;
+    private final String stateString;
     private final Position machineCoord;
     private final Position workCoord;
     private final Position workCoordinateOffset;
@@ -38,22 +38,22 @@ public class ControllerStatus {
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
-     * @param state controller state, i.e. idle/hold/running
+     * @param stateString controller state, i.e. idle/hold/running
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
-    public ControllerStatus(String state, Position machineCoord, Position workCoord) {
-        this(state, machineCoord, workCoord, null, null, null, null, null, null);
+    public ControllerStatus(String stateString, Position machineCoord, Position workCoord) {
+        this(stateString, machineCoord, workCoord, null, null, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
-    public ControllerStatus(String state, Position machineCoord,
-            Position workCoord, Double feedSpeed, Double spindleSpeed,
-            OverridePercents overrides, Position workCoordinateOffset,
-            EnabledPins pins, AccessoryStates states) {
-        this.state = state;
+    public ControllerStatus(String stateString, Position machineCoord,
+                            Position workCoord, Double feedSpeed, Double spindleSpeed,
+                            OverridePercents overrides, Position workCoordinateOffset,
+                            EnabledPins pins, AccessoryStates states) {
+        this.stateString = stateString;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
@@ -64,8 +64,14 @@ public class ControllerStatus {
         this.accessoryStates = states;
     }
 
-    public String getState() {
-        return state;
+    /**
+     * Returns the controller state as a string.
+     *
+     * @deprecated because different controllers have different state strings it's unsafe to build logic using these strings
+     * @return the state as a string
+     */
+    public String getStateString() {
+        return stateString;
     }
 
     public Position getMachineCoord() {
