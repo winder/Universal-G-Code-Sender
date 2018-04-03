@@ -18,8 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.core.control.JogActionService.JogSizeAction.Operation;
-import static com.willwinder.ugs.nbp.core.control.JogActionService.JogSizeAction.Operation.*;
+import static com.willwinder.ugs.nbp.core.control.JogActionService.Operation.*;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -140,27 +139,27 @@ public class JogActionService {
         }
     }
 
-    protected static class JogSizeAction extends AbstractAction {
+    protected enum Operation {
+      STEPXY_PLUS,
+      STEPXY_MINUS,
+      STEPXY_MULTIPLY,
+      STEPXY_DIVIDE,
+      STEPZ_PLUS,
+      STEPZ_MINUS,
+      STEPZ_MULTIPLY,
+      STEPZ_DIVIDE,
+      FEED_PLUS,
+      FEED_MINUS,
+      FEED_MULTIPLY,
+      FEED_DIVIDE;
+    }
+
+    protected class JogSizeAction extends AbstractAction {
         JogService js;
         Double size = null;
         Operation operation = null;
         Units unit = null;
         Boolean xy = null;
-
-        enum Operation {
-          STEPXY_PLUS,
-          STEPXY_MINUS,
-          STEPXY_MULTIPLY,
-          STEPXY_DIVIDE,
-          STEPZ_PLUS,
-          STEPZ_MINUS,
-          STEPZ_MULTIPLY,
-          STEPZ_DIVIDE,
-          FEED_PLUS,
-          FEED_MINUS,
-          FEED_MULTIPLY,
-          FEED_DIVIDE;
-        }
 
         public JogSizeAction(JogService service, Units u) {
             js = service;
