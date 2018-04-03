@@ -155,11 +155,11 @@ public class JogActionService {
     }
 
     protected class JogSizeAction extends AbstractAction {
-        JogService js;
-        Double size = null;
-        Operation operation = null;
-        Units unit = null;
-        Boolean xy = null;
+        private JogService js;
+        private Double size = null;
+        private Operation operation = null;
+        private Units unit = null;
+        private Boolean xy = null;
 
         public JogSizeAction(JogService service, Units u) {
             js = service;
