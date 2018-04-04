@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -35,17 +35,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.Timer;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.io.IOException;
 
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 
 /**
+ * A send status panel for displaying the progress of a file stream
  *
  * @author wwinder
  */
@@ -67,7 +65,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     private final JLabel durationValue = new JLabel();
     private final JTextArea latestCommentValueLabel = new JTextArea();
 
-    Timer timer;
+    private Timer timer;
 
     public SendStatusPanel() {
         this(null);
