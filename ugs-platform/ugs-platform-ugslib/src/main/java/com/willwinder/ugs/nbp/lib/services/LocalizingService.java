@@ -159,6 +159,25 @@ public class LocalizingService {
     public final static String ResetZeroActionId = "com.willwinder.ugs.nbp.core.actions.ResetCoordinatesToZeroAction";
     public final static String ResetZeroCategory = CATEGORY_MACHINE;
 
+    public final static String ResetXZeroTitleKey = "action.resetXCoordinatesButton";
+    public final static String ResetXZeroTitle = Localization.getString(ResetXZeroTitleKey, lang);
+    public final static String ResetXZeroWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String ResetXZeroActionId = "com.willwinder.ugs.nbp.core.actions.ResetXCoordinatesToZeroAction";
+    public final static String ResetXZeroCategory = CATEGORY_MACHINE;
+
+    public final static String ResetYZeroTitleKey = "action.resetYCoordinatesButton";
+    public final static String ResetYZeroTitle = Localization.getString(ResetYZeroTitleKey, lang);
+    public final static String ResetYZeroWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String ResetYZeroActionId = "com.willwinder.ugs.nbp.core.actions.ResetYCoordinatesToZeroAction";
+    public final static String ResetYZeroCategory = CATEGORY_MACHINE;
+
+    public final static String ResetZZeroTitleKey = "action.resetZCoordinatesButton";
+    public final static String ResetZZeroTitle = Localization.getString(ResetZZeroTitleKey, lang);
+    public final static String ResetZZeroWindowPath = MENU_MACHINE_ACTIONS;
+    public final static String ResetZZeroActionId = "com.willwinder.ugs.nbp.core.actions.ResetZCoordinatesToZeroAction";
+    public final static String ResetZZeroCategory = CATEGORY_MACHINE;
+
+
     public final static String CheckModeTitleKey = "mainWindow.swing.checkMode";
     public final static String CheckModeTitle = Localization.getString(CheckModeTitleKey, lang);
     public final static String CheckModeWindowPath = MENU_MACHINE_ACTIONS;
