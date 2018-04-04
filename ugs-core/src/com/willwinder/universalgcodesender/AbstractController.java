@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,8 +69,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     // Added value
     private Boolean isStreaming = false;
-    private long streamStart = 0;
-    private long streamStop = 0;
+
+    // For keeping track of the time spent streaming a file
+    private StopWatch streamStopWatch = new StopWatch();
 
     // This metadata needs to be cached instead of looked up from queues and
     // streams, because those sources may be compromised during a cancel.
@@ -420,19 +422,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     @Override
     public long getSendDuration() {
-        // Last send duration.
-        if (this.isStreaming() == false) {
-            return this.streamStop - this.streamStart;
-        
-        }
-        // No send duration data available.
-        else if (this.streamStart == 0L) {
-            return 0L;
-        }
-        // Current send duration.
-        else {
-            return System.currentTimeMillis() - this.streamStart;
-        }
+        return streamStopWatch.getTime();
     }
 
     private enum RowStat {
@@ -581,8 +571,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         //this.issueSoftReset();
         
         this.isStreaming = true;
-        this.streamStop = 0;
-        this.streamStart = System.currentTimeMillis();
+        this.streamStopWatch.reset();
+        this.streamStopWatch.start();
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
         this.numCommandsCompleted = 0;
@@ -601,7 +591,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             comm.streamCommands();
         } catch(Exception e) {
             this.isStreaming = false;
-            this.streamStart = 0;
+            this.streamStopWatch.reset();
             this.comm.cancelSend();
             throw e;
         }
@@ -613,6 +603,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         pauseStreamingEvent();
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
+
+        if (streamStopWatch.isStarted()) {
+            this.streamStopWatch.suspend();
+        }
     }
     
     @Override
@@ -621,6 +615,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         resumeStreamingEvent();
         this.comm.resumeSend();
         this.setCurrentState(COMM_SENDING);
+
+        if (streamStopWatch.isSuspended()) {
+            this.streamStopWatch.resume();
+        }
     }
     
     @Override
@@ -704,7 +702,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                         formattedMillis(this.getSendDuration());
 
         this.messageForConsole("\n**** Finished sending file in "+duration+" ****\n\n");
-        this.streamStop = System.currentTimeMillis();
+        this.streamStopWatch.stop();
         this.isStreaming = false;
         this.flushSendQueues();
         dispatchStreamComplete(filename, success);        
