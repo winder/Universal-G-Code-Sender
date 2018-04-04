@@ -205,18 +205,11 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         add(durationLabel, AL_RIGHT);
         add(durationValue);
         add(latestCommentLabel, "span 2, wrap");
-        add(latestCommentValueLabel, "growx, span 2, wrap");
+        add(latestCommentValueLabel, "growx, span 2, wrap, wmin 10");
 
         latestCommentValueLabel.setOpaque(false);
         latestCommentValueLabel.setWrapStyleWord(true);
         latestCommentValueLabel.setLineWrap(true);
-
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentResized(ComponentEvent event) {
-               latestCommentValueLabel.setMaximumSize(new Dimension(SendStatusPanel.this.getWidth() - 10, 30));
-            }
-        });
     }
 
     @Override
