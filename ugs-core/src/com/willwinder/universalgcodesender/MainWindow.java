@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2012-2017 Will Winder
+    Copywrite 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -65,6 +65,7 @@ import javax.swing.*;
 import javax.swing.Timer;
 import javax.swing.text.DefaultCaret;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
@@ -1441,7 +1442,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     private void resetZCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetZCoordinateButtonActionPerformed
         try {
-            this.backend.resetCoordinateToZero('Z');
+            this.backend.resetCoordinateToZero(Z);
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
@@ -1449,7 +1450,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     private void resetXCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetXCoordinateButtonActionPerformed
         try {
-            this.backend.resetCoordinateToZero('X');
+            this.backend.resetCoordinateToZero(X);
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }
@@ -1513,7 +1514,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
     private void resetYCoordinateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resetYCoordinateButtonActionPerformed
         try {
-            this.backend.resetCoordinateToZero('Y');
+            this.backend.resetCoordinateToZero(Y);
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
         }

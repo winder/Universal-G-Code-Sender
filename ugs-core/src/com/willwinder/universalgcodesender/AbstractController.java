@@ -46,6 +46,7 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.CO
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import static com.willwinder.universalgcodesender.Utils.formatter;
+import com.willwinder.universalgcodesender.model.Axis;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
@@ -181,7 +182,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      * Reset given machine coordinate to zero at the current location.
      */
     @Override
-    public void resetCoordinateToZero(final char coord) throws Exception {
+    public void resetCoordinateToZero(final Axis coord) throws Exception {
         throw new Exception(Localization.getString("controller.exception.reset"));
     }
     

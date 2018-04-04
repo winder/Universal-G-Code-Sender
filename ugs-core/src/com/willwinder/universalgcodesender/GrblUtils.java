@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -145,7 +146,7 @@ public class GrblUtils {
         }
     }
 
-    static protected String getResetCoordToZeroCommand(final char coord, final double version, final Character letter) {
+    static protected String getResetCoordToZeroCommand(final Axis coord, final double version, final Character letter) {
         if (version >= 0.9) {
             return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord);
         }

@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
@@ -59,7 +60,7 @@ public interface IController {
     void performHomingCycle() throws Exception;
     void returnToHome() throws Exception;
     void resetCoordinatesToZero() throws Exception;
-    void resetCoordinateToZero(final char coord) throws Exception;
+    void resetCoordinateToZero(final Axis coord) throws Exception;
     void killAlarmLock() throws Exception;
     void toggleCheckMode() throws Exception;
     void viewParserState() throws Exception;
