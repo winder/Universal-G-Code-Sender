@@ -65,7 +65,7 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void cancel() throws Exception;
     void returnToZero() throws Exception;
     void resetCoordinatesToZero() throws Exception;
-    void resetCoordinateToZero(char coordinate) throws Exception;
+    void resetCoordinateToZero(Axis coordinate) throws Exception;
 
     void killAlarmLock() throws Exception;
     void performHomingCycle() throws Exception;

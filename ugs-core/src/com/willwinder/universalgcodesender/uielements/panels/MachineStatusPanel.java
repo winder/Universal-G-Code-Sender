@@ -24,6 +24,8 @@ import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Axis;
+import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -153,9 +155,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
         add(activeStatePanel, "growx");
 
-        addAxisPanel('X', workPositionXValue, machinePositionXValue);
-        addAxisPanel('Y', workPositionYValue, machinePositionYValue);
-        addAxisPanel('Z', workPositionZValue, machinePositionZValue);
+        addAxisPanel(X, workPositionXValue, machinePositionXValue);
+        addAxisPanel(Y, workPositionYValue, machinePositionYValue);
+        addAxisPanel(Z, workPositionZValue, machinePositionZValue);
 
         JPanel speedPanel = new JPanel(new MigLayout(debug + "fillx, wrap 2, inset 0", "[al right][]"));
         speedPanel.setOpaque(false);
@@ -208,7 +210,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         Arrays.stream(labels).forEach(l -> l.setText(l.getText().toUpperCase()));
     }
 
-    private void addAxisPanel(char axis, JLabel work, JLabel machine) {
+    private void addAxisPanel(Axis axis, JLabel work, JLabel machine) {
         RoundedPanel axisPanel = new RoundedPanel(COMMON_RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
@@ -415,7 +417,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         }
     }
 
-    private void resetCoordinateButton(char coord) {
+    private void resetCoordinateButton(Axis coord) {
         try {
             this.backend.resetCoordinateToZero(coord);
         } catch (Exception ex) {

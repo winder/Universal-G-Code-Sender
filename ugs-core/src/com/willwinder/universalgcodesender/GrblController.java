@@ -30,6 +30,7 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.CO
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
@@ -453,7 +454,7 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    public void resetCoordinateToZero(final char coord) throws Exception {
+    public void resetCoordinateToZero(final Axis coord) throws Exception {
         if (this.isCommOpen()) {
             String gcode = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
             if (!"".equals(gcode)) {

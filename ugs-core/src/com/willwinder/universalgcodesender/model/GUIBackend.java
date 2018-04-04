@@ -670,7 +670,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
-    public void resetCoordinateToZero(char coordinate) throws Exception {
+    public void resetCoordinateToZero(Axis coordinate) throws Exception {
         this.controller.resetCoordinateToZero(coordinate);
     }
     

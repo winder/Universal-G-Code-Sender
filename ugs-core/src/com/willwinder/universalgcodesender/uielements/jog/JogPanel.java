@@ -73,7 +73,7 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
         initComponents();
 
         // Update jog service whenever the spinner is changed.
-        xyStepSizeSpinner.addChangeListener(cl -> jogService.setStepSize(xyStepSizeSpinner.getValue()));
+        xyStepSizeSpinner.addChangeListener(cl -> jogService.setStepSizeXY(xyStepSizeSpinner.getValue()));
         zStepSizeSpinner.addChangeListener(cl -> jogService.setStepSizeZ(zStepSizeSpinner.getValue()));
         feedRateSpinner.addChangeListener(cl -> jogService.setFeedRate(feedRateSpinner.getValue()));
 
@@ -195,12 +195,12 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     public void multiplyStepActionPerformed() {
-        jogService.multiplyStepSize();
+        jogService.multiplyXYStepSize();
         xyStepSizeSpinner.setValue(getxyStepSize());
     }
 
     public void divideStepActionPerformed() {
-        jogService.divideStepSize();
+        jogService.divideXYStepSize();
         xyStepSizeSpinner.setValue(getxyStepSize());
     }
 

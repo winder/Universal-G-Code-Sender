@@ -309,7 +309,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
 
     @Override
     public void onStepSizeXYChanged(double value) {
-        jogService.setStepSize(value);
+        jogService.setStepSizeXY(value);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -65,8 +66,8 @@ public class GrblUtils {
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
 
-    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V9 = "G10 P0 L20 %c0";
-    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V8 = "G92 %c0";
+    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V9 = "G10 P0 L20 %s0";
+    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V8 = "G92 %s0";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G90 G0 X0 Y0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8 = "G90 G0 Z0";
@@ -145,14 +146,14 @@ public class GrblUtils {
         }
     }
 
-    static protected String getResetCoordToZeroCommand(final char coord, final double version, final Character letter) {
+    static protected String getResetCoordToZeroCommand(final Axis coord, final double version, final Character letter) {
         if (version >= 0.9) {
-            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord);
+            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord.toString());
         }
         else if (version >= 0.8 && (letter != null) && (letter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
-            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V8, coord);
+            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V8, coord.toString());
         }
         else if (version >= 0.8) {
             return "";
