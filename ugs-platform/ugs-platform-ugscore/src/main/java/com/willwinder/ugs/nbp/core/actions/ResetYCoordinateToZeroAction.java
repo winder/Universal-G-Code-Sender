@@ -22,6 +22,7 @@ package com.willwinder.ugs.nbp.core.actions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import static com.willwinder.universalgcodesender.model.Axis.Y;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -76,7 +77,7 @@ public final class ResetYCoordinateToZeroAction extends AbstractAction implement
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.resetCoordinateToZero('Y');
+            backend.resetCoordinateToZero(Y);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }
