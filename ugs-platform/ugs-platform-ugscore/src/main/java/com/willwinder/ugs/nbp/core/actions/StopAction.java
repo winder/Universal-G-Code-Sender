@@ -63,12 +63,14 @@ public final class StopAction extends AbstractAction implements UGSEventListener
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.StopTitle);
         putValue(NAME, LocalizingService.StopTitle);
-
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override

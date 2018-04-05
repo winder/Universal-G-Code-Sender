@@ -60,12 +60,14 @@ public final class ReturnToZeroAction extends AbstractAction implements UGSEvent
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.ReturnToZeroTitle);
         putValue(NAME, LocalizingService.ReturnToZeroTitle);
-
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override

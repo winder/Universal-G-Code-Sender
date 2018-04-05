@@ -61,6 +61,7 @@ public final class PauseAction extends AbstractAction implements UGSEventListene
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.PauseTitle);
         putValue(NAME, LocalizingService.PauseTitle);
+        setEnabled(isEnabled());
     }
 
     @Override

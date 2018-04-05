@@ -60,12 +60,14 @@ public final class SoftResetAction extends AbstractAction implements UGSEventLis
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.SoftResetTitle);
         putValue(NAME, LocalizingService.SoftResetTitle);
-
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override

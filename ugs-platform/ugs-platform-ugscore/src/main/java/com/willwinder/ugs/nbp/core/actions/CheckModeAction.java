@@ -60,17 +60,19 @@ public final class CheckModeAction extends AbstractAction implements UGSEventLis
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.CheckModeTitle);
         putValue(NAME, LocalizingService.CheckModeTitle);
-
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        return backend.isIdle();
+        return backend.isConnected() && backend.isIdle();
     }
 
     @Override

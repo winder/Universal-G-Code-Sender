@@ -64,14 +64,17 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.HomeTitle);
         putValue(NAME, LocalizingService.HomeTitle);
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> {
-            updateToolTip();
-            setEnabled(isEnabled());
-        });
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> {
+                updateToolTip();
+                setEnabled(isEnabled());
+            });
+        }
     }
 
     @Override
