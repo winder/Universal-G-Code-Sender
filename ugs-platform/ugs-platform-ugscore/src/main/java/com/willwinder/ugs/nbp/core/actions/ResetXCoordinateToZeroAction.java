@@ -61,12 +61,14 @@ public final class ResetXCoordinateToZeroAction extends AbstractAction implement
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.ResetXZeroTitle);
         putValue(NAME, LocalizingService.ResetXZeroTitle);
-
+        setEnabled(isEnabled());
     }
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        if (cse.isStateChangeEvent()) {
+            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
+        }
     }
 
     @Override
