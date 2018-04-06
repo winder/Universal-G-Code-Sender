@@ -23,6 +23,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
@@ -300,12 +301,15 @@ public class GrblUtils {
             final Capabilities version, Units reportingUnits) {
         // Legacy status.
         if (!version.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
+            String stateString = getStateFromStatusString(status, version);
+            ControllerState state = getControllerStateFromStateString(stateString);
             return new ControllerStatus(
-                getStateFromStatusString(status, version),
-                getMachinePositionFromStatusString(status, version, reportingUnits),
-                getWorkPositionFromStatusString(status, version, reportingUnits));
+                    stateString,
+                    state,
+                    getMachinePositionFromStatusString(status, version, reportingUnits),
+                    getWorkPositionFromStatusString(status, version, reportingUnits));
         } else {
-            String state = "";
+            String stateString = "";
             Position MPos = null;
             Position WPos = null;
             Position WCO = null;
@@ -323,9 +327,9 @@ public class GrblUtils {
                 if (part.startsWith("<")) {
                     int idx = part.indexOf(':');
                     if (idx == -1)
-                        state = part.substring(1);
+                        stateString = part.substring(1);
                     else
-                        state = part.substring(1, idx);
+                        stateString = part.substring(1, idx);
                 }
                 else if (part.startsWith("MPos:")) {
                     MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -399,7 +403,8 @@ public class GrblUtils {
                 }
             }
 
-            return new ControllerStatus(state, MPos, WPos, feedSpeed, spindleSpeed, overrides, WCO, pins, accessoryStates); 
+            ControllerState state = getControllerStateFromStateString(stateString);
+            return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, spindleSpeed, overrides, WCO, pins, accessoryStates);
         }
     }
 
@@ -423,7 +428,32 @@ public class GrblUtils {
 
         return retValue;
     }
-    
+
+    public static ControllerState getControllerStateFromStateString(String stateString) {
+        switch (stateString.toLowerCase()) {
+            case "jog":
+                return ControllerState.JOG;
+            case "run":
+                return ControllerState.RUN;
+            case "hold":
+                return ControllerState.HOLD;
+            case "door":
+                return ControllerState.DOOR;
+            case "home":
+                return ControllerState.HOME;
+            case "idle":
+                return ControllerState.IDLE;
+            case "alarm":
+                return ControllerState.ALARM;
+            case "check":
+                return ControllerState.CHECK;
+            case "sleep":
+                return ControllerState.SLEEP;
+            default:
+                return ControllerState.UNKNOWN;
+        }
+    }
+
     static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
     static protected Units getUnitsFromStatusString(final String status, final Capabilities version) {
         if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {

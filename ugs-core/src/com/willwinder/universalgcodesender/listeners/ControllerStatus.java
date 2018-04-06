@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.model.Position;
  * @author wwinder
  */
 public class ControllerStatus {
-    private final String state;
+    private final String stateString;
     private final Position machineCoord;
     private final Position workCoord;
     private final Position workCoordinateOffset;
@@ -34,25 +34,28 @@ public class ControllerStatus {
     private final OverridePercents overrides;
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
+    private final ControllerState state;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
-     * @param state controller state, i.e. idle/hold/running
+     * @param stateString controller state, i.e. idle/hold/running
+     * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
-    public ControllerStatus(String state, Position machineCoord, Position workCoord) {
-        this(state, machineCoord, workCoord, null, null, null, null, null, null);
+    public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
+        this(stateString, state, machineCoord, workCoord, null, null, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
-    public ControllerStatus(String state, Position machineCoord,
-            Position workCoord, Double feedSpeed, Double spindleSpeed,
-            OverridePercents overrides, Position workCoordinateOffset,
-            EnabledPins pins, AccessoryStates states) {
+    public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
+                            Position workCoord, Double feedSpeed, Double spindleSpeed,
+                            OverridePercents overrides, Position workCoordinateOffset,
+                            EnabledPins pins, AccessoryStates states) {
+        this.stateString = stateString;
         this.state = state;
         this.machineCoord = machineCoord;
         this.workCoord = workCoord;
@@ -64,7 +67,17 @@ public class ControllerStatus {
         this.accessoryStates = states;
     }
 
-    public String getState() {
+    /**
+     * Returns the controller state as a string.
+     *
+     * @deprecated because different controllers have different state strings it's unsafe to build logic using these strings. Use {@link ControllerStatus#getState()} instead.
+     * @return the state as a string
+     */
+    public String getStateString() {
+        return stateString;
+    }
+
+    public ControllerState getState() {
         return state;
     }
 

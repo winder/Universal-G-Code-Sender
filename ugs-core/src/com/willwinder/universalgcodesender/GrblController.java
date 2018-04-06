@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -69,7 +70,7 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Idle", new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -172,8 +173,11 @@ public class GrblController extends AbstractController {
                 if (GrblUtils.isAlarmResponse(response)) {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
+                    String stateString = lookupCode(response, true);
+                    ControllerState state = GrblUtils.getControllerStateFromStateString(stateString);
                     this.controllerStatus = new ControllerStatus(
-                            lookupCode(response, true), 
+                            stateString,
+                            state,
                             this.controllerStatus.getMachineCoord(),
                             this.controllerStatus.getWorkCoord(),
                             this.controllerStatus.getFeedSpeed(),
@@ -327,7 +331,7 @@ public class GrblController extends AbstractController {
     @Override
     protected void isReadyToStreamCommandsEvent() throws Exception {
         isReadyToSendCommandsEvent();
-        if (this.controllerStatus != null && this.controllerStatus.getState().equals("Alarm")) {
+        if (this.controllerStatus != null && this.controllerStatus.getState() == ControllerState.ALARM) {
             throw new Exception(Localization.getString("grbl.exception.Alarm"));
         }
     }
@@ -350,7 +354,7 @@ public class GrblController extends AbstractController {
 
         // If we're canceling a "jog" just send the door hold command.
         if (capabilities.hasJogging() && controllerStatus != null &&
-                "jog".equalsIgnoreCase(controllerStatus.getState())) {
+                controllerStatus.getState() == ControllerState.JOG) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_JOG_CANCEL_COMMAND);
         }
         // Otherwise, check if we can get fancy with a soft reset.
@@ -392,7 +396,7 @@ public class GrblController extends AbstractController {
             return super.getControlState();
         }
 
-        String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getState());
+        String state = this.controllerStatus == null ? "" : StringUtils.defaultString(this.controllerStatus.getStateString());
         switch(state.toLowerCase()) {
             case "jog":
             case "run":
@@ -650,7 +654,7 @@ public class GrblController extends AbstractController {
         }
 
         ControlState before = getControlState();
-        String beforeState = controllerStatus == null ? "" : controllerStatus.getState();
+        String beforeState = controllerStatus == null ? "" : controllerStatus.getStateString();
 
         controllerStatus = GrblUtils.getStatusFromStatusString(
                 controllerStatus, string, capabilities, getFirmwareSettings().getReportingUnits());
@@ -661,7 +665,7 @@ public class GrblController extends AbstractController {
         }
 
         // GRBL 1.1 jog complete transition
-        if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getState().equals("Idle")) {
+        if (StringUtils.equals(beforeState, "Jog") && controllerStatus.getStateString().equals("Idle")) {
             this.comm.cancelSend();
         }
 
@@ -680,15 +684,15 @@ public class GrblController extends AbstractController {
             if (attemptsRemaining > 0 && lastLocation != null) {
                 attemptsRemaining--;
                 // If the machine goes into idle, we no longer need to cancel.
-                if (this.controllerStatus.getState().equals("Idle") || this.controllerStatus.getState().equalsIgnoreCase("Check")) {
+                if (this.controllerStatus.getStateString().equals("Idle") || this.controllerStatus.getStateString().equalsIgnoreCase("Check")) {
                     isCanceling = false;
 
                     // Make sure the GUI gets updated
                     this.dispatchStateChange(getControlState());
                 }
                 // Otherwise check if the machine is Hold/Queue and stopped.
-                else if ((this.controllerStatus.getState().equals("Hold")
-                        || this.controllerStatus.getState().equals("Queue"))
+                else if ((this.controllerStatus.getStateString().equals("Hold")
+                        || this.controllerStatus.getStateString().equals("Queue"))
                         && lastLocation.equals(this.controllerStatus.getMachineCoord())) {
                     try {
                         this.issueSoftReset();

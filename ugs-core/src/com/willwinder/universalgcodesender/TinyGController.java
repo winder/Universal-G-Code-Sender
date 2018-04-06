@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -42,9 +43,6 @@ public class TinyGController extends AbstractController {
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
     private final DefaultFirmwareSettings firmwareSettings;
 
-    private boolean isReady = false;
-
-    private String state = "";
     private Position machineLocation = new Position();
     private Position workLocation = new Position();
     private Capabilities capabilities = new Capabilities();
@@ -138,21 +136,17 @@ public class TinyGController extends AbstractController {
         
         if (TinyGUtils.isRestartingResponse(jo)) {
             this.messageForConsole("[restarting] " + response + "\n");
-            this.isReady = false;
         }
         else if (TinyGUtils.isReadyResponse(jo)) {  
             //this.messageForConsole("Got version: " + TinyGUtils.getVersion(jo) + "\n");
             this.messageForConsole("[ready] " + response + "\n");
-            this.isReady = true;
-
         }
         else if (TinyGUtils.isStatusResponse(jo)) {
             TinyGUtils.StatusResult result = TinyGUtils.updateStatus(jo);
-            state = result.state;
             machineLocation.set(result.machine);
             workLocation.set(result.work);
             
-            ControllerStatus cs = new ControllerStatus(state, machineLocation, workLocation);
+            ControllerStatus cs = new ControllerStatus(result.stateString, result.state, machineLocation, workLocation);
             dispatchStatusString(cs);
         }
         else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
@@ -287,7 +281,8 @@ public class TinyGController extends AbstractController {
         private static class StatusResult {
             private Point3d machine = new Point3d();
             private Point3d work = new Point3d();
-            private String state;
+            private String stateString;
+            private ControllerState state;
         }
         private static StatusResult updateStatus(JsonObject response) {
             StatusResult result = new StatusResult();
@@ -305,14 +300,38 @@ public class TinyGController extends AbstractController {
                     result.machine.z = jo.get("posz").getAsDouble();
                 }
                 if (jo.has("stat")) {
-                    result.state = getStateAsString(jo.get("stat").getAsInt());
+                    result.stateString = getStateAsString(jo.get("stat").getAsInt());
+                    result.state = getState(jo.get("stat").getAsInt());
                 }
                 
                 result.work.set(result.machine);
             }
             return result;
         }
-        
+
+        private static ControllerState getState(int state) {
+            switch (state) {
+                case 0:
+                    return ControllerState.UNKNOWN;
+                case 1:
+                    return ControllerState.IDLE;
+                case 2:
+                    return ControllerState.UNKNOWN;
+                case 3:
+                    return ControllerState.UNKNOWN;
+                case 4:
+                    return ControllerState.UNKNOWN;
+                case 5:
+                    return ControllerState.RUN;
+                case 6:
+                    return ControllerState.HOLD;
+                case 9:
+                    return ControllerState.HOME;
+                default:
+                    return ControllerState.UNKNOWN;
+            }
+        }
+
         private static String getStateAsString(int state) {
             switch (state) {
                 case 0:

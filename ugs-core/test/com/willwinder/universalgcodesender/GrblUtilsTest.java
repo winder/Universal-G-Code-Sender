@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.Position;
@@ -434,7 +435,8 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals("Idle", controllerStatus.getState());
+        assertEquals("Idle", controllerStatus.getStateString());
+        assertEquals(ControllerState.IDLE, controllerStatus.getState());
 
         assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
         assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
