@@ -710,6 +710,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        this.sendUGSEvent(new UGSEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
     }
 
     @Override

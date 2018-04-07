@@ -1,9 +1,5 @@
-/**
- * An interface to help organizes a multi-file gcode workflow.
- */
-
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -31,7 +27,6 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.io.File;
@@ -49,7 +44,6 @@ import org.openide.awt.ActionReference;
 import org.openide.modules.OnStart;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 @ConvertAsProperties(
         dtd = "-//com.willwinder.ugs.nbm.workflow//WorkflowWindow//EN",
@@ -67,8 +61,9 @@ import org.openide.util.NbBundle.Messages;
         displayName = "<Not localized:WorkflowWindow>",
         preferredID = "WorkflowWindowTopComponent"
 )
-
 /**
+ * An interface to help organizes a multi-file gcode workflow.
+ *
  * UGSEventListener - this is how a plugin can listen to UGS lifecycle events.
  * ListSelectionListener - listen for table selections.
  */
@@ -82,12 +77,8 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
     private final Settings settings;
     private final BackendAPI backend;
 
-
-    // This is used to identify when a stream has completed.
-    private boolean wasSending;
-
     // This is used in most functions, so cache it here.
-    DefaultTableModel model;
+    private DefaultTableModel model;
 
     @OnStart
     public static class Localizer extends TopComponentLocalizer {
@@ -122,21 +113,19 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
 
     /**
      * Events from backend. Take specific actions based on the control state.
-     * FILE_CHANGED: Add the file to the workflow, always do this if the workflow page is loaded.
+     * File state change - FILE_LOADED: Add the file to the workflow, always do this if the workflow page is loaded.
+     * File state change - FILE_STREAM_COMPLETE: When the file send job has finished.
      * 
-     * STATE_CHANGED: Attempt to detect the file stream completion.
-     * 
-     * @param cse 
+     * @param cse the event
      */
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
-            if (wasSending && cse.getControlState() == ControlState.COMM_IDLE)
-               this.completeFile(backend.getGcodeFile());
-            wasSending = backend.isSendingFile();
-        }
         if (cse.isFileChangeEvent()) {
-            this.addFileToWorkflow(backend.getGcodeFile());
+            if (cse.getFileState() == UGSEvent.FileState.FILE_LOADED) {
+                this.addFileToWorkflow(backend.getGcodeFile());
+            } else if (cse.getFileState() == UGSEvent.FileState.FILE_STREAM_COMPLETE) {
+                this.completeFile(backend.getGcodeFile());
+            }
         }
     }
 
@@ -438,7 +427,6 @@ public final class WorkflowWindowTopComponent extends TopComponent implements UG
 
     @Override
     public void componentOpened() {
-        this.wasSending = backend.isSendingFile();
         model = (DefaultTableModel)this.fileTable.getModel();
     }
 
