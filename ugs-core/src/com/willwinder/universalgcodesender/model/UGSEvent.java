@@ -48,7 +48,8 @@ public class UGSEvent {
 
     public enum FileState {
         FILE_LOADING,
-        FILE_LOADED
+        FILE_LOADED,
+        FILE_STREAM_COMPLETE
     }
         
     public enum ControlState {
