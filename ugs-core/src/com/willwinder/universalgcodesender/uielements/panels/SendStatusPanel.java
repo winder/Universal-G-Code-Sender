@@ -39,8 +39,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
+import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_STREAM_COMPLETE;
 
 /**
  * A send status panel for displaying the progress of a file stream
@@ -103,6 +105,12 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                     public void run() {
                         try {
                             update();
+
+                            // Stop the timer if we no longer is sending a file
+                            if (!backend.isSendingFile() && timer != null && timer.isRunning()) {
+                                endSend();
+                                timer.stop();
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -129,16 +137,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     private void endSend() {
         setRemainingTime(Utils.formattedMillis(0));
-        java.awt.EventQueue.invokeLater(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {}
-
-            // Stop the timer after a delay to make sure it is updated.
-            if (timer != null && timer.isRunning()) {
-                timer.stop();
-            }
-        });
         remainingRowsValue.setText("0");
         sentRowsValue.setText("" + backend.getNumCompletedRows());
     }
@@ -222,6 +220,9 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         // On file loaded event, reset the rows.
         if (evt.isFileChangeEvent() && evt.getFileState() == FILE_LOADED) {
             resetSentRowLabels();
+        } else if (evt.isFileChangeEvent() && evt.getFileState() == FILE_STREAM_COMPLETE) {
+            update();
+            endSend();
         }
     }
 
@@ -233,7 +234,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        endSend();
     }
 
     @Override
