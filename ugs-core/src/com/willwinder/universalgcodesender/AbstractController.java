@@ -714,7 +714,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.messageForConsole("\n**** Finished sending file in "+duration+" ****\n\n");
         this.streamStopWatch.stop();
         this.isStreaming = false;
-        this.flushSendQueues();
         dispatchStreamComplete(filename, success);        
     }
     
