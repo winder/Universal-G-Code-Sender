@@ -114,7 +114,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         this.resetTimerLabels();
 
         if (timer != null){ timer.stop(); }
-        timer = new Timer(1000, actionListener);
+        timer = new Timer(400, actionListener);
 
         // Note: there is a divide by zero error in the timer because it uses
         //       the rowsValueLabel that was just reset.
