@@ -751,7 +751,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     public void checkStreamFinished() {
-        if (this.isStreaming() && !this.comm.areActiveCommands() && this.comm.numActiveCommands() == 0) {
+        if (this.isStreaming() &&
+                !this.comm.areActiveCommands() &&
+                this.comm.numActiveCommands() == 0 &&
+                rowsRemaining() <= 0 &&
+                (getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
             String streamName = "queued commands";
             boolean isSuccess = (this.errorCount == 0);
             this.fileStreamComplete(streamName, isSuccess);
