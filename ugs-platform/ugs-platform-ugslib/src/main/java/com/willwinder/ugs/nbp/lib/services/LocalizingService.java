@@ -43,10 +43,12 @@ public class LocalizingService {
     public static final String MENU_MACHINE_JOG = "Menu/Machine/Jog";
     public static final String MENU_MACHINE_JOG_STEP_SIZE = "Menu/Machine/Jog/Step Size";
     public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
+    public static final String MENU_VISUALIZER = "Menu/Visualizer";
 
     public static final String CATEGORY_WINDOW = "Window";
     public static final String CATEGORY_MACHINE = "Machine";
     public static final String CATEGORY_FILE = "File";
+    public static final String CATEGORY_VISUALIZER = "Visualizer";
 
     // Initialize backend (locale setting) before we load localized strings.
     public static final String lang = CentralLookup.getDefault().lookup(BackendAPI.class).getSettings().getLanguage();
@@ -249,8 +251,11 @@ public class LocalizingService {
                 String.format("Menu/%s/%s",
                         Localization.getString("platform.menu.window"),
                         Localization.getString("platform.menu.plugins")));
+        ars.createAndLocalizeFullMenu(MENU_VISUALIZER,
+                String.format("Menu/%s",
+                        Localization.getString("platform.window.visualizer")));
 
-        // Localize Menu Items
+        // Localize TopComponent Menu Items
         ars.overrideActionName(ActionsCategory, ActionsActionId, ActionsTitle);
         ars.overrideActionName(LocationStatusCategory, LocationStatusActionId, LocationStatusTitle);
         ars.overrideActionName(FileBrowserCategory, FileBrowserActionId, FileBrowserTitle);

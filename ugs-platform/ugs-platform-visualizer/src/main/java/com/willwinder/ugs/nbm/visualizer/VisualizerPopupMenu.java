@@ -85,19 +85,19 @@ public class VisualizerPopupMenu extends JPopupMenu {
         JMenu menu = new JMenu(Localization.getString("platform.visualizer.popup.viewPresets"));
         add(menu);
 
-        JMenuItem menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_ISOMETRIC, 1));
+        JMenuItem menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_ISOMETRIC));
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.reset"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_TOP, 1));
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_TOP));
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.top"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_LEFT, 1));
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_LEFT));
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.left"));
         menu.add(menuItem);
 
-        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.CAMERA_POSITION, MoveCameraAction.ROTATION_FRONT, 1));
+        menuItem = new JMenuItem(new MoveCameraAction(gcodeRenderer, MoveCameraAction.ROTATION_FRONT));
         menuItem.setText(Localization.getString("platform.visualizer.popup.presets.front"));
         menu.add(menuItem);
     }
