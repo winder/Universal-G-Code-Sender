@@ -39,7 +39,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_STREAM_COMPLETE;
