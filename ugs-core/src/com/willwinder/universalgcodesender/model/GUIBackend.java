@@ -555,6 +555,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public long getNumCompletedRows() {
+        logger.log(Level.FINEST, "Getting number of completed rows.");
+        return controller == null ? 0 : controller.rowsCompleted();
+    }
+
+    @Override
     public long getNumRemainingRows() {
         return controller == null ? 0 : controller.rowsRemaining();
     }
@@ -566,7 +572,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public long getSendRemainingDuration() {
-        long sent = this.getNumSentRows();
+        long sent = this.getNumCompletedRows();
 
         // Early exit condition. Can't make an estimate if we haven't started.
         if (sent == 0) { return -1L; }

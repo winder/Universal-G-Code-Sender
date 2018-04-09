@@ -89,7 +89,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
     private void update() {
         durationValue.setText(Utils.formattedMillis(backend.getSendDuration()));
         setRemainingTime(backend.getSendRemainingDuration());
-        sentRowsValue.setText(""+backend.getNumSentRows());
+        sentRowsValue.setText(""+backend.getNumCompletedRows());
         remainingRowsValue.setText("" + backend.getNumRemainingRows());
     }
 
@@ -129,8 +129,6 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
 
     private void endSend() {
         setRemainingTime(Utils.formattedMillis(0));
-        remainingRowsValue.setText("" + backend.getNumRemainingRows());
-
         java.awt.EventQueue.invokeLater(() -> {
             try {
                 Thread.sleep(1000);
@@ -141,6 +139,8 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
                 timer.stop();
             }
         });
+        remainingRowsValue.setText("0");
+        sentRowsValue.setText("" + backend.getNumCompletedRows());
     }
 
     private void resetTimerLabels() {

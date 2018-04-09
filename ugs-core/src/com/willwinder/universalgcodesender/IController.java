@@ -123,6 +123,7 @@ public interface IController {
     long getSendDuration();
     int rowsInSend();
     int rowsSent();
+    int rowsCompleted();
     int rowsRemaining();
     Optional<GcodeCommand> getActiveCommand();
     GcodeState getCurrentGcodeState();

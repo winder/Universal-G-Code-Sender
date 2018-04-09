@@ -429,6 +429,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     private enum RowStat {
         TOTAL_ROWS,
         ROWS_SENT,
+        ROWS_COMPLETED,
         ROWS_REMAINING
     }
 
@@ -441,13 +442,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         switch (stat) {
             case TOTAL_ROWS:
                 return this.numCommands;
-                //return streamCommands.getNumRows();
             case ROWS_SENT:
                 return this.numCommandsSent;
-                //return streamCommands.getNumRows() - streamCommands.getNumRowsRemaining();
+            case ROWS_COMPLETED:
+                return this.numCommandsCompleted + this.numCommandsSkipped;
             case ROWS_REMAINING:
-                return this.numCommands - this.numCommandsCompleted - this.numCommandsSkipped;
-                //return streamCommands.getNumRowsRemaining();
+                return this.numCommands - (this.numCommandsCompleted + this.numCommandsSkipped);
             default:
                 throw new IllegalStateException("This should be impossible - RowStat default case.");
         }
@@ -461,6 +461,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public int rowsSent() {
         return getRowStat(RowStat.ROWS_SENT);
+    }
+
+    @Override
+    public int rowsCompleted() {
+        return getRowStat(RowStat.ROWS_COMPLETED);
     }
     
     @Override
@@ -574,6 +579,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.isStreaming = true;
         this.streamStopWatch.reset();
         this.streamStopWatch.start();
+        this.numCommands = 0;
         this.numCommandsSent = 0;
         this.numCommandsSkipped = 0;
         this.numCommandsCompleted = 0;
@@ -684,8 +690,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     // Reset send queue and idx's.
     private void flushSendQueues() {
-        this.errorCount = 0;
-        this.numCommands -= this.getRowStat(RowStat.ROWS_REMAINING);
+        errorCount = 0;
+        numCommands = 0;
     }
 
     private void updateNumCommands() {
@@ -693,6 +699,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (streamCommands != null) {
             numCommands += streamCommands.getNumRows();
         }
+        numCommandsSkipped = 0;
+        numCommandsCompleted = 0;
+        numCommandsSent = 0;
     }
     
     // No longer a listener event
