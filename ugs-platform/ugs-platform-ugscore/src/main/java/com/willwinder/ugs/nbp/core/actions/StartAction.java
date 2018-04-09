@@ -67,9 +67,7 @@ public final class StartAction extends AbstractAction implements UGSEventListene
 
     @Override
     public void UGSEvent(UGSEvent cse) {
-        if (cse.isStateChangeEvent()) {
-            java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
-        }
+        java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
     }
 
     @Override
