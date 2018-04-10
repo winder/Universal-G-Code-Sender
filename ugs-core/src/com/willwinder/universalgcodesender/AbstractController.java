@@ -187,7 +187,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public void resetCoordinateToZero(final Axis coord) throws Exception {
         throw new Exception(Localization.getString("controller.exception.reset"));
     }
-    
+
+    @Override
+    public void setWorkPosition(Axis axis, double position) throws Exception {
+        throw new Exception(Localization.getString("controller.exception.setworkpos"));
+    }
+
     /**
      * Disable alarm mode and put device into idle state, throw an exception 
      * if not supported.

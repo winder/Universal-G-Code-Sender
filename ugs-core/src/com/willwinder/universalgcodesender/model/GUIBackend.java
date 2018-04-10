@@ -42,7 +42,11 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.awt.*;
 import java.io.File;
 import java.io.FileReader;
@@ -808,7 +812,33 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             //should still send!  Controller probably shouldn't ever be null.
         }
     }
-    
+
+    @Override
+    public void setWorkPosition(Axis axis, double position) throws Exception {
+        controller.setWorkPosition(axis, position);
+    }
+
+    @Override
+    public void setWorkPositionUsingExpression(final Axis axis, final String expression) throws Exception {
+        String expr = StringUtils.trimToEmpty(expression);
+
+        // If the expression starts with a mathimatical operation add the original position
+        if (StringUtils.startsWithAny(expr, "/", "*", "-", "+")) {
+            double value = getWorkPosition().get(axis);
+            expr = value + " " + expr;
+        }
+
+        // Start a script engine and evaluate the expression
+        ScriptEngineManager mgr = new ScriptEngineManager();
+        ScriptEngine engine = mgr.getEngineByName("JavaScript");
+        try {
+            double position = Double.valueOf(engine.eval(expr).toString());
+            setWorkPosition(axis, position);
+        } catch (ScriptException e) {
+            throw new Exception("Invalid expression", e);
+        }
+    }
+
     /////////////////////
     // Private functions.
     /////////////////////

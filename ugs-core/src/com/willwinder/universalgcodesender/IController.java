@@ -61,6 +61,16 @@ public interface IController {
     void returnToHome() throws Exception;
     void resetCoordinatesToZero() throws Exception;
     void resetCoordinateToZero(final Axis coord) throws Exception;
+
+    /**
+     * Sets the work position for a given axis to the position
+     *
+     * @param axis the axis to change
+     * @param position the new position to set
+     * @throws Exception if assigning the new position gave an error
+     */
+    void setWorkPosition(Axis axis, double position) throws Exception;
+    
     void killAlarmLock() throws Exception;
     void toggleCheckMode() throws Exception;
     void viewParserState() throws Exception;

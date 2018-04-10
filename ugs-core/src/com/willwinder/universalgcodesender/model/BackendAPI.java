@@ -67,6 +67,29 @@ public interface BackendAPI extends BackendAPIReadOnly {
     void resetCoordinatesToZero() throws Exception;
     void resetCoordinateToZero(Axis coordinate) throws Exception;
 
+    /**
+     * Sets the work position for a given axis to a position.
+     *
+     * @param axis the axis to change
+     * @param position the position to set the axis to.
+     * @throws Exception
+     */
+    void setWorkPosition(Axis axis, double position) throws Exception;
+
+    /**
+     * Sets the work position for a given axis to a position defined by an mathimatical
+     * expression. If the expression begins with /, *, + or - the current position is
+     * prepended.
+     *
+     * Examples:
+     *   20 * 2 + 0.05
+     *   / 2
+     *
+     * @param axis the axis to set
+     * @param expression the mathimatical expression to use
+     */
+    void setWorkPositionUsingExpression(Axis axis, String expression) throws Exception;
+
     void killAlarmLock() throws Exception;
     void performHomingCycle() throws Exception;
     void toggleCheckMode() throws Exception;
