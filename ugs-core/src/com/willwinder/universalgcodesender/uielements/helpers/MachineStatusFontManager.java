@@ -97,11 +97,11 @@ public class MachineStatusFontManager {
         speedValueComponents.forEach(c -> c.setFont(speedValueFont.get(index)));
     }
 
-    public void addWorkCoordinateLabel(JLabel... label) {
+    public void addWorkCoordinateLabel(JComponent... label) {
         workCoordinateComponents.addAll(Arrays.asList(label));
     }
 
-    public void addMachineCoordinateLabel(JLabel... label) {
+    public void addMachineCoordinateLabel(JComponent... label) {
         machineCoordinateComponents.addAll(Arrays.asList(label));
     }
 

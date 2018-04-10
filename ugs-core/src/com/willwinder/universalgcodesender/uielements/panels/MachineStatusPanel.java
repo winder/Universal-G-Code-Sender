@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
+import com.willwinder.universalgcodesender.uielements.components.WorkCoordinateTextField;
 import com.willwinder.universalgcodesender.uielements.helpers.MachineStatusFontManager;
 import com.willwinder.universalgcodesender.uielements.helpers.SteppedSizeManager;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
@@ -40,6 +41,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -79,9 +81,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final JLabel machinePositionYValue = new JLabel("0.00");
     private final JLabel machinePositionZValue = new JLabel("0.00");
 
-    private final JLabel workPositionXValue = new JLabel("0.00");
-    private final JLabel workPositionYValue = new JLabel("0.00");
-    private final JLabel workPositionZValue = new JLabel("0.00");
+    private final JTextField workPositionXValue;
+    private final JTextField workPositionYValue;
+    private final JTextField workPositionZValue;
 
     private final JLabel feedValue = new JLabel("0");
     private final JLabel spindleSpeedValue = new JLabel("0");
@@ -108,6 +110,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.backend.addControllerStateListener(this);
         }
         statePollTimer = createTimer();
+        workPositionXValue = new WorkCoordinateTextField(backend, X);
+        workPositionYValue = new WorkCoordinateTextField(backend, Y);
+        workPositionZValue = new WorkCoordinateTextField(backend, Z);
 
         initFonts();
         initComponents();
@@ -211,7 +216,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         Arrays.stream(labels).forEach(l -> l.setText(l.getText().toUpperCase()));
     }
 
-    private void addAxisPanel(Axis axis, JLabel work, JLabel machine) {
+    private void addAxisPanel(Axis axis, JTextField work, JComponent machine) {
         RoundedPanel axisPanel = new RoundedPanel(COMMON_RADIUS);
         axisPanel.setBackground(ThemeColors.VERY_DARK_GREY);
         axisPanel.setForeground(ThemeColors.LIGHT_BLUE);
@@ -230,10 +235,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         zeroLabel.setForeground(ThemeColors.LIGHT_BLUE);
         resetPanel.add(zeroLabel, "pos (axis.x + axis.w - 4) (axis.y + axis.h - 25)");
 
-        work.setForeground(ThemeColors.LIGHT_BLUE);
         machine.setForeground(ThemeColors.LIGHT_BLUE);
         axisPanel.add(resetPanel, "sy 2");
-        axisPanel.add(work);
+        axisPanel.add(work, "grow, gapleft 5");
         axisPanel.add(machine, "span 2");
 
         machineStatusFontManager.addAxisResetLabel(axisLabel);
@@ -342,27 +346,33 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (status.getMachineCoord() != null) {
             this.setUnits(status.getMachineCoord().getUnits());
 
-            this.setPositionValueColor(this.machinePositionXValue, status.getMachineCoord().x);
+            this.setPositionValueColor(this.machinePositionXValue, this.machinePositionXValue.getText(), status.getMachineCoord().x);
             this.machinePositionXValue.setText(decimalFormatter.format(status.getMachineCoord().x));
 
-            this.setPositionValueColor(this.machinePositionYValue, status.getMachineCoord().y);
+            this.setPositionValueColor(this.machinePositionYValue, this.machinePositionYValue.getText(), status.getMachineCoord().y);
             this.machinePositionYValue.setText(decimalFormatter.format(status.getMachineCoord().y));
 
-            this.setPositionValueColor(this.machinePositionZValue, status.getMachineCoord().z);
+            this.setPositionValueColor(this.machinePositionZValue, this.machinePositionZValue.getText(), status.getMachineCoord().z);
             this.machinePositionZValue.setText(decimalFormatter.format(status.getMachineCoord().z));
         }
 
         if (status.getWorkCoord() != null) {
             this.setUnits(status.getWorkCoord().getUnits());
 
-            this.setPositionValueColor(this.workPositionXValue, status.getWorkCoord().x);
-            this.workPositionXValue.setText(decimalFormatter.format(status.getWorkCoord().x));
+            if (!workPositionXValue.isFocusOwner()) {
+                this.setPositionValueColor(this.workPositionXValue, this.workPositionXValue.getText(), status.getWorkCoord().x);
+                this.workPositionXValue.setText(decimalFormatter.format(status.getWorkCoord().x));
+            }
 
-            this.setPositionValueColor(this.workPositionYValue, status.getWorkCoord().y);
-            this.workPositionYValue.setText(decimalFormatter.format(status.getWorkCoord().y));
+            if (!workPositionYValue.isFocusOwner()) {
+                this.setPositionValueColor(this.workPositionYValue, this.workPositionYValue.getText(), status.getWorkCoord().y);
+                this.workPositionYValue.setText(decimalFormatter.format(status.getWorkCoord().y));
+            }
 
-            this.setPositionValueColor(this.workPositionZValue, status.getWorkCoord().z);
-            this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
+            if (!workPositionZValue.isFocusOwner()) {
+                this.setPositionValueColor(this.workPositionZValue, this.workPositionZValue.getText(), status.getWorkCoord().z);
+                this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
+            }
         }
 
         // Use real-time values if available, otherwise show the target values.
@@ -377,8 +387,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         this.spindleSpeedValue.setText(Integer.toString(spindleSpeed));
     }
 
-    private void setPositionValueColor(JLabel label, double newValue) {
-        if (!label.getText().equals(decimalFormatter.format(newValue))) {
+    private void setPositionValueColor(JComponent label, String oldValue, double newValue) {
+        if (!oldValue.equals(decimalFormatter.format(newValue))) {
             label.setForeground(ThemeColors.RED);
         } else {
             label.setForeground(ThemeColors.LIGHT_BLUE);
