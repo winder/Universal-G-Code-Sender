@@ -370,20 +370,20 @@ public class GrblUtilsTest {
         String result;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G92 X0", result);
+        assertEquals("G92 X0.0000", result);
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G92 Y0", result);
+        assertEquals("G92 Y0.0000", result);
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G92 Z0", result);
+        assertEquals("G92 Z0.0000", result);
         
         version = 0.9;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G10 P0 L20 X0", result);
+        assertEquals("G10 P0 L20 X0.0000", result);
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G10 P0 L20 Y0", result);
+        assertEquals("G10 P0 L20 Y0.0000", result);
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G10 P0 L20 Z0", result);
+        assertEquals("G10 P0 L20 Z0.0000", result);
     }
 
     @Test
