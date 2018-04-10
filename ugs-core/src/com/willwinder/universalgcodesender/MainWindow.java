@@ -1354,7 +1354,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                             remainingTimeValueLabel.setText(Utils.formattedMillis(backend.getSendRemainingDuration()));
 
                             //sentRowsValueLabel.setText(""+sentRows);
-                            sentRowsValueLabel.setText(""+backend.getNumSentRows());
+                            sentRowsValueLabel.setText(""+backend.getNumCompletedRows());
                             remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
                         } catch (Exception e) {
                             e.printStackTrace();

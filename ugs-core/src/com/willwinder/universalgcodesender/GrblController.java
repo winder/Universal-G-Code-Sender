@@ -261,6 +261,7 @@ public class GrblController extends AbstractController {
                 verbose = true;
                 
                 this.handleStatusString(response);
+                this.checkStreamFinished();
             }
 
             else if (GrblUtils.isGrblFeedbackMessage(response, capabilities)) {

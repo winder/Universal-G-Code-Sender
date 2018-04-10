@@ -1412,7 +1412,7 @@ public class GrblControllerTest {
         gc.rawResponseHandler("error:1");
 
         // Then
-        assertEquals(gc.getControlState(), COMM_CHECK);
+        assertEquals(COMM_SENDING, gc.getControlState());
         assertFalse(gc.isPaused());
         verify(communicator, times(1)).sendByteImmediately(GRBL_PAUSE_COMMAND);
         verify(controllerListener, times(1)).controlStateChange(COMM_SENDING_PAUSED);

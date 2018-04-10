@@ -96,6 +96,7 @@ public interface BackendAPIReadOnly {
     long getNumRows();
     long getNumSentRows();
     long getNumRemainingRows();
+    long getNumCompletedRows();
 
     long getSendDuration();
     long getSendRemainingDuration();

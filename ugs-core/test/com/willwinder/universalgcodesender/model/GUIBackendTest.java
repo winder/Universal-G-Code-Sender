@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 /**
@@ -161,7 +160,7 @@ public class GUIBackendTest {
     @Test
     public void getSendRemainingDuration() throws Exception {
         // Given
-        when(controller.rowsSent()).thenReturn(10);
+        when(controller.rowsCompleted()).thenReturn(10);
         when(controller.getSendDuration()).thenReturn(10L);
         when(controller.rowsInSend()).thenReturn(1000);
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
