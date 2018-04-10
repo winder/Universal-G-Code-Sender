@@ -88,4 +88,17 @@ public class Position extends Point3d {
         double scale = UnitUtils.scaleUnits(this.units, units);
         return new Position(x*scale, y*scale, z*scale, units);
     }
+
+    public double get(Axis axis) {
+        switch (axis) {
+            case X:
+                return getX();
+            case Y:
+                return getY();
+            case Z:
+                return getZ();
+            default:
+                return 0;
+        }
+    }
 }

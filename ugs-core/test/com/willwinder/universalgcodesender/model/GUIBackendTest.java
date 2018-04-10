@@ -20,6 +20,8 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
@@ -372,5 +374,86 @@ public class GUIBackendTest {
 
         // Then
         assertEquals(21, numRows);
+    }
+
+    @Test
+    public void setWorkPositionWithValueExpressionShouldSetPosition() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.X, "10.1");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.X, 10.1);
+    }
+
+    @Test
+    public void setWorkPositionWithExpressionShouldSetPosition() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Y, "10.1 * 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Y, 101);
+    }
+
+    @Test
+    public void setWorkPositionWithAdditionExpression() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Y, " + 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Y, 21);
+    }
+
+    @Test
+    public void setWorkPositionWithMultiplicationExpression() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, " * 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Z, 110);
+    }
+
+
+    @Test
+    public void setWorkPositionWithDivisionExpression() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, " / 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Z, 1.1);
+    }
+
+    @Test
+    public void setWorkPositionWithSubtractionExpression() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.X, " - 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.X, 1);
     }
 }

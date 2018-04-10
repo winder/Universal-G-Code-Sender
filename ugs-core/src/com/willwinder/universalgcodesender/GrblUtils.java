@@ -1,9 +1,5 @@
 /*
- * Collection of useful Grbl related utilities.
- */
-
-/*
-    Copyright 2012-2017 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -32,19 +28,24 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 /**
+ * Collection of useful Grbl related utilities.
  *
  * @author wwinder
  */
 public class GrblUtils {
-// Note: 5 characters of this buffer reserved for real time commands.
+    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000");
+
+    // Note: 5 characters of this buffer reserved for real time commands.
     public static final int GRBL_RX_BUFFER_SIZE= 123;
-    
+
     /**
      * Grbl commands
      */
@@ -67,8 +68,13 @@ public class GrblUtils {
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V9 = "G10 P0 L20 X0 Y0 Z0";
     public static final String GCODE_RESET_COORDINATES_TO_ZERO_V8 = "G92 X0 Y0 Z0";
 
-    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V9 = "G10 P0 L20 %s0";
-    public static final String GCODE_RESET_COORDINATE_TO_ZERO_V8 = "G92 %s0";
+    /**
+     * For setting a the coordinate to a specific position on an axis.
+     * First string parameter should be either X, Y or Z. The second parameter should be a floating point number in
+     * the format 0.000
+     */
+    private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20 %s%s";
+    private static final String GCODE_SET_COORDINATE_V8 = "G92 %s%s";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G90 G0 X0 Y0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8 = "G90 G0 Z0";
@@ -147,16 +153,37 @@ public class GrblUtils {
         }
     }
 
-    static protected String getResetCoordToZeroCommand(final Axis coord, final double version, final Character letter) {
-        if (version >= 0.9) {
-            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V9, coord.toString());
+    /**
+     * Generate a command to set the work coordinate for a specific axis to zero.
+     *
+     * @param axis the axis to reset
+     * @param grblVersion the GRBL version
+     * @param grblVersionLetter the GRBL build version
+     * @return a string with the gcode command
+     */
+    protected static String getResetCoordToZeroCommand(final Axis axis, final double grblVersion, final Character grblVersionLetter) {
+        return getSetCoordCommand(axis, 0, grblVersion, grblVersionLetter);
+    }
+
+    /**
+     * Generate a command to set the work coordinate position for the given axis.
+     *
+     * @param axis the axis change
+     * @param position the new work position to use
+     * @param grblVersion the GRBL version
+     * @param grblVersionLetter the GRBL build version
+     * @return a string with the gcode command
+     */
+    protected static String getSetCoordCommand(final Axis axis, final double position, final double grblVersion, final Character grblVersionLetter) {
+        if (grblVersion >= 0.9) {
+            return String.format(GrblUtils.GCODE_SET_COORDINATE_V9, axis.toString(), decimalFormatter.format(position));
         }
-        else if (version >= 0.8 && (letter != null) && (letter >= 'c')) {
+        else if (grblVersion >= 0.8 && (grblVersionLetter != null) && (grblVersionLetter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
-            return String.format(GrblUtils.GCODE_RESET_COORDINATE_TO_ZERO_V8, coord.toString());
+            return String.format(GrblUtils.GCODE_SET_COORDINATE_V8, axis.toString(), decimalFormatter.format(position));
         }
-        else if (version >= 0.8) {
+        else if (grblVersion >= 0.8) {
             return "";
         }
         else {

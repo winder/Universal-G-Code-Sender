@@ -471,7 +471,20 @@ public class GrblController extends AbstractController {
         // Throw exception
         super.resetCoordinatesToZero();
     }
-    
+
+    @Override
+    public void setWorkPosition(Axis axis, double position) throws Exception {
+        if (!this.isCommOpen()) {
+            throw new Exception("Must be connected to set work position");
+        }
+
+        String gcode = GrblUtils.getSetCoordCommand(axis, position, this.grblVersion, this.grblVersionLetter);
+        if (StringUtils.isNotEmpty(gcode)) {
+            GcodeCommand command = createCommand(gcode);
+            this.sendCommandImmediately(command);
+        }
+    }
+
     @Override
     public void returnToHome() throws Exception {
         if (this.isCommOpen()) {
