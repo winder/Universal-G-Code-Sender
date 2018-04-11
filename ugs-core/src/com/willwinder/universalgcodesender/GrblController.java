@@ -459,9 +459,9 @@ public class GrblController extends AbstractController {
     }
     
     @Override
-    public void resetCoordinateToZero(final Axis coord) throws Exception {
+    public void resetCoordinateToZero(final Axis axis) throws Exception {
         if (this.isCommOpen()) {
-            String gcode = GrblUtils.getResetCoordToZeroCommand(coord, this.grblVersion, this.grblVersionLetter);
+            String gcode = GrblUtils.getResetCoordToZeroCommand(axis, this.grblVersion, this.grblVersionLetter);
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
                 this.sendCommandImmediately(command);

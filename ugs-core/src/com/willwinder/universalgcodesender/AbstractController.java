@@ -177,15 +177,17 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        throw new Exception(Localization.getString("controller.exception.reset"));
+        setWorkPosition(Axis.X, 0);
+        setWorkPosition(Axis.Y, 0);
+        setWorkPosition(Axis.Z, 0);
     }
     
     /**
      * Reset given machine coordinate to zero at the current location.
      */
     @Override
-    public void resetCoordinateToZero(final Axis coord) throws Exception {
-        throw new Exception(Localization.getString("controller.exception.reset"));
+    public void resetCoordinateToZero(final Axis axis) throws Exception {
+        setWorkPosition(axis, 0);
     }
 
     @Override
