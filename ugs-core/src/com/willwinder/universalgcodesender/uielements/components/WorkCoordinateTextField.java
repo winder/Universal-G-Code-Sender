@@ -57,6 +57,13 @@ public class WorkCoordinateTextField extends JTextField implements KeyListener, 
 
         addFocusListener(this);
         addKeyListener(this);
+
+        // TODO add I18N
+        setToolTipText("<html><body>" +
+                "<p><b>Displays and sets the work position<b/></p>" +
+                "<p>Exact positions or simple expressions can be used where<br/>" +
+                "the character <b>'#'</b> will be replaced with the current work position.</p>" +
+                "</body></html>");
     }
 
     @Override

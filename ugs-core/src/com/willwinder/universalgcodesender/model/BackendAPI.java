@@ -78,12 +78,14 @@ public interface BackendAPI extends BackendAPIReadOnly {
 
     /**
      * Sets the work position for a given axis to a position defined by an mathimatical
-     * expression. If the expression begins with /, *, + or - the current position is
-     * prepended.
+     * expression. The character '#' will be replaced by the current work position. If the
+     * expression starts with '/' or '*' the expression will be prepended with the current
+     * work position.
      *
      * Examples:
      *   20 * 2 + 0.05
-     *   / 2
+     *   # / 2
+     *   * 2
      *
      * @param axis the axis to set
      * @param expression the mathimatical expression to use
