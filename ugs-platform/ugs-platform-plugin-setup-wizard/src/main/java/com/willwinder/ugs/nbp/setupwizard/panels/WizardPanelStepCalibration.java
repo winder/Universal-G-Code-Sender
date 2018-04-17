@@ -61,34 +61,40 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private final DecimalFormat decimalFormat;
 
-    private final JLabel labelEstimatedStepsX;
-    private final JLabel labelPositionX;
-    private final JButton buttonXneg;
-    private final JButton buttonXpos;
-    private final JButton buttonUpdateSettingsX;
-    private final JTextField textFieldMeasuredX;
-    private final JTextField textFieldSettingStepsX;
-    private final JButton buttonYneg;
-    private final JButton buttonYpos;
-    private final JButton buttonUpdateSettingsY;
-    private final JTextField textFieldMeasuredY;
-    private final JLabel labelEstimatedStepsY;
-    private final JTextField textFieldSettingStepsY;
-    private final JLabel labelPositionY;
-    private final JButton buttonZneg;
-    private final JButton buttonZpos;
-    private final JButton buttonUpdateSettingsZ;
-    private final JTextField textFieldMeasuredZ;
-    private final JLabel labelEstimatedStepsZ;
-    private final JTextField textFieldSettingStepsZ;
-    private final JLabel labelPositionZ;
+    private JLabel labelEstimatedStepsX;
+    private JLabel labelPositionX;
+    private JButton buttonXneg;
+    private JButton buttonXpos;
+    private JButton buttonUpdateSettingsX;
+    private JTextField textFieldMeasuredX;
+    private JTextField textFieldSettingStepsX;
+    private JButton buttonYneg;
+    private JButton buttonYpos;
+    private JButton buttonUpdateSettingsY;
+    private JTextField textFieldMeasuredY;
+    private JLabel labelEstimatedStepsY;
+    private JTextField textFieldSettingStepsY;
+    private JLabel labelPositionY;
+    private JButton buttonZneg;
+    private JButton buttonZpos;
+    private JButton buttonUpdateSettingsZ;
+    private JTextField textFieldMeasuredZ;
+    private JLabel labelEstimatedStepsZ;
+    private JTextField textFieldSettingStepsZ;
+    private JLabel labelPositionZ;
     private Timer updateTimer;
 
     public WizardPanelStepCalibration(BackendAPI backend) {
         super(backend, "Step calibration");
-
         decimalFormat = new DecimalFormat("0.0", Localization.dfs);
-        Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+
+        initComponents();
+        initLayout();
+
+        setValid(true);
+    }
+
+    private void initLayout() {
         Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
 
         JLabel description = new JLabel("<html><body>" +
@@ -125,14 +131,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         panel.add(new JLabel("Actual movement:"), "span 2, grow");
         panel.add(new JLabel("Adjust steps per millimeter:"), "spanx 5, grow, wrap");
 
-        buttonXneg = createJogButton("X-");
-        buttonXpos = createJogButton("X+");
-        buttonUpdateSettingsX = new JButton("Update");
-        textFieldMeasuredX = new JTextField("0");
-        labelEstimatedStepsX = new JLabel("0 steps/mm");
-        labelEstimatedStepsX.setFont(labelEstimatedFont);
-        textFieldSettingStepsX = new JTextField("0");
-        labelPositionX = new JLabel("0 mm", JLabel.RIGHT);
 
         buttonUpdateSettingsX.setEnabled(false);
         buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
@@ -156,15 +154,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         panel.add(estimationPanelX, "grow, spanx 3, wrap, gapbottom 5");
 
 
-        buttonYneg = createJogButton("Y-");
-        buttonYpos = createJogButton("Y+");
-        buttonUpdateSettingsY = new JButton("Update");
-        textFieldMeasuredY = new JTextField("0");
-        labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
-        labelEstimatedStepsY.setFont(labelEstimatedFont);
-        textFieldSettingStepsY = new JTextField("0");
-        labelPositionY = new JLabel("0 mm", JLabel.RIGHT);
-
         buttonUpdateSettingsY.setEnabled(false);
         buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
         buttonYpos.addActionListener(event -> moveMachine(0, 1, 0));
@@ -185,15 +174,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         estimationPanelY.add(textFieldSettingStepsY, "growx, wmin 50");
         estimationPanelY.add(buttonUpdateSettingsY, "growx");
         panel.add(estimationPanelY, "grow, spanx 3, wrap, gapbottom 5");
-
-        buttonZneg = createJogButton("Z-");
-        buttonZpos = createJogButton("Z+");
-        buttonUpdateSettingsZ = new JButton("Update");
-        textFieldMeasuredZ = new JTextField("0");
-        labelEstimatedStepsZ = new JLabel("0 steps/mm");
-        labelEstimatedStepsZ.setFont(labelEstimatedFont);
-        textFieldSettingStepsZ = new JTextField("0");
-        labelPositionZ = new JLabel("0 mm", JLabel.RIGHT);
 
         buttonUpdateSettingsZ.setEnabled(false);
         buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
@@ -217,7 +197,37 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         panel.add(estimationPanelZ, "grow, spanx 3, wrap, gapbottom 5");
 
         getPanel().add(panel, "grow");
-        setValid(true);
+    }
+
+    private void initComponents() {
+        Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+
+        buttonXneg = createJogButton("X-");
+        buttonXpos = createJogButton("X+");
+        buttonUpdateSettingsX = new JButton("Update");
+        textFieldMeasuredX = new JTextField("0");
+        labelEstimatedStepsX = new JLabel("0 steps/mm");
+        labelEstimatedStepsX.setFont(labelEstimatedFont);
+        textFieldSettingStepsX = new JTextField("0");
+        labelPositionX = new JLabel("0 mm", JLabel.RIGHT);
+
+        buttonYneg = createJogButton("Y-");
+        buttonYpos = createJogButton("Y+");
+        buttonUpdateSettingsY = new JButton("Update");
+        textFieldMeasuredY = new JTextField("0");
+        labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
+        labelEstimatedStepsY.setFont(labelEstimatedFont);
+        textFieldSettingStepsY = new JTextField("0");
+        labelPositionY = new JLabel("0 mm", JLabel.RIGHT);
+
+        buttonZneg = createJogButton("Z-");
+        buttonZpos = createJogButton("Z+");
+        buttonUpdateSettingsZ = new JButton("Update");
+        textFieldMeasuredZ = new JTextField("0");
+        labelEstimatedStepsZ = new JLabel("0 steps/mm");
+        labelEstimatedStepsZ.setFont(labelEstimatedFont);
+        textFieldSettingStepsZ = new JTextField("0");
+        labelPositionZ = new JLabel("0 mm", JLabel.RIGHT);
     }
 
     private KeyListener createKeyListenerChangeSetting(Axis axis, JButton buttonUpdateSettings) {
@@ -286,9 +296,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                     computed = 0;
                 }
                 label.setText(Math.abs(Math.round(computed)) + " steps/mm est.");
-            } catch (FirmwareSettingsException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
+            } catch (FirmwareSettingsException | ParseException ignored) {
+                // Never mind
             }
         }
     }

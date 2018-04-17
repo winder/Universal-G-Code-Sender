@@ -30,6 +30,5 @@ public class SetupWizardTest {
     public static void main(String[] args) throws IOException {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         WizardStarter.openWizard(backend);
-        System.exit(0);
     }
 }
