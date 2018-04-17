@@ -53,6 +53,7 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     private static final String KEY_SOFT_LIMITS_ENABLED = "$20";
     private static final String KEY_HARD_LIMITS_ENABLED = "$21";
     private static final String KEY_HOMING_ENABLED = "$22";
+    private static final String KEY_HOMING_INVERT_DIRECTION = "$23";
     private static final String KEY_INVERT_DIRECTION = "$3";
     private static final String KEY_STEPS_PER_MM_X = "$100";
     private static final String KEY_STEPS_PER_MM_Y = "$101";
@@ -137,11 +138,8 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isSoftLimitsEnabled() {
-        return getSetting(KEY_SOFT_LIMITS_ENABLED)
-                .map(FirmwareSetting::getValue)
-                .map("1"::equals)
-                .orElse(false);
+    public boolean isSoftLimitsEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_SOFT_LIMITS_ENABLED);
     }
 
     @Override
@@ -250,8 +248,69 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
         setValue(KEY_SOFT_LIMIT_Z, decimalFormat.format(limit));
     }
 
+    @Override
+    public boolean isHomingDirectionInvertedX() {
+        return (getHomingInvertDirectionMask() & 1) == 1;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b1; // set first bit from LSB
+        } else {
+            directionMask &= ~0b1; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedY() {
+        return (getHomingInvertDirectionMask() & 2) == 2;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b10; // set first bit from LSB
+        } else {
+            directionMask &= ~0b10; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedZ() {
+        return (getHomingInvertDirectionMask() & 4) == 4;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b100; // set first bit from LSB
+        } else {
+            directionMask &= ~0b100; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
     private int getInvertDirectionMask() {
         return getSetting(KEY_INVERT_DIRECTION)
+                .map(FirmwareSetting::getValue)
+                .map(Integer::valueOf)
+                .orElse(0);
+    }
+
+    private int getHomingInvertDirectionMask() {
+        return getSetting(KEY_HOMING_INVERT_DIRECTION)
                 .map(FirmwareSetting::getValue)
                 .map(Integer::valueOf)
                 .orElse(0);
@@ -352,5 +411,10 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
         }
 
         return NumberUtils.createNumber(firmwareSetting.getValue()).doubleValue();
+    }
+
+    private boolean getValueAsBoolean(String key) throws FirmwareSettingsException {
+        FirmwareSetting firmwareSetting = getSetting(key).orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key: " + key));
+        return "1".equalsIgnoreCase(firmwareSetting.getValue());
     }
 }

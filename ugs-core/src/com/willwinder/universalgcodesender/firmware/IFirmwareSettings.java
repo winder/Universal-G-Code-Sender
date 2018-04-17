@@ -115,7 +115,7 @@ public interface IFirmwareSettings {
      *
      * @return true if enabled
      */
-    boolean isSoftLimitsEnabled();
+    boolean isSoftLimitsEnabled() throws FirmwareSettingsException;
 
     /**
      * Enables or disables the soft limits in the controller
@@ -222,4 +222,48 @@ public interface IFirmwareSettings {
      * @throws FirmwareSettingsException if the setting couldn't be saved
      */
     void setSoftLimitZ(double limit) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the X-axis be inverted
+     *
+     * @return true to perform homing to X-
+     */
+    boolean isHomingDirectionInvertedX();
+
+    /**
+     * Sets if the homing direction should be inverted for the X-axis
+     *
+     * @param inverted set to true if homing should be performed to X-
+     */
+    void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the Y-axis be inverted
+     *
+     * @return true to perform homing to Y-
+     */
+    boolean isHomingDirectionInvertedY();
+
+    /**
+     * Sets if the homing direction should be inverted for the Y-axis
+     *
+     * @param inverted set to true if homing should be performed to Y-
+     */
+    void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the Z-axis be inverted
+     *
+     * @return true to perform homing to Z-
+     */
+    boolean isHomingDirectionInvertedZ();
+
+    /**
+     * Sets if the homing direction should be inverted for the Z-axis
+     *
+     * @param inverted set to true if homing should be performed to Z-
+     */
+    void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException;
+
+
 }

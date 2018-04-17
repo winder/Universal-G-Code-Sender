@@ -36,7 +36,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
@@ -170,11 +169,19 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                     getBackend().getController().getFirmwareSettings().isHomingEnabled() &&
                     getBackend().getController().getCapabilities().hasSoftLimits()) {
                 IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-                checkboxEnableSoftLimits.setSelected(firmwareSettings.isSoftLimitsEnabled());
                 try {
+                    checkboxEnableSoftLimits.setSelected(firmwareSettings.isSoftLimitsEnabled());
                     textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimitX()));
                     textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimitY()));
                     textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimitZ()));
+
+                    labelSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    labelSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    labelSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    textFieldSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 } catch (FirmwareSettingsException ignored) {
                     // Never mind..
                 }
@@ -182,13 +189,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 checkboxEnableSoftLimits.setVisible(true);
                 labelSoftLimitsNotSupported.setVisible(false);
                 labelHomingIsNotEnabled.setVisible(false);
-                labelSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                labelSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                labelSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                textFieldSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
+
                 updateSaveButton();
             } else if (getBackend().getController() != null &&
                     getBackend().getController().getCapabilities().hasSoftLimits() &&

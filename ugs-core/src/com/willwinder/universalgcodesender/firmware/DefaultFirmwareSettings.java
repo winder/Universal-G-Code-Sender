@@ -140,6 +140,36 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public boolean isHomingDirectionInvertedX() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedX(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedY() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedY(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedZ() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedZ(boolean inverted) {
+
+    }
+
+    @Override
     public UnitUtils.Units getReportingUnits() {
         return UnitUtils.Units.UNKNOWN;
     }

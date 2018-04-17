@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -31,8 +32,11 @@ import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 
 /**
  * A wizard step panel for configuring homing on a controller
@@ -44,6 +48,10 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
     private JLabel labelHomingNotSupported;
     private JLabel labelHardLimitsNotEnabled;
     private JLabel labelDescription;
+    private JLabel labelHomingDirection;
+    private JComboBox<String> comboBoxInvertDirectionX;
+    private JComboBox<String> comboBoxInvertDirectionY;
+    private JComboBox<String> comboBoxInvertDirectionZ;
 
     public WizardPanelHoming(BackendAPI backend) {
         super(backend, "Homing");
@@ -58,6 +66,10 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         panel.add(checkboxEnableHoming);
         panel.add(labelHardLimitsNotEnabled);
         panel.add(labelHomingNotSupported);
+        panel.add(labelHomingDirection, "gaptop 10");
+        panel.add(comboBoxInvertDirectionX);
+        panel.add(comboBoxInvertDirectionY);
+        panel.add(comboBoxInvertDirectionZ);
         getPanel().add(panel, "grow");
         setValid(true);
     }
@@ -82,12 +94,64 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
         labelHomingNotSupported = new JLabel("<html><body>Homing is not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHomingNotSupported.setVisible(false);
+
+        labelHomingDirection = new JLabel("<html><body>In which direction should homing be performed:</body></html>");
+
+        JPopupMenu test = new JPopupMenu("test");
+        test.add(new JMenuItem("Direction X+"));
+        test.add(new JMenuItem("Direction X-"));
+
+        comboBoxInvertDirectionX = new JComboBox<>();
+        comboBoxInvertDirectionX.addItem("+X direction");
+        comboBoxInvertDirectionX.addItem("-X direction");
+        comboBoxInvertDirectionX.addActionListener(event -> {
+            IController controller = getBackend().getController();
+            if (controller != null) {
+                try {
+                    controller.getFirmwareSettings().setHomingDirectionInvertedX(comboBoxInvertDirectionX.getSelectedIndex() == 1);
+                } catch (FirmwareSettingsException e) {
+                    NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notify(nd);
+                }
+            }
+        });
+
+        comboBoxInvertDirectionY = new JComboBox<>();
+        comboBoxInvertDirectionY.addItem("+Y direction");
+        comboBoxInvertDirectionY.addItem("-Y direction");
+        comboBoxInvertDirectionY.addActionListener(event -> {
+            IController controller = getBackend().getController();
+            if (controller != null) {
+                try {
+                    controller.getFirmwareSettings().setHomingDirectionInvertedY(comboBoxInvertDirectionY.getSelectedIndex() == 1);
+                } catch (FirmwareSettingsException e) {
+                    NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notify(nd);
+                }
+            }
+        });
+
+        comboBoxInvertDirectionZ = new JComboBox<>();
+        comboBoxInvertDirectionZ.addItem("+Z direction");
+        comboBoxInvertDirectionZ.addItem("-Z direction");
+        comboBoxInvertDirectionZ.addActionListener(event -> {
+            IController controller = getBackend().getController();
+            if (controller != null) {
+                try {
+                    controller.getFirmwareSettings().setHomingDirectionInvertedZ(comboBoxInvertDirectionZ.getSelectedIndex() == 1);
+                } catch (FirmwareSettingsException e) {
+                    NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                    DialogDisplayer.getDefault().notify(nd);
+                }
+            }
+        });
+
     }
 
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        refreshControls();
+        ThreadHelper.invokeLater(this::refreshControls);
     }
 
     private void refreshControls() {
@@ -95,21 +159,41 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                 getBackend().getController().getCapabilities().hasHoming() &&
                 getBackend().getController().getCapabilities().hasHardLimits() &&
                 getBackend().getController().getFirmwareSettings().isHardLimitsEnabled()) {
+
             IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
             checkboxEnableHoming.setSelected(firmwareSettings.isHomingEnabled());
             checkboxEnableHoming.setVisible(true);
+
+            labelHomingDirection.setVisible(firmwareSettings.isHomingEnabled());
+            comboBoxInvertDirectionX.setVisible(firmwareSettings.isHomingEnabled());
+            comboBoxInvertDirectionX.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedX() ? 1 : 0);
+
+            comboBoxInvertDirectionY.setVisible(firmwareSettings.isHomingEnabled());
+            comboBoxInvertDirectionY.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedY() ? 1 : 0);
+
+            comboBoxInvertDirectionZ.setVisible(firmwareSettings.isHomingEnabled());
+            comboBoxInvertDirectionZ.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedZ() ? 1 : 0);
+
             labelHomingNotSupported.setVisible(false);
             labelHardLimitsNotEnabled.setVisible(false);
         } else if (getBackend().getController() != null &&
                 getBackend().getController().getCapabilities().hasHoming() &&
                 !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled()) {
             checkboxEnableHoming.setVisible(false);
+            comboBoxInvertDirectionX.setVisible(false);
+            comboBoxInvertDirectionY.setVisible(false);
+            comboBoxInvertDirectionZ.setVisible(false);
             labelHomingNotSupported.setVisible(false);
             labelHardLimitsNotEnabled.setVisible(true);
+            labelHomingDirection.setVisible(false);
         } else {
             checkboxEnableHoming.setVisible(false);
+            comboBoxInvertDirectionX.setVisible(false);
+            comboBoxInvertDirectionY.setVisible(false);
+            comboBoxInvertDirectionZ.setVisible(false);
             labelHomingNotSupported.setVisible(true);
             labelHardLimitsNotEnabled.setVisible(false);
+            labelHomingDirection.setVisible(false);
         }
     }
 
