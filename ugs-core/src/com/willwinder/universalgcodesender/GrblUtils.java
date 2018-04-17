@@ -239,6 +239,9 @@ public class GrblUtils {
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
+        ret.addCapability(CapabilitiesConstants.HOMING);
+        ret.addCapability(CapabilitiesConstants.HARD_LIMITS);
+        ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
 
         // Check if real time commands are enabled.
         if (version==0.8 && (letter != null) && (letter >= 'c')) {

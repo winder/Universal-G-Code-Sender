@@ -601,6 +601,20 @@ public class GrblController extends AbstractController {
         return "<" + Localization.getString("controller.log.notconnected") + ">";
     }
 
+    @Override
+    public String getFirmwareVersion() {
+        return getGrblVersion();
+    }
+
+    @Override
+    public ControllerState getState() {
+        if (controllerStatus == null) {
+            return ControllerState.UNKNOWN;
+        }
+
+        return controllerStatus.getState();
+    }
+
     /**
      * Create a timer which will execute GRBL's position polling mechanism.
      */
