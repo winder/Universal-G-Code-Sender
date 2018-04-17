@@ -189,6 +189,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                updateSaveButton();
             } else if (getBackend().getController() != null &&
                     getBackend().getController().getCapabilities().hasSoftLimits() &&
                     (!getBackend().getController().getFirmwareSettings().isHomingEnabled() ||
@@ -226,7 +227,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
-            refeshControls();
+            ThreadHelper.invokeLater(this::refeshControls);
         }
     }
 

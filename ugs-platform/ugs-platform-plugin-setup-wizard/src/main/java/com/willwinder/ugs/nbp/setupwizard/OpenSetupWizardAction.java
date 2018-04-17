@@ -40,7 +40,7 @@ import java.awt.event.ActionEvent;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.MENU_MACHINE,
-                position = 1999)
+                position = 2010)
 })
 public class OpenSetupWizardAction extends AbstractAction {
 

@@ -21,7 +21,10 @@ package com.willwinder.ugs.nbp.setupwizard.panels;
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -36,7 +39,7 @@ import javax.swing.JPanel;
  *
  * @author Joacim Breiler
  */
-public class WizardPanelHoming extends AbstractWizardPanel {
+public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventListener {
     private JCheckBox checkboxEnableHoming;
     private JLabel labelHomingNotSupported;
     private JLabel labelHardLimitsNotEnabled;
@@ -83,6 +86,11 @@ public class WizardPanelHoming extends AbstractWizardPanel {
 
     @Override
     public void initialize() {
+        getBackend().addUGSEventListener(this);
+        refreshControls();
+    }
+
+    private void refreshControls() {
         if (getBackend().getController() != null &&
                 getBackend().getController().getCapabilities().hasHoming() &&
                 getBackend().getController().getCapabilities().hasHardLimits() &&
@@ -107,5 +115,13 @@ public class WizardPanelHoming extends AbstractWizardPanel {
 
     @Override
     public void destroy() {
+        getBackend().removeUGSEventListener(this);
+    }
+
+    @Override
+    public void UGSEvent(UGSEvent event) {
+        if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+            ThreadHelper.invokeLater(this::refreshControls);
+        }
     }
 }

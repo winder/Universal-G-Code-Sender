@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.DialogDisplayer;
@@ -353,8 +354,10 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
 
         if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
-            updateMeasurementEstimatesFields();
-            updateSettingFieldsFromFirmware();
+            ThreadHelper.invokeLater(() -> {
+                updateMeasurementEstimatesFields();
+                updateSettingFieldsFromFirmware();
+            });
         }
     }
 

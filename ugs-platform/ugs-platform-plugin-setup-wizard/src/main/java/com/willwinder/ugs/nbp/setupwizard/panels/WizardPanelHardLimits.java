@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -42,6 +43,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private JCheckBox checkboxEnableHardLimits;
     private JLabel labelHardLimitssNotSupported;
     private JLabel labelDescription;
+    private JLabel labelExtendedDescription;
 
     public WizardPanelHardLimits(BackendAPI backend) {
         super(backend, "Limit switches");
@@ -54,6 +56,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "growx, wrap, gapbottom 10");
+        panel.add(labelExtendedDescription, "wrap, gapbottom 10");
         panel.add(checkboxEnableHardLimits, "wrap");
         panel.add(labelHardLimitssNotSupported, "wrap");
         add(panel);
@@ -62,7 +65,9 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private void initComponents() {
         labelDescription = new JLabel("<html><body>" +
                 "<p>Limit switches will prevent the machine to move beyond its physical limits.</p>" +
-                "<p/>" +
+                "</body></html>");
+
+        labelExtendedDescription = new JLabel("<html><body>" +
                 "<p>Before enabling make sure that you have equipped your machine with switches on at least one end for each axis.</p>" +
                 "</body></html>");
 
@@ -89,8 +94,10 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
             IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
             checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
             checkboxEnableHardLimits.setVisible(true);
+            labelExtendedDescription.setVisible(true);
             labelHardLimitssNotSupported.setVisible(false);
         } else {
+            labelExtendedDescription.setVisible(false);
             checkboxEnableHardLimits.setVisible(false);
             labelHardLimitssNotSupported.setVisible(true);
         }
@@ -104,8 +111,10 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
-            IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-            checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
+            ThreadHelper.invokeLater(() -> {
+                IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+                checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
+            });
         }
     }
 }

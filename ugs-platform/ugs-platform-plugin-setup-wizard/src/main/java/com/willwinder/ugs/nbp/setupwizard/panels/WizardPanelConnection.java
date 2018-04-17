@@ -81,7 +81,6 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
         // Firmware options
         firmwareCombo = new JComboBox<>();
-        FirmwareUtils.getFirmwareList().forEach(firmwareCombo::addItem);
         firmwareCombo.addActionListener(a -> setFirmware());
         labelFirmware = new JLabel("Firmware:");
 
@@ -158,6 +157,9 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
+
+        firmwareCombo.removeAllItems();
+        FirmwareUtils.getFirmwareList().forEach(firmwareCombo::addItem);
 
         setValid(getBackend().isConnected());
         labelPort.setVisible(!getBackend().isConnected());

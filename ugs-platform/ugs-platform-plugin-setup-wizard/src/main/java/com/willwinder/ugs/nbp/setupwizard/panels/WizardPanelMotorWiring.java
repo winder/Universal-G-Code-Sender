@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -167,7 +168,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     @Override
     public void UGSEvent(UGSEvent event) {
         if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
-            refreshReverseDirectionCheckboxes();
+            ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
         } else if (event.isControllerStatusEvent()) {
             killAlarm();
         }
