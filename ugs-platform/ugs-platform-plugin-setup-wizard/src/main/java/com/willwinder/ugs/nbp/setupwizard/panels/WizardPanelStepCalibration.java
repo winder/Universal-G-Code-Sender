@@ -138,9 +138,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
-        panel.add(buttonXneg, "grow, gapbottom 5");
+        panel.add(buttonXneg, "gapbottom 5");
         panel.add(labelPositionX, "grow, gapbottom 5");
-        panel.add(buttonXpos, "grow, gapbottom 5");
+        panel.add(buttonXpos, "gapbottom 5");
 
         JPanel panelMeasureX = new JPanel(new MigLayout("fill, inset 0"));
         panelMeasureX.add(textFieldMeasuredX, "growx, wmin 50");
@@ -160,9 +160,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldMeasuredY.addKeyListener(createKeyListener(Axis.Y, labelEstimatedStepsY));
         textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
-        panel.add(buttonYneg, "grow, gapbottom 5");
+        panel.add(buttonYneg, "gapbottom 5");
         panel.add(labelPositionY, "grow, gapbottom 5");
-        panel.add(buttonYpos, "grow, gapbottom 5");
+        panel.add(buttonYpos, "gapbottom 5");
 
         JPanel panelMeasureY = new JPanel(new MigLayout("fill, inset 0"));
         panelMeasureY.add(textFieldMeasuredY, "growx, wmin 50");
@@ -181,9 +181,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldMeasuredZ.addKeyListener(createKeyListener(Axis.Z, labelEstimatedStepsZ));
         textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting(Axis.Z, buttonUpdateSettingsZ));
 
-        panel.add(buttonZneg, "grow, gapbottom 5");
+        panel.add(buttonZneg, "gapbottom 5");
         panel.add(labelPositionZ, "grow, gapbottom 5");
-        panel.add(buttonZpos, "grow, gapbottom 5");
+        panel.add(buttonZpos, "gapbottom 5");
 
         JPanel panelMeasureZ = new JPanel(new MigLayout("fill, inset 0"));
         panelMeasureZ.add(textFieldMeasuredZ, "growx, wmin 50");
