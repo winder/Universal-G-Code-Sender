@@ -29,12 +29,14 @@ import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
@@ -51,6 +53,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
     private JCheckBox checkboxEnableSoftLimits;
     private JLabel labelSoftLimitsNotSupported;
+    private JLabel labelHomingIsNotEnabled;
     private JLabel labelDescription;
     private JTextField textFieldSoftLimitX;
     private JTextField textFieldSoftLimitY;
@@ -74,6 +77,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
         panel.add(labelDescription, "gapbottom 10");
         panel.add(checkboxEnableSoftLimits, "gapbottom 15");
         panel.add(labelSoftLimitsNotSupported);
+        panel.add(labelHomingIsNotEnabled);
 
         panel.add(labelSoftLimitX, "gapleft 10");
         panel.add(textFieldSoftLimitX, "w 60, gapleft 10, gapbottom 10");
@@ -96,7 +100,10 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
         checkboxEnableSoftLimits = new JCheckBox("Enable soft limits");
         checkboxEnableSoftLimits.addActionListener(event -> onSoftLimitsClicked());
 
-        labelSoftLimitsNotSupported = new JLabel("Soft limits are not supported by your hardware");
+        labelHomingIsNotEnabled = new JLabel("Homing needs to be enabled before enabling soft limits.", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHomingIsNotEnabled.setVisible(false);
+
+        labelSoftLimitsNotSupported = new JLabel("Soft limits is not available on your hardware", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelSoftLimitsNotSupported.setVisible(false);
 
         labelSoftLimitX = new JLabel("X max travel");
@@ -159,6 +166,8 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     private void refeshControls() {
         ThreadHelper.invokeLater(() -> {
             if (getBackend().getController() != null &&
+                    getBackend().getController().getFirmwareSettings().isHardLimitsEnabled() &&
+                    getBackend().getController().getFirmwareSettings().isHomingEnabled() &&
                     getBackend().getController().getCapabilities().hasSoftLimits()) {
                 IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
                 checkboxEnableSoftLimits.setSelected(firmwareSettings.isSoftLimitsEnabled());
@@ -172,6 +181,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
                 checkboxEnableSoftLimits.setVisible(true);
                 labelSoftLimitsNotSupported.setVisible(false);
+                labelHomingIsNotEnabled.setVisible(false);
                 labelSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 labelSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 labelSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
@@ -179,9 +189,24 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
                 buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
+            } else if (getBackend().getController() != null &&
+                    getBackend().getController().getCapabilities().hasSoftLimits() &&
+                    (!getBackend().getController().getFirmwareSettings().isHomingEnabled() ||
+                    !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled())) {
+                checkboxEnableSoftLimits.setVisible(false);
+                labelSoftLimitsNotSupported.setVisible(false);
+                labelHomingIsNotEnabled.setVisible(true);
+                labelSoftLimitX.setVisible(false);
+                labelSoftLimitY.setVisible(false);
+                labelSoftLimitZ.setVisible(false);
+                textFieldSoftLimitX.setVisible(false);
+                textFieldSoftLimitY.setVisible(false);
+                textFieldSoftLimitZ.setVisible(false);
+                buttonSave.setVisible(false);
             } else {
                 checkboxEnableSoftLimits.setVisible(false);
                 labelSoftLimitsNotSupported.setVisible(true);
+                labelHomingIsNotEnabled.setVisible(false);
                 labelSoftLimitX.setVisible(false);
                 labelSoftLimitY.setVisible(false);
                 labelSoftLimitZ.setVisible(false);

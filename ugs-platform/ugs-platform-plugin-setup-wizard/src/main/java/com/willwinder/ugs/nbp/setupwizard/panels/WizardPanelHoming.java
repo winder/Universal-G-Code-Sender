@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -73,10 +74,10 @@ public class WizardPanelHoming extends AbstractWizardPanel {
             }
         });
 
-        labelHardLimitsNotEnabled = new JLabel("Limit switches needs to be enabled to enable homing.");
+        labelHardLimitsNotEnabled = new JLabel("<html><body>Limit switches needs to be enabled before enabling homing.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHardLimitsNotEnabled.setVisible(false);
 
-        labelHomingNotSupported = new JLabel("Limit switches are unfortunately not available on your hardware or implemented in Universal Gcode Sender.");
+        labelHomingNotSupported = new JLabel("<html><body>Homing is not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHomingNotSupported.setVisible(false);
     }
 
@@ -92,6 +93,7 @@ public class WizardPanelHoming extends AbstractWizardPanel {
             labelHomingNotSupported.setVisible(false);
             labelHardLimitsNotEnabled.setVisible(false);
         } else if (getBackend().getController() != null &&
+                getBackend().getController().getCapabilities().hasHoming() &&
                 !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled()) {
             checkboxEnableHoming.setVisible(false);
             labelHomingNotSupported.setVisible(false);

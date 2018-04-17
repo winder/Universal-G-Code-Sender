@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
+import org.openide.util.ImageUtilities;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -68,7 +69,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");
         checkboxEnableHardLimits.addActionListener(event -> onHardLimitsClicked());
 
-        labelHardLimitssNotSupported = new JLabel("Limit switches are unfortunately not available on your hardware or implemented in Universal Gcode Sender.");
+        labelHardLimitssNotSupported = new JLabel("<html><body>Limit switches are unfortunately not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHardLimitssNotSupported.setVisible(false);
     }
 
