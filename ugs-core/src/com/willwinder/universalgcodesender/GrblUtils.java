@@ -19,6 +19,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
@@ -41,7 +42,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author wwinder
  */
 public class GrblUtils {
-    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000");
+    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000", Localization.dfs);
 
     // Note: 5 characters of this buffer reserved for real time commands.
     public static final int GRBL_RX_BUFFER_SIZE= 123;

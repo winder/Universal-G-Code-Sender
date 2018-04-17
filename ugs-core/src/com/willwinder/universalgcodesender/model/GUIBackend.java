@@ -821,9 +821,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void setWorkPositionUsingExpression(final Axis axis, final String expression) throws Exception {
         String expr = StringUtils.trimToEmpty(expression);
+        expr = expr.replaceAll("#", String.valueOf(getWorkPosition().get(axis)));
 
         // If the expression starts with a mathimatical operation add the original position
-        if (StringUtils.startsWithAny(expr, "/", "*", "-", "+")) {
+        if (StringUtils.startsWithAny(expr, "/", "*")) {
             double value = getWorkPosition().get(axis);
             expr = value + " " + expr;
         }

@@ -380,6 +380,8 @@ public class GUIBackendTest {
     public void setWorkPositionWithValueExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.X, "10.1");
@@ -392,12 +394,28 @@ public class GUIBackendTest {
     public void setWorkPositionWithExpressionShouldSetPosition() throws Exception {
         // Given
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
 
         // When
         instance.setWorkPositionUsingExpression(Axis.Y, "10.1 * 10");
 
         // Then
         verify(controller, times(1)).setWorkPosition(Axis.Y, 101);
+    }
+
+    @Test
+    public void setWorkPositionWithExpressionShouldSetNegativePosition() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Y, "-10.1");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Y, -10.1);
     }
 
     @Test
@@ -408,7 +426,7 @@ public class GUIBackendTest {
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPositionUsingExpression(Axis.Y, " + 10");
+        instance.setWorkPositionUsingExpression(Axis.Y, "# + 10");
 
         // Then
         verify(controller, times(1)).setWorkPosition(Axis.Y, 21);
@@ -422,12 +440,25 @@ public class GUIBackendTest {
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPositionUsingExpression(Axis.Z, " * 10");
+        instance.setWorkPositionUsingExpression(Axis.Z, "# * 10");
 
         // Then
         verify(controller, times(1)).setWorkPosition(Axis.Z, 110);
     }
 
+    @Test
+    public void setWorkPositionWithMultiplicationExpressionWithoutValue() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "* 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Z, 110);
+    }
 
     @Test
     public void setWorkPositionWithDivisionExpression() throws Exception {
@@ -437,7 +468,21 @@ public class GUIBackendTest {
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPositionUsingExpression(Axis.Z, " / 10");
+        instance.setWorkPositionUsingExpression(Axis.Z, "# / 10");
+
+        // Then
+        verify(controller, times(1)).setWorkPosition(Axis.Z, 1.1);
+    }
+
+    @Test
+    public void setWorkPositionWithDivisionExpressionWithoutValue() throws Exception {
+        // Given
+        instance.connect(FIRMWARE, PORT, BAUD_RATE);
+        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        instance.statusStringListener(status);
+
+        // When
+        instance.setWorkPositionUsingExpression(Axis.Z, "/ 10");
 
         // Then
         verify(controller, times(1)).setWorkPosition(Axis.Z, 1.1);
@@ -451,7 +496,7 @@ public class GUIBackendTest {
         instance.statusStringListener(status);
 
         // When
-        instance.setWorkPositionUsingExpression(Axis.X, " - 10");
+        instance.setWorkPositionUsingExpression(Axis.X, "# - 10");
 
         // Then
         verify(controller, times(1)).setWorkPosition(Axis.X, 1);

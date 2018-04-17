@@ -41,7 +41,6 @@ public abstract class AbstractCommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
     protected Connection conn;
-    private int commandCounter = 0;
 
     // Allow events to be sent from same thread for unit tests.
     private boolean launchEventsInDispatchThread = true;
@@ -146,10 +145,6 @@ public abstract class AbstractCommunicator {
         conn.closePort();
     }
 
-    protected int getNextCommandId() {
-        return this.commandCounter++;
-    }
-    
     /** Getters & Setters. */
     abstract public String getLineTerminator();
     
