@@ -227,4 +227,137 @@ public class GrblFirmwareSettingsTest {
         verify(controller, times(1)).sendCommandImmediately(any());
         verify(firmwareSettingsListener, times(0)).onUpdatedFirmwareSetting(any());
     }
+
+    @Test
+    public void getInvertDirectionShouldReturnEachBitAsAxis() {
+        target.rawResponseListener("$3=0");
+        assertEquals(false, target.isInvertDirectionX());
+        assertEquals(false, target.isInvertDirectionY());
+        assertEquals(false, target.isInvertDirectionZ());
+
+        target.rawResponseListener("$3=1");
+        assertEquals(true, target.isInvertDirectionX());
+        assertEquals(false, target.isInvertDirectionY());
+        assertEquals(false, target.isInvertDirectionZ());
+
+        target.rawResponseListener("$3=2");
+        assertEquals(false, target.isInvertDirectionX());
+        assertEquals(true, target.isInvertDirectionY());
+        assertEquals(false, target.isInvertDirectionZ());
+
+        target.rawResponseListener("$3=4");
+        assertEquals(false, target.isInvertDirectionX());
+        assertEquals(false, target.isInvertDirectionY());
+        assertEquals(true, target.isInvertDirectionZ());
+
+        target.rawResponseListener("$3=7");
+        assertEquals(true, target.isInvertDirectionX());
+        assertEquals(true, target.isInvertDirectionY());
+        assertEquals(true, target.isInvertDirectionZ());
+    }
+
+    @Test
+    public void setInvertDirectionXShouldSetBit() throws FirmwareSettingsException, InterruptedException {
+        when(controller.isStreaming()).thenReturn(false);
+        when(controller.isCommOpen()).thenReturn(true);
+        target.rawResponseListener("$3=7");
+
+        // Try setting X to false
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionX(false);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+        assertEquals("6", target.getSetting("$3").get().getValue());
+
+
+        // Try setting X to true
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionX(true);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+
+        assertEquals("7", target.getSetting("$3").get().getValue());
+    }
+
+    @Test
+    public void setInvertDirectionYShouldSetBit() throws FirmwareSettingsException, InterruptedException {
+        when(controller.isStreaming()).thenReturn(false);
+        when(controller.isCommOpen()).thenReturn(true);
+        target.rawResponseListener("$3=7");
+
+        // Try setting Y to false
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionY(false);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+        assertEquals("5", target.getSetting("$3").get().getValue());
+
+
+        // Try setting Y to true
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionY(true);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+
+        assertEquals("7", target.getSetting("$3").get().getValue());
+    }
+
+    @Test
+    public void setInvertDirectionZShouldSetBit() throws FirmwareSettingsException, InterruptedException {
+        when(controller.isStreaming()).thenReturn(false);
+        when(controller.isCommOpen()).thenReturn(true);
+        target.rawResponseListener("$3=7");
+
+        // Try setting Z to false
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionZ(false);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+        assertEquals("3", target.getSetting("$3").get().getValue());
+
+
+        // Try setting Z to true
+        Executors.newCachedThreadPool().submit(() -> {
+            try {
+                target.setInvertDirectionZ(true);
+            } catch (FirmwareSettingsException e) {
+                fail("Should never get here but got exception: " + e);
+            }
+            return null;
+        });
+        Thread.sleep(100);
+        target.rawResponseListener("ok");
+
+        assertEquals("7", target.getSetting("$3").get().getValue());
+    }
 }
