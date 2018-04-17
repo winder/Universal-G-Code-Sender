@@ -132,7 +132,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
         textFieldSettingStepsX = new JTextField("0");
-        labelPositionX = new JLabel("0 mm");
+        labelPositionX = new JLabel("0 mm", JLabel.RIGHT);
 
         buttonUpdateSettingsX.setEnabled(false);
         buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
@@ -141,7 +141,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
         panel.add(buttonXneg, "grow, gapbottom 5");
-        panel.add(labelPositionX, "shrink, gapbottom 5");
+        panel.add(labelPositionX, "grow, gapbottom 5");
         panel.add(buttonXpos, "grow, gapbottom 5");
 
         JPanel panelMeasureX = new JPanel(new MigLayout("fill, inset 0"));
@@ -163,7 +163,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
         labelEstimatedStepsY.setFont(labelEstimatedFont);
         textFieldSettingStepsY = new JTextField("0");
-        labelPositionY = new JLabel("0 mm");
+        labelPositionY = new JLabel("0 mm", JLabel.RIGHT);
 
         buttonUpdateSettingsY.setEnabled(false);
         buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
@@ -172,7 +172,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
         panel.add(buttonYneg, "grow, gapbottom 5");
-        panel.add(labelPositionY, "shrink, gapbottom 5");
+        panel.add(labelPositionY, "grow, gapbottom 5");
         panel.add(buttonYpos, "grow, gapbottom 5");
 
         JPanel panelMeasureY = new JPanel(new MigLayout("fill, inset 0"));
@@ -193,7 +193,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
         labelEstimatedStepsZ.setFont(labelEstimatedFont);
         textFieldSettingStepsZ = new JTextField("0");
-        labelPositionZ = new JLabel("0 mm");
+        labelPositionZ = new JLabel("0 mm", JLabel.RIGHT);
 
         buttonUpdateSettingsZ.setEnabled(false);
         buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
@@ -202,7 +202,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting(Axis.Z, buttonUpdateSettingsZ));
 
         panel.add(buttonZneg, "grow, gapbottom 5");
-        panel.add(labelPositionZ, "shrink, gapbottom 5");
+        panel.add(labelPositionZ, "grow, gapbottom 5");
         panel.add(buttonZpos, "grow, gapbottom 5");
 
         JPanel panelMeasureZ = new JPanel(new MigLayout("fill, inset 0"));

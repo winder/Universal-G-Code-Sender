@@ -122,8 +122,10 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void setFirmware() {
-        String firmware = firmwareCombo.getSelectedItem().toString();
-        getBackend().getSettings().setFirmwareVersion(firmware);
+        if (firmwareCombo.getSelectedItem() != null) {
+            String firmware = firmwareCombo.getSelectedItem().toString();
+            getBackend().getSettings().setFirmwareVersion(firmware);
+        }
     }
 
     private void firmwareUpdated() {
