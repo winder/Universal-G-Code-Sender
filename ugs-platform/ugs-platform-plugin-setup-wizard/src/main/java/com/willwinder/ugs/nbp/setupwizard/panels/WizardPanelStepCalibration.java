@@ -95,7 +95,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     }
 
     private void initLayout() {
-        Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
 
         JLabel description = new JLabel("<html><body>" +
                 "<p>We will now attempt to calibrate your machine. Try <b>moving</b> the machine and <b>measure</b> the results, then <b>calibrate</b> to the estimated steps.</p>" +
@@ -104,6 +103,56 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
 
         JPanel panel = new JPanel(new MigLayout("fill, inset 0"));
+        addHeaderRow(panel);
+        addSubHeaderRow(panel);
+        addAxisRow(panel, buttonXneg, buttonXpos, buttonUpdateSettingsX, labelPositionX, labelEstimatedStepsX, textFieldMeasuredX, textFieldSettingStepsX);
+        addAxisRow(panel, buttonYneg, buttonYpos, buttonUpdateSettingsY, labelPositionY, labelEstimatedStepsY, textFieldMeasuredY, textFieldSettingStepsY);
+        addAxisRow(panel, buttonZneg, buttonZpos, buttonUpdateSettingsZ, labelPositionZ, labelEstimatedStepsZ, textFieldMeasuredZ, textFieldSettingStepsZ);
+        getPanel().add(panel, "grow");
+    }
+
+    private void addAxisRow(JPanel panel,
+                            JButton buttonMoveInNegativeDirection,
+                            JButton buttonMoveInPositiveDirection,
+                            JButton buttonUpdateSettings,
+                            JLabel labelCurrentPosition,
+                            JLabel labelEstimatedSteps,
+                            JTextField textFieldMeasurement,
+                            JTextField textFieldSettingSteps) {
+
+        panel.add(buttonMoveInNegativeDirection, "shrink, gapbottom 5");
+        panel.add(labelCurrentPosition, "grow, gapbottom 5");
+        panel.add(buttonMoveInPositiveDirection, "shrink, gapbottom 5");
+
+        JPanel panelMeasureX = new JPanel(new MigLayout("fill, inset 0"));
+        panelMeasureX.add(textFieldMeasurement, "growx, wmin 50");
+        panelMeasureX.add(new JLabel("mm"), "wrap");
+        panel.add(panelMeasureX, "grow, span 2, gapbottom 5");
+
+        JPanel estimationPanelX = new JPanel(new MigLayout("fill, inset 0"));
+        estimationPanelX.add(labelEstimatedSteps, "gapleft 5, span 2, wrap");
+        estimationPanelX.add(textFieldSettingSteps, "growx, wmin 50");
+        estimationPanelX.add(buttonUpdateSettings, "growx");
+        panel.add(estimationPanelX, "grow, spanx 3, wrap, gapbottom 5");
+    }
+
+    private void addSubHeaderRow(JPanel panel) {
+        JButton resetButton = new JButton("Reset to zero");
+        resetButton.setMinimumSize(new Dimension(36, 36));
+        resetButton.addActionListener(event -> {
+            try {
+                getBackend().resetCoordinatesToZero();
+            } catch (Exception ignored) {
+                // Never mind
+            }
+        });
+        panel.add(resetButton, "grow, spanx 3, gapbottom 0, gaptop 0");
+        panel.add(new JLabel("Actual movement:"), "span 2, grow");
+        panel.add(new JLabel("Adjust steps per millimeter:"), "spanx 5, grow, wrap");
+    }
+
+    private void addHeaderRow(JPanel panel) {
+        Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
         JLabel headerLabel = new JLabel("Move", JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, gapbottom 5, gaptop 7");
@@ -117,117 +166,52 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         headerLabel = new JLabel("Calibrate", JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, wrap, gapbottom 5, gaptop 7");
-
-        JButton resetButton = new JButton("Reset to zero");
-        resetButton.setMinimumSize(new Dimension(36, 36));
-        resetButton.addActionListener(event -> {
-            try {
-                getBackend().resetCoordinatesToZero();
-            } catch (Exception ignored) {
-                // Never mind
-            }
-        });
-        panel.add(resetButton, "grow, spanx 3, gapbottom 0, gaptop 0");
-        panel.add(new JLabel("Actual movement:"), "span 2, grow");
-        panel.add(new JLabel("Adjust steps per millimeter:"), "spanx 5, grow, wrap");
-
-
-        buttonUpdateSettingsX.setEnabled(false);
-        buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
-        buttonXpos.addActionListener(event -> moveMachine(1, 0, 0));
-        textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
-        textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
-
-        panel.add(buttonXneg, "gapbottom 5");
-        panel.add(labelPositionX, "grow, gapbottom 5");
-        panel.add(buttonXpos, "gapbottom 5");
-
-        JPanel panelMeasureX = new JPanel(new MigLayout("fill, inset 0"));
-        panelMeasureX.add(textFieldMeasuredX, "growx, wmin 50");
-        panelMeasureX.add(new JLabel("mm"), "wrap");
-        panel.add(panelMeasureX, "grow, span 2, gapbottom 5");
-
-        JPanel estimationPanelX = new JPanel(new MigLayout("fill, inset 0"));
-        estimationPanelX.add(labelEstimatedStepsX, "gapleft 5, span 2, wrap");
-        estimationPanelX.add(textFieldSettingStepsX, "growx, wmin 50");
-        estimationPanelX.add(buttonUpdateSettingsX, "growx");
-        panel.add(estimationPanelX, "grow, spanx 3, wrap, gapbottom 5");
-
-
-        buttonUpdateSettingsY.setEnabled(false);
-        buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
-        buttonYpos.addActionListener(event -> moveMachine(0, 1, 0));
-        textFieldMeasuredY.addKeyListener(createKeyListener(Axis.Y, labelEstimatedStepsY));
-        textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
-
-        panel.add(buttonYneg, "gapbottom 5");
-        panel.add(labelPositionY, "grow, gapbottom 5");
-        panel.add(buttonYpos, "gapbottom 5");
-
-        JPanel panelMeasureY = new JPanel(new MigLayout("fill, inset 0"));
-        panelMeasureY.add(textFieldMeasuredY, "growx, wmin 50");
-        panelMeasureY.add(new JLabel("mm"), "wrap");
-        panel.add(panelMeasureY, "grow, span 2, gapbottom 5");
-
-        JPanel estimationPanelY = new JPanel(new MigLayout("fill, inset 0"));
-        estimationPanelY.add(labelEstimatedStepsY, "gapleft 5, span 2, wrap");
-        estimationPanelY.add(textFieldSettingStepsY, "growx, wmin 50");
-        estimationPanelY.add(buttonUpdateSettingsY, "growx");
-        panel.add(estimationPanelY, "grow, spanx 3, wrap, gapbottom 5");
-
-        buttonUpdateSettingsZ.setEnabled(false);
-        buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
-        buttonZpos.addActionListener(event -> moveMachine(0, 0, 1));
-        textFieldMeasuredZ.addKeyListener(createKeyListener(Axis.Z, labelEstimatedStepsZ));
-        textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting(Axis.Z, buttonUpdateSettingsZ));
-
-        panel.add(buttonZneg, "gapbottom 5");
-        panel.add(labelPositionZ, "grow, gapbottom 5");
-        panel.add(buttonZpos, "gapbottom 5");
-
-        JPanel panelMeasureZ = new JPanel(new MigLayout("fill, inset 0"));
-        panelMeasureZ.add(textFieldMeasuredZ, "growx, wmin 50");
-        panelMeasureZ.add(new JLabel("mm"), "wrap");
-        panel.add(panelMeasureZ, "grow, span 2, gapbottom 5");
-
-        JPanel estimationPanelZ = new JPanel(new MigLayout("fill, inset 0"));
-        estimationPanelZ.add(labelEstimatedStepsZ, "gapleft 5, span 2, wrap");
-        estimationPanelZ.add(textFieldSettingStepsZ, "growx, wmin 50");
-        estimationPanelZ.add(buttonUpdateSettingsZ, "growx");
-        panel.add(estimationPanelZ, "grow, spanx 3, wrap, gapbottom 5");
-
-        getPanel().add(panel, "grow");
     }
 
     private void initComponents() {
         Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
 
         buttonXneg = createJogButton("X-");
+        buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
         buttonXpos = createJogButton("X+");
+        buttonXpos.addActionListener(event -> moveMachine(1, 0, 0));
         buttonUpdateSettingsX = new JButton("Update");
+        buttonUpdateSettingsX.setEnabled(false);
         textFieldMeasuredX = new JTextField("0");
+        textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
+        labelPositionX = new JLabel("  0.0 mm", JLabel.RIGHT);
         textFieldSettingStepsX = new JTextField("0");
-        labelPositionX = new JLabel("0 mm", JLabel.RIGHT);
+        textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
         buttonYneg = createJogButton("Y-");
+        buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
         buttonYpos = createJogButton("Y+");
+        buttonYpos.addActionListener(event -> moveMachine(0, 1, 0));
         buttonUpdateSettingsY = new JButton("Update");
-        textFieldMeasuredY = new JTextField("0");
+        buttonUpdateSettingsY.setEnabled(false);
         labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
         labelEstimatedStepsY.setFont(labelEstimatedFont);
+        labelPositionY = new JLabel("  0.0 mm", JLabel.RIGHT);
+        textFieldMeasuredY = new JTextField("0");
+        textFieldMeasuredY.addKeyListener(createKeyListener(Axis.Y, labelEstimatedStepsY));
         textFieldSettingStepsY = new JTextField("0");
-        labelPositionY = new JLabel("0 mm", JLabel.RIGHT);
+        textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
         buttonZneg = createJogButton("Z-");
+        buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
         buttonZpos = createJogButton("Z+");
+        buttonZpos.addActionListener(event -> moveMachine(0, 0, 1));
         buttonUpdateSettingsZ = new JButton("Update");
-        textFieldMeasuredZ = new JTextField("0");
+        buttonUpdateSettingsZ.setEnabled(false);
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
         labelEstimatedStepsZ.setFont(labelEstimatedFont);
+        labelPositionZ = new JLabel("  0.0 mm", JLabel.RIGHT);
+        textFieldMeasuredZ = new JTextField("0");
+        textFieldMeasuredZ.addKeyListener(createKeyListener(Axis.Z, labelEstimatedStepsZ));
         textFieldSettingStepsZ = new JTextField("0");
-        labelPositionZ = new JLabel("0 mm", JLabel.RIGHT);
+        textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting(Axis.Z, buttonUpdateSettingsZ));
     }
 
     private KeyListener createKeyListenerChangeSetting(Axis axis, JButton buttonUpdateSettings) {
@@ -279,7 +263,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             @Override
             public void keyReleased(KeyEvent event) {
                 JTextField source = (JTextField) event.getSource();
-                updateEstimationFromMesurement(source, axis, label);
+                if (source != null) {
+                    updateEstimationFromMesurement(source, axis, label);
+                }
             }
         };
     }
@@ -335,9 +321,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             public void run() {
                 Position currentPosition = getBackend().getWorkPosition();
                 if (currentPosition != null) {
-                    labelPositionX.setText(decimalFormat.format(currentPosition.get(Axis.X)) + " mm");
-                    labelPositionY.setText(decimalFormat.format(currentPosition.get(Axis.Y)) + " mm");
-                    labelPositionZ.setText(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm");
+                    labelPositionX.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.X)) + " mm", 8, ' '));
+                    labelPositionY.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Y)) + " mm", 8, ' '));
+                    labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm", 8, ' '));
                     updateMeasurementEstimatesFields();
                 }
                 killAlarm();

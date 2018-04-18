@@ -139,7 +139,12 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     private void moveMachine(int x, int y, int z) {
         try {
-            getBackend().getController().jogMachine(x, y, z, 0.1, 100, UnitUtils.Units.MM);
+            IController controller = getBackend().getController();
+            if (controller.getState() == ControllerState.ALARM) {
+                killAlarm();
+            } else {
+                controller.jogMachine(x, y, z, 0.1, 100, UnitUtils.Units.MM);
+            }
         } catch (Exception e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while moving the machine: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
@@ -169,7 +174,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     public void UGSEvent(UGSEvent event) {
         if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
-        } else if (event.isControllerStatusEvent()) {
+        } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
             killAlarm();
         }
     }

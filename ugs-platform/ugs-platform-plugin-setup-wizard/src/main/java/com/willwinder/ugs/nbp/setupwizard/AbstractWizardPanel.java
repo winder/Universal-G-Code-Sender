@@ -69,7 +69,7 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     }
 
     public AbstractWizardPanel(BackendAPI backend, String name, boolean debug) {
-        String layoutConstraints = "wrap 1, hidemode 3, fill, w 300:520, h 200:320";
+        String layoutConstraints = "wrap 1, hidemode 3, fill, w 300:560, h 200:320";
         if (debug) {
             layoutConstraints += ", debug";
         }
