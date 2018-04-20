@@ -20,6 +20,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.StepSizeOption;
+import com.willwinder.universalgcodesender.pendantui.PendantConfigBean.UnitAmtOption;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.easymock.EasyMock;
 
@@ -89,6 +90,7 @@ public class PendantUITest {
         // 7. Get settings
         Settings settings = new Settings();
         settings.getPendantConfig().getStepSizeList().add(new StepSizeOption("newStepSizeOptionValue", "newStepSizeOptionLabel", false));
+        settings.getPendantConfig().getUnitList().add(new UnitAmtOption("newUnitAmtOptionValue", "newUnitAmtOptionLabel", false));
         EasyMock.expect(mockBackend.getSettings()).andReturn(settings).once();
 
         ///////////////////////////
@@ -125,7 +127,7 @@ public class PendantUITest {
         // 5. Adjust machine location.
         systemState.setControlState(ControlState.COMM_IDLE);
         String adjustManualLocationResponse =
-                getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0");
+                getResponse(url+"/adjustManualLocation?dirX=1&dirY=2&dirZ=3&stepSize=4.0&unitAmt=MM");
 
         // 6. Get system state
         SystemStateBean systemStateTest = new Gson().fromJson(
@@ -141,6 +143,7 @@ public class PendantUITest {
         String configResponse = getResponse(url+"/config");
         assertTrue(configResponse.contains("shortCutButtonList"));
         assertTrue(configResponse.contains("newStepSizeOptionValue"));
+        assertTrue(configResponse.contains("newUnitAmtOptionValue"));
 
         // Wrap up.
         pendantUI.stop();

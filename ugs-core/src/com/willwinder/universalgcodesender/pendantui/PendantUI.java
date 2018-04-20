@@ -247,9 +247,21 @@ public class PendantUI implements ControllerListener {
                 int dirY = parseInt(baseRequest.getParameter("dirY"));
                 int dirZ = parseInt(baseRequest.getParameter("dirZ"));
                 double stepSize = parseDouble(baseRequest.getParameter("stepSize"));
+                String unitStr = baseRequest.getParameter("unitAmt");
+
+                Units unit = Units.UNKNOWN;
+                if (unitStr.equals("MM")){
+                    unit = Units.MM;
+                }
+                else if (unitStr.equals("IN")){
+                    unit = Units.INCH;
+                }
+                else {
+                    logger.warning("Received units was " + unitStr + " but not recognized");
+                }
 
                 try {
-                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, 1, Units.UNKNOWN);
+                    mainWindow.adjustManualLocation(dirX, dirY, dirZ, stepSize, 1, unit);
                 } catch (Exception e) {
                     logger.warning(e.getMessage());
                 }

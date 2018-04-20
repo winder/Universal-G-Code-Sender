@@ -5,6 +5,7 @@ import java.util.List;
 
 public class PendantConfigBean {
 	private List<StepSizeOption> stepSizeList = new ArrayList<>();
+	private List<UnitAmtOption> unitList = new ArrayList<>();
 	private List<ShortCutButton> shortCutButtonList = new ArrayList<>();
 	
 	{
@@ -13,6 +14,9 @@ public class PendantConfigBean {
 		stepSizeList.add(new StepSizeOption("5", "5", false));
 		stepSizeList.add(new StepSizeOption("10", "10", true));
 		stepSizeList.add(new StepSizeOption("50", "50", false));
+
+		unitList.add(new UnitAmtOption("MM", "MM", true));
+		unitList.add(new UnitAmtOption("IN", "IN", false));
 		
 		shortCutButtonList.add(new ShortCutButton("Return to Workpiece 0","G90 G0 X0 Y0 Z0"));
 		shortCutButtonList.add(new ShortCutButton("Start Spindle","M3"));
@@ -55,6 +59,41 @@ public class PendantConfigBean {
 			return "StepSizeOption [value=" + value + ", label=" + label + ", selected=" + selected + "]";
 		}
 	}
+
+	public static class UnitAmtOption{
+		private String value;
+		private String label;
+		private boolean selected;
+		public UnitAmtOption(){}
+		public UnitAmtOption(String value, String label, boolean selected) {
+			super();
+			this.value = value;
+			this.label = label;
+			this.selected = selected;
+		}
+		public String getValue() {
+			return value;
+		}
+		public void setValue(String value) {
+			this.value = value;
+		}
+		public String getLabel() {
+			return label;
+		}
+		public void setLabel(String label) {
+			this.label = label;
+		}
+		public boolean isSelected() {
+			return selected;
+		}
+		public void setSelected(boolean selected) {
+			this.selected = selected;
+		}
+		@Override
+		public String toString() {
+			return "UnitAmtOption [value=" + value + ", label=" + label + ", selected=" + selected + "]";
+		}
+	}
 	
 	public static class ShortCutButton{
 		private String label;
@@ -94,8 +133,14 @@ public class PendantConfigBean {
 	public List<StepSizeOption> getStepSizeList() {
 		return stepSizeList;
 	}
+	public List<UnitAmtOption> getUnitList() {
+		return unitList;
+	}
 	public void setStepSizeList(List<StepSizeOption> stepSizeList) {
 		this.stepSizeList = stepSizeList;
+	}
+	public void setUnitList(List<UnitAmtOption> unitList) {
+		this.unitList = unitList;
 	}
 	public List<ShortCutButton> getShortCutButtonList() {
 		return shortCutButtonList;
@@ -105,6 +150,6 @@ public class PendantConfigBean {
 	}
 	@Override
 	public String toString() {
-		return "PendantConfigBean [stepSizeList=" + stepSizeList + ", shortCutButtonList=" + shortCutButtonList + "]";
+		return "PendantConfigBean [stepSizeList=" + stepSizeList + ", shortCutButtonList=" + shortCutButtonList + ", unitList=" + unitList + "]";
 	}
 }
