@@ -109,6 +109,12 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     }
 
     @Override
+    public boolean isEnabled() {
+        return getBackend().isConnected() &&
+                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+    }
+
+    @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
             ThreadHelper.invokeLater(() -> {

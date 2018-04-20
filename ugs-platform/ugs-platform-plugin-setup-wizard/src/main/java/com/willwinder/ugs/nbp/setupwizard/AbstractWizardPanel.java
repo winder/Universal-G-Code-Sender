@@ -113,7 +113,7 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     public void setValid(boolean isValid) {
         if (isValid != this.isValid) {
             this.isValid = isValid;
-            listeners.forEach(l -> l.stateChanged(new ChangeEvent(this)));
+            fireChange();
         }
     }
 
@@ -147,8 +147,12 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     public void setFinishPanel(boolean finishable) {
         if (isFinishPanel != finishable) {
             isFinishPanel = finishable;
-            listeners.forEach(l -> l.stateChanged(new ChangeEvent(this)));
+            fireChange();
         }
+    }
+
+    private void fireChange() {
+        listeners.forEach(l -> l.stateChanged(new ChangeEvent(this)));
     }
 
     /**
@@ -160,4 +164,11 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
      * When the panel step has finished and before next step is loaded
      */
     public abstract void destroy();
+
+    /**
+     * Should the panel be visible in the list of setup steps.
+     *
+     * @return true if the panel should be visible among the steps.
+     */
+    public abstract boolean isEnabled();
 }

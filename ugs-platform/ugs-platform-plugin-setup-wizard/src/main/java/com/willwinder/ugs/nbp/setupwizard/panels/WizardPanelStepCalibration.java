@@ -332,6 +332,12 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     }
 
     @Override
+    public boolean isEnabled() {
+        return getBackend().isConnected() &&
+                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+    }
+
+    @Override
     public void destroy() {
         if (updateTimer != null) {
             updateTimer.cancel();

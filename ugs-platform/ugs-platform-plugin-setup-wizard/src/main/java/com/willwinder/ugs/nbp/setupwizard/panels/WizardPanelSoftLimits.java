@@ -221,6 +221,12 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     }
 
     @Override
+    public boolean isEnabled() {
+        return getBackend().isConnected() &&
+                getBackend().getController().getCapabilities().hasSetupWizardSupport();
+    }
+
+    @Override
     public void destroy() {
         getBackend().removeUGSEventListener(this);
     }

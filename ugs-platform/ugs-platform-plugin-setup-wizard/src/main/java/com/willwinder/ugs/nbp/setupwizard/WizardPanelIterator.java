@@ -21,17 +21,20 @@ package com.willwinder.ugs.nbp.setupwizard;
 import org.openide.WizardDescriptor;
 
 import javax.swing.JComponent;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDescriptor> {
+public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDescriptor>, ChangeListener {
     private final Logger logger = Logger.getLogger(WizardPanelIterator.class.getSimpleName());
     private final List<AbstractWizardPanel> panelList;
     private final Set<ChangeListener> listeners = new HashSet<>();
     private AbstractWizardPanel currentPanel;
+    private WizardDescriptor wizardDescriptor;
 
     public WizardPanelIterator(List<AbstractWizardPanel> panelList) {
         this.panelList = panelList;
@@ -48,44 +51,55 @@ public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDesc
         return currentPanel.getName();
     }
 
+    private List<AbstractWizardPanel> getEnabledSteps() {
+        return panelList.stream()
+                .filter(AbstractWizardPanel::isEnabled)
+                .collect(Collectors.toList());
+    }
+
     @Override
     public boolean hasNext() {
-        return panelList.indexOf(currentPanel) < (panelList.size() - 1);
+        return getEnabledSteps().indexOf(currentPanel) < (getEnabledSteps().size() - 1);
     }
 
     @Override
     public boolean hasPrevious() {
-        return panelList.indexOf(currentPanel) != 0;
+        return getEnabledSteps().indexOf(currentPanel) != 0;
     }
 
     @Override
     public void nextPanel() {
-        int nextIndex = panelList.indexOf(currentPanel) + 1;
+        int nextIndex = getEnabledSteps().indexOf(currentPanel) + 1;
         loadPanel(nextIndex);
     }
 
     @Override
     public void previousPanel() {
-        int previousIndex = panelList.indexOf(currentPanel) - 1;
+        int previousIndex = getEnabledSteps().indexOf(currentPanel) - 1;
         loadPanel(previousIndex);
     }
 
     private void loadPanel(int index) {
         if (currentPanel != null) {
             logger.info("Destroying step: " + currentPanel.getClass().getSimpleName());
+            currentPanel.removeChangeListener(this);
             currentPanel.destroy();
         }
 
-        currentPanel = panelList.get(index);
+        currentPanel = getEnabledSteps().get(index);
+        currentPanel.addChangeListener(this);
         logger.info("Initializing step: " + currentPanel.getClass().getSimpleName());
 
         // Is this the last step?
-        if( index == panelList.size() - 1) {
+        if (index == getEnabledSteps().size() - 1) {
             currentPanel.setFinishPanel(true);
         }
 
         currentPanel.initialize();
         ((JComponent) currentPanel.getComponent()).putClientProperty(WizardDescriptor.PROP_CONTENT_SELECTED_INDEX, index);
+
+        // Get the step names and set their indexes
+        ((JComponent) currentPanel.getComponent()).putClientProperty(WizardDescriptor.PROP_CONTENT_DATA, getSteps());
     }
 
     @Override
@@ -96,5 +110,27 @@ public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDesc
     @Override
     public void removeChangeListener(ChangeListener l) {
         listeners.remove(l);
+    }
+
+    private String[] getSteps() {
+        String[] steps = new String[getEnabledSteps().size()];
+        for (int i = 0; i < getEnabledSteps().size(); i++) {
+            steps[i] = getEnabledSteps().get(i).getName();
+        }
+        return steps;
+    }
+
+    public void initialize(WizardDescriptor wizardDescriptor) {
+        this.wizardDescriptor = wizardDescriptor;
+    }
+
+    @Override
+    public void stateChanged(ChangeEvent e) {
+        if (wizardDescriptor != null) {
+            // When a wizard step has changed, reload all steps in case new steps should be enabled.
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_CONTENT_DATA, getSteps());
+        } else {
+            logger.warning("No reference to the wizard descriptor set, we will not know if the steps have changed!");
+        }
     }
 }

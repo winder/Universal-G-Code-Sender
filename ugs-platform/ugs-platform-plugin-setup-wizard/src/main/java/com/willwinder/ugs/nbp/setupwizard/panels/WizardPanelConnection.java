@@ -182,6 +182,11 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
 
