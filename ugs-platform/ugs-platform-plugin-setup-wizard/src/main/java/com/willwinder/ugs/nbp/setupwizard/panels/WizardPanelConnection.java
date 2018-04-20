@@ -25,7 +25,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -35,7 +34,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -52,7 +50,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
      * A time interval to wait before querying the controller for version.
      * This gives the controller to time to properly boot
      */
-    public static final int CONNECT_TIME = 2500;
+    private static final int CONNECT_TIME = 2500;
 
     /**
      * If the controller should be finished connecting
