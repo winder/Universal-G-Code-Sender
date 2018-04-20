@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 import org.openide.util.ImageUtilities;
@@ -35,6 +36,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
@@ -43,6 +47,24 @@ import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorD
  * @author Joacim Breiler
  */
 public class WizardPanelConnection extends AbstractWizardPanel implements UGSEventListener {
+
+    /**
+     * A time interval to wait before querying the controller for version.
+     * This gives the controller to time to properly boot
+     */
+    public static final int CONNECT_TIME = 2500;
+
+    /**
+     * If the controller should be finished connecting
+     */
+    private boolean finishedConnecting = false;
+
+    /**
+     * A timer that will check the version of the controller after its connected with a delay
+     * defined in {@link #CONNECT_TIME}
+     */
+    private Timer finishedConnectingTimer;
+
     private JComboBox<String> firmwareCombo;
     private JComboBox<String> baudCombo;
     private JComboBox<String> portCombo;
@@ -52,6 +74,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     private JLabel labelBaud;
     private JLabel labelPort;
     private JLabel labelDescription;
+    private JLabel labelNotSupported;
 
     public WizardPanelConnection(BackendAPI backend) {
         super(backend, "Connection", false);
@@ -71,6 +94,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         panel.add(portCombo, "wmin 250, wrap");
         panel.add(connectButton, "wmin 250, wrap, gaptop 10");
         panel.add(labelVersion, "grow, aligny top, wrap");
+        panel.add(labelNotSupported, "grow, aligny top, wrap");
         getPanel().add(panel, "aligny top, growx");
     }
 
@@ -106,8 +130,11 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         });
 
         labelVersion = new JLabel("Unknown version");
-        labelVersion.setIcon(ImageUtilities.loadImageIcon("icons/checked24.png", false));
         labelVersion.setVisible(false);
+
+        labelNotSupported = new JLabel("The setup wizard is not supported for this controller");
+        labelNotSupported.setIcon(ImageUtilities.loadImageIcon("icons/information24.png", false));
+        labelNotSupported.setVisible(false);
     }
 
     private void setPort() {
@@ -160,10 +187,18 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     public void initialize() {
         getBackend().addUGSEventListener(this);
 
+        refreshComponents();
+        finishedConnecting = false;
+        if (getBackend().isConnected()) {
+            startConnectTimer();
+        }
+    }
+
+    private void refreshComponents() {
         firmwareCombo.removeAllItems();
         FirmwareUtils.getFirmwareList().forEach(firmwareCombo::addItem);
 
-        setValid(getBackend().isConnected());
+        setValid(getBackend().isConnected() && getBackend().getController().getCapabilities().hasSetupWizardSupport());
         labelPort.setVisible(!getBackend().isConnected());
         portCombo.setVisible(!getBackend().isConnected());
         labelBaud.setVisible(!getBackend().isConnected());
@@ -171,12 +206,31 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         labelFirmware.setVisible(!getBackend().isConnected());
         firmwareCombo.setVisible(!getBackend().isConnected());
         connectButton.setVisible(!getBackend().isConnected());
-        labelVersion.setVisible(getBackend().isConnected());
 
-        if (getBackend().isConnected()) {
-            labelVersion.setText("<html><body><h2>Connected to <b>" + getBackend().getController().getFirmwareVersion() + "</b></h2></body></html>");
+        if (getBackend().isConnected() && StringUtils.isNotEmpty(getBackend().getController().getFirmwareVersion()) && getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
+            labelVersion.setVisible(true);
+            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setIcon(ImageUtilities.loadImageIcon("icons/checked24.png", false));
+            labelNotSupported.setVisible(false);
+            setFinishPanel(false);
+        } else if (getBackend().isConnected() && !getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
+            labelVersion.setVisible(true);
+            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setIcon(null);
+            labelNotSupported.setVisible(true);
+            setFinishPanel(true);
+        } else if (getBackend().isConnected() && !finishedConnecting) {
+            labelVersion.setVisible(true);
+            labelVersion.setText("<html><body><h2>Connecting...</h2></body></html>");
+            labelVersion.setIcon(null);
+            labelNotSupported.setVisible(false);
+            setFinishPanel(false);
         } else {
+            labelVersion.setVisible(false);
+            labelNotSupported.setVisible(false);
+            labelVersion.setIcon(null);
             refreshPorts();
+            setFinishPanel(false);
         }
     }
 
@@ -187,8 +241,22 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         }
 
         if (evt.isStateChangeEvent()) {
-            initialize();
+            refreshComponents();
+            startConnectTimer();
         }
     }
 
+    private void startConnectTimer() {
+        if (!finishedConnecting && finishedConnectingTimer == null) {
+            finishedConnectingTimer = new Timer();
+            finishedConnectingTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    finishedConnecting = true;
+                    finishedConnectingTimer = null;
+                    refreshComponents();
+                }
+            }, CONNECT_TIME);
+        }
+    }
 }

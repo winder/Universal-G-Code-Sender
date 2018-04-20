@@ -249,6 +249,7 @@ public class GrblUtils {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         } else if (version >= 0.9) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+            ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
         }
 
         // Check for V1.x features
@@ -260,6 +261,7 @@ public class GrblUtils {
             ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+            ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
         }
 
         return ret;

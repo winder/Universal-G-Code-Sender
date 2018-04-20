@@ -128,4 +128,14 @@ public class Capabilities {
     public boolean hasSoftLimits() {
         return hasCapability(CapabilitiesConstants.SOFT_LIMITS);
     }
+
+    /**
+     * Returns if the hardware have support for the setup wizard. The capability
+     * is defined by the capability {@link CapabilitiesConstants#SETUP_WIZARD}
+     *
+     * @return true if the setup wizard is supported
+     */
+    public boolean hasSetupWizardSupport() {
+        return hasCapability(CapabilitiesConstants.SETUP_WIZARD);
+    }
 }
