@@ -28,8 +28,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.Dialog;
 import java.text.MessageFormat;
 import java.util.ArrayList;
