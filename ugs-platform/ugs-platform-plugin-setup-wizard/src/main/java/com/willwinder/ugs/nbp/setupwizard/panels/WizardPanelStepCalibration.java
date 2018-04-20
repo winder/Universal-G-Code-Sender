@@ -177,11 +177,11 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         buttonXpos.addActionListener(event -> moveMachine(1, 0, 0));
         buttonUpdateSettingsX = new JButton("Update");
         buttonUpdateSettingsX.setEnabled(false);
-        textFieldMeasuredX = new JTextField("0");
-        textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
         labelPositionX = new JLabel("  0.0 mm", JLabel.RIGHT);
+        textFieldMeasuredX = new JTextField("0");
+        textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
         textFieldSettingStepsX = new JTextField("0");
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
