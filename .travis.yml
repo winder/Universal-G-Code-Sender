@@ -29,7 +29,8 @@ before_script:
 - ./jfrog rt bp $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER
 
 env:
-  - ARTIFACTORY_NAME=ugs
-    # Disable jfrog CLI prompts.
-  - JFROG_CLI_OFFER_CONFIG=false
+  global:
+    - ARTIFACTORY_NAME=ugs
+      # Disable jfrog CLI prompts.
+    - JFROG_CLI_OFFER_CONFIG=false
 
