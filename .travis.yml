@@ -5,16 +5,16 @@ cache:
 jdk:
 - oraclejdk8
 
-after_success:
+install:
 - codecov
 - mvn package -pl ugs-core assembly:assembly
 - mvn install
 - mvn package -pl ugs-platform/application -P deployment,autoupdate -DskipTests=true
 
-before_script:
+after_success:
 - pip install --user codecov
 - curl -fL https://getcli.jfrog.io | sh
-- ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_PASSWORD
+- ./jfrog rt config --interactive false --url $ARTIFACTORY_URL --user $ARTIFACTORY_LOGIN --apikey $ARTIFACTORY_PASSWORD
   # Classic Jar
 - ./jfrog rt u "ugs-core/target/UniversalGcodeSender.jar" UGS --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=false
   # Platform - agnostic zip
