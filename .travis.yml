@@ -22,8 +22,7 @@ before_script:
   # Installers...
   #   TODO
   # Autoupdate site
-#- ./jfrog rt u "ugs-platform/application/target/site/netbeans_site/*" UGS/autoupdate --build-name=$ARTIFACTORY_NAME --build-number=1 --flat=false
-- /jfrog rt u "ugs-platform/application/target/site/netbeans_site/" "UGS/update-center/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER
+- ./jfrog rt u "ugs-platform/application/target/site/netbeans_site/" "UGS/update-center/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER
   # Publish artifacts
 - ./jfrog rt bce $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER
 - ./jfrog rt bp $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER
