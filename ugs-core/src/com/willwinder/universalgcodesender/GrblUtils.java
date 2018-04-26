@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -589,5 +590,15 @@ public class GrblUtils {
 
     public static boolean isAlarmResponse(String response) {
         return StringUtils.startsWith(response, "ALARM");
+    }
+
+    public static Alarm parseAlarmResponse(String response) {
+        String alarmCode = StringUtils.substringAfter(response.toLowerCase(), "alarm:");
+        switch (alarmCode) {
+            case "1":
+                return Alarm.HARD_LIMIT;
+            default:
+                return Alarm.UNKONWN;
+        }
     }
 }

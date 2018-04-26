@@ -22,6 +22,7 @@
 package com.willwinder.universalgcodesender.uielements.toolbars;
 
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -154,6 +155,11 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         endSend();
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override

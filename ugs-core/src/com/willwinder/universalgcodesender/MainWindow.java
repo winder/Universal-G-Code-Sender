@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -1936,7 +1937,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
     }
-    
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
     @Override
     public void commandSkipped(GcodeCommand command) {
         commandSent(command);

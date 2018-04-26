@@ -724,6 +724,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public void receivedAlarm(Alarm alarm) {
+        this.sendUGSEvent(new UGSEvent(alarm), true);
+    }
+
+    @Override
     public void commandSkipped(GcodeCommand command) {
     }
 

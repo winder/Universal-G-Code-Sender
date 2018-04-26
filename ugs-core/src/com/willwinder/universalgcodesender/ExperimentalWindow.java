@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Position;
@@ -475,7 +476,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
     }
-    
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
     @Override
     public void commandSkipped(GcodeCommand command) {
 
