@@ -38,8 +38,6 @@ import org.openide.util.ImageUtilities;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 import java.awt.Color;
 import java.awt.Font;
 

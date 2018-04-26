@@ -35,9 +35,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 
@@ -116,10 +114,39 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
         labelHomingDirection = new JLabel("<html><body>Take your time to figure out in which direction your limit switches are</body></html>");
 
-        JPopupMenu test = new JPopupMenu("test");
-        test.add(new JMenuItem("Direction X+"));
-        test.add(new JMenuItem("Direction X-"));
+        initInvertComboBoxes();
 
+        separatorBottom = new JSeparator(SwingConstants.HORIZONTAL);
+
+        labelHomingInstructions = new JLabel("<html><body>" +
+                "<p>Now test a homing cycle, but <b>be prepared to abort</b> if it's moving in the wrong direction!</p>" +
+                "</body></html>");
+
+        initButtons();
+    }
+
+    private void initButtons() {
+        buttonHomeMachine = new JButton("Try homing");
+        buttonHomeMachine.addActionListener(event -> {
+            try {
+                getBackend().performHomingCycle();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        buttonAbort = new JButton("Abort");
+        buttonAbort.addActionListener(event -> {
+            try {
+                getBackend().cancel();
+                getBackend().issueSoftReset();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void initInvertComboBoxes() {
         comboBoxInvertDirectionX = new JComboBox<>();
         comboBoxInvertDirectionX.addItem("+X direction");
         comboBoxInvertDirectionX.addItem("-X direction");
@@ -162,31 +189,6 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                     NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
                 }
-            }
-        });
-
-        separatorBottom = new JSeparator(SwingConstants.HORIZONTAL);
-
-        labelHomingInstructions = new JLabel("<html><body>" +
-                "<p>Now test a homing cycle, but <b>be prepared to abort</b> if it's moving in the wrong direction!</p>" +
-                "</body></html>");
-
-        buttonHomeMachine = new JButton("Try homing");
-        buttonHomeMachine.addActionListener(event -> {
-            try {
-                getBackend().performHomingCycle();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        buttonAbort = new JButton("Abort");
-        buttonAbort.addActionListener(event -> {
-            try {
-                getBackend().cancel();
-                getBackend().issueSoftReset();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         });
     }
