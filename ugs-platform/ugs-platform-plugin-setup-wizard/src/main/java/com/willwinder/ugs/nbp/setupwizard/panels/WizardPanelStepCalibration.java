@@ -24,7 +24,9 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
@@ -57,8 +59,9 @@ import java.util.TimerTask;
  *
  * @author Joacim Breiler
  */
-public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener {
+public class WizardPanelStepCalibration extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
 
+    private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
     private final DecimalFormat decimalFormat;
 
     private JLabel labelEstimatedStepsX;
@@ -307,6 +310,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
+        getBackend().addControllerStateListener(this);
         killAlarm();
         updateMeasurementEstimatesFields();
         updateSettingFieldsFromFirmware();
@@ -344,6 +348,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
 
         getBackend().removeUGSEventListener(this);
+        getBackend().removeControllerStateListener(this);
     }
 
     @Override
@@ -352,13 +357,19 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 getBackend().isConnected() &&
                 (event.isControllerStatusEvent() || event.isStateChangeEvent())) {
             killAlarm();
-        }
-
-        if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
+        } else if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
             ThreadHelper.invokeLater(() -> {
                 updateMeasurementEstimatesFields();
                 updateSettingFieldsFromFirmware();
             });
+        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+            ThreadHelper.invokeLater(() -> {
+                try {
+                    getBackend().issueSoftReset();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, TIME_BEFORE_RESET_ON_ALARM);
         }
     }
 

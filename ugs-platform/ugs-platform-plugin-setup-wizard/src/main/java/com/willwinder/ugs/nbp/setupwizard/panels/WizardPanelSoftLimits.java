@@ -164,60 +164,67 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
     private void refeshControls() {
         ThreadHelper.invokeLater(() -> {
-            if (getBackend().getController() != null &&
-                    getBackend().getController().getFirmwareSettings().isHardLimitsEnabled() &&
-                    getBackend().getController().getFirmwareSettings().isHomingEnabled() &&
-                    getBackend().getController().getCapabilities().hasSoftLimits()) {
-                IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-                try {
-                    checkboxEnableSoftLimits.setSelected(firmwareSettings.isSoftLimitsEnabled());
-                    textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimitX()));
-                    textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimitY()));
-                    textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimitZ()));
+            try {
 
-                    labelSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    labelSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    labelSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    textFieldSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                    buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
-                } catch (FirmwareSettingsException ignored) {
-                    // Never mind..
+
+                if (getBackend().getController() != null &&
+                        getBackend().getController().getFirmwareSettings().isHardLimitsEnabled() &&
+                        getBackend().getController().getFirmwareSettings().isHomingEnabled() &&
+                        getBackend().getController().getCapabilities().hasSoftLimits()) {
+                    IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+                    try {
+                        checkboxEnableSoftLimits.setSelected(firmwareSettings.isSoftLimitsEnabled());
+                        textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimitX()));
+                        textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimitY()));
+                        textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimitZ()));
+
+                        labelSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        labelSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        labelSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        textFieldSoftLimitX.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        textFieldSoftLimitY.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        textFieldSoftLimitZ.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                        buttonSave.setVisible(firmwareSettings.isSoftLimitsEnabled());
+                    } catch (FirmwareSettingsException ignored) {
+                        // Never mind..
+                    }
+
+                    checkboxEnableSoftLimits.setVisible(true);
+                    labelSoftLimitsNotSupported.setVisible(false);
+                    labelHomingIsNotEnabled.setVisible(false);
+
+                    updateSaveButton();
+                } else if (getBackend().getController() != null &&
+                        getBackend().getController().getCapabilities().hasSoftLimits() &&
+                        (!getBackend().getController().getFirmwareSettings().isHomingEnabled() ||
+                                !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled())) {
+                    checkboxEnableSoftLimits.setVisible(false);
+                    labelSoftLimitsNotSupported.setVisible(false);
+                    labelHomingIsNotEnabled.setVisible(true);
+                    labelSoftLimitX.setVisible(false);
+                    labelSoftLimitY.setVisible(false);
+                    labelSoftLimitZ.setVisible(false);
+                    textFieldSoftLimitX.setVisible(false);
+                    textFieldSoftLimitY.setVisible(false);
+                    textFieldSoftLimitZ.setVisible(false);
+                    buttonSave.setVisible(false);
+                } else {
+                    checkboxEnableSoftLimits.setVisible(false);
+                    labelSoftLimitsNotSupported.setVisible(true);
+                    labelHomingIsNotEnabled.setVisible(false);
+                    labelSoftLimitX.setVisible(false);
+                    labelSoftLimitY.setVisible(false);
+                    labelSoftLimitZ.setVisible(false);
+                    textFieldSoftLimitX.setVisible(false);
+                    textFieldSoftLimitY.setVisible(false);
+                    textFieldSoftLimitZ.setVisible(false);
+                    buttonSave.setVisible(false);
                 }
-
-                checkboxEnableSoftLimits.setVisible(true);
-                labelSoftLimitsNotSupported.setVisible(false);
-                labelHomingIsNotEnabled.setVisible(false);
-
-                updateSaveButton();
-            } else if (getBackend().getController() != null &&
-                    getBackend().getController().getCapabilities().hasSoftLimits() &&
-                    (!getBackend().getController().getFirmwareSettings().isHomingEnabled() ||
-                    !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled())) {
-                checkboxEnableSoftLimits.setVisible(false);
-                labelSoftLimitsNotSupported.setVisible(false);
-                labelHomingIsNotEnabled.setVisible(true);
-                labelSoftLimitX.setVisible(false);
-                labelSoftLimitY.setVisible(false);
-                labelSoftLimitZ.setVisible(false);
-                textFieldSoftLimitX.setVisible(false);
-                textFieldSoftLimitY.setVisible(false);
-                textFieldSoftLimitZ.setVisible(false);
-                buttonSave.setVisible(false);
-            } else {
-                checkboxEnableSoftLimits.setVisible(false);
-                labelSoftLimitsNotSupported.setVisible(true);
-                labelHomingIsNotEnabled.setVisible(false);
-                labelSoftLimitX.setVisible(false);
-                labelSoftLimitY.setVisible(false);
-                labelSoftLimitZ.setVisible(false);
-                textFieldSoftLimitX.setVisible(false);
-                textFieldSoftLimitY.setVisible(false);
-                textFieldSoftLimitZ.setVisible(false);
-                buttonSave.setVisible(false);
+            } catch (FirmwareSettingsException e) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch firmware settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
             }
-        });
+        }, 100);
     }
 
     @Override
@@ -234,7 +241,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
-            ThreadHelper.invokeLater(this::refeshControls);
+            refeshControls();
         }
     }
 

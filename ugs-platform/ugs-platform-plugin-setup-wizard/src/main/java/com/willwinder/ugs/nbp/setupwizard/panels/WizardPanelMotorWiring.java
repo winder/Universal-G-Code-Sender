@@ -22,7 +22,9 @@ import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -43,7 +45,10 @@ import java.awt.Insets;
  *
  * @author Joacim Breiler
  */
-public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEventListener {
+public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+
+    private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
+
     private JButton buttonXpos;
     private JButton buttonXneg;
     private JButton buttonYpos;
@@ -66,14 +71,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("wrap 3, fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "span 3, gapbottom 10");
-        panel.add(buttonXneg);
-        panel.add(buttonXpos);
+        panel.add(buttonXneg, "hmin 36, wmin 36");
+        panel.add(buttonXpos, "hmin 36, wmin 36");
         panel.add(checkboxReverseX);
-        panel.add(buttonYneg);
-        panel.add(buttonYpos);
+        panel.add(buttonYneg, "hmin 36, wmin 36");
+        panel.add(buttonYpos, "hmin 36, wmin 36");
         panel.add(checkboxReverseY);
-        panel.add(buttonZneg);
-        panel.add(buttonZpos);
+        panel.add(buttonZneg, "hmin 36, wmin 36");
+        panel.add(buttonZpos, "hmin 36, wmin 36");
         panel.add(checkboxReverseZ);
 
         getPanel().add(panel, "grow");
@@ -154,13 +159,13 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private JButton createJogButton(String text) {
         JButton button = new JButton(text);
         button.setMargin(new Insets(0, 0, 0, 0));
-        button.setMinimumSize(new Dimension(36, 36));
         return button;
     }
 
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
+        getBackend().addControllerStateListener(this);
         refreshReverseDirectionCheckboxes();
         killAlarm();
     }
@@ -173,6 +178,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     @Override
     public void destroy() {
+        getBackend().removeControllerStateListener(this);
         getBackend().removeUGSEventListener(this);
     }
 
@@ -182,6 +188,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
         } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
             killAlarm();
+        } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
+            ThreadHelper.invokeLater(() -> {
+                try {
+                    getBackend().issueSoftReset();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, TIME_BEFORE_RESET_ON_ALARM);
         }
     }
 

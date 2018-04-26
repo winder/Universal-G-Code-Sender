@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -82,7 +83,16 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
         return backend.getController() != null &&
                 backend.getController().getFirmwareSettings() != null &&
                 backend.isIdle() &&
-                backend.getController().getFirmwareSettings().isHomingEnabled();
+                isHomingEnabled();
+    }
+
+    private boolean isHomingEnabled() {
+        boolean isHomingEnabled = false;
+        try {
+            isHomingEnabled = backend.getController().getFirmwareSettings().isHomingEnabled();
+        } catch (FirmwareSettingsException ignored) {
+            // Never mind
+        } return isHomingEnabled;
     }
 
     @Override
@@ -95,12 +105,12 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
     }
 
     private void updateToolTip() {
-        if (backend.getController() != null &&
-                backend.getController().getFirmwareSettings() != null &&
-                !backend.getController().getFirmwareSettings().isHomingEnabled()) {
-            putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.disabled.tooltip"));
-        } else {
-            putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
-        }
+            if (backend.getController() != null &&
+                    backend.getController().getFirmwareSettings() != null &&
+                    !isHomingEnabled()) {
+                putValue(Action.SHORT_DESCRIPTION, Localization.getString("platform.actions.homing.disabled.tooltip"));
+            } else {
+                putValue(Action.SHORT_DESCRIPTION, LocalizingService.HomeTitle);
+            }
     }
 }

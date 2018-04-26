@@ -21,9 +21,14 @@ package com.willwinder.ugs.nbp.setupwizard.panels;
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.uielements.components.RoundedBorder;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.DialogDisplayer;
@@ -33,17 +38,27 @@ import org.openide.util.ImageUtilities;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSeparator;
+import javax.swing.SwingConstants;
+import java.awt.Color;
+import java.awt.Font;
 
 /**
- * A wizard step panel for configuring hard limits on a controller
+ * A wizard step panel for configuring hard limits on a controller.
+ * This panel will listen for any hard limit alarms and reset the controller.
  *
  * @author Joacim Breiler
  */
-public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEventListener {
+public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEventListener, ControllerStateListener {
+    private static final int TIME_BEFORE_RESET_ON_ALARM = 600;
     private JCheckBox checkboxEnableHardLimits;
     private JLabel labelHardLimitssNotSupported;
     private JLabel labelDescription;
-    private JLabel labelExtendedDescription;
+    private JLabel labelInstructions;
+    private JLabel labelLimitX;
+    private JLabel labelLimitY;
+    private JLabel labelLimitZ;
+    private JCheckBox checkboxInvertLimitPins;
 
     public WizardPanelHardLimits(BackendAPI backend) {
         super(backend, "Limit switches");
@@ -55,10 +70,16 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
 
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("fillx, inset 0, gap 5, hidemode 3"));
-        panel.add(labelDescription, "growx, wrap, gapbottom 10");
-        panel.add(labelExtendedDescription, "wrap, gapbottom 10");
-        panel.add(checkboxEnableHardLimits, "wrap");
-        panel.add(labelHardLimitssNotSupported, "wrap");
+        panel.add(labelDescription, "growx, wrap, gapbottom 10, spanx");
+        panel.add(checkboxEnableHardLimits, "wrap, gapbottom 10, spanx");
+        panel.add(labelHardLimitssNotSupported, "wrap, spanx");
+
+        panel.add(labelInstructions, "spanx, gapbottom 10, wrap");
+        panel.add(labelLimitX, "wmin 56, hmin 36, gapleft 5");
+        panel.add(labelLimitY, "wmin 56, hmin 36, gapleft 10");
+        panel.add(labelLimitZ, "wmin 56, hmin 36, gapleft 10, wrap");
+
+        panel.add(checkboxInvertLimitPins, "gaptop 10, spanx, wrap");
         add(panel);
     }
 
@@ -67,15 +88,45 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
                 "<p>Limit switches will prevent the machine to move beyond its physical limits.</p>" +
                 "</body></html>");
 
-        labelExtendedDescription = new JLabel("<html><body>" +
-                "<p>Before enabling make sure that you have equipped your machine with switches on at least one end for each axis.</p>" +
+        labelInstructions = new JLabel("<html><body>" +
+                "<p>Try triggering each limit switch manually. Make sure to keep it triggered for at least two seconds for it to be displayed." +
                 "</body></html>");
+        labelInstructions.setVisible(false);
 
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");
         checkboxEnableHardLimits.addActionListener(event -> onHardLimitsClicked());
 
         labelHardLimitssNotSupported = new JLabel("<html><body>Limit switches are unfortunately not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHardLimitssNotSupported.setVisible(false);
+
+        labelLimitX = createLimitLabel("X");
+        labelLimitX.setVisible(false);
+        labelLimitY = createLimitLabel("Y");
+        labelLimitY.setVisible(false);
+        labelLimitZ = createLimitLabel("Z");
+        labelLimitZ.setVisible(false);
+
+        checkboxInvertLimitPins = new JCheckBox("Invert limit switches");
+        checkboxInvertLimitPins.setVisible(false);
+        checkboxInvertLimitPins.addActionListener(event -> {
+            if (getBackend().getController() != null) {
+                try {
+                    getBackend().getController().getFirmwareSettings().setHardLimitsInverted(checkboxInvertLimitPins.isSelected());
+                } catch (FirmwareSettingsException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private JLabel createLimitLabel(String text) {
+        JLabel label = new JLabel(text, JLabel.CENTER);
+        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        label.setBorder(new RoundedBorder(8));
+        label.setForeground(Color.WHITE);
+        label.setBackground(ThemeColors.LIGHT_GREEN);
+        label.setOpaque(true);
+        return label;
     }
 
     private void onHardLimitsClicked() {
@@ -90,22 +141,14 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
-        if (getBackend().getController() != null && getBackend().getController().getCapabilities().hasHardLimits()) {
-            IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-            checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
-            checkboxEnableHardLimits.setVisible(true);
-            labelExtendedDescription.setVisible(true);
-            labelHardLimitssNotSupported.setVisible(false);
-        } else {
-            labelExtendedDescription.setVisible(false);
-            checkboxEnableHardLimits.setVisible(false);
-            labelHardLimitssNotSupported.setVisible(true);
-        }
+        getBackend().addControllerStateListener(this);
+        refreshComponents();
     }
 
     @Override
     public void destroy() {
         getBackend().removeUGSEventListener(this);
+        getBackend().removeControllerStateListener(this);
     }
 
     @Override
@@ -117,10 +160,52 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+            refreshComponents();
+        } else if (evt.isControllerStatusEvent()) {
             ThreadHelper.invokeLater(() -> {
-                IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-                checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
+                ControllerStatus controllerStatus = evt.getControllerStatus();
+                labelLimitX.setBackground(controllerStatus.getEnabledPins().X ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitY.setBackground(controllerStatus.getEnabledPins().Y ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
+                labelLimitZ.setBackground(controllerStatus.getEnabledPins().Z ? ThemeColors.RED : ThemeColors.LIGHT_GREEN);
             });
+        } else if (evt.getEventType() == UGSEvent.EventType.ALARM_EVENT && evt.getAlarm() == Alarm.HARD_LIMIT) {
+            ThreadHelper.invokeLater(() -> {
+                try {
+                    getBackend().issueSoftReset();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, TIME_BEFORE_RESET_ON_ALARM);
         }
+    }
+
+    private void refreshComponents() {
+        ThreadHelper.invokeLater(() -> {
+            try {
+                if (getBackend().getController() != null && getBackend().getController().getCapabilities().hasHardLimits()) {
+                    IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+                    checkboxEnableHardLimits.setSelected(firmwareSettings.isHardLimitsEnabled());
+                    checkboxInvertLimitPins.setSelected(firmwareSettings.isHardLimitsInverted());
+                    checkboxEnableHardLimits.setVisible(true);
+                    checkboxInvertLimitPins.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    labelInstructions.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    labelLimitX.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    labelLimitY.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    labelLimitZ.setVisible(firmwareSettings.isHardLimitsEnabled());
+                    labelHardLimitssNotSupported.setVisible(false);
+                } else {
+                    checkboxEnableHardLimits.setVisible(false);
+                    checkboxInvertLimitPins.setVisible(false);
+                    labelInstructions.setVisible(false);
+                    labelLimitX.setVisible(false);
+                    labelLimitY.setVisible(false);
+                    labelLimitZ.setVisible(false);
+                    labelHardLimitssNotSupported.setVisible(true);
+                }
+            } catch (FirmwareSettingsException e) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch the hard limits settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            }
+        }, 200);
     }
 }

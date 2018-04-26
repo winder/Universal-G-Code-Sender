@@ -90,7 +90,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         panel.add(baudCombo, "wmin 250, wrap");
         panel.add(labelPort, "wrap");
         panel.add(portCombo, "wmin 250, wrap");
-        panel.add(connectButton, "wmin 250, wrap, gaptop 10");
+        panel.add(connectButton, "wmin 250, hmin 36, wrap, gaptop 10");
         panel.add(labelVersion, "grow, aligny top, wrap");
         panel.add(labelNotSupported, "grow, aligny top, wrap");
         getPanel().add(panel, "aligny top, growx");
