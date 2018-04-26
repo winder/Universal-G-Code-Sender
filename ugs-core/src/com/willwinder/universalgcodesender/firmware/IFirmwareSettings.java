@@ -73,7 +73,7 @@ public interface IFirmwareSettings {
      *
      * @return true if enabled
      */
-    boolean isHomingEnabled();
+    boolean isHomingEnabled() throws FirmwareSettingsException;
 
     /**
      * Enables or disables homing on the controller
@@ -101,7 +101,7 @@ public interface IFirmwareSettings {
      *
      * @return true if enabled
      */
-    boolean isHardLimitsEnabled();
+    boolean isHardLimitsEnabled() throws FirmwareSettingsException;
 
     /**
      * Enables or disables the limit switches in the controller
@@ -266,4 +266,17 @@ public interface IFirmwareSettings {
     void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException;
 
 
+    /**
+     * Sets if the limit pins should be inverted
+     *
+     * @param inverted set to true if limit pins should be inverted
+     */
+    void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the limit pins are inverted
+     *
+     * @return true if the limit pins are inverted
+     */
+    boolean isHardLimitsInverted() throws FirmwareSettingsException;
 }

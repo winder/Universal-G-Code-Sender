@@ -51,21 +51,21 @@ public class GrblFirmwareSettingsTest {
     }
 
     @Test
-    public void isHomingEnabledShouldBeTrue() throws InterruptedException {
+    public void isHomingEnabledShouldBeTrue() throws InterruptedException, FirmwareSettingsException {
         // Emulate a settings-message from the controller
         target.rawResponseListener("$22=1");
         assertTrue(target.isHomingEnabled());
     }
 
     @Test
-    public void isHomingEnabledShouldBeFalse() {
+    public void isHomingEnabledShouldBeFalse() throws FirmwareSettingsException {
         // Emulate a settings-message from the controller
         target.rawResponseListener("$22=0");
         assertFalse(target.isHomingEnabled());
     }
 
-    @Test
-    public void isHomingEnabledShouldBeFalseIfNotSet() {
+    @Test(expected = FirmwareSettingsException.class)
+    public void isHomingEnabledShouldBeFalseIfNotSet() throws FirmwareSettingsException {
         assertFalse(target.isHomingEnabled());
     }
 

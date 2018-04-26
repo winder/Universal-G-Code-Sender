@@ -55,6 +55,7 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     private static final String KEY_HOMING_ENABLED = "$22";
     private static final String KEY_HOMING_INVERT_DIRECTION = "$23";
     private static final String KEY_INVERT_DIRECTION = "$3";
+    private static final String KEY_INVERT_LIMIT_PINS = "$5";
     private static final String KEY_STEPS_PER_MM_X = "$100";
     private static final String KEY_STEPS_PER_MM_Y = "$101";
     private static final String KEY_STEPS_PER_MM_Z = "$102";
@@ -125,11 +126,8 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isHardLimitsEnabled() {
-        return getSetting(KEY_HARD_LIMITS_ENABLED)
-                .map(FirmwareSetting::getValue)
-                .map("1"::equals)
-                .orElse(false);
+    public boolean isHardLimitsEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_HARD_LIMITS_ENABLED);
     }
 
     @Override
@@ -302,6 +300,16 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
         setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
     }
 
+    @Override
+    public void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException {
+        setValue(KEY_INVERT_LIMIT_PINS, inverted ? "1" : "0");
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_INVERT_LIMIT_PINS);
+    }
+
     private int getInvertDirectionMask() {
         return getSetting(KEY_INVERT_DIRECTION)
                 .map(FirmwareSetting::getValue)
@@ -317,11 +325,8 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isHomingEnabled() {
-        return getSetting(KEY_HOMING_ENABLED)
-                .map(FirmwareSetting::getValue)
-                .map("1"::equals)
-                .orElse(false);
+    public boolean isHomingEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_HOMING_ENABLED);
     }
 
     @Override

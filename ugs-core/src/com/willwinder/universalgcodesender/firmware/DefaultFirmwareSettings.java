@@ -170,6 +170,16 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public void setHardLimitsInverted(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() {
+        return false;
+    }
+
+    @Override
     public UnitUtils.Units getReportingUnits() {
         return UnitUtils.Units.UNKNOWN;
     }
