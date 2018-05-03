@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -348,6 +349,11 @@ public class RendererInputHandler implements
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         gcodeModel.setCurrentCommandNumber(0);
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override

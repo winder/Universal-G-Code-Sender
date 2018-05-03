@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware;
 
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.List;
@@ -68,11 +69,18 @@ public interface IFirmwareSettings {
     void removeListener(IFirmwareSettingsListener listener);
 
     /**
-     * Returns true if homing is enabled in the machine
+     * Returns if homing is enabled in the machine
      *
      * @return true if enabled
      */
-    boolean isHomingEnabled();
+    boolean isHomingEnabled() throws FirmwareSettingsException;
+
+    /**
+     * Enables or disables homing on the controller
+     *
+     * @param enabled true to enable
+     */
+    void setHomingEnabled(boolean enabled) throws FirmwareSettingsException;
 
     /**
      * Returns the units in which the controller reports it's coordinates
@@ -87,4 +95,188 @@ public interface IFirmwareSettings {
      * @return all settings as a list
      */
     List<FirmwareSetting> getAllSettings();
+
+    /**
+     * Returns if hard limit switches are enabled in the controller
+     *
+     * @return true if enabled
+     */
+    boolean isHardLimitsEnabled() throws FirmwareSettingsException;
+
+    /**
+     * Enables or disables the limit switches in the controller
+     *
+     * @param enabled true to enable
+     */
+    void setHardLimitsEnabled(boolean enabled) throws FirmwareSettingsException;
+
+    /**
+     * Returns if soft limits are enabled in the controller
+     *
+     * @return true if enabled
+     */
+    boolean isSoftLimitsEnabled() throws FirmwareSettingsException;
+
+    /**
+     * Enables or disables the soft limits in the controller
+     *
+     * @param enabled true to enable
+     */
+    void setSoftLimitsEnabled(boolean enabled) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the direction x is inverted on the controller
+     *
+     * @return true if inverted
+     */
+    boolean isInvertDirectionX();
+
+    /**
+     * Inverts the step direction for X-axis
+     *
+     * @param inverted if the direction should be inverted
+     */
+    void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the direction y is inverted on the controller
+     *
+     * @return true if inverted
+     */
+    boolean isInvertDirectionY();
+
+    /**
+     * Inverts the step direction for Y-axis
+     *
+     * @param inverted if the direction should be inverted
+     */
+    void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the direction z is inverted on the controller
+     *
+     * @return true if inverted
+     */
+    boolean isInvertDirectionZ();
+
+    /**
+     * Inverts the step direction for Z-axis
+     *
+     * @param inverted if the direction should be inverted
+     */
+    void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Return the number of steps needed to move the machine one millimeter.
+     *
+     * @param axis the axis to retrieve the setting for
+     * @return number of steps per mm
+     * @throws FirmwareSettingsException if the settings couldn't be fetched
+     */
+    int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException;
+
+    /**
+     * Returns the soft limit for the X axis in millimeters
+     *
+     * @return the limit length in milimeters
+     * @throws FirmwareSettingsException if the settings couldn't be fetched
+     */
+    double getSoftLimitX() throws FirmwareSettingsException;
+
+    /**
+     * Sets the soft limit for the X axis in millimeters.
+     *
+     * @param limit the limit in millimeters
+     * @throws FirmwareSettingsException if the setting couldn't be saved
+     */
+    void setSoftLimitX(double limit) throws FirmwareSettingsException;
+
+    /**
+     * Returns the soft limit for the Y axis in millimeters
+     *
+     * @return the limit length in milimeters
+     * @throws FirmwareSettingsException if the settings couldn't be fetched
+     */
+    double getSoftLimitY() throws FirmwareSettingsException;
+
+    /**
+     * Sets the soft limit for the Y axis in millimeters.
+     *
+     * @param limit the limit in millimeters
+     * @throws FirmwareSettingsException if the setting couldn't be saved
+     */
+    void setSoftLimitY(double limit) throws FirmwareSettingsException;
+
+    /**
+     * Returns the soft limit for the Z axis in millimeters
+     *
+     * @return the limit length in milimeters
+     * @throws FirmwareSettingsException if the settings couldn't be fetched
+     */
+    double getSoftLimitZ() throws FirmwareSettingsException;
+
+    /**
+     * Sets the soft limit for the X axis in millimeters.
+     *
+     * @param limit the limit in millimeters
+     * @throws FirmwareSettingsException if the setting couldn't be saved
+     */
+    void setSoftLimitZ(double limit) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the X-axis be inverted
+     *
+     * @return true to perform homing to X-
+     */
+    boolean isHomingDirectionInvertedX();
+
+    /**
+     * Sets if the homing direction should be inverted for the X-axis
+     *
+     * @param inverted set to true if homing should be performed to X-
+     */
+    void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the Y-axis be inverted
+     *
+     * @return true to perform homing to Y-
+     */
+    boolean isHomingDirectionInvertedY();
+
+    /**
+     * Sets if the homing direction should be inverted for the Y-axis
+     *
+     * @param inverted set to true if homing should be performed to Y-
+     */
+    void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the homing direction for the Z-axis be inverted
+     *
+     * @return true to perform homing to Z-
+     */
+    boolean isHomingDirectionInvertedZ();
+
+    /**
+     * Sets if the homing direction should be inverted for the Z-axis
+     *
+     * @param inverted set to true if homing should be performed to Z-
+     */
+    void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException;
+
+
+    /**
+     * Sets if the limit pins should be inverted
+     *
+     * @param inverted set to true if limit pins should be inverted
+     */
+    void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException;
+
+    /**
+     * Returns if the limit pins are inverted
+     *
+     * @return true if the limit pins are inverted
+     */
+    boolean isHardLimitsInverted() throws FirmwareSettingsException;
 }

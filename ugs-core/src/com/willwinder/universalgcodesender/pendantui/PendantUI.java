@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.willwinder.universalgcodesender.model.Alarm;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
 
@@ -335,6 +336,11 @@ public class PendantUI implements ControllerListener {
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override

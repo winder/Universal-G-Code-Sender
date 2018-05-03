@@ -355,4 +355,15 @@ public class TinyGController extends AbstractController {
             }
         }
     }
+
+    @Override
+    public String getFirmwareVersion() {
+        return "TinyG with unkown version";
+    }
+
+    @Override
+    public ControllerState getState() {
+        // TODO return the current state of the controller
+        return null;
+    }
 }

@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -210,6 +211,11 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
 
     }
 

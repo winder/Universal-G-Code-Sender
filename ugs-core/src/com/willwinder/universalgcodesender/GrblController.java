@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -174,10 +175,9 @@ public class GrblController extends AbstractController {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
-                    ControllerState state = GrblUtils.getControllerStateFromStateString(stateString);
                     this.controllerStatus = new ControllerStatus(
                             stateString,
-                            state,
+                            ControllerState.ALARM,
                             this.controllerStatus.getMachineCoord(),
                             this.controllerStatus.getWorkCoord(),
                             this.controllerStatus.getFeedSpeed(),
@@ -186,6 +186,9 @@ public class GrblController extends AbstractController {
                             this.controllerStatus.getWorkCoordinateOffset(),
                             this.controllerStatus.getEnabledPins(),
                             this.controllerStatus.getAccessoryStates());
+
+                    Alarm alarm = GrblUtils.parseAlarmResponse(response);
+                    dispatchAlarm(alarm);
                     dispatchStatusString(this.controllerStatus);
                     dispatchStateChange(COMM_IDLE);
                 }
@@ -203,7 +206,7 @@ public class GrblController extends AbstractController {
                     processed =
                             String.format(Localization.getString("controller.exception.unexpectedError"),
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                    this.errorMessageForConsole(processed + "\n");
+                    this.messageForConsole(processed + "\n");
                 }
                 checkStreamFinished();
                 processed = "";
@@ -599,6 +602,20 @@ public class GrblController extends AbstractController {
             return str.toString();
         }
         return "<" + Localization.getString("controller.log.notconnected") + ">";
+    }
+
+    @Override
+    public String getFirmwareVersion() {
+        return getGrblVersion();
+    }
+
+    @Override
+    public ControllerState getState() {
+        if (controllerStatus == null) {
+            return ControllerState.UNKNOWN;
+        }
+
+        return controllerStatus.getState();
     }
 
     /**

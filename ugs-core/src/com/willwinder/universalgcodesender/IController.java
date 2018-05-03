@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -194,4 +195,18 @@ public interface IController {
      * @return the firmware settings for the controller.
      */
     IFirmwareSettings getFirmwareSettings();
+
+    /**
+     * When connected this will return the controller firmware version.
+     *
+     * @return a version string
+     */
+    String getFirmwareVersion();
+
+    /**
+     * Get the current state of the controller
+     *
+     * @return the current state
+     */
+    ControllerState getState();
 }

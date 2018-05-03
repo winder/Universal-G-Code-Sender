@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -39,7 +40,14 @@ public interface ControllerListener {
      * The file streaming has completed.
      */
     void fileStreamComplete(String filename, boolean success);
-    
+
+    /**
+     * If an alarm is received from the controller
+     *
+     * @param alarm the alarm received from the controller
+     */
+    void receivedAlarm(Alarm alarm);
+
     /**
      * A command in the stream has been skipped.
      */

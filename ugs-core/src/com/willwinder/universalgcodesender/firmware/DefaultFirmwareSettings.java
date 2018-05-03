@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware;
 
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.Collections;
@@ -51,6 +52,130 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
 
     @Override
     public boolean isHomingEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setHomingEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean isHardLimitsEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setHardLimitsEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean isSoftLimitsEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setSoftLimitsEnabled(boolean enabled) {
+    }
+
+    @Override
+    public void setInvertDirectionX(boolean inverted) {
+    }
+
+    @Override
+    public void setInvertDirectionY(boolean inverted) {
+    }
+
+    @Override
+    public void setInvertDirectionZ(boolean inverted) {
+    }
+
+    @Override
+    public boolean isInvertDirectionX() {
+        return false;
+    }
+
+    @Override
+    public boolean isInvertDirectionY() {
+        return false;
+    }
+
+    @Override
+    public boolean isInvertDirectionZ() {
+        return false;
+    }
+
+    @Override
+    public int getStepsPerMillimeter(Axis axis) {
+        return 0;
+    }
+
+    @Override
+    public double getSoftLimitX() {
+        return 0;
+    }
+
+    @Override
+    public void setSoftLimitX(double limit) {
+
+    }
+
+    @Override
+    public double getSoftLimitY() {
+        return 0;
+    }
+
+    @Override
+    public void setSoftLimitY(double limit) {
+
+    }
+
+    @Override
+    public double getSoftLimitZ() {
+        return 0;
+    }
+
+    @Override
+    public void setSoftLimitZ(double limit) {
+
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedX() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedX(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedY() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedY(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedZ() {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedZ(boolean inverted) {
+
+    }
+
+    @Override
+    public void setHardLimitsInverted(boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() {
         return false;
     }
 

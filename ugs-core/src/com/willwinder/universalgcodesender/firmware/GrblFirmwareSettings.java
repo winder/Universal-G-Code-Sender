@@ -19,10 +19,14 @@
 package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
+import org.apache.commons.lang3.math.NumberUtils;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +50,18 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
      * Setting keys for GRBL
      */
     private static final String KEY_REPORTING_UNITS_IN_INCHES = "$13";
+    private static final String KEY_SOFT_LIMITS_ENABLED = "$20";
+    private static final String KEY_HARD_LIMITS_ENABLED = "$21";
     private static final String KEY_HOMING_ENABLED = "$22";
+    private static final String KEY_HOMING_INVERT_DIRECTION = "$23";
+    private static final String KEY_INVERT_DIRECTION = "$3";
+    private static final String KEY_INVERT_LIMIT_PINS = "$5";
+    private static final String KEY_STEPS_PER_MM_X = "$100";
+    private static final String KEY_STEPS_PER_MM_Y = "$101";
+    private static final String KEY_STEPS_PER_MM_Z = "$102";
+    private static final String KEY_SOFT_LIMIT_X = "$130";
+    private static final String KEY_SOFT_LIMIT_Y = "$131";
+    private static final String KEY_SOFT_LIMIT_Z = "$132";
 
     /**
      * A GRBL settings description lookups
@@ -111,11 +126,212 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isHomingEnabled() {
-        return getSetting(KEY_HOMING_ENABLED)
+    public boolean isHardLimitsEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_HARD_LIMITS_ENABLED);
+    }
+
+    @Override
+    public void setHardLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
+        setValue(KEY_HARD_LIMITS_ENABLED, enabled ? "1" : "0");
+    }
+
+    @Override
+    public boolean isSoftLimitsEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_SOFT_LIMITS_ENABLED);
+    }
+
+    @Override
+    public void setSoftLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
+        setValue(KEY_SOFT_LIMITS_ENABLED, enabled ? "1" : "0");
+    }
+
+    @Override
+    public boolean isInvertDirectionX() {
+        return (getInvertDirectionMask() & 1) == 1;
+    }
+
+    @Override
+    public void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b1; // set first bit from LSB
+        } else {
+            directionMask &= ~0b1; // unset first bit from LSB
+        }
+
+        setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isInvertDirectionY() {
+        return (getInvertDirectionMask() & 2) == 2;
+    }
+
+    @Override
+    public void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b10; // set second bit from LSB
+        } else {
+            directionMask &= ~0b10; // unset second bit from LSB
+        }
+
+        setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isInvertDirectionZ() {
+        return (getInvertDirectionMask() & 4) == 4;
+    }
+
+    @Override
+    public void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException {
+        int directionMask = getInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b100; // set third bit from LSB
+        } else {
+            directionMask &= ~0b100; // unset third bit from LSB
+        }
+
+        setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                return getValueAsInteger(KEY_STEPS_PER_MM_X);
+            case Y:
+                return getValueAsInteger(KEY_STEPS_PER_MM_Y);
+            case Z:
+                return getValueAsInteger(KEY_STEPS_PER_MM_Z);
+            default:
+                return 0;
+        }
+    }
+
+    @Override
+    public double getSoftLimitX() throws FirmwareSettingsException {
+        return getValueAsDouble(KEY_SOFT_LIMIT_X);
+    }
+
+    @Override
+    public void setSoftLimitX(double limit) throws FirmwareSettingsException {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
+        setValue(KEY_SOFT_LIMIT_X, decimalFormat.format(limit));
+    }
+
+    @Override
+    public double getSoftLimitY() throws FirmwareSettingsException {
+        return getValueAsDouble(KEY_SOFT_LIMIT_Y);
+    }
+
+    @Override
+    public void setSoftLimitY(double limit) throws FirmwareSettingsException {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
+        setValue(KEY_SOFT_LIMIT_Y, decimalFormat.format(limit));
+    }
+
+    @Override
+    public double getSoftLimitZ() throws FirmwareSettingsException {
+        return getValueAsDouble(KEY_SOFT_LIMIT_Z);
+    }
+
+    @Override
+    public void setSoftLimitZ(double limit) throws FirmwareSettingsException {
+        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
+        setValue(KEY_SOFT_LIMIT_Z, decimalFormat.format(limit));
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedX() {
+        return (getHomingInvertDirectionMask() & 1) == 1;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b1; // set first bit from LSB
+        } else {
+            directionMask &= ~0b1; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedY() {
+        return (getHomingInvertDirectionMask() & 2) == 2;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b10; // set first bit from LSB
+        } else {
+            directionMask &= ~0b10; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public boolean isHomingDirectionInvertedZ() {
+        return (getHomingInvertDirectionMask() & 4) == 4;
+    }
+
+    @Override
+    public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
+        Integer directionMask = getHomingInvertDirectionMask();
+
+        if (inverted) {
+            directionMask |= 0b100; // set first bit from LSB
+        } else {
+            directionMask &= ~0b100; // unset first bit from LSB
+        }
+
+        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
+    }
+
+    @Override
+    public void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException {
+        setValue(KEY_INVERT_LIMIT_PINS, inverted ? "1" : "0");
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_INVERT_LIMIT_PINS);
+    }
+
+    private int getInvertDirectionMask() {
+        return getSetting(KEY_INVERT_DIRECTION)
                 .map(FirmwareSetting::getValue)
-                .map("1"::equals)
-                .orElse(false);
+                .map(Integer::valueOf)
+                .orElse(0);
+    }
+
+    private int getHomingInvertDirectionMask() {
+        return getSetting(KEY_HOMING_INVERT_DIRECTION)
+                .map(FirmwareSetting::getValue)
+                .map(Integer::valueOf)
+                .orElse(0);
+    }
+
+    @Override
+    public boolean isHomingEnabled() throws FirmwareSettingsException {
+        return getValueAsBoolean(KEY_HOMING_ENABLED);
+    }
+
+    @Override
+    public void setHomingEnabled(boolean enabled) throws FirmwareSettingsException {
+        setValue(KEY_HOMING_ENABLED, enabled ? "1" : "0");
     }
 
     @Override
@@ -179,5 +395,31 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
         LOGGER.log(Level.FINE, "Updating setting " + setting.getKey() + " = " + setting.getValue());
         settings.put(setting.getKey(), setting);
+    }
+
+    /*
+     * Helpers
+     */
+    private int getValueAsInteger(String key) throws FirmwareSettingsException {
+        FirmwareSetting firmwareSetting = getSetting(key).orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key: " + key));
+        if (!NumberUtils.isNumber(firmwareSetting.getValue())) {
+            throw new FirmwareSettingsException("Expected the key " + key + " to contain a numeric value but was " + firmwareSetting.getValue());
+        }
+
+        return NumberUtils.createNumber(firmwareSetting.getValue()).intValue();
+    }
+
+    private double getValueAsDouble(String key) throws FirmwareSettingsException {
+        FirmwareSetting firmwareSetting = getSetting(key).orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key: " + key));
+        if (!NumberUtils.isNumber(firmwareSetting.getValue())) {
+            throw new FirmwareSettingsException("Expected the key " + key + " to contain a numeric value but was " + firmwareSetting.getValue());
+        }
+
+        return NumberUtils.createNumber(firmwareSetting.getValue()).doubleValue();
+    }
+
+    private boolean getValueAsBoolean(String key) throws FirmwareSettingsException {
+        FirmwareSetting firmwareSetting = getSetting(key).orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key: " + key));
+        return "1".equalsIgnoreCase(firmwareSetting.getValue());
     }
 }

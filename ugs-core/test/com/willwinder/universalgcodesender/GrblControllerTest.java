@@ -1261,7 +1261,7 @@ public class GrblControllerTest {
 
         // Then
         String genericErrorMessage = "An unexpected error was detected: (error:1) G-code words consist of a letter and a value. Letter was not found.\n";
-        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.INFO, genericErrorMessage);
         verify(controllerListener, times(1)).messageForConsole(any(), anyString());
         instance.removeListener(controllerListener);
 
