@@ -241,28 +241,28 @@ public class GrblUtils {
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
-        ret.addCapability(CapabilitiesConstants.HOMING);
-        ret.addCapability(CapabilitiesConstants.HARD_LIMITS);
-        ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
 
-        // Check if real time commands are enabled.
-        if (version==0.8 && (letter != null) && (letter >= 'c')) {
-            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        } else if (version >= 0.9) {
-            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-            ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
+        if (version >= 0.8) {
+            ret.addCapability(CapabilitiesConstants.HOMING);
+            ret.addCapability(CapabilitiesConstants.HARD_LIMITS);
         }
 
-        // Check for V1.x features
-        if (version >= 1.1) {
+        if (version==0.8 && (letter != null) && (letter >= 'c')) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+        }
 
-            // GRBL 1.1
-            ret.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-            ret.addCapability(CapabilitiesConstants.OVERRIDES);
-            ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
-            ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+        if (version >= 0.9) {
+            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+            ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
             ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
+
+        }
+
+        if (version >= 1.1) {
+            ret.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
+            ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
+            ret.addCapability(CapabilitiesConstants.OVERRIDES);
+            ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         }
 
         return ret;
