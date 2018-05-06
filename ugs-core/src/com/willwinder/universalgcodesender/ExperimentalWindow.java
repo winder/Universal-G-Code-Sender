@@ -356,7 +356,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("sender.header"),
-                backend.getSettings(), 
                 new ConnectionSettingsPanel(backend.getSettings()),
                 this,
                 true);
@@ -390,7 +389,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
-                backend.getSettings(),
                 new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                 this, true);
         

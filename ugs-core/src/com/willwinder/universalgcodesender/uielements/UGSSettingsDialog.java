@@ -1,8 +1,5 @@
 /*
- * Simple dialog for configuring Sender settings.
- */
-/*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,7 +21,7 @@ package com.willwinder.universalgcodesender.uielements;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.Settings;
+
 import java.awt.Frame;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,6 +34,7 @@ import javax.swing.ScrollPaneConstants;
 import net.miginfocom.swing.MigLayout;
 
 /**
+ * Simple dialog for configuring Sender settings.
  *
  * @author wwinder
  */
@@ -44,7 +42,6 @@ public class UGSSettingsDialog extends JDialog {
     private static Logger logger = Logger.getLogger(UGSSettingsDialog.class.getName());
 
     private boolean saveChanges;
-    private final Settings settings;
     private final AbstractUGSSettings settingsPanel;
 
     private final JButton restore = new JButton(Localization.getString("restore"));
@@ -55,17 +52,16 @@ public class UGSSettingsDialog extends JDialog {
     /**
      * Creates new form GrblSettingsDialog
      */
-    public UGSSettingsDialog(String settingsTitle, Settings settings, AbstractUGSSettings panel, Frame parent, boolean modal) {
+    public UGSSettingsDialog(String settingsTitle, AbstractUGSSettings panel, Frame parent, boolean modal) {
         super(parent, modal);
         this.setTitle(settingsTitle);
-        this.settings = settings;
         this.settingsPanel = panel;
 
         // Register callbacks
-        restore.addActionListener(this::restoreDefaultSettings);
-        closeWithSave.addActionListener(this::closeWithSaveActionPerformed);
-        closeWithoutSave.addActionListener(this::closeWithoutSaveActionPerformed);
-        helpButton.addActionListener(this::helpButtonActionPerformed);
+        restore.addActionListener(event -> restoreDefaultSettings());
+        closeWithSave.addActionListener(event -> closeWithSaveActionPerformed());
+        closeWithoutSave.addActionListener(event -> closeWithoutSaveActionPerformed());
+        helpButton.addActionListener(event -> helpButtonActionPerformed());
         
         initComponents();
         setLocationRelativeTo(parent);
@@ -97,16 +93,14 @@ public class UGSSettingsDialog extends JDialog {
         pack();
     }
 
-    private void closeWithoutSaveActionPerformed(java.awt.event.ActionEvent evt) {
+    private void closeWithoutSaveActionPerformed() {
         this.saveChanges = false;
         setVisible(false);
     }
 
-    private void restoreDefaultSettings(java.awt.event.ActionEvent evt) {
+    private void restoreDefaultSettings() {
         try {
             settingsPanel.restoreDefaults();
-            //FirmwareUtils.restoreDefaults();
-            //settingsPanel.updateComponents(new Settings());
         } catch (Exception e) {
             String message = "An error occurred while restoring defaults:"
                     + e.getLocalizedMessage();
@@ -115,13 +109,13 @@ public class UGSSettingsDialog extends JDialog {
         }
     }
 
-    private void closeWithSaveActionPerformed(java.awt.event.ActionEvent evt) {
+    private void closeWithSaveActionPerformed() {
         this.settingsPanel.save();
         this.saveChanges = true;
         setVisible(false);
     }
 
-    private void helpButtonActionPerformed(java.awt.event.ActionEvent evt) {
+    private void helpButtonActionPerformed() {
         String message = settingsPanel.getHelpMessage();
         
         JOptionPane.showMessageDialog(new JFrame(), 

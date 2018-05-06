@@ -1,8 +1,5 @@
 /*
- * The current state of a gcode program.
- */
-/*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,7 +24,6 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.G21;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G54;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G90;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G91_1;
-import static com.willwinder.universalgcodesender.gcode.util.Code.G93;
 import static com.willwinder.universalgcodesender.gcode.util.Code.G94;
 import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.model.Position;
@@ -35,10 +31,43 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 /**
+ * The current state of a gcode program.
  *
  * @author wwinder
  */
 public class GcodeState {
+
+    // Current state
+    // group 1
+    public Code currentMotionMode = null;
+
+    // group 2
+    public Plane plane;
+
+    // group 3
+    public boolean inAbsoluteMode = true;
+    public Code distanceMode = G90;
+
+    // group 4
+    public boolean inAbsoluteIJKMode = false;
+    public Code arcDistanceMode = G91_1;
+
+    // group 5
+    public Code feedMode = G94;
+    public double speed = 0;
+
+    // group 6
+    public boolean isMetric = true;
+    public Code units = G21;
+
+    // group 12
+    public Code offset = G54;
+
+    // Misc
+    public double spindleSpeed = 0;
+    public Position currentPoint = null;
+    public int commandNumber = 0;
+
     public GcodeState() {
         // GRBL initial state: [G0 G54 G17 G21 G90 G94 M0 M5 M9 T0 F0. S0.]
         this.currentMotionMode = G0;
@@ -84,37 +113,6 @@ public class GcodeState {
         ret.commandNumber = commandNumber;
         return ret;
     }
-
-    // Current state
-    // group 1
-    public Code currentMotionMode = null;
-
-    // group 2
-    public Plane plane;
-
-    // group 3
-    public boolean inAbsoluteMode = true;
-    public Code distanceMode = G90;
-
-    // group 4
-    public boolean inAbsoluteIJKMode = false;
-    public Code arcDistanceMode = G91_1;
-
-    // group 5
-    public Code feedMode = G94;
-    public double speed = 0;
-
-    // group 6
-    public boolean isMetric = true;
-    public Code units = G21;
-
-    // group 12
-    public Code offset = G54;
-
-    // Misc
-    public double spindleSpeed = 0;
-    public Position currentPoint = null;
-    public int commandNumber = 0;
 
     @Override
     public String toString() {
