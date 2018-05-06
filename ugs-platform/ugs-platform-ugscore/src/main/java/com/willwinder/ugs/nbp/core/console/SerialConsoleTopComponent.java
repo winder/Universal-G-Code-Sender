@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -43,7 +43,7 @@ import org.openide.windows.TopComponent;
         preferredID = "SerialConsoleTopComponent"
 )
 public final class SerialConsoleTopComponent extends TopComponent {
-    BackendAPI backend;
+    private final BackendAPI backend;
     
     public SerialConsoleTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -57,15 +57,9 @@ public final class SerialConsoleTopComponent extends TopComponent {
         setToolTipText(LocalizingService.SerialConsoleTooltip);
     }
 
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
+    public void writeProperties(java.util.Properties p) {
     }
 
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+    public void readProperties(java.util.Properties p) {
     }
 }

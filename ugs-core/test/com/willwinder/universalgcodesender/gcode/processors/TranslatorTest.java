@@ -21,37 +21,27 @@ package com.willwinder.universalgcodesender.gcode.processors;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import com.willwinder.universalgcodesender.gcode.util.Plane;
-import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.vecmath.Point3d;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import static org.assertj.core.api.Assertions.*;
-import org.assertj.core.data.Offset;
-import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
 
 /**
  *
  * @author wwinder
  */
 public class TranslatorTest {
-  Translator instance;
-  GcodeState state;
+  private Translator instance;
+  private GcodeState state;
 
   // In case it's needed...
-  DecimalProcessor truncator = new DecimalProcessor(4);
+  private DecimalProcessor truncator = new DecimalProcessor(4);
 
   @Before
-  public void setup() {
+  public void setUp() {
       instance = new Translator(new Position(10.1, 20.2, 30.3, Units.MM));
 
       state = new GcodeState();
