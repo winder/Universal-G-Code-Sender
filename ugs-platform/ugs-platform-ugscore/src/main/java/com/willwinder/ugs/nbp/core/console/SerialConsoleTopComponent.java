@@ -43,10 +43,9 @@ import org.openide.windows.TopComponent;
         preferredID = "SerialConsoleTopComponent"
 )
 public final class SerialConsoleTopComponent extends TopComponent {
-    private final BackendAPI backend;
-    
+
     public SerialConsoleTopComponent() {
-        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         this.setLayout(new BorderLayout());
         this.add(new CommandPanel(backend), BorderLayout.CENTER);
     }
