@@ -59,9 +59,6 @@ import org.junit.Ignore;
  */
 public class AbstractControllerTest {
     
-    public AbstractControllerTest() {
-    }
-
     private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
     private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
     private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
