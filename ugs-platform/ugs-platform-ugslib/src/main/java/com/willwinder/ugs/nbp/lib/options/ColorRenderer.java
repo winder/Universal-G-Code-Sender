@@ -43,16 +43,15 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
-/* 
+/**
  * ColorRenderer.java (compiles with releases 1.2, 1.3, and 1.4) is used by 
  * TableDialogEditDemo.java.
  */
-
 class ColorRenderer extends JLabel
                            implements TableCellRenderer {
-    Border unselectedBorder = null;
-    Border selectedBorder = null;
-    boolean isBordered = true;
+    private Border unselectedBorder = null;
+    private Border selectedBorder = null;
+    private boolean isBordered = true;
 
     public ColorRenderer(boolean isBordered) {
         this.isBordered = isBordered;

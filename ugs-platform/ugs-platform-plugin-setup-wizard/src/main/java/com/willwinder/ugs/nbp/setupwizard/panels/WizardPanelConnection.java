@@ -50,7 +50,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
      * A time interval to wait before querying the controller for version.
      * This gives the controller to time to properly boot
      */
-    private static final int CONNECT_TIME = 2500;
+    private static final int CONNECT_TIME = 3000;
 
     /**
      * If the controller should be finished connecting
