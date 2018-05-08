@@ -649,7 +649,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean canPause() {
-        return this.controller != null && !isIdle() && !isPaused();
+        return this.controller != null && isConnected() && !isIdle() && !isPaused();
     }
 
     @Override
