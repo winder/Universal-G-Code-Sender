@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,8 @@ import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorD
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +40,17 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class CommandTextArea extends JTextField implements KeyEventDispatcher, UGSEventListener {
     private BackendAPI backend;
-    List<String> commandHistory = new ArrayList<>();
-    int commandNum = -1;
+    private List<String> commandHistory = new ArrayList<>();
+    private int commandNum = -1;
 
     // This is needed for unit testing.
     protected boolean focusNotNeeded = false;
+
+    /**
+     * A variable that indicates if the focus should be regained to this component when
+     * its state changes from enabled with focus -> disabled -> enabled.
+     */
+    private boolean regainFocus = false;
 
     public CommandTextArea() {
         this(null);
@@ -69,7 +77,18 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
      */
     @Override
     public void UGSEvent(UGSEvent evt) {
-        this.setEnabled(backend.isIdle());
+        if (evt.isStateChangeEvent()) {
+            if (!backend.isIdle() && isEnabled()) {
+                regainFocus = hasFocus();
+                setEnabled(false);
+            } else if (backend.isIdle() && !isEnabled()) {
+                setEnabled(true);
+                if (regainFocus) {
+                    regainFocus = false;
+                    requestFocusInWindow();
+                }
+            }
+        }
     }
 
     public void action(ActionEvent evt) {
@@ -93,8 +112,6 @@ public class CommandTextArea extends JTextField implements KeyEventDispatcher, U
         switch (e.getKeyCode()) {
                 case KeyEvent.VK_UP:
                 case KeyEvent.VK_DOWN:
-                case KeyEvent.VK_LEFT:
-                case KeyEvent.VK_RIGHT:
                     return true;
                 default:
                     return false;
