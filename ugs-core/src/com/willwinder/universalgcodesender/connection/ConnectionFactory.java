@@ -18,12 +18,44 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SettingsFactory;
+
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
+ * A factory for creating a serial connection object using the settings
  *
  * @author wwinder
  */
 public class ConnectionFactory {
-    static public Connection getConnectionFor(String address, int baud) {
-        return new JSSCConnection();
+
+    private static final Logger logger = Logger.getLogger(ConnectionFactory.class.getSimpleName());
+
+    static public Connection getConnection() {
+        Settings settings = SettingsFactory.loadSettings();
+        String connectionClass = settings.getConnectionClass();
+        return createInstance(connectionClass)
+                .orElse(new JSSCConnection());
+    }
+
+    /**
+     * Tries to create a connection instance with the given class.
+     *
+     * @param connectionClass the full class name of the connection class
+     * @return a created instance of the given class or an empty optional
+     */
+    private static Optional<Connection> createInstance(String connectionClass) {
+        try {
+            Class<?> loadedClass = Class.forName(connectionClass);
+            Class<? extends Connection> loadedConnectionClass = loadedClass.asSubclass(Connection.class);
+            return Optional.of(loadedConnectionClass.newInstance());
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            logger.log(Level.WARNING, "Couldn't load connection using class " + connectionClass, e);
+        }
+
+        return Optional.empty();
     }
 }

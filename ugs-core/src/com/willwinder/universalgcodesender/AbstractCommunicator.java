@@ -114,7 +114,8 @@ public abstract class AbstractCommunicator {
     //do common operations (related to the connection, that is shared by all communicators)
     protected boolean openCommPort(String name, int baud) throws Exception {
         if (conn == null) {
-            conn = ConnectionFactory.getConnectionFor(name, baud);
+            conn = ConnectionFactory.getConnection();
+            logger.info("Connecting to controller using class: " + conn.getClass().getSimpleName());
         }
 
         if (conn != null) {

@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.connection.JSSCConnection;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
@@ -76,6 +77,8 @@ public class Settings {
     private String language = "en_US";
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
+
+    private String connectionClass = null;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -422,6 +425,14 @@ public class Settings {
 
     public FileStats getFileStats() {
         return this.fileStats;
+    }
+
+    public String getConnectionClass() {
+        return StringUtils.defaultString(connectionClass, JSSCConnection.class.getCanonicalName());
+    }
+
+    public void setConnectionClass(String connectionClass) {
+        this.connectionClass = connectionClass;
     }
 
     public static class AutoLevelSettings {

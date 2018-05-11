@@ -21,25 +21,55 @@ package com.willwinder.universalgcodesender.connection;
 
 import com.willwinder.universalgcodesender.AbstractCommunicator;
 
+import java.util.List;
+
 /**
  * Connection interface.
  *
  * @author wwinder
  */
-public abstract class Connection {
-    protected AbstractCommunicator comm;
+public interface Connection {
 
-    public void setCommunicator(AbstractCommunicator ac) {
-        comm = ac;
-    }
-    
-    abstract public boolean openPort(String name, int baud) throws Exception;
-    
-    abstract public void closePort() throws Exception;
-        
-    abstract public void sendByteImmediately(byte b) throws Exception;
-    
-    abstract public void sendStringToComm(String command) throws Exception;
+    void setCommunicator(AbstractCommunicator ac);
 
-    abstract public boolean isOpen();
+    /**
+     * Opens a connection to the given port
+     *
+     * @param portName the name of the port to open.
+     * @param baud     the baud rate for the connection
+     * @return true if the connection was established
+     * @throws Exception if the connection couldn't be established
+     */
+    boolean openPort(String portName, int baud) throws Exception;
+
+    /**
+     * Closes the connection
+     *
+     * @throws Exception
+     */
+    void closePort() throws Exception;
+
+    /**
+     * Immediately sends a byte, used for real-time commands.
+     *
+     * @param b the byte to send
+     */
+    void sendByteImmediately(byte b) throws Exception;
+
+    /**
+     * Sends a command to the serial device. This actually streams the bits to
+     * the comm port.
+     *
+     * @param command Command to be sent to serial device.
+     */
+    void sendStringToComm(String command) throws Exception;
+
+    /**
+     * Checks if the communication is established
+     *
+     * @return true if connection is established.
+     */
+    boolean isOpen();
+
+    List<String> getPortNames();
 }

@@ -45,26 +45,36 @@ public class SettingsChangedNotificationService {
     private static final String RESTART_ICON = "org/netbeans/core/windows/resources/restart.png";
     private final BackendAPI backend;
     private Notification restartNotification;
+    private String lastSelectedConnectionClass;
     private String lastSelectedLanguage;
 
     public SettingsChangedNotificationService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::checkForLanguageChangeAndAskForRestart);
         lastSelectedLanguage = backend.getSettings().getLanguage();
+        lastSelectedConnectionClass = backend.getSettings().getConnectionClass();
     }
 
     private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
-        if (ugsEvent.isSettingChangeEvent() && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
-            if (null != restartNotification) {
-                restartNotification.clear();
+        if (ugsEvent.isSettingChangeEvent()) {
+            if (!StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
+                lastSelectedLanguage = backend.getSettings().getLanguage();
+                Localization.initialize(backend.getSettings().getLanguage());
+                notifyRestartRequired();
+            } else if (!StringUtils.equalsIgnoreCase(lastSelectedConnectionClass, backend.getSettings().getConnectionClass())) {
+                notifyRestartRequired();
             }
-            lastSelectedLanguage = backend.getSettings().getLanguage();
-            Localization.initialize(backend.getSettings().getLanguage());
-            restartNotification = NotificationDisplayer.getDefault().notify(Localization.getString("restart"),
-                    ImageUtilities.loadImageIcon(RESTART_ICON, false), //NOI18N
-                    createRestartNotificationDetails(), createRestartNotificationDetails(),
-                    NotificationDisplayer.Priority.HIGH, NotificationDisplayer.Category.INFO);
         }
+    }
+
+    private void notifyRestartRequired() {
+        if (null != restartNotification) {
+            restartNotification.clear();
+        }
+        restartNotification = NotificationDisplayer.getDefault().notify(Localization.getString("restart"),
+                ImageUtilities.loadImageIcon(RESTART_ICON, false), //NOI18N
+                createRestartNotificationDetails(), createRestartNotificationDetails(),
+                NotificationDisplayer.Priority.HIGH, NotificationDisplayer.Category.INFO);
     }
 
     private JComponent createRestartNotificationDetails() {

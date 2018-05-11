@@ -19,16 +19,19 @@
 package com.willwinder.universalgcodesender.connection;
 
 import jssc.SerialPort;
-import jssc.SerialPortEventListener;
 import jssc.SerialPortEvent;
-import jssc.SerialPortException;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortList;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A serial connection object implementing the connection API.
  *
  * @author wwinder
  */
-public class JSSCConnection extends Connection implements SerialPortEventListener {
+public class JSSCConnection extends AbstractConnection implements SerialPortEventListener {
     @Deprecated private String lineTerminator;
 
     // General variables
@@ -85,6 +88,11 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
     @Override
     public boolean isOpen() {
         return serialPort != null && serialPort.isOpened();
+    }
+
+    @Override
+    public List<String> getPortNames() {
+        return Arrays.asList(SerialPortList.getPortNames());
     }
 
     /**
