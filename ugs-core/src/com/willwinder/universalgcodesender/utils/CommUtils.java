@@ -1,9 +1,5 @@
 /*
- * Collection of useful Comm related utilities.
- */
-
-/*
-    Copywrite 2012-2015 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,15 +19,13 @@
 
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import jssc.SerialPortList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
+ * Collection of useful Comm related utilities.
  *
  * @author wwinder
  */
