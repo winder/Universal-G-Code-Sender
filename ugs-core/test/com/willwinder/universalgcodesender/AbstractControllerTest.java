@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -29,8 +29,6 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,24 +59,20 @@ import org.junit.Ignore;
  */
 public class AbstractControllerTest {
     
-    public AbstractControllerTest() {
-    }
+    private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
+    private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
+    private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
 
-    final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
-    final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
-    final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
-
-    static AbstractController instance;
-    static AbstractController niceInstance;
-    static IMockBuilder<AbstractController> instanceBuilder;
+    private static AbstractController instance;
+    private static AbstractController niceInstance;
 
     private static File tempDir = null;
 
     //@BeforeClass
     public static void init() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
-        instanceBuilder = EasyMock
+        IMockBuilder<AbstractController> instanceBuilder = EasyMock
                 .createMockBuilder(AbstractController.class)
-                    .addMockedMethods(
+                .addMockedMethods(
                         "closeCommBeforeEvent",
                         "closeCommAfterEvent",
                         "openCommAfterEvent",
@@ -92,8 +86,8 @@ public class AbstractControllerTest {
                         "statusUpdatesEnabledValueChanged",
                         "statusUpdatesRateValueChanged",
                         "isCommOpen")
-                    .withConstructor(AbstractCommunicator.class)
-                    .withArgs(mockCommunicator);
+                .withConstructor(AbstractCommunicator.class)
+                .withArgs(mockCommunicator);
         instance = instanceBuilder.createMock();
         niceInstance = instanceBuilder.createNiceMock();
 
@@ -129,7 +123,7 @@ public class AbstractControllerTest {
     ///////////////
     // UTILITIES //
     ///////////////
-    public void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
+    private void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
         instance.openCommAfterEvent();
         EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
         mockListener.messageForConsole(anyObject(), EasyMock.anyString());
@@ -196,7 +190,7 @@ public class AbstractControllerTest {
         boolean threw = false;
         try {
             instance.openCommPort(port, portRate);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             threw = true;
         }
         assertEquals("Cannot open a comm port twice.", true, threw);
@@ -372,7 +366,6 @@ public class AbstractControllerTest {
         }
         Assert.assertTrue(threwException);
 
-        String command = "command";
         String port = "/some/port";
         int rate = 1234;
 
@@ -402,7 +395,7 @@ public class AbstractControllerTest {
 
         Boolean commPortNotOpen = false;
         try {
-            Boolean result = instance.isReadyToStreamFile();
+            instance.isReadyToStreamFile();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("comm port is not open"));
             commPortNotOpen = true;
@@ -652,9 +645,9 @@ public class AbstractControllerTest {
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
         replay(instance, mockCommunicator, mockListener);
 
-        GcodeCommand first = instance.getActiveCommand().get();
+        GcodeCommand first = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find first command"));
         instance.commandComplete("ok");
-        GcodeCommand second = instance.getActiveCommand().get();
+        GcodeCommand second = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find second command"));
         instance.commandComplete("ok");
 
         assertEquals(true, gc1.getValue().isDone());

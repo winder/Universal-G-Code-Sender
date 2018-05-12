@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -80,16 +80,9 @@ public final class DowelTopComponent extends TopComponent {
   public final static String DowelActionId = "com.willwinder.ugs.platform.dowel.DowelTopComponent";
   public final static String DowelCategory = LocalizingService.CATEGORY_WINDOW;
 
-  @OnStart
-  public static class Localizer extends TopComponentLocalizer {
-    public Localizer() {
-      super(DowelCategory, DowelActionId, DowelTitle);
-    }
-  }
-
-  final static String JSON_PROPERTY = "dowel_settings_json";
-  static String ERROR_GENERATING = "An error occurred generating dowel program: ";
-  static String ERROR_LOADING = "An error occurred loading generated dowel program: ";
+  private final static String JSON_PROPERTY = "dowel_settings_json";
+  private final static String ERROR_GENERATING = "An error occurred generating dowel program: ";
+  private final static String ERROR_LOADING = "An error occurred loading generated dowel program: ";
 
   private final BackendAPI backend;
 
@@ -112,6 +105,13 @@ public final class DowelTopComponent extends TopComponent {
 
   private final DowelGenerator generator;
   private final DowelPreview preview;
+
+  @OnStart
+  public static class Localizer extends TopComponentLocalizer {
+    public Localizer() {
+      super(DowelCategory, DowelActionId, DowelTitle);
+    }
+  }
 
   public DowelTopComponent() {
     setName(DowelTitle);
@@ -272,16 +272,14 @@ public final class DowelTopComponent extends TopComponent {
     RenderableUtils.removeRenderable(preview);
   }
 
-  void writeProperties(java.util.Properties p) {
+  public void writeProperties(java.util.Properties p) {
     // better to version settings since initial version as advocated at
     // http://wiki.apidesign.org/wiki/PropertyFiles
     p.setProperty("version", "1.0");
     p.setProperty(JSON_PROPERTY, GSON.toJson(getSettings()));
   }
 
-  void readProperties(java.util.Properties p) {
-    String version = p.getProperty("version");
-
+  public void readProperties(java.util.Properties p) {
     if (p.containsKey(JSON_PROPERTY)) {
       String json = p.getProperty(JSON_PROPERTY);
       try {

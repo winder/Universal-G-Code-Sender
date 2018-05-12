@@ -1248,7 +1248,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("sender.header"),
-                settings,
                 new ConnectionSettingsPanel(settings),
                 this, true);
         
@@ -1548,7 +1547,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
-                settings,
                 new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
                 this, true);
         

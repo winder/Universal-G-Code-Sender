@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,7 +22,6 @@ import com.willwinder.universalgcodesender.i18n.Language;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
@@ -35,7 +34,7 @@ import javax.swing.table.TableCellRenderer;
 public class OptionTable extends JTable {
     private final DefaultTableModel model;
     private final List<Class> types;
-    ArrayList<TableCellRenderer> editors = new ArrayList<>();
+    private ArrayList<TableCellRenderer> editors = new ArrayList<>();
 
     // Class type of cell being edited.
     private Class editingClass = null;

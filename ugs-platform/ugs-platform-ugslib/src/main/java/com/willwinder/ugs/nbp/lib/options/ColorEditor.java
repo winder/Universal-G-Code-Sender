@@ -48,19 +48,18 @@ import javax.swing.JDialog;
 import javax.swing.JTable;
 import javax.swing.table.TableCellEditor;
 
-/* 
+/**
  * ColorEditor.java (compiles with releases 1.3 and 1.4) is used by 
  * TableDialogEditDemo.java.
  */
-
- class ColorEditor extends AbstractCellEditor
+class ColorEditor extends AbstractCellEditor
                          implements TableCellEditor,
                   ActionListener {
-    Color currentColor;
-    JButton button;
-    JColorChooser colorChooser;
-    JDialog dialog;
-    protected static final String EDIT = "edit";
+    private Color currentColor;
+    private JButton button;
+    private JColorChooser colorChooser;
+    private JDialog dialog;
+    private static final String EDIT = "edit";
 
     public ColorEditor() {
         //Set up the editor (from the table's point of view),

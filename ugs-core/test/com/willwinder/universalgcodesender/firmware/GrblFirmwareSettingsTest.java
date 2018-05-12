@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender.firmware;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -263,27 +264,26 @@ public class GrblFirmwareSettingsTest {
         target.rawResponseListener("$3=7");
 
         // Try setting X to false
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionX(false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
+
         target.rawResponseListener("ok");
         assertEquals("6", target.getSetting("$3").get().getValue());
 
 
         // Try setting X to true
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionX(true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
         target.rawResponseListener("ok");
@@ -298,13 +298,12 @@ public class GrblFirmwareSettingsTest {
         target.rawResponseListener("$3=7");
 
         // Try setting Y to false
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionY(false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
         target.rawResponseListener("ok");
@@ -312,13 +311,12 @@ public class GrblFirmwareSettingsTest {
 
 
         // Try setting Y to true
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionY(true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
         target.rawResponseListener("ok");
@@ -333,13 +331,12 @@ public class GrblFirmwareSettingsTest {
         target.rawResponseListener("$3=7");
 
         // Try setting Z to false
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionZ(false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
         target.rawResponseListener("ok");
@@ -347,13 +344,12 @@ public class GrblFirmwareSettingsTest {
 
 
         // Try setting Z to true
-        Executors.newCachedThreadPool().submit(() -> {
+        ThreadHelper.invokeLater(() -> {
             try {
                 target.setInvertDirectionZ(true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
-            return null;
         });
         Thread.sleep(100);
         target.rawResponseListener("ok");

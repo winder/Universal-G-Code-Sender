@@ -111,22 +111,26 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         labelHomingNotSupported.setVisible(false);
 
         separatorTop = new JSeparator(SwingConstants.HORIZONTAL);
+        separatorTop.setVisible(false);
 
         labelHomingDirection = new JLabel("<html><body>Take your time to figure out in which direction your limit switches are</body></html>");
+        labelHomingDirection.setVisible(false);
 
         initInvertComboBoxes();
 
         separatorBottom = new JSeparator(SwingConstants.HORIZONTAL);
+        separatorBottom.setVisible(false);
 
         labelHomingInstructions = new JLabel("<html><body>" +
                 "<p>Now test a homing cycle, but <b>be prepared to abort</b> if it's moving in the wrong direction!</p>" +
                 "</body></html>");
-
+        labelHomingInstructions.setVisible(false);
         initButtons();
     }
 
     private void initButtons() {
         buttonHomeMachine = new JButton("Try homing");
+        buttonHomeMachine.setVisible(false);
         buttonHomeMachine.addActionListener(event -> {
             try {
                 getBackend().performHomingCycle();
@@ -136,6 +140,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         });
 
         buttonAbort = new JButton("Abort");
+        buttonAbort.setVisible(false);
         buttonAbort.addActionListener(event -> {
             try {
                 getBackend().cancel();
@@ -148,6 +153,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
     private void initInvertComboBoxes() {
         comboBoxInvertDirectionX = new JComboBox<>();
+        comboBoxInvertDirectionX.setVisible(false);
         comboBoxInvertDirectionX.addItem("+X direction");
         comboBoxInvertDirectionX.addItem("-X direction");
         comboBoxInvertDirectionX.addActionListener(event -> {
@@ -163,6 +169,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         });
 
         comboBoxInvertDirectionY = new JComboBox<>();
+        comboBoxInvertDirectionY.setVisible(false);
         comboBoxInvertDirectionY.addItem("+Y direction");
         comboBoxInvertDirectionY.addItem("-Y direction");
         comboBoxInvertDirectionY.addActionListener(event -> {
@@ -178,6 +185,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         });
 
         comboBoxInvertDirectionZ = new JComboBox<>();
+        comboBoxInvertDirectionZ.setVisible(false);
         comboBoxInvertDirectionZ.addItem("+Z direction");
         comboBoxInvertDirectionZ.addItem("-Z direction");
         comboBoxInvertDirectionZ.addActionListener(event -> {
@@ -223,6 +231,12 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
                             labelHomingNotSupported.setVisible(false);
                             labelHardLimitsNotEnabled.setVisible(false);
+
+                            labelHomingInstructions.setVisible(firmwareSettings.isHomingEnabled());
+                            buttonHomeMachine.setVisible(firmwareSettings.isHomingEnabled());
+                            buttonAbort.setVisible(firmwareSettings.isHomingEnabled());
+                            separatorTop.setVisible(firmwareSettings.isHomingEnabled());
+                            separatorBottom.setVisible(firmwareSettings.isHomingEnabled());
                         } else if (getBackend().getController() != null &&
                                 getBackend().getController().getCapabilities().hasHoming() &&
                                 !getBackend().getController().getFirmwareSettings().isHardLimitsEnabled()) {
@@ -233,6 +247,11 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                             labelHomingNotSupported.setVisible(false);
                             labelHardLimitsNotEnabled.setVisible(true);
                             labelHomingDirection.setVisible(false);
+                            labelHomingInstructions.setVisible(false);
+                            buttonHomeMachine.setVisible(false);
+                            buttonAbort.setVisible(false);
+                            separatorTop.setVisible(false);
+                            separatorBottom.setVisible(false);
                         } else {
                             checkboxEnableHoming.setVisible(false);
                             comboBoxInvertDirectionX.setVisible(false);
@@ -241,6 +260,11 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
                             labelHomingNotSupported.setVisible(true);
                             labelHardLimitsNotEnabled.setVisible(false);
                             labelHomingDirection.setVisible(false);
+                            labelHomingInstructions.setVisible(false);
+                            buttonHomeMachine.setVisible(false);
+                            buttonAbort.setVisible(false);
+                            separatorTop.setVisible(false);
+                            separatorBottom.setVisible(false);
                         }
                     } catch (FirmwareSettingsException e) {
                         NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch firmware settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
