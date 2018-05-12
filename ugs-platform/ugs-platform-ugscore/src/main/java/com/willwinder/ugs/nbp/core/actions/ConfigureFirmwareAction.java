@@ -42,7 +42,8 @@ import org.openide.util.ImageUtilities;
 @ActionReferences({
         @ActionReference(
                 path = LocalizingService.ConfigureFirmwareWindowPath,
-                position = 2000)
+                position = 2000,
+                separatorBefore = 1999)
 })
 public class ConfigureFirmwareAction extends com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction {
     public static final String ICON_BASE = "resources/icons/firmware.png";

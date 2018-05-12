@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Position;
@@ -355,7 +356,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("sender.header"),
-                backend.getSettings(), 
                 new ConnectionSettingsPanel(backend.getSettings()),
                 this,
                 true);
@@ -389,7 +389,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
-                backend.getSettings(),
                 new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                 this, true);
         
@@ -475,7 +474,12 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
     }
-    
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
     @Override
     public void commandSkipped(GcodeCommand command) {
 

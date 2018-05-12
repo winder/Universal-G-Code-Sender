@@ -29,9 +29,6 @@ import com.willwinder.universalgcodesender.utils.Settings;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import javax.swing.AbstractAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
@@ -83,9 +80,9 @@ public final class MacroService {
     }
 
     protected class MacroAction extends AbstractAction {
-        BackendAPI backend;
-        Settings settings;
-        int macroIdx;
+        private BackendAPI backend;
+        private Settings settings;
+        private int macroIdx;
 
         public MacroAction(Settings s, BackendAPI b, int macro) {
             backend = b;

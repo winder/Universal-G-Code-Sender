@@ -1,9 +1,5 @@
 /*
- * TinyG Gcode command to deal with some JSON details.
- */
-
-/*
-    Copywrite 2013-2015 Will Winder, John Lauer
+    Copyright 2013-2018 Will Winder, John Lauer
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +19,7 @@
 package com.willwinder.universalgcodesender.types;
 
 /**
+ * TinyG Gcode command to deal with some JSON details.
  *
  * @author wwinder
  */
@@ -32,7 +29,6 @@ public class TinyGGcodeCommand extends GcodeCommand {
     }
 
     public TinyGGcodeCommand(String command, int num) {
-        
         super(convertCommandToJson(command), num);
     }
     
@@ -40,15 +36,15 @@ public class TinyGGcodeCommand extends GcodeCommand {
         return response.startsWith("{\"r\"") && !response.contains("\"fv\"");
     }
     
-    static String convertCommandToJson(String command) {
+    private static String convertCommandToJson(String command) {
         String ret;
         // wrap in json
-        if (command.equals("\n") || 
-            command.equals("\r\n") ||
-            command.equals("?") || 
-            command.startsWith("{\"sr")) {
-            // this is a status request cmd
-            ret = "{\"sr\":\"\"}";
+        if ("\n".equals(command) ||
+                "\r\n".equals(command) ||
+                "?".equals(command) ||
+                command.startsWith("{\"sr")) {
+                // this is a status request cmd
+                ret = "{\"sr\":\"\"}";
         } else if (command.startsWith("{")) {
             // it is already json ready. leave it alone.
             ret = command.trim();

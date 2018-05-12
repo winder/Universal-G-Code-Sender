@@ -1,11 +1,5 @@
 /*
- * FirmwareUtils.java
- *
- * Created on April 2, 2013
- */
-
-/*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -64,8 +58,11 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
  * @author wwinder
  */
 public class FirmwareUtils {
-    private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
+    private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
+    private static boolean userNotified = false;
+    private static boolean overwriteOldFiles = false;
+    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
 
     /**
      * Need a simple way to map the config loader (JSON in POJO format) to the
@@ -86,8 +83,6 @@ public class FirmwareUtils {
             }
         }
     }
-
-    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
 
     public static Map<String,ConfigTuple> getConfigFiles() {
         return configFiles;
@@ -119,7 +114,7 @@ public class FirmwareUtils {
         ConfigTuple tuple = configFiles.get(firmware);
         JsonObject args = new JsonObject();
         args.addProperty("pattern", pattern);
-        tuple.loader.GcodeProcessors.Custom.add(
+        tuple.loader.getProcessorConfigs().Custom.add(
                 new ControllerSettings.ProcessorConfig("PatternRemover",
                         true, true, args));
         save(tuple.file, tuple.loader);
@@ -173,8 +168,6 @@ public class FirmwareUtils {
      * Copy any missing files from the the jar's resources/firmware_config/ dir
      * into the settings/firmware_config dir.
      */
-    static boolean userNotified = false;
-    static boolean overwriteOldFiles = false;
     public synchronized static void initialize() {
         System.out.println("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),

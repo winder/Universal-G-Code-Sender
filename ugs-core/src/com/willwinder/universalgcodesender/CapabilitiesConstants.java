@@ -39,4 +39,24 @@ public class CapabilitiesConstants {
      * A key for identifying if the hardware have support for overrides
      */
     public static final String OVERRIDES = "OVERRIDES";
+
+    /**
+     * A key for identifying if the hardware have support for homing
+     */
+    public static final String HOMING = "HOMING";
+
+    /**
+     * A key for identifying if the hardware have support for hard limits
+     */
+    public static final String HARD_LIMITS = "HARD_LIMITS";
+
+    /**
+     * A key for identifying if the hardware have support for soft limits
+     */
+    public static final String SOFT_LIMITS = "SOFT_LIMITS";
+
+    /**
+     * A key for identifying if the hardware have support for the setup wizard
+     */
+    public static final String SETUP_WIZARD = "SETUP_WIZARD";
 }

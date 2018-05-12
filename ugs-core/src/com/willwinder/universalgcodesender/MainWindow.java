@@ -25,6 +25,7 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -1247,7 +1248,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void grblConnectionSettingsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_grblConnectionSettingsMenuItemActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("sender.header"),
-                settings,
                 new ConnectionSettingsPanel(settings),
                 this, true);
         
@@ -1547,7 +1547,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void gcodeProcessorSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gcodeProcessorSettingsActionPerformed
         UGSSettingsDialog gcsd = new UGSSettingsDialog(
                 Localization.getString("settings.processors.header"),
-                settings,
                 new ControllerProcessorSettingsPanel(settings, FirmwareUtils.getConfigFiles()),
                 this, true);
         
@@ -1936,7 +1935,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             displayErrorDialog(Localization.getString("mainWindow.error.jobComplete"));
         }
     }
-    
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
     @Override
     public void commandSkipped(GcodeCommand command) {
         commandSent(command);

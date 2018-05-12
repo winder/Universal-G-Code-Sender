@@ -29,6 +29,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -130,6 +131,11 @@ implements ControllerListener, WindowListener {
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override

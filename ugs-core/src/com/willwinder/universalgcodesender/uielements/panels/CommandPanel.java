@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -35,7 +36,7 @@ import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 
 public class CommandPanel extends JPanel implements UGSEventListener, ControllerListener {
-    private final int consoleSize = 1024 * 1024;
+    private static final int CONSOLE_SIZE = 1024 * 1024;
 
     private final BackendAPI backend;
 
@@ -75,11 +76,12 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     private void initComponents() {
         consoleTextArea.setEditable(false);
         consoleTextArea.setColumns(20);
-        consoleTextArea.setDocument(new LengthLimitedDocument(consoleSize));
+        consoleTextArea.setDocument(new LengthLimitedDocument(CONSOLE_SIZE));
         consoleTextArea.setRows(5);
         consoleTextArea.setMaximumSize(new java.awt.Dimension(32767, 32767));
         consoleTextArea.setMinimumSize(new java.awt.Dimension(0, 0));
         scrollPane.setViewportView(consoleTextArea);
+        commandLabel.setEnabled(backend.isIdle());
 
         scrollWindowMenuItem.addActionListener(e -> checkScrollWindow());
 
@@ -98,6 +100,10 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         if (evt.isSettingChangeEvent()) {
             loadSettings();
         }
+
+        if (evt.isStateChangeEvent()) {
+            commandLabel.setEnabled(backend.isIdle());
+        }
     }
 
     @Override
@@ -107,6 +113,11 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
     @Override
     public void fileStreamComplete(String filename, boolean success) {
 
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+        
     }
 
     @Override

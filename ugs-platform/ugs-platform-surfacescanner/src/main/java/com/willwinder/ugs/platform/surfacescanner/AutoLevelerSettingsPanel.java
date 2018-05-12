@@ -1,5 +1,5 @@
 /*
-    Copyright 2017 Will Winder
+    Copyright 2017-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,27 +33,27 @@ import javax.swing.*;
  * @author wwinder
  */
 public class AutoLevelerSettingsPanel extends AbstractUGSSettings {
-    final Spinner zHeightSpinner = new Spinner(
+    private final Spinner zHeightSpinner = new Spinner(
                 Localization.getString("autoleveler.option.z-zero"),
                 new SpinnerNumberModel(0., null, null, 1.));
 
-    final Spinner probeFeedRate = new Spinner(
+    private final Spinner probeFeedRate = new Spinner(
                 Localization.getString("probe.feed-rate"),
                 new SpinnerNumberModel(1., null, null, 1.));
 
-    final Spinner arcSegmentLengthSpinner = new Spinner(
+    private final Spinner arcSegmentLengthSpinner = new Spinner(
                 Localization.getString("autoleveler.option.arc-segment-length"),
                 new SpinnerNumberModel(0.2, 0.001, null, 0.1));
 
-    final Spinner xOffsetSpinner = new Spinner(
+    private final Spinner xOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-x"),
                 new SpinnerNumberModel(0., 0., null, 1.));
 
-    final Spinner yOffsetSpinner = new Spinner(
+    private final Spinner yOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-y"),
                 new SpinnerNumberModel(0., 0., null, 1.));
 
-    final Spinner zOffsetSpinner = new Spinner(
+    private final Spinner zOffsetSpinner = new Spinner(
                 Localization.getString("autoleveler.option.offset-z"),
                 new SpinnerNumberModel(0., 0., null, 1.));
 

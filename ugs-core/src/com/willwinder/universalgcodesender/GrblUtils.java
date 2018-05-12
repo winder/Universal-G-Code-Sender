@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -241,21 +242,26 @@ public class GrblUtils {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
 
-        // Check if real time commands are enabled.
+        if (version >= 0.8) {
+            ret.addCapability(CapabilitiesConstants.HOMING);
+            ret.addCapability(CapabilitiesConstants.HARD_LIMITS);
+        }
+
         if (version==0.8 && (letter != null) && (letter >= 'c')) {
-            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        } else if (version >= 0.9) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         }
 
-        // Check for V1.x features
-        if (version >= 1.1) {
+        if (version >= 0.9) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+            ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
+            ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
 
-            // GRBL 1.1
+        }
+
+        if (version >= 1.1) {
             ret.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-            ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
+            ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         }
 
@@ -584,5 +590,15 @@ public class GrblUtils {
 
     public static boolean isAlarmResponse(String response) {
         return StringUtils.startsWith(response, "ALARM");
+    }
+
+    public static Alarm parseAlarmResponse(String response) {
+        String alarmCode = StringUtils.substringAfter(response.toLowerCase(), "alarm:");
+        switch (alarmCode) {
+            case "1":
+                return Alarm.HARD_LIMIT;
+            default:
+                return Alarm.UNKONWN;
+        }
     }
 }

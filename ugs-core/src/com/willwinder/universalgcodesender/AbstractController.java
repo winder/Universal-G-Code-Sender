@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -947,6 +948,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             for (ControllerListener c : listeners) {
                 c.commandComment(comment);
             }
+        }
+    }
+
+    protected void dispatchAlarm(Alarm alarm) {
+        if (listeners != null) {
+            listeners.forEach(l -> l.receivedAlarm(alarm));
         }
     }
     

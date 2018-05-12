@@ -52,12 +52,6 @@ public class Settings {
     private boolean displayStateColor = true;
     private String defaultUnits = Units.MM.abbreviation;
 
-    // Probe settings
-    private double probeFeed = 5.0;
-    private double probeDistance = -10;
-    private double probeOffset = 0;
-    private double retractHeight = 0;
-
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
 
@@ -431,16 +425,6 @@ public class Settings {
     }
 
     public static class AutoLevelSettings {
-        public boolean equals(AutoLevelSettings obj) {
-            return
-                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
-                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
-                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
-                            this.stepResolution == obj.stepResolution &&
-                            this.probeSpeed == obj.probeSpeed &&
-                            this.zSurface == obj.zSurface;
-        }
-
         // Setting window
         public double autoLevelProbeZeroHeight = 0;
         public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
@@ -450,12 +434,22 @@ public class Settings {
         public double stepResolution = 10;
         public double probeSpeed = 10;
         public double zSurface = 0;
+
+        public boolean equals(AutoLevelSettings obj) {
+            return
+                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
+                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
+                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
+                            this.stepResolution == obj.stepResolution &&
+                            this.probeSpeed == obj.probeSpeed &&
+                            this.zSurface == obj.zSurface;
+        }
     }
 
     public static class FileStats {
         public Position minCoordinate;
         public Position maxCoordinate;
-        long numCommands;
+        public long numCommands;
 
         public FileStats() {
             this.minCoordinate = new Position(0, 0, 0, Units.MM);

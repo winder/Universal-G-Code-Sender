@@ -97,43 +97,6 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
     public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
 
-    @OnStart
-    public static class Localizer extends TopComponentLocalizer {
-      public Localizer() {
-        super(ProbeCategory, ProbeActionId, ProbeTitle);
-      }
-    }
-
-    protected class ProbeSettings {
-        double xyzXDistance;
-        double xyzYDistance;
-        double xyzZDistance;
-        double xyzXOffset;
-        double xyzYOffset;
-        double xyzZOffset;
-
-        double outsideXDistance;
-        double outsideYDistance;
-        double outsideXOffset;
-        double outsideYOffset;
-
-        double zDistance;
-        double zOffset;
-
-        double insideXDistance;
-        double insideYDistance;
-        double insideXOffset;
-        double insideYOffset;
-
-        int settingsWorkCoordinateIdx;
-        int settingsUnitsIdx;
-        double settingsProbeDiameter;
-        double settingsFastFindRate;
-        double settingsSlowMeasureRate;
-        double settingsRetractAmount;
-
-        int selectedTabIdx;
-    }
 
     // xyz tab
     private static final String XYZ_TAB = "XYZ";
@@ -159,7 +122,6 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private final SpinnerNumberModel zProbeOffset;
     private final JButton  zProbeButton = new JButton(Localization.getString("probe.button"));
 
-
     // inside tab
     private SpinnerNumberModel insideXDistanceModel;
     private SpinnerNumberModel insideYDistanceModel;
@@ -175,13 +137,50 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private SpinnerNumberModel settingsSlowMeasureRate;
     private SpinnerNumberModel settingsRetractAmount;
 
-
     private static final String SETTINGS_TAB = "Settings";
 
     private final JTabbedPane jtp = new JTabbedPane(JTabbedPane.LEFT);
 
     private final ProbeService ps2;
     private final BackendAPI backend;
+
+    @OnStart
+    public static class Localizer extends TopComponentLocalizer {
+      public Localizer() {
+        super(ProbeCategory, ProbeActionId, ProbeTitle);
+      }
+    }
+
+    protected class ProbeSettings {
+        private double xyzXDistance;
+        private double xyzYDistance;
+        private double xyzZDistance;
+        private double xyzXOffset;
+        private double xyzYOffset;
+        private double xyzZOffset;
+
+        private double outsideXDistance;
+        private double outsideYDistance;
+        private double outsideXOffset;
+        private double outsideYOffset;
+
+        private double zDistance;
+        private double zOffset;
+
+        private double insideXDistance;
+        private double insideYDistance;
+        private double insideXOffset;
+        private double insideYOffset;
+
+        private int settingsWorkCoordinateIdx;
+        private int settingsUnitsIdx;
+        private double settingsProbeDiameter;
+        private double settingsFastFindRate;
+        private double settingsSlowMeasureRate;
+        private double settingsRetractAmount;
+
+        private int selectedTabIdx;
+    }
 
     public ProbeTopComponent() {
         setName(ProbeTitle);
@@ -467,12 +466,10 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         }
     }
 
-    void writeProperties(java.util.Properties p) {
+    public void writeProperties(java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
-
-        String version = p.getProperty("version");
 
         ProbeSettings ps = new ProbeSettings();
         ps.xyzXDistance = getDouble(this.xyzXDistanceModel);
@@ -507,7 +504,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         p.setProperty("json_data", new Gson().toJson(ps));
     }
 
-    void readProperties(java.util.Properties p) {
+    public void readProperties(java.util.Properties p) {
         String version = p.getProperty("version");
 
         String jsonData = p.getProperty("json_data");

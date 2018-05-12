@@ -1,13 +1,26 @@
-/**
- * Static helper class for executing custom macros.
+/*
+    Copyright 2018 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -19,10 +32,18 @@ import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
 /**
+ * Static helper class for executing custom macros.
  *
  * @author wwinder
  */
 public class MacroHelper {
+    static private final Pattern MACHINE_X = Pattern.compile("\\{machine_x\\}");
+    static private final Pattern MACHINE_Y = Pattern.compile("\\{machine_y\\}");
+    static private final Pattern MACHINE_Z = Pattern.compile("\\{machine_z\\}");
+    static private final Pattern WORK_X = Pattern.compile("\\{work_x\\}");
+    static private final Pattern WORK_Y = Pattern.compile("\\{work_y\\}");
+    static private final Pattern WORK_Z = Pattern.compile("\\{work_z\\}");
+    static private final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^\\}]+)\\}");
 
     /**
      * Process and send a custom gcode string.
@@ -73,13 +94,6 @@ public class MacroHelper {
      * @param backend
      * @return 
      */
-    static private final Pattern PROMPT_REGEX = Pattern.compile("\\{prompt\\|([^\\}]+)\\}");
-    static private final Pattern MACHINE_X = Pattern.compile("\\{machine_x\\}");
-    static private final Pattern MACHINE_Y = Pattern.compile("\\{machine_y\\}");
-    static private final Pattern MACHINE_Z = Pattern.compile("\\{machine_z\\}");
-    static private final Pattern WORK_X = Pattern.compile("\\{work_x\\}");
-    static private final Pattern WORK_Y = Pattern.compile("\\{work_y\\}");
-    static private final Pattern WORK_Z = Pattern.compile("\\{work_z\\}");
     protected static String substituteValues(String str, BackendAPI backend) {
         SystemStateBean bean = new SystemStateBean();
         backend.updateSystemState(bean);

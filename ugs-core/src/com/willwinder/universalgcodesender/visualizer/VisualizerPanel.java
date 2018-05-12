@@ -1,11 +1,5 @@
 /*
- * Window manager for visualizer. Creates 3D canvas and manages data.
- *
- * Created on Jan 29, 2013
- */
-
-/*
-    Copywrite 2013-2017 Will Winder
+    Copyright 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,38 +20,28 @@
 package com.willwinder.universalgcodesender.visualizer;
 
 import com.jogamp.opengl.util.FPSAnimator;
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.WindowSettings;
-import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
-import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 
 /**
+ * Window manager for visualizer. Creates 3D canvas and manages data.
  *
  * @author wwinder
  */
 public class VisualizerPanel extends JPanel implements ControllerListener, UGSEventListener {
 
-    private static String TITLE = Localization.getString("visualizer.title");  // window's title
     private static final int FPS = 20; // animator's target frames per second
 
-    // OpenGL Control
-    private final FPSAnimator animator;
-
     private final VisualizerCanvas canvas;
-
-    private final BackendAPI backend;
 
     public VisualizerPanel() {
         this(null);
@@ -65,7 +49,6 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
 
     public VisualizerPanel(BackendAPI backend) {
         super(new BorderLayout());
-        this.backend = backend;
         if (backend != null) {
             backend.addControllerListener(this);
             backend.addUGSEventListener(this);
@@ -75,7 +58,7 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
         this.canvas = new VisualizerCanvas();
 
         // Create a animator that drives canvas' display() at the specified FPS.
-        this.animator = new FPSAnimator(canvas, FPS, true);
+        FPSAnimator animator = new FPSAnimator(canvas, FPS, true);
 
         animator.start(); // start the animation loop
 
@@ -108,6 +91,11 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         //throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override

@@ -27,6 +27,7 @@ public class ThemeColors {
     public static final Color GREY = new Color(128, 128, 128);
     public static final Color ORANGE = new Color(255, 151, 11);
     public static final Color GREEN = new Color(0, 201, 0);
+    public static final Color LIGHT_GREEN = new Color(106, 194, 89);
     public static final Color LIGHT_BLUE = new Color(5, 212, 255);
     public static final Color DARK_BLUE_GREY = new Color(44, 65, 70);
     public static final Color MED_BLUE_GREY = new Color(47, 93, 103);

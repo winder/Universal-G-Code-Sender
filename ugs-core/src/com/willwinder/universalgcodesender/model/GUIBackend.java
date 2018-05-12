@@ -649,7 +649,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public boolean canPause() {
-        return this.controller != null && !isIdle() && !isPaused();
+        return this.controller != null && isConnected() && !isIdle() && !isPaused();
     }
 
     @Override
@@ -721,6 +721,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         this.sendUGSEvent(new UGSEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+        this.sendUGSEvent(new UGSEvent(alarm), true);
     }
 
     @Override

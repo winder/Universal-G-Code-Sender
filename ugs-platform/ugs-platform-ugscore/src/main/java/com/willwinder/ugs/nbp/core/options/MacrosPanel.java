@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,9 +30,9 @@ import org.openide.util.Lookup;
 
 final class MacrosPanel extends AbstractOptionsPanel {
 
-    MacroPanel mp;
-    BackendAPI backend;
-    MacroService macroService;
+    private MacroPanel mp;
+    private BackendAPI backend;
+    private MacroService macroService;
 
     MacrosPanel(MacrosOptionsPanelController controller) {
         super(controller);

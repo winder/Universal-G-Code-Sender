@@ -67,9 +67,9 @@ import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 public final class StateTopComponent extends TopComponent implements UGSEventListener {
   private static final Duration REFRESH_RATE = Duration.ofSeconds(1);
   private final BackendAPI backend;
-  final Timer statePollTimer;
+  private final Timer statePollTimer;
 
-  static final Map<Code, String> codes = new HashMap<>();
+  private static final Map<Code, String> codes = new HashMap<>();
 
   static {
     // Motion
@@ -104,19 +104,19 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
     codes.put(G95, Localization.getString("gcode.g95"));
   }
 
-  JComboBox motionBox = new JComboBox(new String[]{
+  private JComboBox<String> motionBox = new JComboBox<>(new String[]{
     "G0", "G1", "G2", "G3", "G38_2", "G38_3", "G38_4", "G38_5", "G80"});
-  JComboBox unitBox = new JComboBox(new String[]{get(G20), get(G21)});
-  JComboBox feedModeBox = new JComboBox(new String[]{get(G93), get(G94), get(G95)});
-  JComboBox distanceModeBox = new JComboBox(new String[]{get(G90), get(G91)});
-  JComboBox workOffsetBox = new JComboBox(new String[]{
+  private JComboBox<String> unitBox = new JComboBox<>(new String[]{get(G20), get(G21)});
+  private JComboBox<String> feedModeBox = new JComboBox<>(new String[]{get(G93), get(G94), get(G95)});
+  private JComboBox<String> distanceModeBox = new JComboBox<>(new String[]{get(G90), get(G91)});
+  private JComboBox<String> workOffsetBox = new JComboBox<>(new String[]{
       get(G54), get(G55), get(G56), get(G57), get(G58), get(G59), get(G59_1), get(G59_2), get(G59_3)});
-  JComboBox planeBox = new JComboBox(new String[]{get(G17), get(G18), get(G19), get(G17_1), get(G18_1), get(G19_1)});
+  private JComboBox<String> planeBox = new JComboBox<>(new String[]{get(G17), get(G18), get(G19), get(G17_1), get(G18_1), get(G19_1)});
 
-  JTextField feedBox = new JTextField("0");
-  JTextField speedBox = new JTextField("0");
+  private JTextField feedBox = new JTextField("0");
+  private JTextField speedBox = new JTextField("0");
 
-  volatile boolean loading = true;
+  private volatile boolean loading = true;
 
   public StateTopComponent() {
     initComponents();
@@ -273,15 +273,12 @@ public final class StateTopComponent extends TopComponent implements UGSEventLis
     statePollTimer.stop();
   }
 
-  void writeProperties(java.util.Properties p) {
+  public void writeProperties(java.util.Properties p) {
     // better to version settings since initial version as advocated at
     // http://wiki.apidesign.org/wiki/PropertyFiles
     p.setProperty("version", "1.0");
-    // TODO store your settings
   }
 
-  void readProperties(java.util.Properties p) {
-    String version = p.getProperty("version");
-    // TODO read your settings according to their version
+  public void readProperties(java.util.Properties p) {
   }
 }

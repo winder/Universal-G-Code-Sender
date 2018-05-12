@@ -92,10 +92,50 @@ public class Capabilities {
     /**
      * Returns if the hardware have support for continuous jogging. The capabilitiy
      * is defined by the capability {@link CapabilitiesConstants#CONTINUOUS_JOGGING}
-     * *
+     *
      * @return true if continuous jogging is supported
      */
     public boolean hasContinuousJogging() {
         return hasCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+    }
+
+    /**
+     * Returns if the hardware have support for homing. The capability
+     * is defined by the capability {@link CapabilitiesConstants#HOMING}
+     *
+     * @return true if homing is supported
+     */
+    public boolean hasHoming() {
+        return hasCapability(CapabilitiesConstants.HOMING);
+    }
+
+    /**
+     * Returns if the hardware have support for hard limit switches. The capability
+     * is defined by the capability {@link CapabilitiesConstants#HARD_LIMITS}
+     *
+     * @return true if hard limits are supported
+     */
+    public boolean hasHardLimits() {
+        return hasCapability(CapabilitiesConstants.HARD_LIMITS);
+    }
+
+    /**
+     * Returns if the hardware have support for soft limits. The capability
+     * is defined by the capability {@link CapabilitiesConstants#SOFT_LIMITS}
+     *
+     * @return true if hard limits are supported
+     */
+    public boolean hasSoftLimits() {
+        return hasCapability(CapabilitiesConstants.SOFT_LIMITS);
+    }
+
+    /**
+     * Returns if the hardware have support for the setup wizard. The capability
+     * is defined by the capability {@link CapabilitiesConstants#SETUP_WIZARD}
+     *
+     * @return true if the setup wizard is supported
+     */
+    public boolean hasSetupWizardSupport() {
+        return hasCapability(CapabilitiesConstants.SETUP_WIZARD);
     }
 }
