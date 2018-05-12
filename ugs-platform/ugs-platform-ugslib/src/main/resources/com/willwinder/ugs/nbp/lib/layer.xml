@@ -8,7 +8,6 @@
             <file name="middle_left.wsmode" url="middle_leftWsmode.xml"/>
             <file name="output.wsmode" url="outputWsmode.xml"/>
             <file name="top_left.wsmode" url="top_leftWsmode.xml"/>
-            <file name="visualizer.wsmode" url="visualizerWsmode.xml"/>
         </folder>
     </folder>
 </filesystem>
