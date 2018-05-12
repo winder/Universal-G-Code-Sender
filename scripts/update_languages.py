@@ -5,6 +5,7 @@ import os
 import os.path
 import json
 import pprint
+import sys
 
 API_ENDPOINT = 'https://api.poeditor.com/v2'
 PROJECT_ID = '52743'
@@ -108,20 +109,48 @@ def checkForMissingMapping():
         os._exit(1)
 
 
+def updateTerms():
+    filepath = '%s%s.properties' % (RESOURCE_ROOT, LANGUAGES[REFERENCE_LANGUAGE])
+    print('Synchronizing terms file %s' % filepath)
+
+    files = {
+        'api_token': (None, API_KEY),
+        'id': (None, PROJECT_ID),
+        'updating': (None, 'terms_translations'),
+        'file': (filepath, open(filepath, 'rb')),
+        'language': (None, REFERENCE_LANGUAGE),
+        'overwrite': (None, '1'),
+        'sync_terms': (None, '1'),
+        'fuzzy_trigger': (None, '1')
+        }
+    response = requests.post('https://api.poeditor.com/v2/projects/upload', files=files)
+    validateResponse(response)
+
+
 if __name__ == '__main__':
     checkForMissingMapping()
 
-    for key, value in LANGUAGES.items():
-        if key is REFERENCE_LANGUAGE:
-            print('Skipping reference language "%s".' % key)
-            continue
-        try:
-            filename = RESOURCE_ROOT + value + '.properties'
-            print('Updating %s: %s' % (key, filename))
-            url = getLanguageFileURL(key)
-            print('   url: %s' % url)
-            downloadUrlToFile(url, filename)
-        except Exception as e:
-            print('\nProblem processing "%s": %s' % (key, str(e)))
-            os._exit(1)
-        print('   done.')
+    if 'upload' not in sys.argv and 'download' not in sys.argv:
+        print("Usage: run with 'upload' and/or 'download' argument to upload terms and/or download translations.")
+        sys.exit(0)
+
+    # Upload new terms.
+    if 'upload' in sys.argv:
+        updateTerms()
+
+    # Download new translations.
+    if 'download' in sys.argv:
+        for key, value in LANGUAGES.items():
+            if key is REFERENCE_LANGUAGE:
+                print('Skipping reference language "%s".' % key)
+                continue
+            try:
+                filename = RESOURCE_ROOT + value + '.properties'
+                print('Updating %s: %s' % (key, filename))
+                url = getLanguageFileURL(key)
+                print('   url: %s' % url)
+                downloadUrlToFile(url, filename)
+            except Exception as e:
+                print('\nProblem processing "%s": %s' % (key, str(e)))
+                os._exit(1)
+            print('   done.')
