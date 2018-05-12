@@ -46,12 +46,7 @@ public class JogToHereAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            if (backend.getGcodeState().distanceMode == Code.G91) {
-                backend.sendGcodeCommand("G90 G0 X" + x + " Y" + y);
-                backend.sendGcodeCommand("G91");
-            } else {
-                backend.sendGcodeCommand("G0 X" + x + " Y" + y);
-            }
+            backend.sendGcodeCommand(true, "G90 G0 X" + x + " Y" + y);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }
