@@ -4,13 +4,14 @@ import requests
 import os
 import os.path
 import json
-from pprint import pprint
+import pprint
 
-API_ENDPOINT = 'https://poeditor.com/api/'
+API_ENDPOINT = 'https://api.poeditor.com/v2'
 PROJECT_ID = '52743'
 """ relative path and root of MessagesBundle property files """
 RESOURCE_ROOT = '../ugs-core/src/resources/MessagesBundle_'
 REFERENCE_LANGUAGE = 'en'
+pp = pprint.PrettyPrinter(indent=4)
 
 try:
     API_KEY = os.environ['POEDITOR_API_KEY']
@@ -52,21 +53,29 @@ def getProjectData():
             }
 
 
+def validateResponse(response):
+    if (response.status_code != requests.codes.ok):
+        pp.pprint(response)
+        pp.pprint(response.json())
+        raise("Bad response.")
+
+
 def listLanguages():
     """ Get list of languages from POEditor API. """
     data = getProjectData()
-    data['action'] = 'list_languages'
-    return requests.post(API_ENDPOINT, data=data)
+    response = requests.post("%s/languages/list" % API_ENDPOINT, data=data)
+    validateResponse(response)
+    return response
 
 
 def getLanguageFileURL(language):
     """ Get POEditor property file url for a given language. """
     data = getProjectData()
-    data['action'] = 'export'
     data['type'] = 'properties'
     data['language'] = language
-    r = requests.post(API_ENDPOINT, data=data)
-    return r.json()['item']
+    response = requests.post("%s/projects/export" % API_ENDPOINT, data=data)
+    validateResponse(response)
+    return response.json()['result']['url']
 
 
 def downloadUrlToFile(url, target_file):
@@ -89,7 +98,7 @@ def checkForMissingMapping():
     langs = listLanguages().json()
 
     missing = []
-    for rec in langs['list']:
+    for rec in langs['result']['languages']:
         if rec['code'] not in LANGUAGES:
             missing.append('%s(%s)' % (rec['name'], rec['code']))
 
