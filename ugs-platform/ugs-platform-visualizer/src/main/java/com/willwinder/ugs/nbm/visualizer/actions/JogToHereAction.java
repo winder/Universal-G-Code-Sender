@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbm.visualizer.actions;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
@@ -44,7 +45,7 @@ public class JogToHereAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.sendGcodeCommand("G0 X" + x + " Y" + y);
+            backend.sendGcodeCommand(true, "G90 G0 X" + x + " Y" + y);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }
