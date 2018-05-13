@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbm.visualizer.actions;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.gcode.util.Code;
 
 
 import javax.swing.*;
