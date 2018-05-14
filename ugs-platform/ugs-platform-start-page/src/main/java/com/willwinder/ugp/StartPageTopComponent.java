@@ -33,7 +33,7 @@ import org.openide.windows.TopComponent;
 @TopComponent.Description(
         preferredID = "StartPageTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_NEVER
+        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = StartPageTopComponent.Category, id = StartPageTopComponent.ActionId)

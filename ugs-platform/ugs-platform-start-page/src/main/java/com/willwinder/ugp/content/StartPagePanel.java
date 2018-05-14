@@ -50,10 +50,11 @@ public class StartPagePanel extends JPanel {
             new WhatsNewTab());
     */
 
-    TestTab label1 = new TestTab("Getting Started", "Content Uno");
-    TestTab label2 = new TestTab("Features", "Content Dos");
-    TestTab label3 = new TestTab("What's New", "Content Dos");
-    JComponent tabs = new TabbedPane(label1, label2, label3);
+    AbstractTab tab1 = new GettingStartedTab();
+    AbstractTab tab2 = new TestTab("Recent", "List of recent files/directories");
+    AbstractTab tab3 = new TestTab("Features", "Feature Content Here");
+    AbstractTab tab4 = new TestTab("What's New", "New features");
+    JComponent tabs = new TabbedPane(tab1, tab2, tab3, tab4);
     tabs.setBorder(BorderFactory.createEmptyBorder(10,15,15,15));
     tabs.setOpaque(false);
 
