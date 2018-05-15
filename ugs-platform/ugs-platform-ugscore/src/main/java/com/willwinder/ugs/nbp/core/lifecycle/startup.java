@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,7 +33,6 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -45,8 +44,6 @@ import org.netbeans.spi.sendopts.OptionProcessor;
 import org.openide.modules.OnStart;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
-import org.openide.windows.Mode;
-import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /**
@@ -62,8 +59,6 @@ public class startup extends OptionProcessor implements Runnable {
 
     @Override
     public void run() {
-        cleanup();
-
         System.out.println("Loading LocalizingService...");
         Lookup.getDefault().lookup(LocalizingService.class);
         System.out.println("Loading JogService...");
@@ -84,40 +79,6 @@ public class startup extends OptionProcessor implements Runnable {
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         setupVersionInformation(settings);
     }
-
-    /**
-     * Cleans up any TopComponent/Editor things which have been broken due to things like refactoring.
-     */
-    private void cleanup() {
-        try {
-            visualizer2TopComponent();
-        } catch (Exception e) {
-            logger.log(Level.SEVERE, "Error cleaning up.", e);
-        }
-    }
-
-    /**
-     * Fixes for commit: dd68a4ef9fd211642f284024bb651fa9bf0be64c
-     * 1. Renaming Visualizer2TopComponent to VisualizerTopComponent causes duplicate visualizers.
-     * 2. No longer using custom "visualizer" mode.
-     */
-    private void visualizer2TopComponent() {
-        Mode mode = WindowManager.getDefault().findMode("visualizer");
-        if (mode != null) {
-            TopComponent[] tcs = mode.getTopComponents();
-            if (tcs != null) {
-                for(TopComponent tc : tcs) {
-                    tc.close();
-                }
-            }
-        }
-
-        TopComponent tc = WindowManager.getDefault().findTopComponent("Visualizer2TopComponent"); // NOI18N
-        if (tc != null) {
-            tc.close();
-        }
-    }
-
 
     private void setupVersionInformation(Settings settings) {
         // Only change the window title when all the UI components are fully loaded.
