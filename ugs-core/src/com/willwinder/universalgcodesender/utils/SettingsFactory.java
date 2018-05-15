@@ -68,6 +68,13 @@ public class SettingsFactory {
             } catch (FileNotFoundException ex) {
                 //logger.warning(Localization.getString("settings.log.error"));
                 logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
+            } catch (Exception e) {
+                GUIHelpers.displayErrorDialog(
+                        "There was a problem loading:\n"
+                        + settingsFile.getAbsolutePath()
+                        + "\nPlease fix or remove this file and try loading UGS again.",
+                        true);
+                throw e;
             }
         }
         
