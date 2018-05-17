@@ -64,7 +64,7 @@ import org.openide.modules.OnStart;
         autostore = false
 )
 @TopComponent.Description(
-        preferredID = "CornerProbeTopComponentTopComponent",
+        preferredID = "CornerProbeTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
@@ -75,7 +75,7 @@ import org.openide.modules.OnStart;
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "Probe",
-        preferredID = "ProbeModule"
+        preferredID = "CornerProbeTopComponent"
 )
 public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
     private Renderable active = null;
