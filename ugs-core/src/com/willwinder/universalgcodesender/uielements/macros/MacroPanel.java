@@ -28,7 +28,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import com.willwinder.universalgcodesender.utils.Settings;
 import java.lang.reflect.Type;
 import net.miginfocom.swing.MigLayout;
@@ -181,14 +180,11 @@ public class MacroPanel extends JPanel implements UGSEventListener {
 
     private void customGcodeButtonActionPerformed(int i) {
         Macro macro = backend.getSettings().getMacro(i);
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-                } catch (Exception ex) {
-                    GUIHelpers.displayErrorDialog(ex.getMessage());
-                }
+        EventQueue.invokeLater(() -> {
+            try {
+                MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+            } catch (Exception ex) {
+                GUIHelpers.displayErrorDialog(ex.getMessage());
             }
         });
     }
@@ -213,8 +209,6 @@ public class MacroPanel extends JPanel implements UGSEventListener {
             JFileChooser fileChooser = new JFileChooser(backend.getSettings().getLastOpenedFilename());
             if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 try {
-                    File exportFile = fileChooser.getSelectedFile();
-
                     Collection<Macro> macros = new ArrayList<>();
                     for (int i = 0; i < backend.getSettings().getNumMacros(); i++) {
                       macros.add(backend.getSettings().getMacro(i));
@@ -226,10 +220,8 @@ public class MacroPanel extends JPanel implements UGSEventListener {
                     }
                 } catch (Exception ex) {
                     logger.log(Level.SEVERE, "Problem while browsing.", ex);
-                    displayErrorDialog(ex.getMessage());
+                    GUIHelpers.displayErrorDialog(ex.getMessage());
                 }
-            } else {
-                // Canceled file open.
             }
         });
 
@@ -257,10 +249,8 @@ public class MacroPanel extends JPanel implements UGSEventListener {
                     }
                 } catch (Exception ex) {
                     logger.log(Level.SEVERE, "Problem while browsing.", ex);
-                    displayErrorDialog(ex.getMessage());
+                    GUIHelpers.displayErrorDialog(ex.getMessage());
                 }
-            } else {
-                // Canceled file open.
             }
         });
     }
