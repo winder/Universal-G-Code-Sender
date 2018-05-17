@@ -20,6 +20,7 @@
 package com.willwinder.ugp.content;
 
 import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Stroke;
 import java.util.logging.Logger;
@@ -36,13 +37,9 @@ public interface Constants {
     static final String COLOR_BIG_BUTTON = "BigButtonColor"; //NOI18N
     static final String COLOR_BOTTOM_BAR = "BottomBarColor"; //NOI18N
     static final String COLOR_BORDER = "BorderColor"; //NOI18N
-    static final String COLOR_TAB_BACKGROUND = "TabBackgroundColor"; //NOI18N
-    static final String COLOR_TAB_BORDER1 = "TabBorder1Color"; //NOI18N
-    static final String COLOR_TAB_BORDER2 = "TabBorder2Color"; //NOI18N
-
-    static final String COLOR_RSS_DATE = "RssDateTimeColor"; //NOI18N
-    static final String COLOR_RSS_DETAILS = "RssDetailsColor"; //NOI18N
-    static final String COLOR_HEADER = "HeaderForegroundColor"; //NOI18N
+    static final Color COLOR_TAB_BACKGROUND = new Color(2,26,114);
+    static final Color COLOR_TAB_CONTENT_BACKGROUND = Color.WHITE;
+    static final Color COLOR_TAB_CONTENT_BACKGROUND2 = Color.LIGHT_GRAY;
     
     static final int FONT_SIZE = 11;
     static final String FONT_NAME = "Arial";
@@ -53,9 +50,8 @@ public interface Constants {
     static final Font GET_STARTED_FONT = new Font( FONT_NAME, Font.PLAIN, FONT_SIZE+1 ) ; //NOI18N
     static final Font CONTENT_HEADER_FONT = new Font( FONT_NAME, Font.BOLD, FONT_SIZE+13 ) ; //NOI18N
 
-    //static final String ORACLE_LOGO_IMAGE = "org/netbeans/modules/welcome/resources/oracle_logo.png"; // NOI18N
-    //static final String JAVA_LOGO_IMAGE = "org/netbeans/modules/welcome/resources/java_logo.png"; // NOI18N
-    //static final String NETBEANS_LOGO_IMAGE = "org/netbeans/modules/welcome/resources/nb_logo.png"; // NOI18N
+    static final Font FEATURE_FONT = new Font( FONT_NAME, Font.PLAIN, FONT_SIZE+7 ) ; //NOI18N
+    static final Font FEATURE_HEADER_FONT = new Font( FONT_NAME, Font.BOLD, FONT_SIZE+7 ) ; //NOI18N
 
     static final String IMAGE_CONTENT_BANNER = "com/willwinder/ugp/resources/content_banner.png"; // NOI18N
     static final String IMAGE_TAB_SELECTED = "com/willwinder/ugp/resources/tab_selected.png"; // NOI18N
@@ -63,14 +59,6 @@ public interface Constants {
 
     //static final String BROKEN_IMAGE = "org/netbeans/modules/welcome/resources/broken_image.gif"; // NOI18N
     //static final String IMAGE_PICTURE_FRAME = "org/netbeans/modules/welcome/resources/picture_frame.png"; // NOI18N
-
-    static final Stroke LINK_IN_FOCUS_STROKE = new BasicStroke(1, BasicStroke.CAP_SQUARE,
-        BasicStroke.JOIN_BEVEL, 0, new float[] {0, 2}, 0);
-    static final String LINK_IN_FOCUS_COLOR = "LinkInFocusColor"; //NOI18N
-    static final String LINK_COLOR = "LinkColor"; //NOI18N
-    static final String VISITED_LINK_COLOR = "VisitedLinkColor"; //NOI18N
-
-    static final int RSS_FEED_TIMER_RELOAD_MILLIS = 60*60*1000;
 
     static final int TEXT_INSETS_LEFT = 10;
     static final int TEXT_INSETS_RIGHT = 10;

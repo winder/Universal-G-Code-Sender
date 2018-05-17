@@ -18,6 +18,9 @@
  */
 package com.willwinder.ugp.content;
 
+import com.google.common.collect.ImmutableList;
+import com.willwinder.ugp.FeaturesTab.Feature;
+import com.willwinder.ugp.content.AbstractTab;
 import com.willwinder.ugp.content.TabbedPane;
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -26,6 +29,8 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.Collection;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -41,24 +46,14 @@ public class StartPagePanel extends JPanel {
   private final static Color COLOR_BOTTOM_START = new Color(255, 255, 255);
   private final static Color COLOR_BOTTOM_END = new Color(241, 246, 252);
 
-  public StartPagePanel() {
+  public StartPagePanel(List<JComponent> tabs) {
     super( new GridBagLayout() );
 
-    /*
-    JComponent tabs = new TabbedPane( new LearnAndDiscoverTab(),
-            new MyNetBeansTab(),
-            new WhatsNewTab());
-    */
+    JComponent tabPane = new TabbedPane(tabs);
+    tabPane.setBorder(BorderFactory.createEmptyBorder(10,15,15,15));
+    tabPane.setOpaque(false);
 
-    AbstractTab tab1 = new GettingStartedTab();
-    AbstractTab tab2 = new TestTab("Recent", "List of recent files/directories");
-    AbstractTab tab3 = new TestTab("Features", "Feature Content Here");
-    AbstractTab tab4 = new TestTab("What's New", "New features");
-    JComponent tabs = new TabbedPane(tab1, tab2, tab3, tab4);
-    tabs.setBorder(BorderFactory.createEmptyBorder(10,15,15,15));
-    tabs.setOpaque(false);
-
-    add( tabs, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(27,0,0,0), 0, 0) );
+    add( tabPane, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.NONE, new Insets(27,0,0,0), 0, 0) );
 
     add( new JLabel(), new GridBagConstraints(0, 2, 1, 1, 0.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0,0,0,0), 0, 0) );
 

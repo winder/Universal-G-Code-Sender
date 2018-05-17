@@ -20,7 +20,10 @@
 package com.willwinder.ugp.content;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -28,7 +31,7 @@ import javax.swing.JPanel;
  * 
  * @author S. Aubrecht
  */
-abstract class AbstractTab extends JPanel implements Constants {
+public abstract class AbstractTab extends JPanel implements Constants {
 
     private boolean initialized = false;
     
@@ -47,6 +50,12 @@ abstract class AbstractTab extends JPanel implements Constants {
             add( new BottomBar(), BorderLayout.SOUTH );
             initialized = true;
         }
+    }
+
+    protected JLabel getLabel(Font font, String message) {
+        JLabel label = new JLabel("<html>" + message + "</html>");
+        label.setFont(font);
+        return label;
     }
 
     protected abstract JComponent buildContent();

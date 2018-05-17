@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 
-package com.willwinder.ugp.content;
+package com.willwinder.ugp;
 
+import com.willwinder.ugp.content.AbstractTab;
+import com.willwinder.ugp.content.ContentSection;
 import java.awt.GridLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;

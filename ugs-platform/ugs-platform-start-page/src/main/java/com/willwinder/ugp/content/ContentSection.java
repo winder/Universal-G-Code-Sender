@@ -34,7 +34,7 @@ import javax.swing.JPanel;
  *
  * @author S. Aubrecht
  */
-class ContentSection extends JPanel implements Constants {
+public class ContentSection extends JPanel implements Constants {
 
     private static final int PANEL_MAX_WIDTH = 800;
     private boolean maxSize;

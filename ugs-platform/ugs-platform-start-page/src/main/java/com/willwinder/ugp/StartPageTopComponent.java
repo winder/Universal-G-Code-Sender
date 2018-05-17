@@ -19,8 +19,14 @@
 package com.willwinder.ugp;
 
 import com.willwinder.ugp.content.StartPagePanel;
+import com.google.common.collect.ImmutableList;
+import com.willwinder.ugp.FeaturesTab.Feature;
+import com.willwinder.ugp.content.AbstractTab;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import java.awt.BorderLayout;
+import java.util.Collection;
+import java.util.List;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -48,8 +54,15 @@ public final class StartPageTopComponent extends TopComponent {
   protected final static String Path = "Menu/Help";
   protected final static String Title = "Start Page";
   protected final static String Tooltip = "Start Page";
-  //public final static String Title = Localization.getString("platform.window.visualizer", lang);
-  //public final static String VisualizerTooltip = Localization.getString("platform.window.visualizer.tooltip", lang);
+
+  private static final Collection<Feature> features = ImmutableList.of(
+            new Feature(null, "Plugin Support!", "Most plugins can be found in the 'Window > Plugins' menu. New plugins are added all the time, see the what's new section for the latest features!", "com/willwinder/ugp/resources/features/new_plugins.png"),
+            new Feature(null, "Digital Read-Out (DRO)", "The DRO is your first stop for the current machine status. It tells you the work/machine coordinates, machine/spindle speeds, gcode state and more! It can be used to reset individual axes by clicking on the axis label, and has dynamic work position controls by clicking on the coordinate numbers.", "com/willwinder/ugp/resources/features/dro.png"),
+            new Feature(null, "Jog Controller", "The Jog Controller is your primary tool for manually controlling your machines location. It has the option of using separate step sizes for XY and Z axes in addition to a click-and-hold mode for continuous jogging.", "com/willwinder/ugp/resources/features/jog_controller.png"),
+            new Feature(null, "Custom Macros", "User defined macros can be configured in the preferences menu. A variety of convenient substitutions are available to help create perfectly tailored time savers for your workflow. See the help menu for more details.", "com/willwinder/ugp/resources/features/custom_macros.png"),
+            new Feature(null, "Configurable Keybindings", "Nearly every feature in UGS can have a configurable keybinding. From the preferences menu open the keybinding section for a complete list of actions which can be configured (including your custom macros!).", "com/willwinder/ugp/resources/features/keybinding.png"),
+            new Feature(null, "Probe Module", "The probe module can be opened from the plugins menu, it provides first class support for common probe devices. Some of the supported routines include standard Z-Depth probing and 3-Axis corner probing.", "com/willwinder/ugp/resources/features/probe_module.png")
+            );
 
   @OnStart
   public static class Localizer extends TopComponentLocalizer {
@@ -63,21 +76,28 @@ public final class StartPageTopComponent extends TopComponent {
     setToolTipText(Tooltip);
 
     setLayout(new BorderLayout());
-    JScrollPane scroll = new JScrollPane(new StartPagePanel());
+    JScrollPane scroll = new JScrollPane(new StartPagePanel(getTabs()));
     scroll.getViewport().setOpaque(false);
     scroll.setOpaque(false);
     setFocusable( false );
     add(scroll);
   }
 
+  private List<JComponent> getTabs() {
+    AbstractTab tab1 = new GettingStartedTab();
+    AbstractTab tab2 = new TestTab("Recent", "List of recent files/directories");
+    AbstractTab tab3 = new FeaturesTab("Features", features);
+    AbstractTab tab4 = new TestTab("What's New", "New features");
+
+    return ImmutableList.of(tab1, tab2, tab3, tab4);
+  }
+
   @Override
   public void componentOpened() {
-    // TODO add custom code on component opening
   }
 
   @Override
   public void componentClosed() {
-    // TODO add custom code on component closing
   }
 
   void writeProperties(java.util.Properties p) {

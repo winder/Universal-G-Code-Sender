@@ -43,6 +43,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -55,41 +57,37 @@ import org.openide.util.ImageUtilities;
  *
  * @author S. Aubrecht
  */
-class TabbedPane extends JPanel implements Constants {// , Scrollable {
-    private final JComponent[] tabs;
+public class TabbedPane extends JPanel implements Constants {// , Scrollable {
+    private final List<JComponent> tabs;
     private final TabButton[] buttons;
     private final JComponent tabHeader;
     private final JPanel tabContent;
     private boolean[] tabAdded;
     private int selTabIndex = -1;
     
-    public TabbedPane( JComponent ... tabs ) {
+    public TabbedPane( List<JComponent> tabs ) {
         super( new BorderLayout() );
 
         setOpaque(false);
         
         this.tabs = tabs;
-        tabAdded = new boolean[tabs.length];
+        tabAdded = new boolean[tabs.size()];
         Arrays.fill(tabAdded, false);
 
-        // vlv: print
         for( JComponent c : tabs ) {
             c.putClientProperty("print.printable", Boolean.TRUE); // NOI18N
             c.putClientProperty("print.name", c.getName()); // NOI18N
         }
         
-        ActionListener al = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                TabButton btn = (TabButton) e.getSource();
-                switchTab( btn.getTabIndex() );
-                StartPageOptions.getDefault().setLastActiveTab( btn.getTabIndex() );
-            }
+        ActionListener al = (ActionEvent e) -> {
+          TabButton btn = (TabButton) e.getSource();
+          switchTab( btn.getTabIndex() );
+          StartPageOptions.getDefault().setLastActiveTab( btn.getTabIndex() );
         };
         
-        buttons = new TabButton[tabs.length];
+        buttons = new TabButton[tabs.size()];
         for( int i=0; i<buttons.length; i++ ) {
-            buttons[i] = new TabButton(tabs[i].getName(), i);
+            buttons[i] = new TabButton(tabs.get(i).getName(), i);
             buttons[i].addActionListener(al);
         }
 
@@ -98,8 +96,6 @@ class TabbedPane extends JPanel implements Constants {// , Scrollable {
         add( tabHeader, BorderLayout.NORTH );
         
         tabContent = new TabContentPane();//JPanel( new GridBagLayout() );
-//        tabContent.setOpaque(false);
-//        tabContent.setBorder(new ContentBorder());
 
         add( tabContent, BorderLayout.CENTER );
         int activeTabIndex = StartPageOptions.getDefault().getLastActiveTab();
@@ -108,21 +104,20 @@ class TabbedPane extends JPanel implements Constants {// , Scrollable {
             StartPageOptions.getDefault().setLastActiveTab( 1 );
         }
         activeTabIndex = Math.max(0, activeTabIndex);
-        activeTabIndex = Math.min(activeTabIndex, tabs.length-1);
-//        buttons[activeTabIndex].setSelected(true);
+        activeTabIndex = Math.min(activeTabIndex, tabs.size()-1);
         switchTab( activeTabIndex );
     }
 
     private void switchTab( int tabIndex ) {
         if( !tabAdded[tabIndex] ) {
-            tabContent.add( tabs[tabIndex], new GridBagConstraints(tabIndex, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0) ); //NOI18N
+            tabContent.add( tabs.get(tabIndex), new GridBagConstraints(tabIndex, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0,0,0,0), 0, 0) ); //NOI18N
             tabAdded[tabIndex] = true;
         }
         if( selTabIndex >= 0 ) {
             buttons[selTabIndex].setSelected(false);
         }
-        JComponent compToShow = tabs[tabIndex];
-        JComponent compToHide = selTabIndex >= 0 ? tabs[selTabIndex] : null;
+        JComponent compToShow = tabs.get(tabIndex);
+        JComponent compToHide = selTabIndex >= 0 ? tabs.get(selTabIndex) : null;
         selTabIndex = tabIndex;
         buttons[selTabIndex].setSelected(true);
 
@@ -150,7 +145,7 @@ class TabbedPane extends JPanel implements Constants {// , Scrollable {
         return d;
     }
 
-    private final static Color colBackground = new Color(2,26,114);
+    private final static Color colBackground = COLOR_TAB_BACKGROUND; 
 
     private static final Image imgSelected = ImageUtilities.loadImage( IMAGE_TAB_SELECTED, true );
     private static final Image imgRollover = ImageUtilities.loadImage( IMAGE_TAB_ROLLOVER, true );
