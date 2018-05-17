@@ -181,8 +181,8 @@ public class ProbeService implements UGSEventListener {
 
         // Final retract
         String g = GcodeUtils.unitCommand(params.units);
-        String g0 = "G91 " + g + " G0";
-        if (params.zSpacing < 0 || params.retractHeight < params.zOffset) {
+        String g0 = "G90 " + g + " G0";
+        if (params.zSpacing < 0 && params.retractHeight > params.zOffset) {
             gcode(g0 + " Z" + params.retractHeight);
         }
     };
