@@ -226,7 +226,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsProbeDiameter = new SpinnerNumberModel(10., 0., largeSpinner, 0.1);
         settingsFastFindRate = new SpinnerNumberModel(250., 1, largeSpinner, 1.);
         settingsSlowMeasureRate = new SpinnerNumberModel(100., 1, largeSpinner, 1.);
-        settingsRetractAmount = new SpinnerNumberModel(15., 10, largeSpinner, 1.);
+        settingsRetractAmount = new SpinnerNumberModel(15., 0.1, largeSpinner, 1.);
 
         measureXYZ.addActionListener(e -> {
                 ProbeParameters pc = new ProbeParameters(
