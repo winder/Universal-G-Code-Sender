@@ -21,7 +21,6 @@ package com.willwinder.ugp;
 import com.willwinder.ugp.content.AbstractTab;
 import com.willwinder.ugp.content.Constants;
 import com.willwinder.ugp.content.ContentSection;
-import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import javax.swing.ImageIcon;
