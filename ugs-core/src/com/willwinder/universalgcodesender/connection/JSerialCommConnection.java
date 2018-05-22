@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.connection;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,7 +38,26 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
     private SerialPort serialPort;
 
     @Override
-    public boolean openPort(String name, int baud) throws Exception {
+    public void setUri(String uri) {
+        try {
+            String portName = StringUtils.substringBetween(uri, ConnectionDriver.JSERIALCOMM.getProtocol(), ":");
+            int baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+            initSerialPort(portName, baudRate);
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't parse connection string " + uri, e);
+        }
+    }
+
+    @Override
+    public boolean openPort() throws Exception {
+        if (serialPort == null) {
+            throw new RuntimeException("The connection wasn't initialized");
+        }
+
+        return serialPort.openPort();
+    }
+
+    private void initSerialPort(String name, int baud) throws Exception {
         if (serialPort != null && serialPort.isOpen()) {
             closePort();
         }
@@ -48,7 +68,6 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         serialPort.setNumDataBits(8);
         serialPort.addDataListener(this);
         serialPort.setBaudRate(baud);
-        return serialPort.openPort();
     }
 
     @Override

@@ -18,6 +18,7 @@
 */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -121,7 +122,7 @@ public interface IController {
     /*
     Serial
     */
-    Boolean openCommPort(String port, int portRate) throws Exception;
+    Boolean openCommPort(ConnectionDriver connectionDriver, String port, int portRate) throws Exception;
     Boolean closeCommPort() throws Exception;
     Boolean isCommOpen();
     

@@ -45,14 +45,12 @@ public class SettingsChangedNotificationService {
     private static final String RESTART_ICON = "org/netbeans/core/windows/resources/restart.png";
     private final BackendAPI backend;
     private Notification restartNotification;
-    private String lastSelectedConnectionClass;
     private String lastSelectedLanguage;
 
     public SettingsChangedNotificationService() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::checkForLanguageChangeAndAskForRestart);
         lastSelectedLanguage = backend.getSettings().getLanguage();
-        lastSelectedConnectionClass = backend.getSettings().getConnectionClass();
     }
 
     private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
@@ -60,8 +58,6 @@ public class SettingsChangedNotificationService {
             if (!StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
                 lastSelectedLanguage = backend.getSettings().getLanguage();
                 Localization.initialize(backend.getSettings().getLanguage());
-                notifyRestartRequired();
-            } else if (!StringUtils.equalsIgnoreCase(lastSelectedConnectionClass, backend.getSettings().getConnectionClass())) {
                 notifyRestartRequired();
             }
         }

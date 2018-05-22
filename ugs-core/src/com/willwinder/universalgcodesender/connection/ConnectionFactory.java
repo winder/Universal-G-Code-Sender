@@ -18,12 +18,11 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A factory for creating a serial connection object using the settings
@@ -32,30 +31,30 @@ import java.util.logging.Logger;
  */
 public class ConnectionFactory {
 
-    private static final Logger logger = Logger.getLogger(ConnectionFactory.class.getSimpleName());
-
-    static public Connection getConnection() {
-        Settings settings = SettingsFactory.loadSettings();
-        String connectionClass = settings.getConnectionClass();
-        return createInstance(connectionClass)
-                .orElse(new JSSCConnection());
-    }
-
-    /**
-     * Tries to create a connection instance with the given class.
-     *
-     * @param connectionClass the full class name of the connection class
-     * @return a created instance of the given class or an empty optional
-     */
-    private static Optional<Connection> createInstance(String connectionClass) {
-        try {
-            Class<?> loadedClass = Class.forName(connectionClass);
-            Class<? extends Connection> loadedConnectionClass = loadedClass.asSubclass(Connection.class);
-            return Optional.of(loadedConnectionClass.newInstance());
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            logger.log(Level.WARNING, "Couldn't load connection using class " + connectionClass, e);
+    static public Connection getConnection(String uri) {
+        for (ConnectionDriver connectionDriver : ConnectionDriver.values()) {
+            if (StringUtils.startsWithIgnoreCase(uri, connectionDriver.getProtocol())) {
+                Connection connection = getConnection(connectionDriver).orElseThrow(() -> new RuntimeException("Couldn't load connection driver " + connectionDriver + " for uri: " + uri));
+                connection.setUri(uri);
+                return connection;
+            }
         }
 
+        throw new RuntimeException("Couldn't find connection driver for uri: " + uri);
+    }
+
+    public static List<String> getPortNames(ConnectionDriver connectionDriver) {
+        return getConnection(connectionDriver)
+                .map(Connection::getPortNames)
+                .orElseGet(Collections::emptyList);
+    }
+
+    public static Optional<Connection> getConnection(ConnectionDriver connectionDriver) {
+        if (connectionDriver == ConnectionDriver.JSERIALCOMM) {
+            return Optional.of(new JSerialCommConnection());
+        } else if (connectionDriver == ConnectionDriver.JSSC) {
+            return Optional.of(new JSSCConnection());
+        }
         return Optional.empty();
     }
 }

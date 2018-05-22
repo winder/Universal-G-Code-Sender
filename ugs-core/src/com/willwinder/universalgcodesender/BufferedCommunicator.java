@@ -20,6 +20,8 @@
 package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
+
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -332,8 +334,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public boolean openCommPort(String name, int baud) throws Exception {
-        boolean ret = super.openCommPort(name, baud);
+    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+        boolean ret = super.openCommPort(connectionDriver, name, baud);
         
         if (ret) {
             this.commandBuffer.clear();

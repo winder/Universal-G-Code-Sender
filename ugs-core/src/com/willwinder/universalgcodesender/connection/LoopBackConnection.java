@@ -38,7 +38,7 @@ public class LoopBackConnection extends AbstractConnection {
     private BlockingQueue<String> sent;
     private boolean exit = false;
     private boolean open = false;
-    Thread  okThread;
+    private Thread  okThread;
     private int ms = 0;
 
     private static void initialize(AbstractCommunicator comm) {
@@ -103,7 +103,12 @@ public class LoopBackConnection extends AbstractConnection {
     }
 
     @Override
-    synchronized public boolean openPort(String name, int baud) throws Exception {
+    public void setUri(String uri) {
+
+    }
+
+    @Override
+    synchronized public boolean openPort() throws Exception {
         okThread.start();
         exit = false;
 

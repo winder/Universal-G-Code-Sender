@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.connection.JSSCConnection;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
@@ -78,7 +78,7 @@ public class Settings {
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
 
-    private String connectionClass = null;
+    private String connectionDriver;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -427,12 +427,20 @@ public class Settings {
         return this.fileStats;
     }
 
-    public String getConnectionClass() {
-        return StringUtils.defaultString(connectionClass, JSSCConnection.class.getCanonicalName());
+    public ConnectionDriver getConnectionDriver() {
+        ConnectionDriver connectionDriver = ConnectionDriver.JSSC;
+        if (StringUtils.isNotEmpty(this.connectionDriver)) {
+            try {
+                connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+                // Never mind, we'll use the default
+            }
+        }
+        return connectionDriver;
     }
 
-    public void setConnectionClass(String connectionClass) {
-        this.connectionClass = connectionClass;
+    public void setConnectionDriver(ConnectionDriver connectionDriver) {
+        this.connectionDriver = connectionDriver.name();
     }
 
     public static class AutoLevelSettings {

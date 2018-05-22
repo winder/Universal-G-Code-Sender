@@ -22,6 +22,7 @@ import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
@@ -291,7 +292,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             }
 
             try {
-                String[] portList = CommUtils.getSerialPortList();
+                List<String> portList = ConnectionFactory.getPortNames(getSettings().getConnectionDriver());
                 boolean portMatch = false;
                 for (String port : portList) {
                     if (port.equals(settings.getPort())) {
@@ -852,7 +853,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean openCommConnection(String port, int baudRate) throws Exception {
         boolean connected;
         try {
-            connected = controller.openCommPort(port, baudRate);
+            connected = controller.openCommPort(settings.getConnectionDriver(), port, baudRate);
             
             this.initializeProcessedLines(false, this.gcodeFile, this.gcp);
         } catch (Exception e) {

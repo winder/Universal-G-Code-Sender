@@ -18,8 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
-import com.willwinder.universalgcodesender.connection.JSSCConnection;
-import com.willwinder.universalgcodesender.connection.JSerialCommConnection;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.i18n.AvailableLanguages;
 import com.willwinder.universalgcodesender.i18n.Language;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -36,9 +35,6 @@ import javax.swing.*;
  * @author wwinder
  */
 public class ConnectionSettingsPanel extends AbstractUGSSettings {
-    private static final String CONNECTION_JSSC = "JSSC";
-    private static final String CONNECTION_JSERIALCOMM = "JSerialComm";
-
     private final Checkbox verboseConsoleOutput = new Checkbox(
                 Localization.getString("mainWindow.swing.showVerboseOutputCheckBox"));
     private final Checkbox useZStepSize = new Checkbox(
@@ -55,7 +51,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
-    private final JComboBox<String> connectionClass = new JComboBox<>(new String[]{CONNECTION_JSSC, CONNECTION_JSERIALCOMM});
+    private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
+            ConnectionDriver.JSSC.getPrettyName(),
+            ConnectionDriver.JSERIALCOMM.getPrettyName()});
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -86,17 +84,17 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
-        if (connectionClass.getSelectedItem().equals(CONNECTION_JSERIALCOMM)) {
-            settings.setConnectionClass(JSerialCommConnection.class.getCanonicalName());
+        if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
+            settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
         } else {
-            settings.setConnectionClass(JSSCConnection.class.getCanonicalName());
+            settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
+        SettingsFactory.saveSettings(settings);
     }
 
     @Override
     public void restoreDefaults() throws Exception {
         updateComponents(new Settings());
-        SettingsFactory.saveSettings(settings);
         save();
     }
 
@@ -137,13 +135,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         add(new JLabel(Localization.getString("settings.language")), "gapleft 56");
         add(languageCombo, "grow, wrap");
 
+        connectionDriver.setSelectedItem(s.getConnectionDriver().getPrettyName());
 
-        if (s.getConnectionClass().equals(JSerialCommConnection.class.getCanonicalName())) {
-            connectionClass.setSelectedItem(CONNECTION_JSERIALCOMM);
-        } else {
-            connectionClass.setSelectedItem(CONNECTION_JSSC);
-        }
         add(new JLabel(Localization.getString("settings.connectionDriver")), "gapleft 56");
-        add(connectionClass, "grow, wrap");
+        add(connectionDriver, "grow, wrap");
     }
 }

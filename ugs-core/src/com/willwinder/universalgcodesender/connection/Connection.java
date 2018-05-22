@@ -33,19 +33,30 @@ public interface Connection {
     void setCommunicator(AbstractCommunicator ac);
 
     /**
-     * Opens a connection to the given port
+     * Sets the connection URI for the hardware and driver to connect with.
      *
-     * @param portName the name of the port to open.
-     * @param baud     the baud rate for the connection
+     * Example with a serial port using the JSSC driver and baud rate 9600
+     * jssc://dev/tty.usbmodem1421:9600
+     *
+     * Example with a serial port using the JSerialComm driver and baud rate 115200
+     * jserialcomm://tty.usbmodem1421:115200
+     *
+     * @param uri the connection uri for the hardware to connect to
+     */
+    void setUri(String uri);
+
+    /**
+     * Opens the connection
+     *
      * @return true if the connection was established
      * @throws Exception if the connection couldn't be established
      */
-    boolean openPort(String portName, int baud) throws Exception;
+    boolean openPort() throws Exception;
 
     /**
      * Closes the connection
      *
-     * @throws Exception
+     * @throws Exception if the connection couldn't be closed
      */
     void closePort() throws Exception;
 
@@ -71,5 +82,10 @@ public interface Connection {
      */
     boolean isOpen();
 
+    /**
+     * Returns a list of all port names available
+     *
+     * @return a list of available port names
+     */
     List<String> getPortNames();
 }

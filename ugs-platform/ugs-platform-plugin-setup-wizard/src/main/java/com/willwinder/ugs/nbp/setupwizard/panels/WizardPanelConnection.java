@@ -19,11 +19,11 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +34,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -159,8 +160,8 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
     private void refreshPorts() {
         portCombo.removeAllItems();
-        String[] portList = CommUtils.getSerialPortList();
-        if (portList.length < 1) {
+        List<String> portList = ConnectionFactory.getPortNames(getBackend().getSettings().getConnectionDriver());
+        if (portList.size() < 1) {
             if (getBackend().getSettings().isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }

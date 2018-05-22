@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -112,10 +113,11 @@ public abstract class AbstractCommunicator {
     }
 
     //do common operations (related to the connection, that is shared by all communicators)
-    protected boolean openCommPort(String name, int baud) throws Exception {
+    protected boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         if (conn == null) {
-            conn = ConnectionFactory.getConnection();
-            logger.info("Connecting to controller using class: " + conn.getClass().getSimpleName());
+            String url = connectionDriver.getProtocol() + name + ":" + baud;
+            conn = ConnectionFactory.getConnection(url);
+            logger.info("Connecting to controller using class: " + conn.getClass().getSimpleName() + " with url " + url);
         }
 
         if (conn != null) {
@@ -123,14 +125,14 @@ public abstract class AbstractCommunicator {
         }
         
         if (conn==null) {
-            throw new Exception(Localization.getString("communicator.exception.port") + ": "+name);
+            throw new Exception(Localization.getString("communicator.exception.port") + ": " + name);
         }
         
         // Handle all events in a single thread.
         this.eventThread.start();
 
         //open it
-        return conn.openPort(name, baud);
+        return conn.openPort();
     }
 
     public boolean isCommOpen() {
@@ -142,7 +144,6 @@ public abstract class AbstractCommunicator {
     protected void closeCommPort() throws Exception {
         this.stop = true;
         this.eventThread.interrupt();
-
         conn.closePort();
     }
 

@@ -19,7 +19,6 @@
 
 package com.willwinder.universalgcodesender.utils;
 
-import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import java.util.Iterator;
 import java.util.List;
@@ -30,12 +29,6 @@ import java.util.List;
  * @author wwinder
  */
 public class CommUtils {
-    /** 
-     * Generates a list of available serial ports.
-     */
-    static public String[] getSerialPortList() {
-        return ConnectionFactory.getConnection().getPortNames().toArray(new String[0]);
-    }
     
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.

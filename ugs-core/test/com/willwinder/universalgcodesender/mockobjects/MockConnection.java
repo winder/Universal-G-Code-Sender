@@ -24,14 +24,12 @@
 package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.connection.AbstractConnection;
-import com.willwinder.universalgcodesender.connection.Connection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
-import java.util.TooManyListenersException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,9 +54,14 @@ public class MockConnection extends AbstractConnection {
     public void sendResponse(String str) {
         this.comm.responseMessage(str);
     }
-    
+
     @Override
-    public boolean openPort(String name, int baud) throws Exception {
+    public void setUri(String uri) {
+
+    }
+
+    @Override
+    public boolean openPort() throws Exception {
         return true;
     }
 

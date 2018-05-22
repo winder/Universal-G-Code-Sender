@@ -22,6 +22,7 @@ import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortList;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,43 +33,42 @@ import java.util.List;
  * @author wwinder
  */
 public class JSSCConnection extends AbstractConnection implements SerialPortEventListener {
-    @Deprecated private String lineTerminator;
+
+    private int baudRate;
+    private String portName;
 
     // General variables
     private SerialPort serialPort;
     private StringBuilder inputBuffer = null;
 
-    public JSSCConnection() {
-        this("\r\n");
-    }
-    
-    public JSSCConnection(String terminator) {
-        lineTerminator = terminator;
-    }
-    
-    @Deprecated public void setLineTerminator(String lt) {
-        this.lineTerminator = lt;
-    }
-    
-    @Deprecated public String getLineTerminator() {
-        return this.lineTerminator;
-    }
     @Override
-    synchronized public boolean openPort(String name, int baud) throws Exception {
+    public void setUri(String uri) {
+        try {
+            portName = StringUtils.substringBetween(uri, ConnectionDriver.JSSC.getProtocol(), ":");
+            baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't parse connection string " + uri, e);
+        }
+    }
+
+    @Override
+    public boolean openPort() throws Exception {
+        if (StringUtils.isEmpty(portName) || baudRate == 0) {
+            throw new RuntimeException("Couldn't open port " + portName + " using baud rate " + baudRate);
+        }
+
         this.inputBuffer = new StringBuilder();
-        
-        this.serialPort = new SerialPort(name);
+        this.serialPort = new SerialPort(portName);
         this.serialPort.openPort();
-        this.serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
+        this.serialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
         this.serialPort.addEventListener(this);
 
         if (this.serialPort == null) {
             throw new Exception("Serial port not found.");
         }
-
         return serialPort.isOpened();
     }
-        
+
     @Override
     public void closePort() throws Exception {
         if (this.serialPort != null) {

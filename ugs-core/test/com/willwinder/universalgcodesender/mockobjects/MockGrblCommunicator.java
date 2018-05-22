@@ -24,6 +24,8 @@
 package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.GrblCommunicator;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +82,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }   
 
     @Override
-    public boolean openCommPort(String name, int baud) throws Exception {
+    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         this.numOpenCommPortCalls++;
 
         this.portName = name;

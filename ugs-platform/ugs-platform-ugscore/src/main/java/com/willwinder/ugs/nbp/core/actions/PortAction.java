@@ -20,14 +20,15 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -139,9 +140,8 @@ public class PortAction extends CallableSystemAction implements UGSEventListener
 
     private void loadPortSelector() {
         portCombo.removeAllItems();
-        String[] portList = CommUtils.getSerialPortList();
-
-        if (portList.length < 1) {
+        List<String> portList = ConnectionFactory.getPortNames(backend.getSettings().getConnectionDriver());
+        if (portList.size() < 1) {
             if (backend.getSettings().isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }
