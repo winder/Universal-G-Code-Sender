@@ -71,10 +71,10 @@ public class SettingsFactory {
                     logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
                 }
             }
+        }
 
-            if (settings == null) {
-                settings = new Settings();
-            }
+        if (settings == null) {
+            settings = new Settings();
         }
         return settings;
     }

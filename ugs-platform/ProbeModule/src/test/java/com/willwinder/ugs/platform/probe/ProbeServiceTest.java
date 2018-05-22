@@ -20,7 +20,6 @@ package com.willwinder.ugs.platform.probe;
 
 import static com.willwinder.ugs.platform.probe.ProbeService.retractDistance;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -70,7 +69,7 @@ public class ProbeServiceTest {
         order.verify(backend, times(1)).probe("Z", pc.feedRateSlow, pc.zSpacing, pc.units);
         order.verify(backend, times(1)).sendGcodeCommand(true, "G10 L20 P1 Z1.0");
         if (finalRetract) {
-            order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z" + (pc.retractHeight + pc.zOffset));
+            order.verify(backend, times(1)).sendGcodeCommand(true, "G90 G20 G0 Z" + pc.retractHeight);
         }
     }
 

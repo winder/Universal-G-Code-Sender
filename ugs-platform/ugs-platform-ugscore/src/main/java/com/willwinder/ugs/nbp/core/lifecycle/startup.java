@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,6 +33,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -52,6 +53,10 @@ import org.openide.windows.WindowManager;
 @ServiceProvider(service=OptionProcessor.class)
 @OnStart
 public class startup extends OptionProcessor implements Runnable {
+    private static final Logger logger = Logger.getLogger(startup.class.getName());
+
+    private final Option openOption = Option.additionalArguments('o', "open");
+
     @Override
     public void run() {
         System.out.println("Loading LocalizingService...");
@@ -91,8 +96,9 @@ public class startup extends OptionProcessor implements Runnable {
         });
     }
 
-    private final Option openOption = Option.additionalArguments('o', "open");
-
+    /**
+     * Register interest in the "open" option.
+     */
     @Override       
     public Set getOptions() {
         HashSet set = new HashSet();
@@ -100,6 +106,9 @@ public class startup extends OptionProcessor implements Runnable {
         return set;
     }
 
+    /**
+     * CLI Handler.
+     */
     @Override
     protected void process(Env env, Map<Option, String[]> maps) throws CommandException {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);

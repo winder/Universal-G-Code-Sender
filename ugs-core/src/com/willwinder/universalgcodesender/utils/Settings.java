@@ -354,8 +354,8 @@ public class Settings {
     }
 
     public Integer getLastMacroIndex() {
-        //Obviously it would be more efficient to just store the max index value, but this is safer in that it's one less thing
-        //to keep in sync.
+        // Obviously it would be more efficient to just store the max index
+        // value, but this is safer in that it's one less thing to keep in sync.
         int i = -1;
         for (Integer index : macros.keySet()) {
             i = Math.max(i, index);
@@ -363,6 +363,10 @@ public class Settings {
         return i;
     }
 
+    public void clearMacros() {
+        macros.clear();
+        changed();
+    }
 
     public void clearMacro(Integer index) {
         macros.remove(index);

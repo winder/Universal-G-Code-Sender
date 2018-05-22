@@ -37,14 +37,33 @@ public class GUIHelpers {
         }
     }
 
+    /**
+     * Displays an error message to the user which will not block the current thread.
+     * @param errorMessage message to display in the dialog.
+     */
     public static void displayErrorDialog(final String errorMessage) {
-        java.awt.EventQueue.invokeLater(() -> {
-            //JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
-            //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
-            NarrowOptionPane.showNarrowDialog(250, errorMessage.replaceAll("\\.\\.", "\\."),
-                    Localization.getString("error"),
-                    JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
-        });
+        displayErrorDialog(errorMessage, false);
+    }
+
+    /**
+     * Displays an error message to the user.
+     * @param errorMessage message to display in the dialog.
+     * @param modal toggle whether the message should block or fire and forget.
+     */
+    public static void displayErrorDialog(final String errorMessage, boolean modal) {
+        Runnable r = () -> {
+              //JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
+              //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
+              NarrowOptionPane.showNarrowDialog(250, errorMessage.replaceAll("\\.\\.", "\\."),
+                      Localization.getString("error"),
+                      JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+        };
+
+        if (modal) {
+            r.run();
+        } else {
+          java.awt.EventQueue.invokeLater(r);
+        }
     }
 
     public static void displayHelpDialog(final String helpMessage) {

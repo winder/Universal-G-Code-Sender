@@ -54,7 +54,9 @@ import org.openide.windows.TopComponent;
 import java.awt.*;
 
 import javax.swing.*;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.modules.OnStart;
+import org.openide.windows.WindowManager;
 
 /**
  * Top component which displays something.
@@ -64,7 +66,7 @@ import org.openide.modules.OnStart;
         autostore = false
 )
 @TopComponent.Description(
-        preferredID = "CornerProbeTopComponentTopComponent",
+        preferredID = ProbeTopComponent.preferredId,
         //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
@@ -75,9 +77,10 @@ import org.openide.modules.OnStart;
 @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN)
 @TopComponent.OpenActionRegistration(
         displayName = "Probe",
-        preferredID = "ProbeModule"
+        preferredID = ProbeTopComponent.preferredId
 )
 public final class ProbeTopComponent extends TopComponent implements UGSEventListener {
+    public static final String preferredId = "AdvancedProbeTopComponent";
     private Renderable active = null;
     private CornerProbePathPreview cornerRenderable = new CornerProbePathPreview(
             Localization.getString("probe.visualizer.corner-preview"));
@@ -94,7 +97,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
 
     public final static String ProbeTitle = Localization.getString("platform.window.probe-module", lang);
     public final static String ProbeTooltip = Localization.getString("platform.window.probe-module.tooltip", lang);
-    public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent";
+    public final static String ProbeActionId = "com.willwinder.ugs.platform.probe.ProbeTopComponent.renamed";
     public final static String ProbeCategory = LocalizingService.CATEGORY_WINDOW;
 
 
@@ -226,7 +229,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         settingsProbeDiameter = new SpinnerNumberModel(10., 0., largeSpinner, 0.1);
         settingsFastFindRate = new SpinnerNumberModel(250., 1, largeSpinner, 1.);
         settingsSlowMeasureRate = new SpinnerNumberModel(100., 1, largeSpinner, 1.);
-        settingsRetractAmount = new SpinnerNumberModel(15., 10, largeSpinner, 1.);
+        settingsRetractAmount = new SpinnerNumberModel(15., 0.1, largeSpinner, 1.);
 
         measureXYZ.addActionListener(e -> {
                 ProbeParameters pc = new ProbeParameters(
@@ -457,6 +460,12 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     @Override
     public void componentOpened() {
         controlChangeListener();
+
+        // Cleanup after renamed preferred ID.
+        String id = WindowManager.getDefault().findTopComponentID(this);
+        if (!StringUtils.equals(id, preferredId)) {
+          this.close();
+        }
     }
 
     @Override
