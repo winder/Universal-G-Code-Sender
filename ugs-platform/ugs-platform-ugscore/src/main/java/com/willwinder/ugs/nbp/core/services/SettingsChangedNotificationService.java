@@ -54,12 +54,10 @@ public class SettingsChangedNotificationService {
     }
 
     private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
-        if (ugsEvent.isSettingChangeEvent()) {
-            if (!StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
-                lastSelectedLanguage = backend.getSettings().getLanguage();
-                Localization.initialize(backend.getSettings().getLanguage());
-                notifyRestartRequired();
-            }
+        if (ugsEvent.isSettingChangeEvent() && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
+            lastSelectedLanguage = backend.getSettings().getLanguage();
+            Localization.initialize(backend.getSettings().getLanguage());
+            notifyRestartRequired();
         }
     }
 

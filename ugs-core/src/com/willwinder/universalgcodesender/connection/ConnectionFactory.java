@@ -31,16 +31,25 @@ import java.util.Optional;
  */
 public class ConnectionFactory {
 
-    static public Connection getConnection(String uri) {
+    /**
+     * Returns a new instance of a connection from an uri. The uri should be start with a protocol
+     * {@link ConnectionDriver#getProtocol()} that defines which driver to use. The driver may then
+     * have different styles for defining paths, ex: jserialcomm://{portname}:{baudrate}
+     *
+     * @param uri the uri for the hardware to connect to
+     * @return a connection
+     * @throws ConnectionException if something went wron while creating the connection
+     */
+    static public Connection getConnection(String uri) throws ConnectionException{
         for (ConnectionDriver connectionDriver : ConnectionDriver.values()) {
             if (StringUtils.startsWithIgnoreCase(uri, connectionDriver.getProtocol())) {
-                Connection connection = getConnection(connectionDriver).orElseThrow(() -> new RuntimeException("Couldn't load connection driver " + connectionDriver + " for uri: " + uri));
+                Connection connection = getConnection(connectionDriver).orElseThrow(() -> new ConnectionException("Couldn't load connection driver " + connectionDriver + " for uri: " + uri));
                 connection.setUri(uri);
                 return connection;
             }
         }
 
-        throw new RuntimeException("Couldn't find connection driver for uri: " + uri);
+        throw new ConnectionException("Couldn't find connection driver for uri: " + uri);
     }
 
     public static List<String> getPortNames(ConnectionDriver connectionDriver) {

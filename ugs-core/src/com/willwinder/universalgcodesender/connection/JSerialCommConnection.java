@@ -44,14 +44,14 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
             int baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
             initSerialPort(portName, baudRate);
         } catch (Exception e) {
-            throw new RuntimeException("Couldn't parse connection string " + uri, e);
+            throw new ConnectionException("Couldn't parse connection string " + uri, e);
         }
     }
 
     @Override
     public boolean openPort() throws Exception {
         if (serialPort == null) {
-            throw new RuntimeException("The connection wasn't initialized");
+            throw new ConnectionException("The connection wasn't initialized");
         }
 
         return serialPort.openPort();
@@ -113,28 +113,31 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         }
 
         int bytesAvailable = serialPort.bytesAvailable();
-        if (bytesAvailable > 0) {
-            int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
-            String s = new String(buffer, 0, bytesRead);
-            inputBuffer.append(s);
+        if (bytesAvailable <= 0) {
+            return;
+        }
 
-            // Check for line terminator and split out command(s).
-            if (inputBuffer.toString().contains(comm.getLineTerminator())) {
+        int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
+        String s = new String(buffer, 0, bytesRead);
+        inputBuffer.append(s);
 
-                // Split with the -1 option will give an empty string at
-                // the end if there is a terminator there as well.
-                String[] commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
-                for (int i = 0; i < commands.length; i++) {
-                    // Make sure this isn't the last command.
-                    if ((i + 1) < commands.length) {
-                        comm.responseMessage(commands[i]);
+        // Only continue if there is a line terminator and split out command(s).
+        if (!inputBuffer.toString().contains(comm.getLineTerminator())) {
+            return;
+        }
 
-                        // Append last command to input buffer because it didn't have a terminator.
-                    } else {
-                        inputBuffer.setLength(0);
-                        inputBuffer.append(commands[i]);
-                    }
-                }
+        // Split with the -1 option will give an empty string at
+        // the end if there is a terminator there as well.
+        String[] commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
+        for (int i = 0; i < commands.length; i++) {
+            // Make sure this isn't the last command.
+            if ((i + 1) < commands.length) {
+                comm.responseMessage(commands[i]);
+
+                // Append last command to input buffer because it didn't have a terminator.
+            } else {
+                inputBuffer.setLength(0);
+                inputBuffer.append(commands[i]);
             }
         }
     }
