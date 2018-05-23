@@ -168,10 +168,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (fileChooser.getSelectedFile() != null ) {
-                    settings.setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
                 settings.setPort(commPortComboBox.getSelectedItem().toString());
                 settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
@@ -292,10 +288,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
                 mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
                 mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
@@ -315,7 +307,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         for (String arg : args) {
             if (open) {
                 try {
-                    backend.setGcodeFile(new File(arg));
+                    GUIHelpers.openGcodeFile(new File(arg), backend);
                     open = false;
                 } catch (Exception ex) {
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1267,7 +1259,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setGcodeFile(gcodeFile);
+                GUIHelpers.openGcodeFile(gcodeFile, backend);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Problem while browsing.", ex);
                 displayErrorDialog(ex.getMessage());

@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2017 Will Winder
+    Copyright 2014-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
@@ -30,9 +32,12 @@ import org.apache.commons.lang3.StringUtils;
 public class Settings {
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
+    transient public static int HISTORY_SIZE = 20;
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
+    private ArrayDeque<String> fileHistory = new ArrayDeque<>();
+    private ArrayDeque<String> dirHistory = new ArrayDeque<>();
     private String port = "";
     private String portRate = "115200";
     private boolean manualModeEnabled = false;
@@ -122,7 +127,9 @@ public class Settings {
     }
 
     private void changed() {
-        listener.settingChanged();
+        if (listener != null) {
+            listener.settingChanged();
+        }
     }
 
     public String getFirmwareVersion() {
@@ -139,9 +146,35 @@ public class Settings {
         return fileName;
     }
 
-    public void setLastOpenedFilename(String fileName) {
-        this.fileName = fileName;
+    public void setLastOpenedFilename(String absolutePath) {
+        Path p = Paths.get(absolutePath).toAbsolutePath();
+        this.fileName = p.toString();
+        updateRecentFiles(p.toString());
+        updateRecentDirectory(p.getParent().toString());
         changed();
+    }
+
+    public Collection<String> getRecentFiles() {
+      return Collections.unmodifiableCollection(fileHistory);
+    }
+
+    public void updateRecentFiles(String absolutePath) {
+      updateRecent(this.fileHistory, HISTORY_SIZE, absolutePath);
+    }
+
+    public Collection<String> getRecentDirectories() {
+      return Collections.unmodifiableCollection(dirHistory);
+    }
+
+    public void updateRecentDirectory(String absolutePath) {
+      updateRecent(this.dirHistory, HISTORY_SIZE, absolutePath);
+    }
+
+    private static void updateRecent(Deque<String> stack, int maxSize, String element) {
+      stack.remove(element);
+      stack.push(element);
+      while( stack.size() > maxSize)
+        stack.removeLast();
     }
 
     public String getPort() {

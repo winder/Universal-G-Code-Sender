@@ -86,12 +86,11 @@ public final class StartPageTopComponent extends TopComponent {
   }
 
   private List<JComponent> getTabs() {
-    AbstractTab tab1 = new GettingStartedTab();
-    AbstractTab tab2 = new TestTab("Recent", "List of recent files/directories");
-    AbstractTab tab3 = new FeaturesTab("Features", features);
-    AbstractTab tab4 = new TestTab("What's New", "New features");
-
-    return ImmutableList.of(tab1, tab2, tab3, tab4);
+    return ImmutableList.of(
+            new GettingStartedTab(),
+            new RecentWorkTab(),
+            new FeaturesTab("Features", features),
+            new TestTab("What's New", "New features"));
   }
 
   @Override

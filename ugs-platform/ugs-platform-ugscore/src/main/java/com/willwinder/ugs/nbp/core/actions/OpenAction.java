@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copywrite 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,10 +21,8 @@ package com.willwinder.ugs.nbp.core.actions;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -33,7 +31,6 @@ import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.io.File;
 
 @ActionID(
         category = LocalizingService.OpenCategory,
@@ -72,24 +69,11 @@ public final class OpenAction extends AbstractAction {
         return backend != null;
     }
 
-    private void openGcodeFile(File f) {
-        ThreadHelper.invokeLater(() -> {
-            try {
-                backend.setGcodeFile(f);
-                Settings settings = backend.getSettings();
-                settings.setLastOpenedFilename(f.getAbsolutePath());
-                SettingsFactory.saveSettings(settings);
-            } catch (Exception e) {
-                System.err.println("Couldn't set gcode-file" + e.getMessage());
-            }
-        });
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         String sourceDir = backend.getSettings().getLastOpenedFilename();
         SwingHelpers
                 .openFile(sourceDir)
-                .ifPresent(this::openGcodeFile);
+                .ifPresent(GUIHelpers::openGcodeFile);
     }
 }

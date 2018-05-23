@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,6 +27,7 @@ import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Version;
 import java.io.File;
@@ -118,10 +119,6 @@ public class startup extends OptionProcessor implements Runnable {
         }
 
         System.out.println("File to open: " + inputFile);
-        try {
-            backend.setGcodeFile(new File(inputFile));
-        } catch (Exception e) {
-            throw new CommandException(1, "Unable to open input file: " + e.getMessage());
-        }
+        GUIHelpers.openGcodeFile(new File(inputFile), backend);
     }
 }
