@@ -273,6 +273,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                         double limitZ = Math.abs(decimalFormat.parse(textFieldSoftLimitZ.getText()).doubleValue());
                         firmwareSettings.setSoftLimitZ(limitZ);
                         buttonUpdateSettingsZ.setEnabled(false);
+                        break;
 
                     default:
                 }
