@@ -21,12 +21,12 @@ package com.willwinder.universalgcodesender.connection;
 import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.types.PointSegment;
+
+import javax.vecmath.Point3d;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.vecmath.Point3d;
-import jssc.SerialPort;
 
 /**
  * A diagnostic class to test application speed, this is a connection that
@@ -34,11 +34,11 @@ import jssc.SerialPort;
  * 
  * @author wwinder
  */
-public class LoopBackConnection extends Connection {
+public class LoopBackConnection extends AbstractConnection {
     private BlockingQueue<String> sent;
     private boolean exit = false;
     private boolean open = false;
-    Thread  okThread;
+    private Thread  okThread;
     private int ms = 0;
 
     private static void initialize(AbstractCommunicator comm) {
@@ -103,7 +103,12 @@ public class LoopBackConnection extends Connection {
     }
 
     @Override
-    synchronized public boolean openPort(String name, int baud) throws Exception {
+    public void setUri(String uri) {
+
+    }
+
+    @Override
+    synchronized public boolean openPort() throws Exception {
         okThread.start();
         exit = false;
 
@@ -114,6 +119,11 @@ public class LoopBackConnection extends Connection {
     @Override
     public boolean isOpen() {
         return open;
+    }
+
+    @Override
+    public List<String> getPortNames() {
+        return Arrays.asList("loopback");
     }
 
     @Override

@@ -185,7 +185,7 @@ public class GUIBackendTest {
     public void connectShouldBeOk() throws Exception {
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
 
-        verify(controller).openCommPort(PORT, BAUD_RATE);
+        verify(controller).openCommPort(settings.getConnectionDriver(), PORT, BAUD_RATE);
         assertEquals(controller, instance.getController());
         assertNull("The controller state is fetched from the controller which in this case is a mock", instance.getControlState());
         assertEquals("No events should have been fired", 0, eventArgumentCaptor.getAllValues().size());
@@ -198,14 +198,14 @@ public class GUIBackendTest {
 
     @Test(expected = Exception.class)
     public void connectWhenFailingToOpenControllerConnectionShouldNotBeOk() throws Exception {
-        when(controller.openCommPort(PORT, BAUD_RATE)).thenThrow(new Exception());
+        when(controller.openCommPort(settings.getConnectionDriver(), PORT, BAUD_RATE)).thenThrow(new Exception());
         instance.connect(FIRMWARE, PORT, BAUD_RATE);
     }
 
     @Test
     public void connectWhenOpenControllerConnectionWasNotPossibleShouldNotBeOk() throws Exception {
         // Given
-        when(controller.openCommPort(PORT, BAUD_RATE)).thenReturn(false);
+        when(controller.openCommPort(settings.getConnectionDriver(), PORT, BAUD_RATE)).thenReturn(false);
 
         // When
         instance.connect(FIRMWARE, PORT, BAUD_RATE);

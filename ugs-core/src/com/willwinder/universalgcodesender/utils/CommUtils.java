@@ -1,9 +1,5 @@
 /*
- * Collection of useful Comm related utilities.
- */
-
-/*
-    Copywrite 2012-2015 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,47 +20,15 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import jssc.SerialPortList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
+ * Collection of useful Comm related utilities.
  *
  * @author wwinder
  */
 public class CommUtils {
-    /** 
-     * Generates a list of available serial ports.
-     */
-    static public String[] getSerialPortList() {
-        /*
-        int type = CommPortIdentifier.PORT_SERIAL;
-        */
-
-        return SerialPortList.getPortNames();
-    }
-
-    /*
-    // RXTX Version
-    static protected java.util.List<CommPortIdentifier> getSerialPortList() {
-        int type = CommPortIdentifier.PORT_SERIAL;
-        
-        java.util.Enumeration<CommPortIdentifier> portEnum = 
-                CommPortIdentifier.getPortIdentifiers();
-        java.util.List<CommPortIdentifier> returnList =
-                new java.util.ArrayList<>();
-        
-        while ( portEnum.hasMoreElements() ) 
-        {
-            CommPortIdentifier portIdentifier = portEnum.nextElement();
-            if (portIdentifier.getPortType() == type) {
-                returnList.add(portIdentifier);
-            }
-        }
-        return returnList;
-    }
-    */
     
     /** 
      * Checks if there is enough room in the GRBL buffer for nextCommand.
