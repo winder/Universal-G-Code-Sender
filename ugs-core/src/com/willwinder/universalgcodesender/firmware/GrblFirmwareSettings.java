@@ -105,6 +105,29 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
                 .orElse(oldSetting);
     }
 
+    /**
+     * Sets a property value on the controller. It will wait until the setting has been stored,
+     * if this fails a {@link FirmwareSettingsException} will be thrown.
+     *
+     * @param key   the name of the setting to update
+     * @param value the value of the setting
+     * @return the value stored on the controller
+     * @throws FirmwareSettingsException if the value couldn't be persisted on the controller.
+     */
+    public FirmwareSetting setValue(final String key, final double value) throws FirmwareSettingsException {
+
+        final FirmwareSetting oldSetting = getSetting(key)
+                .orElseThrow(() -> new FirmwareSettingsException("Couldn't find setting with key " + key + " to update."));
+
+        // The setting already contains the value so we do not update
+        if (getValueAsDouble(key) == value) {
+            return oldSetting;
+        }
+
+        DecimalFormat decimalFormat = new DecimalFormat("0.0##", Localization.dfs);
+        return setValue(key, decimalFormat.format(value));
+    }
+
     @Override
     public void addListener(IFirmwareSettingsListener listener) {
         serialCommunicatorDelegate.addListener(listener);
@@ -220,8 +243,7 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
 
     @Override
     public void setSoftLimitX(double limit) throws FirmwareSettingsException {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
-        setValue(KEY_SOFT_LIMIT_X, decimalFormat.format(limit));
+        setValue(KEY_SOFT_LIMIT_X, limit);
     }
 
     @Override
@@ -231,8 +253,7 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
 
     @Override
     public void setSoftLimitY(double limit) throws FirmwareSettingsException {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
-        setValue(KEY_SOFT_LIMIT_Y, decimalFormat.format(limit));
+        setValue(KEY_SOFT_LIMIT_Y, limit);
     }
 
     @Override
@@ -242,8 +263,21 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
 
     @Override
     public void setSoftLimitZ(double limit) throws FirmwareSettingsException {
-        DecimalFormat decimalFormat = new DecimalFormat("0.0", Localization.dfs);
-        setValue(KEY_SOFT_LIMIT_Z, decimalFormat.format(limit));
+        setValue(KEY_SOFT_LIMIT_Z, limit);
+    }
+
+    @Override
+    public double getSoftLimit(Axis axis) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                return getSoftLimitX();
+            case Y:
+                return getSoftLimitY();
+            case Z:
+                return getSoftLimitZ();
+            default:
+                return 0;
+        }
     }
 
     @Override

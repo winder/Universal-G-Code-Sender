@@ -224,6 +224,15 @@ public interface IFirmwareSettings {
     void setSoftLimitZ(double limit) throws FirmwareSettingsException;
 
     /**
+     * Returns the soft limit for the given axis in millimeters
+     *
+     * @param axis the axis to retrieve
+     * @return the soft limits in millimeters
+     * @throws FirmwareSettingsException if the setting couldn't be retreived
+     */
+    double getSoftLimit(Axis axis) throws FirmwareSettingsException;
+
+    /**
      * Returns if the homing direction for the X-axis be inverted
      *
      * @return true to perform homing to X-
