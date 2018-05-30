@@ -22,8 +22,8 @@ These are the nightly builds of the most recent code with the latest features an
 
 | Version | Java Version Required | Description |
 |-|-|-|
-| [UGS Classic - Nighly build](http://bit.ly/1hftIhy)  | 8+ | The nightly build of the classic UGS interface. |
-| [UGS Platform - Nighly build](http://bit.ly/1DkClRW) | 8+ | The nightly build of the next generation platform-based interface. |
+| [UGS Classic - Nightly build](http://bit.ly/1hftIhy)  | 8+ | The nightly build of the classic UGS interface. |
+| [UGS Platform - Nightly build](http://bit.ly/1DkClRW) | 8+ | The nightly build of the next generation platform-based interface. |
 
 ## Running 
 
