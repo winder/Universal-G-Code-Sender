@@ -1,6 +1,6 @@
-![Universal Gcode Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
+![Universal G-Code Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
 
-Universal Gcode Sender is a Java based, [GRBL](https://github.com/gnea/grbl/) compatible and cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine. 
+Universal G-Code Sender is a Java based, [GRBL](https://github.com/gnea/grbl/) compatible and cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine. 
 
 Online documentation and releases: http://winder.github.io/ugs_website/<br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
@@ -14,20 +14,20 @@ Technical details:
 
 ## Downloads
 
-Universal Gcode Sender comes in two flavors. **UGS Classic** with a very clean and lightwight user interface and the newer and more feature packed **UGS Platform**.
+**Universal G-Code Sender** comes in two flavors. **UGS Classic** with a very clean and lightwight user interface and the newer and more feature packed **UGS Platform**.
 
 [![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
 
 These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
 
-| Version | Java Version Required | Description |
-|-|-|-|
-| [UGS Classic - Nightly build](http://bit.ly/1hftIhy)  | 8+ | The nightly build of the classic UGS interface. |
-| [UGS Platform - Nightly build](http://bit.ly/1DkClRW) | 8+ | The nightly build of the next generation platform-based interface. |
+| Version | Description |
+|-|-|
+| [UGS Classic - Nightly build](http://bit.ly/1hftIhy)  | The nightly build of the classic UGS interface. |
+| [UGS Platform - Nightly build](http://bit.ly/1DkClRW) | The nightly build of the next generation platform-based interface. |
 
 ## Running 
 
-Make sure you have [Java](https://java.com/en/download/manual.jsp) installed. 
+Make sure you have [Java 8](https://java.com/en/download/manual.jsp) or later installed. 
 
 Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
 
