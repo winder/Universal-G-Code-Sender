@@ -2,12 +2,12 @@
 
 Universal Gcode Sender is a Java based, [GRBL](https://github.com/gnea/grbl/) compatible and cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine. 
 
-Online documentation: http://winder.github.io/ugs_website/
+Online documentation and releases: http://winder.github.io/ugs_website/<br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
 
 Technical details:
 
-* [JSSC](https://github.com/scream3r/java-simple-serial-connector) or [JSerialComm](https://github.com/Fazecast/jSerialComm) for serial communication (RXTX was used up through v1.0.8)
+* [JSSC](https://github.com/scream3r/java-simple-serial-connector) or [JSerialComm](https://github.com/Fazecast/jSerialComm) for serial communication
 * [JogAmp](https://jogamp.org/) for OpenGL
 * Built with [Netbeans Platform](https://netbeans.org/features/platform/)
 * Developed with NetBeans 8.0.2 or later
@@ -16,34 +16,14 @@ Technical details:
 
 Universal Gcode Sender comes in two flavors. **UGS Classic** with a very clean and lightwight user interface and the newer and more feature packed **UGS Platform**.
 
-### Nightly builds
-Nightly builds of the most recent code with the latest features and bug fixes. 
-
 [![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
 
-| Variant | Java Version Required | Description |
+These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
+
+| Version | Java Version Required | Description |
 |-|-|-|
-| [UGS Classic](http://bit.ly/1hftIhy)  | 8+ | The classic UGS interface. |
-| [UGS Platform](http://bit.ly/1DkClRW) | 8+ | The next generation platform-based interface. |
-
-"Somewhat stable" nightly build. In an effort to move towards a proper 2.0.0 release we have these "Somewhat stable" builds, they are similar to a release candidate but less formal.
-
-| Variant | Java Version Required | Description | Release date |
-|-|-|-|-|
-| [UGS Classic](http://bit.ly/2ssmIqt) | 8+ | Somewhat stable UGS classic interface. | July 28, 2017 |
-| [UGS Platform](http://bit.ly/2rk84y2)| 8+ | Somewhat stable platform-based next generation interface. | July 28, 2017 |
-
-
-### Releases
-
-| Version | Java Version Required | Release date |
-| ------- | --------------------- | ------------ |
-| [UGS Classic 1.0.9](http://bit.ly/1M6z2ys) | 7+ | 11 Nov, 2015 |
-| [UGS Classic 1.0.8](http://bit.ly/1BSKon6) | 7+ | 25 Feb, 2015 |
-| [UGS Classic 1.0.7](http://bit.ly/1dNrLAy) | 7+ | 20 Mar, 2014 |
-| [UGS Classic 1.0.6](http://bit.ly/16q7obd) | 6+ | 15 Mar, 2013 |
-
-Older releases can be found [here](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
+| [UGS Classic - Nighly build](http://bit.ly/1hftIhy)  | 8+ | The nightly build of the classic UGS interface. |
+| [UGS Platform - Nighly build](http://bit.ly/1DkClRW) | 8+ | The nightly build of the next generation platform-based interface. |
 
 ## Running 
 
@@ -53,14 +33,6 @@ Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
 
 * For **UGS Classic** simply double click the jar file. On some platforms you may need to run the included start script.
 * For **UGS Platform** run the start script: ```bin/ugsplatform``` 
-
-Note for MacOSX users:
-For version 1.0.8 and earlier you may need to create a "/var/lock" directory on OSX to fix a bug in the serial library. To do this open the Terminal application and run the following two commands:
-
-```bash
-sudo mkdir /var/lock
-sudo chmod 777 /var/lock
-```
 
 
 ## Screenshots
@@ -78,11 +50,24 @@ Customizable panel layout
 Menu actions with customizable keybindings
 
 ![Actions](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_actions_menu.png "Actions")
+
+Menu with plugins
+
 ![Plugins](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_plugins_menu.png "Plugins")
 
 One of many plugins
 
 ![Dowel Maker](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_dowel_maker_plugin.png "Dowel maker plugin")
+
+### UGS Classic
+
+UGS Classic main window
+
+![Classic main window](https://winder.github.io/ugs_website/img/screenshots/finished.png)
+
+UGS Classic with visualizer
+
+![Classic visualizer](https://winder.github.io/ugs_website/img/screenshots/visualizer.png)
 
 ## Development
 
