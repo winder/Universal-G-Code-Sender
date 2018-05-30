@@ -14,16 +14,14 @@ Technical details:
 
 ## Downloads
 
-**Universal G-Code Sender** comes in two flavors. **UGS Classic** with a very clean and lightwight user interface and the newer and more feature packed **UGS Platform**.
+These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
 
 [![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
 
-These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
-
 | Version | Description |
 |-|-|
-| [UGS Classic - Nightly build](http://bit.ly/1hftIhy)  | The nightly build of the classic UGS interface. |
-| [UGS Platform - Nightly build](http://bit.ly/1DkClRW) | The nightly build of the next generation platform-based interface. |
+| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightwight user interface |
+| [UGS Platform](http://bit.ly/1DkClRW) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
 ## Running 
 
