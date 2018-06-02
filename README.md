@@ -1,94 +1,114 @@
-Universal GcodeSender is a Java based GRBL compatible cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine.
+![Universal G-Code Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
 
-Online documentation available here: http://winder.github.io/ugs_website/
+Universal G-Code Sender is a Java based, [GRBL](https://github.com/gnea/grbl/) compatible and cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine. 
 
-![Universal Gcode Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
+Online documentation and releases: http://winder.github.io/ugs_website/<br/>
+Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
 
-<br />
+Technical details:
 
-Documentation contributions can be made here: https://github.com/winder/ugs_website
+* [JSSC](https://github.com/scream3r/java-simple-serial-connector) or [JSerialComm](https://github.com/Fazecast/jSerialComm) for serial communication
+* [JogAmp](https://jogamp.org/) for OpenGL
+* Built with [Netbeans Platform](https://netbeans.org/features/platform/)
+* Developed with NetBeans 8.0.2 or later
 
-To run simply unzip the .zip file and double click the .jar file.
-On some platforms you will need to run an included start script.
+## Downloads
 
-Note for MAC users:
-For version 1.0.8 and earlier you may need to create a "/var/lock" directory on OSX to fix a bug in the serial
-library. To do this open the Terminal application and run the following two
-commands:
-<br />
-   sudo mkdir /var/lock
-<br />
-   sudo chmod 777 /var/lock
-<br />
+These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
 
-Downloads
----------
-<b>2.0 Nightly builds</b> build status: [![Build Status](https://winder.ci.cloudbees.com/job/UGS/badge/icon)](https://winder.ci.cloudbees.com/job/UGS/)
-* Requires Java 8 or higher.
-* Currently under heavy development, feedback and suggestions are helpful!
-* [classic GUI](http://bit.ly/1hftIhy) - The classic UGS interface.
-* [classic GUI](http://bit.ly/2ssmIqt) - Somewhat stable build classic UGS interface.
-* [UGS Platform](http://bit.ly/1DkClRW) - Universal Gcode Platform, the next generation platform-based interface
-* [UGS Platform](http://bit.ly/2rk84y2) - Somewhat stable build Universal Gcode Platform, the next generation platform-based interface (Requires Java 8)
+[![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
 
-<b>Stable builds</b>
-<br />
-[1.0.9](http://bit.ly/1M6z2ys)
-<br />
-[1.0.8](http://bit.ly/1BSKon6)
-<br />
-[1.0.7](http://bit.ly/1dNrLAy) - Requires Java 7 or higher.
-<br />
-[1.0.6](http://bit.ly/16q7obd) - Requires Java 6 or higher.
-<br />
-[Older releases can be found on the downloads page](https://github.com/winder/builds/tree/master/UniversalGCodeSender)
-<br />
+| Version | Description |
+|-|-|
+| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightwight user interface |
+| [UGS Platform](http://bit.ly/1DkClRW) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
-Screenshots from the Platform version of UGS
+## Running 
+
+Make sure you have [Java 8](https://java.com/en/download/manual.jsp) or later installed. 
+
+Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
+
+* For **UGS Classic** simply double click the jar file. On some platforms you may need to run the included start script.
+* For **UGS Platform** run the start script: ```bin/ugsplatform``` 
+
+
+## Screenshots
+
+### UGS Platform
+
+UGS Platform main window
+
 ![UGS Platform](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_ugs_platform.png "UGS Platform")
 
 Customizable panel layout
+
 ![Customizable panel layout](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_customizable_panels.png "Customizable panel layout")
 
 Menu actions with customizable keybindings
+
 ![Actions](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_actions_menu.png "Actions")
+
+Menu with plugins
+
 ![Plugins](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_plugins_menu.png "Plugins")
 
 One of many plugins
+
 ![Dowel Maker](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_dowel_maker_plugin.png "Dowel maker plugin")
 
-Technical details:
-* JSSC for serial communication (RXTX was used up through v1.0.8)
-* JogAmp for OpenGL.
-* Developed with NetBeans 8.0.2 or later.
-* Built with Netbeans Platform
+### UGS Classic
 
-Development
------------
+UGS Classic main window
+
+![Classic main window](https://winder.github.io/ugs_website/img/screenshots/finished.png)
+
+UGS Classic with visualizer
+
+![Classic visualizer](https://winder.github.io/ugs_website/img/screenshots/visualizer.png)
+
+## Development
 
 For development the [Maven](http://maven.apache.org) build tool is used.
 
-#### Run main class from command line
+#### Start the application
 
-```mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow"```
+UGS Classic: 
+```bash
+mvn install
+mvn exec:java -Dexec.mainClass="com.willwinder.universalgcodesender.MainWindow" -pl ugs-core
+```
+
+UGS Platform: 
+```bash
+mvn install
+mvn nbm:run-platform -pl ugs-platform/application
+```
 
 
 #### Execute all tests
 
-```mvn test```
+```bash
+mvn test
+```
 
 
-#### Just build a self-running uber-jar:
+#### Building the self-executing JAR
 
-```mvn package```
+```bash
+mvn install
+mvn package -pl ugs-core
+```
 
 
 #### Build a UniversalGcodeSender.zip release file
 
-```mvn package assembly:assembly```
+```bash
+mvn package assembly:assembly
+```
 
-Changelog
----------
+## Changelog
+
 1.0.9 -> 2.0
 * Constant memory! Optimized every part of UGS to run in a fixed amount of memory, no more slowness because a file is too large.
 * 'Cancel' now issue a feed hold and soft reset to stop the machine faster.
@@ -98,6 +118,7 @@ Changelog
 * Controllers can now be added and configured with a JSON file, see resources/firmware_config
 * Added restore default buttons on settings pages.
 * Plane selection support: G17, G18, G19
+* Setup wizard for CNC controllers
 
 1.0.8 -> 1.0.9
 * Many performance improvements.
