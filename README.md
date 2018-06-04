@@ -14,13 +14,14 @@ Technical details:
 
 ## Downloads
 
-These are the nightly builds of the most recent code with the latest features and bug fixes. For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
+These are the nightly builds of the most recent code with the latest features and bug fixes. <br/>
+For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
 
-[![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
+[![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)  [![codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
 
 | Version | Description |
 |-|-|
-| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightwight user interface |
+| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightweight user interface |
 | [UGS Platform](http://bit.ly/1DkClRW) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
 ## Running 
