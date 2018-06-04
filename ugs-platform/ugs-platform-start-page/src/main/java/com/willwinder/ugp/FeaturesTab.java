@@ -40,7 +40,7 @@ import net.miginfocom.swing.MigLayout;
 public class FeaturesTab extends AbstractTab implements Constants {
   private static Logger logger = Logger.getLogger(FeaturesTab.class.getName());
 
-  private Collection<Feature> features;
+  private final Collection<Feature> features;
 
   public static class Feature {
     public final Date version;
@@ -97,6 +97,7 @@ public class FeaturesTab extends AbstractTab implements Constants {
   }
 
   private JComponent getImage(String uri) {
+    // TODO: Load images remotely.
     if (uri.startsWith("http")) {
       throw new IllegalArgumentException("Not supported yet.");
     }

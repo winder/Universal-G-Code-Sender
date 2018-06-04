@@ -19,10 +19,8 @@
 
 package com.willwinder.ugp.content;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Stroke;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
@@ -37,7 +35,8 @@ public interface Constants {
     static final String COLOR_BIG_BUTTON = "BigButtonColor"; //NOI18N
     static final String COLOR_BOTTOM_BAR = "BottomBarColor"; //NOI18N
     static final String COLOR_BORDER = "BorderColor"; //NOI18N
-    static final Color COLOR_TAB_BACKGROUND = new Color(2,26,114);
+    //static final Color COLOR_TAB_BACKGROUND = new Color(2,26,114);
+    static final Color COLOR_TAB_BACKGROUND = new Color(30, 86, 157);
     static final Color COLOR_TAB_CONTENT_BACKGROUND = Color.WHITE;
     static final Color COLOR_TAB_CONTENT_BACKGROUND2 = Color.LIGHT_GRAY;
     
@@ -56,6 +55,7 @@ public interface Constants {
     static final String IMAGE_CONTENT_BANNER = "com/willwinder/ugp/resources/content_banner.png"; // NOI18N
     static final String IMAGE_TAB_SELECTED = "com/willwinder/ugp/resources/tab_selected.png"; // NOI18N
     static final String IMAGE_TAB_ROLLOVER = "com/willwinder/ugp/resources/tab_rollover.png"; // NOI18N
+    static final String IMAGE_LOGO = "com/willwinder/ugp/resources/ugs_logo.gif"; // NOI18N
 
     //static final String BROKEN_IMAGE = "org/netbeans/modules/welcome/resources/broken_image.gif"; // NOI18N
     //static final String IMAGE_PICTURE_FRAME = "org/netbeans/modules/welcome/resources/picture_frame.png"; // NOI18N

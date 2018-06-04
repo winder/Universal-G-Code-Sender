@@ -20,7 +20,6 @@
 package com.willwinder.ugp.content;
 
 import com.willwinder.ugp.StartPageOptions;
-import com.willwinder.ugp.content.Constants;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -43,9 +42,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import javax.swing.JCheckBox;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -149,6 +147,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
 
     private static final Image imgSelected = ImageUtilities.loadImage( IMAGE_TAB_SELECTED, true );
     private static final Image imgRollover = ImageUtilities.loadImage( IMAGE_TAB_ROLLOVER, true );
+    private static final JLabel imgLogo = new JLabel(new ImageIcon(ImageUtilities.loadImage( IMAGE_LOGO, true )));
 
     private static class TabButton extends JPanel {
         private boolean isSelected = false;
@@ -262,7 +261,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         public TabHeader( TabButton ... buttons ) {
             super( new GridBagLayout() );
 
-            appLogo.add(new JLabel("Cool Logo"));
+            appLogo.add(imgLogo);
 
             setOpaque(false);
             JPanel panelButtons = new JPanel( new GridLayout( 1, 0 ) );

@@ -19,7 +19,6 @@
 
 package com.willwinder.ugp.content;
 
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -35,15 +34,15 @@ class BottomBar extends JPanel implements Constants {
     public BottomBar() {
         super( new GridBagLayout() );
         setOpaque(true);
-        setBackground( new Color(35, 86, 157) );
+        setBackground(COLOR_TAB_BACKGROUND);
         
-        add( new JLabel("left logo / url"), new GridBagConstraints(0,0,1,1,0.0,0.0,
+        add( new JLabel(" "/*"left logo / url"*/), new GridBagConstraints(0,0,1,1,0.0,0.0,
                 GridBagConstraints.WEST,GridBagConstraints.NONE,new Insets(0,12,0,5),0,0 ) );
         
         add( new JLabel(), new GridBagConstraints(1,0,1,1,1.0,0.0,
                 GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0 ) );
         
-        add( new JLabel("right logo / url"), new GridBagConstraints(4,0,1,1,0.0,0.0,
+        add( new JLabel(/*"right logo / url"*/), new GridBagConstraints(4,0,1,1,0.0,0.0,
                 GridBagConstraints.EAST,GridBagConstraints.NONE,new Insets(5,5,5,12),0,0 ) );
     }
 
