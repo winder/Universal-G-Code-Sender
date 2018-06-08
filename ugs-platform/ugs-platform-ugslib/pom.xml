@@ -133,6 +133,7 @@
                         <package>com.willwinder.universalgcodesender.utils</package>
                         <package>com.willwinder.universalgcodesender.utils.SettingsFactory</package>
                         <package>com.willwinder.universalgcodesender.visualizer</package>
+                        <package>com.willwinder.universalgcodesender.tracking</package>
                         <package>javax.vecmath</package>
                         <package>jssc</package>
                         <package>net.miginfocom.layout</package>

@@ -27,6 +27,9 @@ import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.Client;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Version;
 import java.io.File;
@@ -78,6 +81,12 @@ public class startup extends OptionProcessor implements Runnable {
         System.out.println("Setting UGP version title.");
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         setupVersionInformation(settings);
+        initTracker();
+    }
+
+    private void initTracker() {
+        TrackerService.initService(CentralLookup.getDefault().lookup(BackendAPI.class), Client.PLATFORM);
+        TrackerService.report(Event.APPLICATION_STARTED);
     }
 
     private void setupVersionInformation(Settings settings) {

@@ -435,7 +435,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         return streamStopWatch.getTime();
     }
 
-    private enum RowStat {
+    public enum RowStat {
         TOTAL_ROWS,
         ROWS_SENT,
         ROWS_COMPLETED,

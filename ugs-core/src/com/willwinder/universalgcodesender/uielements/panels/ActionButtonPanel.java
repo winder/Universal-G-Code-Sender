@@ -22,6 +22,8 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -115,6 +117,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void killAlarmLock(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_KILL_ALARM);
             this.backend.killAlarmLock();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -123,6 +126,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void performHomingCycleButton(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_PERFORM_HOMING);
             this.backend.performHomingCycle();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -131,6 +135,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void resetCoordinatesButton(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_RESET_COORDINATES_TO_ZERO);
             this.backend.resetCoordinatesToZero();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -139,6 +144,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void toggleCheckMode(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_CHECK_MODE);
             this.backend.toggleCheckMode();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -147,6 +153,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void returnToZeroButton(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_RETURN_TO_ZERO);
             backend.returnToZero();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -155,6 +162,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void requestStateInformation(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_PARSER_STATE);
             this.backend.requestParserState();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -163,6 +171,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     private void softResetMachineControl(java.awt.event.ActionEvent evt) {
         try {
+            TrackerService.report(Event.COMMON_ACTIONS_SOFT_RESET);
             this.backend.issueSoftReset();
         } catch (Exception ex) {
             displayErrorDialog(ex.getMessage());
@@ -191,5 +200,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
                 message,
                 Localization.getString("mainWindow.helpDialog"),
                 JOptionPane.INFORMATION_MESSAGE);
+
+        TrackerService.report(Event.COMMON_ACTIONS_HELP);
     }
 }

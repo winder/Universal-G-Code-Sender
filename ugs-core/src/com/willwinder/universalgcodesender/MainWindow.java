@@ -27,6 +27,9 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.tracking.Client;
+import com.willwinder.universalgcodesender.tracking.*;
+import com.willwinder.universalgcodesender.tracking.Event;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -307,6 +310,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 if(mw.pendantUI!=null){
                     mw.pendantUI.stop();
                 }
+
+                TrackerService.report(Event.APPLICATION_CLOSED);
             }
         });
 
@@ -1600,7 +1605,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }
-        
+
+        TrackerService.initService(backend, Client.CLASSIC);
+        TrackerService.report(Event.APPLICATION_STARTED);
+
         this.setLocalLabels();
         this.loadPortSelector();
         this.checkScrollWindow();

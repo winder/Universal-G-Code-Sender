@@ -25,10 +25,11 @@ import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelMotorWiring;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelSoftLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelStepCalibration;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 
-import java.awt.Dialog;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +43,18 @@ public class WizardStarter {
     public static void openWizard(BackendAPI backend) {
         List<AbstractWizardPanel> panels = createWizardStepPanels(backend);
 
+        TrackerService.report(Event.SETUP_WIZARD_STARTED);
+
         WizardPanelIterator panelIterator = new WizardPanelIterator(panels);
         WizardDescriptor wizardDescriptor = createWizardDescriptor(panelIterator);
         panelIterator.initialize(wizardDescriptor);
 
-        Dialog dialog = DialogDisplayer.getDefault().createDialog(wizardDescriptor);
-        dialog.setVisible(true);
-        dialog.toFront();
+        Object result = DialogDisplayer.getDefault().notify(wizardDescriptor);
+        if (result == WizardDescriptor.FINISH_OPTION) {
+            TrackerService.report(Event.SETUP_WIZARD_FINISHED);
+        } else {
+            TrackerService.report(Event.SETUP_WIZARD_CANCELED);
+        }
 
         // Make sure all panels are destoyed after we finished the wizard
         panels.forEach(AbstractWizardPanel::destroy);

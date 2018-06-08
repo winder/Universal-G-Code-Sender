@@ -24,9 +24,12 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
-
-import java.util.*;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 
 public class Settings {
     // Transient, don't serialize or deserialize.
@@ -79,6 +82,10 @@ public class Settings {
     private PendantConfigBean pendantConfig = new PendantConfigBean();
 
     private String connectionDriver;
+
+    private String clientId = UUID.randomUUID().toString();
+
+    private boolean useTracking = false;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -445,6 +452,18 @@ public class Settings {
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {
         this.connectionDriver = connectionDriver.name();
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public boolean useTracking() {
+        return useTracking;
     }
 
     public static class AutoLevelSettings {

@@ -40,6 +40,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
+import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
@@ -237,6 +239,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         this.controller.getFirmwareSettings().addListener(this);
 
+        TrackerService.report(Event.APPLICATION_CONNECT, firmware, 0);
         if (openCommConnection(port, baudRate)) {
             streamFailed = false;   //reset
         }
@@ -260,6 +263,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void disconnect() throws Exception {
         autoconnect = false;
+        TrackerService.report(Event.APPLICATION_CONNECT, firmware, 0);
         disconnectInternal();
     }
 
@@ -537,7 +541,10 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
             //this.controller.queueCommands(processedCommandLines);
             //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
-            this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
+            GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(this.processedGcodeFile);
+            this.controller.queueStream(gcodeStreamReader);
+
+            TrackerService.report(Event.FILE_STREAM_BEGIN, "Rows to send", gcodeStreamReader.getNumRows());
 
             this.controller.beginStreaming();
         } catch (Exception e) {
@@ -608,9 +615,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     // This can happen at the beginning of a stream when GRBL
                     // reports an error before we send it a status request.
                 case COMM_SENDING:
+                    TrackerService.report(Event.FILE_STREAM_PAUSE);
                     this.controller.pauseStreaming();
                     return;
                 case COMM_SENDING_PAUSED:
+                    TrackerService.report(Event.FILE_STREAM_RESUME);
                     this.controller.resumeStreaming();
                     return;
             }
@@ -666,6 +675,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void cancel() throws Exception {
         if (this.canCancel()) {
+            TrackerService.report(Event.FILE_STREAM_CANCEL);
             this.controller.cancelSend();
         }
     }
@@ -721,6 +731,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
+        TrackerService.report(Event.FILE_STREAM_COMPLETE, "Rows sent", controller.getRowStat(AbstractController.RowStat.ROWS_COMPLETED));
         this.sendUGSEvent(new UGSEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
     }
 

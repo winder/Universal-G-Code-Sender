@@ -19,6 +19,8 @@
 package com.willwinder.ugs.nbp.core.lifecycle;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.openide.modules.OnStop;
@@ -31,6 +33,8 @@ import org.openide.modules.OnStop;
 public class shutdown implements Runnable {
     @Override
     public void run() {
+        TrackerService.report(Event.APPLICATION_CLOSED);
+
         // Save settings.
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         SettingsFactory.saveSettings(settings);
