@@ -61,12 +61,12 @@ public class MatomoTracker implements ITracker {
     }
 
     @Override
-    public void report(Event event) {
-        report(event, null, 0);
+    public void report(String module, String action) {
+        report(module, action, null, 0);
     }
 
     @Override
-    public void report(Event event, String resourceName, int resourceValue) {
+    public void report(String module, String action, String resourceName, int resourceValue) {
         // Run in a worker thread
         EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -78,16 +78,12 @@ public class MatomoTracker implements ITracker {
                 uriBuilder.addParameter("send_image", "0");
                 uriBuilder.addParameter("uid", backendAPI.getSettings().getClientId());
                 uriBuilder.addParameter("cid", SESSION_ID);
-                uriBuilder.addParameter("action_name", client.name() + " / " + event.getCategory() + " / " + event.getAction());
+                uriBuilder.addParameter("action_name", client.name() + " / " + module + " / " + action);
 
                 uriBuilder.addParameter("_cvar", "{\"1\":[\"Version\",\"" + Version.getVersionString() + "\"]}");
 
-                if (event == Event.APPLICATION_STARTED) {
-                    uriBuilder.addParameter("new_visit", "1");
-                }
-
-                uriBuilder.addParameter("e_c", event.getCategory());
-                uriBuilder.addParameter("e_a", event.getCategory() + " - " + event.getAction());
+                uriBuilder.addParameter("e_c", module);
+                uriBuilder.addParameter("e_a", module + " - " + action);
 
                 if (StringUtils.isNotEmpty(resourceName)) {
                     uriBuilder.addParameter("e_n", resourceName);
@@ -105,7 +101,7 @@ public class MatomoTracker implements ITracker {
                 HttpGet get = new HttpGet(uriBuilder.build());
                 client.execute(get);
             } catch (URISyntaxException | IOException e) {
-                LOGGER.log(Level.WARNING, "Couldn't report usage statistics for " + event.name(), e);
+                LOGGER.log(Level.WARNING, "Couldn't report usage statistics for '" + module + " - " + action + "'", e);
             }
         });
     }

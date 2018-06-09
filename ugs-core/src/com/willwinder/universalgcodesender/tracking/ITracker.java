@@ -26,19 +26,21 @@ package com.willwinder.universalgcodesender.tracking;
 public interface ITracker {
 
     /**
-     * Reports a event with the given event type to a tracker server
+     * Reports a event to the tracker server
      *
-     * @param event the event type to register
+     * @param module the module that this event occured in. Ex. "Application", "Jog", "Setup Wizard"
+     * @param action the action that triggered the event. Ex. "Started", "File stream complete"
      */
-    void report(Event event);
+    void report(String module, String action);
 
 
     /**
      * Reports a event with the given event type to a tracker server.
      *
-     * @param event         the event type to register
+     * @param module the module that this event occured in. Ex. "Application", "Jog", "Setup Wizard"
+     * @param action the action that triggered the event. Ex. "Started", "File stream complete"
      * @param resourceName  the name of an extra resource we want to register for this event. Example "Rows sent" for the number of rows when a file completes.
      * @param resourceValue a optional number value for the resource. Example a number of rows sent when a file completes.
      */
-    void report(Event event, String resourceName, int resourceValue);
+    void report(String module, String action, String resourceName, int resourceValue);
 }
