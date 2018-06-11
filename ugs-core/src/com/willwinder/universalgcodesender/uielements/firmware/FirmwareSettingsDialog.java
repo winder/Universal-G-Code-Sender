@@ -19,20 +19,30 @@
 package com.willwinder.universalgcodesender.uielements.firmware;
 
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingUtils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.uielements.components.SettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.StringNumberComparator;
 
-import javax.swing.*;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import java.awt.*;
+import java.awt.Frame;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -49,9 +59,12 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
 
     private final IFirmwareSettings firmwareSettingsManager;
     private final FirmwareSettingsTableModel firmwareSettingsTableModel;
+    private final BackendAPI backend;
 
     private JButton closeButton;
     private JButton saveButton;
+    private JButton exportButton;
+    private JButton importButton;
     private JTable settingsTable;
 
     /**
@@ -68,6 +81,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
             throw new Exception("There is no controller. Are you connected?");
         }
 
+        this.backend = backend;
         firmwareSettingsManager = backend.getController().getFirmwareSettings();
         firmwareSettingsTableModel = new FirmwareSettingsTableModel(firmwareSettingsManager.getAllSettings());
         firmwareSettingsManager.addListener(this);
@@ -80,6 +94,8 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
     private void initLocalization() {
         saveButton.setText(Localization.getString("save"));
         closeButton.setText(Localization.getString("close"));
+        importButton.setText(Localization.getString("import"));
+        exportButton.setText(Localization.getString("export"));
         TableColumnModel tcm = settingsTable.getTableHeader().getColumnModel();
         tcm.getColumn(0).setHeaderValue(Localization.getString("setting"));
         tcm.getColumn(1).setHeaderValue(Localization.getString("value"));
@@ -98,6 +114,12 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         closeButton = new JButton();
         closeButton.setText("Close");
         closeButton.addActionListener(event -> closeButtonActionPerformed());
+
+        exportButton = new JButton("Export");
+        exportButton.addActionListener(event -> exportButtonActionPerformed());
+
+        importButton = new JButton("Import");
+        importButton.addActionListener(event -> importButtonActionPerformed());
 
         settingsTable = new JTable();
         settingsTable.setModel(firmwareSettingsTableModel);
@@ -120,9 +142,13 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(saveButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(closeButton)
+                                .addContainerGap(10, 20)
+                                .addComponent(exportButton)
+                                .addContainerGap()
+                                .addComponent(importButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(saveButton)
                                 .addContainerGap())
                         .addComponent(settingsTableScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
         );
@@ -132,12 +158,33 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
                                 .addComponent(settingsTableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(saveButton)
-                                        .addComponent(closeButton))
+                                        .addComponent(closeButton)
+                                        .addComponent(exportButton)
+                                        .addComponent(importButton)
+                                        .addComponent(saveButton))
                                 .addContainerGap())
         );
 
         pack();
+    }
+
+    private void importButtonActionPerformed() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new SettingsFileTypeFilter());
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            FirmwareSettingUtils.importSettings(fileChooser.getSelectedFile(), backend.getController().getFirmwareSettings());
+        }
+    }
+
+    private void exportButtonActionPerformed() {
+        JFileChooser fileChooser = new JFileChooser();
+        LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        fileChooser.setSelectedFile(new File("firmware-" + ".settings"));
+        fileChooser.setFileFilter(new SettingsFileTypeFilter());
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            FirmwareSettingUtils.exportSettings(file, backend.getController());
+        }
     }
 
     private void closeButtonActionPerformed() {
