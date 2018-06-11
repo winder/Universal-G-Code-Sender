@@ -64,9 +64,10 @@ public class FirmwareSettingUtils {
      * @param settingsFile the file to write the settings to.
      * @param controller the controller to get the firmware settings from
      */
-    public static void exportSettings(File settingsFile, IController controller) {
+    public static void exportSettings(final File settingsFile, IController controller) {
+        File file = settingsFile;
         if (!StringUtils.endsWith(settingsFile.getName(), ".settings")) {
-            settingsFile = new File(settingsFile.getAbsolutePath() + ".settings");
+            file = new File(settingsFile.getAbsolutePath() + ".settings");
         }
 
         FirmwareSettingsFile firmwareSettingsFile = new FirmwareSettingsFileBuilder()
@@ -83,7 +84,7 @@ public class FirmwareSettingUtils {
 
         try {
             String json = gson.toJson(firmwareSettingsFile);
-            FileUtils.writeStringToFile(settingsFile, json);
+            FileUtils.writeStringToFile(file, json);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Couldn't write the settings file " + settingsFile.getAbsolutePath(), e);
         }
