@@ -24,7 +24,10 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import net.miginfocom.swing.MigLayout;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
@@ -43,6 +46,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
     /**
      * No-Arg constructor to make this control work in the UI builder tools
+     *
      * @deprecated Use constructor with BackendAPI.
      */
     @Deprecated
@@ -78,10 +82,10 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
 
         toggleCheckMode.addActionListener(this::toggleCheckMode);
 
-        MigLayout layout = new MigLayout("fillx, wrap 2");
+        MigLayout layout = new MigLayout("fill, wrap 2, inset 5, gap 2", "[50%][50%]");
         setLayout(layout);
 
-        String constraints = "sg 1";
+        String constraints = "grow, wmin 110, hmin 28, gap 0, sg 1";
         add(resetCoordinatesButton, constraints);
         add(returnToZeroButton, constraints);
         add(softResetMachineControl, constraints);
@@ -89,7 +93,7 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
         add(killAlarmLock, constraints);
         add(requestStateInformation, constraints);
         add(toggleCheckMode, constraints + ", wrap");
-        add(helpButtonMachineControl, "growx, span 2");
+        add(helpButtonMachineControl, constraints + ", span 2");
     }
 
     @Override
@@ -179,13 +183,9 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
                 .append(Localization.getString("mainWindow.checkMode")).append("\n")
                 .append(Localization.getString("mainWindow.getState")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyboard")).append("\n")
-                //.append(Localization.getString("mainWindow.helpKeyX")).append("\n")
-                //.append(Localization.getString("mainWindow.helpKeyY")).append("\n")
-                //.append(Localization.getString("mainWindow.helpKeyZ")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyPlusMinus")).append("\n")
                 .append(Localization.getString("mainWindow.helpKeyDivMul")).append("\n")
-                .append(Localization.getString("mainWindow.helpKeyZero")).append("\n")
-                ;
+                .append(Localization.getString("mainWindow.helpKeyZero")).append("\n");
 
         JOptionPane.showMessageDialog(new JFrame(),
                 message,
