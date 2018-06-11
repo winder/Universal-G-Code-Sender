@@ -139,7 +139,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(closeButton)
@@ -147,17 +147,17 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
                                 .addComponent(exportButton)
                                 .addContainerGap()
                                 .addComponent(importButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(saveButton)
                                 .addContainerGap())
-                        .addComponent(settingsTableScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
+                        .addComponent(settingsTableScrollPane, GroupLayout.Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 510, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
-                                .addComponent(settingsTableScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
+                                .addComponent(settingsTableScrollPane, GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                         .addComponent(closeButton)
                                         .addComponent(exportButton)
                                         .addComponent(importButton)
@@ -178,8 +178,8 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
 
     private void exportButtonActionPerformed() {
         JFileChooser fileChooser = new JFileChooser();
-        LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-        fileChooser.setSelectedFile(new File("firmware-" + ".settings"));
+        String date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        fileChooser.setSelectedFile(new File("firmware_" + date + ".settings"));
         fileChooser.setFileFilter(new SettingsFileTypeFilter());
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
