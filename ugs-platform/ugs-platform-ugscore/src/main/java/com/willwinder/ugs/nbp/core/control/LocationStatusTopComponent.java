@@ -23,9 +23,13 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.panels.MachineStatusPanel;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+
+import javax.swing.JScrollPane;
 
 /**
  * Top component which displays something.
@@ -47,7 +51,10 @@ public final class LocationStatusTopComponent extends TopComponent {
     public LocationStatusTopComponent() {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         setLayout(new BorderLayout());
-        add(new MachineStatusPanel(backend), BorderLayout.CENTER);
+
+        JScrollPane scrollPane = new JScrollPane(new MachineStatusPanel(backend));
+        add(scrollPane, BorderLayout.CENTER);
+        setMinimumSize(new Dimension(100, 100));
     }
 
     @Override
