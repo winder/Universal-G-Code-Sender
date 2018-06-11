@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.components.SettingsFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.utils.StringNumberComparator;
 
 import javax.swing.GroupLayout;
@@ -170,7 +170,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
 
     private void importButtonActionPerformed() {
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileFilter(new SettingsFileTypeFilter());
+        fileChooser.setFileFilter(new FirmwareSettingsFileTypeFilter());
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             FirmwareSettingUtils.importSettings(fileChooser.getSelectedFile(), backend.getController().getFirmwareSettings());
         }
@@ -180,7 +180,7 @@ public class FirmwareSettingsDialog extends JDialog implements IFirmwareSettings
         JFileChooser fileChooser = new JFileChooser();
         String date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
         fileChooser.setSelectedFile(new File("firmware_" + date + ".settings"));
-        fileChooser.setFileFilter(new SettingsFileTypeFilter());
+        fileChooser.setFileFilter(new FirmwareSettingsFileTypeFilter());
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             FirmwareSettingUtils.exportSettings(file, backend.getController());

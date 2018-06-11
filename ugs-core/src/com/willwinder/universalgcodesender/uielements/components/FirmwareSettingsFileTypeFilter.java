@@ -28,9 +28,9 @@ import java.io.File;
 /**
  * FileFilter which is limited to firmware settings files.
  */
-public class SettingsFileTypeFilter extends FileFilter {
+public class FirmwareSettingsFileTypeFilter extends FileFilter {
     public static JFileChooser getSettingsFileChooser() {
-        SettingsFileTypeFilter filter = new SettingsFileTypeFilter();
+        FirmwareSettingsFileTypeFilter filter = new FirmwareSettingsFileTypeFilter();
         
         // Setup file browser with the last path used.
         JFileChooser fileChooser = new JFileChooser();
@@ -48,17 +48,13 @@ public class SettingsFileTypeFilter extends FileFilter {
         if (f.isDirectory()) {
             return true;
         }
- 
-        String extension = getExtension(f);
-        return "settings".equals(extension);
+
+        return StringUtils.endsWith(f.getName(), ".settings");
     }
  
     @Override
     public String getDescription() {
         return "Firmware settings";
     }
-    
-    private static String getExtension(File f) {
-        return StringUtils.substringAfterLast(f.getName(), ".");
-    }
+
 }
