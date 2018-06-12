@@ -44,16 +44,12 @@ public class FirmwareSettingUtils {
 
             int result = JOptionPane.showConfirmDialog(new Frame(), message, Localization.getString("firmware.settings.importSettingsTitle"), JOptionPane.OK_CANCEL_OPTION);
             if (result == JOptionPane.OK_OPTION) {
-                firmwareSettingsFile.getSettings().forEach(setting -> {
-                    try {
-                        firmwareSettings.setValue(setting.getKey(), setting.getValue());
-                    } catch (FirmwareSettingsException e) {
-                        LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
-                    }
-                });
+                firmwareSettings.setSettings(firmwareSettingsFile.getSettings());
             }
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Couldn't open the settings file " + settingsFile.getAbsolutePath(), e);
+        } catch (FirmwareSettingsException e) {
+            LOGGER.log(Level.SEVERE, "Couldn't update all settings", e);
         }
     }
 

@@ -288,4 +288,11 @@ public interface IFirmwareSettings {
      * @return true if the limit pins are inverted
      */
     boolean isHardLimitsInverted() throws FirmwareSettingsException;
+
+    /**
+     * Sets multiple firmware settings
+     *
+     * @param settings to update
+     */
+    void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException;
 }
