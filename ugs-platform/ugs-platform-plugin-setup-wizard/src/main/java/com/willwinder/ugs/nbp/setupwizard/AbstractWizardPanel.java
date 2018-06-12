@@ -28,7 +28,6 @@ import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.Set;
 
