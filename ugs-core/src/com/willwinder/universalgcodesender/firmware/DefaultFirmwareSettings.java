@@ -185,6 +185,11 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+
+    }
+
+    @Override
     public UnitUtils.Units getReportingUnits() {
         return UnitUtils.Units.UNKNOWN;
     }
