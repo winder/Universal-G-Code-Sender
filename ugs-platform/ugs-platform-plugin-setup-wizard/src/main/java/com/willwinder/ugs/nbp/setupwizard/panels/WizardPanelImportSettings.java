@@ -8,6 +8,7 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
@@ -143,7 +144,7 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
             try {
                 firmwareSettingsFile = FirmwareSettingUtils.readSettings(file);
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this.getComponent(), "Couldn't read settings file: " + e.getMessage(), "Error while reading settings file", JOptionPane.ERROR_MESSAGE);
+                GUIHelpers.displayErrorDialog("Couldn't read settings file: " + e.getMessage(), true);
                 firmwareSettingsFile = null;
             }
         }
