@@ -24,9 +24,11 @@ import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,6 +50,11 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
      * The panel to display
      */
     private final JPanel panel;
+
+    /**
+     * The panel to display
+     */
+    private final Component rootComponent;
 
     /**
      * A set of listeners
@@ -76,9 +83,12 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
 
         this.backend = backend;
         this.name = name;
-
         this.panel = new JPanel(new MigLayout(layoutConstraints));
-        this.panel.setName(name);
+
+        JScrollPane scrollPane = new JScrollPane(this.panel);
+        scrollPane.setBorder(null);
+        scrollPane.setName(name);
+        this.rootComponent = scrollPane;
     }
 
     public JPanel getPanel() {
@@ -87,7 +97,7 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
 
     @Override
     public Component getComponent() {
-        return panel;
+        return rootComponent;
     }
 
     @Override
