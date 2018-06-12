@@ -27,15 +27,12 @@ public class FirmwareSettingUtils {
     /**
      * Imports firmware settings from a settings file. Displays a popup with a question if the file should be imported.
      *
-     * @param settingsFile the file containing a JSON with {@link FirmwareSettingsFile}
+     * @param settingsFile     the file containing a JSON with {@link FirmwareSettingsFile}
      * @param firmwareSettings the firmware settings to update
      */
     public static void importSettings(File settingsFile, IFirmwareSettings firmwareSettings) {
         try {
-            String json = FileUtils.readFileToString(settingsFile);
-            Gson gson = new Gson();
-            FirmwareSettingsFile firmwareSettingsFile = gson.fromJson(json, FirmwareSettingsFile.class);
-
+            FirmwareSettingsFile firmwareSettingsFile = readSettings(settingsFile);
             String message = Localization.getString("firmware.settings.importSettings") + "\n\n  " +
                     Localization.getString("firmware.settings.importSettingsName") + ": " + firmwareSettingsFile.getName() + "\n  " +
                     Localization.getString("firmware.settings.importSettingsDate") + ": " + firmwareSettingsFile.getDate() + "\n  " +
@@ -58,7 +55,7 @@ public class FirmwareSettingUtils {
      * {@link FirmwareSettingsFile}
      *
      * @param settingsFile the file to write the settings to.
-     * @param controller the controller to get the firmware settings from
+     * @param controller   the controller to get the firmware settings from
      */
     public static void exportSettings(final File settingsFile, IController controller) {
         File file = settingsFile;
@@ -84,5 +81,18 @@ public class FirmwareSettingUtils {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Couldn't write the settings file " + settingsFile.getAbsolutePath(), e);
         }
+    }
+
+    /**
+     * Reads a file and parses it to a firmware settings file
+     *
+     * @param settingsFile the file containing a JSON with {@link FirmwareSettingsFile}
+     * @return the firmware settings together with its meta data
+     * @throws IOException if the settings file couldn't be read or parsed
+     */
+    public static FirmwareSettingsFile readSettings(File settingsFile) throws IOException {
+        String json = FileUtils.readFileToString(settingsFile);
+        Gson gson = new Gson();
+        return gson.fromJson(json, FirmwareSettingsFile.class);
     }
 }
