@@ -394,7 +394,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                 if (!r.enableLighting()) {
                     gl.glDisable(GL2.GL_LIGHTING);
                 }
-                r.draw(drawable, idle, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+                r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
                 if (!r.enableLighting()) {
                     gl.glEnable(GL2.GL_LIGHTING);
                     gl.glEnable(GL2.GL_LIGHT0);
