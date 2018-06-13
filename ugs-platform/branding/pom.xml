@@ -1,51 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>com.willwinder</groupId>
-        <artifactId>ugs-platform-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
-    </parent>
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+      <groupId>com.willwinder</groupId>
+      <artifactId>ugs-platform-parent</artifactId>
+      <version>2.0-SNAPSHOT</version>
+  </parent>
 
-    <artifactId>ugs-platform-branding</artifactId>
-    <version>2.0-SNAPSHOT</version>
-    <packaging>nbm</packaging>
+  <artifactId>ugs-platform-branding</artifactId>
+  <version>2.0-SNAPSHOT</version>
+  <packaging>nbm</packaging>
 
-    <name>ugs-platform-branding</name>
+  <name>ugs-platform-branding</name>
 
-    <dependencies>
-        <!-- Netbeans dependencies -->
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-netbeans-api-annotations-common</artifactId>
+      <version>${netbeans.version}</version>
+    </dependency>
+  </dependencies>
 
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-modules</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-
-        <!-- UGS Module Dependencies -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ugs-platform-ugslib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>nbm-maven-plugin</artifactId>
-                <configuration>
-                    <publicPackages>
-                    </publicPackages>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+      <plugins>
+          <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>nbm-maven-plugin</artifactId>
+              <configuration>
+                  <publicPackages>
+                  </publicPackages>
+              </configuration>
+          </plugin>
+      </plugins>
+  </build>
 </project>
