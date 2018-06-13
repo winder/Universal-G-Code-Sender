@@ -25,6 +25,7 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.glu.GLU;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.renderables.Grid;
+import com.willwinder.ugs.nbm.visualizer.renderables.Machine;
 import com.willwinder.ugs.nbm.visualizer.renderables.MouseOver;
 import com.willwinder.ugs.nbm.visualizer.renderables.OrientationCube;
 import com.willwinder.ugs.nbm.visualizer.renderables.Tool;
@@ -92,8 +93,8 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
     private double zoomMultiplier = 1;
     private final boolean invertZoom = false; // TODO: Make configurable
     // const values until added to settings
-    private final double minZoomMultiplier = 1;
-    private final double maxZoomMultiplier = 30;
+    private final double minZoomMultiplier = .1;
+    private final double maxZoomMultiplier = 50;
     private final double zoomIncrement = 0.2;
 
     // Movement
@@ -136,6 +137,7 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
         setHorizontalTranslationVector();
 
         objects = new ArrayList<>();
+        objects.add(new Machine());
         objects.add(new Tool(Localization.getString("platform.visualizer.renderable.tool-location")));
         objects.add(new MouseOver(Localization.getString("platform.visualizer.renderable.mouse-indicator")));
         objects.add(new OrientationCube(0.5f, Localization.getString("platform.visualizer.renderable.orientation-cube")));
