@@ -6,8 +6,8 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 
 import javax.vecmath.Point3d;
 
@@ -16,7 +16,10 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 
-public class MachineBoundry extends Renderable {
+/**
+ * Displays the machine boundries based on the soft limits
+ */
+public class MachineBoundries extends Renderable {
     private final BackendAPI backendAPI;
     private double softLimitX = 0;
     private double softLimitY = 0;
@@ -26,28 +29,35 @@ public class MachineBoundry extends Renderable {
     private float[] yAxisColor;
     private float[] xAxisColor;
     private float[] zAxisColor;
-    private boolean softLimitsEnabled;
+    private boolean softLimitsEnabled = false;
 
     /**
      * Construct with a priority number. Objects should be rendered from highest
      * to lowest priority.
      */
-    public MachineBoundry() {
-        super(Integer.MIN_VALUE, "Machine boundries");
+    public MachineBoundries(String title) {
+        super(Integer.MIN_VALUE, title);
         reloadPreferences(new VisualizerOptions());
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backendAPI.addUGSEventListener(this::onUGSEvent);
+        backendAPI.addUGSEventListener(event -> onUGSEvent());
     }
 
-    private void onUGSEvent(UGSEvent event) {
+    private void onUGSEvent() {
         try {
-            softLimitsEnabled = backendAPI.isConnected() && backendAPI.getController().getFirmwareSettings().isSoftLimitsEnabled();
-            if (backendAPI.isConnected() && backendAPI.isIdle() && backendAPI.getController().getCapabilities().hasSoftLimits() && softLimitsEnabled) {
-                softLimitX = backendAPI.getController().getFirmwareSettings().getSoftLimitX();
-                softLimitY = backendAPI.getController().getFirmwareSettings().getSoftLimitY();
-                softLimitZ = backendAPI.getController().getFirmwareSettings().getSoftLimitZ();
+            // This will prevent us from accessing the firmware settings before the init
+            // processes has finished and it will also prevent us from accessing the
+            // controller after it has disconnected
+            if (!backendAPI.isConnected() || !backendAPI.isIdle()) {
+                return;
             }
-        } catch (FirmwareSettingsException e) {
+
+            softLimitsEnabled = backendAPI.getController().getFirmwareSettings().isSoftLimitsEnabled();
+            if (softLimitsEnabled) {
+                softLimitX = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.X);
+                softLimitY = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Y);
+                softLimitZ = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Z);
+            }
+        } catch (FirmwareSettingsException ignored) {
             // Never mind this.
         }
 
@@ -75,7 +85,7 @@ public class MachineBoundry extends Renderable {
 
     @Override
     public void reloadPreferences(VisualizerOptions vo) {
-        machineBoundryBottomColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_PLANE).value);
+        machineBoundryBottomColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_BASE).value);
         machineBoundryLineColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VisualizerOptions.VISUALIZER_OPTION_BOUNDRY_SIDES).value);
         yAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_X).value);
         xAxisColor = VisualizerOptions.colorToFloatArray(vo.getOptionForKey(VISUALIZER_OPTION_Y).value);
@@ -97,15 +107,15 @@ public class MachineBoundry extends Renderable {
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
-            drawBoundryLines(gl, bottomLeft, topRight);
+            drawBase(gl, bottomLeft, topRight);
+            drawSides(gl, bottomLeft, topRight);
             drawAxisLines(gl, bottomLeft, topRight);
-            drawBottomPlane(gl, bottomLeft, topRight);
         gl.glPopMatrix();
     }
 
-    private void drawBottomPlane(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+    private void drawBase(GL2 gl, Point3d bottomLeft, Point3d topRight) {
         gl.glColor4fv(machineBoundryBottomColor, 0);
-            gl.glBegin(GL2.GL_QUADS);
+        gl.glBegin(GL2.GL_QUADS);
             gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
             gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
             gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
@@ -140,7 +150,7 @@ public class MachineBoundry extends Renderable {
         gl.glEnd();
     }
 
-    private double drawBoundryLines(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+    private void drawSides(GL2 gl, Point3d bottomLeft, Point3d topRight) {
         double offset = 0.001;
         gl.glLineWidth(3f);
         gl.glBegin(GL_LINES);
@@ -175,6 +185,5 @@ public class MachineBoundry extends Renderable {
             gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
             gl.glVertex3d(topRight.x, topRight.y, topRight.getZ());
         gl.glEnd();
-        return offset;
     }
 }

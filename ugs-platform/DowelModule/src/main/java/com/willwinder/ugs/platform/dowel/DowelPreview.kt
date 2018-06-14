@@ -57,7 +57,7 @@ class DowelPreview(val description: String, val generator: DowelGenerator) : Ren
     override fun reloadPreferences(vo: VisualizerOptions?) {
     }
 
-    override fun draw(drawable: GLAutoDrawable, idle: Boolean, machineCoord: Point3d, workCoord: Point3d, objectMin: Point3d, objectMax: Point3d, scaleFactor: Double, mouseWorldCoordinates: Point3d, rotation: Point3d) {
+    override fun draw(drawable: GLAutoDrawable?, idle: Boolean, machineCoord: Point3d?, workCoord: Point3d?, objectMin: Point3d?, objectMax: Point3d?, scaleFactor: Double, mouseWorldCoordinates: Point3d?, rotation: Point3d?) {
       if (drawable?.gl?.gL2 == null) return
       val mult: Double = generator.unitMultiplier()
       drawable.gl.gL2.let {

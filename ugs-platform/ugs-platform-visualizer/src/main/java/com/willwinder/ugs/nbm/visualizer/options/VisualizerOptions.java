@@ -60,7 +60,7 @@ public class VisualizerOptions extends ArrayList<Option> {
     public static String VISUALIZER_OPTION_LOW = "platform.visualizer.color.surface.low";
 
     // Machine boundries
-    public static final String VISUALIZER_OPTION_BOUNDRY_PLANE = "platform.visualizer.color.boundry-plane";
+    public static final String VISUALIZER_OPTION_BOUNDRY_BASE = "platform.visualizer.color.boundry-base";
     public static final String VISUALIZER_OPTION_BOUNDRY_SIDES = "platform.visualizer.color.boundry-sides";
 
 
@@ -108,7 +108,7 @@ public class VisualizerOptions extends ArrayList<Option> {
         add(getOption(VISUALIZER_OPTION_LOW, "", new Color(255, 0, 0, 128)));
 
         // Machine boundries
-        add(getOption(VISUALIZER_OPTION_BOUNDRY_PLANE, "", new Color(167, 183, 206, 64)));
+        add(getOption(VISUALIZER_OPTION_BOUNDRY_BASE, "", new Color(167, 183, 206, 64)));
         add(getOption(VISUALIZER_OPTION_BOUNDRY_SIDES, "", new Color(119, 139, 168, 64)));
     }
 
