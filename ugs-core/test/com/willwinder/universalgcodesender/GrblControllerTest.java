@@ -1128,11 +1128,11 @@ public class GrblControllerTest {
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        assertEquals(mgc.queuedStrings.get(2), "G20G91G0X-10Z10F11\n");
+        assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11\n");
         assertEquals(mgc.queuedStrings.get(3), "G90 G21 \n");
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
-        assertEquals(mgc.queuedStrings.get(4), "G21G91G0Y10F11\n");
+        assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11\n");
         assertEquals(mgc.queuedStrings.get(5), "G90 G21 \n");
 
         instance.rawResponseHandler("Grbl 1.1a");
