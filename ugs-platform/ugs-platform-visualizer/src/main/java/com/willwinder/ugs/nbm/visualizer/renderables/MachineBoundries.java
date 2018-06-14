@@ -80,7 +80,7 @@ public class MachineBoundries extends Renderable {
 
     @Override
     public void init(GLAutoDrawable drawable) {
-
+        // Not used
     }
 
     @Override

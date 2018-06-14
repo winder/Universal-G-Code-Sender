@@ -8,15 +8,16 @@ import com.willwinder.ugs.nbp.core.actions.PortAction;
 import com.willwinder.ugs.nbp.core.actions.ReturnToZeroAction;
 import com.willwinder.ugs.nbp.core.actions.SoftResetAction;
 import com.willwinder.ugs.nbp.core.actions.UnlockAction;
-import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
-import com.willwinder.universalgcodesender.MainWindow;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.actions.OpenGcodeFileAction;
-import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JToolBar;
+import javax.swing.UIManager;
+import javax.swing.WindowConstants;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 /**
  * A class for viewing and testing a stand alone version of the visualizer
@@ -35,8 +36,6 @@ public class VisualizerTestMain extends JFrame {
     }
 
     private void start() throws Exception {
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-
         setPreferredSize(new Dimension(1024, 768));
         setLayout(new BorderLayout());
 
@@ -44,7 +43,7 @@ public class VisualizerTestMain extends JFrame {
         add(visualizer, BorderLayout.CENTER);
         visualizer.componentOpened();
 
-        createMenuBar(backendAPI);
+        createMenuBar();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -52,7 +51,7 @@ public class VisualizerTestMain extends JFrame {
         setVisible(true);
     }
 
-    private void createMenuBar(BackendAPI backendAPI) {
+    private void createMenuBar() {
         JMenu fileMenu = new JMenu("File");
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(fileMenu);
