@@ -780,10 +780,10 @@ public class AbstractControllerTest {
         expect(expectLastCall()).times(2);
 
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm("G20G91G0X-10Z10F11\n");
+        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11\n");
         expect(expectLastCall()).times(1);
 
-        mockCommunicator.queueStringForComm("G21G91G0Y10F11\n");
+        mockCommunicator.queueStringForComm("G21G91G1Y10F11\n");
         expect(expectLastCall()).times(1);
 
         replay(niceInstance, mockCommunicator);
