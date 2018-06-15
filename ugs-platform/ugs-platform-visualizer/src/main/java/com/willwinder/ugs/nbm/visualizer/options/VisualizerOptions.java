@@ -59,6 +59,11 @@ public class VisualizerOptions extends ArrayList<Option> {
     public static String VISUALIZER_OPTION_HIGH = "platform.visualizer.color.surface.high";
     public static String VISUALIZER_OPTION_LOW = "platform.visualizer.color.surface.low";
 
+    // Machine boundries
+    public static final String VISUALIZER_OPTION_BOUNDRY_BASE = "platform.visualizer.color.boundry-base";
+    public static final String VISUALIZER_OPTION_BOUNDRY_SIDES = "platform.visualizer.color.boundry-sides";
+
+
     public class ColorPref {
         public String preference;
         public String localized;
@@ -89,7 +94,7 @@ public class VisualizerOptions extends ArrayList<Option> {
         add(getOption(VISUALIZER_OPTION_HIGHLIGHT, "", new Color(237,255,0)));
 
         // Grid renderable
-        add(getOption(VISUALIZER_OPTION_XY_GRID, "", new Color(179,179,179)));
+        add(getOption(VISUALIZER_OPTION_XY_GRID, "", new Color(179,179,179, 29)));
         add(getOption(VISUALIZER_OPTION_XY_PLANE, "", new Color(77,77,77,29)));
         add(getOption(VISUALIZER_OPTION_X, "", new Color(230,0,0)));
         add(getOption(VISUALIZER_OPTION_Y, "", new Color(0,0,230)));
@@ -101,6 +106,10 @@ public class VisualizerOptions extends ArrayList<Option> {
         // Autoleveler surface mesh
         add(getOption(VISUALIZER_OPTION_HIGH, "", new Color(0, 255, 0, 128)));
         add(getOption(VISUALIZER_OPTION_LOW, "", new Color(255, 0, 0, 128)));
+
+        // Machine boundries
+        add(getOption(VISUALIZER_OPTION_BOUNDRY_BASE, "", new Color(167, 183, 206, 64)));
+        add(getOption(VISUALIZER_OPTION_BOUNDRY_SIDES, "", new Color(119, 139, 168, 64)));
     }
 
     private Option<Color> getOption(String op, String desc, Color def) {

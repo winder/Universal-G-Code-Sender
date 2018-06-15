@@ -129,7 +129,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void initSizer() {
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(240, 495),
+                new Dimension(200, 375),
+                new Dimension(240, 460),
                 new Dimension(310, 570));
         sizer.addListener(machineStatusFontManager::applyFonts);
     }
@@ -148,7 +149,6 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         activeStateValueLabel.setForeground(ThemeColors.VERY_DARK_GREY);
         activeStateValueLabel.setText(OFFLINE);
-        activeStateValueLabel.setFont(machineStatusFontManager.getActiveStateFont());
 
         activeStatePanel.setLayout(new MigLayout(debug + "fill, inset 0 5 0 5"));
         if (backend.getSettings().isDisplayStateColor()) {
@@ -195,6 +195,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
+        machineStatusFontManager.addActiveStateLabel(activeStateValueLabel);
         machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
         machineStatusFontManager.addSpeedLabel(feedValue, spindleSpeedValue);
         machineStatusFontManager.applyFonts(0);

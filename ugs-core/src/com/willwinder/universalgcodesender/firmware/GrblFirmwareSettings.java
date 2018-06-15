@@ -344,6 +344,17 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
         return getValueAsBoolean(KEY_INVERT_LIMIT_PINS);
     }
 
+    @Override
+    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+        settings.forEach(setting -> {
+            try {
+                setValue(setting.getKey(), setting.getValue());
+            } catch (FirmwareSettingsException e) {
+                LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
+            }
+        });
+    }
+
     private int getInvertDirectionMask() {
         return getSetting(KEY_INVERT_DIRECTION)
                 .map(FirmwareSetting::getValue)

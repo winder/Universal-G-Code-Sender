@@ -19,6 +19,7 @@
 package com.willwinder.ugs.nbp.setupwizard;
 
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelConnection;
+import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelImportSettings;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHardLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHoming;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelMotorWiring;
@@ -81,6 +82,7 @@ public class WizardStarter {
     private static List<AbstractWizardPanel> createWizardStepPanels(BackendAPI backend) {
         List<AbstractWizardPanel> panels = new ArrayList<>();
         panels.add(new WizardPanelConnection(backend));
+        panels.add(new WizardPanelImportSettings(backend));
         panels.add(new WizardPanelMotorWiring(backend));
         panels.add(new WizardPanelStepCalibration(backend));
         panels.add(new WizardPanelHardLimits(backend));

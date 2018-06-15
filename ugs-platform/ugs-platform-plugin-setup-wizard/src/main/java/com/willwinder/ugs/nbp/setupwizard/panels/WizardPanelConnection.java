@@ -199,14 +199,21 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void refreshComponents() {
+        String selectedFirmware = getBackend().getSettings().getFirmwareVersion();
         firmwareCombo.removeAllItems();
         FirmwareUtils.getFirmwareList().forEach(firmwareCombo::addItem);
+        firmwareCombo.setSelectedItem(selectedFirmware);
 
         setValid(getBackend().isConnected() && getBackend().getController().getCapabilities().hasSetupWizardSupport());
         labelPort.setVisible(!getBackend().isConnected());
+
         portCombo.setVisible(!getBackend().isConnected());
+        portCombo.setSelectedItem(getBackend().getSettings().getPort());
+
         labelBaud.setVisible(!getBackend().isConnected());
         baudCombo.setVisible(!getBackend().isConnected());
+        baudCombo.setSelectedItem(getBackend().getSettings().getPortRate());
+
         labelFirmware.setVisible(!getBackend().isConnected());
         firmwareCombo.setVisible(!getBackend().isConnected());
         connectButton.setVisible(!getBackend().isConnected());

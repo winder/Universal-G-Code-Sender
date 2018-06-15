@@ -245,7 +245,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         String formattedStepSize = Utils.formatter.format(stepSize);
         String formattedFeedRate = Utils.formatter.format(feedRate);
 
-        String commandString = GcodeUtils.generateXYZ("G91G0", units,
+        String commandString = GcodeUtils.generateXYZ("G91G1", units,
                 formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
 
         GcodeCommand command = createCommand(commandString);

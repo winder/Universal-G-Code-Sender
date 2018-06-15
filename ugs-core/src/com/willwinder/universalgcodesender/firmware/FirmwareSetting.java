@@ -25,7 +25,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.io.Serializable;
 
 /**
- * A controller firmware setting. The class is immutable to prevent consumers changing
+ * A firmware setting model. The class is immutable to prevent consumers changing
  * its state that would not guarantee that it is persisted on the controller.
  *
  * @author Joacim Breiler

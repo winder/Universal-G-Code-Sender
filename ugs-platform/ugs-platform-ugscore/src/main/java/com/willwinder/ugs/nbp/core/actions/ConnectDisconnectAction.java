@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -130,7 +131,12 @@ public class ConnectDisconnectAction extends AbstractAction implements UGSEventL
             try {
                 backend.disconnect();
             } catch (Exception e) {
-                GUIHelpers.displayErrorDialog(e.getMessage());
+                String message = e.getMessage();
+                if(StringUtils.isEmpty(message)) {
+                    message = "Got an unknown error while disconnecting, see log for more details";
+                    logger.log(Level.SEVERE, "Got an unknown error while disconnecting", e);
+                }
+                GUIHelpers.displayErrorDialog(message);
             }
         }
     }
