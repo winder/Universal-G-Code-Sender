@@ -19,13 +19,19 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import javax.swing.JOptionPane;
+import java.util.logging.Logger;
 
 /**
  *
  * @author wwinder
  */
 public class GUIHelpers {
+    private static final Logger LOGGER = Logger.getLogger(GUIHelpers.class.getName());
+
     // Set with reflection in unit tests.
     private static boolean unitTestMode = false;
 
@@ -51,6 +57,11 @@ public class GUIHelpers {
      * @param modal toggle whether the message should block or fire and forget.
      */
     public static void displayErrorDialog(final String errorMessage, boolean modal) {
+        if (StringUtils.isEmpty(errorMessage)) {
+            LOGGER.warning("Something tried to display an error message with an empty message: " + ExceptionUtils.getStackTrace(new Throwable()));
+            return;
+        }
+
         Runnable r = () -> {
               //JOptionPane.showMessageDialog(new JFrame(), errorMessage, 
               //        Localization.getString("error"), JOptionPane.ERROR_MESSAGE);
