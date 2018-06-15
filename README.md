@@ -17,9 +17,12 @@ Technical details:
 These are the nightly builds of the most recent code with the latest features and bug fixes. <br/>
 For stable releases visit the [downloads page](http://winder.github.io/ugs_website/download/).
 
+[![Last commit](https://img.shields.io/github/last-commit/winder/Universal-G-Code-Sender.svg)](https://github.com/winder/Universal-G-Code-Sender/commits/master)
 [![Build Status](https://travis-ci.org/winder/Universal-G-Code-Sender.svg?branch=master)](https://travis-ci.org/winder/Universal-G-Code-Sender)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2941c34531f749a2b7fbcd1737f71000)](https://www.codacy.com/app/winder/Universal-G-Code-Sender?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=winder/Universal-G-Code-Sender&amp;utm_campaign=Badge_Grade)
 [![codebeat badge](https://codebeat.co/badges/48cc1265-2f6b-4163-8a8a-964acc073100)](https://codebeat.co/projects/github-com-winder-universal-g-code-sender-master)
+[![Issue closure](https://img.shields.io/issuestats/i/github/winder/Universal-G-Code-Sender.svg)]
+[![Pull closure](https://img.shields.io/issuestats/p/github/winder/Universal-G-Code-Sender.svg)]
 
 
 | Version | Description |
