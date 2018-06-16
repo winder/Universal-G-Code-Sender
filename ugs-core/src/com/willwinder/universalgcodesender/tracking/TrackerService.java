@@ -64,26 +64,6 @@ public class TrackerService {
     }
 
     /**
-     * Reports an event to the tracker server. It will only report the event if the user has agreed
-     * to enabling tracking.
-     *
-     * @param module   the module that this event occured in.
-     * @param action   the action that triggered the event. Ex. "Started", "File stream complete"
-     * @param newVisit if this is a new visit, ie the user restarted the program
-     */
-    public static void report(Class module, String action, boolean newVisit) {
-        if (backendAPI != null && backendAPI.getSettings().getTrackingSetting() != TrackingSetting.ENABLE_TRACKING) {
-            return;
-        }
-
-        if (tracker != null) {
-            tracker.report(module, action, newVisit);
-        } else {
-            LOGGER.warning("Tracker is not initialized, please use TrackerService.initService first");
-        }
-    }
-
-    /**
      * Reports a event with the given event type to a tracker server. It will only report the event if the user has agreed
      * to enabling tracking.
      *
@@ -98,7 +78,7 @@ public class TrackerService {
         }
 
         if (tracker != null) {
-            tracker.report(module, action, false, resourceName, resourceValue);
+            tracker.report(module, action, resourceName, resourceValue);
         } else {
             LOGGER.warning("Tracker is not initialized, please use TrackerService.initService first");
         }

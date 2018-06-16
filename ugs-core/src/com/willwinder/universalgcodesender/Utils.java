@@ -100,7 +100,7 @@ public class Utils {
             }
 
             TrackerService.initService(backend, client);
-            TrackerService.report(clazz, "Startup", true);
+            TrackerService.report(clazz, "Startup");
         });
     }
 }

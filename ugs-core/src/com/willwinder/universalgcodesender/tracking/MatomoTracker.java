@@ -50,10 +50,12 @@ public class MatomoTracker implements ITracker {
     private final BackendAPI backendAPI;
     private final Client client;
     private final String userAgent;
+    private boolean startedNewSession;
 
     public MatomoTracker(BackendAPI backendAPI, Client client) {
         this.backendAPI = backendAPI;
         this.client = client;
+        this.startedNewSession = false;
         this.userAgent = "UniversalGcodeSender/" + Version.getVersionString() +
                 " (Language=Java/" + Runtime.class.getPackage().getImplementationVersion() +
                 " Platform=" + System.getProperty("os.name") + " " + System.getProperty("os.version") + " ; " +
@@ -62,16 +64,11 @@ public class MatomoTracker implements ITracker {
 
     @Override
     public void report(Class module, String action) {
-        report(module, action, false, null, 0);
+        report(module, action, null, 0);
     }
 
     @Override
-    public void report(Class module, String action, boolean newVisit) {
-        report(module, action, newVisit, null, 0);
-    }
-
-    @Override
-    public void report(Class module, String action, boolean newVisit, String resourceName, int resourceValue) {
+    public void report(Class module, String action, String resourceName, int resourceValue) {
         // Run in a worker thread
         EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -96,9 +93,10 @@ public class MatomoTracker implements ITracker {
                     uriBuilder.addParameter("e_v", String.valueOf(resourceValue));
                 }
 
-                // Creates a new session
-                if (newVisit) {
+                // Creates a new session if hasn't been started
+                if (!startedNewSession) {
                     uriBuilder.addParameter("new_visit", "1");
+                    startedNewSession = true;
                 }
 
                 uriBuilder.addParameter("lang", Locale.getDefault().getLanguage());
