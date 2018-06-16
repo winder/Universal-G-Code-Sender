@@ -85,7 +85,8 @@ public class MatomoTracker implements ITracker {
                 uriBuilder.addParameter("cid", SESSION_ID);
                 uriBuilder.addParameter("action_name", client.name() + " / " + module.getSimpleName() + " / " + action);
 
-                uriBuilder.addParameter("_cvar", "{\"1\":[\"Version\",\"" + Version.getVersionString() + "\"]}");
+                uriBuilder.addParameter("_cvar", "{\"1\":[\"Version\",\"" + Version.getVersionString() + "\"], " +
+                                "\"2\":[\"Client\",\"" + client.name() + "\"]}");
 
                 uriBuilder.addParameter("e_c", module.getSimpleName());
                 uriBuilder.addParameter("e_a", module.getSimpleName() + " - " + action);
