@@ -44,8 +44,15 @@ public class TrackerService {
         }
     }
 
+    /**
+     * Reports an event to the tracker server. It will only report the event if the user has agreed
+     * to enabling tracking.
+     *
+     * @param module the module that this event occured in.
+     * @param action the action that triggered the event. Ex. "Started", "File stream complete"
+     */
     public static void report(Class module, String action) {
-        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
+        if (backendAPI != null && backendAPI.getSettings().getTrackingSetting() != TrackingSetting.ENABLE_TRACKING) {
             return;
         }
 
@@ -56,8 +63,16 @@ public class TrackerService {
         }
     }
 
+    /**
+     * Reports an event to the tracker server. It will only report the event if the user has agreed
+     * to enabling tracking.
+     *
+     * @param module   the module that this event occured in.
+     * @param action   the action that triggered the event. Ex. "Started", "File stream complete"
+     * @param newVisit if this is a new visit, ie the user restarted the program
+     */
     public static void report(Class module, String action, boolean newVisit) {
-        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
+        if (backendAPI != null && backendAPI.getSettings().getTrackingSetting() != TrackingSetting.ENABLE_TRACKING) {
             return;
         }
 
@@ -68,8 +83,17 @@ public class TrackerService {
         }
     }
 
+    /**
+     * Reports a event with the given event type to a tracker server. It will only report the event if the user has agreed
+     * to enabling tracking.
+     *
+     * @param module        the module that this event occured in.
+     * @param action        the action that triggered the event. Ex. "Started", "File stream complete"
+     * @param resourceName  the name of an extra resource we want to register for this event. Example "Rows sent" for the number of rows when a file completes.
+     * @param resourceValue a optional number value for the resource. Example a number of rows sent when a file completes.
+     */
     public static void report(Class module, String action, String resourceName, int resourceValue) {
-        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
+        if (backendAPI != null && backendAPI.getSettings().getTrackingSetting() != TrackingSetting.ENABLE_TRACKING) {
             return;
         }
 

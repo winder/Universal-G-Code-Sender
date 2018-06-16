@@ -85,7 +85,10 @@ public class Settings {
 
     private String clientId = UUID.randomUUID().toString();
 
-    private TrackingSetting tracking = TrackingSetting.NOT_ANSWERED;
+    /**
+     * A setting the enables usage statistics to be reported to a central server
+     */
+    private TrackingSetting trackingSetting = TrackingSetting.NOT_ANSWERED;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -462,12 +465,23 @@ public class Settings {
         this.clientId = clientId;
     }
 
-    public TrackingSetting getTracking() {
-        return tracking;
+    /**
+     * Returns if usage statistics should be enabled.
+     *
+     * @return a tracking setting
+     */
+    public TrackingSetting getTrackingSetting() {
+        return trackingSetting;
     }
 
-    public void setTracking(TrackingSetting tracking) {
-        this.tracking = tracking;
+    /**
+     * Sets a tracking setting. If {@link TrackingSetting#NOT_ANSWERED} a popup dialog will be shown
+     * letting the user to select if tracking should be enabled.
+     *
+     * @param trackingSetting the tracking setting if usage statistics should be reported
+     */
+    public void setTrackingSetting(TrackingSetting trackingSetting) {
+        this.trackingSetting = trackingSetting;
     }
 
     public static class AutoLevelSettings {

@@ -41,7 +41,7 @@ import java.util.logging.Logger;
  * @author Joacim Breiler
  */
 public class MatomoTracker implements ITracker {
-    private static final Integer SITE_ID = 2;
+    private static final Integer SITE_ID = 1;
     private static final String SESSION_ID = RandomStringUtils.random(16, "01234567890abcdefABCDEF");
     private static final Logger LOGGER = Logger.getLogger(MatomoTracker.class.getName());
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();

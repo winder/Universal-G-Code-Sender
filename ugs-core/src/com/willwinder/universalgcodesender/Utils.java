@@ -84,7 +84,7 @@ public class Utils {
     public static void setupTrackerService(BackendAPI backend, Settings settings, Class clazz, Client client) {
         EventQueue.invokeLater(() -> {
             // Only start the tracker when the UI components are fully loaded
-            if (settings.getTracking() == TrackingSetting.NOT_ANSWERED) {
+            if (settings.getTrackingSetting() == TrackingSetting.NOT_ANSWERED) {
                 String message = "May we collect anonymous usage statistics to help improve Universal G-code Sender?\n\n" +
                         "Read more about our privacy policy and the data we collect:\n" +
                         "http://winder.github.io/ugs_website/";
@@ -93,9 +93,9 @@ public class Utils {
                         "Help us improve Universal G-code Sender", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 
                 if (result == JOptionPane.YES_OPTION) {
-                    settings.setTracking(TrackingSetting.ENABLE_TRACKING);
+                    settings.setTrackingSetting(TrackingSetting.ENABLE_TRACKING);
                 } else if (result == JOptionPane.NO_OPTION) {
-                    settings.setTracking(TrackingSetting.DISABLE_TRACKING);
+                    settings.setTrackingSetting(TrackingSetting.DISABLE_TRACKING);
                 }
             }
 

@@ -93,7 +93,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
 
-        settings.setTracking(sendUsageStatistics.getValue() ? TrackingSetting.ENABLE_TRACKING : TrackingSetting.DISABLE_TRACKING);
+        settings.setTrackingSetting(sendUsageStatistics.getValue() ? TrackingSetting.ENABLE_TRACKING : TrackingSetting.DISABLE_TRACKING);
         SettingsFactory.saveSettings(settings);
     }
 
@@ -130,7 +130,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
 
-        sendUsageStatistics.setSelected(s.getTracking() == TrackingSetting.ENABLE_TRACKING);
+        sendUsageStatistics.setSelected(s.getTrackingSetting() == TrackingSetting.ENABLE_TRACKING);
         add(sendUsageStatistics, "spanx, wrap");
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
