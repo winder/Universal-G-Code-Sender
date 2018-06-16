@@ -19,11 +19,21 @@
 package com.willwinder.universalgcodesender.tracking;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.TrackingSetting;
 
 import java.util.logging.Logger;
 
+/**
+ * A service that can be used to register usage statistics. This service will only register
+ * usage data if the setting {@link com.willwinder.universalgcodesender.utils.Settings#tracking}
+ * has been set to {@link TrackingSetting#ENABLE_TRACKING}.
+ * <p>
+ * The service needs to be initialized using the {@link #initService(BackendAPI, Client)} before using.
+ *
+ * @author Joacim Breiler
+ */
 public class TrackerService {
-    private static final Logger LOGGER = Logger.getLogger(MatomoTracker.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(TrackerService.class.getName());
     private static ITracker tracker;
     private static BackendAPI backendAPI;
 
@@ -34,25 +44,37 @@ public class TrackerService {
         }
     }
 
-    public static void report(Event event) {
-        /*if (!backendAPI.getSettings().useTracking()) {
+    public static void report(Class module, String action) {
+        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
             return;
-        }*/
+        }
 
         if (tracker != null) {
-            tracker.report(event);
+            tracker.report(module, action);
         } else {
             LOGGER.warning("Tracker is not initialized, please use TrackerService.initService first");
         }
     }
 
-    public static void report(Event event, String resourceName, int resourceValue) {
-        /*if (!backendAPI.getSettings().useTracking()) {
+    public static void report(Class module, String action, boolean newVisit) {
+        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
             return;
-        }*/
+        }
 
         if (tracker != null) {
-            tracker.report(event, resourceName, resourceValue);
+            tracker.report(module, action, newVisit);
+        } else {
+            LOGGER.warning("Tracker is not initialized, please use TrackerService.initService first");
+        }
+    }
+
+    public static void report(Class module, String action, String resourceName, int resourceValue) {
+        if (backendAPI.getSettings().getTracking() != TrackingSetting.ENABLE_TRACKING) {
+            return;
+        }
+
+        if (tracker != null) {
+            tracker.report(module, action, false, resourceName, resourceValue);
         } else {
             LOGGER.warning("Tracker is not initialized, please use TrackerService.initService first");
         }

@@ -23,10 +23,17 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -38,24 +45,32 @@ import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
-import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
-import com.willwinder.universalgcodesender.tracking.Event;
 import com.willwinder.universalgcodesender.tracking.TrackerService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.SettingChangeListener;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.MouseInfo;
+import java.awt.Point;
+import java.awt.Robot;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -239,7 +254,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         this.controller.getFirmwareSettings().addListener(this);
 
-        TrackerService.report(Event.APPLICATION_CONNECT, firmware, 0);
+        TrackerService.report(getClass(), "Connect", firmware, 0);
         if (openCommConnection(port, baudRate)) {
             streamFailed = false;   //reset
         }
@@ -263,7 +278,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void disconnect() throws Exception {
         autoconnect = false;
-        TrackerService.report(Event.APPLICATION_CONNECT, firmware, 0);
+        TrackerService.report(getClass(), "Disconnect", firmware, 0);
         disconnectInternal();
     }
 
@@ -544,7 +559,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             GcodeStreamReader gcodeStreamReader = new GcodeStreamReader(this.processedGcodeFile);
             this.controller.queueStream(gcodeStreamReader);
 
-            TrackerService.report(Event.FILE_STREAM_BEGIN, "Rows to send", gcodeStreamReader.getNumRows());
+            TrackerService.report(getClass(), "Send", "Rows to send", gcodeStreamReader.getNumRows());
 
             this.controller.beginStreaming();
         } catch (Exception e) {
@@ -615,11 +630,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     // This can happen at the beginning of a stream when GRBL
                     // reports an error before we send it a status request.
                 case COMM_SENDING:
-                    TrackerService.report(Event.FILE_STREAM_PAUSE);
+                    TrackerService.report(getClass(), "Pause");
                     this.controller.pauseStreaming();
                     return;
                 case COMM_SENDING_PAUSED:
-                    TrackerService.report(Event.FILE_STREAM_RESUME);
+                    TrackerService.report(getClass(), "Resume");
                     this.controller.resumeStreaming();
                     return;
             }
@@ -675,7 +690,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void cancel() throws Exception {
         if (this.canCancel()) {
-            TrackerService.report(Event.FILE_STREAM_CANCEL);
+            TrackerService.report(getClass(), "Cancel send");
             this.controller.cancelSend();
         }
     }
@@ -731,7 +746,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void fileStreamComplete(String filename, boolean success) {
-        TrackerService.report(Event.FILE_STREAM_COMPLETE, "Rows sent", controller.getRowStat(AbstractController.RowStat.ROWS_COMPLETED));
+        TrackerService.report(getClass(), "Send complete", "Rows sent", controller.getRowStat(AbstractController.RowStat.ROWS_COMPLETED));
         this.sendUGSEvent(new UGSEvent(FileState.FILE_STREAM_COMPLETE, filename), false);
     }
 

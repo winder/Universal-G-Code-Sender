@@ -45,7 +45,7 @@ public class MatomoTracker implements ITracker {
     private static final String SESSION_ID = RandomStringUtils.random(16, "01234567890abcdefABCDEF");
     private static final Logger LOGGER = Logger.getLogger(MatomoTracker.class.getName());
     private static final ExecutorService EXECUTOR_SERVICE = Executors.newSingleThreadExecutor();
-    public static final String MATOMO_URL = "http://ugs.willwinder.com/analytics/piwik.php";
+    private static final String MATOMO_URL = "http://ugs.willwinder.com/analytics/piwik.php";
 
     private final BackendAPI backendAPI;
     private final Client client;
@@ -61,12 +61,17 @@ public class MatomoTracker implements ITracker {
     }
 
     @Override
-    public void report(String module, String action) {
-        report(module, action, null, 0);
+    public void report(Class module, String action) {
+        report(module, action, false, null, 0);
     }
 
     @Override
-    public void report(String module, String action, String resourceName, int resourceValue) {
+    public void report(Class module, String action, boolean newVisit) {
+        report(module, action, newVisit, null, 0);
+    }
+
+    @Override
+    public void report(Class module, String action, boolean newVisit, String resourceName, int resourceValue) {
         // Run in a worker thread
         EXECUTOR_SERVICE.submit(() -> {
             try {
@@ -78,16 +83,21 @@ public class MatomoTracker implements ITracker {
                 uriBuilder.addParameter("send_image", "0");
                 uriBuilder.addParameter("uid", backendAPI.getSettings().getClientId());
                 uriBuilder.addParameter("cid", SESSION_ID);
-                uriBuilder.addParameter("action_name", client.name() + " / " + module + " / " + action);
+                uriBuilder.addParameter("action_name", client.name() + " / " + module.getSimpleName() + " / " + action);
 
                 uriBuilder.addParameter("_cvar", "{\"1\":[\"Version\",\"" + Version.getVersionString() + "\"]}");
 
-                uriBuilder.addParameter("e_c", module);
-                uriBuilder.addParameter("e_a", module + " - " + action);
+                uriBuilder.addParameter("e_c", module.getSimpleName());
+                uriBuilder.addParameter("e_a", module.getSimpleName() + " - " + action);
 
                 if (StringUtils.isNotEmpty(resourceName)) {
                     uriBuilder.addParameter("e_n", resourceName);
                     uriBuilder.addParameter("e_v", String.valueOf(resourceValue));
+                }
+
+                // Creates a new session
+                if (newVisit) {
+                    uriBuilder.addParameter("new_visit", "1");
                 }
 
                 uriBuilder.addParameter("lang", Locale.getDefault().getLanguage());
@@ -101,7 +111,7 @@ public class MatomoTracker implements ITracker {
                 HttpGet get = new HttpGet(uriBuilder.build());
                 client.execute(get);
             } catch (URISyntaxException | IOException e) {
-                LOGGER.log(Level.WARNING, "Couldn't report usage statistics for '" + module + " - " + action + "'", e);
+                LOGGER.log(Level.WARNING, "Couldn't report usage statistics for '" + module.getSimpleName() + " - " + action + "'", e);
             }
         });
     }

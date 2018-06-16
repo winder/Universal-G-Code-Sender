@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.TrackingSetting;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
@@ -50,6 +51,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 Localization.getString("sender.state"));
     private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
+    private final Checkbox sendUsageStatistics = new Checkbox(
+            Localization.getString("sender.send-usage-statistics"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
             ConnectionDriver.JSSC.getPrettyName(),
@@ -89,6 +92,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         } else {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
+
+        settings.setTracking(sendUsageStatistics.getValue() ? TrackingSetting.ENABLE_TRACKING : TrackingSetting.DISABLE_TRACKING);
         SettingsFactory.saveSettings(settings);
     }
 
@@ -124,6 +129,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
+
+        sendUsageStatistics.setSelected(s.getTracking() == TrackingSetting.ENABLE_TRACKING);
+        add(sendUsageStatistics, "spanx, wrap");
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = languageCombo.getItemAt(i);

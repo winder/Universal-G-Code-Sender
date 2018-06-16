@@ -16,15 +16,15 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.tracking;
+package com.willwinder.universalgcodesender.utils;
 
 /**
- * The client type that is registering the usage data
+ * A settings enum for the different choices if tracking should be enabled
  *
  * @author Joacim Breiler
  */
-public enum Client {
-    CLASSIC,
-    PLATFORM,
-    UNKNOWN
+public enum TrackingSetting {
+    NOT_ANSWERED,
+    DISABLE_TRACKING,
+    ENABLE_TRACKING
 }

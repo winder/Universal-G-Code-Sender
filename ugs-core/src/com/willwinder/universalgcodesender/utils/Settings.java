@@ -85,7 +85,7 @@ public class Settings {
 
     private String clientId = UUID.randomUUID().toString();
 
-    private boolean useTracking = false;
+    private TrackingSetting tracking = TrackingSetting.NOT_ANSWERED;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -462,8 +462,12 @@ public class Settings {
         this.clientId = clientId;
     }
 
-    public boolean useTracking() {
-        return useTracking;
+    public TrackingSetting getTracking() {
+        return tracking;
+    }
+
+    public void setTracking(TrackingSetting tracking) {
+        this.tracking = tracking;
     }
 
     public static class AutoLevelSettings {

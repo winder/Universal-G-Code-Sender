@@ -26,33 +26,52 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
+import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.tracking.Client;
-import com.willwinder.universalgcodesender.tracking.*;
-import com.willwinder.universalgcodesender.tracking.Event;
+import com.willwinder.universalgcodesender.tracking.TrackerService;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
+import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
-import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.PendantUI;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.visualizer.VisualizerWindow;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.GUIBackend;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
-import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
+import org.apache.commons.lang3.SystemUtils;
+
+import javax.swing.InputMap;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultCaret;
+import javax.swing.text.DefaultEditorKit;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -61,26 +80,16 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.text.DefaultCaret;
-import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import static com.willwinder.universalgcodesender.model.Axis.*;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
-import com.willwinder.universalgcodesender.services.JogService;
-import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import java.awt.BorderLayout;
-import java.awt.Toolkit;
-import javax.swing.text.DefaultEditorKit;
-import org.apache.commons.lang3.SystemUtils;
+
+import static com.willwinder.universalgcodesender.model.Axis.X;
+import static com.willwinder.universalgcodesender.model.Axis.Y;
+import static com.willwinder.universalgcodesender.model.Axis.Z;
+import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 
 /**
  *
@@ -133,26 +142,16 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         this.jogPanel = new JogPanel(backend, jogService, true);
 
-        if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                                + "It contains all of the latest features and improvements, \n"
-                                + "but may also have bugs that still need to be fixed.\n"
-                                + "\n"
-                                + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }});
-        }
+
         initComponents();
         this.jogPanelPanel.setLayout(new BorderLayout());
         this.jogPanelPanel.add(jogPanel, BorderLayout.CENTER);
         initProgram();
+        Utils.checkNightlyBuild(settings);
+        Utils.setupTrackerService(backend, settings, MainWindow.class, Client.CLASSIC);
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
 
-        boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());
         baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
@@ -249,7 +248,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         final MainWindow mw = new MainWindow(backend);
         
         /* Apply the settings to the MainWindow bofore showing it */
-        boolean unitsAreMM = mw.settings.getDefaultUnits().equals(Units.MM.abbreviation);
         mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
         mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
@@ -295,23 +293,23 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
-                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
-                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
-                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings(mw.settings);
-                
-                if(mw.pendantUI!=null){
-                    mw.pendantUI.stop();
-                }
+            if (mw.fileChooser.getSelectedFile() != null ) {
+                mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
+            }
 
-                TrackerService.report(Event.APPLICATION_CLOSED);
+            mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
+            mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
+            mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
+            mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
+            mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
+            mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
+            SettingsFactory.saveSettings(mw.settings);
+
+            if(mw.pendantUI!=null){
+                mw.pendantUI.stop();
+            }
+
+            TrackerService.report(getClass(), "Shutdown");
             }
         });
 
@@ -1605,9 +1603,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         } catch (Exception e) {
             displayErrorDialog(e.getMessage());
         }
-
-        TrackerService.initService(backend, Client.CLASSIC);
-        TrackerService.report(Event.APPLICATION_STARTED);
 
         this.setLocalLabels();
         this.loadPortSelector();

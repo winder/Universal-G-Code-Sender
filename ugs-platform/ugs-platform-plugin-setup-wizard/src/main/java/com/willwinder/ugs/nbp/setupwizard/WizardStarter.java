@@ -19,14 +19,13 @@
 package com.willwinder.ugs.nbp.setupwizard;
 
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelConnection;
-import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelImportSettings;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHardLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelHoming;
+import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelImportSettings;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelMotorWiring;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelSoftLimits;
 import com.willwinder.ugs.nbp.setupwizard.panels.WizardPanelStepCalibration;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.tracking.Event;
 import com.willwinder.universalgcodesender.tracking.TrackerService;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
@@ -44,7 +43,7 @@ public class WizardStarter {
     public static void openWizard(BackendAPI backend) {
         List<AbstractWizardPanel> panels = createWizardStepPanels(backend);
 
-        TrackerService.report(Event.SETUP_WIZARD_STARTED);
+        TrackerService.report(WizardStarter.class, "Started");
 
         WizardPanelIterator panelIterator = new WizardPanelIterator(panels);
         WizardDescriptor wizardDescriptor = createWizardDescriptor(panelIterator);
@@ -52,9 +51,9 @@ public class WizardStarter {
 
         Object result = DialogDisplayer.getDefault().notify(wizardDescriptor);
         if (result == WizardDescriptor.FINISH_OPTION) {
-            TrackerService.report(Event.SETUP_WIZARD_FINISHED);
+            TrackerService.report(WizardStarter.class, "Finished");
         } else {
-            TrackerService.report(Event.SETUP_WIZARD_CANCELED);
+            TrackerService.report(WizardStarter.class, "Canceled");
         }
 
         // Make sure all panels are destoyed after we finished the wizard

@@ -24,22 +24,12 @@ import com.willwinder.ugs.nbp.core.control.RunActionService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
-import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.tracking.Event;
 import com.willwinder.universalgcodesender.tracking.Client;
-import com.willwinder.universalgcodesender.tracking.TrackerService;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.Version;
-import java.io.File;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
 import org.netbeans.spi.sendopts.Option;
@@ -49,15 +39,17 @@ import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;
 
+import java.io.File;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
- *
  * @author wwinder
  */
-@ServiceProvider(service=OptionProcessor.class)
+@ServiceProvider(service = OptionProcessor.class)
 @OnStart
-public class startup extends OptionProcessor implements Runnable {
-    private static final Logger logger = Logger.getLogger(startup.class.getName());
-
+public class Startup extends OptionProcessor implements Runnable {
     private final Option openOption = Option.additionalArguments('o', "open");
 
     @Override
@@ -79,36 +71,30 @@ public class startup extends OptionProcessor implements Runnable {
         System.out.println("Services loaded!");
 
         System.out.println("Setting UGP version title.");
+        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         setupVersionInformation(settings);
-        initTracker();
+        setupTrackerService(backend, settings);
     }
 
-    private void initTracker() {
-        TrackerService.initService(CentralLookup.getDefault().lookup(BackendAPI.class), Client.PLATFORM);
-        TrackerService.report(Event.APPLICATION_STARTED);
+    private void setupTrackerService(BackendAPI backend, Settings settings) {
+        // Only start the tracker when the UI components are fully loaded
+        WindowManager.getDefault().invokeWhenUIReady(() -> {
+            Utils.setupTrackerService(backend, settings, Startup.class, Client.PLATFORM);
+        });
     }
 
     private void setupVersionInformation(Settings settings) {
         // Only change the window title when all the UI components are fully loaded.
         WindowManager.getDefault().invokeWhenUIReady(() -> {
-            if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                        + "It contains all of the latest features and improvements, \n"
-                        + "but may also have bugs that still need to be fixed.\n"
-                        + "\n"
-                        + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }
+            Utils.checkNightlyBuild(settings);
         });
     }
 
     /**
      * Register interest in the "open" option.
      */
-    @Override       
+    @Override
     public Set getOptions() {
         HashSet set = new HashSet();
         set.add(openOption);
