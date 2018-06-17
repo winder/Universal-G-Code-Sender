@@ -70,14 +70,15 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("wrap 3, fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "span 3, gapbottom 10");
-        panel.add(buttonXneg, "hmin 36, wmin 36");
-        panel.add(buttonXpos, "hmin 36, wmin 36");
+        String buttonConstraints = "hmin 36, wmin 36";
+        panel.add(buttonXneg, buttonConstraints);
+        panel.add(buttonXpos, buttonConstraints);
         panel.add(checkboxReverseX);
-        panel.add(buttonYneg, "hmin 36, wmin 36");
-        panel.add(buttonYpos, "hmin 36, wmin 36");
+        panel.add(buttonYneg, buttonConstraints);
+        panel.add(buttonYpos, buttonConstraints);
         panel.add(checkboxReverseY);
-        panel.add(buttonZneg, "hmin 36, wmin 36");
-        panel.add(buttonZpos, "hmin 36, wmin 36");
+        panel.add(buttonZneg, buttonConstraints);
+        panel.add(buttonZpos, buttonConstraints);
         panel.add(checkboxReverseZ);
 
         getPanel().add(panel, "grow");

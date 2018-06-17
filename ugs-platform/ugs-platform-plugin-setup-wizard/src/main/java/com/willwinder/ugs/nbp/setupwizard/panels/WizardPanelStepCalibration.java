@@ -102,7 +102,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         JLabel description = new JLabel("<html><body>" +
                 "<p>We will now attempt to calibrate your machine. Try <b>moving</b> the machine and <b>measure</b> the results, then <b>calibrate</b> to the estimated steps.</p>" +
                 "</body></html>");
-        add(description);
+        getPanel().add(description, "grow, wrap");
 
 
         JPanel panel = new JPanel(new MigLayout("fill, inset 0"));
