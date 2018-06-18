@@ -51,7 +51,7 @@ public class WizardStarter {
         dialog.setVisible(true);
         dialog.toFront();
 
-        // Make sure all panels are destoyed after we finished the wizard
+        // Make sure all panels are destroyed after we finished the wizard
         panels.forEach(AbstractWizardPanel::destroy);
     }
 

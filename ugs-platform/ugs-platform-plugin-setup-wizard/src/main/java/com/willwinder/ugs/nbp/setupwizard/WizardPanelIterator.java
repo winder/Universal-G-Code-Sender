@@ -29,6 +29,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+/**
+ * The wizard panel iterator will handle the active step, the step names and keep track if they
+ * should be enabled.
+ *
+ * @author Joacim Breiler
+ */
 public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDescriptor>, ChangeListener {
     private final Logger logger = Logger.getLogger(WizardPanelIterator.class.getSimpleName());
     private final List<AbstractWizardPanel> panelList;

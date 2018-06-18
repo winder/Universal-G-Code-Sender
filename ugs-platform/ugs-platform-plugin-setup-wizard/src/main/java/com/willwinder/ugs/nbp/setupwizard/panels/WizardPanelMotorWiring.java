@@ -19,25 +19,24 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
+import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
+import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
+import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
+import org.openide.util.ImageUtilities;
 
-import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.Insets;
 
 /**
  * A wizard step panel for configuring motor wiring on a controller
@@ -48,17 +47,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
 
-    private JButton buttonXpos;
-    private JButton buttonXneg;
-    private JButton buttonYpos;
-    private JButton buttonYneg;
-    private JButton buttonZpos;
-    private JButton buttonZneg;
+    private NavigationButtons navigationButtons;
 
     private JCheckBox checkboxReverseX;
     private JCheckBox checkboxReverseY;
     private JCheckBox checkboxReverseZ;
     private JLabel labelDescription;
+
+    private RoundedPanel softLimitsInfo;
 
     public WizardPanelMotorWiring(BackendAPI backend) {
         super(backend, "Motor wiring");
@@ -70,16 +66,18 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private void initLayout() {
         JPanel panel = new JPanel(new MigLayout("wrap 3, fillx, inset 0, gap 5, hidemode 3"));
         panel.add(labelDescription, "span 3, gapbottom 10");
-        panel.add(buttonXneg, "hmin 36, wmin 36");
-        panel.add(buttonXpos, "hmin 36, wmin 36");
-        panel.add(checkboxReverseX);
-        panel.add(buttonYneg, "hmin 36, wmin 36");
-        panel.add(buttonYpos, "hmin 36, wmin 36");
-        panel.add(checkboxReverseY);
-        panel.add(buttonZneg, "hmin 36, wmin 36");
-        panel.add(buttonZpos, "hmin 36, wmin 36");
-        panel.add(checkboxReverseZ);
+        panel.add(softLimitsInfo, "spanx, grow, gapbottom 10");
 
+        String buttonConstraints = "hmin 36, wmin 36";
+        panel.add(navigationButtons.getButtonXneg(), buttonConstraints);
+        panel.add(navigationButtons.getButtonXpos(), buttonConstraints);
+        panel.add(checkboxReverseX);
+        panel.add(navigationButtons.getButtonYneg(), buttonConstraints);
+        panel.add(navigationButtons.getButtonYpos(), buttonConstraints);
+        panel.add(checkboxReverseY);
+        panel.add(navigationButtons.getButtonZneg(), buttonConstraints);
+        panel.add(navigationButtons.getButtonZpos(), buttonConstraints);
+        panel.add(checkboxReverseZ);
         getPanel().add(panel, "grow");
         setValid(true);
     }
@@ -89,11 +87,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
                 "<p>We will now test that your motors are wired correctly. Test each axis using the step buttons.</p>" +
                 "</body></html>");
 
-        buttonXneg = createJogButton("X-");
-        buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
+        softLimitsInfo = new RoundedPanel(8);
+        softLimitsInfo.setLayout(new MigLayout("fill, inset 10, gap 0"));
+        softLimitsInfo.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
+        softLimitsInfo.setForeground(ThemeColors.LIGHT_GREY);
+        softLimitsInfo.add(new JLabel(ImageUtilities.loadImageIcon("icons/information24.png", false)), "gapright 10");
+        softLimitsInfo.add(new JLabel("<html><body>You have soft limits activated. Any button that would move the machine past these limits will be inactivated.</body></html>"));
 
-        buttonXpos = createJogButton("X+");
-        buttonXpos.addActionListener(event -> moveMachine(1, 0, 0));
+        navigationButtons = new NavigationButtons(getBackend(), 0.1, 100);
 
         checkboxReverseX = new JCheckBox("Reverse direction");
         checkboxReverseX.addActionListener(event -> {
@@ -106,12 +107,6 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             }
         });
 
-        buttonYneg = createJogButton("Y-");
-        buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
-
-        buttonYpos = createJogButton("Y+");
-        buttonYpos.addActionListener(event -> moveMachine(0, 1, 0));
-
         checkboxReverseY = new JCheckBox("Reverse direction");
         checkboxReverseY.addActionListener(event -> {
             if (getBackend().getController() != null) {
@@ -122,12 +117,6 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
                 }
             }
         });
-
-        buttonZneg = createJogButton("Z-");
-        buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
-
-        buttonZpos = createJogButton("Z+");
-        buttonZpos.addActionListener(event -> moveMachine(0, 0, 1));
 
         checkboxReverseZ = new JCheckBox("Reverse direction");
         checkboxReverseZ.addActionListener(event -> {
@@ -141,32 +130,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
         });
     }
 
-    private void moveMachine(int x, int y, int z) {
-        try {
-            IController controller = getBackend().getController();
-            if (controller.getState() == ControllerState.ALARM) {
-                killAlarm();
-            } else {
-                controller.jogMachine(x, y, z, 0.1, 100, UnitUtils.Units.MM);
-            }
-        } catch (Exception e) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while moving the machine: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
-        }
-    }
-
-    private JButton createJogButton(String text) {
-        JButton button = new JButton(text);
-        button.setMargin(new Insets(0, 0, 0, 0));
-        return button;
-    }
-
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
         getBackend().addControllerStateListener(this);
         refreshReverseDirectionCheckboxes();
-        killAlarm();
+        refreshSoftLimitMessage();
+
+        WizardUtils.killAlarm(getBackend());
     }
 
     @Override
@@ -186,7 +157,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
         if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
         } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
-            killAlarm();
+            WizardUtils.killAlarm(getBackend());
         } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
                 try {
@@ -196,6 +167,24 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
                 }
             }, TIME_BEFORE_RESET_ON_ALARM);
         }
+
+        if (event.isControllerStatusEvent()) {
+           navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
+        }
+    }
+
+    private void refreshSoftLimitMessage() {
+        try {
+            if (getBackend().getController() != null &&
+                    getBackend().getController().getFirmwareSettings() != null &&
+                    getBackend().getController().getFirmwareSettings().isSoftLimitsEnabled()) {
+                softLimitsInfo.setVisible(true);
+            } else {
+                softLimitsInfo.setVisible(false);
+            }
+        }  catch (FirmwareSettingsException ignored) {
+            softLimitsInfo.setVisible(false);
+        }
     }
 
     private void refreshReverseDirectionCheckboxes() {
@@ -204,20 +193,6 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             checkboxReverseX.setSelected(controller.getFirmwareSettings().isInvertDirectionX());
             checkboxReverseY.setSelected(controller.getFirmwareSettings().isInvertDirectionY());
             checkboxReverseZ.setSelected(controller.getFirmwareSettings().isInvertDirectionZ());
-        }
-    }
-
-    private void killAlarm() {
-        IController controller = getBackend().getController();
-        if (controller != null) {
-            ControllerState state = controller.getState();
-            if (state == ControllerState.ALARM) {
-                try {
-                    controller.killAlarmLock();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 }
