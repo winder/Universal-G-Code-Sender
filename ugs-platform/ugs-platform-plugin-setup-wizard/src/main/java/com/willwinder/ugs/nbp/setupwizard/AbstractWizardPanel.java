@@ -34,7 +34,7 @@ import java.util.Set;
 /**
  * An abstract base wizard step panel that will handle events for showing and hiding the step, handle finished event,
  * wrap with scrollbars and registering its name to the wizard.
- *
+ * <p>
  * Extend this class and add your components using {@link #getPanel()}.
  *
  * @author Joacim Breiler
@@ -61,7 +61,7 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     /**
      * A set of listeners
      */
-    private Set<ChangeListener> listeners = new HashSet<>();
+    private final Set<ChangeListener> listeners = new HashSet<>();
 
     /**
      * If the panel form is valid and should be able to go to the next step
@@ -77,7 +77,7 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
      * Constructs a wizard panel which can be used to display a step in a wizard
      *
      * @param backend the backend api
-     * @param name the name of the step
+     * @param name    the name of the step
      */
     public AbstractWizardPanel(BackendAPI backend, String name) {
         this(backend, name, false);
