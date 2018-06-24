@@ -78,7 +78,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         panel.add(labelLimitZ, "wmin 56, hmin 36, gapleft 10, wrap");
 
         panel.add(checkboxInvertLimitPins, "gaptop 10, spanx, wrap");
-        add(panel);
+        getPanel().add(panel, "grow, wrap");
     }
 
     private void initComponents() {

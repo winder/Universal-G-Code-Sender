@@ -140,6 +140,11 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public double getSoftLimit(Axis axis) {
+        return 0;
+    }
+
+    @Override
     public boolean isHomingDirectionInvertedX() {
         return false;
     }
@@ -177,6 +182,11 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     @Override
     public boolean isHardLimitsInverted() {
         return false;
+    }
+
+    @Override
+    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+
     }
 
     @Override

@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -29,7 +30,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
 
@@ -258,9 +258,9 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
     private void loadPortSelector() {
         portCombo.removeAllItems();
-        String[] portList = CommUtils.getSerialPortList();
+        List<String> portList = ConnectionFactory.getPortNames(backend.getSettings().getConnectionDriver());
 
-        if (portList.length < 1) {
+        if (portList.size() < 1) {
             if (backend.getSettings().isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }

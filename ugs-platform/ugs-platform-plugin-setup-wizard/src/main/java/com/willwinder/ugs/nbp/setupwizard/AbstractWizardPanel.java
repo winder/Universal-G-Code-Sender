@@ -24,6 +24,7 @@ import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.Component;
@@ -31,7 +32,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * An abstract base wizard step panel
+ * An abstract base wizard step panel that will handle events for showing and hiding the step, handle finished event,
+ * wrap with scrollbars and registering its name to the wizard.
+ * <p>
+ * Extend this class and add your components using {@link #getPanel()}.
  *
  * @author Joacim Breiler
  */
@@ -40,54 +44,79 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     private final BackendAPI backend;
 
     /**
-     * The name of the step to be displayer
+     * The name of the step to be displayed
      */
     private final String name;
 
     /**
-     * The panel to display
+     * The panel with the actual panel content
      */
     private final JPanel panel;
 
     /**
+     * The root panel to display
+     */
+    private final Component rootComponent;
+
+    /**
      * A set of listeners
      */
-    private Set<ChangeListener> listeners = new HashSet<>();
+    private final Set<ChangeListener> listeners = new HashSet<>();
 
     /**
      * If the panel form is valid and should be able to go to the next step
      */
     private boolean isValid;
+
     /**
      * If this panel is finishable
      */
     private boolean isFinishPanel;
 
-
+    /**
+     * Constructs a wizard panel which can be used to display a step in a wizard
+     *
+     * @param backend the backend api
+     * @param name    the name of the step
+     */
     public AbstractWizardPanel(BackendAPI backend, String name) {
         this(backend, name, false);
     }
 
     public AbstractWizardPanel(BackendAPI backend, String name, boolean debug) {
-        String layoutConstraints = "wrap 1, hidemode 3, fill, w 300:560, h 200:320";
+        String layoutConstraints = "hidemode 3, fill, w 300:560, h 200:320";
         if (debug) {
             layoutConstraints += ", debug";
         }
 
         this.backend = backend;
         this.name = name;
-
         this.panel = new JPanel(new MigLayout(layoutConstraints));
-        this.panel.setName(name);
+
+        JScrollPane scrollPane = new JScrollPane(this.panel);
+        scrollPane.setBorder(null);
+        scrollPane.setName(name);
+        this.rootComponent = scrollPane;
     }
 
+    /**
+     * The panel that can be used to add new content to.
+     *
+     * @return a panel that can be used to add new content to
+     */
     public JPanel getPanel() {
         return panel;
     }
 
+    /**
+     * Returns the root component. This is not intended to be used
+     * when constructing a wizard panel layout. Instead use {@link #getPanel()}
+     *
+     * @return the root component
+     */
     @Override
     public Component getComponent() {
-        return panel;
+        return rootComponent;
     }
 
     @Override
@@ -97,12 +126,12 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
 
     @Override
     public void readSettings(WizardDescriptor settings) {
-
+        // Not used in default implementation
     }
 
     @Override
     public void storeSettings(WizardDescriptor settings) {
-
+        // Not used in default implementation
     }
 
     @Override
@@ -125,10 +154,6 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
     @Override
     public void removeChangeListener(ChangeListener l) {
         listeners.remove(l);
-    }
-
-    public void add(Component component) {
-        panel.add(component, "grow");
     }
 
     public BackendAPI getBackend() {

@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -244,7 +245,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         String formattedStepSize = Utils.formatter.format(stepSize);
         String formattedFeedRate = Utils.formatter.format(feedRate);
 
-        String commandString = GcodeUtils.generateXYZ("G91G0", units,
+        String commandString = GcodeUtils.generateXYZ("G91G1", units,
                 formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
 
         GcodeCommand command = createCommand(commandString);
@@ -367,13 +368,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     @Override
-    public Boolean openCommPort(String port, int portRate) throws Exception {
+    public Boolean openCommPort(ConnectionDriver connectionDriver, String port, int portRate) throws Exception {
         if (isCommOpen()) {
             throw new Exception("Comm port is already open.");
         }
         
         // No point in checking response, it throws an exception on errors.
-        this.comm.openCommPort(port, portRate);
+        this.comm.openCommPort(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
         
         if (isCommOpen()) {

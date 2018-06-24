@@ -40,6 +40,11 @@ import java.io.File;
 import java.util.prefs.Preferences;
 
 import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 
 /**
  * Setup JOGL canvas, GcodeRenderer and RendererInputHandler.
@@ -47,7 +52,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 @TopComponent.Description(
         preferredID = "VisualizerTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
+        persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = Visualizer2TopComponent.VisualizerCategory, id = Visualizer2TopComponent.VisualizerActionId)
@@ -57,6 +62,7 @@ import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
         preferredID = "VisualizerTopComponent"
 )
 public final class Visualizer2TopComponent extends TopComponent {
+    private static final Logger logger = Logger.getLogger(Visualizer2TopComponent.class.getName());
 
     private GLJPanel panel;
     private RendererInputHandler rih;
@@ -83,8 +89,21 @@ public final class Visualizer2TopComponent extends TopComponent {
         setLayout(new java.awt.BorderLayout());
     }
 
+    /**
+     * Fixes for commit: dd68a4ef9fd211642f284024bb651fa9bf0be64c
+     * 1. No longer using custom "visualizer" mode.
+     */
+    private void cleanup() {
+        Mode mode = WindowManager.getDefault().findMode(this);
+        if (mode != null && StringUtils.equals("visualizer", mode.getName())) {
+            this.close();
+        }
+    }
+
     @Override
     protected void componentOpened() {
+        cleanup();
+
         setName(VisualizerTitle);
         setToolTipText(VisualizerTooltip);
         super.componentOpened();
@@ -101,7 +120,7 @@ public final class Visualizer2TopComponent extends TopComponent {
             backend.removeUGSEventListener(rih);
         }
 
-        System.out.println("Component closed, panel = " + panel);
+        logger.log(Level.INFO, "Component closed, panel = " + panel);
         if (panel == null) return;
 
         remove(panel);

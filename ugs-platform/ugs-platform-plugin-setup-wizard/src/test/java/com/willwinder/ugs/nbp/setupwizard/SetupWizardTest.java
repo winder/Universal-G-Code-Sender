@@ -24,7 +24,9 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import java.io.IOException;
 
 /**
+ * A test program for starting the setup wizard
  *
+ * @author Joacim Breiler
  */
 public class SetupWizardTest {
     public static void main(String[] args) throws IOException {

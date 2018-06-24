@@ -40,39 +40,43 @@ public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     private static final String USER_HOME = "user.home";
     private static final String FALSE = "false";
+    private static Settings settings;
+
     public static final String SETTINGS_DIRECTORY_NAME = "ugs";
     public static final String PROPERTIES_FILENAME = "UniversalGcodeSender.properties";
     public static final String JSON_FILENAME = "UniversalGcodeSender.json";
     public static final String MAC_LIBRARY = "/Library/Preferences/";
 
     public static Settings loadSettings() {
-        migrateOldSettings();
+        if (settings == null) {
+            migrateOldSettings();
+            // the defaults are now in the settings bean
+            File settingsFile = getSettingsFile();
 
-        // the defaults are now in the settings bean
-        Settings out = null;
-        File settingsFile = getSettingsFile();
-
-        if (!settingsFile.exists()) {
-            out = new Settings();
-        } else {
-            try {
-                //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
-                logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
-                logger.info("Loading settings.");
-                out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
-                if (out != null) {
-                    out.finalizeInitialization();
+            if (!settingsFile.exists()) {
+                settings = new Settings();
+            } else {
+                try {
+                    //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                    logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
+                    logger.info("Loading settings.");
+                    settings = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+                    if (settings != null) {
+                        settings.finalizeInitialization();
+                    }
+                    // Localized setting not available here.
+                    //logger.info(Localization.getString("settings.log.loading"));
+                } catch (FileNotFoundException ex) {
+                    //logger.warning(Localization.getString("settings.log.error"));
+                    logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
                 }
-                // Localized setting not available here.
-                //logger.info(Localization.getString("settings.log.loading"));
-            } catch (FileNotFoundException ex) {
-                //logger.warning(Localization.getString("settings.log.error"));
-                logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
             }
         }
-        
-        if (out == null) return new Settings();
-        return out;
+
+        if (settings == null) {
+            settings = new Settings();
+        }
+        return settings;
     }
 
     public static void saveSettings(Settings settings) {

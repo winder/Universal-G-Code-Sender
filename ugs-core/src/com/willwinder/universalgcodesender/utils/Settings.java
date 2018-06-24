@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
@@ -81,6 +82,8 @@ public class Settings {
     private String language = "en_US";
     
     private PendantConfigBean pendantConfig = new PendantConfigBean();
+
+    private String connectionDriver;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -384,8 +387,8 @@ public class Settings {
     }
 
     public Integer getLastMacroIndex() {
-        //Obviously it would be more efficient to just store the max index value, but this is safer in that it's one less thing
-        //to keep in sync.
+        // Obviously it would be more efficient to just store the max index
+        // value, but this is safer in that it's one less thing to keep in sync.
         int i = -1;
         for (Integer index : macros.keySet()) {
             i = Math.max(i, index);
@@ -393,6 +396,10 @@ public class Settings {
         return i;
     }
 
+    public void clearMacros() {
+        macros.clear();
+        changed();
+    }
 
     public void clearMacro(Integer index) {
         macros.remove(index);
@@ -455,6 +462,22 @@ public class Settings {
 
     public FileStats getFileStats() {
         return this.fileStats;
+    }
+
+    public ConnectionDriver getConnectionDriver() {
+        ConnectionDriver connectionDriver = ConnectionDriver.JSSC;
+        if (StringUtils.isNotEmpty(this.connectionDriver)) {
+            try {
+                connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+                // Never mind, we'll use the default
+            }
+        }
+        return connectionDriver;
+    }
+
+    public void setConnectionDriver(ConnectionDriver connectionDriver) {
+        this.connectionDriver = connectionDriver.name();
     }
 
     public static class AutoLevelSettings {

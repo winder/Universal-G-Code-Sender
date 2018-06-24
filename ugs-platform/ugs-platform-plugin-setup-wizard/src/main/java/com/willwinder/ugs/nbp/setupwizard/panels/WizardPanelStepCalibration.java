@@ -19,11 +19,11 @@
 package com.willwinder.ugs.nbp.setupwizard.panels;
 
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
-import com.willwinder.universalgcodesender.IController;
+import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
+import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
@@ -31,12 +31,9 @@ import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
-import org.openide.DialogDisplayer;
-import org.openide.NotifyDescriptor;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -46,7 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
@@ -63,23 +59,17 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private static final long TIME_BEFORE_RESET_ON_ALARM = 500;
     private final DecimalFormat decimalFormat;
-
+    private NavigationButtons navigationButtons;
     private JLabel labelEstimatedStepsX;
     private JLabel labelPositionX;
-    private JButton buttonXneg;
-    private JButton buttonXpos;
     private JButton buttonUpdateSettingsX;
     private JTextField textFieldMeasuredX;
     private JTextField textFieldSettingStepsX;
-    private JButton buttonYneg;
-    private JButton buttonYpos;
     private JButton buttonUpdateSettingsY;
     private JTextField textFieldMeasuredY;
     private JLabel labelEstimatedStepsY;
     private JTextField textFieldSettingStepsY;
     private JLabel labelPositionY;
-    private JButton buttonZneg;
-    private JButton buttonZpos;
     private JButton buttonUpdateSettingsZ;
     private JTextField textFieldMeasuredZ;
     private JLabel labelEstimatedStepsZ;
@@ -102,15 +92,14 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         JLabel description = new JLabel("<html><body>" +
                 "<p>We will now attempt to calibrate your machine. Try <b>moving</b> the machine and <b>measure</b> the results, then <b>calibrate</b> to the estimated steps.</p>" +
                 "</body></html>");
-        add(description);
-
+        getPanel().add(description, "grow, wrap");
 
         JPanel panel = new JPanel(new MigLayout("fill, inset 0"));
         addHeaderRow(panel);
         addSubHeaderRow(panel);
-        addAxisRow(panel, buttonXneg, buttonXpos, buttonUpdateSettingsX, labelPositionX, labelEstimatedStepsX, textFieldMeasuredX, textFieldSettingStepsX);
-        addAxisRow(panel, buttonYneg, buttonYpos, buttonUpdateSettingsY, labelPositionY, labelEstimatedStepsY, textFieldMeasuredY, textFieldSettingStepsY);
-        addAxisRow(panel, buttonZneg, buttonZpos, buttonUpdateSettingsZ, labelPositionZ, labelEstimatedStepsZ, textFieldMeasuredZ, textFieldSettingStepsZ);
+        addAxisRow(panel, navigationButtons.getButtonXneg(), navigationButtons.getButtonXpos(), buttonUpdateSettingsX, labelPositionX, labelEstimatedStepsX, textFieldMeasuredX, textFieldSettingStepsX);
+        addAxisRow(panel, navigationButtons.getButtonYneg(), navigationButtons.getButtonYpos(), buttonUpdateSettingsY, labelPositionY, labelEstimatedStepsY, textFieldMeasuredY, textFieldSettingStepsY);
+        addAxisRow(panel, navigationButtons.getButtonZneg(), navigationButtons.getButtonZpos(), buttonUpdateSettingsZ, labelPositionZ, labelEstimatedStepsZ, textFieldMeasuredZ, textFieldSettingStepsZ);
         getPanel().add(panel, "grow");
     }
 
@@ -123,9 +112,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                             JTextField textFieldMeasurement,
                             JTextField textFieldSettingSteps) {
 
-        panel.add(buttonMoveInNegativeDirection, "shrink, gapbottom 5");
+        panel.add(buttonMoveInNegativeDirection, "shrink, w 46, gapbottom 5");
         panel.add(labelCurrentPosition, "grow, gapbottom 5");
-        panel.add(buttonMoveInPositiveDirection, "shrink, gapbottom 5");
+        panel.add(buttonMoveInPositiveDirection, "shrink, w 46, gapbottom 5");
 
         JPanel panelMeasureX = new JPanel(new MigLayout("fill, inset 0"));
         panelMeasureX.add(textFieldMeasurement, "growx, wmin 50");
@@ -173,11 +162,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private void initComponents() {
         Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
+        navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
 
-        buttonXneg = createJogButton("X-");
-        buttonXneg.addActionListener(event -> moveMachine(-1, 0, 0));
-        buttonXpos = createJogButton("X+");
-        buttonXpos.addActionListener(event -> moveMachine(1, 0, 0));
         buttonUpdateSettingsX = new JButton("Update");
         buttonUpdateSettingsX.setEnabled(false);
         labelEstimatedStepsX = new JLabel("0 steps/mm");
@@ -188,10 +174,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsX = new JTextField("0");
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
-        buttonYneg = createJogButton("Y-");
-        buttonYneg.addActionListener(event -> moveMachine(0, -1, 0));
-        buttonYpos = createJogButton("Y+");
-        buttonYpos.addActionListener(event -> moveMachine(0, 1, 0));
         buttonUpdateSettingsY = new JButton("Update");
         buttonUpdateSettingsY.setEnabled(false);
         labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
@@ -202,10 +184,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsY = new JTextField("0");
         textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
-        buttonZneg = createJogButton("Z-");
-        buttonZneg.addActionListener(event -> moveMachine(0, 0, -1));
-        buttonZpos = createJogButton("Z+");
-        buttonZpos.addActionListener(event -> moveMachine(0, 0, 1));
         buttonUpdateSettingsZ = new JButton("Update");
         buttonUpdateSettingsZ.setEnabled(false);
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
@@ -291,27 +269,11 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
     }
 
-    private JButton createJogButton(String text) {
-        JButton button = new JButton(text);
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setMinimumSize(new Dimension(36, 36));
-        return button;
-    }
-
-    private void moveMachine(int x, int y, int z) {
-        try {
-            getBackend().getController().jogMachine(x, y, z, 1, 100, UnitUtils.Units.MM);
-        } catch (Exception e) {
-            NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while moving the machine: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notify(nd);
-        }
-    }
-
     @Override
     public void initialize() {
         getBackend().addUGSEventListener(this);
         getBackend().addControllerStateListener(this);
-        killAlarm();
+        WizardUtils.killAlarm(getBackend());
         updateMeasurementEstimatesFields();
         updateSettingFieldsFromFirmware();
 
@@ -330,7 +292,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                     labelPositionZ.setText(StringUtils.leftPad(decimalFormat.format(currentPosition.get(Axis.Z)) + " mm", 8, ' '));
                     updateMeasurementEstimatesFields();
                 }
-                killAlarm();
+                WizardUtils.killAlarm(getBackend());
             }
         }, 0, 200);
     }
@@ -356,7 +318,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         if (getBackend().getController() != null &&
                 getBackend().isConnected() &&
                 (event.isControllerStatusEvent() || event.isStateChangeEvent())) {
-            killAlarm();
+            WizardUtils.killAlarm(getBackend());
         } else if (event.isSettingChangeEvent() || event.isStateChangeEvent()) {
             ThreadHelper.invokeLater(() -> {
                 updateMeasurementEstimatesFields();
@@ -370,6 +332,10 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                     e.printStackTrace();
                 }
             }, TIME_BEFORE_RESET_ON_ALARM);
+        }
+
+        if (event.isControllerStatusEvent()) {
+            navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
         }
     }
 
@@ -389,20 +355,6 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 textFieldSettingStepsZ.setText(String.valueOf(getBackend().getController().getFirmwareSettings().getStepsPerMillimeter(Axis.Z)));
             } catch (FirmwareSettingsException e) {
                 e.printStackTrace();
-            }
-        }
-    }
-
-    private void killAlarm() {
-        IController controller = getBackend().getController();
-        if (controller != null) {
-            ControllerState state = controller.getState();
-            if (state == ControllerState.ALARM) {
-                try {
-                    controller.killAlarmLock();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
             }
         }
     }

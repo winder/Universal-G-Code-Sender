@@ -25,12 +25,12 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.*;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -1842,10 +1842,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // Scans for comm ports and puts them in the comm port combo box.
     private void loadPortSelector() {
         commPortComboBox.removeAllItems();
-        
-        String[] portList = CommUtils.getSerialPortList();
 
-        if (portList.length < 1) {
+        List<String> portList = ConnectionFactory.getPortNames(backend.getSettings().getConnectionDriver());
+        if (portList.size() < 1) {
             if (settings.isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }
@@ -1858,9 +1857,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
 
             commPortComboBox.setSelectedIndex(0);
-
-
-
         }
     }
     

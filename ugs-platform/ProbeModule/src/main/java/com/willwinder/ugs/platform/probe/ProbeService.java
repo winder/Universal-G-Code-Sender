@@ -29,6 +29,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Methods that run various probe routines.
@@ -36,6 +38,7 @@ import java.util.List;
  * @author wwinder
  */
 public class ProbeService implements UGSEventListener {
+    private static Logger logger = Logger.getLogger(ProbeService.class.getName());
     protected static BackendAPI backend;
     private List<Position> probePositions = new ArrayList<>();
     static String WCS_PATTERN = "G10 L20 P%d %s";
@@ -167,20 +170,20 @@ public class ProbeService implements UGSEventListener {
             this.currentOperation = ProbeOperation.Z;
         } catch (Exception e) {
             resetProbe();
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception during z probe operation.", e);
         }
     }
 
     private static Finalizer zFinalizer = (params, list) -> {
         if (list.size() != 2) throw new IllegalArgumentException("Unexpected number of probe positions.");
         Position probe = list.get(1);
-        updateWCS(params.wcsToUpdate, null, null, params.startPosition.z - (probe.z + params.zOffset));
+        updateWCS(params.wcsToUpdate, null, null, params.zOffset);
 
         // Final retract
         String g = GcodeUtils.unitCommand(params.units);
         String g0 = "G90 " + g + " G0";
-        if (params.zSpacing < 0) {
-            gcode(g0 + " Z" + (params.retractHeight + params.zOffset));
+        if (params.zSpacing < 0 && params.retractHeight > params.zOffset) {
+            gcode(g0 + " Z" + params.retractHeight);
         }
     };
 
@@ -213,7 +216,7 @@ public class ProbeService implements UGSEventListener {
             this.currentOperation = ProbeOperation.OUTSIDE_XY;
         } catch (Exception e) {
             resetProbe();
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception during outside corner probe operation.", e);
         }
     }
 
@@ -278,7 +281,7 @@ public class ProbeService implements UGSEventListener {
             this.currentOperation = ProbeOperation.OUTSIDE_XYZ;
         } catch (Exception e) {
             resetProbe();
-            e.printStackTrace();
+            logger.log(Level.SEVERE, "Exception during XYZ probe operation.", e);
         }
     }
 
@@ -350,7 +353,8 @@ public class ProbeService implements UGSEventListener {
                           try {
                               this.currentOperation.finalize(params, probePositions);
                           } catch (Exception e) {
-                              e.printStackTrace();
+                              logger.log(Level.SEVERE,
+                                      "Exception finalizing " + this.currentOperation + " probe operation.", e);
                           } finally {
                               params.endPosition = this.backend.getMachinePosition();
                               this.resetProbe();
