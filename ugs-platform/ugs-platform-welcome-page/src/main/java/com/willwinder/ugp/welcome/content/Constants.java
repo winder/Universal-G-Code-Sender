@@ -52,10 +52,10 @@ public interface Constants {
     static final Font FEATURE_FONT = new Font( FONT_NAME, Font.PLAIN, FONT_SIZE+7 ) ; //NOI18N
     static final Font FEATURE_HEADER_FONT = new Font( FONT_NAME, Font.BOLD, FONT_SIZE+7 ) ; //NOI18N
 
-    static final String IMAGE_CONTENT_BANNER = "com/willwinder/ugp/resources/content_banner.png"; // NOI18N
-    static final String IMAGE_TAB_SELECTED = "com/willwinder/ugp/resources/tab_selected.png"; // NOI18N
-    static final String IMAGE_TAB_ROLLOVER = "com/willwinder/ugp/resources/tab_rollover.png"; // NOI18N
-    static final String IMAGE_LOGO = "com/willwinder/ugp/resources/ugs_logo.gif"; // NOI18N
+    static final String IMAGE_CONTENT_BANNER = "com/willwinder/ugp/welcome/resources/content_banner.png"; // NOI18N
+    static final String IMAGE_TAB_SELECTED = "com/willwinder/ugp/welcome/resources/tab_selected.png"; // NOI18N
+    static final String IMAGE_TAB_ROLLOVER = "com/willwinder/ugp/welcome/resources/tab_rollover.png"; // NOI18N
+    static final String IMAGE_LOGO = "com/willwinder/ugp/welcome/resources/ugs_logo.gif"; // NOI18N
 
     //static final String BROKEN_IMAGE = "org/netbeans/modules/welcome/resources/broken_image.gif"; // NOI18N
     //static final String IMAGE_PICTURE_FRAME = "org/netbeans/modules/welcome/resources/picture_frame.png"; // NOI18N

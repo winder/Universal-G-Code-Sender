@@ -19,7 +19,7 @@
 
 package com.willwinder.ugp.welcome.content;
 
-import com.willwinder.ugp.welcome.StartPageOptions;
+import com.willwinder.ugp.welcome.WelcomePageOptions;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -80,7 +80,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         ActionListener al = (ActionEvent e) -> {
           TabButton btn = (TabButton) e.getSource();
           switchTab( btn.getTabIndex() );
-          StartPageOptions.getDefault().setLastActiveTab( btn.getTabIndex() );
+          WelcomePageOptions.getDefault().setLastActiveTab( btn.getTabIndex() );
         };
         
         buttons = new TabButton[tabs.size()];
@@ -96,10 +96,10 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         tabContent = new TabContentPane();//JPanel( new GridBagLayout() );
 
         add( tabContent, BorderLayout.CENTER );
-        int activeTabIndex = StartPageOptions.getDefault().getLastActiveTab();
-        if( StartPageOptions.getDefault().isSecondStart() && activeTabIndex < 0 ) {
+        int activeTabIndex = WelcomePageOptions.getDefault().getLastActiveTab();
+        if( WelcomePageOptions.getDefault().isSecondStart() && activeTabIndex < 0 ) {
             activeTabIndex = 1;
-            StartPageOptions.getDefault().setLastActiveTab( 1 );
+            WelcomePageOptions.getDefault().setLastActiveTab( 1 );
         }
         activeTabIndex = Math.max(0, activeTabIndex);
         activeTabIndex = Math.min(activeTabIndex, tabs.size()-1);

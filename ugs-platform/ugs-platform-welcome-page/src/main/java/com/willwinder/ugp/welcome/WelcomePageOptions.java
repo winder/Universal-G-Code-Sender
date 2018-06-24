@@ -28,9 +28,9 @@ import org.openide.util.NbPreferences;
  *
  * @author S. Aubrecht
  */
-public class StartPageOptions {
+public class WelcomePageOptions {
 
-    private static StartPageOptions theInstance;
+    private static WelcomePageOptions theInstance;
     
     private static final String PROP_SHOW_ON_STARTUP = "showOnStartup";
     private static final String PROP_LAST_ACTIVE_TAB = "lastActiveTab";
@@ -38,16 +38,16 @@ public class StartPageOptions {
     
     private PropertyChangeSupport propSupport;
     
-    private StartPageOptions() {
+    private WelcomePageOptions() {
     }
 
     private Preferences prefs() {
-        return NbPreferences.forModule(StartPageOptions.class);
+        return NbPreferences.forModule(WelcomePageOptions.class);
     }
 
-    public static synchronized StartPageOptions getDefault() {
+    public static synchronized WelcomePageOptions getDefault() {
         if( null == theInstance ) {
-            theInstance = new StartPageOptions();
+            theInstance = new WelcomePageOptions();
         }
         return theInstance;
     }

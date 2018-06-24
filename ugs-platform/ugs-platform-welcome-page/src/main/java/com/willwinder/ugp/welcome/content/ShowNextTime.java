@@ -28,7 +28,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import com.willwinder.ugp.welcome.StartPageOptions;
+import com.willwinder.ugp.welcome.WelcomePageOptions;
 
 /**
  *
@@ -45,7 +45,7 @@ class ShowNextTime extends JPanel
         setOpaque(false);
 
         button = new JCheckBox( "Show Next Time" ); // NOI18N
-        button.setSelected( StartPageOptions.getDefault().isShowOnStartup() );
+        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup() );
         button.setOpaque( false );
         button.setForeground( Color.white );
         button.setHorizontalTextPosition( SwingConstants.LEFT );
@@ -57,24 +57,24 @@ class ShowNextTime extends JPanel
     
     @Override
     public void actionPerformed(ActionEvent e) {
-        StartPageOptions.getDefault().setShowOnStartup( button.isSelected() );
+        WelcomePageOptions.getDefault().setShowOnStartup( button.isSelected() );
     }
 
     @Override
     public void addNotify() {
         super.addNotify();
-        StartPageOptions.getDefault().addPropertyChangeListener( this );
+        WelcomePageOptions.getDefault().addPropertyChangeListener( this );
     }
 
     @Override
     public void removeNotify() {
         super.removeNotify();
-        StartPageOptions.getDefault().removePropertyChangeListener( this );
+        WelcomePageOptions.getDefault().removePropertyChangeListener( this );
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        button.setSelected( StartPageOptions.getDefault().isShowOnStartup() );
+        button.setSelected(WelcomePageOptions.getDefault().isShowOnStartup() );
     }
     
     

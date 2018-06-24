@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugp.welcome;
 
-import com.willwinder.ugp.welcome.content.StartPagePanel;
+import com.willwinder.ugp.welcome.content.WelcomePagePanel;
 import com.google.common.collect.ImmutableList;
 import com.willwinder.ugp.welcome.FeaturesTab.Feature;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
@@ -36,23 +36,23 @@ import org.openide.windows.TopComponent;
  * Top component which displays something.
  */
 @TopComponent.Description(
-        preferredID = "StartPageTopComponent",
+        preferredID = "WelcomePageTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = true)
-@ActionID(category = StartPageTopComponent.Category, id = StartPageTopComponent.ActionId)
-@ActionReference(path = StartPageTopComponent.Path)
+@ActionID(category = WelcomePageTopComponent.Category, id = WelcomePageTopComponent.ActionId)
+@ActionReference(path = WelcomePageTopComponent.Path)
 @TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:StartPageTopComponent>",
-        preferredID = "StartPageTopComponent"
+        displayName = "<Not localized:WelcomePageTopComponent>",
+        preferredID = "WelcomePageTopComponent"
 )
-public final class StartPageTopComponent extends TopComponent {
+public final class WelcomePageTopComponent extends TopComponent {
   protected final static String Category = "Help";
-  protected final static String ActionId = "com.willwinder.ugp.StartPageTopComponent";
+  protected final static String ActionId = "com.willwinder.ugp.welcome.WelcomePageTopComponent";
   protected final static String Path = "Menu/Help";
-  protected final static String Title = "Start Page";
-  protected final static String Tooltip = "Start Page";
+  protected final static String Title = "Welcome Page";
+  protected final static String Tooltip = "Welcome Page";
 
   private static final Collection<Feature> features = ImmutableList.of(
             new Feature(null, "Plugin Support!", "Most plugins can be found in the 'Window > Plugins' menu. New plugins are added all the time, see the what's new section for the latest features!", "com/willwinder/ugp/welcome/resources/features/new_plugins.png"),
@@ -72,12 +72,12 @@ public final class StartPageTopComponent extends TopComponent {
     }
   }
 
-  public StartPageTopComponent() {
+  public WelcomePageTopComponent() {
     setName(Title);
     setToolTipText(Tooltip);
 
     setLayout(new BorderLayout());
-    JScrollPane scroll = new JScrollPane(new StartPagePanel(getTabs()));
+    JScrollPane scroll = new JScrollPane(new WelcomePagePanel(getTabs()));
     scroll.getViewport().setOpaque(false);
     scroll.setOpaque(false);
     setFocusable( false );

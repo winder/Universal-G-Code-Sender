@@ -7,9 +7,9 @@
     <version>2.0-SNAPSHOT</version> 
   </parent>  
 
-  <artifactId>ugs-platform-start-page</artifactId>  
+  <artifactId>ugs-platform-welcome-page</artifactId>  
   <packaging>nbm</packaging>  
-  <name>ugs-platform-start-page</name>  
+  <name>ugs-platform-welcome-page</name>  
 
   <build> 
     <plugins> 

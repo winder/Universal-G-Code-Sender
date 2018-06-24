@@ -98,7 +98,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ugs-platform-start-page</artifactId>
+            <artifactId>ugs-platform-welcome-page</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

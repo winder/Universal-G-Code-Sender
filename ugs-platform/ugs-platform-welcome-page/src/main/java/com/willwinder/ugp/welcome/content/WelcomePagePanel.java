@@ -36,13 +36,13 @@ import javax.swing.JPanel;
  *
  * @author wwinder
  */
-public class StartPagePanel extends JPanel {
+public class WelcomePagePanel extends JPanel {
   private final static Color COLOR_TOP_START = new Color(220,235,255);
   private final static Color COLOR_TOP_END = new Color(255, 255, 255);
   private final static Color COLOR_BOTTOM_START = new Color(255, 255, 255);
   private final static Color COLOR_BOTTOM_END = new Color(241, 246, 252);
 
-  public StartPagePanel(List<JComponent> tabs) {
+  public WelcomePagePanel(List<JComponent> tabs) {
     super( new GridBagLayout() );
 
     JComponent tabPane = new TabbedPane(tabs);
