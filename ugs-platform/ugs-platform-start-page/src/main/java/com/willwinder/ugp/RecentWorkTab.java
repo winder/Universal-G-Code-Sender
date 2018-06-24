@@ -56,13 +56,15 @@ public class RecentWorkTab extends AbstractTab implements Constants {
     fileLabel.setFont(RecentWorkTab.CONTENT_HEADER_FONT);
     recentFiles.add(fileLabel);
     Collection<String> files = backend.getSettings().getRecentFiles();
-    if (files != null) {
+    if (files != null && !files.isEmpty()) {
       for (String file : files) {
         final Path p = Paths.get(file);
         JLinkButton button = new JLinkButton(p.getFileName().toString());
         button.addActionListener(l -> GUIHelpers.openGcodeFile(p.toFile(), backend));
         recentFiles.add(button);
       }
+    } else {
+      recentFiles.add(new JLabel("none yet."));
     }
 
     JPanel recentDirectories = new JPanel(new MigLayout("fillx, wrap 1"));
@@ -70,7 +72,7 @@ public class RecentWorkTab extends AbstractTab implements Constants {
     dirLabel.setFont(RecentWorkTab.CONTENT_HEADER_FONT);
     recentDirectories.add(dirLabel);
     Collection<String> directories = backend.getSettings().getRecentDirectories();
-    if (directories != null) {
+    if (directories != null && !directories.isEmpty()) {
       for (String directory : directories) {
         JLinkButton button = new JLinkButton(directory);
         button.addActionListener(l -> {
@@ -80,6 +82,8 @@ public class RecentWorkTab extends AbstractTab implements Constants {
         });
         recentDirectories.add(button);
       }
+    } else {
+      recentDirectories.add(new JLabel("none yet."));
     }
 
     JPanel panel = new JPanel(new GridLayout(1,0));

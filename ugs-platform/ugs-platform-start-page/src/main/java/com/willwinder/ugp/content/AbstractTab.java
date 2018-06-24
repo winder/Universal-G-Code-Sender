@@ -21,7 +21,6 @@ package com.willwinder.ugp.content;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;

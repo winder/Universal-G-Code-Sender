@@ -21,7 +21,6 @@ package com.willwinder.ugp;
 import com.willwinder.ugp.content.StartPagePanel;
 import com.google.common.collect.ImmutableList;
 import com.willwinder.ugp.FeaturesTab.Feature;
-import com.willwinder.ugp.content.AbstractTab;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import java.awt.BorderLayout;
 import java.util.Collection;
@@ -89,8 +88,10 @@ public final class StartPageTopComponent extends TopComponent {
     return ImmutableList.of(
             new GettingStartedTab(),
             new RecentWorkTab(),
-            new FeaturesTab("Features", features),
-            new TestTab("What's New", "New features"));
+            new FeaturesTab("Features", features)
+            // TODO: Populate a features tab with data from github.
+            //new FeaturesTab("What's New", downloadedFeatureList)
+    );
   }
 
   @Override

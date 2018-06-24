@@ -97,7 +97,7 @@ public class FeaturesTab extends AbstractTab implements Constants {
   }
 
   private JComponent getImage(String uri) {
-    // TODO: Load images remotely.
+    // TODO: Load images remotely, this is needed when the "what's new" tab is implemented.
     if (uri.startsWith("http")) {
       throw new IllegalArgumentException("Not supported yet.");
     }

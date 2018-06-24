@@ -18,9 +18,6 @@
  */
 package com.willwinder.ugp.content;
 
-import com.google.common.collect.ImmutableList;
-import com.willwinder.ugp.FeaturesTab.Feature;
-import com.willwinder.ugp.content.AbstractTab;
 import com.willwinder.ugp.content.TabbedPane;
 import java.awt.Color;
 import java.awt.GradientPaint;
@@ -29,7 +26,6 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.util.Collection;
 import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
