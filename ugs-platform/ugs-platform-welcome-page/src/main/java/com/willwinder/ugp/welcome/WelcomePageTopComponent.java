@@ -48,6 +48,9 @@ import org.openide.windows.TopComponent;
         preferredID = "WelcomePageTopComponent"
 )
 public final class WelcomePageTopComponent extends TopComponent {
+  // Flag to prevent opening the start page once, allowing it to be opened manually.
+  private static boolean firstTimeOpen = true;
+
   protected final static String Category = "Help";
   protected final static String ActionId = "com.willwinder.ugp.welcome.WelcomePageTopComponent";
   protected final static String Path = "Menu/Help";
@@ -96,6 +99,12 @@ public final class WelcomePageTopComponent extends TopComponent {
 
   @Override
   public void componentOpened() {
+    if( firstTimeOpen ) {
+      firstTimeOpen = false;
+      if( !WelcomePageOptions.getDefault().isShowOnStartup() ) {
+        close();
+      }
+    }
   }
 
   @Override
