@@ -74,6 +74,6 @@ public final class OpenAction extends AbstractAction {
         String sourceDir = backend.getSettings().getLastOpenedFilename();
         SwingHelpers
                 .openFile(sourceDir)
-                .ifPresent(GUIHelpers::openGcodeFile);
+                .ifPresent(f -> GUIHelpers.openGcodeFile(f, backend));
     }
 }
