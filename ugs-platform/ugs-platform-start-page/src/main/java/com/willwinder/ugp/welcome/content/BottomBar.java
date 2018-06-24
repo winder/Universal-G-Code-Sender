@@ -17,38 +17,33 @@
  * under the License.
  */
 
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.UIManager;
 
 /**
  *
  * @author S. Aubrecht
  */
-class TabContentPane extends JPanel {
+class BottomBar extends JPanel implements Constants {
 
-    public TabContentPane() {
+    public BottomBar() {
         super( new GridBagLayout() );
-        setOpaque(false);
-        setMinimumSize(new Dimension(41, 85));
+        setOpaque(true);
+        setBackground(COLOR_TAB_BACKGROUND);
+        
+        add( new JLabel(" "/*"left logo / url"*/), new GridBagConstraints(0,0,1,1,0.0,0.0,
+                GridBagConstraints.WEST,GridBagConstraints.NONE,new Insets(0,12,0,5),0,0 ) );
+        
+        add( new JLabel(), new GridBagConstraints(1,0,1,1,1.0,0.0,
+                GridBagConstraints.CENTER,GridBagConstraints.NONE,new Insets(0,0,0,0),0,0 ) );
+        
+        add( new JLabel(/*"right logo / url"*/), new GridBagConstraints(4,0,1,1,0.0,0.0,
+                GridBagConstraints.EAST,GridBagConstraints.NONE,new Insets(5,5,5,12),0,0 ) );
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        Graphics2D g2d = (Graphics2D) g;
-        int width = getWidth();
-        int height = getHeight();
-
-        g2d.setColor(UIManager.getColor( "Tree.background") );
-        g2d.fillRect(0, 0, width, height);
-        g2d.setColor( new Color(72,93,112, 255) );
-        g2d.drawLine( 0,0, 0, height);
-        g2d.drawLine( width-1,0, width-1, height);
-    }
 }

@@ -16,11 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugp;
+package com.willwinder.ugp.welcome;
 
-import com.willwinder.ugp.content.StartPagePanel;
+import com.willwinder.ugp.welcome.content.StartPagePanel;
 import com.google.common.collect.ImmutableList;
-import com.willwinder.ugp.FeaturesTab.Feature;
+import com.willwinder.ugp.welcome.FeaturesTab.Feature;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import java.awt.BorderLayout;
 import java.util.Collection;
@@ -55,14 +55,14 @@ public final class StartPageTopComponent extends TopComponent {
   protected final static String Tooltip = "Start Page";
 
   private static final Collection<Feature> features = ImmutableList.of(
-            new Feature(null, "Plugin Support!", "Most plugins can be found in the 'Window > Plugins' menu. New plugins are added all the time, see the what's new section for the latest features!", "com/willwinder/ugp/resources/features/new_plugins.png"),
-            new Feature(null, "Setup wizard", "Configure and calibrate your hardware with the Setup wizard. It will help you to setup and test limit switches, step length, homing and soft limits. Start the wizard from the machine menu.", "com/willwinder/ugp/resources/features/setup_wizard.png"),
-            new Feature(null, "Digital Read-Out (DRO)", "The DRO is your first stop for the current machine status. It tells you the work/machine coordinates, machine/spindle speeds, gcode state and more! It can be used to reset individual axes by clicking on the axis label, and has dynamic work position controls by clicking on the coordinate numbers.", "com/willwinder/ugp/resources/features/dro.png"),
-            new Feature(null, "Jog Controller", "The Jog Controller is your primary tool for manually controlling your machines location. It has the option of using separate step sizes for XY and Z axes in addition to a click-and-hold mode for continuous jogging.", "com/willwinder/ugp/resources/features/jog_controller.png"),
-            new Feature(null, "Custom Macros", "User defined macros can be configured in the preferences menu. A variety of convenient substitutions are available to help create perfectly tailored time savers for your workflow. See the help menu for more details.", "com/willwinder/ugp/resources/features/custom_macros.png"),
-            new Feature(null, "Configurable Keybindings", "Nearly every feature in UGS can have a configurable keybinding. From the preferences menu open the keybinding section for a complete list of actions which can be configured (including your custom macros!).", "com/willwinder/ugp/resources/features/keybinding.png"),
-            new Feature(null, "Probe Module", "The probe module can be opened from the plugins menu, it provides first class support for common probe devices. Some of the supported routines include standard Z-Depth probing and 3-Axis corner probing.", "com/willwinder/ugp/resources/features/probe_module.png"),
-            new Feature(null, "Workflow helper", "Manage complex projects with multiple files using the Workflow helper. It will keep track of which files that has been run and remind you which tool to use for the next file.", "com/willwinder/ugp/resources/features/workflow.png")
+            new Feature(null, "Plugin Support!", "Most plugins can be found in the 'Window > Plugins' menu. New plugins are added all the time, see the what's new section for the latest features!", "com/willwinder/ugp/welcome/resources/features/new_plugins.png"),
+            new Feature(null, "Setup wizard", "Configure and calibrate your hardware with the Setup wizard. It will help you to setup and test limit switches, step length, homing and soft limits. Start the wizard from the machine menu.", "com/willwinder/ugp/welcome/resources/features/setup_wizard.png"),
+            new Feature(null, "Digital Read-Out (DRO)", "The DRO is your first stop for the current machine status. It tells you the work/machine coordinates, machine/spindle speeds, gcode state and more! It can be used to reset individual axes by clicking on the axis label, and has dynamic work position controls by clicking on the coordinate numbers.", "com/willwinder/ugp/welcome/resources/features/dro.png"),
+            new Feature(null, "Jog Controller", "The Jog Controller is your primary tool for manually controlling your machines location. It has the option of using separate step sizes for XY and Z axes in addition to a click-and-hold mode for continuous jogging.", "com/willwinder/ugp/welcome/resources/features/jog_controller.png"),
+            new Feature(null, "Custom Macros", "User defined macros can be configured in the preferences menu. A variety of convenient substitutions are available to help create perfectly tailored time savers for your workflow. See the help menu for more details.", "com/willwinder/ugp/welcome/resources/features/custom_macros.png"),
+            new Feature(null, "Configurable Keybindings", "Nearly every feature in UGS can have a configurable keybinding. From the preferences menu open the keybinding section for a complete list of actions which can be configured (including your custom macros!).", "com/willwinder/ugp/welcome/resources/features/keybinding.png"),
+            new Feature(null, "Probe Module", "The probe module can be opened from the plugins menu, it provides first class support for common probe devices. Some of the supported routines include standard Z-Depth probing and 3-Axis corner probing.", "com/willwinder/ugp/welcome/resources/features/probe_module.png"),
+            new Feature(null, "Workflow helper", "Manage complex projects with multiple files using the Workflow helper. It will keep track of which files that has been run and remind you which tool to use for the next file.", "com/willwinder/ugp/welcome/resources/features/workflow.png")
             );
 
   @OnStart

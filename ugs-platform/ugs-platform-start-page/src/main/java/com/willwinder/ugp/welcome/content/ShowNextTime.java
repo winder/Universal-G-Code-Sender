@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -28,7 +28,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-import com.willwinder.ugp.StartPageOptions;
+import com.willwinder.ugp.welcome.StartPageOptions;
 
 /**
  *

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

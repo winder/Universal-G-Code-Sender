@@ -17,9 +17,9 @@
  * under the License.
  */
 
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 
-import com.willwinder.ugp.StartPageOptions;
+import com.willwinder.ugp.welcome.StartPageOptions;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;

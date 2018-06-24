@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FontMetrics;

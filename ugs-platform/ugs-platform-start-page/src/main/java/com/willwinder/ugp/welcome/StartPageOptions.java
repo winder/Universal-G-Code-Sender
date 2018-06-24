@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.willwinder.ugp;
+package com.willwinder.ugp.welcome;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

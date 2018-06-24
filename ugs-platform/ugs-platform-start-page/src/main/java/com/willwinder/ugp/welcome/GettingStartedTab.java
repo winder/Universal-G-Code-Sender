@@ -16,11 +16,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugp;
+package com.willwinder.ugp.welcome;
 
-import com.willwinder.ugp.content.AbstractTab;
-import com.willwinder.ugp.content.Constants;
-import com.willwinder.ugp.content.ContentSection;
+import com.willwinder.ugp.welcome.content.AbstractTab;
+import com.willwinder.ugp.welcome.content.Constants;
+import com.willwinder.ugp.welcome.content.ContentSection;
 import java.awt.Image;
 import java.awt.Toolkit;
 import javax.swing.ImageIcon;
@@ -36,11 +36,11 @@ import net.miginfocom.swing.MigLayout;
 public class GettingStartedTab extends AbstractTab implements Constants {
 
   private static Image connect = Toolkit.getDefaultToolkit().getImage(
-      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/resources/connect.png"));
+      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/welcome/resources/connect.png"));
   private static Image open = Toolkit.getDefaultToolkit().getImage(
-      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/resources/open.png"));
+      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/welcome/resources/open.png"));
   private static Image run = Toolkit.getDefaultToolkit().getImage(
-      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/resources/run.png"));
+      GettingStartedTab.class.getClassLoader().getResource("com/willwinder/ugp/welcome/resources/run.png"));
 
   public GettingStartedTab() {
     super("Getting Started");

@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugp;
+package com.willwinder.ugp.welcome;
 
-import com.willwinder.ugp.content.AbstractTab;
-import com.willwinder.ugp.content.Constants;
-import com.willwinder.ugp.content.ContentSection;
-import com.willwinder.ugp.content.JLinkButton;
+import com.willwinder.ugp.welcome.content.AbstractTab;
+import com.willwinder.ugp.welcome.content.Constants;
+import com.willwinder.ugp.welcome.content.ContentSection;
+import com.willwinder.ugp.welcome.content.JLinkButton;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;

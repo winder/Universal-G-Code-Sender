@@ -16,9 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugp.content;
+package com.willwinder.ugp.welcome.content;
 
-import com.willwinder.ugp.content.TabbedPane;
+import com.willwinder.ugp.welcome.content.TabbedPane;
 import java.awt.Color;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
