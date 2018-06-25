@@ -97,7 +97,6 @@ public class SettingsTest {
     @Test
     public void recentsShouldOverflowOldestAndReturnLIFO() {
       String path = "/some/file";
-      String file = path + "file.gcode";
 
       // Add up recents to the brim.
       for(int i = 0; i < HISTORY_SIZE; i++) {

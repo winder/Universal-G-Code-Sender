@@ -37,8 +37,8 @@ public class Settings {
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
-    private ArrayDeque<String> fileHistory = new ArrayDeque<>();
-    private ArrayDeque<String> dirHistory = new ArrayDeque<>();
+    private Deque<String> fileHistory = new ArrayDeque<>();
+    private Deque<String> dirHistory = new ArrayDeque<>();
     private String port = "";
     private String portRate = "115200";
     private boolean manualModeEnabled = false;

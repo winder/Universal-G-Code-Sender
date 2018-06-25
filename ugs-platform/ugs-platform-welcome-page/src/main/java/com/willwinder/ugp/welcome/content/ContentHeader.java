@@ -49,7 +49,6 @@ class ContentHeader extends JPanel implements Constants {
         lblTitle.setForeground( Color.white );
         add( lblTitle, BorderLayout.WEST );
         setBorder( BorderFactory.createEmptyBorder( 12+18, 34, 15, 34 ) );
-        Image x = ImageUtilities.loadImage(IMAGE_CONTENT_BANNER, true);
     }
 
     @Override

@@ -102,7 +102,7 @@
     <dependency> 
       <groupId>org.netbeans.api</groupId>  
       <artifactId>org-openide-modules</artifactId>  
-      <version>RELEASE82</version>
+      <version>${netbeans.version}</version> 
       <type>jar</type>
     </dependency>  
     <dependency> 

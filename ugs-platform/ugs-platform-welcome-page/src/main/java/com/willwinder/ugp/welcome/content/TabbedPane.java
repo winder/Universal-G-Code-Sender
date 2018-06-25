@@ -56,9 +56,19 @@ import org.openide.util.ImageUtilities;
  * @author S. Aubrecht
  */
 public class TabbedPane extends JPanel implements Constants {// , Scrollable {
+    // TabButton static variables
+    private final static Color colBackground = COLOR_TAB_BACKGROUND; 
+    private static final Image imgSelected = ImageUtilities.loadImage( IMAGE_TAB_SELECTED, true );
+    private static final Image imgRollover = ImageUtilities.loadImage( IMAGE_TAB_ROLLOVER, true );
+    private static final JLabel imgLogo = new JLabel(new ImageIcon(ImageUtilities.loadImage( IMAGE_LOGO, true )));
+
+    // TabBorder static variables
+    private static final Color COL__BORDER1 = new Color(72,93,112, 255);
+    private static final Color COL__BORDER2 = new Color(72,93,112, 255);
+
+    // TabbedPane variables
     private final List<JComponent> tabs;
     private final TabButton[] buttons;
-    private final JComponent tabHeader;
     private final JPanel tabContent;
     private boolean[] tabAdded;
     private int selTabIndex = -1;
@@ -90,7 +100,7 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         }
 
         
-        tabHeader = new TabHeader(buttons);
+        JComponent tabHeader = new TabHeader(buttons);
         add( tabHeader, BorderLayout.NORTH );
         
         tabContent = new TabContentPane();//JPanel( new GridBagLayout() );
@@ -143,12 +153,6 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
         return d;
     }
 
-    private final static Color colBackground = COLOR_TAB_BACKGROUND; 
-
-    private static final Image imgSelected = ImageUtilities.loadImage( IMAGE_TAB_SELECTED, true );
-    private static final Image imgRollover = ImageUtilities.loadImage( IMAGE_TAB_ROLLOVER, true );
-    private static final JLabel imgLogo = new JLabel(new ImageIcon(ImageUtilities.loadImage( IMAGE_LOGO, true )));
-
     private static class TabButton extends JPanel {
         private boolean isSelected = false;
         private ActionListener actionListener;
@@ -172,11 +176,9 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if( e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER ) {
-//                        setSelected( !isSelected );
-                        if( null != actionListener ) {
-                            actionListener.actionPerformed( new ActionEvent( TabButton.this, 0, "clicked") );
-                        }
+                    if( (e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER)
+                            && (null != actionListener)) {
+                        actionListener.actionPerformed( new ActionEvent( TabButton.this, 0, "clicked") );
                     }
                 }
             });
@@ -302,9 +304,6 @@ public class TabbedPane extends JPanel implements Constants {// , Scrollable {
             });
         }
     }
-
-    private static final Color COL__BORDER1 = new Color(72,93,112, 255);
-    private static final Color COL__BORDER2 = new Color(72,93,112, 255);
 
     private static final class TabBorder implements Border {
 

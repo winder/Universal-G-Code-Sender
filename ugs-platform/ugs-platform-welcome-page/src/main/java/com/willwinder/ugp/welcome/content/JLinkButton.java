@@ -32,13 +32,10 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.UIManager;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.metal.MetalButtonUI;
 
 public class JLinkButton extends JButton {
-  private static final String uiString = "LinkButtonUI";
-
   public static final int ALWAYS_UNDERLINE = 0;
 
   public static final int HOVER_UNDERLINE = 1;
@@ -117,14 +114,12 @@ public class JLinkButton extends JButton {
     addActionListener(defaultAction);
   }
 
+  @Override
   public void updateUI() {
     setUI(BasicLinkButtonUI.createUI(this));
   }
 
-  private void setDefault() {
-    UIManager.getDefaults().put("LinkButtonUI", "BasicLinkButtonUI");
-  }
-
+  @Override
   public String getUIClassID() {
     return "LinkButtonUI";
   }
@@ -235,16 +230,18 @@ public class JLinkButton extends JButton {
     return defaultAction;
   }
 
+  @Override
   protected String paramString() {
     String str;
-    if (linkBehavior == ALWAYS_UNDERLINE)
+    if (linkBehavior == ALWAYS_UNDERLINE) {
       str = "ALWAYS_UNDERLINE";
-    else if (linkBehavior == HOVER_UNDERLINE)
+    } else if (linkBehavior == HOVER_UNDERLINE) {
       str = "HOVER_UNDERLINE";
-    else if (linkBehavior == NEVER_UNDERLINE)
+    } else if (linkBehavior == NEVER_UNDERLINE) {
       str = "NEVER_UNDERLINE";
-    else
+    } else {
       str = "SYSTEM_DEFAULT";
+    }
     String colorStr = linkColor == null ? "" : linkColor.toString();
     String colorPressStr = colorPressed == null ? "" : colorPressed
         .toString();
@@ -265,9 +262,6 @@ public class JLinkButton extends JButton {
 class BasicLinkButtonUI extends MetalButtonUI {
   private static final BasicLinkButtonUI ui = new BasicLinkButtonUI();
 
-  public BasicLinkButtonUI() {
-  }
-
   public static ComponentUI createUI(JComponent jcomponent) {
     return ui;
   }
@@ -276,8 +270,6 @@ class BasicLinkButtonUI extends MetalButtonUI {
       String s) {
     JLinkButton bn = (JLinkButton) com;
     ButtonModel bnModel = bn.getModel();
-    Color color = bn.getForeground();
-    Object obj = null;
     if (bnModel.isEnabled()) {
       if (bnModel.isPressed())
         bn.setForeground(bn.getActiveLinkColor());

@@ -690,9 +690,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         r = null;
     }
 
-    void writeProperties(java.util.Properties p) {
+    public void writeProperties(java.util.Properties p) {
+      // No properties
     }
 
-    void readProperties(java.util.Properties p) {
+    public void readProperties(java.util.Properties p) {
+      // No properties
     }
 }

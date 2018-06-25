@@ -73,29 +73,32 @@ public class ContentSection extends JPanel implements Constants {
     }
 
     @Override
-    public void setSize(Dimension d) {
+    public void setSize(final Dimension d) {
+        Dimension dim = d;
         if( maxSize && d.width > PANEL_MAX_WIDTH ) {
-            d = new Dimension( d );
-            d.width = PANEL_MAX_WIDTH;
+            dim = new Dimension( d );
+            dim.width = PANEL_MAX_WIDTH;
         }
-        super.setSize(d);
+        super.setSize(dim);
     }
 
     @Override
-    public void setBounds(Rectangle r) {
+    public void setBounds(final Rectangle r) {
+        Rectangle rect = r;
         if( maxSize && r.width > PANEL_MAX_WIDTH ) {
-            r = new Rectangle( r );
-            r.width = PANEL_MAX_WIDTH;
+            rect = new Rectangle( r );
+            rect.width = PANEL_MAX_WIDTH;
         }
-        super.setBounds(r);
+        super.setBounds(rect);
     }
 
     @Override
     public void setBounds(int x, int y, int w, int h) {
+        int width = w;
         if( maxSize && w > PANEL_MAX_WIDTH ) {
-            w = PANEL_MAX_WIDTH;
+            width = PANEL_MAX_WIDTH;
         }
-        super.setBounds(x,y,w,h);
+        super.setBounds(x,y,width,h);
     }
 
     @Override

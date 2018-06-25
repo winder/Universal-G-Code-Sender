@@ -30,6 +30,7 @@ import java.awt.GridLayout;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -64,6 +65,7 @@ public class RecentWorkTab extends AbstractTab implements Constants {
         recentFiles.add(button);
       }
     } else {
+      logger.log(Level.INFO, "No files for recent work tab.");
       recentFiles.add(new JLabel("none yet."));
     }
 
@@ -83,6 +85,7 @@ public class RecentWorkTab extends AbstractTab implements Constants {
         recentDirectories.add(button);
       }
     } else {
+      logger.log(Level.INFO, "No directories for recent work tab.");
       recentDirectories.add(new JLabel("none yet."));
     }
 
