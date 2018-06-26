@@ -31,7 +31,6 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import java.io.File;
 import java.io.IOException;
-import javax.vecmath.Point3d;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -279,8 +278,8 @@ public class TinyGController extends AbstractController {
         }
         
         private static class StatusResult {
-            private Point3d machine = new Point3d();
-            private Point3d work = new Point3d();
+            private Position machine = new Position();
+            private Position work = new Position();
             private String stateString;
             private ControllerState state;
         }

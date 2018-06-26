@@ -22,10 +22,8 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.util.Objects;
-import javax.vecmath.Point3d;
-import javax.vecmath.Tuple3d;
 
-public class Position extends Point3d {
+public class Position extends CNCPoint {
 
     private final Units units;
 
@@ -34,11 +32,21 @@ public class Position extends Point3d {
     }
 
     public Position(Position other) {
-        this(other.x, other.y, other.z, other.units);
+        this(other.x, other.y, other.z, other.a, other.b, other.c, other.units);
+    }
+
+    public Position(double x, double y, double z) {
+        super(x, y, z, 0, 0, 0);
+        this.units = Units.UNKNOWN;
     }
 
     public Position(double x, double y, double z, Units units) {
-        super(x, y, z);
+        super(x, y, z, 0, 0, 0);
+        this.units = units;
+    }
+
+    public Position(double x, double y, double z, double a, double b, double c, Units units) {
+        super(x, y, z, a, b, c);
         this.units = units;
     }
 
@@ -51,7 +59,7 @@ public class Position extends Point3d {
     }
 
     @Override
-    public boolean equals(final Tuple3d o) {
+    public boolean equals(final CNCPoint o) {
         if (o instanceof Position) {
             return super.equals(o) && units == ((Position)o).units;
         }
@@ -77,6 +85,7 @@ public class Position extends Point3d {
     public int hashCode() {
         int hash = 3;
         hash = 83 * hash + Objects.hashCode(this.units);
+        hash = 83 * hash + super.hashCode();
         return hash;
     }
 
@@ -97,6 +106,12 @@ public class Position extends Point3d {
                 return getY();
             case Z:
                 return getZ();
+            case A:
+                return getA();
+            case B:
+                return getB();
+            case C:
+                return getC();
             default:
                 return 0;
         }

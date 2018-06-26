@@ -26,13 +26,13 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
 
-import javax.vecmath.Point3d;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
@@ -71,9 +71,9 @@ public class GcodeModel extends Renderable {
     private FloatBuffer lineVertexBuffer = null;
     private ByteBuffer lineColorBuffer = null;
 
-    private Point3d objectMin;
-    private Point3d objectMax;
-    private Point3d objectSize;
+    private Position objectMin;
+    private Position objectMax;
+    private Position objectSize;
 
     // Preferences
     private Color linearColor;
@@ -84,7 +84,7 @@ public class GcodeModel extends Renderable {
 
     public GcodeModel(String title) {
         super(10, title);
-        objectSize = new Point3d();
+        objectSize = new Position();
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -151,7 +151,7 @@ public class GcodeModel extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         if (!isDrawable) return;
 
         GL2 gl = drawable.getGL().getGL2();
@@ -205,11 +205,11 @@ public class GcodeModel extends Renderable {
         // drawn before.
     }
     
-    public Point3d getMin() {
+    public Position getMin() {
         return this.objectMin;
     }
 
-    public Point3d getMax() {
+    public Position getMax() {
         return this.objectMax;
     }
 
@@ -247,7 +247,7 @@ public class GcodeModel extends Renderable {
             System.out.println("               Y ("+objectMin.y+", "+objectMax.y+")");
             System.out.println("               Z ("+objectMin.z+", "+objectMax.z+")");
 
-            Point3d center = VisualizerUtils.findCenter(objectMin, objectMax);
+            Position center = VisualizerUtils.findCenter(objectMin, objectMax);
             System.out.println("Center = " + center.toString());
             System.out.println("Num Line Segments :" + gcodeLineList.size());
 
@@ -310,8 +310,8 @@ public class GcodeModel extends Renderable {
 
                 // Draw it.
                 {
-                    Point3d p1 = ls.getStart();
-                    Point3d p2 = ls.getEnd();
+                    Position p1 = ls.getStart();
+                    Position p2 = ls.getEnd();
 
                     c[0] = (byte)color.getRed();
                     c[1] = (byte)color.getGreen();

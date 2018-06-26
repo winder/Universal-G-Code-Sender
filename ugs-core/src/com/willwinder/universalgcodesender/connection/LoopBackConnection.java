@@ -21,8 +21,8 @@ package com.willwinder.universalgcodesender.connection;
 import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.model.Position;
 
-import javax.vecmath.Point3d;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -57,7 +57,7 @@ public class LoopBackConnection extends AbstractConnection {
         initialize(comm);
 
         int count = 0;
-        Point3d lastCommand = null;
+        Position lastCommand = null;
         while (true) {
             GcodeParser gcp = new GcodeParser();
             try {

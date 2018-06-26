@@ -29,17 +29,17 @@ import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelper
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.Side.POSITIVE;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawTouchPlate;
 import static com.willwinder.ugs.platform.probe.renderable.ProbeRenderableHelpers.drawArrow;
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
  * @author wwinder
  */
 public class CornerProbePathPreview extends Renderable {
-    private final Point3d spacing = new Point3d(0, 0, 0);
-    private final Point3d thickness = new Point3d(0, 0, 0);
-    private Point3d startWork = null;
-    private Point3d startMachine = null;
+    private final Position spacing = new Position(0, 0, 0);
+    private final Position thickness = new Position(0, 0, 0);
+    private Position startWork = null;
+    private Position startMachine = null;
     private ProbeParameters pc = null;
 
     private final GLUT glut;
@@ -49,7 +49,7 @@ public class CornerProbePathPreview extends Renderable {
         glut = new GLUT();
     }
 
-    public void setContext(ProbeParameters pc, Point3d startWork, Point3d startMachine) {
+    public void setContext(ProbeParameters pc, Position startWork, Position startMachine) {
         this.pc = pc;
         this.startWork = startWork;
         this.startMachine = startMachine;
@@ -99,7 +99,7 @@ public class CornerProbePathPreview extends Renderable {
         double inset = 2.5;
         double lip = 4;
         drawTouchPlate(gl, glut,
-            new Point3d(spacing.x, spacing.y, spacing.z),
+            new Position(spacing.x, spacing.y, spacing.z),
             inset,
             previewSize,
             thickness,
@@ -112,19 +112,19 @@ public class CornerProbePathPreview extends Renderable {
 
         // y probe arrows
         drawArrow(gl, glut,
-                new Point3d(0, 0, 0),
-                new Point3d(spacing.x, 0, 0));
+                new Position(0, 0, 0),
+                new Position(spacing.x, 0, 0));
         drawArrow(gl, glut,
-                new Point3d(spacing.x, 0, 0),
-                new Point3d(spacing.x, spacing.y - inset, 0));
+                new Position(spacing.x, 0, 0),
+                new Position(spacing.x, spacing.y - inset, 0));
 
         // x probe arrows
         drawArrow(gl, glut,
-                new Point3d(0, 0, 0),
-                new Point3d(0, spacing.y, 0));
+                new Position(0, 0, 0),
+                new Position(0, spacing.y, 0));
         drawArrow(gl, glut,
-                new Point3d(0, spacing.y, 0),
-                new Point3d(spacing.x - inset, spacing.y, 0));
+                new Position(0, spacing.y, 0),
+                new Position(spacing.x - inset, spacing.y, 0));
     }
 
     private void drawXYZ(GL2 gl, Side X, Side Y) {
@@ -133,7 +133,7 @@ public class CornerProbePathPreview extends Renderable {
         double inset = 2.5;
         double lip = 4;
         drawTouchPlate(gl, glut,
-            new Point3d(0, 0, spacing.z),
+            new Position(0, 0, spacing.z),
             inset,
             previewSize,
             thickness,
@@ -146,37 +146,37 @@ public class CornerProbePathPreview extends Renderable {
 
         // z arrow
         drawArrow(gl, glut,
-                new Point3d(.25, .25, 0),
-                new Point3d(.25, .25, spacing.z - Math.signum(spacing.z) * inset));
+                new Position(.25, .25, 0),
+                new Position(.25, .25, spacing.z - Math.signum(spacing.z) * inset));
         drawArrow(gl, glut,
-                new Point3d(-0.25, -0.25, spacing.z - Math.signum(spacing.z) * inset),
-                new Point3d(-0.25, -0.25, 0.));
+                new Position(-0.25, -0.25, spacing.z - Math.signum(spacing.z) * inset),
+                new Position(-0.25, -0.25, 0.));
 
         // x probe arrows
         drawArrow(gl, glut,
-                new Point3d(0, 0, 0),
-                new Point3d(-spacing.x, 0, 0));
+                new Position(0, 0, 0),
+                new Position(-spacing.x, 0, 0));
         drawArrow(gl, glut,
-                new Point3d(-spacing.x, 0, 0),
-                new Point3d(-spacing.x, 0, spacing.z));
+                new Position(-spacing.x, 0, 0),
+                new Position(-spacing.x, 0, spacing.z));
         drawArrow(gl, glut,
-                new Point3d(-spacing.x, 0, spacing.z),
-                new Point3d(-X.side(inset), 0, spacing.z));
+                new Position(-spacing.x, 0, spacing.z),
+                new Position(-X.side(inset), 0, spacing.z));
 
         // y probe arrows
         drawArrow(gl, glut,
-                new Point3d(-spacing.x, 0, spacing.z),
-                new Point3d(-spacing.x, -spacing.y, spacing.z));
+                new Position(-spacing.x, 0, spacing.z),
+                new Position(-spacing.x, -spacing.y, spacing.z));
         drawArrow(gl, glut,
-                new Point3d(-spacing.x, -spacing.y, spacing.z),
-                new Point3d(0, -spacing.y, spacing.z));
+                new Position(-spacing.x, -spacing.y, spacing.z),
+                new Position(0, -spacing.y, spacing.z));
         drawArrow(gl, glut,
-                new Point3d(0, -spacing.y, spacing.z),
-                new Point3d(0, -Y.side(inset), spacing.z));
+                new Position(0, -spacing.y, spacing.z),
+                new Position(0, -Y.side(inset), spacing.z));
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (invalidSettings()) return;
 
         GL2 gl = drawable.getGL().getGL2();

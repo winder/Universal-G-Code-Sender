@@ -25,13 +25,13 @@
 
 package com.willwinder.universalgcodesender.visualizer;
 
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
  
 public class LineSegment {
 
     private int toolhead = 0; //DEFAULT TOOLHEAD ASSUMED TO BE 0!
     private double speed;
-    private final Point3d first, second;
+    private final Position first, second;
     
     // Line properties
     private boolean isZMovement = false;
@@ -39,10 +39,10 @@ public class LineSegment {
     private boolean isFastTraverse = false;
     private final int lineNumber;
     
-    public LineSegment (final Point3d a,final Point3d b, int num)
+    public LineSegment (final Position a,final Position b, int num)
     {
-        first = new Point3d(a);
-        second = new Point3d (b);
+        first = new Position(a);
+        second = new Position (b);
         lineNumber = num;
     }
     
@@ -50,8 +50,8 @@ public class LineSegment {
         return lineNumber;
     }
     
-    public Point3d[] getPointArray() {
-        return new Point3d[]{ first, second };
+    public Position[] getPointArray() {
+        return new Position[]{ first, second };
     }
     
     public double[] getPoints()
@@ -59,11 +59,11 @@ public class LineSegment {
         return new double[]{first.x, first.y, first.z , second.x, second.y, second.z };
     }
     
-    public Point3d getStart() {
+    public Position getStart() {
         return this.first;
     }
 
-    public Point3d getEnd() {
+    public Position getEnd() {
         return this.second;
     }
 

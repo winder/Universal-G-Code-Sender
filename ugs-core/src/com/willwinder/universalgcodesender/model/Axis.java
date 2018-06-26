@@ -1,5 +1,5 @@
 /*
-    Copywrite 2018 Will Winder
+    Copyright 2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,5 +19,10 @@
 package com.willwinder.universalgcodesender.model;
 
 public enum Axis {
-  X, Y, Z
+  // Cartesian
+  X, Y, Z, 
+  // Rotation
+  A, // X
+  B, // Y
+  C  // Z
 }

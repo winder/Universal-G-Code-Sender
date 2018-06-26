@@ -18,7 +18,7 @@
  */
 package com.willwinder.universalgcodesender.gcode.util;
 
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 /**
  *
@@ -35,7 +35,7 @@ public class PlaneFormatter {
         }
     }
 
-    public double axis0(Point3d point) {
+    public double axis0(Position point) {
         switch(plane) {
             case XY: return point.x;
             case ZX: return point.z;
@@ -44,7 +44,7 @@ public class PlaneFormatter {
         }
     }
 
-    public double axis1(Point3d point) {
+    public double axis1(Position point) {
         switch(plane) {
             case XY: return point.y;
             case ZX: return point.x;
@@ -53,7 +53,7 @@ public class PlaneFormatter {
         }
     }
 
-    public double linear(Point3d point) {
+    public double linear(Position point) {
         switch(plane) {
             case XY: return point.z;
             case ZX: return point.y;
@@ -62,7 +62,7 @@ public class PlaneFormatter {
         }
     }
     
-    public void setAxis0(Point3d point, double value) {
+    public void setAxis0(Position point, double value) {
         switch(plane) {
             case XY: point.x = value; return;
             case ZX: point.z = value; return;
@@ -71,7 +71,7 @@ public class PlaneFormatter {
         }
     }
 
-    public void setAxis1(Point3d point, double value) {
+    public void setAxis1(Position point, double value) {
         switch(plane) {
             case XY: point.y = value; return;
             case ZX: point.x = value; return;
@@ -80,7 +80,7 @@ public class PlaneFormatter {
         }
     }
 
-    public void setLinear(Point3d point, double value) {
+    public void setLinear(Position point, double value) {
         switch(plane) {
             case XY: point.z = value; return;
             case ZX: point.y = value; return;

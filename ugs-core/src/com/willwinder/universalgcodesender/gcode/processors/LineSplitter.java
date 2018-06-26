@@ -93,7 +93,7 @@ public class LineSplitter implements CommandProcessor {
         Position start = state.currentPoint;
         Position end = command.point.point();
         Position current = start;
-        double length = start.distance(end);
+        double length = start.distanceXYZ(end);
 
         // Check if line needs splitting.
         if (length > this.maxSegmentLength) {

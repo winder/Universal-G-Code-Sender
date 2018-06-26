@@ -28,8 +28,8 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -105,14 +105,14 @@ public class Grid extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseCoordinates, Position rotation) {
         double maxSide = VisualizerUtils.findMaxSide(focusMin, focusMax);
         if (maxSide == 0) {
             maxSide = 1;
         }
         double buffer = maxSide * 0.05;
-        Point3d bottomLeft = new Point3d(focusMin);
-        Point3d topRight = new Point3d(focusMax);
+        Position bottomLeft = new Position(focusMin);
+        Position topRight = new Position(focusMax);
 
         // Setup the stepSize and min/max edges so that the lines look right.
         double stepSize = getBestStepSize(maxSide);

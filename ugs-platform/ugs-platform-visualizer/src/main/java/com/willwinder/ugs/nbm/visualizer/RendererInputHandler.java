@@ -50,7 +50,6 @@ import java.awt.event.WindowListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 import javax.swing.SwingUtilities;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -110,7 +109,7 @@ public class RendererInputHandler implements
     /**
      * Pass new bounds (after interpolating arcs) in case of weird arcs.
      */
-    private void updateBounds(Point3d min, Point3d max) {
+    private void updateBounds(Position min, Position max) {
         // Update bounds.
         FileStats fs = settings.getFileStats();
         fs.minCoordinate = new Position(min.x, min.y, min.z, Units.MM);
@@ -226,15 +225,15 @@ public class RendererInputHandler implements
     public void mouseClicked(MouseEvent e) {
         // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
-            Point3d coords = gcodeRenderer.getMouseWorldLocation();
+            Position coords = gcodeRenderer.getMouseWorldLocation();
             this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
             this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
     private boolean selecting = false;
-    private Point3d selectionStart = null;
-    private Point3d selectionEnd = null;
+    private Position selectionStart = null;
+    private Position selectionEnd = null;
 
     /**
      * Mouse pressed is called on mouse-down.

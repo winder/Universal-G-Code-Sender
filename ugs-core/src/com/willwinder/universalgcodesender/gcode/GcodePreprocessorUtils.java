@@ -189,18 +189,22 @@ public class GcodePreprocessorUtils {
         Double x = parseCoord(commandArgs, 'X');
         Double y = parseCoord(commandArgs, 'Y');
         Double z = parseCoord(commandArgs, 'Z');
+        Double a = parseCoord(commandArgs, 'A');
+        Double b = parseCoord(commandArgs, 'B');
+        Double c = parseCoord(commandArgs, 'C');
 
-        if (x.isNaN() && y.isNaN() && z.isNaN()) {
+        if (x.isNaN() && y.isNaN() && z.isNaN()
+            && a.isNaN() && b.isNaN() && c.isNaN()) {
             return null;
         }
 
-        return updatePointWithCommand(initial, x, y, z, absoluteMode);
+        return updatePointWithCommand(initial, x, y, z, a, b, c, absoluteMode);
     }
 
     /**
      * Update a point given the new coordinates.
      */
-    static public Position updatePointWithCommand(Position initial, double x, double y, double z, boolean absoluteMode) {
+    static public Position updatePointWithCommand(Position initial, double x, double y, double z, double a, double b, double c, boolean absoluteMode) {
 
         Position newPoint = new Position(initial);
 
@@ -214,6 +218,15 @@ public class GcodePreprocessorUtils {
             if (!Double.isNaN(z)) {
                 newPoint.z = z;
             }
+            if (!Double.isNaN(a)) {
+                newPoint.a = a;
+            }
+            if (!Double.isNaN(b)) {
+                newPoint.b = b;
+            }
+            if (!Double.isNaN(c)) {
+                newPoint.c = c;
+            }
         } else {
             if (!Double.isNaN(x)) {
                 newPoint.x += x;
@@ -223,6 +236,15 @@ public class GcodePreprocessorUtils {
             }
             if (!Double.isNaN(z)) {
                 newPoint.z += z;
+            }
+            if (!Double.isNaN(a)) {
+                newPoint.a += a;
+            }
+            if (!Double.isNaN(b)) {
+                newPoint.b += b;
+            }
+            if (!Double.isNaN(c)) {
+                newPoint.c += c;
             }
         }
 
@@ -247,7 +269,7 @@ public class GcodePreprocessorUtils {
                             clockwise, plane);
         }
 
-        return updatePointWithCommand(initial, i, j, k, absoluteIJKMode);
+        return updatePointWithCommand(initial, i, j, k, 0, 0, 0, absoluteIJKMode);
 
     }
 

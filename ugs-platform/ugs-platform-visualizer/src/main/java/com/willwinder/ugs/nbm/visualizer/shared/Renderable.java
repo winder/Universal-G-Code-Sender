@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,8 +20,8 @@ package com.willwinder.ugs.nbm.visualizer.shared;
 
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
+import com.willwinder.universalgcodesender.model.Position;
 import java.util.Objects;
-import javax.vecmath.Point3d;
 
 /**
  *
@@ -94,5 +94,5 @@ public abstract class Renderable implements Comparable<Renderable> {
 
     abstract public void init(GLAutoDrawable drawable);
     abstract public void reloadPreferences(VisualizerOptions vo);
-    abstract public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d objectMin, Point3d objectMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation);
+    abstract public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position objectMin, Position objectMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation);
 }

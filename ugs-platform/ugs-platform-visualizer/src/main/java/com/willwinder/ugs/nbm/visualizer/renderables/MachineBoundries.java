@@ -8,8 +8,7 @@ import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-
-import javax.vecmath.Point3d;
+import com.willwinder.universalgcodesender.model.Position;
 
 import static com.jogamp.opengl.GL.GL_LINES;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
@@ -93,7 +92,7 @@ public class MachineBoundries extends Renderable {
     }
 
     @Override
-    public void draw(GLAutoDrawable drawable, boolean idle, Point3d machineCoord, Point3d workCoord, Point3d focusMin, Point3d focusMax, double scaleFactor, Point3d mouseWorldCoordinates, Point3d rotation) {
+    public void draw(GLAutoDrawable drawable, boolean idle, Position machineCoord, Position workCoord, Position focusMin, Position focusMax, double scaleFactor, Position mouseWorldCoordinates, Position rotation) {
         if (!softLimitsEnabled) {
             return;
         }
@@ -102,8 +101,8 @@ public class MachineBoundries extends Renderable {
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        Point3d bottomLeft = new Point3d(-softLimitX + xOffset, -softLimitY + yOffset, -softLimitZ + zOffset);
-        Point3d topRight = new Point3d(xOffset, yOffset, zOffset);
+        Position bottomLeft = new Position(-softLimitX + xOffset, -softLimitY + yOffset, -softLimitZ + zOffset);
+        Position topRight = new Position(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
@@ -113,7 +112,7 @@ public class MachineBoundries extends Renderable {
         gl.glPopMatrix();
     }
 
-    private void drawBase(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+    private void drawBase(GL2 gl, Position bottomLeft, Position topRight) {
         gl.glColor4fv(machineBoundryBottomColor, 0);
         gl.glBegin(GL2.GL_QUADS);
             gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
@@ -123,7 +122,7 @@ public class MachineBoundries extends Renderable {
         gl.glEnd();
     }
 
-    private void drawAxisLines(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+    private void drawAxisLines(GL2 gl, Position bottomLeft, Position topRight) {
         double offset = 0.001;
         gl.glLineWidth(5f);
         gl.glBegin(GL_LINES);
@@ -150,7 +149,7 @@ public class MachineBoundries extends Renderable {
         gl.glEnd();
     }
 
-    private void drawSides(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+    private void drawSides(GL2 gl, Position bottomLeft, Position topRight) {
         double offset = 0.001;
         gl.glLineWidth(3f);
         gl.glBegin(GL_LINES);
