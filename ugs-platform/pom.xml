@@ -169,5 +169,6 @@
     <module>ProbeModule</module>
     <module>DowelModule</module>
     <module>GcodeTools</module>
+    <module>ugs-platform-welcome-page</module>
   </modules>
 </project>
