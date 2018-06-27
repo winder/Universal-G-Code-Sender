@@ -395,11 +395,9 @@ public class GcodeRenderer implements GLEventListener, IRenderableRegistrationSe
                     gl.glDisable(GL2.GL_LIGHTING);
                 }
                 try {
-                r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
-                } catch (AbstractMethodError ame) {
-                  System.out.println(r.getClass().getSimpleName());
-                  ame.printStackTrace();
-                  System.out.println(ame);
+                    r.draw(drawable, idle, machineCoord, workCoord, objectMin, objectMax, scaleFactor, mouseWorldXY, rotation);
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, "An exception occurred while drawing " + r.getClass().getSimpleName(), e);
                 }
                 if (!r.enableLighting()) {
                     gl.glEnable(GL2.GL_LIGHTING);
