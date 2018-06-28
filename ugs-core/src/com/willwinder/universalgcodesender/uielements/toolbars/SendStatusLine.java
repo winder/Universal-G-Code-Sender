@@ -1,8 +1,5 @@
-/**
- * A component which should be embedded in a status bar.
- */
 /*
-    Copywrite 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -22,26 +19,27 @@
 package com.willwinder.universalgcodesender.uielements.toolbars;
 
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-
-import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+
+import javax.swing.JLabel;
+import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import javax.swing.JLabel;
-import javax.swing.Timer;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 
 /**
+ * A component which should be embedded in a status bar.
  *
  * @author wwinder
  */

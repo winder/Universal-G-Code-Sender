@@ -138,7 +138,7 @@ public class AbstractControllerTest {
     private void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
         instance.openCommAfterEvent();
         expect(expectLastCall()).anyTimes();
-        mockMessageService.dispatchMessage(anyObject(), EasyMock.anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
         expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
         expect(instance.isCommOpen()).andReturn(false).once();
