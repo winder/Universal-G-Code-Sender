@@ -42,6 +42,7 @@ final public class PointSegment {
     // Line properties
     private boolean isMetric = true;
     private boolean isZMovement = false;
+    private boolean isRotation = false;
     private boolean isArc = false;
     private boolean isFastTraverse = false;
     private boolean isProbe = false;
@@ -67,6 +68,7 @@ final public class PointSegment {
         this.setIsArc(ps.isArc);
         this.setIsMetric(ps.isMetric);
         this.setIsZMovement(ps.isZMovement);
+        this.setIsRotation(ps.isRotation);
         this.setIsFastTraverse(ps.isFastTraverse);
         this.setIsProbe(ps.isProbe);
 
@@ -130,6 +132,14 @@ final public class PointSegment {
     
     public boolean isZMovement() {
         return isZMovement;
+    }
+
+    public void setIsRotation(final boolean hasRotation) {
+        this.isRotation = hasRotation;
+    }
+    
+    public boolean isRotation() {
+        return this.isRotation;
     }
     
     public void setIsMetric(final boolean isMetric) {

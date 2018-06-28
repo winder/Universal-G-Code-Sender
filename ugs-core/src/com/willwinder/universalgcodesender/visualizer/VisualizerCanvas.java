@@ -5,7 +5,7 @@
  */
 
 /*
-    Copywrite 2013-2016 Will Winder
+    Copywrite 2013-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -53,7 +53,6 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -571,6 +570,9 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
                     lineColorData[colorIndex++] = c[1];
                     lineColorData[colorIndex++] = c[2];
                     
+                    // TODO: take ABC axes into consideration.
+                    // This is only used by the classic GUI.
+
                     // p1 location
                     lineVertexData[vertIndex++] = (float)p1.x;
                     lineVertexData[vertIndex++] = (float)p1.y;

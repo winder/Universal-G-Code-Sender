@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.gcode;
 
+import com.google.common.base.Preconditions;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import static com.willwinder.universalgcodesender.gcode.util.Code.*;
 import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
@@ -406,21 +407,30 @@ public class GcodePreprocessorUtils {
     
     /**
      * Generates the points along an arc including the start and end points.
+     * 
+     * @param start start position XYZ and rotations
+     * @param end end position XYZ and rotations
+     * @param center center of rotation
+     * @param clockwise flag indicating clockwise or counter-clockwise
+     * @param radius radius of the arc
+     * @param minArcLength minimum length before expansions are made.
+     * @param arcSegmentLength length of segments in resulting Positions.
+     * @param plane helper to select values for arcs across different planes
      */
     static public List<Position> generatePointsAlongArcBDring(
             final Position start,
             final Position end,
             final Position center,
             boolean clockwise,
-            double R,
+            double radius,
             double minArcLength,
             double arcSegmentLength,
             PlaneFormatter plane) {
-        double radius = R;
+        double r = radius;
 
         // Calculate radius if necessary.
-        if (radius == 0) {
-            radius = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center),2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
+        if (r == 0) {
+            r = Math.sqrt(Math.pow(plane.axis0(start) - plane.axis0(center),2.0) + Math.pow(plane.axis1(end) - plane.axis1(center), 2.0));
         }
 
         double startAngle = GcodePreprocessorUtils.getAngle(center, start, plane);
@@ -428,7 +438,7 @@ public class GcodePreprocessorUtils {
         double sweep = GcodePreprocessorUtils.calculateSweep(startAngle, endAngle, clockwise);
 
         // Convert units.
-        double arcLength = sweep * radius;
+        double arcLength = sweep * r;
 
         // If this arc doesn't meet the minimum threshold, don't expand.
         if (minArcLength > 0 && arcLength < minArcLength) {
@@ -438,18 +448,27 @@ public class GcodePreprocessorUtils {
         int numPoints = 20;
 
         if (arcSegmentLength <= 0 && minArcLength > 0) {
-            arcSegmentLength = (sweep * radius) / minArcLength;
+            arcSegmentLength = (sweep * r) / minArcLength;
         }
 
         if (arcSegmentLength > 0) {
             numPoints = (int)Math.ceil(arcLength/arcSegmentLength);
         }
 
-        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, radius, startAngle, sweep, numPoints, plane);
+        return GcodePreprocessorUtils.generatePointsAlongArcBDring(start, end, center, clockwise, r, startAngle, sweep, numPoints, plane);
     }
 
     /**
      * Generates the points along an arc including the start and end points.
+     * @param p1 start position XYZ and rotations
+     * @param p2 end position XYZ and rotations
+     * @param center center of rotation
+     * @param isCw flag indicating clockwise or counter-clockwise
+     * @param radius radius of the arc
+     * @param startAngle beginning angle of arc
+     * @param sweep sweep length in radians
+     * @param numPoints number of points to generate
+     * @param plane helper to select values for arcs across different planes
      */
     static private List<Position> generatePointsAlongArcBDring(
             final Position p1,
@@ -462,16 +481,17 @@ public class GcodePreprocessorUtils {
             int numPoints,
             PlaneFormatter plane) {
 
-        Position lineStart = new Position(p1);
+        Preconditions.checkArgument(numPoints > 0, "Arcs must have at least 1 segment.");
+
+        Position nextPoint = new Position(p1);
         List<Position> segments = new ArrayList<>();
         double angle;
 
-        // Calculate radius if necessary.
-        if (radius == 0) {
-            radius = Math.sqrt(Math.pow(plane.axis0(p1) - plane.axis1(center), 2.0) + Math.pow(plane.axis1(p1) - plane.axis1(center), 2.0));
-        }
-
         double zIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double aIncrement = (p2.a - p1.a) / numPoints;
+        double bIncrement = (p2.b - p1.b) / numPoints;
+        double cIncrement = (p2.c - p1.c) / numPoints;
+
         for(int i=0; i<numPoints; i++)
         {
             if (isCw) {
@@ -485,13 +505,17 @@ public class GcodePreprocessorUtils {
             }
 
             //lineStart.x = Math.cos(angle) * radius + center.x;
-            plane.setAxis0(lineStart, Math.cos(angle) * radius + plane.axis0(center));
+            plane.setAxis0(nextPoint, Math.cos(angle) * radius + plane.axis0(center));
             //lineStart.y = Math.sin(angle) * radius + center.y;
-            plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
-            //lineStart.z += zIncrement;
-            plane.setLinear(lineStart, plane.linear(lineStart) + zIncrement);
+            plane.setAxis1(nextPoint, Math.sin(angle) * radius + plane.axis1(center));
+
+            // Increment (optional) linear motions.
+            plane.setLinear(nextPoint, plane.linear(nextPoint) + zIncrement);
+            nextPoint.a += aIncrement;
+            nextPoint.b += bIncrement;
+            nextPoint.c += cIncrement;
             
-            segments.add(new Position(lineStart));
+            segments.add(new Position(nextPoint));
         }
         
         segments.add(new Position(p2));

@@ -233,6 +233,8 @@ public class GcodeModel extends Renderable {
                 gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
             }
 
+            // TODO: Convert LineSegments into list of Point3d objects which take rotation into account.
+
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
 

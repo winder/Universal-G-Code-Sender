@@ -116,4 +116,27 @@ public class Position extends CNCPoint {
                 return 0;
         }
     }
+
+    /**
+     * Determine if the motion between Positions is a Z plunge.
+     * @param next the Position to compare with the current object.
+     * @return True if it only requires a Z motion to reach next.
+     */
+    public boolean isZMotionTo(Position next) {
+        return (this.z != next.z) &&
+                (this.x == next.x) &&
+                (this.y == next.y) &&
+                (this.a == next.a) &&
+                (this.b == next.b) &&
+                (this.c == next.c);
+    }
+
+    /**
+     * Determine if the motion between Positions contains a rotation.
+     * @param next the Position to compare with the current object.
+     * @return True if a rotation occurs
+     */
+    public boolean hasRotationTo(Position next) {
+        return (this.a != next.a) || (this.b != next.b) || (this.c != next.c);
+    }
 }

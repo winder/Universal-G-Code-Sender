@@ -292,17 +292,12 @@ public class GcodeParser implements IGcodeParser {
 
         PointSegment ps = new PointSegment(nextPoint, line);
 
-        boolean zOnly = false;
-
-        // Check for z-only
-        if ((state.currentPoint.x == nextPoint.x) &&
-                (state.currentPoint.y == nextPoint.y) &&
-                (state.currentPoint.z != nextPoint.z)) {
-            zOnly = true;
-        }
+        boolean zOnly = state.currentPoint.isZMotionTo(nextPoint);
+        boolean hasRotation = state.currentPoint.hasRotationTo(nextPoint);
 
         ps.setIsMetric(state.isMetric);
         ps.setIsZMovement(zOnly);
+        ps.setIsRotation(hasRotation);
         ps.setIsFastTraverse(fastTraverse);
 
         // Save off the endpoint.
@@ -339,6 +334,9 @@ public class GcodeParser implements IGcodeParser {
         ps.setRadius(radius);
         ps.setIsClockwise(clockwise);
         ps.setPlaneState(state.plane);
+
+        boolean isRotation = state.currentPoint.hasRotationTo(nextPoint);
+        ps.setIsRotation(isRotation);
 
         // Save off the endpoint.
         state.currentPoint = nextPoint;

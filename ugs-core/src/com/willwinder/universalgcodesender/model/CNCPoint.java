@@ -1,49 +1,28 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+    Copyright 2018 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.willwinder.universalgcodesender.model;
-
-/*
- * $RCSfile$
- *
- * Copyright 1997-2008 Sun Microsystems, Inc.  All Rights Reserved.
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
- *
- * This code is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License version 2 only, as
- * published by the Free Software Foundation.  Sun designates this
- * particular file as subject to the "Classpath" exception as provided
- * by Sun in the LICENSE file that accompanied this code.
- *
- * This code is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * version 2 for more details (a copy is included in the LICENSE file that
- * accompanied this code).
- *
- * You should have received a copy of the GNU General Public License version
- * 2 along with this work; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- * Please contact Sun Microsystems, Inc., 4150 Network Circle, Santa Clara,
- * CA 95054 USA or visit www.sun.com if you need additional information or
- * have any questions.
- *
- * $Revision: 127 $
- * $Date: 2008-02-28 21:18:51 +0100 (Thu, 28 Feb 2008) $
- * $State$
- */
-
-import java.lang.Math;
 
 /**
  * Modified version of Tuple3d which contains points relating to a CNC machine.
  */
-public class CNCPoint implements java.io.Serializable, Cloneable {
-  static final long serialVersionUID = 5542096614926168415L;
-
+public class CNCPoint {
   /**
    * The x coordinate.
    */
@@ -333,8 +312,9 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
    * The form is (x,y,z:a,b,c).
    * @return the String representation
    */  
+  @Override
   public String toString() {
-      return "(" + this.x + ", " + this.y + ", " + this.z + ": " + this.a + "," + this.b + "," + this.c + ")";
+    return "(" + this.x + ", " + this.y + ", " + this.z + ": " + this.a + "," + this.b + "," + this.c + ")";
   }
 
   /**
@@ -361,10 +341,10 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
   private static long doubleToLongBits(double d) {
     // Check for +0 or -0
     if (d == 0.0) {
-        return 0L;
+      return 0L;
     }
     else {
-        return Double.doubleToLongBits(d);
+      return Double.doubleToLongBits(d);
     }
   }
 
@@ -376,6 +356,7 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
    * same hash value, although this is not likely.
    * @return the integer hash code value
    */  
+  @Override
   public int hashCode() {
     long bits = 1L;
     bits = 31L * bits + doubleToLongBits(x);
@@ -605,19 +586,27 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
   } 
 
   /**  
-    *  Sets each component of the tuple parameter to its absolute 
-    *  value and places the modified values into this tuple.
-    *  @param t   the source tuple, which will not be modified
-    */    
+   *  Sets each component of the tuple parameter to its absolute 
+   *  value and places the modified values into this tuple.
+   *  @param t   the source tuple, which will not be modified
+   */    
   public final void absolute(CNCPoint t)
   {
-     x = Math.abs(t.x);
-     y = Math.abs(t.y);
-     z = Math.abs(t.z);
-     a = Math.abs(t.a);
-     b = Math.abs(t.b);
-     c = Math.abs(t.c);
+    x = Math.abs(t.x);
+    y = Math.abs(t.y);
+    z = Math.abs(t.z);
+    a = Math.abs(t.a);
+    b = Math.abs(t.b);
+    c = Math.abs(t.c);
   } 
+
+  /**
+   *  Sets each component of this tuple to its absolute value.
+   */
+  public final void absolute()
+  {
+    absolute(this);
+  }
 
   /**
    *  Clamps this tuple to the range [low, high].
@@ -652,19 +641,6 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
     if( a > max ) a=max;
     if( b > max ) b=max;
     if( c > max ) c=max;
- }
-
-  /**
-    *  Sets each component of this tuple to its absolute value.
-    */
-  public final void absolute()
-  {
-     x = Math.abs(x);
-     y = Math.abs(y);
-     z = Math.abs(z);
-     a = Math.abs(a);
-     b = Math.abs(b);
-     c = Math.abs(c);
   }
 
   /**
@@ -684,32 +660,14 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
   }
 
   /**   
-  *  Linearly interpolates between this tuple and tuple t1 and 
-  *  places the result into this tuple:  this = (1-alpha)*this + alpha*t1. 
-  *  @param t1  the first tuple 
-  *  @param alpha  the alpha interpolation parameter   
-  */    
+   *  Linearly interpolates between this tuple and tuple t1 and 
+   *  places the result into this tuple:  this = (1-alpha)*this + alpha*t1. 
+   *  @param t1  the first tuple 
+   *  @param alpha  the alpha interpolation parameter   
+   */    
   public final void interpolate(CNCPoint t1, double alpha) {
     interpolate(this, t1, alpha);
   }  
- 
-  /**
-   * Creates a new object of the same class as this object.
-   *
-   * @return a clone of this instance.
-   * @exception OutOfMemoryError if there is not enough memory.
-   * @see java.lang.Cloneable
-   */
-  @Override
-  public Object clone() {
-    // Since there are no arrays we can just use Object.clone()
-    try {
-        return super.clone();
-    } catch (CloneNotSupportedException e) {
-        // this shouldn't happen, since we are Cloneable
-        throw new InternalError();
-    }
-  }
 
   /**
 	 * Get the <i>x</i> coordinate.
@@ -815,7 +773,6 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
 		this.c = c;
 	}
 
-
   /**
    * Returns the distance between this point and point p1.
    * @param p1 the other point
@@ -837,12 +794,12 @@ public class CNCPoint implements java.io.Serializable, Cloneable {
    */
   public final void normalizeXYZ(CNCPoint v1)
   {
-      double norm;
+    double norm;
 
-      norm = 1.0/Math.sqrt(v1.x*v1.x + v1.y*v1.y + v1.z*v1.z);
-      this.x = v1.x*norm;
-      this.y = v1.y*norm;
-      this.z = v1.z*norm;
+    norm = 1.0/Math.sqrt(v1.x*v1.x + v1.y*v1.y + v1.z*v1.z);
+    this.x = v1.x*norm;
+    this.y = v1.y*norm;
+    this.z = v1.z*norm;
   }
 
   /**
