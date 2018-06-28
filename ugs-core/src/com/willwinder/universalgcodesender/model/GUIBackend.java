@@ -769,13 +769,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-        if (type == MessageType.ERROR) {
-            GUIHelpers.displayErrorDialog(msg);
-        }
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
         this.activeState = status.getStateString();
         this.machineCoord = status.getMachineCoord();

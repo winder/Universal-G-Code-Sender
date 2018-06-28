@@ -265,19 +265,4 @@ public class GrblFirmwareSettingsSerialCommunicator implements SerialCommunicato
     public void communicatorPausedOnError() {
 
     }
-
-    @Override
-    public void messageForConsole(String msg) {
-
-    }
-
-    @Override
-    public void verboseMessageForConsole(String msg) {
-
-    }
-
-    @Override
-    public void errorMessageForConsole(String msg) {
-
-    }
 }

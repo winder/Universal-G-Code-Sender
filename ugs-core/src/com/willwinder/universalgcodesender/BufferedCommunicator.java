@@ -225,10 +225,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             
             this.activeCommandList.add(command);
             this.sentBufferSize += (commandString.length() + 1);
-        
-            // Command already has a newline attached.
-            this.sendMessageToConsoleListener(">>> " + commandString + "\n");
-            
+
             try {
                 this.sendingCommand(commandString);
                 conn.sendStringToComm(commandString + "\n");
