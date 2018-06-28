@@ -1,11 +1,5 @@
 /*
- * MainWindow.java
- *
- * Created on Jun 26, 2012, 3:04:38 PM
- */
-
-/*
-    Copywrite 2012-2018 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -82,6 +76,7 @@ import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.lang3.SystemUtils;
 
 /**
+ * Main window for Universal Gcode Sender Classic
  *
  * @author wwinder
  */
@@ -89,9 +84,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     private PendantUI pendantUI;
-    public Settings settings;
+    private Settings settings;
     
-    BackendAPI backend;
+    private BackendAPI backend;
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
@@ -102,9 +97,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private List<String> manualCommandHistory;
 
     // Other windows
-    VisualizerWindow vw = null;
-    String gcodeFile = null;
-    String processedGcodeFile = null;
+    private VisualizerWindow vw = null;
+    private String gcodeFile = null;
+    private String processedGcodeFile = null;
     
     // Duration timer
     private Timer timer;

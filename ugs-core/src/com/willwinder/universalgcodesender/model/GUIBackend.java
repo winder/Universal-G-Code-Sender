@@ -800,7 +800,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         // Apply settings settings to controller.
 
         try {
-            controller.getCommandCreator();
             controller.setSingleStepMode(settings.isSingleStepMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());
