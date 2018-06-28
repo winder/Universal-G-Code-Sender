@@ -44,16 +44,31 @@ import org.openide.windows.TopComponent;
 )
 public final class SerialConsoleTopComponent extends TopComponent {
 
+    private final CommandPanel commandPanel;
+    private final BackendAPI backend;
+
     public SerialConsoleTopComponent() {
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        commandPanel = new CommandPanel(backend);
         this.setLayout(new BorderLayout());
-        this.add(new CommandPanel(backend), BorderLayout.CENTER);
+        this.add(commandPanel, BorderLayout.CENTER);
     }
 
     @Override
     public void componentOpened() {
+        super.componentOpened();
         setName(LocalizingService.SerialConsoleTitle);
         setToolTipText(LocalizingService.SerialConsoleTooltip);
+
+        backend.addUGSEventListener(commandPanel);
+        backend.addMessageListener(commandPanel);
+    }
+
+    @Override
+    protected void componentClosed() {
+        super.componentClosed();
+        backend.removeUGSEventListener(commandPanel);
+        backend.removeMessageListener(commandPanel);
     }
 
     public void writeProperties(java.util.Properties p) {

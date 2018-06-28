@@ -364,10 +364,6 @@ public class PendantUI implements ControllerListener {
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
         // TODO Auto-generated method stub
         

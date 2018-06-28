@@ -189,11 +189,6 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
 
     }

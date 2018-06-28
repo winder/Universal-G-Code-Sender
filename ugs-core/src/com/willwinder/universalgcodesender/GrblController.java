@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -200,13 +201,13 @@ public class GrblController extends AbstractController {
                             String.format(Localization.getString("controller.exception.sendError"),
                                     activeCommand.get().getCommandString(),
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                    this.errorMessageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.ERROR, processed + "\n");
                     this.commandComplete(processed);
                 } else {
                     processed =
                             String.format(Localization.getString("controller.exception.unexpectedError"),
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                    this.messageForConsole(processed + "\n");
+                    dispatchConsoleMessage(MessageType.INFO,processed + "\n");
                 }
                 checkStreamFinished();
                 processed = "";
@@ -271,7 +272,7 @@ public class GrblController extends AbstractController {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
                 // Convert feedback message to raw commands to update modal state.
                 this.updateParserModalState(new GcodeCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
-                this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
+                this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage.toString() + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
                 dispatchStateChange(COMM_IDLE);
@@ -284,9 +285,9 @@ public class GrblController extends AbstractController {
 
             if (StringUtils.isNotBlank(processed)) {
                 if (verbose) {
-                    this.verboseMessageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.VERBOSE,processed + "\n");
                 } else {
-                    this.messageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.INFO, processed + "\n");
                 }
             }
         } catch (Exception e) {
@@ -298,7 +299,7 @@ public class GrblController extends AbstractController {
                     + " <" + processed + ">" + message;
 
             logger.log(Level.SEVERE, message, e);
-            this.errorMessageForConsole(message + "\n");
+            this.dispatchConsoleMessage(MessageType.ERROR,message + "\n");
         }
     }
 
@@ -642,7 +643,7 @@ public class GrblController extends AbstractController {
                                 }
                             }
                         } catch (Exception ex) {
-                            messageForConsole(Localization.getString("controller.exception.sendingstatus")
+                            dispatchConsoleMessage(MessageType.INFO,Localization.getString("controller.exception.sendingstatus")
                                     + " (" + ex.getMessage() + ")\n");
                             ex.printStackTrace();
                         }
@@ -728,12 +729,12 @@ public class GrblController extends AbstractController {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {
-                        this.errorMessageForConsole(e.getMessage() + "\n");
+                        this.dispatchConsoleMessage(MessageType.ERROR, e.getMessage() + "\n");
                     }
                     isCanceling = false;
                 }
                 if (isCanceling && attemptsRemaining == 0) {
-                    this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset") + "\n");
+                    this.dispatchConsoleMessage(MessageType.ERROR, Localization.getString("grbl.exception.cancelReset") + "\n");
                 }
             }
             lastLocation = new Position(this.controllerStatus.getMachineCoord());
@@ -778,7 +779,7 @@ public class GrblController extends AbstractController {
     public void sendOverrideCommand(Overrides command) throws Exception {
         Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
         if (realTimeCommand != null) {
-            this.messageForConsole(String.format(">>> 0x%02x\n", realTimeCommand));
+            this.dispatchConsoleMessage(MessageType.INFO, String.format(">>> 0x%02x\n", realTimeCommand));
             this.comm.sendByteImmediately(realTimeCommand);
         }
     }

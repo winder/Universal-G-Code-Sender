@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
-import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
@@ -29,9 +28,11 @@ import com.willwinder.universalgcodesender.gcode.GcodeStats;
 import com.willwinder.universalgcodesender.gcode.processors.*;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
@@ -40,6 +41,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.*;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
@@ -63,9 +65,11 @@ import java.util.regex.Pattern;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
+public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener, MessageListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
+
+    private final MessageService messageService = new MessageService();
 
     private IController controller = null;
     private Settings settings = null;
@@ -94,6 +98,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     public GUIBackend() {
         scheduleTimers();
+        messageService.addListener(this);
     }
 
     private void scheduleTimers() {
@@ -171,9 +176,20 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
+    @Override
+    public void addMessageListener(MessageListener listener) {
+        this.messageService.addListener(listener);
+    }
+
+    @Override
+    public void removeMessageListener(MessageListener listener) {
+        this.messageService.removeListener(listener);
+    }
+
     //////////////////
     // GUI API
     //////////////////
+
     @Override
     public void preprocessAndExportToFile(File f) throws Exception {
         preprocessAndExportToFile(this.gcp, this.getGcodeFile(), f);
@@ -228,6 +244,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         updateWithFirmware(firmware);
 
         this.controller = fetchControllerFromFirmware(firmware);
+        this.controller.setMessageService(messageService);
         applySettings(settings);
 
         this.controller.addListener(this);
@@ -811,12 +828,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
-    public void sendMessageForConsole(String msg) {
-        if (controller != null ) {
-            controller.messageForConsole(msg);
-        } else {
-            //should still send!  Controller probably shouldn't ever be null.
-        }
+    public void dispatchMessage(MessageType messageType, String message) {
+        messageService.dispatchMessage(messageType, message);
     }
 
     @Override
@@ -941,5 +954,12 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
         this.sendUGSEvent(new UGSEvent(EventType.FIRMWARE_SETTING_EVENT), false);
+    }
+
+    @Override
+    public void onMessage(MessageType messageType, String message) {
+        if (messageType == MessageType.ERROR) {
+            GUIHelpers.displayErrorDialog(message);
+        }
     }
 }

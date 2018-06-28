@@ -16,12 +16,12 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -263,6 +263,9 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         visualizerPanel = new VisualizerPanel(backend);
         connectionPanel = new ConnectionPanelGroup(backend, jogService);
         commandPanel = new CommandPanel(backend);
+        backend.addUGSEventListener(commandPanel);
+        backend.addMessageListener(commandPanel);
+
         mainMenuBar = new JMenuBar();
         settingsMenu = new JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
@@ -502,11 +505,6 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
 
     @Override
     public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
 
     }
 

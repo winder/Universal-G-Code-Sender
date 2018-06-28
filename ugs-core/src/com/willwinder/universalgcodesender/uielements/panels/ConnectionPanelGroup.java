@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -216,11 +217,6 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
     @Override
     public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
 
     }
 

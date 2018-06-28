@@ -22,6 +22,7 @@
 package com.willwinder.universalgcodesender.uielements.toolbars;
 
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
@@ -29,7 +30,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+
 import static com.willwinder.universalgcodesender.model.UGSEvent.FileState.FILE_LOADED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -180,10 +181,6 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
 
     @Override
     public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
     }
 
     @Override
