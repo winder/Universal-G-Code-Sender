@@ -1,11 +1,5 @@
 /*
- * MainWindow.java
- *
- * Created on Jun 26, 2012, 3:04:38 PM
- */
-
-/*
-    Copywrite 2012-2018 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +20,8 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
@@ -80,16 +76,17 @@ import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.lang3.SystemUtils;
 
 /**
+ * Main window for Universal Gcode Sender Classic
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
+public class MainWindow extends JFrame implements ControllerListener, UGSEventListener, MessageListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     private PendantUI pendantUI;
-    public Settings settings;
+    private Settings settings;
     
-    BackendAPI backend;
+    private BackendAPI backend;
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
@@ -100,9 +97,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private List<String> manualCommandHistory;
 
     // Other windows
-    VisualizerWindow vw = null;
-    String gcodeFile = null;
-    String processedGcodeFile = null;
+    private VisualizerWindow vw = null;
+    private String gcodeFile = null;
+    private String processedGcodeFile = null;
     
     // Duration timer
     private Timer timer;
@@ -114,6 +111,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
+        this.backend.addMessageListener(this);
         this.settings = SettingsFactory.loadSettings();
 
         boolean fullyLocalized = Localization.initialize(settings.getLanguage());
@@ -1384,8 +1382,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File newFile = fileChooser.getSelectedFile();
-                AbstractController control = FirmwareUtils.getControllerFor("GRBL").get();
-                backend.applySettingsToController(settings, control);
+                IController controller = FirmwareUtils.getControllerFor("GRBL").get();
+                backend.applySettingsToController(settings, controller);
                 
                 backend.preprocessAndExportToFile(newFile);
             } catch (FileNotFoundException ex) {
@@ -1407,7 +1405,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.pendantUI = new PendantUI(backend);
             Collection<PendantURLBean> results = this.pendantUI.start();
             for (PendantURLBean result : results) {
-                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
+                this.backend.dispatchMessage(MessageType.INFO, "Pendant URL: " + result.getUrlString());
             }
             this.startPendantServerButton.setEnabled(false);
             this.stopPendantServerButton.setEnabled(true);
@@ -1976,25 +1974,17 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     public void probeCoordinates(Position p) {
     }
 
-    // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(final MessageType type, final String msg) {
-        //final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
-        //final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
-        //final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+    public void onMessage(MessageType messageType, String message) {
+        java.awt.EventQueue.invokeLater(() -> {
+            boolean verbose = messageType == MessageType.VERBOSE;
+            if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+                String verboseS = "[" + Localization.getString("verbose") + "]";
+                consoleTextArea.append((verbose ? verboseS : "") + message);
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                boolean verbose = type == MessageType.VERBOSE;
-                if (!verbose || showVerboseOutputCheckBox.isSelected()) {
-                    String verboseS = "[" + Localization.getString("verbose") + "]";
-                    consoleTextArea.append((verbose ? verboseS : "") + msg);
-
-                    if (consoleTextArea.isVisible() &&
-                            scrollWindowCheckBox.isSelected()) {
-                        consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
-                    }
+                if (consoleTextArea.isVisible() &&
+                        scrollWindowCheckBox.isSelected()) {
+                    consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
                 }
             }
         });

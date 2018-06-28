@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -29,6 +28,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
@@ -55,6 +55,13 @@ public interface IController {
      * @param listener to be removed
      */
     void removeListener(ControllerListener listener);
+
+    /**
+     * Assigns a message service to be used for writing messages to the console
+     *
+     * @param messageService the central message service
+     */
+    void setMessageService(MessageService messageService);
 
     /*
     Actions
@@ -116,7 +123,6 @@ public interface IController {
     void setStatusUpdateRate(int rate);
     int getStatusUpdateRate();
     
-    GcodeCommandCreator getCommandCreator();
     long getJobLengthEstimate(File gcodeFile);
     
     /*

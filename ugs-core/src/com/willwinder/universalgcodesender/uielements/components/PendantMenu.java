@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.uielements.components;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
@@ -61,7 +62,7 @@ public class PendantMenu extends JMenu {
     private void startPendantServerButtonActionPerformed() {
         Collection<PendantURLBean> results = this.pendantUI.start();
         for (PendantURLBean result : results) {
-            backend.sendMessageForConsole("Pendant URL: " + result.getUrlString());
+            backend.dispatchMessage(MessageType.INFO, "Pendant URL: " + result.getUrlString());
         }
         startServer.setEnabled(false);
         stopServer.setEnabled(true);
@@ -70,7 +71,7 @@ public class PendantMenu extends JMenu {
 
     private void stopPendantServerButtonActionPerformed() {
         this.pendantUI.stop();
-        backend.sendMessageForConsole("Pendant stopped");
+        this.backend.dispatchMessage(MessageType.INFO, "Pendant stopped");
         this.startServer.setEnabled(true);
         this.stopServer.setEnabled(false);
     }

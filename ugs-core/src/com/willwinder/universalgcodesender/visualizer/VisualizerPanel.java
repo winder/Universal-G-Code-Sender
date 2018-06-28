@@ -124,11 +124,6 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-        //throw new UnsupportedOperationException("Not supported yet.");
-    }
-    
-    @Override
     public void postProcessData(int numRows) {
         // Visualizer doesn't care.
     }

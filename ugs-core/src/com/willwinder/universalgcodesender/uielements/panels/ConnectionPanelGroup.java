@@ -220,11 +220,6 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
 
     }

@@ -51,29 +51,21 @@ public abstract class AbstractCommunicator {
         COMMAND_SENT,
         COMMAND_SKIPPED,
         RAW_RESPONSE,
-        CONSOLE_MESSAGE,
-        PAUSED,
-        VERBOSE_CONSOLE_MESSAGE
+        PAUSED
     }
     // Callback interfaces
     private ArrayList<SerialCommunicatorListener> commandEventListeners;
-    private ArrayList<SerialCommunicatorListener> commConsoleListeners;
-    private ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     private ArrayList<SerialCommunicatorListener> commRawResponseListener;
     private HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
 
     public AbstractCommunicator() {
         this.commandEventListeners       = new ArrayList<>();
-        this.commConsoleListeners        = new ArrayList<>();
-        this.commVerboseConsoleListeners = new ArrayList<>();
         this.commRawResponseListener     = new ArrayList<>();
 
         this.eventMap = new HashMap<>();
         eventMap.put(COMMAND_SENT,            commandEventListeners);
         eventMap.put(COMMAND_SKIPPED,         commandEventListeners);
         eventMap.put(PAUSED,                  commandEventListeners);
-        eventMap.put(CONSOLE_MESSAGE,         commConsoleListeners);
-        eventMap.put(VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
         eventMap.put(RAW_RESPONSE,            commRawResponseListener);
     }
     
@@ -155,15 +147,11 @@ public abstract class AbstractCommunicator {
     /* ****************** */
     void setListenAll(SerialCommunicatorListener scl) {
         this.addCommandEventListener(scl);
-        this.addCommConsoleListener(scl);
-        this.addCommVerboseConsoleListener(scl);
         this.addCommRawResponseListener(scl);
     }
 
     public void removeListenAll(SerialCommunicatorListener scl) {
         this.removeCommandEventListener(scl);
-        this.removeCommConsoleListener(scl);
-        this.removeCommVerboseConsoleListener(scl);
         this.removeCommRawResponseListener(scl);
     }
 
@@ -177,26 +165,6 @@ public abstract class AbstractCommunicator {
         this.commandEventListeners.remove(scl);
     }
 
-    private void addCommConsoleListener(SerialCommunicatorListener scl) {
-        if (!this.commConsoleListeners.contains(scl)) {
-            this.commConsoleListeners.add(scl);
-        }
-    }
-
-    private void removeCommConsoleListener(SerialCommunicatorListener scl) {
-        this.commConsoleListeners.remove(scl);
-    }
-
-    private void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        if (!this.commVerboseConsoleListeners.contains(scl)) {
-            this.commVerboseConsoleListeners.add(scl);
-        }
-    }
-
-    private void removeCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        this.commVerboseConsoleListeners.remove(scl);
-    }
-
     private void addCommRawResponseListener(SerialCommunicatorListener scl) {
         if (!this.commRawResponseListener.contains(scl)) {
             this.commRawResponseListener.add(scl);
@@ -205,28 +173,6 @@ public abstract class AbstractCommunicator {
 
     private void removeCommRawResponseListener(SerialCommunicatorListener scl) {
         this.commRawResponseListener.remove(scl);
-    }
-
-    // Helper for the console listener.              
-    protected void sendMessageToConsoleListener(String msg) {
-        this.sendMessageToConsoleListener(msg, false);
-    }
-    
-    protected void sendMessageToConsoleListener(String msg, boolean verbose) {
-        // Exit early if there are no listeners.
-        if (this.commConsoleListeners == null) {
-            return;
-        }
-        
-        SerialCommunicatorEvent verbosity;
-        if (!verbose) {
-            verbosity = SerialCommunicatorEvent.CONSOLE_MESSAGE;
-        }
-        else {
-            verbosity = SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE;
-        }
-        
-        dispatchListenerEvents(verbosity, msg);
     }
     
     /**
@@ -270,14 +216,6 @@ public abstract class AbstractCommunicator {
             case COMMAND_SKIPPED:
                 for (SerialCommunicatorListener scl : sclList)
                     scl.commandSkipped(command);
-                break;
-            case CONSOLE_MESSAGE:
-                for (SerialCommunicatorListener scl : sclList)
-                    scl.messageForConsole(string);
-                break;
-            case VERBOSE_CONSOLE_MESSAGE:
-                for (SerialCommunicatorListener scl : sclList)
-                    scl.verboseMessageForConsole(string);
                 break;
             case RAW_RESPONSE:
                 for (SerialCommunicatorListener scl : sclList)

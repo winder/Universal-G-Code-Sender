@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -72,28 +71,7 @@ public interface ControllerListener {
      * Probe coordinates received.
      */
     void probeCoordinates(Position p);
-    
-    enum MessageType {
-        VERBOSE("verbose"),
-        INFO("info"),
-        ERROR("error");
 
-        private final String key;
-
-        MessageType(String key) {
-            this.key = key;
-        }
-
-        public String getLocalizedString() {
-            return Localization.getString(key);
-        }
-    }
-
-    /**
-     * A console message from the controller.
-     */
-    void messageForConsole(MessageType type, String msg);
-    
     /**
      * Controller status information.
      */

@@ -21,6 +21,8 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -105,5 +107,11 @@ public interface BackendAPI extends BackendAPIReadOnly {
     IController getController();
     void applySettingsToController(Settings settings, IController controller) throws Exception;
 
-    void sendMessageForConsole(String msg);
+    /**
+     * Dispatch a message with the given type to all registered message listeners using {@link MessageListener#onMessage(MessageType, String)}
+     *
+     * @param messageType the type of message to be printed
+     * @param message the message to be written
+     */
+    void dispatchMessage(MessageType messageType, String message);
 }

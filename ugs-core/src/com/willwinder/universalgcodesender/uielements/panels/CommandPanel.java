@@ -19,14 +19,11 @@
 package com.willwinder.universalgcodesender.uielements.panels;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.components.CommandTextArea;
 import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
@@ -35,7 +32,13 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 
-public class CommandPanel extends JPanel implements UGSEventListener, ControllerListener {
+/**
+ * A panel for displaying console messages and a command line for manually entering commands.
+ * It will automatically register it self as a {@link MessageListener} and {@link UGSEventListener}.
+ *
+ * @author wwinder
+ */
+public class CommandPanel extends JPanel implements UGSEventListener, MessageListener {
     private static final int CONSOLE_SIZE = 1024 * 1024;
 
     private final BackendAPI backend;
@@ -65,7 +68,7 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         this.backend = backend;
         if (backend != null) {
             backend.addUGSEventListener(this);
-            backend.addControllerListener(this);
+            backend.addMessageListener(this);
         }
         commandTextField = new CommandTextArea(backend);
         initComponents();
@@ -106,64 +109,22 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         }
     }
 
+    /**
+     * When new messages are created this method will be called.
+     * It will decide using the {@code messageType} if the message should be written to the console.
+     *
+     * @param messageType the type of message to be written
+     * @param message     the message to be written to the console
+     */
     @Override
-    public void controlStateChange(UGSEvent.ControlState state) {
-    }
-
-    @Override
-    public void fileStreamComplete(String filename, boolean success) {
-
-    }
-
-    @Override
-    public void receivedAlarm(Alarm alarm) {
-        
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandComplete(GcodeCommand command) {
-
-    }
-
-    @Override
-    public void commandComment(String comment) {
-
-    }
-
-    @Override
-    public void probeCoordinates(Position p) {
-
-    }
-
-    @Override
-    public void statusStringListener(ControllerStatus status) {
-
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
-
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
+    public void onMessage(MessageType messageType, String message) {
         java.awt.EventQueue.invokeLater(() -> {
-            boolean verbose = MessageType.VERBOSE.equals(type);
+            boolean verbose = MessageType.VERBOSE.equals(messageType);
             if (!verbose || showVerboseMenuItem.isSelected()) {
                 if (verbose) {
-                    consoleTextArea.append("[" + type.getLocalizedString() + "] ");
+                    consoleTextArea.append("[" + messageType.getLocalizedString() + "] ");
                 }
-                consoleTextArea.append(msg);
+                consoleTextArea.append(message);
 
                 if (consoleTextArea.isVisible() && scrollWindowMenuItem.isSelected()) {
                     consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
@@ -171,7 +132,6 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
             }
         });
     }
-
 
     private void checkScrollWindow() {
         // Console output.
@@ -194,5 +154,4 @@ public class CommandPanel extends JPanel implements UGSEventListener, Controller
         backend.getSettings().setScrollWindowEnabled(scrollWindowMenuItem.isSelected());
         backend.getSettings().setVerboseOutputEnabled(showVerboseMenuItem.isSelected());
     }
-
 }

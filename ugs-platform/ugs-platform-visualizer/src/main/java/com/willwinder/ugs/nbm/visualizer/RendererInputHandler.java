@@ -1,8 +1,5 @@
-/**
- * Process all the listeners and call methods in the renderer.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,11 +18,11 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -37,6 +34,9 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+
+import javax.swing.SwingUtilities;
+import javax.vecmath.Point3d;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -49,10 +49,9 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowListener;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import javax.swing.SwingUtilities;
-import javax.vecmath.Point3d;
 
 /**
+ * Process all the listeners and call methods in the renderer.
  *
  * @author wwinder
  */
@@ -376,10 +375,6 @@ public class RendererInputHandler implements
 
     @Override
     public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
     }
 
     @Override

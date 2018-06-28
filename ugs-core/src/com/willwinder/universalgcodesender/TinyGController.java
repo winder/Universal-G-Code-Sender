@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.firmware.DefaultFirmwareSettings;
@@ -135,11 +136,11 @@ public class TinyGController extends AbstractController {
         }
         
         if (TinyGUtils.isRestartingResponse(jo)) {
-            this.messageForConsole("[restarting] " + response + "\n");
+            this.dispatchConsoleMessage(MessageType.INFO,"[restarting] " + response + "\n");
         }
         else if (TinyGUtils.isReadyResponse(jo)) {  
             //this.messageForConsole("Got version: " + TinyGUtils.getVersion(jo) + "\n");
-            this.messageForConsole("[ready] " + response + "\n");
+            this.dispatchConsoleMessage(MessageType.INFO,"[ready] " + response + "\n");
         }
         else if (TinyGUtils.isStatusResponse(jo)) {
             TinyGUtils.StatusResult result = TinyGUtils.updateStatus(jo);
@@ -153,15 +154,15 @@ public class TinyGController extends AbstractController {
             try {
                 this.commandComplete(response);
             } catch (Exception e) {
-                this.errorMessageForConsole(Localization.getString("controller.error.response")
+                this.dispatchConsoleMessage(MessageType.ERROR,Localization.getString("controller.error.response")
                         + " <" + response + ">: " + e.getMessage());
             }
 
-            this.messageForConsole(response + "\n");
+            this.dispatchConsoleMessage(MessageType.INFO,response + "\n");
         }
         else {
             // Display any unhandled messages
-            this.messageForConsole("[unhandled message] " + response + "\n");
+            this.dispatchConsoleMessage(MessageType.INFO,"[unhandled message] " + response + "\n");
         }
     }
 

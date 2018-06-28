@@ -20,9 +20,11 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
@@ -1029,26 +1031,32 @@ public class GrblControllerTest {
      * Test of messageForConsole method, of class GrblController.
      */
     @Test
-    public void testMessageForConsole() {
-        System.out.println("messageForConsole");
-        String msg = "";
+    public void testDispatchConsoleInfoMessage() {
+        String msg = "test message";
         GrblController instance = new GrblController(mgc);
-        instance.messageForConsole(msg);
 
-        // TODO: Test that this triggers a listener event.
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
+
+        instance.dispatchConsoleMessage(MessageType.INFO, msg);
+
+        verify(messageService, times(1)).dispatchMessage(MessageType.INFO, msg);
     }
 
     /**
      * Test of verboseMessageForConsole method, of class GrblController.
      */
     @Test
-    public void testVerboseMessageForConsole() {
-        System.out.println("verboseMessageForConsole");
-        String msg = "";
+    public void testDispatchConsoleVerboseMessage() {
+        String msg = "test message";
         GrblController instance = new GrblController(mgc);
-        instance.verboseMessageForConsole(msg);
+
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
+
+        instance.dispatchConsoleMessage(MessageType.VERBOSE, msg);
         
-        // TODO: Test that this triggers a listener event.
+        verify(messageService, times(1)).dispatchMessage(MessageType.VERBOSE, msg);
     }
 
     /**
@@ -1208,21 +1216,20 @@ public class GrblControllerTest {
         instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
         instance.commandSent(new GcodeCommand("G0"));
 
-        ControllerListener controllerListener = mock(ControllerListener.class);
-        instance.addListener(controllerListener);
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
 
         // When
         instance.rawResponseHandler("error:1");
 
         //Then
         String genericErrorMessage = "Error while processing response <error:1>\n";
-        verify(controllerListener, times(0)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
+        verify(messageService, times(0)).dispatchMessage(MessageType.ERROR, genericErrorMessage);
 
         String errorMessage = "An error was detected while sending 'G0': (error:1) G-code words consist of a letter and a value. Letter was not found. Streaming has been paused.\n";
-        verify(controllerListener).messageForConsole(ControllerListener.MessageType.ERROR, errorMessage);
+        verify(messageService).dispatchMessage(MessageType.ERROR, errorMessage);
 
-        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
-        instance.removeListener(controllerListener);
+        verify(messageService, times(1)).dispatchMessage(any(), anyString());
 
         assertFalse(instance.getActiveCommand().isPresent());
     }
@@ -1236,17 +1243,16 @@ public class GrblControllerTest {
         instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
         instance.commandSent(new GcodeCommand("G21"));
 
-        ControllerListener controllerListener = mock(ControllerListener.class);
-        instance.addListener(controllerListener);
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
 
         // When
         instance.rawResponseHandler("error:18");
 
         // Then
         String genericErrorMessage = "An error was detected while sending 'G21': (error:18) An unknown error has occurred. Streaming has been paused.\n";
-        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.ERROR, genericErrorMessage);
-        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
-        instance.removeListener(controllerListener);
+        verify(messageService, times(1)).dispatchMessage(MessageType.ERROR, genericErrorMessage);
+        verify(messageService, times(1)).dispatchMessage(any(), anyString());
 
         assertFalse(instance.getActiveCommand().isPresent());
     }
@@ -1259,17 +1265,16 @@ public class GrblControllerTest {
         instance.setUnitsCode("G21");
         instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
 
-        ControllerListener controllerListener = mock(ControllerListener.class);
-        instance.addListener(controllerListener);
+        MessageService messageService = mock(MessageService.class);
+        instance.setMessageService(messageService);
 
         // When
         instance.rawResponseHandler("error:1");
 
         // Then
         String genericErrorMessage = "An unexpected error was detected: (error:1) G-code words consist of a letter and a value. Letter was not found.\n";
-        verify(controllerListener, times(1)).messageForConsole(ControllerListener.MessageType.INFO, genericErrorMessage);
-        verify(controllerListener, times(1)).messageForConsole(any(), anyString());
-        instance.removeListener(controllerListener);
+        verify(messageService, times(1)).dispatchMessage(MessageType.INFO, genericErrorMessage);
+        verify(messageService, times(1)).dispatchMessage(any(), anyString());
 
         assertFalse(instance.getActiveCommand().isPresent());
     }
