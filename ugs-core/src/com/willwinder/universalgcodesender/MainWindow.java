@@ -1675,16 +1675,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
     }
 
-    private void setStatusColorForState(String state) {
+    private void setStatusColorForState(ControllerState state) {
         if (settings.isDisplayStateColor()) {
             java.awt.Color color = null; // default to a transparent background.
-            if (state.equals(Localization.getString("mainWindow.status.alarm"))) {
+            if (state == ControllerState.ALARM) {
                 color = Color.RED;
-            } else if (state.equals(Localization.getString("mainWindow.status.hold"))) {
+            } else if (state == ControllerState.HOLD || state == ControllerState.DOOR || state == ControllerState.SLEEP) {
                 color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.queue"))) {
-                color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.run"))) {
+            } else if (state == ControllerState.RUN || state == ControllerState.JOG || state == ControllerState.HOME) {
                 color = Color.GREEN;
             } else {
                 color = Color.WHITE;
@@ -1714,7 +1712,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             case COMM_DISCONNECTED:
                 this.updateConnectionControlsStateOpen(false);
                 this.updateWorkflowControls(false);
-                this.setStatusColorForState("");
+                this.setStatusColorForState(ControllerState.UNKNOWN);
                 break;
             case COMM_IDLE:
                 this.updateConnectionControlsStateOpen(true);
@@ -1996,8 +1994,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             return;
         }
 
-        this.activeStateValueLabel.setText( status.getStateString() );
-        this.setStatusColorForState( status.getStateString() );
+        this.activeStateValueLabel.setText( Utils.getControllerStateText(status.getState()) );
+        this.setStatusColorForState( status.getState() );
 
         if (status.getMachineCoord() != null) {
             this.machinePositionXValueLabel.setText( Utils.formatter.format(status.getMachineCoord().x) + status.getMachineCoord().getUnits().abbreviation );
