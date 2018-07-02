@@ -92,8 +92,6 @@ public class TinyGController extends AbstractController {
     
     @Override
     protected void openCommAfterEvent() throws Exception {
-        byte b = 0x18;
-        this.comm.sendByteImmediately(b);
     }
 
     @Override
