@@ -855,7 +855,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         rawResponseHandler(response);
     }
 
-    private void setCurrentState(ControlState state) {
+    protected void setCurrentState(ControlState state) {
         this.currentState = state;
         if (!this.handlesAllStateChangeEvents()) {
             this.dispatchStateChange(state);
