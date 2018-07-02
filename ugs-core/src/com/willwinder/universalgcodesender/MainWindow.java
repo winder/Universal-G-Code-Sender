@@ -20,6 +20,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
@@ -55,7 +56,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -91,10 +91,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // My Variables
     private javax.swing.JFileChooser fileChooser;
     private final int consoleSize = 1024 * 1024;
-
-    // TODO: Move command history box into a self contained object.
-    private final int commandNum = -1;
-    private List<String> manualCommandHistory;
 
     // Other windows
     private VisualizerWindow vw = null;
@@ -147,7 +143,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
 
-        boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());
         baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
@@ -159,7 +154,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
-//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
 
         initFileChooser();
         
@@ -240,7 +234,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         final MainWindow mw = new MainWindow(backend);
         
         /* Apply the settings to the MainWindow bofore showing it */
-        boolean unitsAreMM = mw.settings.getDefaultUnits().equals(Units.MM.abbreviation);
         mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
         mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
@@ -1598,9 +1591,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.setTitle(Localization.getString("title") + " (" 
                 + Localization.getString("version") + " " + Version.getVersionString() + ")");
 
-        // Command History
-        this.manualCommandHistory = new ArrayList<>();
-        
         // Add keyboard listener for manual controls.
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(new KeyEventDispatcher() {
