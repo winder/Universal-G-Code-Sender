@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -108,17 +109,18 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
     }
 
     private void updateWorkflowControls(boolean enabled) {
-        boolean hasCheckMode = false;
-        if (backend.isConnected()) {
-            hasCheckMode = backend.getController().getCapabilities().hasCheckMode();
-        }
-
         this.resetCoordinatesButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
-        this.performHomingCycleButton.setEnabled(enabled);
+
+        boolean hasHoming = backend.isConnected() && backend.getController().getCapabilities().hasHoming();
+        this.performHomingCycleButton.setEnabled(enabled && hasHoming);
+
         this.softResetMachineControl.setEnabled(enabled);
         this.killAlarmLock.setEnabled(enabled);
+
+        boolean hasCheckMode = backend.isConnected() && backend.getController().getCapabilities().hasCheckMode();
         this.toggleCheckMode.setEnabled(enabled && hasCheckMode);
+
         this.requestStateInformation.setEnabled(enabled);
     }
 
