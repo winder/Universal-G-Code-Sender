@@ -59,4 +59,14 @@ public class CapabilitiesConstants {
      * A key for identifying if the hardware have support for the setup wizard
      */
     public static final String SETUP_WIZARD = "SETUP_WIZARD";
+
+    /**
+     * A key for identifying if the firmware has functions for checking the gcode
+     */
+    public static final String CHECK_MODE = "CHECK_MODE";
+
+    /**
+     * A key for identifying if the firmware has support for settings
+     */
+    public static final String FIRMWARE_SETTINGS = "FIRMWARE_SETTINGS";
 }

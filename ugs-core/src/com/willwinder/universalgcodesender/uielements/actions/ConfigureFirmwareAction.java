@@ -58,7 +58,7 @@ public class ConfigureFirmwareAction extends AbstractAction {
         try {
             if (!this.backend.isConnected()) {
                 displayErrorDialog(Localization.getString("controller.log.notconnected"));
-            } else if (this.backend.getController().getClass().equals(GrblController.class)) {
+            } else if (this.backend.getController().getCapabilities().hasFirmwareSettings()) {
                 FirmwareSettingsDialog gfsd =
                         new FirmwareSettingsDialog(new JFrame(), true, this.backend);
                 gfsd.setVisible(true);

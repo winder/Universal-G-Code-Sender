@@ -138,4 +138,24 @@ public class Capabilities {
     public boolean hasSetupWizardSupport() {
         return hasCapability(CapabilitiesConstants.SETUP_WIZARD);
     }
+
+    /**
+     * Returns if the hardware have support for check mode. The capability
+     * is defined by the capability {@link CapabilitiesConstants#CHECK_MODE}
+     *
+     * @return true if check mode is available in the hardware
+     */
+    public boolean hasCheckMode() {
+        return hasCapability(CapabilitiesConstants.CHECK_MODE);
+    }
+
+    /**
+     * Returns if the firmware has support for settings. The capability
+     * is defined by the capability {@link CapabilitiesConstants#FIRMWARE_SETTINGS}
+     *
+     * @return true if the firmware has support for settings
+     */
+    public boolean hasFirmwareSettings() {
+        return hasCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+    }
 }
