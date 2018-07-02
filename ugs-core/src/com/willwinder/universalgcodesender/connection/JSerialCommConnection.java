@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
 public class JSerialCommConnection extends AbstractConnection implements SerialPortDataListener {
 
     private final byte[] buffer = new byte[1024];
-    private final StringBuilder inputBuffer = new StringBuilder();
     private SerialPort serialPort;
+    private ResponseMessageHandler responseMessageHandler;
 
     @Override
     public void setUri(String uri) {
@@ -50,6 +50,7 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
 
     @Override
     public boolean openPort() throws Exception {
+        responseMessageHandler = new ResponseMessageHandler();
         if (serialPort == null) {
             throw new ConnectionException("The connection wasn't initialized");
         }
@@ -118,27 +119,8 @@ public class JSerialCommConnection extends AbstractConnection implements SerialP
         }
 
         int bytesRead = serialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
-        String s = new String(buffer, 0, bytesRead);
-        inputBuffer.append(s);
+        String response = new String(buffer, 0, bytesRead);
 
-        // Only continue if there is a line terminator and split out command(s).
-        if (!inputBuffer.toString().contains(comm.getLineTerminator())) {
-            return;
-        }
-
-        // Split with the -1 option will give an empty string at
-        // the end if there is a terminator there as well.
-        String[] commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
-        for (int i = 0; i < commands.length; i++) {
-            // Make sure this isn't the last command.
-            if ((i + 1) < commands.length) {
-                comm.responseMessage(commands[i]);
-
-                // Append last command to input buffer because it didn't have a terminator.
-            } else {
-                inputBuffer.setLength(0);
-                inputBuffer.append(commands[i]);
-            }
-        }
+        responseMessageHandler.handleResponse(response, comm);
     }
 }
