@@ -23,7 +23,6 @@ import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -206,30 +205,5 @@ public class TinyGUtils {
     private static String getStateAsString(int state) {
         ControllerState controllerState = getState(state);
         return controllerState.name();
-    }
-
-    /**
-     * Gets a ControlState based on the ControllerState
-     * @param controllerState the currently reported controller state from the controller
-     * @return the control state for the current ControllerState
-     */
-    public static UGSEvent.ControlState getStateFromControllerStatus(ControllerState controllerState) {
-        switch (controllerState) {
-            case IDLE:
-            case DOOR:
-            case ALARM:
-            case SLEEP:
-                return UGSEvent.ControlState.COMM_IDLE;
-            case RUN:
-            case JOG:
-            case HOME:
-                return UGSEvent.ControlState.COMM_SENDING;
-            case CHECK:
-                return UGSEvent.ControlState.COMM_CHECK;
-            case HOLD:
-                return UGSEvent.ControlState.COMM_SENDING_PAUSED;
-            default:
-                return UGSEvent.ControlState.COMM_DISCONNECTED;
-        }
     }
 }

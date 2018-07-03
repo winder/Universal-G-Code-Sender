@@ -178,24 +178,20 @@ public class TinyGController extends AbstractController {
             dispatchConsoleMessage(MessageType.INFO, "[ack] " + response + "\n");
             sendInitCommands();
         } else if (TinyGUtils.isStatusResponse(jo)) {
-            controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
-            setCurrentState(TinyGUtils.getStateFromControllerStatus(controllerStatus.getState()));
-            dispatchStatusString(controllerStatus);
+            updateControllerStatus(jo);
             dispatchConsoleMessage(MessageType.INFO, response + "\n");
+            checkStreamFinished();
         } else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
             if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_RESULT)) {
-                controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo.get("r").getAsJsonObject());
-                dispatchStatusString(controllerStatus);
-            }
-
-            try {
-                // If there is an active command, mark it as completed
-                if (getActiveCommand().isPresent()) {
+                updateControllerStatus(jo.get("r").getAsJsonObject());
+                checkStreamFinished();
+            } else if (rowsRemaining() > 0) {
+                try {
                     commandComplete(response);
+                } catch (Exception e) {
+                    this.dispatchConsoleMessage(MessageType.ERROR, Localization.getString("controller.error.response")
+                            + " <" + response + ">: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                this.dispatchConsoleMessage(MessageType.ERROR, Localization.getString("controller.error.response")
-                        + " <" + response + ">: " + e.getMessage());
             }
 
             this.dispatchConsoleMessage(MessageType.INFO, response + "\n");
@@ -204,6 +200,23 @@ public class TinyGController extends AbstractController {
         } else {
             // Display any unhandled messages
             this.dispatchConsoleMessage(MessageType.INFO, "[unhandled message] " + response + "\n");
+        }
+    }
+
+    private void updateControllerStatus(JsonObject jo) {
+        // Save the old state
+        ControllerState previousState = controllerStatus.getState();
+        UGSEvent.ControlState previousControlState = getControlState(previousState);
+
+        // Notify our listeners about the new status
+        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
+        dispatchStatusString(controllerStatus);
+
+        // Notify state change to our listeners
+        UGSEvent.ControlState newControlState = getControlState(controllerStatus.getState());
+        if (previousControlState != newControlState) {
+            LOGGER.log(Level.INFO, "Changing state from " + previousControlState + " to " + newControlState);
+            setCurrentState(newControlState);
         }
     }
 
@@ -334,7 +347,11 @@ public class TinyGController extends AbstractController {
 
     @Override
     public UGSEvent.ControlState getControlState() {
-        switch (getState()) {
+        return getControlState(getState());
+    }
+
+    public UGSEvent.ControlState getControlState(ControllerState controllerState) {
+        switch (controllerState) {
             case JOG:
             case RUN:
                 return COMM_SENDING;
