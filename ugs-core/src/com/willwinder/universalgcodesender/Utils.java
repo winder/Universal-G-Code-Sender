@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;

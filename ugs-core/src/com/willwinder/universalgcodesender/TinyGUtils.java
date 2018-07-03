@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Common utils for TinyG controllers
@@ -87,7 +88,7 @@ public class TinyGUtils {
             JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
             if (jo.has("msg")) {
                 String msg = jo.get("msg").getAsString();
-                return msg.equals("Loading configs from EEPROM");
+                return StringUtils.equals(msg, "Loading configs from EEPROM");
             }
         }
         return false;
@@ -98,7 +99,7 @@ public class TinyGUtils {
             JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
             if (jo.has("msg")) {
                 String msg = jo.get("msg").getAsString();
-                return msg.equals("SYSTEM READY");
+                return StringUtils.equals(msg,"SYSTEM READY");
             }
         }
         return false;

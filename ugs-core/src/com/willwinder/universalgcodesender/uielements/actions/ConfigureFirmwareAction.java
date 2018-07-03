@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.uielements.actions;
 
-import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;

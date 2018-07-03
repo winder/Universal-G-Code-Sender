@@ -165,7 +165,7 @@ public class TinyGController extends AbstractController {
             capabilities.removeCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
 
-            setCurrentState(UGSEvent.ControlState.COMM_IDLE);
+            setCurrentState(COMM_IDLE);
             dispatchConsoleMessage(MessageType.INFO, "[ready] " + response + "\n");
 
             try {
@@ -226,7 +226,7 @@ public class TinyGController extends AbstractController {
 
         // Request initial status report
         comm.queueStringForComm("{sr:n}");
-        
+
         comm.streamCommands();
 
         // Refresh the status update
