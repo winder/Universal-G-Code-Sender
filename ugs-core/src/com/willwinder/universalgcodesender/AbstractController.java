@@ -622,7 +622,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
 
-        if (streamStopWatch.isStarted()) {
+        if (streamStopWatch.isStarted() && !streamStopWatch.isSuspended()) {
             this.streamStopWatch.suspend();
         }
     }
