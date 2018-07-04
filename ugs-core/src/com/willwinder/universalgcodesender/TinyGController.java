@@ -61,7 +61,11 @@ public class TinyGController extends AbstractController {
     private String firmwareVersion;
 
     public TinyGController() {
-        super(new TinyGCommunicator());
+        this(new TinyGCommunicator());
+    }
+
+    public TinyGController(AbstractCommunicator abstractCommunicator) {
+        super(abstractCommunicator);
         capabilities = new Capabilities();
         commandCreator = new TinyGGcodeCommandCreator();
 
@@ -112,7 +116,7 @@ public class TinyGController extends AbstractController {
     @Override
     protected void cancelSendAfterEvent() throws Exception {
         // Canceling the job on the controller (which will also flush the buffer)
-        comm.sendByteImmediately((byte) 0x04);
+        comm.sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
 
         // Work around for clearing the sent buffer size
         comm.softReset();
@@ -350,7 +354,7 @@ public class TinyGController extends AbstractController {
         return getControlState(getState());
     }
 
-    public UGSEvent.ControlState getControlState(ControllerState controllerState) {
+    protected UGSEvent.ControlState getControlState(ControllerState controllerState) {
         switch (controllerState) {
             case JOG:
             case RUN:
