@@ -241,6 +241,8 @@ public class GrblUtils {
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
+        ret.addCapability(CapabilitiesConstants.CHECK_MODE);
+        ret.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
 
         if (version >= 0.8) {
             ret.addCapability(CapabilitiesConstants.HOMING);

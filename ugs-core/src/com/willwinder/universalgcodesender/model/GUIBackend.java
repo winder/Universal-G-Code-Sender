@@ -531,7 +531,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public File getGcodeFile() {
-        logger.log(Level.INFO, "Getting gcode file.");
+        logger.log(Level.FINEST, "Getting gcode file.");
         return this.gcodeFile;
     }
 
@@ -815,7 +815,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                     .append(Localization.getString("firmware.feature.statusUpdates")).append(NEW_LINE)
                     .append(Localization.getString("firmware.feature.statusUpdateRate"));
             
-            throw new Exception(message.toString());
+            throw new Exception(message.toString(), ex);
         }
     }
 

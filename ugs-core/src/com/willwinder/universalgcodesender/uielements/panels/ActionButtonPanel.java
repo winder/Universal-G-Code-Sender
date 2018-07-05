@@ -110,10 +110,16 @@ public class ActionButtonPanel extends JPanel implements UGSEventListener {
     private void updateWorkflowControls(boolean enabled) {
         this.resetCoordinatesButton.setEnabled(enabled);
         this.returnToZeroButton.setEnabled(enabled);
-        this.performHomingCycleButton.setEnabled(enabled);
+
+        boolean hasHoming = backend.isConnected() && backend.getController().getCapabilities().hasHoming();
+        this.performHomingCycleButton.setEnabled(enabled && hasHoming);
+
         this.softResetMachineControl.setEnabled(enabled);
         this.killAlarmLock.setEnabled(enabled);
-        this.toggleCheckMode.setEnabled(enabled);
+
+        boolean hasCheckMode = backend.isConnected() && backend.getController().getCapabilities().hasCheckMode();
+        this.toggleCheckMode.setEnabled(enabled && hasCheckMode);
+
         this.requestStateInformation.setEnabled(enabled);
     }
 
