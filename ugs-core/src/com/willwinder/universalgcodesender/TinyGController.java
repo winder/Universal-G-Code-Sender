@@ -98,14 +98,17 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void closeCommBeforeEvent() {
+        // Not needed yet
     }
 
     @Override
     protected void closeCommAfterEvent() {
+        // Not needed yet
     }
 
     @Override
     protected void openCommAfterEvent() throws Exception {
+        // Not needed yet
     }
 
     @Override
@@ -313,10 +316,12 @@ public class TinyGController extends AbstractController {
 
     @Override
     protected void isReadyToStreamCommandsEvent() throws Exception {
+        // Not needed yet
     }
 
     @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
+        // Not needed yet
     }
 
     @Override
