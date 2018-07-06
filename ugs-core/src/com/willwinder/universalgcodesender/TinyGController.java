@@ -221,7 +221,7 @@ public class TinyGController extends AbstractController {
 
         // Notify state change to our listeners
         UGSEvent.ControlState newControlState = getControlState(controllerStatus.getState());
-        if (previousControlState.equals(newControlState)) {
+        if (!previousControlState.equals(newControlState)) {
             LOGGER.log(Level.FINE, "Changing state from " + previousControlState + " to " + newControlState);
             setCurrentState(newControlState);
         }
