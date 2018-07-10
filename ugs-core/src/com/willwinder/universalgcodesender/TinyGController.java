@@ -169,6 +169,7 @@ public class TinyGController extends AbstractController {
 
             capabilities.addCapability(CapabilitiesConstants.JOGGING);
             capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+            capabilities.addCapability(CapabilitiesConstants.HOMING);
             capabilities.removeCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
 
@@ -255,7 +256,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void performHomingCycle() throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        sendCommandImmediately(new GcodeCommand("G28.2 Z0 X0 Y0"));
     }
 
     @Override
