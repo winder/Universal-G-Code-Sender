@@ -255,7 +255,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void performHomingCycle() throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        sendCommandImmediately(new GcodeCommand("G28.2 X0 Y0 Z0"));
     }
 
     @Override
