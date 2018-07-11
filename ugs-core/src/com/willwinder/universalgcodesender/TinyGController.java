@@ -164,6 +164,7 @@ public class TinyGController extends AbstractController {
 
             capabilities.addCapability(CapabilitiesConstants.JOGGING);
             capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+            capabilities.addCapability(CapabilitiesConstants.HOMING);
             capabilities.removeCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
 
