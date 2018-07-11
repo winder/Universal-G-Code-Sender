@@ -144,11 +144,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void restoreParserModalState() {
-        // no op
-    }
-
-    @Override
     protected void rawResponseHandler(String response) {
         JsonObject jo;
 
@@ -215,8 +210,10 @@ public class TinyGController extends AbstractController {
         ControllerState previousState = controllerStatus.getState();
         UGSEvent.ControlState previousControlState = getControlState(previousState);
 
+        TinyGUtils.updateGcodeState(this, jo);
+
         // Notify our listeners about the new status
-        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
+        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, getCurrentGcodeState(), jo);
         dispatchStatusString(controllerStatus);
 
         // Notify state change to our listeners
@@ -244,6 +241,9 @@ public class TinyGController extends AbstractController {
         // 0=off, 1=filtered, 2=verbose
         comm.queueStringForComm("{sv:1}");
 
+        // Configure status reports
+        comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}");
+
         // Request initial status report
         comm.queueStringForComm("{sr:n}");
 
@@ -260,7 +260,8 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        String command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, getCurrentGcodeState());
+        sendCommandImmediately(new GcodeCommand(command));
     }
 
     @Override
@@ -291,11 +292,7 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void updateParserModalState(GcodeCommand command) {
-        if (command.getCommandString().startsWith("{\"gc")) {
-            String gcode = StringUtils.substringBetween(command.getCommandString(), "{\"gc\":\"", "\"");
-            GcodeCommand gcodeCommand = new GcodeCommand(gcode);
-            super.updateParserModalState(gcodeCommand);
-        }
+        // This is handled by the rawResponseHandler
     }
 
     @Override
@@ -311,7 +308,8 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void setWorkPosition(Axis axis, double position) throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axis, position);
+        sendCommandImmediately(new GcodeCommand(command));
     }
 
     @Override

@@ -20,11 +20,17 @@ package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.gcode.util.Code;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
 
 /**
  * Common utils for TinyG controllers
@@ -45,16 +51,24 @@ public class TinyGUtils {
     public static final String COMMAND_STATUS_REPORT = "{sr:n}";
     public static final String COMMAND_KILL_ALARM_LOCK = "{clear:n}";
 
-    public static final String FIELD_FIRMWARE_VERSION = "fv";
-    public static final String FIELD_RESPONSE = "r";
+    private static final String FIELD_FIRMWARE_VERSION = "fv";
+    private static final String FIELD_RESPONSE = "r";
 
     public static final String FIELD_STATUS_RESULT = "sr";
-    public static final String FIELD_STATUS_RESULT_UNIT = "unit";
-    public static final String FIELD_STATUS_RESULT_POSX = "posx";
-    public static final String FIELD_STATUS_REPORT_POSY = "posy";
-    public static final String FIELD_STATUS_REPORT_POSZ = "posz";
-    public static final String FIELD_STATUS_REPORT_VELOCITY = "vel";
-    public static final String FIELD_STATUS_REPORT_STATUS = "stat";
+    private static final String FIELD_STATUS_RESULT_UNIT = "unit";
+    private static final String FIELD_STATUS_RESULT_POSX = "posx";
+    private static final String FIELD_STATUS_REPORT_POSY = "posy";
+    private static final String FIELD_STATUS_REPORT_POSZ = "posz";
+    private static final String FIELD_STATUS_REPORT_VELOCITY = "vel";
+    private static final String FIELD_STATUS_REPORT_COORD = "coor";
+    private static final String FIELD_STATUS_REPORT_PLANE = "plan";
+    private static final String FIELD_STATUS_REPORT_DISTANCE_MODE = "dist";
+    private static final String FIELD_STATUS_REPORT_ARC_DISTANCE_MODE = "admo";
+    private static final String FIELD_STATUS_REPORT_FEED_MODE = "frmo";
+    private static final String FIELD_STATUS_REPORT_STATUS = "stat";
+    private static final String FIELD_STATUS_REPORT_MPOX = "mpox";
+    private static final String FIELD_STATUS_REPORT_MPOY = "mpoy";
+    private static final String FIELD_STATUS_REPORT_MPOZ = "mpoz";
 
     private static JsonParser parser = new JsonParser();
 
@@ -98,7 +112,7 @@ public class TinyGUtils {
             JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
             if (jo.has("msg")) {
                 String msg = jo.get("msg").getAsString();
-                return StringUtils.equals(msg,"SYSTEM READY");
+                return StringUtils.equals(msg, "SYSTEM READY");
             }
         }
         return false;
@@ -115,26 +129,36 @@ public class TinyGUtils {
      * @param response             the response string from the controller
      * @return a new updated controller status
      */
-    public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final JsonObject response) {
+    public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final GcodeState lastGcodeState, final JsonObject response) {
         if (response.has(FIELD_STATUS_RESULT)) {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_RESULT);
 
-            Position machineCoord = lastControllerStatus.getMachineCoord();
+            UnitUtils.Units currentUnits = lastGcodeState.units == G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+
+            Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
             if (statusResultObject.has(FIELD_STATUS_RESULT_POSX)) {
-                machineCoord.setX(statusResultObject.get(FIELD_STATUS_RESULT_POSX).getAsDouble());
+                workCoord.setX(statusResultObject.get(FIELD_STATUS_RESULT_POSX).getAsDouble());
             }
 
             if (statusResultObject.has(FIELD_STATUS_REPORT_POSY)) {
-                machineCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_POSY).getAsDouble());
+                workCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_POSY).getAsDouble());
             }
 
             if (statusResultObject.has(FIELD_STATUS_REPORT_POSZ)) {
-                machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
+                workCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
             }
 
-            if (statusResultObject.has(FIELD_STATUS_RESULT_UNIT)) {
-                UnitUtils.Units units = statusResultObject.get(FIELD_STATUS_RESULT_UNIT).getAsInt() == 0 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
-                machineCoord = new Position(machineCoord.getX(), machineCoord.getY(), machineCoord.getZ(), units);
+            Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOX)) {
+                machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOY)) {
+                machineCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_MPOY).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOZ)) {
+                machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_MPOZ).getAsDouble());
             }
 
             Double feedSpeed = lastControllerStatus.getFeedSpeed();
@@ -155,7 +179,7 @@ public class TinyGUtils {
             ControllerStatus.EnabledPins enabledPins = lastControllerStatus.getEnabledPins();
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
-            return new ControllerStatus(stateString, state, machineCoord, machineCoord, feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatus(stateString, state, machineCoord.getPositionIn(currentUnits), workCoord.getPositionIn(currentUnits), feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
         return lastControllerStatus;
@@ -205,5 +229,151 @@ public class TinyGUtils {
     private static String getStateAsString(int state) {
         ControllerState controllerState = getState(state);
         return controllerState.name();
+    }
+
+    /**
+     * Generates a command for resetting the coordinates for the current coordinate system to zero.
+     *
+     * @param controllerStatus the current controller status
+     * @param gcodeState       the current gcode state
+     * @return a string with the command to reset the coordinate system to zero
+     */
+    public static String generateResetCoordinatesToZeroCommand(ControllerStatus controllerStatus, GcodeState gcodeState) {
+        int offsetCode = convertOffsetGcodeToCode(gcodeState.offset);
+        Position machineCoord = controllerStatus.getMachineCoord();
+        return "G10 L2 P" + offsetCode +
+                " X" + Utils.formatter.format(machineCoord.get(Axis.X)) +
+                " Y" + Utils.formatter.format(machineCoord.get(Axis.Y)) +
+                " Z" + Utils.formatter.format(machineCoord.get(Axis.Z));
+    }
+
+    /**
+     * Generates a command for setting the axis to a position in the current coordinate system
+     *
+     * @param controllerStatus the current controller status
+     * @param gcodeState       the current gcode state
+     * @param axis             the axis to set
+     * @param position         the position to set
+     * @return a command for setting the position
+     */
+    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, Axis axis, double position) {
+        int offsetCode = convertOffsetGcodeToCode(gcodeState.offset);
+        Position machineCoord = controllerStatus.getMachineCoord();
+        double coordinate = -(position - machineCoord.get(axis));
+        return "G10 L2 P" + offsetCode + " " +
+                axis.name() + Utils.formatter.format(coordinate);
+    }
+
+    private static int convertOffsetGcodeToCode(Code offsetGcode) {
+        switch (offsetGcode) {
+            case G54:
+                return 1;
+            case G55:
+                return 2;
+            case G56:
+                return 3;
+            case G57:
+                return 4;
+            case G58:
+                return 5;
+            case G59:
+                return 6;
+            default:
+                return 0;
+        }
+    }
+
+    private static Code convertOffsetCodeToGcode(int offsetCode) {
+        switch (offsetCode) {
+            case 1:
+                return Code.G54;
+            case 2:
+                return Code.G55;
+            case 3:
+                return Code.G56;
+            case 4:
+                return Code.G57;
+            case 5:
+                return Code.G58;
+            case 6:
+                return Code.G59;
+            default:
+                return Code.G53;
+        }
+    }
+
+    /**
+     * Updates the Gcode state from the response if it contains a status line
+     *
+     * @param controller the controller to update
+     * @param response   the response to parse the gcode state from
+     */
+    public static void updateGcodeState(TinyGController controller, JsonObject response) {
+        if (response.has(TinyGUtils.FIELD_STATUS_RESULT)) {
+            GcodeState gcodeState = controller.getCurrentGcodeState();
+            JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_RESULT);
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
+                int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
+                gcodeState.offset = TinyGUtils.convertOffsetCodeToGcode(offsetCode);
+            }
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
+                int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_RESULT_UNIT).getAsInt();
+                // 0=inch, 1=mm
+                if (units == 0) {
+                    gcodeState.units = Code.G20;
+                    controller.setUnitsCode(Code.G20.name());
+                } else {
+                    gcodeState.units = Code.G21;
+                    controller.setUnitsCode(Code.G21.name());
+                }
+            }
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_PLANE)) {
+                int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
+                // 0=XY plane, 1=XZ plane, 2=YZ plane
+                if (plane == 0) {
+                    gcodeState.plane = Plane.XY;
+                } else if (plane == 1) {
+                    gcodeState.plane = Plane.ZX;
+                } else if (plane == 2) {
+                    gcodeState.plane = Plane.YZ;
+                }
+            }
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE)) {
+                int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
+                // 0=units-per-minute-mode, 1=inverse-time-mode
+                if (feedMode == 0) {
+                    gcodeState.feedMode = Code.G93;
+                } else if (feedMode == 1) {
+                    gcodeState.feedMode = Code.G94;
+                }
+            }
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE)) {
+                int distance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE).getAsInt();
+                // 0=absolute distance mode, 1=incremental distance mode
+                if (distance == 0) {
+                    gcodeState.distanceMode = Code.G90;
+                    controller.setDistanceModeCode(Code.G90.name());
+                } else if (distance == 1) {
+                    gcodeState.distanceMode = Code.G91;
+                    controller.setDistanceModeCode(Code.G91.name());
+                }
+            }
+
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE)) {
+                int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
+                // 0=absolute distance mode, 1=incremental distance mode
+                if (arcDistance == 0) {
+                    gcodeState.arcDistanceMode = Code.G90_1;
+                } else if (arcDistance == 1) {
+                    gcodeState.arcDistanceMode = Code.G91_1;
+                }
+            }
+        }
+
     }
 }
