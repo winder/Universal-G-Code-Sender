@@ -51,11 +51,11 @@ public class TinyGUtils {
 
     public static final String COMMAND_STATUS_REPORT = "{sr:n}";
     public static final String COMMAND_KILL_ALARM_LOCK = "{clear:n}";
-    public static final String FIELD_STATUS_RESULT = "sr";
+    public static final String FIELD_STATUS_REPORT = "sr";
     private static final String FIELD_FIRMWARE_VERSION = "fv";
     private static final String FIELD_RESPONSE = "r";
-    private static final String FIELD_STATUS_RESULT_UNIT = "unit";
-    private static final String FIELD_STATUS_RESULT_POSX = "posx";
+    private static final String FIELD_STATUS_REPORT_UNIT = "unit";
+    private static final String FIELD_STATUS_REPORT_POSX = "posx";
     private static final String FIELD_STATUS_REPORT_POSY = "posy";
     private static final String FIELD_STATUS_REPORT_POSZ = "posz";
     private static final String FIELD_STATUS_REPORT_VELOCITY = "vel";
@@ -129,14 +129,14 @@ public class TinyGUtils {
      * @return a new updated controller status
      */
     public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final GcodeState lastGcodeState, final JsonObject response) {
-        if (response.has(FIELD_STATUS_RESULT)) {
-            JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_RESULT);
+        if (response.has(FIELD_STATUS_REPORT)) {
+            JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
             UnitUtils.Units currentUnits = lastGcodeState.units == Code.G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
 
             Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
-            if (statusResultObject.has(FIELD_STATUS_RESULT_POSX)) {
-                workCoord.setX(statusResultObject.get(FIELD_STATUS_RESULT_POSX).getAsDouble());
+            if (statusResultObject.has(FIELD_STATUS_REPORT_POSX)) {
+                workCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_POSX).getAsDouble());
             }
 
             if (statusResultObject.has(FIELD_STATUS_REPORT_POSY)) {
@@ -147,6 +147,7 @@ public class TinyGUtils {
                 workCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
             }
 
+            // The machine coordinates are always in MM, make sure the position is using that unit before updating the values
             Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
             if (statusResultObject.has(FIELD_STATUS_REPORT_MPOX)) {
                 machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
@@ -271,16 +272,16 @@ public class TinyGUtils {
      */
     public static List<String> convertStatusReportToGcode(JsonObject response) {
         List<String> gcodeList = new ArrayList<>();
-        if (response.has(TinyGUtils.FIELD_STATUS_RESULT)) {
-            JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_RESULT);
+        if (response.has(TinyGUtils.FIELD_STATUS_REPORT)) {
+            JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_REPORT);
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
                 int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
                 gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getGcode().name());
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
-                int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_RESULT_UNIT).getAsInt();
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_UNIT)) {
+                int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_UNIT).getAsInt();
                 // 0=inch, 1=mm
                 if (units == 0) {
                     gcodeList.add(Code.G20.name());
