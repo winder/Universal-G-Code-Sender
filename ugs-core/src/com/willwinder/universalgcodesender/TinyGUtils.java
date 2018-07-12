@@ -278,7 +278,7 @@ public class TinyGUtils {
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
                 int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
-                gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getCGode().name());
+                gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getGcode().name());
             }
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
