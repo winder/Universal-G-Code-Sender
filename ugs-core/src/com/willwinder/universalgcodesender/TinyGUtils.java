@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
-
 /**
  * Common utils for TinyG controllers
  *
@@ -135,7 +133,7 @@ public class TinyGUtils {
         if (response.has(FIELD_STATUS_REPORT)) {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
-            UnitUtils.Units currentUnits = lastGcodeState.units == G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+            UnitUtils.Units currentUnits = lastGcodeState.units == Code.G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
 
             Position workCoord = parseWorkCoordinatesFromStatusReport(lastControllerStatus, statusResultObject, currentUnits);
             Position machineCoord = parseMachineCoordinatesFromStatusReport(lastControllerStatus, statusResultObject);
