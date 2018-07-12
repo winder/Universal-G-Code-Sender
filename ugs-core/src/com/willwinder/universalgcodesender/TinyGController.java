@@ -186,7 +186,7 @@ public class TinyGController extends AbstractController {
             dispatchConsoleMessage(MessageType.INFO, response + "\n");
             checkStreamFinished();
         } else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
-            if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_REPORT)) {
+            if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_RESULT)) {
                 updateControllerStatus(jo.get("r").getAsJsonObject());
                 checkStreamFinished();
             } else if (rowsRemaining() > 0) {

@@ -32,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Common utils for TinyG controllers
@@ -52,11 +51,11 @@ public class TinyGUtils {
 
     public static final String COMMAND_STATUS_REPORT = "{sr:n}";
     public static final String COMMAND_KILL_ALARM_LOCK = "{clear:n}";
-    public static final String FIELD_STATUS_REPORT = "sr";
+    public static final String FIELD_STATUS_RESULT = "sr";
     private static final String FIELD_FIRMWARE_VERSION = "fv";
     private static final String FIELD_RESPONSE = "r";
-    private static final String FIELD_STATUS_REPORT_UNIT = "unit";
-    private static final String FIELD_STATUS_REPORT_POSX = "posx";
+    private static final String FIELD_STATUS_RESULT_UNIT = "unit";
+    private static final String FIELD_STATUS_RESULT_POSX = "posx";
     private static final String FIELD_STATUS_REPORT_POSY = "posy";
     private static final String FIELD_STATUS_REPORT_POSZ = "posz";
     private static final String FIELD_STATUS_REPORT_VELOCITY = "vel";
@@ -130,16 +129,48 @@ public class TinyGUtils {
      * @return a new updated controller status
      */
     public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final GcodeState lastGcodeState, final JsonObject response) {
-        if (response.has(FIELD_STATUS_REPORT)) {
-            JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
+        if (response.has(FIELD_STATUS_RESULT)) {
+            JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_RESULT);
 
             UnitUtils.Units currentUnits = lastGcodeState.units == Code.G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
 
-            Position workCoord = parseWorkCoordinatesFromStatusReport(lastControllerStatus, statusResultObject, currentUnits);
-            Position machineCoord = parseMachineCoordinatesFromStatusReport(lastControllerStatus, statusResultObject);
-            Double feedSpeed = parseFeedSpeedFromStatusReport(lastControllerStatus, statusResultObject);
-            ControllerState state = parseStateFromStatusReport(lastControllerStatus, statusResultObject);
-            String stateString = parseStateStringFromStatusReport(lastControllerStatus, statusResultObject);
+            Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
+            if (statusResultObject.has(FIELD_STATUS_RESULT_POSX)) {
+                workCoord.setX(statusResultObject.get(FIELD_STATUS_RESULT_POSX).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_POSY)) {
+                workCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_POSY).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_POSZ)) {
+                workCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
+            }
+
+            Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOX)) {
+                machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOY)) {
+                machineCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_MPOY).getAsDouble());
+            }
+
+            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOZ)) {
+                machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_MPOZ).getAsDouble());
+            }
+
+            Double feedSpeed = lastControllerStatus.getFeedSpeed();
+            if (statusResultObject.has(FIELD_STATUS_REPORT_VELOCITY)) {
+                feedSpeed = statusResultObject.get(FIELD_STATUS_REPORT_VELOCITY).getAsDouble();
+            }
+
+            ControllerState state = lastControllerStatus.getState();
+            String stateString = lastControllerStatus.getStateString();
+            if (statusResultObject.has(FIELD_STATUS_REPORT_STATUS)) {
+                state = getState(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
+                stateString = getStateAsString(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
+            }
 
             Double spindleSpeed = lastControllerStatus.getSpindleSpeed();
             ControllerStatus.OverridePercents overrides = lastControllerStatus.getOverrides();
@@ -151,62 +182,6 @@ public class TinyGUtils {
         }
 
         return lastControllerStatus;
-    }
-
-    private static String parseStateStringFromStatusReport(ControllerStatus lastControllerStatus, JsonObject statusResultObject) {
-        String stateString = lastControllerStatus.getStateString();
-        if (statusResultObject.has(FIELD_STATUS_REPORT_STATUS)) {
-            stateString = getStateAsString(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
-        }
-        return stateString;
-    }
-
-    private static ControllerState parseStateFromStatusReport(ControllerStatus lastControllerStatus, JsonObject statusResultObject) {
-        ControllerState state = lastControllerStatus.getState();
-        if (statusResultObject.has(FIELD_STATUS_REPORT_STATUS)) {
-            state = getState(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
-        }
-        return state;
-    }
-
-    private static Double parseFeedSpeedFromStatusReport(ControllerStatus lastControllerStatus, JsonObject statusResultObject) {
-        Double feedSpeed = lastControllerStatus.getFeedSpeed();
-        if (statusResultObject.has(FIELD_STATUS_REPORT_VELOCITY)) {
-            feedSpeed = statusResultObject.get(FIELD_STATUS_REPORT_VELOCITY).getAsDouble();
-        }
-        return feedSpeed;
-    }
-
-    private static Position parseMachineCoordinatesFromStatusReport(ControllerStatus lastControllerStatus, JsonObject statusResultObject) {
-        Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
-        if (statusResultObject.has(FIELD_STATUS_REPORT_MPOX)) {
-            machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
-        }
-
-        if (statusResultObject.has(FIELD_STATUS_REPORT_MPOY)) {
-            machineCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_MPOY).getAsDouble());
-        }
-
-        if (statusResultObject.has(FIELD_STATUS_REPORT_MPOZ)) {
-            machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_MPOZ).getAsDouble());
-        }
-        return machineCoord;
-    }
-
-    private static Position parseWorkCoordinatesFromStatusReport(ControllerStatus lastControllerStatus, JsonObject statusResultObject, UnitUtils.Units currentUnits) {
-        Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
-        if (statusResultObject.has(FIELD_STATUS_REPORT_POSX)) {
-            workCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_POSX).getAsDouble());
-        }
-
-        if (statusResultObject.has(FIELD_STATUS_REPORT_POSY)) {
-            workCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_POSY).getAsDouble());
-        }
-
-        if (statusResultObject.has(FIELD_STATUS_REPORT_POSZ)) {
-            workCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
-        }
-        return workCoord;
     }
 
     /**
@@ -296,108 +271,66 @@ public class TinyGUtils {
      */
     public static List<String> convertStatusReportToGcode(JsonObject response) {
         List<String> gcodeList = new ArrayList<>();
-        if (response.has(TinyGUtils.FIELD_STATUS_REPORT)) {
-            JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_REPORT);
+        if (response.has(TinyGUtils.FIELD_STATUS_RESULT)) {
+            JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_RESULT);
 
-            parseCoordinateOffsetFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
+                int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
+                gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getGcode().name());
+            }
 
-            parseUnitFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
+                int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_RESULT_UNIT).getAsInt();
+                // 0=inch, 1=mm
+                if (units == 0) {
+                    gcodeList.add(Code.G20.name());
+                } else {
+                    gcodeList.add(Code.G21.name());
+                }
+            }
 
-            parsePlaneFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_PLANE)) {
+                int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
+                // 0=XY plane, 1=XZ plane, 2=YZ plane
+                if (plane == 0) {
+                    gcodeList.add(Code.G17.name());
+                } else if (plane == 1) {
+                    gcodeList.add(Code.G18.name());
+                } else if (plane == 2) {
+                    gcodeList.add(Code.G19.name());
+                }
+            }
 
-            parseFeedModeFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE)) {
+                int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
+                // 0=units-per-minute-mode, 1=inverse-time-mode
+                if (feedMode == 0) {
+                    gcodeList.add(Code.G93.name());
+                } else if (feedMode == 1) {
+                    gcodeList.add(Code.G94.name());
+                }
+            }
 
-            parseDistanceModeFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE)) {
+                int distance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE).getAsInt();
+                // 0=absolute distance mode, 1=incremental distance mode
+                if (distance == 0) {
+                    gcodeList.add(Code.G90.name());
+                } else if (distance == 1) {
+                    gcodeList.add(Code.G91.name());
+                }
+            }
 
-            parseArcDistanceModeFromStatusReport(statusResultObject)
-                    .ifPresent(code -> gcodeList.add(code.name()));
+            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE)) {
+                int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
+                // 0=absolute distance mode, 1=incremental distance mode
+                if (arcDistance == 0) {
+                    gcodeList.add(Code.G90_1.name());
+                } else if (arcDistance == 1) {
+                    gcodeList.add(Code.G91_1.name());
+                }
+            }
         }
         return gcodeList;
-    }
-
-    private static Optional<Code> parseCoordinateOffsetFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
-            int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
-            result = Optional.of(WorkCoordinateSystem.fromPValue(offsetCode).getGcode());
-        }
-        return result;
-    }
-
-    private static Optional<Code> parseArcDistanceModeFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE)) {
-            int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
-            // 0=absolute distance mode, 1=incremental distance mode
-            if (arcDistance == 0) {
-                result = Optional.of(Code.G90_1);
-            } else if (arcDistance == 1) {
-                result = Optional.of(Code.G91_1);
-            }
-        }
-        return result;
-    }
-
-    private static Optional<Code> parseDistanceModeFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE)) {
-            int distance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE).getAsInt();
-            // 0=absolute distance mode, 1=incremental distance mode
-            if (distance == 0) {
-                result = Optional.of(Code.G90);
-            } else if (distance == 1) {
-                result = Optional.of(Code.G91);
-            }
-        }
-        return result;
-    }
-
-    private static Optional<Code> parseFeedModeFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE)) {
-            int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
-            // 0=units-per-minute-mode, 1=inverse-time-mode
-            if (feedMode == 0) {
-                result = Optional.of(Code.G93);
-            } else if (feedMode == 1) {
-                result = Optional.of(Code.G94);
-            }
-        }
-        return result;
-    }
-
-    private static Optional<Code> parsePlaneFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_PLANE)) {
-            int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
-            // 0=XY plane, 1=XZ plane, 2=YZ plane
-            if (plane == 0) {
-                result = Optional.of(Code.G17);
-            } else if (plane == 1) {
-                result = Optional.of(Code.G18);
-            } else if (plane == 2) {
-                result = Optional.of(Code.G19);
-            }
-        }
-        return result;
-    }
-
-    private static Optional<Code> parseUnitFromStatusReport(JsonObject statusResultObject) {
-        Optional<Code> result = Optional.empty();
-        if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_UNIT)) {
-            int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_UNIT).getAsInt();
-            // 0=inch, 1=mm
-            if (units == 0) {
-                result = Optional.of(Code.G20);
-            } else {
-                result = Optional.of(Code.G21);
-            }
-        }
-        return result;
     }
 }
