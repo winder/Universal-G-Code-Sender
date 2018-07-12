@@ -29,7 +29,10 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -86,144 +89,112 @@ public class TinyGUtilsTest {
     }
 
     @Test
-    public void updateGcodeStateShouldUpdateOffset() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandleOffset() {
         // When
         JsonObject response = TinyGUtils.jsonToObject("{sr:{coor:2}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G55, gcodeState.offset);
+        assertTrue(result.contains(Code.G55.name()));
     }
 
     @Test
-    public void updateGcodeStateShouldUpdateUnit() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandleUnit() {
         // When switch to inch
         JsonObject response = TinyGUtils.jsonToObject("{sr:{unit:1}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G21, gcodeState.units);
-        verify(controller).setUnitsCode("G21");
+        assertTrue(result.contains(Code.G21.name()));
 
 
         // When switch to mm
         response = TinyGUtils.jsonToObject("{sr:{unit:0}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G20, gcodeState.units);
-        verify(controller).setUnitsCode("G20");
+        assertTrue(result.contains(Code.G20.name()));
     }
 
 
     @Test
-    public void updateGcodeStateShouldUpdatePlane() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandlePlane() {
         // When switch XY
         JsonObject response = TinyGUtils.jsonToObject("{sr:{plan:0}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Plane.XY, gcodeState.plane);
+        assertTrue(result.contains(Code.G17.name()));
 
 
         // When switch to ZX
         response = TinyGUtils.jsonToObject("{sr:{plan:1}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Plane.ZX, gcodeState.plane);
+        assertTrue(result.contains(Code.G18.name()));
 
 
         // When switch to YZ
         response = TinyGUtils.jsonToObject("{sr:{plan:2}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Plane.YZ, gcodeState.plane);
+        assertTrue(result.contains(Code.G19.name()));
     }
 
     @Test
-    public void updateGcodeStateShouldUpdateFeedMode() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandleFeedMode() {
         // When switch to units per minute mode
         JsonObject response = TinyGUtils.jsonToObject("{sr:{frmo:0}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G93, gcodeState.feedMode);
+        assertTrue(result.contains(Code.G93.name()));
 
 
         // When switch to inverse time mode
         response = TinyGUtils.jsonToObject("{sr:{frmo:1}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G94, gcodeState.feedMode);
+        assertTrue(result.contains(Code.G94.name()));
     }
 
 
     @Test
-    public void updateGcodeStateShouldUpdateDistanceMode() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandleDistanceMode() {
         // When switch to units per minute mode
         JsonObject response = TinyGUtils.jsonToObject("{sr:{dist:0}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G90, gcodeState.distanceMode);
+        assertTrue(result.contains(Code.G90.name()));
 
 
         // When switch to inverse time mode
         response = TinyGUtils.jsonToObject("{sr:{dist:1}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G91, gcodeState.distanceMode);
+        assertTrue(result.contains(Code.G91.name()));
     }
 
     @Test
-    public void updateGcodeStateShouldUpdateArcDistanceMode() {
-        // Given
-        GcodeState gcodeState = new GcodeState();
-        TinyGController controller = mock(TinyGController.class);
-        when(controller.getCurrentGcodeState()).thenReturn(gcodeState);
-
+    public void convertStatusReportShouldHandleArcDistanceMode() {
         // When switch to units per minute mode
         JsonObject response = TinyGUtils.jsonToObject("{sr:{admo:0}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G90_1, gcodeState.arcDistanceMode);
+        assertTrue(result.contains(Code.G90_1.name()));
 
 
         // When switch to inverse time mode
         response = TinyGUtils.jsonToObject("{sr:{admo:1}}");
-        TinyGUtils.updateGcodeState(controller, response);
+        result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertEquals(Code.G91_1, gcodeState.arcDistanceMode);
+        assertTrue(result.contains(Code.G91_1.name()));
     }
 }

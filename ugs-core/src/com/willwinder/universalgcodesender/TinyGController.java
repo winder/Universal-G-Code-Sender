@@ -36,6 +36,7 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -211,7 +212,9 @@ public class TinyGController extends AbstractController {
         ControllerState previousState = controllerStatus.getState();
         UGSEvent.ControlState previousControlState = getControlState(previousState);
 
-        TinyGUtils.updateGcodeState(this, jo);
+        // Update the internal state
+        List<String> gcodeList = TinyGUtils.convertStatusReportToGcode(jo);
+        gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
 
         // Notify our listeners about the new status
         controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, getCurrentGcodeState(), jo);
@@ -255,6 +258,14 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    public void updateParserModalState(GcodeCommand command) {
+        // Prevent internal TinyG commands to update the parser modal state
+        if(!command.getCommandString().startsWith("{")) {
+            super.updateParserModalState(command);
+        }
+    }
+
+    @Override
     public void performHomingCycle() throws Exception {
         sendCommandImmediately(new GcodeCommand("G28.2 X0 Y0 Z0"));
     }
@@ -289,11 +300,6 @@ public class TinyGController extends AbstractController {
         if (this.isCommOpen()) {
             sendCommandImmediately(new GcodeCommand(TinyGUtils.COMMAND_STATUS_REPORT));
         }
-    }
-
-    @Override
-    public void updateParserModalState(GcodeCommand command) {
-        // This is handled by the rawResponseHandler
     }
 
     @Override

@@ -22,13 +22,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.willwinder.universalgcodesender.gcode.util.Code.G20;
 
@@ -50,11 +52,9 @@ public class TinyGUtils {
 
     public static final String COMMAND_STATUS_REPORT = "{sr:n}";
     public static final String COMMAND_KILL_ALARM_LOCK = "{clear:n}";
-
+    public static final String FIELD_STATUS_RESULT = "sr";
     private static final String FIELD_FIRMWARE_VERSION = "fv";
     private static final String FIELD_RESPONSE = "r";
-
-    public static final String FIELD_STATUS_RESULT = "sr";
     private static final String FIELD_STATUS_RESULT_UNIT = "unit";
     private static final String FIELD_STATUS_RESULT_POSX = "posx";
     private static final String FIELD_STATUS_REPORT_POSY = "posy";
@@ -305,28 +305,26 @@ public class TinyGUtils {
     /**
      * Updates the Gcode state from the response if it contains a status line
      *
-     * @param controller the controller to update
-     * @param response   the response to parse the gcode state from
+     * @param response the response to parse the gcode state from
+     * @return a list of gcodes representing the state of the controllers
      */
-    public static void updateGcodeState(TinyGController controller, JsonObject response) {
+    public static List<String> convertStatusReportToGcode(JsonObject response) {
+        List<String> gcodeList = new ArrayList<>();
         if (response.has(TinyGUtils.FIELD_STATUS_RESULT)) {
-            GcodeState gcodeState = controller.getCurrentGcodeState();
             JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_RESULT);
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
                 int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
-                gcodeState.offset = TinyGUtils.convertOffsetCodeToGcode(offsetCode);
+                gcodeList.add(TinyGUtils.convertOffsetCodeToGcode(offsetCode).name());
             }
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
                 int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_RESULT_UNIT).getAsInt();
                 // 0=inch, 1=mm
                 if (units == 0) {
-                    gcodeState.units = Code.G20;
-                    controller.setUnitsCode(Code.G20.name());
+                    gcodeList.add(Code.G20.name());
                 } else {
-                    gcodeState.units = Code.G21;
-                    controller.setUnitsCode(Code.G21.name());
+                    gcodeList.add(Code.G21.name());
                 }
             }
 
@@ -334,11 +332,11 @@ public class TinyGUtils {
                 int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
                 // 0=XY plane, 1=XZ plane, 2=YZ plane
                 if (plane == 0) {
-                    gcodeState.plane = Plane.XY;
+                    gcodeList.add(Code.G17.name());
                 } else if (plane == 1) {
-                    gcodeState.plane = Plane.ZX;
+                    gcodeList.add(Code.G18.name());
                 } else if (plane == 2) {
-                    gcodeState.plane = Plane.YZ;
+                    gcodeList.add(Code.G19.name());
                 }
             }
 
@@ -346,9 +344,9 @@ public class TinyGUtils {
                 int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
                 // 0=units-per-minute-mode, 1=inverse-time-mode
                 if (feedMode == 0) {
-                    gcodeState.feedMode = Code.G93;
+                    gcodeList.add(Code.G93.name());
                 } else if (feedMode == 1) {
-                    gcodeState.feedMode = Code.G94;
+                    gcodeList.add(Code.G94.name());
                 }
             }
 
@@ -356,11 +354,9 @@ public class TinyGUtils {
                 int distance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE).getAsInt();
                 // 0=absolute distance mode, 1=incremental distance mode
                 if (distance == 0) {
-                    gcodeState.distanceMode = Code.G90;
-                    controller.setDistanceModeCode(Code.G90.name());
+                    gcodeList.add(Code.G90.name());
                 } else if (distance == 1) {
-                    gcodeState.distanceMode = Code.G91;
-                    controller.setDistanceModeCode(Code.G91.name());
+                    gcodeList.add(Code.G91.name());
                 }
             }
 
@@ -368,12 +364,12 @@ public class TinyGUtils {
                 int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
                 // 0=absolute distance mode, 1=incremental distance mode
                 if (arcDistance == 0) {
-                    gcodeState.arcDistanceMode = Code.G90_1;
+                    gcodeList.add(Code.G90_1.name());
                 } else if (arcDistance == 1) {
-                    gcodeState.arcDistanceMode = Code.G91_1;
+                    gcodeList.add(Code.G91_1.name());
                 }
             }
         }
-
+        return gcodeList;
     }
 }
