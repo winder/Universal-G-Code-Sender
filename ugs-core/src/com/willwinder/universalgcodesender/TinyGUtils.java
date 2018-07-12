@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -239,7 +240,7 @@ public class TinyGUtils {
      * @return a string with the command to reset the coordinate system to zero
      */
     public static String generateResetCoordinatesToZeroCommand(ControllerStatus controllerStatus, GcodeState gcodeState) {
-        int offsetCode = convertOffsetGcodeToCode(gcodeState.offset);
+        int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
         Position machineCoord = controllerStatus.getMachineCoord();
         return "G10 L2 P" + offsetCode +
                 " X" + Utils.formatter.format(machineCoord.get(Axis.X)) +
@@ -257,49 +258,11 @@ public class TinyGUtils {
      * @return a command for setting the position
      */
     public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, Axis axis, double position) {
-        int offsetCode = convertOffsetGcodeToCode(gcodeState.offset);
+        int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
         Position machineCoord = controllerStatus.getMachineCoord();
         double coordinate = -(position - machineCoord.get(axis));
         return "G10 L2 P" + offsetCode + " " +
                 axis.name() + Utils.formatter.format(coordinate);
-    }
-
-    private static int convertOffsetGcodeToCode(Code offsetGcode) {
-        switch (offsetGcode) {
-            case G54:
-                return 1;
-            case G55:
-                return 2;
-            case G56:
-                return 3;
-            case G57:
-                return 4;
-            case G58:
-                return 5;
-            case G59:
-                return 6;
-            default:
-                return 0;
-        }
-    }
-
-    private static Code convertOffsetCodeToGcode(int offsetCode) {
-        switch (offsetCode) {
-            case 1:
-                return Code.G54;
-            case 2:
-                return Code.G55;
-            case 3:
-                return Code.G56;
-            case 4:
-                return Code.G57;
-            case 5:
-                return Code.G58;
-            case 6:
-                return Code.G59;
-            default:
-                return Code.G53;
-        }
     }
 
     /**
@@ -315,7 +278,7 @@ public class TinyGUtils {
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
                 int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
-                gcodeList.add(TinyGUtils.convertOffsetCodeToGcode(offsetCode).name());
+                gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getCGode().name());
             }
 
             if (statusResultObject.has(TinyGUtils.FIELD_STATUS_RESULT_UNIT)) {
