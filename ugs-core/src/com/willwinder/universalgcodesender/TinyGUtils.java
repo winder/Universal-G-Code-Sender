@@ -284,9 +284,9 @@ public class TinyGUtils {
                 int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_UNIT).getAsInt();
                 // 0=inch, 1=mm
                 if (units == 0) {
-                    gcodeList.add(Code.G20.name());
+                    gcodeList.add(Code.G20.toString());
                 } else {
-                    gcodeList.add(Code.G21.name());
+                    gcodeList.add(Code.G21.toString());
                 }
             }
 
@@ -294,11 +294,11 @@ public class TinyGUtils {
                 int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
                 // 0=XY plane, 1=XZ plane, 2=YZ plane
                 if (plane == 0) {
-                    gcodeList.add(Code.G17.name());
+                    gcodeList.add(Code.G17.toString());
                 } else if (plane == 1) {
-                    gcodeList.add(Code.G18.name());
+                    gcodeList.add(Code.G18.toString());
                 } else if (plane == 2) {
-                    gcodeList.add(Code.G19.name());
+                    gcodeList.add(Code.G19.toString());
                 }
             }
 
@@ -306,9 +306,9 @@ public class TinyGUtils {
                 int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
                 // 0=units-per-minute-mode, 1=inverse-time-mode
                 if (feedMode == 0) {
-                    gcodeList.add(Code.G93.name());
+                    gcodeList.add(Code.G93.toString());
                 } else if (feedMode == 1) {
-                    gcodeList.add(Code.G94.name());
+                    gcodeList.add(Code.G94.toString());
                 }
             }
 
@@ -326,9 +326,9 @@ public class TinyGUtils {
                 int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
                 // 0=absolute distance mode, 1=incremental distance mode
                 if (arcDistance == 0) {
-                    gcodeList.add(Code.G90_1.name());
+                    gcodeList.add(Code.G90_1.toString());
                 } else if (arcDistance == 1) {
-                    gcodeList.add(Code.G91_1.name());
+                    gcodeList.add(Code.G91_1.toString());
                 }
             }
         }

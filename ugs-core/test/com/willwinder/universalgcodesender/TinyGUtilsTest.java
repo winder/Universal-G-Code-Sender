@@ -183,7 +183,7 @@ public class TinyGUtilsTest {
         List<String> result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertTrue(result.contains(Code.G90_1.name()));
+        assertTrue(result.contains(Code.G90_1.toString()));
 
 
         // When switch to inverse time mode
@@ -191,6 +191,6 @@ public class TinyGUtilsTest {
         result = TinyGUtils.convertStatusReportToGcode(response);
 
         // Then
-        assertTrue(result.contains(Code.G91_1.name()));
+        assertTrue(result.contains(Code.G91_1.toString()));
     }
 }
