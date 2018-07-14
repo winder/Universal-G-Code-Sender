@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,40 +136,40 @@ public class TinyGUtils {
             UnitUtils.Units currentUnits = lastGcodeState.units == Code.G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
 
             Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
-            if (statusResultObject.has(FIELD_STATUS_REPORT_POSX)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_POSX)) {
                 workCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_POSX).getAsDouble());
             }
 
-            if (statusResultObject.has(FIELD_STATUS_REPORT_POSY)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_POSY)) {
                 workCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_POSY).getAsDouble());
             }
 
-            if (statusResultObject.has(FIELD_STATUS_REPORT_POSZ)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_POSZ)) {
                 workCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_POSZ).getAsDouble());
             }
 
             // The machine coordinates are always in MM, make sure the position is using that unit before updating the values
             Position machineCoord = lastControllerStatus.getMachineCoord().getPositionIn(UnitUtils.Units.MM);
-            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOX)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MPOX)) {
                 machineCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_MPOX).getAsDouble());
             }
 
-            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOY)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MPOY)) {
                 machineCoord.setY(statusResultObject.get(FIELD_STATUS_REPORT_MPOY).getAsDouble());
             }
 
-            if (statusResultObject.has(FIELD_STATUS_REPORT_MPOZ)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MPOZ)) {
                 machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_MPOZ).getAsDouble());
             }
 
             Double feedSpeed = lastControllerStatus.getFeedSpeed();
-            if (statusResultObject.has(FIELD_STATUS_REPORT_VELOCITY)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_VELOCITY)) {
                 feedSpeed = statusResultObject.get(FIELD_STATUS_REPORT_VELOCITY).getAsDouble();
             }
 
             ControllerState state = lastControllerStatus.getState();
             String stateString = lastControllerStatus.getStateString();
-            if (statusResultObject.has(FIELD_STATUS_REPORT_STATUS)) {
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_STATUS)) {
                 state = getState(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
                 stateString = getStateAsString(statusResultObject.get(FIELD_STATUS_REPORT_STATUS).getAsInt());
             }
@@ -275,12 +276,12 @@ public class TinyGUtils {
         if (response.has(TinyGUtils.FIELD_STATUS_REPORT)) {
             JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_REPORT);
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
                 int offsetCode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_COORD).getAsInt();
                 gcodeList.add(WorkCoordinateSystem.fromPValue(offsetCode).getGcode().name());
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_UNIT)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_UNIT)) {
                 int units = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_UNIT).getAsInt();
                 // 0=inch, 1=mm
                 if (units == 0) {
@@ -290,7 +291,7 @@ public class TinyGUtils {
                 }
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_PLANE)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_PLANE)) {
                 int plane = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_PLANE).getAsInt();
                 // 0=XY plane, 1=XZ plane, 2=YZ plane
                 if (plane == 0) {
@@ -302,7 +303,7 @@ public class TinyGUtils {
                 }
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE)) {
                 int feedMode = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_FEED_MODE).getAsInt();
                 // 0=units-per-minute-mode, 1=inverse-time-mode
                 if (feedMode == 0) {
@@ -312,7 +313,7 @@ public class TinyGUtils {
                 }
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE)) {
                 int distance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_DISTANCE_MODE).getAsInt();
                 // 0=absolute distance mode, 1=incremental distance mode
                 if (distance == 0) {
@@ -322,7 +323,7 @@ public class TinyGUtils {
                 }
             }
 
-            if (statusResultObject.has(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE)) {
+            if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE)) {
                 int arcDistance = statusResultObject.get(TinyGUtils.FIELD_STATUS_REPORT_ARC_DISTANCE_MODE).getAsInt();
                 // 0=absolute distance mode, 1=incremental distance mode
                 if (arcDistance == 0) {
@@ -333,5 +334,10 @@ public class TinyGUtils {
             }
         }
         return gcodeList;
+    }
+
+    private static boolean hasNumericField(JsonObject statusResultObject, String fieldName) {
+        return statusResultObject.has(fieldName) &&
+                NumberUtils.isNumber(statusResultObject.get(fieldName).getAsString());
     }
 }
