@@ -36,6 +36,7 @@ import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -144,11 +145,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void restoreParserModalState() {
-        // no op
-    }
-
-    @Override
     protected void rawResponseHandler(String response) {
         JsonObject jo;
 
@@ -190,7 +186,7 @@ public class TinyGController extends AbstractController {
             dispatchConsoleMessage(MessageType.INFO, response + "\n");
             checkStreamFinished();
         } else if (TinyGGcodeCommand.isOkErrorResponse(response)) {
-            if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_RESULT)) {
+            if (jo.get("r").getAsJsonObject().has(TinyGUtils.FIELD_STATUS_REPORT)) {
                 updateControllerStatus(jo.get("r").getAsJsonObject());
                 checkStreamFinished();
             } else if (rowsRemaining() > 0) {
@@ -216,8 +212,12 @@ public class TinyGController extends AbstractController {
         ControllerState previousState = controllerStatus.getState();
         UGSEvent.ControlState previousControlState = getControlState(previousState);
 
+        // Update the internal state
+        List<String> gcodeList = TinyGUtils.convertStatusReportToGcode(jo);
+        gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
+
         // Notify our listeners about the new status
-        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
+        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, getCurrentGcodeState(), jo);
         dispatchStatusString(controllerStatus);
 
         // Notify state change to our listeners
@@ -245,6 +245,9 @@ public class TinyGController extends AbstractController {
         // 0=off, 1=filtered, 2=verbose
         comm.queueStringForComm("{sv:1}");
 
+        // Configure status reports
+        comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}");
+
         // Request initial status report
         comm.queueStringForComm("{sr:n}");
 
@@ -255,13 +258,22 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    public void updateParserModalState(GcodeCommand command) {
+        // Prevent internal TinyG commands to update the parser modal state
+        if(!command.getCommandString().startsWith("{")) {
+            super.updateParserModalState(command);
+        }
+    }
+
+    @Override
     public void performHomingCycle() throws Exception {
         sendCommandImmediately(new GcodeCommand("G28.2 Z0 X0 Y0"));
     }
 
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        String command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, getCurrentGcodeState());
+        sendCommandImmediately(new GcodeCommand(command));
     }
 
     @Override
@@ -291,15 +303,6 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void updateParserModalState(GcodeCommand command) {
-        if (command.getCommandString().startsWith("{\"gc")) {
-            String gcode = StringUtils.substringBetween(command.getCommandString(), "{\"gc\":\"", "\"");
-            GcodeCommand gcodeCommand = new GcodeCommand(gcode);
-            super.updateParserModalState(gcodeCommand);
-        }
-    }
-
-    @Override
     public void softReset() throws Exception {
         // TODO This doesn't work, it will disconnect from the host
         //this.comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
@@ -312,7 +315,8 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void setWorkPosition(Axis axis, double position) throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axis, position);
+        sendCommandImmediately(new GcodeCommand(command));
     }
 
     @Override
