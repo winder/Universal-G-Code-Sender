@@ -16,9 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.firmware;
+package com.willwinder.universalgcodesender.firmware.grbl;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.Axis;

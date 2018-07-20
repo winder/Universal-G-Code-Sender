@@ -31,7 +31,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.types.GcodeCommand;

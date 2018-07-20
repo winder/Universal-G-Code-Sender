@@ -19,8 +19,8 @@
 package com.willwinder.universalgcodesender;
 
 import com.google.gson.JsonObject;
-import com.willwinder.universalgcodesender.firmware.DefaultFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -55,7 +55,7 @@ public class TinyGController extends AbstractController {
     private static final Logger LOGGER = Logger.getLogger(TinyGController.class.getSimpleName());
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
 
-    private final DefaultFirmwareSettings firmwareSettings;
+    private final TinyGFirmwareSettings firmwareSettings;
     private final Capabilities capabilities;
 
     private ControllerStatus controllerStatus;
@@ -70,8 +70,8 @@ public class TinyGController extends AbstractController {
         capabilities = new Capabilities();
         commandCreator = new TinyGGcodeCommandCreator();
 
-        // TODO add a firmware settings handler for tinyg
-        firmwareSettings = new DefaultFirmwareSettings();
+        firmwareSettings = new TinyGFirmwareSettings(this);
+        abstractCommunicator.setListenAll(firmwareSettings);
 
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";
@@ -166,7 +166,7 @@ public class TinyGController extends AbstractController {
             capabilities.addCapability(CapabilitiesConstants.JOGGING);
             capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
             capabilities.addCapability(CapabilitiesConstants.HOMING);
-            capabilities.removeCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+            capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
             capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
 
             setCurrentState(COMM_IDLE);
@@ -244,6 +244,9 @@ public class TinyGController extends AbstractController {
         // Status report verbosity
         // 0=off, 1=filtered, 2=verbose
         comm.queueStringForComm("{sv:1}");
+
+        // Request firmware settings
+        comm.queueStringForComm("$$");
 
         // Configure status reports
         comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}");
