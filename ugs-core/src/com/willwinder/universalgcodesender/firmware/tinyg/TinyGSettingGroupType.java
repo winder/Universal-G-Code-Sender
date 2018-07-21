@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.firmware.tinyg;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
+
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -57,6 +59,10 @@ public enum TinyGSettingGroupType {
 
     public String getGroupName() {
         return groupName;
+    }
+
+    public String getDescription() {
+        return Localization.getString("firmware.tinyg.group.description." + getGroupName());
     }
 
     public TinyGSettingType[] getSettingTypes() {

@@ -120,8 +120,17 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
     private void extractSettingFromResponse(TinyGSettingGroupType group, JsonObject groupSettingsJson) {
         for (TinyGSettingType setting : group.getSettingTypes()) {
             if (groupSettingsJson.has(setting.getSettingName())) {
+                String key = group.getGroupName() + setting.getSettingName();
                 String value = groupSettingsJson.get(setting.getSettingName()).getAsString();
-                updatedSetting = new FirmwareSetting(group.getGroupName() + setting.getSettingName(), value, setting.getType(), setting.getDescription(), setting.getShortDescription());
+                String description = group.getDescription() + " - " + setting.getDescription();
+                String shortDescription = group.getDescription() + " - " + setting.getShortDescription();
+
+                updatedSetting = new FirmwareSetting(key,
+                        value,
+                        setting.getType(),
+                        description,
+                        shortDescription);
+
                 newSetting = null;
                 listeners.forEach(listener -> listener.onUpdatedFirmwareSetting(updatedSetting));
             }

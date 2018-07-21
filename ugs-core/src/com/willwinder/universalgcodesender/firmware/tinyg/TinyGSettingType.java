@@ -121,7 +121,7 @@ public enum TinyGSettingType {
      * @return the short description
      */
     public String getShortDescription() {
-        return Localization.getString("firmware.tinyg.short.description." + settingName);
+        return Localization.getString("firmware.tinyg.setting.short.description." + settingName);
     }
 
     /**
@@ -130,6 +130,6 @@ public enum TinyGSettingType {
      * @return the description
      */
     public String getDescription() {
-        return Localization.getString("firmware.tinyg.description." + settingName);
+        return Localization.getString("firmware.tinyg.setting.description." + settingName);
     }
 }
