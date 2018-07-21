@@ -23,8 +23,8 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.GrblController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.LoopBackCommunicator;
 import com.willwinder.universalgcodesender.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
@@ -107,7 +107,7 @@ public class ControllerSettings {
      *     "args": null
      * }
      */
-    public AbstractController getController() {
+    public IController getController() {
         //String controllerName = controllerConfig.get("name").getAsString();
         String controllerName = this.Controller.name;
         CONTROLLER controller = CONTROLLER.fromString(controllerName);

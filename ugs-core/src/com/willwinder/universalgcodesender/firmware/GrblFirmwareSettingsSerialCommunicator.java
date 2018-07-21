@@ -104,7 +104,7 @@ public class GrblFirmwareSettingsSerialCommunicator implements SerialCommunicato
     /**
      * Adds a listener for new settings.
      *
-     * @param listener a listner to add
+     * @param listener a listener to add
      */
     public void addListener(IFirmwareSettingsListener listener) {
         listeners.add(listener);
@@ -113,7 +113,7 @@ public class GrblFirmwareSettingsSerialCommunicator implements SerialCommunicato
     /**
      * Removes a listener.
      *
-     * @param listener a listner to remove
+     * @param listener a listener to remove
      */
     public void removeListener(IFirmwareSettingsListener listener) {
         listeners.remove(listener);
@@ -263,21 +263,6 @@ public class GrblFirmwareSettingsSerialCommunicator implements SerialCommunicato
 
     @Override
     public void communicatorPausedOnError() {
-
-    }
-
-    @Override
-    public void messageForConsole(String msg) {
-
-    }
-
-    @Override
-    public void verboseMessageForConsole(String msg) {
-
-    }
-
-    @Override
-    public void errorMessageForConsole(String msg) {
 
     }
 }

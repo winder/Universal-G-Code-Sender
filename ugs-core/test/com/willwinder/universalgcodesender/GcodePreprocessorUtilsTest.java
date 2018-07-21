@@ -251,4 +251,22 @@ public class GcodePreprocessorUtilsTest {
         assertEquals(1, args.size());
         assertEquals("$SLP", args.get(0));
     }
+
+    @Test
+    public void testSplitCommand() {
+        List<String> splitted = GcodePreprocessorUtils.splitCommand("G53F100S1300");
+        assertEquals(3, splitted.size());
+        assertEquals("G53", splitted.get(0));
+        assertEquals("F100", splitted.get(1));
+        assertEquals("S1300", splitted.get(2));
+
+        splitted = GcodePreprocessorUtils.splitCommand("G53G90.1S1300");
+        assertEquals(3, splitted.size());
+        assertEquals("G90.1", splitted.get(1));
+
+        splitted = GcodePreprocessorUtils.splitCommand("G53G90_1S1300");
+        assertEquals(4, splitted.size());
+        assertEquals("G90", splitted.get(1));
+        assertEquals("1", splitted.get(2));
+    }
 }

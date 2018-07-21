@@ -25,13 +25,14 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +65,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     // These abstract objects are initialized in concrete class.
     protected final AbstractCommunicator comm;
+    protected MessageService messageService;
     protected GcodeCommandCreator commandCreator;
 
     // Outside influence
@@ -380,8 +382,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (isCommOpen()) {
             this.openCommAfterEvent();
 
-            this.messageForConsole(
-                   "**** Connected to " + port + " @ " + portRate + " baud ****\n");
+            this.dispatchConsoleMessage(MessageType.INFO,
+                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
                 
         return isCommOpen();
@@ -396,7 +398,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         
         this.closeCommBeforeEvent();
         
-        this.messageForConsole("**** Connection closed ****\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"**** Connection closed ****\n");
         
         // I was noticing odd behavior, such as continuing to send 'ok's after
         // closing and reopening the comm port.
@@ -615,19 +617,19 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public void pauseStreaming() throws Exception {
-        this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"\n**** Pausing file transfer. ****\n\n");
         pauseStreamingEvent();
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
 
-        if (streamStopWatch.isStarted()) {
+        if (streamStopWatch.isStarted() && !streamStopWatch.isSuspended()) {
             this.streamStopWatch.suspend();
         }
     }
     
     @Override
     public void resumeStreaming() throws Exception {
-        this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Resuming file transfer. ****\n\n");
         resumeStreamingEvent();
         this.comm.resumeSend();
         this.setCurrentState(COMM_SENDING);
@@ -658,7 +660,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void cancelSend() throws Exception {
-        this.messageForConsole("\n**** Canceling file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Canceling file transfer. ****\n\n");
 
         cancelSendBeforeEvent();
         
@@ -720,7 +722,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 com.willwinder.universalgcodesender.Utils.
                         formattedMillis(this.getSendDuration());
 
-        this.messageForConsole("\n**** Finished sending file in "+duration+" ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"\n**** Finished sending file in "+duration+" ****\n\n");
         this.streamStopWatch.stop();
         this.isStreaming = false;
         dispatchStreamComplete(filename, success);        
@@ -739,6 +741,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             dispatchCommandCommment(command.getComment());
         }
         dispatchCommandSent(command);
+        dispatchConsoleMessage(MessageType.INFO, ">>> " + StringUtils.trimToEmpty(command.getCommandString()) + "\n");
     }
 
     @Override
@@ -810,7 +813,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             }
         }
         message.append("\n");
-        this.messageForConsole(message.toString());
+        this.dispatchConsoleMessage(MessageType.INFO, message.toString());
         command.setResponse("<skipped by application>");
         command.setSkipped(true);
         dispatchCommandSkipped(command);
@@ -846,28 +849,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         dispatchCommandComplete(command);
         checkStreamFinished();
     }
-    
-    @Override
-    public void messageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.INFO, msg);
-    }
-    
-    @Override
-    public void verboseMessageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.VERBOSE, msg);
-    }
-    
-    @Override
-    public void errorMessageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.ERROR, msg);
-    }
 
     @Override
     public void rawResponseListener(String response) {
         rawResponseHandler(response);
     }
 
-    private void setCurrentState(ControlState state) {
+    protected void setCurrentState(ControlState state) {
         this.currentState = state;
         if (!this.handlesAllStateChangeEvents()) {
             this.dispatchStateChange(state);
@@ -897,10 +885,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     protected void dispatchConsoleMessage(MessageType type, String message) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.messageForConsole(type, message);
-            }
+        if (messageService != null) {
+            messageService.dispatchMessage(type, message);
+        } else {
+            logger.warning("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
         }
     }
     
@@ -1044,6 +1032,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     public class UnexpectedCommand extends Exception {

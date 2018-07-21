@@ -34,10 +34,11 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.WindowSettings;
+
+import javax.swing.JFrame;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import javax.swing.JFrame;
 
 /**
  *
@@ -161,11 +162,6 @@ implements ControllerListener, WindowListener {
 
     @Override
     public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
-        //throw new UnsupportedOperationException("Not supported yet.");
     }
     
     @Override

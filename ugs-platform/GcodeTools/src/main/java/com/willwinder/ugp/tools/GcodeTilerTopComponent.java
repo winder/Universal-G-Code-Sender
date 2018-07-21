@@ -280,19 +280,21 @@ public final class GcodeTilerTopComponent extends TopComponent {
 
   @Override
   public void componentOpened() {
+    // Unused for this top component.
   }
 
   @Override
   public void componentClosed() {
+    // Unused for this top component.
   }
 
-  void writeProperties(java.util.Properties p) {
+  public void writeProperties(java.util.Properties p) {
     // better to version settings since initial version as advocated at
     // http://wiki.apidesign.org/wiki/PropertyFiles
     p.setProperty("version", "1.0");
   }
 
-  void readProperties(java.util.Properties p) {
-    String version = p.getProperty("version");
+  public void readProperties(java.util.Properties p) {
+    //String version = p.getProperty("version");
   }
 }

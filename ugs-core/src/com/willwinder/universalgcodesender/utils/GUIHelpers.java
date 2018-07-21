@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,11 +19,13 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-
-import javax.swing.JOptionPane;
-import java.util.logging.Logger;
 
 /**
  *
@@ -85,4 +87,18 @@ public class GUIHelpers {
             //        Localization.getString("help"), JOptionPane.INFORMATION_MESSAGE);
         });
     }
+
+    public static void openGcodeFile(File f, BackendAPI backend) {
+        ThreadHelper.invokeLater(() -> {
+            try {
+              backend.setGcodeFile(f);
+              Settings settings = backend.getSettings();
+              settings.setLastOpenedFilename(f.getAbsolutePath());
+              SettingsFactory.saveSettings(settings);
+            } catch (Exception e) {
+              LOGGER.log(Level.WARNING, "Couldn't set gcode-file" + e.getMessage(), e);
+            }
+        });
+    }
+
 }

@@ -37,7 +37,7 @@ public class StepSizeSpinnerModelTest {
     public void previousValueWhenMaxShouldDecrement() {
         StepSizeSpinnerModel model = new StepSizeSpinnerModel();
         model.setValue(StepSizeSpinnerModel.MAX_VALUE);
-        Assert.assertEquals(StepSizeSpinnerModel.MAX_VALUE - 100, model.getPreviousValue());
+        Assert.assertEquals(StepSizeSpinnerModel.MAX_VALUE - 10000, model.getPreviousValue());
     }
 
     @Test
@@ -75,8 +75,8 @@ public class StepSizeSpinnerModelTest {
         model.setValue(StepSizeSpinnerModel.MIN_VALUE * 100000);
         Assert.assertEquals(200.0, model.getNextValue());
 
-        model.setValue(StepSizeSpinnerModel.MIN_VALUE * 1000000);
+        model.setValue(StepSizeSpinnerModel.MIN_VALUE * 1000000000);
         Assert.assertEquals(null, model.getNextValue());
-        Assert.assertEquals(1000.0, model.getValue());
+        Assert.assertEquals(1000000.0, model.getValue());
     }
 }

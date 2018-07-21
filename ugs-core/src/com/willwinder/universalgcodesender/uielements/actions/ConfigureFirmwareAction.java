@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.uielements.actions;
 
-import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -58,7 +57,7 @@ public class ConfigureFirmwareAction extends AbstractAction {
         try {
             if (!this.backend.isConnected()) {
                 displayErrorDialog(Localization.getString("controller.log.notconnected"));
-            } else if (this.backend.getController().getClass().equals(GrblController.class)) {
+            } else if (this.backend.getController().getCapabilities().hasFirmwareSettings()) {
                 FirmwareSettingsDialog gfsd =
                         new FirmwareSettingsDialog(new JFrame(), true, this.backend);
                 gfsd.setVisible(true);

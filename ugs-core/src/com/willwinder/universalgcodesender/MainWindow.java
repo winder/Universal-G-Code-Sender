@@ -1,11 +1,5 @@
 /*
- * MainWindow.java
- *
- * Created on Jun 26, 2012, 3:04:38 PM
- */
-
-/*
-    Copywrite 2012-2018 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +20,9 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
@@ -59,7 +56,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -80,29 +76,26 @@ import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.lang3.SystemUtils;
 
 /**
+ * Main window for Universal Gcode Sender Classic
  *
  * @author wwinder
  */
-public class MainWindow extends JFrame implements ControllerListener, UGSEventListener {
+public class MainWindow extends JFrame implements ControllerListener, UGSEventListener, MessageListener {
     private static final Logger logger = Logger.getLogger(MainWindow.class.getName());
 
     private PendantUI pendantUI;
-    public Settings settings;
+    private Settings settings;
     
-    BackendAPI backend;
+    private BackendAPI backend;
     
     // My Variables
     private javax.swing.JFileChooser fileChooser;
     private final int consoleSize = 1024 * 1024;
 
-    // TODO: Move command history box into a self contained object.
-    private final int commandNum = -1;
-    private List<String> manualCommandHistory;
-
     // Other windows
-    VisualizerWindow vw = null;
-    String gcodeFile = null;
-    String processedGcodeFile = null;
+    private VisualizerWindow vw = null;
+    private String gcodeFile = null;
+    private String processedGcodeFile = null;
     
     // Duration timer
     private Timer timer;
@@ -114,6 +107,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
         this.backend = backend;
+        this.backend.addMessageListener(this);
         this.settings = SettingsFactory.loadSettings();
 
         boolean fullyLocalized = Localization.initialize(settings.getLanguage());
@@ -149,7 +143,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
 
-        boolean unitsAreMM = settings.getDefaultUnits().equals(Units.MM.abbreviation);
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());
         baudrateSelectionComboBox.setSelectedItem(settings.getPortRate());
@@ -161,17 +154,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         setSize(settings.getMainWindowSettings().width, settings.getMainWindowSettings().height);
         setLocation(settings.getMainWindowSettings().xLocation, settings.getMainWindowSettings().yLocation);
-//        mw.setSize(java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width, java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().width);
 
         initFileChooser();
         
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (fileChooser.getSelectedFile() != null ) {
-                    settings.setLastOpenedFilename(fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
                 settings.setPort(commPortComboBox.getSelectedItem().toString());
                 settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
                 settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
@@ -246,7 +234,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         final MainWindow mw = new MainWindow(backend);
         
         /* Apply the settings to the MainWindow bofore showing it */
-        boolean unitsAreMM = mw.settings.getDefaultUnits().equals(Units.MM.abbreviation);
         mw.fileChooser = new JFileChooser(mw.settings.getLastOpenedFilename());
         mw.commPortComboBox.setSelectedItem(mw.settings.getPort());
         mw.baudrateSelectionComboBox.setSelectedItem(mw.settings.getPortRate());
@@ -292,10 +279,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                if (mw.fileChooser.getSelectedFile() != null ) {
-                    mw.settings.setLastOpenedFilename(mw.fileChooser.getSelectedFile().getAbsolutePath());
-                }
-                
                 mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
                 mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
                 mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
@@ -315,7 +298,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         for (String arg : args) {
             if (open) {
                 try {
-                    backend.setGcodeFile(new File(arg));
+                    GUIHelpers.openGcodeFile(new File(arg), backend);
                     open = false;
                 } catch (Exception ex) {
                     Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
@@ -1267,7 +1250,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File gcodeFile = fileChooser.getSelectedFile();
-                backend.setGcodeFile(gcodeFile);
+                GUIHelpers.openGcodeFile(gcodeFile, backend);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "Problem while browsing.", ex);
                 displayErrorDialog(ex.getMessage());
@@ -1392,8 +1375,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             try {
                 File newFile = fileChooser.getSelectedFile();
-                AbstractController control = FirmwareUtils.getControllerFor("GRBL").get();
-                backend.applySettingsToController(settings, control);
+                IController controller = FirmwareUtils.getControllerFor("GRBL").get();
+                backend.applySettingsToController(settings, controller);
                 
                 backend.preprocessAndExportToFile(newFile);
             } catch (FileNotFoundException ex) {
@@ -1415,7 +1398,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.pendantUI = new PendantUI(backend);
             Collection<PendantURLBean> results = this.pendantUI.start();
             for (PendantURLBean result : results) {
-                this.messageForConsole(MessageType.INFO, "Pendant URL: " + result.getUrlString());
+                this.backend.dispatchMessage(MessageType.INFO, "Pendant URL: " + result.getUrlString());
             }
             this.startPendantServerButton.setEnabled(false);
             this.stopPendantServerButton.setEnabled(true);
@@ -1608,9 +1591,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.setTitle(Localization.getString("title") + " (" 
                 + Localization.getString("version") + " " + Version.getVersionString() + ")");
 
-        // Command History
-        this.manualCommandHistory = new ArrayList<>();
-        
         // Add keyboard listener for manual controls.
         KeyboardFocusManager.getCurrentKeyboardFocusManager()
         .addKeyEventDispatcher(new KeyEventDispatcher() {
@@ -1685,16 +1665,14 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
     }
 
-    private void setStatusColorForState(String state) {
+    private void setStatusColorForState(ControllerState state) {
         if (settings.isDisplayStateColor()) {
             java.awt.Color color = null; // default to a transparent background.
-            if (state.equals(Localization.getString("mainWindow.status.alarm"))) {
+            if (state == ControllerState.ALARM) {
                 color = Color.RED;
-            } else if (state.equals(Localization.getString("mainWindow.status.hold"))) {
+            } else if (state == ControllerState.HOLD || state == ControllerState.DOOR || state == ControllerState.SLEEP) {
                 color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.queue"))) {
-                color = Color.YELLOW;
-            } else if (state.equals(Localization.getString("mainWindow.status.run"))) {
+            } else if (state == ControllerState.RUN || state == ControllerState.JOG || state == ControllerState.HOME) {
                 color = Color.GREEN;
             } else {
                 color = Color.WHITE;
@@ -1724,7 +1702,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             case COMM_DISCONNECTED:
                 this.updateConnectionControlsStateOpen(false);
                 this.updateWorkflowControls(false);
-                this.setStatusColorForState("");
+                this.setStatusColorForState(ControllerState.UNKNOWN);
                 break;
             case COMM_IDLE:
                 this.updateConnectionControlsStateOpen(true);
@@ -1984,25 +1962,17 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     public void probeCoordinates(Position p) {
     }
 
-    // TODO: Change verbose into an enum to toggle regular/verbose/error.
     @Override
-    public void messageForConsole(final MessageType type, final String msg) {
-        //final javax.swing.JTextArea consoleTextArea = this.consoleTextArea;
-        //final javax.swing.JCheckBox showVerboseOutputCheckBox = this.showVerboseOutputCheckBox;
-        //final javax.swing.JCheckBox scrollWindowCheckBox = this.scrollWindowCheckBox;
+    public void onMessage(MessageType messageType, String message) {
+        java.awt.EventQueue.invokeLater(() -> {
+            boolean verbose = messageType == MessageType.VERBOSE;
+            if (!verbose || showVerboseOutputCheckBox.isSelected()) {
+                String verboseS = "[" + Localization.getString("verbose") + "]";
+                consoleTextArea.append((verbose ? verboseS : "") + message);
 
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                boolean verbose = type == MessageType.VERBOSE;
-                if (!verbose || showVerboseOutputCheckBox.isSelected()) {
-                    String verboseS = "[" + Localization.getString("verbose") + "]";
-                    consoleTextArea.append((verbose ? verboseS : "") + msg);
-
-                    if (consoleTextArea.isVisible() &&
-                            scrollWindowCheckBox.isSelected()) {
-                        consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
-                    }
+                if (consoleTextArea.isVisible() &&
+                        scrollWindowCheckBox.isSelected()) {
+                    consoleTextArea.setCaretPosition(consoleTextArea.getDocument().getLength());
                 }
             }
         });
@@ -2014,8 +1984,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             return;
         }
 
-        this.activeStateValueLabel.setText( status.getStateString() );
-        this.setStatusColorForState( status.getStateString() );
+        this.activeStateValueLabel.setText( Utils.getControllerStateText(status.getState()) );
+        this.setStatusColorForState( status.getState() );
 
         if (status.getMachineCoord() != null) {
             this.machinePositionXValueLabel.setText( Utils.formatter.format(status.getMachineCoord().x) + status.getMachineCoord().getUnits().abbreviation );

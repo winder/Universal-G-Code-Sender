@@ -1,5 +1,5 @@
 /*
-    Copywrite 2018 Will Winder
+    Copyright 2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import static com.willwinder.universalgcodesender.utils.Settings.HISTORY_SIZE;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -78,4 +80,51 @@ public class SettingsTest {
         assertTrue(hasNotifiedListener);
     }
 
+    @Test
+    public void settingFileShouldUpdateRecents() {
+      String path = "/some/file";
+      String file = path + "/file.gcode";
+      target.setLastOpenedFilename(file);
+
+      Assertions.assertThat(target.getRecentFiles())
+              .hasSize(1)
+              .containsExactly(file);
+      Assertions.assertThat(target.getRecentDirectories())
+              .hasSize(1)
+              .containsExactly(path);
+    }
+
+    @Test
+    public void recentsShouldOverflowOldestAndReturnLIFO() {
+      String path = "/some/file";
+
+      // Add up recents to the brim.
+      for(int i = 0; i < HISTORY_SIZE; i++) {
+        target.setLastOpenedFilename(path + i + "/file.gcode");
+      }
+
+      // Overflow.
+      target.setLastOpenedFilename(path + HISTORY_SIZE + "/file.gcode");
+
+      Assertions.assertThat(target.getRecentFiles())
+              .hasSize(HISTORY_SIZE)
+              .doesNotContain(path + "0/file.gcode");
+      Assertions.assertThat(target.getRecentDirectories())
+              .hasSize(HISTORY_SIZE)
+              .doesNotContain(path + "0");
+
+      // Re-add "1" then overflow "2"
+      target.setLastOpenedFilename(path + "1/file.gcode");
+      target.setLastOpenedFilename(path + (HISTORY_SIZE + 1) + "/file.gcode");
+
+      // Verify that "2" was bumped and that "1" is the most recent.
+      Assertions.assertThat(target.getRecentFiles())
+              .hasSize(HISTORY_SIZE)
+              .doesNotContain(path + "2/file.gcode")
+              .startsWith(path + "21/file.gcode", path + "1/file.gcode");
+      Assertions.assertThat(target.getRecentDirectories())
+              .hasSize(HISTORY_SIZE)
+              .doesNotContain(path + "2")
+              .startsWith(path + "21", path + "1");
+    }
 }

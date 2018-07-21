@@ -20,6 +20,7 @@ package com.willwinder.ugs.nbp.core.actions;
 
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
@@ -92,9 +93,9 @@ public class PendantAction extends AbstractAction {
                     new ImageIcon(result.getQrCodeJpg(), "QR Code"),
                     JLabel.CENTER),
                     "al center");
-            backend.sendMessageForConsole("Pendant URL: " + result.getUrlString());
+            backend.dispatchMessage(MessageType.INFO, "Pendant URL: " + result.getUrlString());
 
-            this.backend.addControllerListener(pendantUI);
+            backend.addControllerListener(pendantUI);
 
             JOptionPane.showMessageDialog(null,panel,"Pendant Address",JOptionPane.PLAIN_MESSAGE);
 
