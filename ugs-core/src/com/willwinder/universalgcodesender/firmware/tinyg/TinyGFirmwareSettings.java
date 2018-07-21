@@ -92,7 +92,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHomingEnabled(boolean enabled) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -112,7 +112,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHardLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -122,7 +122,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setSoftLimitsEnabled(boolean enabled) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -132,7 +132,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -142,7 +142,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -152,7 +152,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -167,7 +167,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setSoftLimitX(double limit) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -177,7 +177,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setSoftLimitY(double limit) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -187,7 +187,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setSoftLimitZ(double limit) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -202,7 +202,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -212,7 +212,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -222,7 +222,7 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
@@ -232,12 +232,18 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
 
     @Override
     public void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException {
-
+        // TODO add setting
     }
 
     @Override
     public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
-
+        settings.forEach(setting -> {
+            try {
+                setValue(setting.getKey(), setting.getValue());
+            } catch (FirmwareSettingsException e) {
+                LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
+            }
+        });
     }
 
     /*
