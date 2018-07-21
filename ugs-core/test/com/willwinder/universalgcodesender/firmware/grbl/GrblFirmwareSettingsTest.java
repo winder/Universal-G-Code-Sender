@@ -1,6 +1,10 @@
-package com.willwinder.universalgcodesender.firmware;
+package com.willwinder.universalgcodesender.firmware.grbl;
 
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.junit.Before;
