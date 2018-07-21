@@ -1,24 +1,43 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+    Copywrite 2018 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.willwinder.universalgcodesender;
 
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
-import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils.SplitCommand;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.G1;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G3;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G38_2;
+import static com.willwinder.universalgcodesender.gcode.util.Code.G92_1;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -223,6 +242,14 @@ public class GcodePreprocessorUtilsTest {
         assertThat(GcodePreprocessorUtils.extractMotion(G3, "G53 G03 X0 F100 S1300"))
                 .hasFieldOrPropertyWithValue("extracted", "G03X0")
                 .hasFieldOrPropertyWithValue("remainder", "G53F100S1300");
+    }
+
+    @Test
+    public void processSleepCommand() {
+        String command = "$SLP";
+        List<String> args = GcodePreprocessorUtils.splitCommand(command);
+        assertEquals(1, args.size());
+        assertEquals("$SLP", args.get(0));
     }
 
     @Test

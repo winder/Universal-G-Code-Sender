@@ -26,6 +26,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
@@ -297,6 +298,11 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
+        // Special handling for GRBL system commands which will not be splitted
+        if(command.startsWith("$")) {
+            return Collections.singletonList(command);
+        }
+
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
