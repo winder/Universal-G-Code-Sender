@@ -43,7 +43,7 @@ public class Settings {
     private String portRate = "115200";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
-    private boolean useZStepSize = false;
+    private boolean useZStepSize = true;
     private double zJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
