@@ -28,18 +28,19 @@ import java.awt.BorderLayout;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 
 /**
- * Top component which displays something.
+ * Old jog controller
+ *
+ * @deprecated This jog controller is deprecated and should be replaced by the new jog module.
  */
 @TopComponent.Description(
         preferredID = "JogControlTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "middle_left", openAtStartup = true)
-@ActionID(category = LocalizingService.JogControlCategory, id = LocalizingService.JogControlActionId)
-@ActionReference(path = LocalizingService.JogControlWindowPath)
+@TopComponent.Registration(mode = "middle_left", openAtStartup = false)
 @TopComponent.OpenActionRegistration(
         displayName = "<Not localized:JogControlTopComponent>",
         preferredID = "JogControlTopComponent"
@@ -56,6 +57,13 @@ public final class JogControlTopComponent extends TopComponent {
     public void componentOpened() {
         setName(LocalizingService.JogControlTitle);
         setToolTipText(LocalizingService.JogControlTooltip);
+
+        // Try to load the new jog module
+        TopComponent jogTopComponent = WindowManager.getDefault().findTopComponent("JogTopComponent");
+        if(jogTopComponent != null && !jogTopComponent.isOpened()) {
+            jogTopComponent.open();
+            close();
+        }
     }
 
     @Override
