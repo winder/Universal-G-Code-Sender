@@ -38,12 +38,7 @@ import org.openide.windows.WindowManager;
 @TopComponent.Description(
         preferredID = "JogControlTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
-        persistenceType = TopComponent.PERSISTENCE_ALWAYS
-)
-@TopComponent.Registration(mode = "middle_left", openAtStartup = false)
-@TopComponent.OpenActionRegistration(
-        displayName = "<Not localized:JogControlTopComponent>",
-        preferredID = "JogControlTopComponent"
+        persistenceType = TopComponent.PERSISTENCE_NEVER
 )
 public final class JogControlTopComponent extends TopComponent {
     public JogControlTopComponent() {
