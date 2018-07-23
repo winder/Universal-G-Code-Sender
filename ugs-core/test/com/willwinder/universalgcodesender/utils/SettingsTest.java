@@ -63,7 +63,7 @@ public class SettingsTest {
         assertFalse(target.isSingleStepMode());
         assertEquals(Double.valueOf(200), Double.valueOf(target.getStatusUpdateRate()));
         assertTrue(target.isStatusUpdatesEnabled());
-        assertFalse(target.useZStepSize());
+        assertTrue(target.useZStepSize());
         assertFalse(target.isVerboseOutputEnabled());
         assertNotNull(target.getVisualizerWindowSettings());
         assertEquals(Double.valueOf(1), Double.valueOf(target.getzJogStepSize()));
