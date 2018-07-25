@@ -1,8 +1,5 @@
-/**
- * Send speed override commands to the backend.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -40,7 +37,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.UIManager;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -51,6 +47,7 @@ import java.util.logging.Logger;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 
 /**
+ * Send speed override commands to the backend.
  *
  * @author wwinder
  */
@@ -81,21 +78,21 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     private final ArrayList<RealTimeAction> spindleActions = new ArrayList<>();
     private final ArrayList<RealTimeAction> feedActions = new ArrayList<>();
 
-    public final static String FEED_SHORT = Localization.getString("overrides.feed.short");
-    public final static String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
-    public final static String RAPID_SHORT = Localization.getString("overrides.rapid.short");
-    public final static String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
-    public final static String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
-    public final static String RESET_FEED = Localization.getString("overrides.feed.reset");
-    public final static String MINUS_COARSE = "--";
-    public final static String MINUS_FINE = "-";
-    public final static String PLUS_COARSE = "++";
-    public final static String PLUS_FINE = "+";
-    public final static String RAPID_LOW = Localization.getString("overrides.rapid.low");
-    public final static String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
-    public final static String RAPID_FULL = Localization.getString("overrides.rapid.full");
-    public final static String MIST = Localization.getString("overrides.mist");
-    public final static String FLOOD = Localization.getString("overrides.flood");
+    private final static String FEED_SHORT = Localization.getString("overrides.feed.short");
+    private final static String SPINDLE_SHORT = Localization.getString("overrides.spindle.short");
+    private final static String RAPID_SHORT = Localization.getString("overrides.rapid.short");
+    private final static String TOGGLE_SHORT = Localization.getString("overrides.toggle.short");
+    private final static String RESET_SPINDLE = Localization.getString("overrides.spindle.reset");
+    private final static String RESET_FEED = Localization.getString("overrides.feed.reset");
+    private final static String MINUS_COARSE = "--";
+    private final static String MINUS_FINE = "-";
+    private final static String PLUS_COARSE = "++";
+    private final static String PLUS_FINE = "+";
+    private final static String RAPID_LOW = Localization.getString("overrides.rapid.low");
+    private final static String RAPID_MEDIUM = Localization.getString("overrides.rapid.medium");
+    private final static String RAPID_FULL = Localization.getString("overrides.rapid.full");
+    private final static String MIST = Localization.getString("overrides.mist");
+    private final static String FLOOD = Localization.getString("overrides.flood");
 
     public OverridesPanel(BackendAPI backend) {
         this.backend = backend;
@@ -109,15 +106,20 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     }
 
     public void updateControls() {
-        boolean enabled = backend.getControlState() != COMM_DISCONNECTED;
-        this.setEnabled(enabled);
+        boolean enabled = backend.isConnected() &&
+                backend.getController().getCapabilities().hasOverrides();
 
+        this.setEnabled(enabled);
         for (Component c : components) { 
             c.setEnabled(enabled);
         }
 
         if (enabled) {
             radioSelected();
+        } else {
+            toggleSpindle.setBackground(null);
+            toggleMistCoolant.setBackground(null);
+            toggleFloodCoolant.setBackground(null);
         }
     }
 
@@ -292,7 +294,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
             this.rapidSpeed.setText(status.getOverrides().rapid + "%");
         }
         if (status.getAccessoryStates() != null) {
-            Color defaultBackground = UIManager.getColor("Panel.background");
             AccessoryStates states = status.getAccessoryStates();
 
             toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
