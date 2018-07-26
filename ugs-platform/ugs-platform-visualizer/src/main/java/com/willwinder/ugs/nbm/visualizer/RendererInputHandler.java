@@ -2,7 +2,7 @@
  * Process all the listeners and call methods in the renderer.
  */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,6 +26,7 @@ import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -78,7 +79,8 @@ public class RendererInputHandler implements
         visualizerPopupMenu = popup;
         settings = s;
 
-        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
+        RotationService rs = new RotationService();
+        gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), rs);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
 
@@ -86,7 +88,6 @@ public class RendererInputHandler implements
         gr.registerRenderable(sizeDisplay);
         gr.registerRenderable(selection);
     }
-
     
     private void setFPS(int fps) {
         animator.stop();
@@ -136,8 +137,6 @@ public class RendererInputHandler implements
         }
     }
 
-
-    
     /**
      * Mouse Motion Listener
      */
@@ -178,7 +177,6 @@ public class RendererInputHandler implements
     public void mouseWheelMoved(MouseWheelEvent e) {
         gcodeRenderer.zoom(e.getWheelRotation());
     }
-
     
     /**
      * Window Listener

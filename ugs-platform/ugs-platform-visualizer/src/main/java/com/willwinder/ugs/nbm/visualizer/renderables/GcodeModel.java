@@ -46,6 +46,10 @@ import static com.jogamp.opengl.GL.GL_LINES;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
+import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
+import com.willwinder.universalgcodesender.model.Point3d;
+import com.willwinder.universalgcodesender.types.PointSegment;
+import java.util.ArrayList;
 
 /**
  *
@@ -54,13 +58,18 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.*;
 public class GcodeModel extends Renderable {
     private static final Logger logger = Logger.getLogger(GcodeModel.class.getName());
 
+    private final RotationService rs;
+
     private boolean forceOldStyle = false;
     private boolean colorArrayDirty, vertexArrayDirty;
 
     // Gcode file data
     private String gcodeFile = null;
     private boolean isDrawable = false; //True if a file is loaded; false if not
+
+    // TODO: don't save the line list.
     private List<LineSegment> gcodeLineList; //An ArrayList of linesegments composing the model
+    private List<LineSegment> pointList; //An ArrayList of linesegments composing the model
     private int currentCommandNumber = 0;
     private int lastCommandNumber = 0;
 
@@ -82,9 +91,10 @@ public class GcodeModel extends Renderable {
     private Color plungeColor;
     private Color completedColor;
 
-    public GcodeModel(String title) {
+    public GcodeModel(String title, RotationService rs) {
         super(10, title);
         objectSize = new Position();
+        this.rs = rs;
         reloadPreferences(new VisualizerOptions());
     }
 
@@ -127,7 +137,7 @@ public class GcodeModel extends Renderable {
     }
 
     public List<LineSegment> getLineList() {
-        return this.gcodeLineList;
+        return this.pointList;
     }
 
     @Override
@@ -190,8 +200,7 @@ public class GcodeModel extends Renderable {
 
             int verts = 0;
             int colors = 0;
-            for(LineSegment ls : gcodeLineList)
-            {
+            for (int i = 0; i < pointList.size(); i++) {
                 gl.glColor3ub(lineColorData[colors++],lineColorData[colors++],lineColorData[colors++]);
                 gl.glVertex3d(lineVertexData[verts++], lineVertexData[verts++], lineVertexData[verts++]);
                 gl.glColor3ub(lineColorData[colors++],lineColorData[colors++],lineColorData[colors++]);
@@ -211,6 +220,98 @@ public class GcodeModel extends Renderable {
 
     public Position getMax() {
         return this.objectMax;
+    }
+
+    private static double sinIfNotZero(double angle) {
+      return angle == 0 ? 0.0 : Math.sin(Math.toRadians(angle));
+    }
+
+    private static double cosIfNotZero(double angle) {
+      return angle == 0 ? 0.0 : Math.cos(Math.toRadians(angle));
+    }
+
+    private static LineSegment toCartesian(LineSegment p) {
+        Position start = new Position(p.getStart().x, p.getStart().y, p.getStart().z);
+        Position end = new Position(p.getEnd().x, p.getEnd().y, p.getEnd().z);
+
+        if (p.isRotation()) {
+          double sx = p.getStart().x;
+          double sy = p.getStart().y;
+          double sz = p.getStart().z;
+          double sa = p.getStart().a;
+          double sb = p.getStart().b;
+          double sc = p.getStart().c;
+          double sSinA = sinIfNotZero(sa);
+          double sCosA = cosIfNotZero(sa);
+          double sSinB = sinIfNotZero(sb);
+          double sCosB = cosIfNotZero(sb);
+          double sSinC = sinIfNotZero(sc);
+          double sCosC = cosIfNotZero(sc);
+
+          double ex = p.getEnd().x;
+          double ey = p.getEnd().y;
+          double ez = p.getEnd().z;
+          double ea = p.getEnd().a;
+          double eb = p.getEnd().b;
+          double ec = p.getEnd().c;
+          double eSinA = sinIfNotZero(ea);
+          double eCosA = cosIfNotZero(ea);
+          double eSinB = sinIfNotZero(eb);
+          double eCosB = cosIfNotZero(eb);
+          double eSinC = sinIfNotZero(ec);
+          double eCosC = cosIfNotZero(ec);
+
+          // X-Axis rotation
+          // x1 = x0
+          // y1 = y0cos(u) − z0sin(u)
+          // z1 = y0sin(u) + z0cos(u)	
+          if (sa != 0) {
+            start.y = sy * sCosA - sz * sSinA;
+            start.z = sy * sSinA + sz * sCosA;
+          }
+          if (ea != 0) {
+            end.y = ey * eCosA - ez * eSinA;
+            end.z = ey * eSinA + ez * eCosA;
+            
+          }
+
+          // Y-Axis rotation
+          // x2 = x1cos(v) + z1sin(v)
+          // y2 = y1
+          // z2 = − x1sin(v) + z1cos(v)	
+          if (sb != 0) {
+            start.x = sx * sCosB + sz * sSinB;
+            start.z = -1 * sx * sSinB + sz * sCosB;
+          }
+          if (eb != 0) {
+            end.x = ex * eCosB + ez * eSinB;
+            end.z = -1 * ex * eSinB + ez * eCosB;
+          }
+          
+          // Z-Axis rotation
+          // x3 = x2cos(w) − y2sin(w)
+          // y3 = x2sin(w) + y2cos(w)
+          // z3 = z2	
+          if (sc != 0) {
+            start.x = sx * sCosC - sy * sSinC;
+            start.y = sx * sSinC + sy * sCosC;
+          }
+          if (ec != 0) {
+            end.x = ex * eCosC - ey * eSinC;
+            end.y = ex * eSinC + ey * eCosC;
+          }
+        }
+
+        // TODO: Somehow figure out how to optimize the way Position, Point3d, PointSegment and LineSegment are used.
+        LineSegment next = new LineSegment(start, end, p.getLineNumber());
+        next.setIsArc(p.isArc());
+        next.setIsFastTraverse(p.isFastTraverse());
+        next.setIsRotation(p.isFastTraverse());
+        next.setIsZMovement(p.isZMovement());
+        next.setSpeed(p.getSpeed());
+        next.setToolHead(p.getToolhead());
+
+        return next;
     }
 
     /**
@@ -233,7 +334,13 @@ public class GcodeModel extends Renderable {
                 gcodeLineList = gcvp.toObjRedux(linesInFile, 0.3);
             }
 
-            // TODO: Convert LineSegments into list of Point3d objects which take rotation into account.
+            // Convert LineSegments to points.
+            this.pointList = new ArrayList<>(gcodeLineList.size());
+
+            for (LineSegment ls : gcodeLineList) {
+              this.pointList.add(GcodeModel.toCartesian(ls));
+            }
+            gcodeLineList = pointList;
 
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
