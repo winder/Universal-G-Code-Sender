@@ -351,8 +351,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         resetYButton = new javax.swing.JButton();
         resetXButton = new javax.swing.JButton();
         jogPanelPanel = new javax.swing.JPanel();
-        macroEditPanel = new javax.swing.JScrollPane();
         macroPanel = new com.willwinder.universalgcodesender.uielements.macros.MacroPanel(backend);
+        macroEditPanel = new javax.swing.JScrollPane(macroPanel);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -660,18 +660,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
 
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
-        macroPanel.setLayout(macroPanelLayout);
-        macroPanelLayout.setHorizontalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 595, Short.MAX_VALUE)
-        );
-        macroPanelLayout.setVerticalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 229, Short.MAX_VALUE)
-        );
-
-        macroEditPanel.setViewportView(macroPanel);
 
         controlContextTabbedPane.addTab("Macros", macroEditPanel);
 
