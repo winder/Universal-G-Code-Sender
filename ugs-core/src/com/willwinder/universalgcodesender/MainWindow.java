@@ -68,6 +68,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.BorderLayout;
@@ -103,6 +104,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // Services
     private JogService jogService;
     private JogPanel jogPanel;
+    private final MacroPanel macroPanel;
 
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
@@ -123,6 +125,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.jogService = new JogService(backend);
 
         this.jogPanel = new JogPanel(backend, jogService, true);
+
+        this.macroPanel = new MacroPanel(backend);
 
         if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
@@ -351,8 +355,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         resetYButton = new javax.swing.JButton();
         resetXButton = new javax.swing.JButton();
         jogPanelPanel = new javax.swing.JPanel();
-        macroEditPanel = new javax.swing.JScrollPane();
-        macroPanel = new com.willwinder.universalgcodesender.uielements.macros.MacroPanel(backend);
+        macroEditPanel = new javax.swing.JScrollPane(macroPanel);
         connectionPanel = new javax.swing.JPanel();
         commPortComboBox = new javax.swing.JComboBox();
         baudrateSelectionComboBox = new javax.swing.JComboBox();
@@ -659,20 +662,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         );
 
         controlContextTabbedPane.addTab("Machine Control", machineControlPanel);
-
-        org.jdesktop.layout.GroupLayout macroPanelLayout = new org.jdesktop.layout.GroupLayout(macroPanel);
-        macroPanel.setLayout(macroPanelLayout);
-        macroPanelLayout.setHorizontalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 595, Short.MAX_VALUE)
-        );
-        macroPanelLayout.setVerticalGroup(
-            macroPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 229, Short.MAX_VALUE)
-        );
-
-        macroEditPanel.setViewportView(macroPanel);
-
         controlContextTabbedPane.addTab("Macros", macroEditPanel);
 
         connectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Connection"));
@@ -2101,7 +2090,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JLabel machinePositionZLabel;
     private javax.swing.JLabel machinePositionZValueLabel;
     private javax.swing.JScrollPane macroEditPanel;
-    private javax.swing.JPanel macroPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private javax.swing.JButton opencloseButton;
     private javax.swing.JButton pauseButton;
