@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -155,10 +155,10 @@ public class ControllerStatus {
         final public int feed;
         final public int rapid;
         final public int spindle;
-        public OverridePercents(int f, int r, int s) {
-            feed = f;
-            rapid = r;
-            spindle = s;
+        public OverridePercents(int feed, int rapid, int spindle) {
+            this.feed = feed;
+            this.rapid = rapid;
+            this.spindle = spindle;
         }
     }
 }
