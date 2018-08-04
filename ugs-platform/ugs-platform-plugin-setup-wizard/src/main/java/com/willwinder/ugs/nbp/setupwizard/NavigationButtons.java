@@ -109,7 +109,7 @@ public class NavigationButtons {
     private void moveMachine(int x, int y, int z) {
         try {
             IController controller = backendAPI.getController();
-            if (controller.getState() == ControllerState.ALARM) {
+            if (controller.getControllerStatus().getState() == ControllerState.ALARM) {
                 WizardUtils.killAlarm(backendAPI);
             } else {
                 controller.jogMachine(x, y, z, stepSize, feedRate, UnitUtils.Units.MM);

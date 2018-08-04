@@ -365,22 +365,13 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public ControllerState getState() {
-        if (controllerStatus == null) {
-            return ControllerState.UNKNOWN;
-        }
-
-        return controllerStatus.getState();
-    }
-
-    @Override
     public ControllerStatus getControllerStatus() {
         return controllerStatus;
     }
 
     @Override
     public UGSEvent.ControlState getControlState() {
-        return getControlState(getState());
+        return getControlState(getControllerStatus().getState());
     }
 
     protected UGSEvent.ControlState getControlState(ControllerState controllerState) {

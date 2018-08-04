@@ -212,14 +212,7 @@ public interface IController {
     String getFirmwareVersion();
 
     /**
-     * Get the current state of the controller
-     *
-     * @return the current state
-     */
-    ControllerState getState();
-
-    /**
-     * Returns the controller status
+     * Returns the controller status. This method may never return null.
      *
      * @return the current controller status
      */
