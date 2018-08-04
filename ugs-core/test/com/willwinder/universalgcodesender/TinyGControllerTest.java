@@ -88,7 +88,7 @@ public class TinyGControllerTest {
         controller.rawResponseHandler("{\"r\":{\"sr\":{\"stat\":5}}}");
 
         // Then
-        assertEquals(ControllerState.RUN, controller.getState());
+        assertEquals(ControllerState.RUN, controller.getControllerStatus().getState());
         verify(controllerListener, times(0)).commandComplete(any());
     }
 
@@ -125,61 +125,61 @@ public class TinyGControllerTest {
 
     @Test
     public void rawResponseWithStatusReportStateFromControllerShouldUpdateControllerState() {
-        assertEquals("The controller should begin in an unkown state", ControllerState.UNKNOWN, controller.getState());
+        assertEquals("The controller should begin in an unkown state", ControllerState.UNKNOWN, controller.getControllerStatus().getState());
 
         ControllerListener controllerListener = mock(ControllerListener.class);
         controller.addListener(controllerListener);
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 1}}");
-        assertEquals(ControllerState.IDLE, controller.getState());
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 2}}");
-        assertEquals(ControllerState.ALARM, controller.getState());
+        assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 3}}");
-        assertEquals(ControllerState.IDLE, controller.getState());
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 4}}");
-        assertEquals(ControllerState.IDLE, controller.getState());
+        assertEquals(ControllerState.IDLE, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 5}}");
-        assertEquals(ControllerState.RUN, controller.getState());
+        assertEquals(ControllerState.RUN, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_SENDING, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 6}}");
-        assertEquals(ControllerState.HOLD, controller.getState());
+        assertEquals(ControllerState.HOLD, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_SENDING_PAUSED, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 7}}");
-        assertEquals(ControllerState.UNKNOWN, controller.getState());
+        assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 8}}");
-        assertEquals(ControllerState.UNKNOWN, controller.getState());
+        assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 9}}");
-        assertEquals(ControllerState.HOME, controller.getState());
+        assertEquals(ControllerState.HOME, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 10}}");
-        assertEquals(ControllerState.JOG, controller.getState());
+        assertEquals(ControllerState.JOG, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_SENDING, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 11}}");
-        assertEquals(ControllerState.UNKNOWN, controller.getState());
+        assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 12}}");
-        assertEquals(ControllerState.UNKNOWN, controller.getState());
+        assertEquals(ControllerState.UNKNOWN, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
 
         controller.rawResponseHandler("{\"sr\":{\"stat\": 13}}");
-        assertEquals(ControllerState.ALARM, controller.getState());
+        assertEquals(ControllerState.ALARM, controller.getControllerStatus().getState());
         assertEquals(UGSEvent.ControlState.COMM_IDLE, controller.getControlState());
     }
 
