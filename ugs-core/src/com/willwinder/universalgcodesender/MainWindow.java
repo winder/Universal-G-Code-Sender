@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -41,7 +42,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.GUIBackend;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.components.LengthLimitedDocument;
 import static com.willwinder.universalgcodesender.utils.GUIHelpers.displayErrorDialog;
 import java.awt.Color;
@@ -1976,16 +1976,19 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.activeStateValueLabel.setText( Utils.getControllerStateText(status.getState()) );
         this.setStatusColorForState( status.getState() );
 
+        UnitUtils.Units units = settings.getPreferredUnits();
         if (status.getMachineCoord() != null) {
-            this.machinePositionXValueLabel.setText( Utils.formatter.format(status.getMachineCoord().x) + status.getMachineCoord().getUnits().abbreviation );
-            this.machinePositionYValueLabel.setText( Utils.formatter.format(status.getMachineCoord().y) + status.getMachineCoord().getUnits().abbreviation );
-            this.machinePositionZValueLabel.setText( Utils.formatter.format(status.getMachineCoord().z) + status.getMachineCoord().getUnits().abbreviation );
+            Position machineCoord = status.getMachineCoord().getPositionIn(units);
+            this.machinePositionXValueLabel.setText( Utils.formatter.format(machineCoord.x) + units.abbreviation );
+            this.machinePositionYValueLabel.setText( Utils.formatter.format(machineCoord.y) + units.abbreviation );
+            this.machinePositionZValueLabel.setText( Utils.formatter.format(machineCoord.z) + units.abbreviation );
         }
         
         if (status.getWorkCoord() != null) {
-            this.workPositionXValueLabel.setText( Utils.formatter.format(status.getWorkCoord().x) + status.getWorkCoord().getUnits().abbreviation );
-            this.workPositionYValueLabel.setText( Utils.formatter.format(status.getWorkCoord().y) + status.getWorkCoord().getUnits().abbreviation );
-            this.workPositionZValueLabel.setText( Utils.formatter.format(status.getWorkCoord().z) + status.getWorkCoord().getUnits().abbreviation );
+            Position workCoord = status.getWorkCoord().getPositionIn(units);
+            this.workPositionXValueLabel.setText( Utils.formatter.format(workCoord.x) + units.abbreviation );
+            this.workPositionYValueLabel.setText( Utils.formatter.format(workCoord.y) + units.abbreviation );
+            this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + units.abbreviation );
         }
     }
     
@@ -2015,6 +2018,12 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         if (evt.isFileChangeEvent() || evt.isStateChangeEvent()) {
             this.updateControls();
         }
+
+        // If we changed settings such as the preferred unit settings we may need to refresh the GUI
+        if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
+            statusStringListener(backend.getController().getControllerStatus());
+        }
+
         if (evt.isFileChangeEvent()) {
             switch(evt.getFileState()) {
                 case FILE_LOADING:
