@@ -1,9 +1,5 @@
 /*
- * TinyG serial port interface class.
- */
-
-/*
-    Copywrite 2012-2015 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -24,8 +20,8 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 
-
 /**
+ * TinyG serial port interface class.
  *
  * @author wwinder
  */
@@ -33,7 +29,7 @@ public class TinyGCommunicator extends BufferedCommunicator {
 
     @Override
     public int getBufferSize() {
-        return 127;
+        return 254;
     }
 
     @Override

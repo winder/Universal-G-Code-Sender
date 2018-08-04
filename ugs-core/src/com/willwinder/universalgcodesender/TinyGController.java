@@ -37,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -167,6 +168,7 @@ public class TinyGController extends AbstractController {
             capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
             capabilities.addCapability(CapabilitiesConstants.HOMING);
             capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+            capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
             capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
 
             setCurrentState(COMM_IDLE);
@@ -233,6 +235,9 @@ public class TinyGController extends AbstractController {
         // 0=text mode, 1=JSON mode
         comm.queueStringForComm("{ej:1}");
 
+        // Configure status reports
+        comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}");
+
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
         comm.queueStringForComm("{jv:4}");
@@ -248,11 +253,13 @@ public class TinyGController extends AbstractController {
         // Request firmware settings
         comm.queueStringForComm("$$");
 
-        // Configure status reports
-        comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}");
-
         // Request initial status report
         comm.queueStringForComm("{sr:n}");
+
+        // Enable feed overrides
+        comm.queueStringForComm("{mfoe:1}");
+        comm.queueStringForComm("{mtoe:1}");
+        comm.queueStringForComm("{ssoe:1}");
 
         comm.streamCommands();
 
@@ -263,7 +270,7 @@ public class TinyGController extends AbstractController {
     @Override
     public void updateParserModalState(GcodeCommand command) {
         // Prevent internal TinyG commands to update the parser modal state
-        if(!command.getCommandString().startsWith("{")) {
+        if (!command.getCommandString().startsWith("{")) {
             super.updateParserModalState(command);
         }
     }
@@ -345,7 +352,11 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void sendOverrideCommand(Overrides command) throws Exception {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
+        ControllerStatus.OverridePercents currentOverrides = controllerStatus.getOverrides();
+        Optional<GcodeCommand> gcodeCommand = TinyGUtils.createOverrideCommand(currentOverrides, command);
+        if (gcodeCommand.isPresent()) {
+            sendCommandImmediately(gcodeCommand.get());
+        }
     }
 
     @Override

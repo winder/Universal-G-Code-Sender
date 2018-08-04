@@ -25,14 +25,17 @@ import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Common utils for TinyG controllers
@@ -69,6 +72,24 @@ public class TinyGUtils {
     private static final String FIELD_STATUS_REPORT_MPOX = "mpox";
     private static final String FIELD_STATUS_REPORT_MPOY = "mpoy";
     private static final String FIELD_STATUS_REPORT_MPOZ = "mpoz";
+    private static final String FIELD_STATUS_REPORT_MFO = "mfo";
+    private static final String FIELD_STATUS_REPORT_SSO = "sso";
+    private static final String FIELD_STATUS_REPORT_MTO = "mto";
+
+    private static final double OVERRIDE_MIN = 0.05;
+    private static final double OVERRIDE_DEFAULT = 1.0;
+    private static final double OVERRIDE_MAX = 2.0;
+
+    /**
+     * Matches positive and negative numbers with or without a decimal format such as:
+     * 1
+     * 100
+     * 100.0
+     * -1
+     * -100
+     * -100.0
+     */
+    private static final Pattern NUMBER_REGEX = Pattern.compile("^[-]?[\\d]+(\\.\\d+)?");
 
     private static JsonParser parser = new JsonParser();
 
@@ -162,6 +183,30 @@ public class TinyGUtils {
                 machineCoord.setZ(statusResultObject.get(FIELD_STATUS_REPORT_MPOZ).getAsDouble());
             }
 
+            int overrideFeed = 100;
+            int overrideRapid = 100;
+            int overrideSpindle = 100;
+            if (lastControllerStatus.getOverrides() != null) {
+                overrideFeed = lastControllerStatus.getOverrides().feed;
+                overrideRapid = lastControllerStatus.getOverrides().rapid;
+                overrideSpindle = lastControllerStatus.getOverrides().spindle;
+            }
+
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MFO)) {
+                double speed = statusResultObject.get(FIELD_STATUS_REPORT_MFO).getAsDouble();
+                overrideFeed = (int) Math.round(speed * 100.0);
+            }
+
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_SSO)) {
+                double speed = statusResultObject.get(FIELD_STATUS_REPORT_SSO).getAsDouble();
+                overrideSpindle = (int) Math.round(speed * 100.0);
+            }
+
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_MTO)) {
+                double speed = statusResultObject.get(FIELD_STATUS_REPORT_MTO).getAsDouble();
+                overrideRapid = (int) Math.round(speed * 100.0);
+            }
+
             Double feedSpeed = lastControllerStatus.getFeedSpeed();
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_VELOCITY)) {
                 feedSpeed = statusResultObject.get(FIELD_STATUS_REPORT_VELOCITY).getAsDouble();
@@ -175,11 +220,11 @@ public class TinyGUtils {
             }
 
             Double spindleSpeed = lastControllerStatus.getSpindleSpeed();
-            ControllerStatus.OverridePercents overrides = lastControllerStatus.getOverrides();
             Position workCoordinateOffset = lastControllerStatus.getWorkCoordinateOffset();
             ControllerStatus.EnabledPins enabledPins = lastControllerStatus.getEnabledPins();
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
+            ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
             return new ControllerStatus(stateString, state, machineCoord.getPositionIn(currentUnits), workCoord.getPositionIn(currentUnits), feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
@@ -338,6 +383,84 @@ public class TinyGUtils {
 
     private static boolean hasNumericField(JsonObject statusResultObject, String fieldName) {
         return statusResultObject.has(fieldName) &&
-                NumberUtils.isNumber(statusResultObject.get(fieldName).getAsString());
+                NUMBER_REGEX.matcher(statusResultObject.get(fieldName).getAsString()).matches();
+    }
+
+    /**
+     * Creates an override gcode command based on the current override state.
+     *
+     * @param currentOverrides the current override state
+     * @param command          the command which we want to build a gcode command from
+     * @return the gcode command
+     */
+    public static Optional<GcodeCommand> createOverrideCommand(ControllerStatus.OverridePercents currentOverrides, Overrides command) {
+        double feedOverride = OVERRIDE_DEFAULT;
+        double spindleOverride = OVERRIDE_DEFAULT;
+        if (currentOverrides != null) {
+            feedOverride = ((double) currentOverrides.feed) / 100.0;
+            spindleOverride = ((double) currentOverrides.spindle) / 100.0;
+        }
+
+        Optional<GcodeCommand> result = Optional.empty();
+        switch (command) {
+            case CMD_FEED_OVR_COARSE_MINUS:
+                if (feedOverride > OVERRIDE_MIN) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.10) + "}"));
+                }
+                break;
+            case CMD_FEED_OVR_COARSE_PLUS:
+                if (feedOverride < OVERRIDE_MAX) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.10) + "}"));
+                }
+                break;
+            case CMD_FEED_OVR_FINE_MINUS:
+                if (feedOverride > OVERRIDE_MIN) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride - 0.05) + "}"));
+                }
+                break;
+            case CMD_FEED_OVR_FINE_PLUS:
+                if (feedOverride < OVERRIDE_MAX) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(feedOverride + 0.05) + "}"));
+                }
+                break;
+            case CMD_FEED_OVR_RESET:
+                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MFO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}"));
+                break;
+
+            case CMD_SPINDLE_OVR_COARSE_MINUS:
+                if (spindleOverride > OVERRIDE_MIN) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.10) + "}"));
+                }
+                break;
+            case CMD_SPINDLE_OVR_COARSE_PLUS:
+                if (spindleOverride < OVERRIDE_MAX) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.10) + "}"));
+                }
+                break;
+            case CMD_SPINDLE_OVR_FINE_MINUS:
+                if (spindleOverride > OVERRIDE_MIN) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride - 0.05) + "}"));
+                }
+                break;
+            case CMD_SPINDLE_OVR_FINE_PLUS:
+                if (spindleOverride < OVERRIDE_MAX) {
+                    result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(spindleOverride + 0.05) + "}"));
+                }
+                break;
+            case CMD_SPINDLE_OVR_RESET:
+                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_SSO + ":" + Utils.formatter.format(OVERRIDE_DEFAULT) + "}"));
+                break;
+            case CMD_RAPID_OVR_LOW:
+                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.25) + "}"));
+                break;
+            case CMD_RAPID_OVR_MEDIUM:
+                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(0.50) + "}"));
+                break;
+            case CMD_RAPID_OVR_RESET:
+                result = Optional.of(new GcodeCommand("{" + TinyGUtils.FIELD_STATUS_REPORT_MTO + ":" + Utils.formatter.format(1.00) + "}"));
+                break;
+            default:
+        }
+        return result;
     }
 }
