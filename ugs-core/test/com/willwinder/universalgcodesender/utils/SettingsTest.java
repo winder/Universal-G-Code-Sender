@@ -44,7 +44,7 @@ public class SettingsTest {
         assertNotNull(target.getAutoLevelSettings());
         assertFalse(target.isAutoReconnect());
         assertFalse(target.isCommandTableEnabled());
-        assertEquals("mm", target.getDefaultUnits());
+        assertEquals("mm", target.getPreferredUnits().abbreviation);
         assertTrue(target.isDisplayStateColor());
         assertNotNull(target.getFileStats());
         assertEquals("GRBL", target.getFirmwareVersion());

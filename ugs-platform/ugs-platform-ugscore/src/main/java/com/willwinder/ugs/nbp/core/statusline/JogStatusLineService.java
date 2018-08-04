@@ -53,7 +53,7 @@ public class JogStatusLineService implements StatusLineElementProvider {
 
         private void setText() {
             Settings s = backend.getSettings();
-            Units u = UnitUtils.Units.getUnit(s.getDefaultUnits());
+            Units u = s.getPreferredUnits();
             setText(String.format(FORMAT,
                     s.getManualModeStepSize(),
                     u.abbreviation));
