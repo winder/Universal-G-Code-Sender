@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -216,4 +217,11 @@ public interface IController {
      * @return the current state
      */
     ControllerState getState();
+
+    /**
+     * Returns the controller status
+     *
+     * @return the current controller status
+     */
+    ControllerStatus getControllerStatus();
 }

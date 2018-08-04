@@ -374,6 +374,11 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
+    }
+
+    @Override
     public UGSEvent.ControlState getControlState() {
         return getControlState(getState());
     }

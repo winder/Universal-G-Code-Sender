@@ -619,6 +619,11 @@ public class GrblController extends AbstractController {
         return controllerStatus.getState();
     }
 
+    @Override
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
+    }
+
     /**
      * Create a timer which will execute GRBL's position polling mechanism.
      */
