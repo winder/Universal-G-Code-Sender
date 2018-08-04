@@ -219,7 +219,7 @@ public class TinyGController extends AbstractController {
         gcodeList.forEach(gcode -> updateParserModalState(new GcodeCommand(gcode)));
 
         // Notify our listeners about the new status
-        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, getCurrentGcodeState(), jo);
+        controllerStatus = TinyGUtils.updateControllerStatus(controllerStatus, jo);
         dispatchStatusString(controllerStatus);
 
         // Notify state change to our listeners

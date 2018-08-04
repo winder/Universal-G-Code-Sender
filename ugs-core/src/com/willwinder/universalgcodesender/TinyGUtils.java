@@ -150,13 +150,16 @@ public class TinyGUtils {
      * @param response             the response string from the controller
      * @return a new updated controller status
      */
-    public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final GcodeState lastGcodeState, final JsonObject response) {
+    public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final JsonObject response) {
         if (response.has(FIELD_STATUS_REPORT)) {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
-            UnitUtils.Units currentUnits = lastGcodeState.units == Code.G20 ? UnitUtils.Units.INCH : UnitUtils.Units.MM;
+            Position workCoord = lastControllerStatus.getWorkCoord();
+            if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_UNIT)) {
+                UnitUtils.Units units = statusResultObject.get(FIELD_STATUS_REPORT_UNIT).getAsInt() == 1 ? UnitUtils.Units.MM : UnitUtils.Units.INCH;
+                workCoord = new Position(workCoord.getX(), workCoord.getY(), workCoord.getZ(), units);
+            }
 
-            Position workCoord = lastControllerStatus.getWorkCoord().getPositionIn(currentUnits);
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_POSX)) {
                 workCoord.setX(statusResultObject.get(FIELD_STATUS_REPORT_POSX).getAsDouble());
             }
@@ -225,7 +228,7 @@ public class TinyGUtils {
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
             ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(stateString, state, machineCoord.getPositionIn(currentUnits), workCoord.getPositionIn(currentUnits), feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
         return lastControllerStatus;
