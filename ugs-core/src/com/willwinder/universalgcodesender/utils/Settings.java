@@ -349,6 +349,7 @@ public class Settings {
             // Change
             setManualModeStepSize(manualModeStepSize * scaleUnits);
             setzJogStepSize(zJogStepSize * scaleUnits);
+            setJogFeedRate(Math.round(jogFeedRate * scaleUnits));
         }
     }
 

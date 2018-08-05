@@ -31,6 +31,7 @@ import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.components.WorkCoordinateTextField;
@@ -383,7 +384,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null
-                ? status.getFeedSpeed().intValue()
+                ? (int) (status.getFeedSpeed() * UnitUtils.scaleUnits(status.getFeedSpeedUnits(), backend.getSettings().getPreferredUnits()))
                 : (int) this.backend.getGcodeState().speed;
         this.feedValue.setText(Integer.toString(feedSpeed));
 

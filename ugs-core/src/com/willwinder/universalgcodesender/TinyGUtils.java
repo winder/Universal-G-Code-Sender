@@ -155,9 +155,11 @@ public class TinyGUtils {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
             Position workCoord = lastControllerStatus.getWorkCoord();
+            UnitUtils.Units feedSpeedUnits = lastControllerStatus.getFeedSpeedUnits();
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_UNIT)) {
                 UnitUtils.Units units = statusResultObject.get(FIELD_STATUS_REPORT_UNIT).getAsInt() == 1 ? UnitUtils.Units.MM : UnitUtils.Units.INCH;
                 workCoord = new Position(workCoord.getX(), workCoord.getY(), workCoord.getZ(), units);
+                feedSpeedUnits = units;
             }
 
             if (hasNumericField(statusResultObject, FIELD_STATUS_REPORT_POSX)) {
@@ -228,7 +230,7 @@ public class TinyGUtils {
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
             ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
         }
 
         return lastControllerStatus;

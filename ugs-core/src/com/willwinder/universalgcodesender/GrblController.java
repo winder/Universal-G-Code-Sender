@@ -182,6 +182,7 @@ public class GrblController extends AbstractController {
                             this.controllerStatus.getMachineCoord(),
                             this.controllerStatus.getWorkCoord(),
                             this.controllerStatus.getFeedSpeed(),
+                            this.controllerStatus.getFeedSpeedUnits(),
                             this.controllerStatus.getSpindleSpeed(),
                             this.controllerStatus.getOverrides(),
                             this.controllerStatus.getWorkCoordinateOffset(),
