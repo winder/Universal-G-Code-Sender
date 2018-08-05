@@ -611,12 +611,8 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public ControllerState getState() {
-        if (controllerStatus == null) {
-            return ControllerState.UNKNOWN;
-        }
-
-        return controllerStatus.getState();
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
     }
 
     /**

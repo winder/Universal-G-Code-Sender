@@ -171,7 +171,7 @@ public class JogService {
     public void setUnits(Units units) {
         this.units = units;
         if (units != null) {
-            backend.getSettings().setDefaultUnits(units.abbreviation);
+            backend.getSettings().setPreferredUnits(units);
         }
     }
     

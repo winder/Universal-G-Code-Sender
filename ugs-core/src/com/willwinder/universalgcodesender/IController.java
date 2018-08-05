@@ -22,6 +22,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -211,9 +212,9 @@ public interface IController {
     String getFirmwareVersion();
 
     /**
-     * Get the current state of the controller
+     * Returns the controller status. This method may never return null.
      *
-     * @return the current state
+     * @return the current controller status
      */
-    ControllerState getState();
+    ControllerStatus getControllerStatus();
 }

@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
@@ -56,7 +57,7 @@ public class Settings {
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private boolean displayStateColor = true;
-    private String defaultUnits = Units.MM.abbreviation;
+    private Units preferredUnits = Units.MM;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
@@ -336,23 +337,18 @@ public class Settings {
     }
         
     public Units getPreferredUnits() {
-        Units u = Units.getUnit(defaultUnits);
-
-        return (u == null) ? Units.MM : u;
-    }
-
-    @Deprecated
-    public String getDefaultUnits() {
-        if (Units.getUnit(defaultUnits) == null) {
-            return Units.MM.abbreviation;
-        }
-        return defaultUnits;
+        return (preferredUnits == null) ? Units.MM : preferredUnits;
     }
         
-    public void setDefaultUnits(String units) {
-        if (Units.getUnit(defaultUnits) != null) {
-            defaultUnits = units;
+    public void setPreferredUnits(Units units) {
+        if (units != null) {
+            double scaleUnits = UnitUtils.scaleUnits(preferredUnits, units);
+            preferredUnits = units;
             changed();
+
+            // Change
+            setManualModeStepSize(manualModeStepSize * scaleUnits);
+            setzJogStepSize(zJogStepSize * scaleUnits);
         }
     }
 

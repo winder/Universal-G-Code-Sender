@@ -231,28 +231,26 @@ public class TinyGUtilsTest {
     @Test
     public void updateControllerStatusShouldHandleFeedOverrides() {
         ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
-        GcodeState gcodeState = new GcodeState();
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{mfo:1.4}}");
-        ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, gcodeState, response);
+        ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
         assertEquals(140, controllerStatus.getOverrides().feed);
 
         response = TinyGUtils.jsonToObject("{sr:{mfo:0.8}}");
-        controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, gcodeState, response);
+        controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
         assertEquals(80, controllerStatus.getOverrides().feed);
     }
 
     @Test
     public void updateControllerStatusShouldHandleSpindleverrides() {
         ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
-        GcodeState gcodeState = new GcodeState();
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{sso:1.4}}");
-        ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, gcodeState, response);
+        ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
         assertEquals(140, controllerStatus.getOverrides().spindle);
 
         response = TinyGUtils.jsonToObject("{sr:{sso:0.8}}");
-        controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, gcodeState, response);
+        controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
         assertEquals(80, controllerStatus.getOverrides().spindle);
     }
 }
