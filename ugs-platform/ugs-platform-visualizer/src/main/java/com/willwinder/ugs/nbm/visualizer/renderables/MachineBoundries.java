@@ -1,20 +1,22 @@
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
+import static com.jogamp.opengl.GL.GL_LINES;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
+import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
+
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import javax.vecmath.Point3d;
-
-import static com.jogamp.opengl.GL.GL_LINES;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_X;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Y;
-import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUALIZER_OPTION_Z;
 
 /**
  * Displays the machine boundries based on the soft limits
@@ -51,11 +53,15 @@ public class MachineBoundries extends Renderable {
                 return;
             }
 
-            softLimitsEnabled = backendAPI.getController().getFirmwareSettings().isSoftLimitsEnabled();
+            double scale = UnitUtils.scaleUnits(
+                backendAPI.getSettings().getPreferredUnits(),
+                UnitUtils.Units.MM);
+            IFirmwareSettings fSettings = backendAPI.getController().getFirmwareSettings();
+            softLimitsEnabled = fSettings.isSoftLimitsEnabled();
             if (softLimitsEnabled) {
-                softLimitX = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.X);
-                softLimitY = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Y);
-                softLimitZ = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Z);
+                softLimitX = fSettings.getSoftLimit(Axis.X) * scale;
+                softLimitY = fSettings.getSoftLimit(Axis.Y) * scale;
+                softLimitZ = fSettings.getSoftLimit(Axis.Z) * scale;
             }
         } catch (FirmwareSettingsException ignored) {
             // Never mind this.
