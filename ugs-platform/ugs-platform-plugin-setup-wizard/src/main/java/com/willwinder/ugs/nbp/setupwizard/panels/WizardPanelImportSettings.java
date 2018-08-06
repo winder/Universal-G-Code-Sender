@@ -4,6 +4,7 @@ import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingUtils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsFile;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.uielements.components.FirmwareSettingsFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
@@ -49,7 +50,7 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
     private RoundedPanel fileInfoPanel;
 
     public WizardPanelImportSettings(BackendAPI backend) {
-        super(backend, "Import settings", false);
+        super(backend, Localization.getString("platform.plugin.setupwizard.import-settings.title"), false);
 
         initComponents();
         initLayout();
@@ -78,9 +79,9 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
-                "<p>If your machine came with a configuration file or if you previously made a backup of your settings you can load them here. Otherwise click next to continue.</p>" +
-                "</body></html>");
+        labelDescription = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.import-settings.intro") +
+                "</p></body></html>");
 
         fileInfoPanel = new RoundedPanel(8);
         fileInfoPanel.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
@@ -89,26 +90,26 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
         labelNameValue = new JLabel("");
         labelNameValue.setFont(labelNameValue.getFont().deriveFont(Font.BOLD, 16));
 
-        labelFirmware = new JLabel("Firmware:", JLabel.RIGHT);
+        labelFirmware = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.firmware"), JLabel.RIGHT);
         labelFirmware.setFont(labelFirmware.getFont().deriveFont(Font.BOLD));
         labelFirmwareValue = new JLabel("");
 
-        labelCreatedBy = new JLabel("Created by:", JLabel.RIGHT);
+        labelCreatedBy = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-by"), JLabel.RIGHT);
         labelCreatedBy.setFont(labelCreatedBy.getFont().deriveFont(Font.BOLD));
         labelCreatedByValue = new JLabel("");
 
-        labelDate = new JLabel("Date:", JLabel.RIGHT);
+        labelDate = new JLabel(Localization.getString("platform.plugin.setupwizard.import-settings.created-date"), JLabel.RIGHT);
         labelDate.setFont(labelDate.getFont().deriveFont(Font.BOLD));
         labelDateValue = new JLabel("");
 
         labelSettingsImported = new JLabel("<html><body>" +
-                "<h3>Finished imported settings</h3>" +
-                "<p>Please continue to verify your configuration using the following steps.</p>" +
+                "<h3>" + Localization.getString("platform.plugin.setupwizard.import-settings.finished-title") + "</h3>" +
+                "<p>" + Localization.getString("platform.plugin.setupwizard.import-settings.finished-description") + "</p>" +
                 "</body></html>");
         labelSettingsImported.setVerticalAlignment(SwingConstants.CENTER);
         labelSettingsImported.setIcon(ImageUtilities.loadImageIcon("icons/checked32.png", false));
 
-        buttonOpen = new JButton("Open settings file...");
+        buttonOpen = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.open-settings"));
         buttonOpen.addActionListener(event -> {
             JFileChooser fileChooser = FirmwareSettingsFileTypeFilter.getSettingsFileChooser();
             int returnVal = fileChooser.showOpenDialog(new JFrame());
@@ -117,14 +118,15 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
             }
         });
 
-        buttonImport = new JButton("Import settings");
+        buttonImport = new JButton(Localization.getString("platform.plugin.setupwizard.import-settings.import"));
         buttonImport.addActionListener(event -> importSettings());
     }
 
     private void importSettings() {
-        String message = "Are you sure you want to overwrite the current firmware settings?";
+        String title = Localization.getString("platform.plugin.setupwizard.import-settings.overwrite-title");
+        String message = Localization.getString("platform.plugin.setupwizard.import-settings.overwrite-message");
         int result = JOptionPane.showConfirmDialog(this.getComponent(), message,
-                "Overwrite firmware settings?", JOptionPane.YES_NO_OPTION);
+                title, JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
                 getBackend().getController().getFirmwareSettings().setSettings(firmwareSettingsFile.getSettings());

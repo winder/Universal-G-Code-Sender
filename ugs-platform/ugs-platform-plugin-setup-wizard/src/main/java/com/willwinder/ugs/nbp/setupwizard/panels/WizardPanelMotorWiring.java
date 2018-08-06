@@ -23,6 +23,7 @@ import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
 import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
@@ -57,7 +58,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private RoundedPanel softLimitsInfo;
 
     public WizardPanelMotorWiring(BackendAPI backend) {
-        super(backend, "Motor wiring");
+        super(backend, Localization.getString("platform.plugin.setupwizard.motor-wiring.title"));
 
         initComponents();
         initLayout();
@@ -83,20 +84,20 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
-                "<p>We will now test that your motors are wired correctly. Test each axis using the step buttons.</p>" +
-                "</body></html>");
+        labelDescription = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.motor-wiring.intro") +
+                "</p></body></html>");
 
         softLimitsInfo = new RoundedPanel(8);
         softLimitsInfo.setLayout(new MigLayout("fill, inset 10, gap 0"));
         softLimitsInfo.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
         softLimitsInfo.setForeground(ThemeColors.LIGHT_GREY);
         softLimitsInfo.add(new JLabel(ImageUtilities.loadImageIcon("icons/information24.png", false)), "gapright 10");
-        softLimitsInfo.add(new JLabel("<html><body>You have soft limits activated. Any button that would move the machine past these limits will be inactivated.</body></html>"));
+        softLimitsInfo.add(new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.motor-wiring.soft-limits-enabled") + "</body></html>"));
 
         navigationButtons = new NavigationButtons(getBackend(), 0.1, 100);
 
-        checkboxReverseX = new JCheckBox("Reverse direction");
+        checkboxReverseX = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseX.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
@@ -107,7 +108,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             }
         });
 
-        checkboxReverseY = new JCheckBox("Reverse direction");
+        checkboxReverseY = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseY.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
@@ -118,7 +119,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
             }
         });
 
-        checkboxReverseZ = new JCheckBox("Reverse direction");
+        checkboxReverseZ = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseZ.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
