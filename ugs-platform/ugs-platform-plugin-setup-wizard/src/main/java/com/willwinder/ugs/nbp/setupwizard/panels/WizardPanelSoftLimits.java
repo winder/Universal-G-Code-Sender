@@ -141,13 +141,13 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.soft-limits.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
-        labelInstructions = new JLabel("<html><body>" +
+        labelInstructions = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.soft-limits.instructions") +
-                "</body></html>");
+                "</p></body></html>");
 
         navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
 

@@ -98,9 +98,9 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.connection.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
         // Firmware options
         firmwareCombo = new JComboBox<>();

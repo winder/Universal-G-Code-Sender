@@ -91,9 +91,9 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.homing.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
         checkboxEnableHoming = new JCheckBox(Localization.getString("platform.plugin.setupwizard.homing.enable"));
         checkboxEnableHoming.addActionListener(event -> {
@@ -122,9 +122,9 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         separatorBottom = new JSeparator(SwingConstants.HORIZONTAL);
         separatorBottom.setVisible(false);
 
-        labelHomingInstructions = new JLabel("<html><body>" +
+        labelHomingInstructions = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.homing.instruction2") +
-                "</body></html>");
+                "</p></body></html>");
         labelHomingInstructions.setVisible(false);
         initButtons();
     }

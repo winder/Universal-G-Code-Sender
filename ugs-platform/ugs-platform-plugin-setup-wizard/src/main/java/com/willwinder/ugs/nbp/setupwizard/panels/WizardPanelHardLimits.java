@@ -83,13 +83,13 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.limit-switches.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
-        labelInstructions = new JLabel("<html><body>" +
+        labelInstructions = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.limit-switches.instruction") +
-                "</body></html>");
+                "</p></body></html>");
         labelInstructions.setVisible(false);
 
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");

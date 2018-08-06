@@ -79,9 +79,9 @@ public class WizardPanelImportSettings extends AbstractWizardPanel {
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.import-settings.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
         fileInfoPanel = new RoundedPanel(8);
         fileInfoPanel.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);

@@ -89,9 +89,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private void initLayout() {
 
-        JLabel description = new JLabel("<html><body>" +
+        JLabel description = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.calibration.intro") +
-                "</body></html>");
+                "</p></body></html>");
         getPanel().add(description, "grow, wrap");
 
         JPanel panel = new JPanel(new MigLayout("fill, inset 0"));

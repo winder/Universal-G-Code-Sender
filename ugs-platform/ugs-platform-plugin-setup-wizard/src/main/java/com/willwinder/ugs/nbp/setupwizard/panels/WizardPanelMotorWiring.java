@@ -84,9 +84,9 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
+        labelDescription = new JLabel("<html><body><p>" +
                 Localization.getString("platform.plugin.setupwizard.motor-wiring.intro") +
-                "</body></html>");
+                "</p></body></html>");
 
         softLimitsInfo = new RoundedPanel(8);
         softLimitsInfo.setLayout(new MigLayout("fill, inset 10, gap 0"));
