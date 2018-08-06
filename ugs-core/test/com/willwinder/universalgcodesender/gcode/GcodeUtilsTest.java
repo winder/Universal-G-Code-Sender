@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -49,5 +49,16 @@ public class GcodeUtilsTest {
         result = GcodeUtils.generateXYZ("G91G0", UnitUtils.Units.MM, "10", "11", 0, -1, -1);
         assertEquals("G21G91G0Y-10Z-10F11", result);
     }
-    
+
+    @Test
+    public void generateJogCommandShouldConvertUnits() {
+        String result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.MM, 25.4, 254, 1, 1, 1, UnitUtils.Units.INCH);
+        assertEquals("Coordinates and feed rate should be converted from MM to Inches","G0X1Y1Z1F10", result);
+
+        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.INCH, 1, 10, 1, 1, 1, UnitUtils.Units.MM);
+        assertEquals("Coordinates and feed rate should be converted from Inches to MM","G0X25.4Y25.4Z25.4F254", result);
+
+        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.MM, 1, 10, 1, 0, 0, UnitUtils.Units.MM);
+        assertEquals("Coordinates and feed rate should be converted from MM to MM","G0X1F10", result);
+    }
 }

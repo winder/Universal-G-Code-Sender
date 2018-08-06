@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.tinyg.TinyGFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.TinyGGcodeCommandCreator;
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -116,6 +117,17 @@ public class TinyGController extends AbstractController {
     @Override
     protected void cancelSendBeforeEvent() throws Exception {
         pauseStreaming();
+    }
+
+    @Override
+    public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
+        UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
+        String commandString = GcodeUtils.generateJogCommand("G91G1", units, stepSize, feedRate, dirX, dirY, dirZ, targetUnits);
+
+        GcodeCommand command = createCommand(commandString);
+        command.setTemporaryParserModalChange(true);
+        sendCommandImmediately(command);
+        restoreParserModalState();
     }
 
     @Override
