@@ -78,7 +78,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private Timer updateTimer;
 
     public WizardPanelStepCalibration(BackendAPI backend) {
-        super(backend, "Step calibration");
+        super(backend, Localization.getString("platform.plugin.setupwizard.calibration.title"));
         decimalFormat = new DecimalFormat("0.0", Localization.dfs);
 
         initComponents();
@@ -90,7 +90,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private void initLayout() {
 
         JLabel description = new JLabel("<html><body>" +
-                "<p>We will now attempt to calibrate your machine. Try <b>moving</b> the machine and <b>measure</b> the results, then <b>calibrate</b> to the estimated steps.</p>" +
+                Localization.getString("platform.plugin.setupwizard.calibration.intro") +
                 "</body></html>");
         getPanel().add(description, "grow, wrap");
 
@@ -129,7 +129,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     }
 
     private void addSubHeaderRow(JPanel panel) {
-        JButton resetButton = new JButton("Reset to zero");
+        JButton resetButton = new JButton(Localization.getString("platform.plugin.setupwizard.reset-to-zero"));
         resetButton.setMinimumSize(new Dimension(36, 36));
         resetButton.addActionListener(event -> {
             try {
@@ -139,23 +139,23 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             }
         });
         panel.add(resetButton, "grow, spanx 3, gapbottom 0, gaptop 0");
-        panel.add(new JLabel("Actual movement:"), "span 2, grow");
-        panel.add(new JLabel("Adjust steps per millimeter:"), "spanx 5, grow, wrap");
+        panel.add(new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.actual-movement")), "span 2, grow");
+        panel.add(new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.adjust")), "spanx 5, grow, wrap");
     }
 
     private void addHeaderRow(JPanel panel) {
         Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
-        JLabel headerLabel = new JLabel("Move", JLabel.CENTER);
+        JLabel headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.move"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Measure", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.measure"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 2, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Calibrate", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.calibrate"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, wrap, gapbottom 5, gaptop 7");
     }
@@ -164,7 +164,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
         navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
 
-        buttonUpdateSettingsX = new JButton("Update");
+        buttonUpdateSettingsX = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsX.setEnabled(false);
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
@@ -174,9 +174,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsX = new JTextField("0");
         textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
-        buttonUpdateSettingsY = new JButton("Update");
+        buttonUpdateSettingsY = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsY.setEnabled(false);
-        labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
+        labelEstimatedStepsY = new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.setting"));
         labelEstimatedStepsY.setFont(labelEstimatedFont);
         labelPositionY = new JLabel("  0.0 mm", JLabel.RIGHT);
         textFieldMeasuredY = new JTextField("0");
@@ -184,7 +184,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         textFieldSettingStepsY = new JTextField("0");
         textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
-        buttonUpdateSettingsZ = new JButton("Update");
+        buttonUpdateSettingsZ = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsZ.setEnabled(false);
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
         labelEstimatedStepsZ.setFont(labelEstimatedFont);

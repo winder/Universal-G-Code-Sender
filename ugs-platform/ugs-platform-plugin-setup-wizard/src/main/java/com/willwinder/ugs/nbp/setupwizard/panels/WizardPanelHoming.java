@@ -22,6 +22,7 @@ import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -60,7 +61,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
     private JSeparator separatorTop;
 
     public WizardPanelHoming(BackendAPI backend) {
-        super(backend, "Homing");
+        super(backend, Localization.getString("platform.plugin.setupwizard.homing.title"));
 
         initComponents();
         initLayout();
@@ -91,10 +92,10 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
     private void initComponents() {
         labelDescription = new JLabel("<html><body>" +
-                "<p>Homing is a method of of finding the absolute machine coordinates.</p>" +
+                Localization.getString("platform.plugin.setupwizard.homing.intro") +
                 "</body></html>");
 
-        checkboxEnableHoming = new JCheckBox("Enable homing");
+        checkboxEnableHoming = new JCheckBox(Localization.getString("platform.plugin.setupwizard.homing.enable"));
         checkboxEnableHoming.addActionListener(event -> {
             try {
                 getBackend().getController().getFirmwareSettings().setHomingEnabled(checkboxEnableHoming.isSelected());
@@ -104,16 +105,16 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             }
         });
 
-        labelHardLimitsNotEnabled = new JLabel("<html><body>Limit switches needs to be enabled before enabling homing.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHardLimitsNotEnabled = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.homing.require-limit-switches") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHardLimitsNotEnabled.setVisible(false);
 
-        labelHomingNotSupported = new JLabel("<html><body>Homing is not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHomingNotSupported = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.homing.not-available") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHomingNotSupported.setVisible(false);
 
         separatorTop = new JSeparator(SwingConstants.HORIZONTAL);
         separatorTop.setVisible(false);
 
-        labelHomingDirection = new JLabel("<html><body>Take your time to figure out in which direction your limit switches are</body></html>");
+        labelHomingDirection = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.homing.instruction1") + "</body></html>");
         labelHomingDirection.setVisible(false);
 
         initInvertComboBoxes();
@@ -122,14 +123,14 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
         separatorBottom.setVisible(false);
 
         labelHomingInstructions = new JLabel("<html><body>" +
-                "<p>Now test a homing cycle, but <b>be prepared to abort</b> if it's moving in the wrong direction!</p>" +
+                Localization.getString("platform.plugin.setupwizard.homing.instruction2") +
                 "</body></html>");
         labelHomingInstructions.setVisible(false);
         initButtons();
     }
 
     private void initButtons() {
-        buttonHomeMachine = new JButton("Try homing");
+        buttonHomeMachine = new JButton(Localization.getString("platform.plugin.setupwizard.homing.try-homing"));
         buttonHomeMachine.setVisible(false);
         buttonHomeMachine.addActionListener(event -> {
             try {
@@ -139,7 +140,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             }
         });
 
-        buttonAbort = new JButton("Abort");
+        buttonAbort = new JButton(Localization.getString("platform.plugin.setupwizard.homing.abort"));
         buttonAbort.setVisible(false);
         buttonAbort.addActionListener(event -> {
             try {
@@ -154,8 +155,8 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
     private void initInvertComboBoxes() {
         comboBoxInvertDirectionX = new JComboBox<>();
         comboBoxInvertDirectionX.setVisible(false);
-        comboBoxInvertDirectionX.addItem("+X direction");
-        comboBoxInvertDirectionX.addItem("-X direction");
+        comboBoxInvertDirectionX.addItem("+X");
+        comboBoxInvertDirectionX.addItem("-X");
         comboBoxInvertDirectionX.addActionListener(event -> {
             IController controller = getBackend().getController();
             if (controller != null) {
@@ -170,8 +171,8 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
         comboBoxInvertDirectionY = new JComboBox<>();
         comboBoxInvertDirectionY.setVisible(false);
-        comboBoxInvertDirectionY.addItem("+Y direction");
-        comboBoxInvertDirectionY.addItem("-Y direction");
+        comboBoxInvertDirectionY.addItem("+Y");
+        comboBoxInvertDirectionY.addItem("-Y");
         comboBoxInvertDirectionY.addActionListener(event -> {
             IController controller = getBackend().getController();
             if (controller != null) {
@@ -186,8 +187,8 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
         comboBoxInvertDirectionZ = new JComboBox<>();
         comboBoxInvertDirectionZ.setVisible(false);
-        comboBoxInvertDirectionZ.addItem("+Z direction");
-        comboBoxInvertDirectionZ.addItem("-Z direction");
+        comboBoxInvertDirectionZ.addItem("+Z");
+        comboBoxInvertDirectionZ.addItem("-Z");
         comboBoxInvertDirectionZ.addActionListener(event -> {
             IController controller = getBackend().getController();
             if (controller != null) {

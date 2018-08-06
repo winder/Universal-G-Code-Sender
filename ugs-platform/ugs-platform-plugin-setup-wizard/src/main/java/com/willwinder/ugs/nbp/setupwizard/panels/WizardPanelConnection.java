@@ -76,7 +76,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     private JLabel labelNotSupported;
 
     public WizardPanelConnection(BackendAPI backend) {
-        super(backend, "Connection", false);
+        super(backend, Localization.getString("platform.plugin.setupwizard.connection.title"), false);
 
         initComponents();
         initLayout();
@@ -99,7 +99,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
     private void initComponents() {
         labelDescription = new JLabel("<html><body>" +
-                "<p>This guide will help you set up your CNC controller with <b>Universal Gcode Sender</b>. Let's start with connecting to your controller.</p>" +
+                Localization.getString("platform.plugin.setupwizard.connection.intro") +
                 "</body></html>");
 
         // Firmware options
@@ -113,13 +113,13 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
         baudCombo.setSelectedIndex(6);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
         baudCombo.addActionListener(e -> this.setBaudRate());
-        labelBaud = new JLabel("Port rate:");
+        labelBaud = new JLabel(Localization.getString("platform.plugin.setupwizard.port-rate"));
 
         portCombo = new JComboBox<>();
         portCombo.addActionListener(e -> this.setPort());
-        labelPort = new JLabel("Port:");
+        labelPort = new JLabel(Localization.getString("platform.plugin.setupwizard.port"));
 
-        connectButton = new JButton("Connect");
+        connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
         connectButton.addActionListener((e) -> {
             try {
                 getBackend().connect(getBackend().getSettings().getFirmwareVersion(), getBackend().getSettings().getPort(), Integer.valueOf(getBackend().getSettings().getPortRate()));
@@ -128,10 +128,10 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
             }
         });
 
-        labelVersion = new JLabel("Unknown version");
+        labelVersion = new JLabel(Localization.getString("platform.plugin.setupwizard.unknown-version"));
         labelVersion.setVisible(false);
 
-        labelNotSupported = new JLabel("The setup wizard is not supported for this controller");
+        labelNotSupported = new JLabel(Localization.getString("platform.plugin.setupwizard.connection.not-supported"));
         labelNotSupported.setIcon(ImageUtilities.loadImageIcon("icons/information24.png", false));
         labelNotSupported.setVisible(false);
     }
@@ -220,19 +220,19 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
         if (getBackend().isConnected() && StringUtils.isNotEmpty(getBackend().getController().getFirmwareVersion()) && getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setText("<html><body><h2> " + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(ImageUtilities.loadImageIcon("icons/checked24.png", false));
             labelNotSupported.setVisible(false);
             setFinishPanel(false);
         } else if (getBackend().isConnected() && !getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(null);
             labelNotSupported.setVisible(true);
             setFinishPanel(true);
         } else if (getBackend().isConnected() && !finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connecting...</h2></body></html>");
+            labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connecting") + "</h2></body></html>");
             labelVersion.setIcon(null);
             labelNotSupported.setVisible(false);
             setFinishPanel(false);

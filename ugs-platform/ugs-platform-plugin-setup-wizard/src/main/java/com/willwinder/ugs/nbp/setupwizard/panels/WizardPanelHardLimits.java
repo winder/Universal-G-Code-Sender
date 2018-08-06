@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.setupwizard.panels;
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -59,7 +60,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
     private JCheckBox checkboxInvertLimitPins;
 
     public WizardPanelHardLimits(BackendAPI backend) {
-        super(backend, "Limit switches");
+        super(backend, Localization.getString("platform.plugin.setupwizard.limit-switches.title"));
 
         initComponents();
         initLayout();
@@ -83,18 +84,18 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
 
     private void initComponents() {
         labelDescription = new JLabel("<html><body>" +
-                "<p>Limit switches will prevent the machine to move beyond its physical limits.</p>" +
+                Localization.getString("platform.plugin.setupwizard.limit-switches.intro") +
                 "</body></html>");
 
         labelInstructions = new JLabel("<html><body>" +
-                "<p>Try triggering each limit switch manually. Make sure to keep it triggered for at least two seconds for it to be displayed." +
+                Localization.getString("platform.plugin.setupwizard.limit-switches.instruction") +
                 "</body></html>");
         labelInstructions.setVisible(false);
 
         checkboxEnableHardLimits = new JCheckBox("Enable limit switches");
         checkboxEnableHardLimits.addActionListener(event -> onHardLimitsClicked());
 
-        labelHardLimitssNotSupported = new JLabel("<html><body>Limit switches are unfortunately not available on your hardware.</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHardLimitssNotSupported = new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.limit-switches.not-available") + "</body></html>", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
         labelHardLimitssNotSupported.setVisible(false);
 
         labelLimitX = createLimitLabel("X");
@@ -104,7 +105,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
         labelLimitZ = createLimitLabel("Z");
         labelLimitZ.setVisible(false);
 
-        checkboxInvertLimitPins = new JCheckBox("Invert limit switches");
+        checkboxInvertLimitPins = new JCheckBox(Localization.getString("platform.plugin.setupwizard.limit-switches.invert"));
         checkboxInvertLimitPins.setVisible(false);
         checkboxInvertLimitPins.addActionListener(event -> {
             if (getBackend().getController() != null) {
