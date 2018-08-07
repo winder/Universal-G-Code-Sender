@@ -243,12 +243,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             double feedRate, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
-        // Format step size from spinner.
-        String formattedStepSize = Utils.formatter.format(stepSize);
-        String formattedFeedRate = Utils.formatter.format(feedRate);
-
-        String commandString = GcodeUtils.generateXYZ("G91G1", units,
-                formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+        String commandString = GcodeUtils.generateJogCommand("G91G1", units,
+                stepSize, feedRate, dirX, dirY, dirZ);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

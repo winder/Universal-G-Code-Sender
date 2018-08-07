@@ -569,12 +569,8 @@ public class GrblController extends AbstractController {
     public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
             double feedRate, Units units) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
-            // Format step size from spinner.
-            String formattedStepSize = Utils.formatter.format(stepSize);
-            String formattedFeedRate = Utils.formatter.format(feedRate);
-
-            String commandString = GcodeUtils.generateXYZ("G91", units,
-                    formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+            String commandString = GcodeUtils.generateJogCommand("G91", units,
+                    stepSize, feedRate, dirX, dirY, dirZ);
             GcodeCommand command = createCommand("$J=" + commandString);
             sendCommandImmediately(command);
         } else {
