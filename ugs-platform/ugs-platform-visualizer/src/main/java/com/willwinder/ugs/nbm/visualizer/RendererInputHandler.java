@@ -79,8 +79,9 @@ public class RendererInputHandler implements
         settings = s;
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
-        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
+        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
+        sizeDisplay.setUnits(settings.getPreferredUnits());
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
@@ -133,6 +134,10 @@ public class RendererInputHandler implements
             }
 
             animator.resume();
+        }
+
+        if(cse.isSettingChangeEvent()) {
+            sizeDisplay.setUnits(settings.getPreferredUnits());
         }
     }
 
@@ -336,7 +341,6 @@ public class RendererInputHandler implements
      */
     @Override
     public void statusStringListener(ControllerStatus status) {
-        sizeDisplay.setUnits(status.getMachineCoord().getUnits());
         gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
         gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
     }

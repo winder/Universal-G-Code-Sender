@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
  *
@@ -35,6 +36,7 @@ public class ControllerStatus {
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
     private final ControllerState state;
+    private final UnitUtils.Units feedSpeedUnits;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
@@ -45,14 +47,14 @@ public class ControllerStatus {
      * @param workCoord controller work coordinates
      */
     public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
-        this(stateString, state, machineCoord, workCoord, null, null, null, null, null, null);
+        this(stateString, state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
     public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
-                            Position workCoord, Double feedSpeed, Double spindleSpeed,
+                            Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {
         this.stateString = stateString;
@@ -61,6 +63,7 @@ public class ControllerStatus {
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
         this.feedSpeed = feedSpeed;
+        this.feedSpeedUnits = feedSpeedUnits;
         this.spindleSpeed = spindleSpeed;
         this.overrides = overrides;
         this.pins = pins;
@@ -111,6 +114,10 @@ public class ControllerStatus {
 
     public AccessoryStates getAccessoryStates() {
         return accessoryStates;
+    }
+
+    public UnitUtils.Units getFeedSpeedUnits() {
+        return feedSpeedUnits;
     }
 
     public static class EnabledPins {

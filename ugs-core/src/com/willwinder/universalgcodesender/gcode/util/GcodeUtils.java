@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,40 +18,48 @@
  */
 package com.willwinder.universalgcodesender.gcode.util;
 
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
 /**
- *
  * @author wwinder
  */
 public class GcodeUtils {
+
+    /**
+     * Generates a gcode command for switching units.
+     *
+     * @param units the units to switch to
+     * @return the gcode command to switch units.
+     */
     public static String unitCommand(Units units) {
-      // Change units.
-      switch(units) {
-        case MM:
-          return "G21";
-        case INCH:
-          return "G20";
-        default:
-          return "";
-      }
+        // Change units.
+        switch (units) {
+            case MM:
+                return "G21";
+            case INCH:
+                return "G20";
+            default:
+                return "";
+        }
     }
 
     /**
+     * Generates a move command given a base command. The command will be appended with the relative movement to be made
+     * on the axises with the given distance and feed rate.
      *
-     * @param command Something like "G0"
-     * @param units Appends "G21" or "G20"
-     * @param distance The distance to use
-     * @param dirX Whether to append the X coord.
-     * @param dirY Whether to append the Y coord.
-     * @param dirZ Whether to append the Z coord.
+     * @param command  the base command to use, ie: G20G91G1 or G1
+     * @param distance the distance to move in the currently selected unit (G20 or G21)
+     * @param dirX     1 for positive movement, 0 for no movement, -1 for negative movement
+     * @param dirY     1 for positive movement, 0 for no movement, -1 for negative movement
+     * @param dirZ     1 for positive movement, 0 for no movement, -1 for negative movement
      */
-    public static String generateXYZ(String command, Units units,
-            String distance, String feedRate, int dirX, int dirY, int dirZ) {
+    public static String generateMoveCommand(String command, double distance, double feedRate, int dirX, int dirY, int dirZ) {
         StringBuilder sb = new StringBuilder();
 
-      // Add units.
-        sb.append(unitCommand(units));
+        // Scale the feed rate and distance to the current coordinate units
+        String convertedDistance = Utils.formatter.format(distance);
+        String convertedFeedRate = Utils.formatter.format(feedRate);
 
         // Set command.
         sb.append(command);
@@ -61,7 +69,7 @@ public class GcodeUtils {
             if (dirX < 0) {
                 sb.append("-");
             }
-            sb.append(distance);
+            sb.append(convertedDistance);
         }
 
         if (dirY != 0) {
@@ -69,7 +77,7 @@ public class GcodeUtils {
             if (dirY < 0) {
                 sb.append("-");
             }
-            sb.append(distance);
+            sb.append(convertedDistance);
         }
 
         if (dirZ != 0) {
@@ -77,11 +85,11 @@ public class GcodeUtils {
             if (dirZ < 0) {
                 sb.append("-");
             }
-            sb.append(distance);
+            sb.append(convertedDistance);
         }
 
-        if (feedRate != null) {
-            sb.append("F").append(feedRate);
+        if (convertedFeedRate != null) {
+            sb.append("F").append(convertedFeedRate);
         }
 
         return sb.toString();
