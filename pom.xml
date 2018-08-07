@@ -56,7 +56,7 @@
 
     <ugs.maven-compiler-plugin.version>3.6.1</ugs.maven-compiler-plugin.version>
     <ugs.jvm.version>1.8</ugs.jvm.version>
-    <ugs.kotlin.version>1.1.51</ugs.kotlin.version>
+    <ugs.kotlin.version>1.2.30</ugs.kotlin.version>
 
     <!-- supposidly this was needed for the kotlin plugin -->
     <!--
