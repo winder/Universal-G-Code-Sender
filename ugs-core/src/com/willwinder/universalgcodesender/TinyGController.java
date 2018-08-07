@@ -122,7 +122,9 @@ public class TinyGController extends AbstractController {
     @Override
     public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, double feedRate, UnitUtils.Units units) throws Exception {
         UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
-        String commandString = GcodeUtils.generateJogCommand("G91G1", units, stepSize, feedRate, dirX, dirY, dirZ, targetUnits);
+
+        double scale = UnitUtils.scaleUnits(units, targetUnits);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1", stepSize * scale, feedRate * scale, dirX, dirY, dirZ);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

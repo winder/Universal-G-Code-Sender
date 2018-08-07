@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -28,37 +27,24 @@ import static org.junit.Assert.*;
  * @author wwinder
  */
 public class GcodeUtilsTest {
-    
-    /**
-     * Test of generateXYZ method, of class GcodeUtils.
-     */
+
     @Test
-    public void generateJogCommandShouldPrependWithUnitCommand() {
-        System.out.println("generateXYZ");
+    public void generateMoveCommand() {
         String result;
 
-        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.INCH, 10, 11, 1, 1, 1);
-        assertEquals("G20G0X10Y10Z10F11", result);
+        result = GcodeUtils.generateMoveCommand("G0", 10, 11, 1, 1, 1);
+        assertEquals("G0X10Y10Z10F11", result);
 
-        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.MM, 10, 11, 1, 1, 1);
-        assertEquals("G21G0X10Y10Z10F11", result);
+        result = GcodeUtils.generateMoveCommand("G0", 10, 11, 1, 1, 1);
+        assertEquals("G0X10Y10Z10F11", result);
 
-        result = GcodeUtils.generateJogCommand("G91G0", UnitUtils.Units.MM, 10, 11, 1, 0, 0);
-        assertEquals("G21G91G0X10F11", result);
+        result = GcodeUtils.generateMoveCommand("G91G0", 10, 11, 1, 0, 0);
+        assertEquals("G91G0X10F11", result);
 
-        result = GcodeUtils.generateJogCommand("G91G0", UnitUtils.Units.MM, 10, 11, 0, -1, -1);
-        assertEquals("G21G91G0Y-10Z-10F11", result);
-    }
+        result = GcodeUtils.generateMoveCommand("G91G0", 10, 11, 0, -1, -1);
+        assertEquals("G91G0Y-10Z-10F11", result);
 
-    @Test
-    public void generateJogCommandShouldConvertUnits() {
-        String result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.MM, 25.4, 254, 1, 1, 1, UnitUtils.Units.INCH);
-        assertEquals("Coordinates and feed rate should be converted from MM to Inches","G0X1Y1Z1F10", result);
-
-        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.INCH, 1, 10, 1, 1, 1, UnitUtils.Units.MM);
-        assertEquals("Coordinates and feed rate should be converted from Inches to MM","G0X25.4Y25.4Z25.4F254", result);
-
-        result = GcodeUtils.generateJogCommand("G0", UnitUtils.Units.MM, 1, 10, 1, 0, 0, UnitUtils.Units.MM);
-        assertEquals("Coordinates and feed rate should be converted from MM to MM","G0X1F10", result);
+        result = GcodeUtils.generateMoveCommand("G1", 1.1, 11.1, 1, 0, -1);
+        assertEquals("G1X1.1Z-1.1F11.1", result);
     }
 }

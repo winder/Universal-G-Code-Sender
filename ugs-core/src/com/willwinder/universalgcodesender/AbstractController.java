@@ -243,7 +243,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             double feedRate, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
-        String commandString = GcodeUtils.generateJogCommand("G91G1", units,
+        String commandString = GcodeUtils.generateMoveCommand(GcodeUtils.unitCommand(units) + "G91G1",
                 stepSize, feedRate, dirX, dirY, dirZ);
 
         GcodeCommand command = createCommand(commandString);
