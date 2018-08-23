@@ -383,8 +383,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 return textFieldSettingStepsY;
             case Z:
                 return textFieldSettingStepsZ;
+            default:
+                return null;
         }
-        return null;
     }
 
     private JButton getUpdateSettingsButton(Axis axis) {
@@ -395,8 +396,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
                 return buttonUpdateSettingsY;
             case Z:
                 return buttonUpdateSettingsZ;
+            default:
+                return null;
         }
-        return null;
     }
 
     /**
@@ -437,7 +439,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
     }
 
-    double parseDouble(String text) {
+    private double parseDouble(String text) {
         try {
             return decimalFormat.parse(text).doubleValue();
         } catch (ParseException ignored) {
