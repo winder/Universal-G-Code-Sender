@@ -431,7 +431,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         }
 
         if (maxComputingSpeed > 30000) {
-            setErrorMessage(" This setting requires a computing speed of " + (maxComputingSpeed / 1000) + "khz which exceeds the limit of 30khz");
+            setErrorMessage(" " + String.format(Localization.getString("platform.plugin.setupwizard.calibration.computer-speed-warning"), (maxComputingSpeed / 1000) + "kHz"));
         } else {
             setErrorMessage("");
         }
