@@ -175,46 +175,20 @@ public interface IFirmwareSettings {
     double getSoftLimit(Axis axis) throws FirmwareSettingsException;
 
     /**
-     * Returns if the homing direction for the X-axis be inverted
+     * Returns if the homing direction for the given axis should be inverted
      *
-     * @return true to perform homing to X-
+     * @param axis the axis to fetch the setting for
+     * @return true to perform homing in a negative direction
      */
-    boolean isHomingDirectionInvertedX();
+    boolean isHomingDirectionInverted(Axis axis);
 
     /**
-     * Sets if the homing direction should be inverted for the X-axis
+     * Sets if the homing direction should be inverted for the given axis
      *
-     * @param inverted set to true if homing should be performed to X-
+     * @param axis the axis to make the setting for
+     * @param inverted set to true if homing should be performed in a negative direction
      */
-    void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException;
-
-    /**
-     * Returns if the homing direction for the Y-axis be inverted
-     *
-     * @return true to perform homing to Y-
-     */
-    boolean isHomingDirectionInvertedY();
-
-    /**
-     * Sets if the homing direction should be inverted for the Y-axis
-     *
-     * @param inverted set to true if homing should be performed to Y-
-     */
-    void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException;
-
-    /**
-     * Returns if the homing direction for the Z-axis be inverted
-     *
-     * @return true to perform homing to Z-
-     */
-    boolean isHomingDirectionInvertedZ();
-
-    /**
-     * Sets if the homing direction should be inverted for the Z-axis
-     *
-     * @param inverted set to true if homing should be performed to Z-
-     */
-    void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException;
+    void setHomingDirectionInverted(Axis axis, boolean inverted) throws FirmwareSettingsException;
 
     /**
      * Returns if the limit pins are inverted

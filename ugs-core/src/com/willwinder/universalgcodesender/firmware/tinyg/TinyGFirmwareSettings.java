@@ -156,32 +156,12 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
     }
 
     @Override
-    public boolean isHomingDirectionInvertedX() {
+    public boolean isHomingDirectionInverted(Axis axis) {
         return false;
     }
 
     @Override
-    public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedY() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedZ() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) {
         // TODO add setting
     }
 

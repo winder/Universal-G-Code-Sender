@@ -285,54 +285,50 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isHomingDirectionInvertedX() {
-        return (getHomingInvertDirectionMask() & 1) == 1;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
-        Integer directionMask = getHomingInvertDirectionMask();
-
-        if (inverted) {
-            directionMask |= 0b1; // set first bit from LSB
-        } else {
-            directionMask &= ~0b1; // unset first bit from LSB
+    public boolean isHomingDirectionInverted(Axis axis) {
+        switch (axis) {
+            case X:
+                return (getHomingInvertDirectionMask() & 1) == 1;
+            case Y:
+                return (getHomingInvertDirectionMask() & 2) == 2;
+            case Z:
+                return (getHomingInvertDirectionMask() & 4) == 4;
+            default:
+                return false;
         }
-
-        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
     }
 
     @Override
-    public boolean isHomingDirectionInvertedY() {
-        return (getHomingInvertDirectionMask() & 2) == 2;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) throws FirmwareSettingsException {
         Integer directionMask = getHomingInvertDirectionMask();
 
-        if (inverted) {
-            directionMask |= 0b10; // set first bit from LSB
-        } else {
-            directionMask &= ~0b10; // unset first bit from LSB
-        }
+        switch (axis) {
+            case X:
+                if (inverted) {
+                    directionMask |= 0b1; // set first bit from LSB
+                } else {
+                    directionMask &= ~0b1; // unset first bit from LSB
+                }
+                break;
 
-        setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
-    }
+            case Y:
+                if (inverted) {
+                    directionMask |= 0b10; // set first bit from LSB
+                } else {
+                    directionMask &= ~0b10; // unset first bit from LSB
+                }
+                break;
 
-    @Override
-    public boolean isHomingDirectionInvertedZ() {
-        return (getHomingInvertDirectionMask() & 4) == 4;
-    }
+            case Z:
+                if (inverted) {
+                    directionMask |= 0b100; // set first bit from LSB
+                } else {
+                    directionMask &= ~0b100; // unset first bit from LSB
+                }
+                break;
 
-    @Override
-    public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
-        Integer directionMask = getHomingInvertDirectionMask();
-
-        if (inverted) {
-            directionMask |= 0b100; // set first bit from LSB
-        } else {
-            directionMask &= ~0b100; // unset first bit from LSB
+            default:
+                break;
         }
 
         setValue(KEY_HOMING_INVERT_DIRECTION, String.valueOf(directionMask));
