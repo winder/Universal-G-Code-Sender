@@ -125,46 +125,28 @@ public interface IFirmwareSettings {
     void setSoftLimitsEnabled(boolean enabled) throws FirmwareSettingsException;
 
     /**
-     * Returns if the direction x is inverted on the controller
+     * Returns if the step direction on the given axis is inverted on the controller
      *
      * @return true if inverted
      */
-    boolean isInvertDirectionX();
+    boolean isInvertDirection(Axis axis) throws FirmwareSettingsException;
 
     /**
-     * Inverts the step direction for X-axis
+     * Inverts the step direction for the given axis
      *
+     * @param axis     the axis to invert step direction
      * @param inverted if the direction should be inverted
      */
-    void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException;
+    void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException;
 
     /**
-     * Returns if the direction y is inverted on the controller
+     * Sets the number of steps needed to move the machine one millimeter.
      *
-     * @return true if inverted
+     * @param axis the axis to retrieve the setting for
+     * @param stepsPerMillimeter the number of steps to move one millimeter
+     * @throws FirmwareSettingsException if the settings couldn't be saved
      */
-    boolean isInvertDirectionY();
-
-    /**
-     * Inverts the step direction for Y-axis
-     *
-     * @param inverted if the direction should be inverted
-     */
-    void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException;
-
-    /**
-     * Returns if the direction z is inverted on the controller
-     *
-     * @return true if inverted
-     */
-    boolean isInvertDirectionZ();
-
-    /**
-     * Inverts the step direction for Z-axis
-     *
-     * @param inverted if the direction should be inverted
-     */
-    void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException;
+    void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException;
 
     /**
      * Return the number of steps needed to move the machine one millimeter.
@@ -176,52 +158,12 @@ public interface IFirmwareSettings {
     int getStepsPerMillimeter(Axis axis) throws FirmwareSettingsException;
 
     /**
-     * Returns the soft limit for the X axis in millimeters
-     *
-     * @return the limit length in milimeters
-     * @throws FirmwareSettingsException if the settings couldn't be fetched
-     */
-    double getSoftLimitX() throws FirmwareSettingsException;
-
-    /**
-     * Sets the soft limit for the X axis in millimeters.
+     * Sets the soft limit for the given axis in millimeters.
      *
      * @param limit the limit in millimeters
      * @throws FirmwareSettingsException if the setting couldn't be saved
      */
-    void setSoftLimitX(double limit) throws FirmwareSettingsException;
-
-    /**
-     * Returns the soft limit for the Y axis in millimeters
-     *
-     * @return the limit length in milimeters
-     * @throws FirmwareSettingsException if the settings couldn't be fetched
-     */
-    double getSoftLimitY() throws FirmwareSettingsException;
-
-    /**
-     * Sets the soft limit for the Y axis in millimeters.
-     *
-     * @param limit the limit in millimeters
-     * @throws FirmwareSettingsException if the setting couldn't be saved
-     */
-    void setSoftLimitY(double limit) throws FirmwareSettingsException;
-
-    /**
-     * Returns the soft limit for the Z axis in millimeters
-     *
-     * @return the limit length in milimeters
-     * @throws FirmwareSettingsException if the settings couldn't be fetched
-     */
-    double getSoftLimitZ() throws FirmwareSettingsException;
-
-    /**
-     * Sets the soft limit for the X axis in millimeters.
-     *
-     * @param limit the limit in millimeters
-     * @throws FirmwareSettingsException if the setting couldn't be saved
-     */
-    void setSoftLimitZ(double limit) throws FirmwareSettingsException;
+    void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException;
 
     /**
      * Returns the soft limit for the given axis in millimeters
@@ -274,6 +216,12 @@ public interface IFirmwareSettings {
      */
     void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException;
 
+    /**
+     * Returns if the limit pins are inverted
+     *
+     * @return true if the limit pins are inverted
+     */
+    boolean isHardLimitsInverted() throws FirmwareSettingsException;
 
     /**
      * Sets if the limit pins should be inverted
@@ -283,16 +231,17 @@ public interface IFirmwareSettings {
     void setHardLimitsInverted(boolean inverted) throws FirmwareSettingsException;
 
     /**
-     * Returns if the limit pins are inverted
-     *
-     * @return true if the limit pins are inverted
-     */
-    boolean isHardLimitsInverted() throws FirmwareSettingsException;
-
-    /**
      * Sets multiple firmware settings
      *
      * @param settings to update
      */
     void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException;
+
+    /**
+     * Returns the maximum rate each axis can move in mm/min.
+     *
+     * @param axis the axis to fetch the setting for
+     * @return the maximum rate in mm/min
+     */
+    double getMaximumRate(Axis axis) throws FirmwareSettingsException;
 }

@@ -66,6 +66,9 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     private static final String KEY_SOFT_LIMIT_X = "$130";
     private static final String KEY_SOFT_LIMIT_Y = "$131";
     private static final String KEY_SOFT_LIMIT_Z = "$132";
+    private static final String KEY_MAXIMUM_RATE_X = "$110";
+    private static final String KEY_MAXIMUM_RATE_Y = "$111";
+    private static final String KEY_MAXIMUM_RATE_Z = "$112";
 
     /**
      * A GRBL settings description lookups
@@ -173,57 +176,67 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public boolean isInvertDirectionX() {
-        return (getInvertDirectionMask() & 1) == 1;
+    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                return (getInvertDirectionMask() & 1) == 1;
+            case Y:
+                return (getInvertDirectionMask() & 2) == 2;
+            case Z:
+                return (getInvertDirectionMask() & 4) == 4;
+            default:
+                throw new FirmwareSettingsException("Couldn't get invert direction setting for axis " + axis + ", it's not supported by the controller");
+        }
     }
 
     @Override
-    public void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException {
+    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
         Integer directionMask = getInvertDirectionMask();
 
-        if (inverted) {
-            directionMask |= 0b1; // set first bit from LSB
-        } else {
-            directionMask &= ~0b1; // unset first bit from LSB
+        switch (axis) {
+            case X:
+                if (inverted) {
+                    directionMask |= 0b1; // set first bit from LSB
+                } else {
+                    directionMask &= ~0b1; // unset first bit from LSB
+                }
+                break;
+            case Y:
+                if (inverted) {
+                    directionMask |= 0b10; // set second bit from LSB
+                } else {
+                    directionMask &= ~0b10; // unset second bit from LSB
+                }
+                break;
+            case Z:
+                if (inverted) {
+                    directionMask |= 0b100; // set third bit from LSB
+                } else {
+                    directionMask &= ~0b100; // unset third bit from LSB
+                }
+                break;
+            default:
+                throw new FirmwareSettingsException("Couldn't set the invert direction for axis " + axis + ", it's not supported by the hardware");
         }
 
         setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
     }
 
     @Override
-    public boolean isInvertDirectionY() {
-        return (getInvertDirectionMask() & 2) == 2;
-    }
-
-    @Override
-    public void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException {
-        Integer directionMask = getInvertDirectionMask();
-
-        if (inverted) {
-            directionMask |= 0b10; // set second bit from LSB
-        } else {
-            directionMask &= ~0b10; // unset second bit from LSB
+    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                setValue(KEY_STEPS_PER_MM_X, stepsPerMillimeter);
+                break;
+            case Y:
+                setValue(KEY_STEPS_PER_MM_Y, stepsPerMillimeter);
+                break;
+            case Z:
+                setValue(KEY_STEPS_PER_MM_Z, stepsPerMillimeter);
+                break;
+            default:
+                throw new FirmwareSettingsException("Couldn't set the steps per millimeter for axis " + axis + ", it's not supported by the hardware");
         }
-
-        setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
-    }
-
-    @Override
-    public boolean isInvertDirectionZ() {
-        return (getInvertDirectionMask() & 4) == 4;
-    }
-
-    @Override
-    public void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException {
-        int directionMask = getInvertDirectionMask();
-
-        if (inverted) {
-            directionMask |= 0b100; // set third bit from LSB
-        } else {
-            directionMask &= ~0b100; // unset third bit from LSB
-        }
-
-        setValue(KEY_INVERT_DIRECTION, String.valueOf(directionMask));
     }
 
     @Override
@@ -241,44 +254,31 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     }
 
     @Override
-    public double getSoftLimitX() throws FirmwareSettingsException {
-        return getValueAsDouble(KEY_SOFT_LIMIT_X);
-    }
-
-    @Override
-    public void setSoftLimitX(double limit) throws FirmwareSettingsException {
-        setValue(KEY_SOFT_LIMIT_X, limit);
-    }
-
-    @Override
-    public double getSoftLimitY() throws FirmwareSettingsException {
-        return getValueAsDouble(KEY_SOFT_LIMIT_Y);
-    }
-
-    @Override
-    public void setSoftLimitY(double limit) throws FirmwareSettingsException {
-        setValue(KEY_SOFT_LIMIT_Y, limit);
-    }
-
-    @Override
-    public double getSoftLimitZ() throws FirmwareSettingsException {
-        return getValueAsDouble(KEY_SOFT_LIMIT_Z);
-    }
-
-    @Override
-    public void setSoftLimitZ(double limit) throws FirmwareSettingsException {
-        setValue(KEY_SOFT_LIMIT_Z, limit);
+    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                setValue(KEY_SOFT_LIMIT_X, limit);
+                break;
+            case Y:
+                setValue(KEY_SOFT_LIMIT_Y, limit);
+                break;
+            case Z:
+                setValue(KEY_SOFT_LIMIT_Z, limit);
+                break;
+            default:
+                throw new FirmwareSettingsException("Couldn't set the soft limits for axis " + axis + ", it's not supported by the hardware");
+        }
     }
 
     @Override
     public double getSoftLimit(Axis axis) throws FirmwareSettingsException {
         switch (axis) {
             case X:
-                return getSoftLimitX();
+                return getValueAsDouble(KEY_SOFT_LIMIT_X);
             case Y:
-                return getSoftLimitY();
+                return getValueAsDouble(KEY_SOFT_LIMIT_Y);
             case Z:
-                return getSoftLimitZ();
+                return getValueAsDouble(KEY_SOFT_LIMIT_Z);
             default:
                 return 0;
         }
@@ -357,6 +357,20 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
                 LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
             }
         });
+    }
+
+    @Override
+    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+        switch (axis) {
+            case X:
+                return getValueAsDouble(KEY_MAXIMUM_RATE_X);
+            case Y:
+                return getValueAsDouble(KEY_MAXIMUM_RATE_Y);
+            case Z:
+                return getValueAsDouble(KEY_MAXIMUM_RATE_Z);
+            default:
+                throw new FirmwareSettingsException("Couldn't get maximum rate setting for axis " + axis + ", it's not supported by the controller");
+        }
     }
 
     private int getInvertDirectionMask() {

@@ -4,7 +4,7 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
-import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import org.junit.Before;
@@ -234,31 +234,31 @@ public class GrblFirmwareSettingsTest {
     }
 
     @Test
-    public void getInvertDirectionShouldReturnEachBitAsAxis() {
+    public void getInvertDirectionShouldReturnEachBitAsAxis() throws FirmwareSettingsException {
         target.rawResponseListener("$3=0");
-        assertEquals(false, target.isInvertDirectionX());
-        assertEquals(false, target.isInvertDirectionY());
-        assertEquals(false, target.isInvertDirectionZ());
+        assertEquals(false, target.isInvertDirection(Axis.X));
+        assertEquals(false, target.isInvertDirection(Axis.Y));
+        assertEquals(false, target.isInvertDirection(Axis.Z));
 
         target.rawResponseListener("$3=1");
-        assertEquals(true, target.isInvertDirectionX());
-        assertEquals(false, target.isInvertDirectionY());
-        assertEquals(false, target.isInvertDirectionZ());
+        assertEquals(true, target.isInvertDirection(Axis.X));
+        assertEquals(false, target.isInvertDirection(Axis.Y));
+        assertEquals(false, target.isInvertDirection(Axis.Z));
 
         target.rawResponseListener("$3=2");
-        assertEquals(false, target.isInvertDirectionX());
-        assertEquals(true, target.isInvertDirectionY());
-        assertEquals(false, target.isInvertDirectionZ());
+        assertEquals(false, target.isInvertDirection(Axis.X));
+        assertEquals(true, target.isInvertDirection(Axis.Y));
+        assertEquals(false, target.isInvertDirection(Axis.Z));
 
         target.rawResponseListener("$3=4");
-        assertEquals(false, target.isInvertDirectionX());
-        assertEquals(false, target.isInvertDirectionY());
-        assertEquals(true, target.isInvertDirectionZ());
+        assertEquals(false, target.isInvertDirection(Axis.X));
+        assertEquals(false, target.isInvertDirection(Axis.Y));
+        assertEquals(true, target.isInvertDirection(Axis.Z));
 
         target.rawResponseListener("$3=7");
-        assertEquals(true, target.isInvertDirectionX());
-        assertEquals(true, target.isInvertDirectionY());
-        assertEquals(true, target.isInvertDirectionZ());
+        assertEquals(true, target.isInvertDirection(Axis.X));
+        assertEquals(true, target.isInvertDirection(Axis.Y));
+        assertEquals(true, target.isInvertDirection(Axis.Z));
     }
 
     @Test
@@ -270,7 +270,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting X to false
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionX(false);
+                target.setInvertDirection(Axis.X, false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
@@ -284,7 +284,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting X to true
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionX(true);
+                target.setInvertDirection(Axis.X, true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
@@ -304,7 +304,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting Y to false
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionY(false);
+                target.setInvertDirection(Axis.Y, false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
@@ -317,7 +317,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting Y to true
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionY(true);
+                target.setInvertDirection(Axis.Y, true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
@@ -337,7 +337,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting Z to false
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionZ(false);
+                target.setInvertDirection(Axis.Z, false);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
@@ -350,7 +350,7 @@ public class GrblFirmwareSettingsTest {
         // Try setting Z to true
         ThreadHelper.invokeLater(() -> {
             try {
-                target.setInvertDirectionZ(true);
+                target.setInvertDirection(Axis.Z, true);
             } catch (FirmwareSettingsException e) {
                 fail("Should never get here but got exception: " + e);
             }
