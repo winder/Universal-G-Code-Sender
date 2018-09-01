@@ -49,6 +49,21 @@ public class SpindleOnDwellerTest {
 
         command = "(this is ignored) M3 S1000";
         Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "M4";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "m4";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "M4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "m4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "(this is ignored) M4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
     }
     
     @Test
