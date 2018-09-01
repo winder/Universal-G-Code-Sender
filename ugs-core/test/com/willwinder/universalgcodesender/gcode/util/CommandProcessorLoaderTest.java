@@ -141,7 +141,7 @@ public class CommandProcessorLoaderTest {
         args = new JsonObject();
         args.addProperty("duration", 2.5);
         object = new JsonObject();
-        object.addProperty("name", "M3Dweller");
+        object.addProperty("name", "SpindleOnDweller");
         object.add("args", args);
         array.add(object);
 
@@ -157,7 +157,7 @@ public class CommandProcessorLoaderTest {
         assertEquals(PatternRemover.class, processors.get(5).getClass());
         assertEquals(CommandLengthProcessor.class, processors.get(6).getClass());
         assertEquals(WhitespaceProcessor.class, processors.get(7).getClass());
-        assertEquals(M3Dweller.class, processors.get(8).getClass());
+        assertEquals(SpindleOnDweller.class, processors.get(8).getClass());
     }
     
     private static JsonElement with(String name, Boolean enabled) {

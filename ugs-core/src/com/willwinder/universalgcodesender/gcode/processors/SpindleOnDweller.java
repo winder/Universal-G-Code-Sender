@@ -33,13 +33,13 @@ import java.util.regex.Pattern;
  *
  * @author wwinder
  */
-public class M3Dweller implements CommandProcessor {
+public class SpindleOnDweller implements CommandProcessor {
     private final String dwellCommand;
 
     // Contains an M3 not followed by another digit (i.e. M30)
     private Pattern spindleOnPattern = Pattern.compile(".*[mM][34](?!\\d)(\\D.*)?");
 
-    public M3Dweller(double dwellDuration) {
+    public SpindleOnDweller(double dwellDuration) {
         this.dwellCommand = String.format(Locale.ROOT, "G4P%.2f", dwellDuration);
     }
 
