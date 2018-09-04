@@ -25,14 +25,14 @@ import org.junit.Test;
  *
  * @author wwinder
  */
-public class M3DwellerTest {
+public class SpindleOnDwellerTest {
     
-    public M3DwellerTest() {
+    public SpindleOnDwellerTest() {
     }
 
     @Test
     public void testReplaces() throws Exception {
-        M3Dweller dweller = new M3Dweller(2.5);
+        SpindleOnDweller dweller = new SpindleOnDweller(2.5);
         String command;
 
         command = "M3";
@@ -49,11 +49,26 @@ public class M3DwellerTest {
 
         command = "(this is ignored) M3 S1000";
         Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "M4";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "m4";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "M4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "m4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
+
+        command = "(this is ignored) M4 S1000";
+        Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command,"G4P2.50");
     }
     
     @Test
     public void testNoOp() throws Exception {
-        M3Dweller dweller = new M3Dweller(2.5);
+        SpindleOnDweller dweller = new SpindleOnDweller(2.5);
         String command;
         command = "anything else";
         Assertions.assertThat(dweller.processCommand(command, null)).containsExactly(command);

@@ -29,24 +29,24 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * Adds a dwell command after an M3.
+ * Adds a dwell command after an M3 or M4.
  *
  * @author wwinder
  */
-public class M3Dweller implements CommandProcessor {
+public class SpindleOnDweller implements CommandProcessor {
     private final String dwellCommand;
 
     // Contains an M3 not followed by another digit (i.e. M30)
-    private Pattern m3Pattern = Pattern.compile(".*[mM]3(?!\\d)(\\D.*)?");
+    private Pattern spindleOnPattern = Pattern.compile(".*[mM][34](?!\\d)(\\D.*)?");
 
-    public M3Dweller(double dwellDuration) {
+    public SpindleOnDweller(double dwellDuration) {
         this.dwellCommand = String.format(Locale.ROOT, "G4P%.2f", dwellDuration);
     }
 
     @Override
     public List<String> processCommand(String command, GcodeState state) throws GcodeParserException {
         String noComments = GcodePreprocessorUtils.removeComment(command);
-        if (m3Pattern.matcher(noComments).matches()) {
+        if (spindleOnPattern.matcher(noComments).matches()) {
             return Arrays.asList(command, dwellCommand);
         }
         return Collections.singletonList(command);
