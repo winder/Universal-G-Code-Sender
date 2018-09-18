@@ -25,7 +25,8 @@ package com.willwinder.universalgcodesender.connection;
  */
 public enum ConnectionDriver {
     JSERIALCOMM("JSerialComm", "jserialcomm://"),
-    JSSC("JSSC", "jssc://");
+    JSSC("JSSC", "jssc://"),
+    TCP("TCP", "tcp://");
 
     private final String prettyName;
     private final String protocol;
