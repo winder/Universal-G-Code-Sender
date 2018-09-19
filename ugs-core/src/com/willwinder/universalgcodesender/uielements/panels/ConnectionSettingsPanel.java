@@ -87,6 +87,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
         if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
             settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
+        } else if (connectionDriver.getSelectedItem().equals(ConnectionDriver.TCP.getPrettyName())) {
+            settings.setConnectionDriver(ConnectionDriver.TCP);
         } else {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
