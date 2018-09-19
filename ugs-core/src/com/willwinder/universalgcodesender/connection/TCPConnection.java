@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  * @author wwinder
  */
-public class TCPConnection extends AbstractConnection implements Runnable {
+public class TCPConnection extends AbstractConnection implements Runnable, Connection {
 
 	private String host;
 	private int port;
@@ -126,7 +126,6 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 	 * @param command Command to be sent to serial device.
 	 */
 	public void sendStringToComm(String command) throws Exception {
-		System.out.println("SEND: " + command);
 		bufOut.write(command.getBytes());
 		bufOut.flush();
 	}
@@ -146,8 +145,7 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 		String resp;
 		try {
 			while( (resp = bufIn.readLine()) != null) {
-				System.out.println("RCVD: " + resp);
-				responseMessageHandler.handleResponse(resp, comm);
+				responseMessageHandler.handleResponse(resp + "\n", comm);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
