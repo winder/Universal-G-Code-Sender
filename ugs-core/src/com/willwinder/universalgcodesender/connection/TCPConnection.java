@@ -33,7 +33,7 @@ import java.util.ArrayList;
 /**
  * A serial connection object implementing the connection API.
  *
- * @author wwinder
+ * @author Adam Carmicahel <carneeki@carneeki.net>
  */
 public class TCPConnection extends AbstractConnection implements Runnable, Connection {
 
@@ -44,6 +44,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	private Socket client;
 	private BufferedReader bufIn;
 	private OutputStream bufOut;
+	private InputStreamReader inStream;
 	private Thread replyThread;
 	private ResponseMessageHandler responseMessageHandler;
 
@@ -57,7 +58,6 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		}
 	}
 
-	// TODO: ask about renaming the openPort() method to openConnection()
 	@Override
 	public boolean openPort() throws Exception {
 		if (StringUtils.isEmpty(host)) {
@@ -82,7 +82,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		}
 
 		bufOut = client.getOutputStream();
-		bufIn = new BufferedReader(new InputStreamReader(client.getInputStream()));
+		inStream = new InputStreamReader(client.getInputStream());
+		bufIn = new BufferedReader(inStream);
 
 		if (client == null) {
 			throw new ConnectionException("Socket unable to connect.");
@@ -92,22 +93,18 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		replyThread = new Thread(this);
 		replyThread.start();
 
-		// send reset
-		sendStringToComm("$$");
-
 		return client.isConnected();
 	}
 
-	// TODO: ask about renaming the openPort() method to openConnection()
 	@Override
 	public void closePort() throws Exception {
 		if (client != null) {
 			try {
-				replyThread.stop();
+				replyThread.interrupt();
 				client.close();
 
 				if (client.isConnected()) {
-					replyThread.stop();
+					replyThread.interrupt();
 					client.close();
 				}
 			} finally {
@@ -118,7 +115,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 
 	@Override
 	public boolean isOpen() {
-		return client != null && client.isConnected();
+		return (client != null) && (client.isConnected());
 	}
 
 	/**
@@ -143,17 +140,27 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 */
 	public void run() {
 		String resp;
-		try {
-			while( (resp = bufIn.readLine()) != null) {
-				responseMessageHandler.handleResponse(resp + "\n", comm);
+		while(!Thread.interrupted() && client.isConnected())
+		{
+			try {
+				while(inStream.ready() && (resp = bufIn.readLine()) != null) {
+					responseMessageHandler.handleResponse(resp + "\n", comm);
+				}
+			} catch (SocketException e) {
+				e.printStackTrace();
+				System.exit(-1);
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(-1);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 
-	// TODO: maybe implement this better?
+	/**
+	 * TODO: Currently returns an empty list. Finding and enumerating all
+	 *       possible hosts on a network does not seem like a good idea. Ask
+	 *       @winder if an empty list is acceptable.
+	 */
 	@Override
 	public List<String> getPortNames() {
 		ArrayList<String> retval = new ArrayList<String>();
