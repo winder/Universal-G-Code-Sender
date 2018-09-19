@@ -116,7 +116,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 
 	/**
 	 * Sends a command to remote host.
-	 * @param command Command to be sent to serial device.
+	 * @param command Command to be sent to remote host.
 	 */
 	public void sendStringToComm(String command) throws Exception {
 		bufOut.write(command.getBytes());
@@ -132,14 +132,14 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	}
 
 	/**
-	 * Reads data from the remote host.
+	 * Thread to accept data from remote host, and pass it to responseHandler
 	 */
 	public void run() {
 		String resp;
 		while(!Thread.interrupted() && !client.isClosed())
 		{
 			try {
-				while(inStream.ready() && (resp = bufIn.readLine()) != null) {
+				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
 					responseMessageHandler.handleResponse(resp + "\n", comm);
 				}
 			} catch (SocketException e) {
