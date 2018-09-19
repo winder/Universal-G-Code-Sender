@@ -111,7 +111,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 
 	@Override
 	public boolean isOpen() {
-		return (client != null) && (client.isConnected());
+		return (client != null) && (!client.isClosed());
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 */
 	public void run() {
 		String resp;
-		while(!Thread.interrupted() && client.isConnected())
+		while(!Thread.interrupted() && !client.isClosed())
 		{
 			try {
 				while(inStream.ready() && (resp = bufIn.readLine()) != null) {
