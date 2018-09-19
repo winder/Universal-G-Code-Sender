@@ -71,7 +71,13 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 
 		try{
 			client = new Socket(host, port);
-		} catch (IOException e) {
+		} catch( BindException e) {
+			throw new ConnectionException("Could not bind a local port.");
+		} catch( NoRouteToHostException e) {
+			throw new ConnectionException("No route to host. The remote host may not be running, blocked by a firewall, or disconnected.");
+		} catch( PortUnreachableException e) {
+			throw new ConnectionException("The port is unreachable on the remote host. The server may not be running, or blocked by a firewall.");
+		} catch (SocketException e) {
 			e.printStackTrace();
 		}
 
