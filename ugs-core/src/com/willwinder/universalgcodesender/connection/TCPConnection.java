@@ -18,15 +18,16 @@
 */
 package com.willwinder.universalgcodesender.connection;
 
-import java.nio.channels.SocketChannel;
-import java.nio.ByteBuffer;
+import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.BufferedReader;
 import java.net.*;
+import java.net.Socket;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
 
 /**
@@ -40,9 +41,9 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 	private int port;
 
 	// General variables
-	private SocketChannel client;
-	private ByteBuffer bufIn;
-	private ByteBuffer bufOut;
+	private Socket client;
+	private BufferedReader bufIn;
+	private OutputStream bufOut;
 	private Thread replyThread;
 	private ResponseMessageHandler responseMessageHandler;
 
@@ -62,20 +63,20 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 		if (StringUtils.isEmpty(host)) {
 			throw new ConnectionException("Empty host in connection string.");
 		}
-		if ((port >= 1) && (port <= 65535)) {
+		if ((port < 1) || (port > 65535)) {
 			throw new ConnectionException("Please ensure port is a port number between 1 and 65535.");
 		}
 
 		responseMessageHandler = new ResponseMessageHandler();
 
 		try{
-			client = SocketChannel.open(new InetSocketAddress(InetAddress.getByName(host), port));
+			client = new Socket(host, port);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		bufOut = ByteBuffer.allocate(256);
-		bufIn = ByteBuffer.allocate(256);
+		bufOut = client.getOutputStream();
+		bufIn = new BufferedReader(new InputStreamReader(client.getInputStream()));
 
 		if (client == null) {
 			throw new ConnectionException("Socket unable to connect.");
@@ -84,6 +85,9 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 		// start thread so replies can be handled
 		replyThread = new Thread(this);
 		replyThread.start();
+
+		// send reset
+		sendStringToComm("$$");
 
 		return client.isConnected();
 	}
@@ -116,30 +120,30 @@ public class TCPConnection extends AbstractConnection implements Runnable {
 	 * @param command Command to be sent to serial device.
 	 */
 	public void sendStringToComm(String command) throws Exception {
-		bufOut.put(command.getBytes());
-		client.write(bufOut);
-		bufOut.clear();
+		System.out.println("SEND: " + command);
+		bufOut.write(command.getBytes());
+		bufOut.flush();
 	}
 
 	/**
 	 * Immediately sends a byte, used for real-time commands.
 	 */
 	public void sendByteImmediately(byte b) throws Exception {
-		bufOut.put(b);
-		client.write(bufOut);
-		bufOut.clear();
+		bufOut.write(b);
+		bufOut.flush();
 	}
 
 	/**
 	 * Reads data from the remote host.
 	 */
 	public void run() {
+		String resp;
 		try {
-			if(client.read(bufIn) != 0)
-			{
-				responseMessageHandler.handleResponse(bufIn.toString(),comm);
+			while( (resp = bufIn.readLine()) != null) {
+				System.out.println("RCVD: " + resp);
+				responseMessageHandler.handleResponse(resp, comm);
 			}
-		} catch ( Exception e ) {
+		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
