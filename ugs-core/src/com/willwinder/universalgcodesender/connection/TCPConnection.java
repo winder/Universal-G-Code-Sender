@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * A serial connection object implementing the connection API.
+ * A TCP connection object implementing the connection API.
  *
  * @author Adam Carmicahel <carneeki@carneeki.net>
  */
@@ -56,20 +56,20 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		} catch (Exception e) {
 			throw new ConnectionException("Couldn't parse connection string " + uri, e);
 		}
-	}
 
-	@Override
-	public boolean openPort() throws Exception {
 		if (StringUtils.isEmpty(host)) {
 			throw new ConnectionException("Empty host in connection string.");
 		}
 		if ((port < 1) || (port > 65535)) {
 			throw new ConnectionException("Please ensure port is a port number between 1 and 65535.");
 		}
+	}
 
+	@Override
+	public boolean openPort() throws Exception {
 		responseMessageHandler = new ResponseMessageHandler();
 
-		try{
+		try {
 			client = new Socket(host, port);
 		} catch( BindException e) {
 			throw new ConnectionException("Could not bind a local port.");
