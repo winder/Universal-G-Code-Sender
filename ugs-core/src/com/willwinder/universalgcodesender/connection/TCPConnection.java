@@ -80,14 +80,13 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		if (client == null) {
+			throw new ConnectionException("Socket unable to connect.");
+		}
 
 		bufOut = client.getOutputStream();
 		inStream = new InputStreamReader(client.getInputStream());
 		bufIn = new BufferedReader(inStream);
-
-		if (client == null) {
-			throw new ConnectionException("Socket unable to connect.");
-		}
 
 		// start thread so replies can be handled
 		replyThread = new Thread(this);
@@ -102,11 +101,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 			try {
 				replyThread.interrupt();
 				client.close();
-
-				if (client.isConnected()) {
-					replyThread.interrupt();
-					client.close();
-				}
+			} catch (SocketException e) {
+				// ignore socketexception if connection was broken early
 			} finally {
 				client = null;
 			}
