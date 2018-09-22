@@ -126,9 +126,12 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		try {
 			bufOut.write(command.getBytes());
 			bufOut.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (SocketException e) {
 			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+			throw e;
+		} catch (IOException e) {
+			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+			throw e;
 		}
 	}
 
@@ -139,9 +142,12 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		try {
 			bufOut.write(b);
 			bufOut.flush();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (SocketException e) {
 			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+			throw e;
+		} catch (IOException e) {
+			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+			throw e;
 		}
 	}
 
@@ -150,8 +156,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 */
 	public void run() {
 		String resp;
-		boolean keep_running = true; // loop terminates if false
-		while(!Thread.interrupted() && !client.isClosed() && keep_running)
+		while(!Thread.interrupted() && !client.isClosed())
 		{
 			try {
 				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
@@ -159,11 +164,12 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 				}
 			} catch (SocketException e) {
 				e.printStackTrace();
-				keep_running = false; // terminate thread if disconnected
-									  // TODO: at some point, reconnecting should be considered
+				return; // terminate thread if disconnected
+						//TODO: at some point, reconnecting should be considered
 			} catch (IOException e) {
 				e.printStackTrace();
-				keep_running = false; // terminate thread if we cannot get data out of inStream
+				return; // terminate thread if disconnected
+						//TODO: at some point, reconnecting should be considered
 			}
 		}
 	}
