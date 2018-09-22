@@ -77,9 +77,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 			throw new ConnectionException("No route to host. The remote host may not be running, blocked by a firewall, or disconnected.", e);
 		} catch( ConnectException e) {
 			throw new ConnectionException("The port is unreachable on the remote host. The server may not be running, or blocked by a firewall.", e);
-		} catch (SocketException e) {
-			e.printStackTrace();
 		}
+		
 		if (client == null) {
 			throw new ConnectionException("Socket unable to connect.");
 		}
