@@ -72,11 +72,11 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		try {
 			client = new Socket(host, port);
 		} catch( BindException e) {
-			throw new ConnectionException("Could not bind a local port.");
+			throw new ConnectionException("Could not bind a local port.", e);
 		} catch( NoRouteToHostException e) {
-			throw new ConnectionException("No route to host. The remote host may not be running, blocked by a firewall, or disconnected.");
-		} catch( PortUnreachableException e) {
-			throw new ConnectionException("The port is unreachable on the remote host. The server may not be running, or blocked by a firewall.");
+			throw new ConnectionException("No route to host. The remote host may not be running, blocked by a firewall, or disconnected.", e);
+		} catch( ConnectException e) {
+			throw new ConnectionException("The port is unreachable on the remote host. The server may not be running, or blocked by a firewall.", e);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
@@ -156,6 +156,7 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 * TODO: Currently returns an empty list. Finding and enumerating all
 	 *       possible hosts on a network does not seem like a good idea. Ask
 	 *       @winder if an empty list is acceptable.
+	 * Example URI: tcp://examplehost.local/9001
 	 */
 	@Override
 	public List<String> getPortNames() {
