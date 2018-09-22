@@ -95,6 +95,10 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 		return client.isConnected();
 	}
 
+	/**
+	 * TODO: toggle the disconnect/connect icon; investigate how...
+	 *       UGS correctly goes into offline state when called, potentially a bug elsewhere?
+	 */
 	@Override
 	public void closePort() throws Exception {
 		if (client != null) {
@@ -119,16 +123,26 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 * @param command Command to be sent to remote host.
 	 */
 	public void sendStringToComm(String command) throws Exception {
-		bufOut.write(command.getBytes());
-		bufOut.flush();
+		try {
+			bufOut.write(command.getBytes());
+			bufOut.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+		}
 	}
 
 	/**
 	 * Immediately sends a byte, used for real-time commands.
 	 */
 	public void sendByteImmediately(byte b) throws Exception {
-		bufOut.write(b);
-		bufOut.flush();
+		try {
+			bufOut.write(b);
+			bufOut.flush();
+		} catch (Exception e) {
+			e.printStackTrace();
+			closePort(); // very likely we got disconnected, attempt to disconnect gracefully
+		}
 	}
 
 	/**
@@ -136,7 +150,8 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 	 */
 	public void run() {
 		String resp;
-		while(!Thread.interrupted() && !client.isClosed())
+		boolean keep_running = true; // loop terminates if false
+		while(!Thread.interrupted() && !client.isClosed() && keep_running)
 		{
 			try {
 				if(inStream.ready() && (resp = bufIn.readLine()) != null) {
@@ -144,10 +159,11 @@ public class TCPConnection extends AbstractConnection implements Runnable, Conne
 				}
 			} catch (SocketException e) {
 				e.printStackTrace();
-				System.exit(-1);
+				keep_running = false; // terminate thread if disconnected
+									  // TODO: at some point, reconnecting should be considered
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.exit(-1);
+				keep_running = false; // terminate thread if we cannot get data out of inStream
 			}
 		}
 	}
