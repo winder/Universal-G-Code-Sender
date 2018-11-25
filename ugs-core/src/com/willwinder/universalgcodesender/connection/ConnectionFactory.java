@@ -63,6 +63,8 @@ public class ConnectionFactory {
             return Optional.of(new JSerialCommConnection());
         } else if (connectionDriver == ConnectionDriver.JSSC) {
             return Optional.of(new JSSCConnection());
+        } else if (connectionDriver == ConnectionDriver.TCP) {
+            return Optional.of(new TCPConnection());
         }
         return Optional.empty();
     }

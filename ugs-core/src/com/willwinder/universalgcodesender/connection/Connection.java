@@ -41,6 +41,9 @@ public interface Connection {
      * Example with a serial port using the JSerialComm driver and baud rate 115200
      * jserialcomm://tty.usbmodem1421:115200
      *
+     * Example with a TCP port using TCPConnection driver to example.com and port 9001
+     * tcp://example.com:9001
+     *
      * @param uri the connection uri for the hardware to connect to
      */
     void setUri(String uri);

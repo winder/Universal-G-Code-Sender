@@ -53,7 +53,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
             ConnectionDriver.JSSC.getPrettyName(),
-            ConnectionDriver.JSERIALCOMM.getPrettyName()});
+            ConnectionDriver.JSERIALCOMM.getPrettyName(),
+            ConnectionDriver.TCP.getPrettyName(),});
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -86,6 +87,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
         if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
             settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
+        } else if (connectionDriver.getSelectedItem().equals(ConnectionDriver.TCP.getPrettyName())) {
+            settings.setConnectionDriver(ConnectionDriver.TCP);
         } else {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
