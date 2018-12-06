@@ -11,6 +11,7 @@ target/*
 .metadata
 tar.gz
 .classpath
+.factorypath
 .project
 .settings
 /*.log
