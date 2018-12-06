@@ -133,10 +133,12 @@ public class JogActionService {
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, FEED_DIVIDE));
 
             // Units
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".inch", Localization.getString("mainWindow.swing.inchRadioButton"),
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".inch", Localization.getString("jogging.units.inch"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, Units.INCH));
-            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".mm", Localization.getString("mainWindow.swing.mmRadioButton"),
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".mm", Localization.getString("jogging.units.mm"),
                     category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, Units.MM));
+            ars.registerAction(JogSizeAction.class.getCanonicalName() + ".toggle", Localization.getString("jogging.units.toggle"),
+                    category, localCategory, "" , menuPath, localized, new JogSizeAction(jogService, UNITS_TOGGLE));
 
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
@@ -155,7 +157,8 @@ public class JogActionService {
       FEED_PLUS,
       FEED_MINUS,
       FEED_MULTIPLY,
-      FEED_DIVIDE;
+      FEED_DIVIDE,
+      UNITS_TOGGLE;
     }
 
     protected class JogSizeAction extends AbstractAction {
@@ -220,6 +223,9 @@ public class JogActionService {
                       break;
                     case FEED_MINUS:
                       js.decreaseFeedRate();
+                      break;
+                    case UNITS_TOGGLE:
+                      js.setUnits(js.getUnits() == Units.MM ? Units.INCH : Units.MM);
                       break;
                     default:
                         break;
