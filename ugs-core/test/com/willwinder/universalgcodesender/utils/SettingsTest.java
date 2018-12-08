@@ -25,6 +25,9 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * @author Joacim Breiler
  */
@@ -81,47 +84,48 @@ public class SettingsTest {
     }
 
     @Test
-    public void settingFileShouldUpdateRecents() {
+    public void settingFileShouldUpdateRecents() throws IOException {
       String path = "/some/file";
-      String file = path + "/file.gcode";
-      target.setLastOpenedFilename(file);
+      File file = new File(path + "/file.gcode").getCanonicalFile() ;
 
+      target.setLastOpenedFilename(file.getCanonicalPath());
+      
       Assertions.assertThat(target.getRecentFiles())
               .hasSize(1)
-              .containsExactly(file);
+              .containsExactly(file.getPath());
       Assertions.assertThat(target.getRecentDirectories())
               .hasSize(1)
-              .containsExactly(path);
+              .containsExactly(file.getParentFile().getPath());
     }
 
     @Test
-    public void recentsShouldOverflowOldestAndReturnLIFO() {
-      String path = "/some/file";
+    public void recentsShouldOverflowOldestAndReturnLIFO() throws IOException {
+      String path = new File("/some/file").getCanonicalPath();
 
       // Add up recents to the brim.
       for(int i = 0; i < HISTORY_SIZE; i++) {
-        target.setLastOpenedFilename(path + i + "/file.gcode");
+        target.setLastOpenedFilename(path + i + File.separator+"file.gcode");
       }
 
       // Overflow.
-      target.setLastOpenedFilename(path + HISTORY_SIZE + "/file.gcode");
+      target.setLastOpenedFilename(path + HISTORY_SIZE + File.separator+"file.gcode");
 
       Assertions.assertThat(target.getRecentFiles())
               .hasSize(HISTORY_SIZE)
-              .doesNotContain(path + "0/file.gcode");
+              .doesNotContain(path + "0"+File.separator+"file.gcode");
       Assertions.assertThat(target.getRecentDirectories())
               .hasSize(HISTORY_SIZE)
               .doesNotContain(path + "0");
 
       // Re-add "1" then overflow "2"
-      target.setLastOpenedFilename(path + "1/file.gcode");
-      target.setLastOpenedFilename(path + (HISTORY_SIZE + 1) + "/file.gcode");
+      target.setLastOpenedFilename(path + "1"+File.separator+"file.gcode");
+      target.setLastOpenedFilename(path + (HISTORY_SIZE + 1) + File.separator+"file.gcode");
 
       // Verify that "2" was bumped and that "1" is the most recent.
       Assertions.assertThat(target.getRecentFiles())
               .hasSize(HISTORY_SIZE)
-              .doesNotContain(path + "2/file.gcode")
-              .startsWith(path + "21/file.gcode", path + "1/file.gcode");
+              .doesNotContain(path + "2"+File.separator+"file.gcode")
+              .startsWith(path + "21"+File.separator+"file.gcode", path + "1"+File.separator+"file.gcode");
       Assertions.assertThat(target.getRecentDirectories())
               .hasSize(HISTORY_SIZE)
               .doesNotContain(path + "2")
