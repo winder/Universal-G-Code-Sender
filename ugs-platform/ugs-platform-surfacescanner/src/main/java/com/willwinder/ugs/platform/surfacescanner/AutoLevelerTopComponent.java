@@ -181,6 +181,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         else if(evt.isSettingChangeEvent()) {
             updateSettings();
         }
+        
+        else if(evt.isFileChangeEvent()){
+            applyToGcode.setEnabled(true);
+        }
     }
 
     private double getValue(JSpinner spinner) {
@@ -601,6 +605,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         try {
             backend.applyGcodeParser(gcp);
+            applyToGcode.setEnabled(false);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());
             Exceptions.printStackTrace(ex);
