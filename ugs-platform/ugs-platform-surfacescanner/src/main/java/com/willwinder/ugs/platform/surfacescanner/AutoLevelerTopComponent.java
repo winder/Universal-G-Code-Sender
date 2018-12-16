@@ -242,7 +242,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void stateChanged(ChangeEvent e) {
         // This state change handler is only for the visualizer.
-        if (bulkChanges || scanner == null) {
+        // prevent infinite loop, only call when the stateChange event was triggered by a swing component.
+        if (bulkChanges || scanner == null || e == null) {
             return;
         }
 
@@ -252,10 +253,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         autoLevelSettings.zSurface = getValue(this.zSurface);
         autoLevelSettings.stepResolution = getValue(this.stepResolution);
 
-        // prevent infinite loop, only call when the stateChange event was triggered by a swing component.
-        if (e != null) {
-            settings.setAutoLevelSettings(autoLevelSettings);
-        }
+        settings.setAutoLevelSettings(autoLevelSettings);
     }
 
     /**
@@ -547,8 +545,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         }
 
         scanningSurface = true;
+        Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
+        updateScanner(u);
+        
         try {
-            Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
+            
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
                 backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
@@ -637,6 +638,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }//GEN-LAST:event_useLoadedFileActionPerformed
 
     private void generateTestDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateTestDataButtonActionPerformed
+        if(scanner.getProbeStartPositions() == null)
+            return;
+
         // Generate some random test data.
         Random random = new Random();
 

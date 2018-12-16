@@ -77,10 +77,6 @@ public class SurfaceScanner {
         Position newMin = new Position(minx, miny, minz, units);
         Position newMax = new Position(maxx, maxy, maxz, units);
 
-        // Make sure the position changed before resetting things.
-        if (newMin.equals(this.minXYZ) && newMax.equals(this.maxXYZ) && this.resolution == resolution) {
-            return;
-        }
 
         this.minXYZ = newMin;
         this.maxXYZ = newMax;
