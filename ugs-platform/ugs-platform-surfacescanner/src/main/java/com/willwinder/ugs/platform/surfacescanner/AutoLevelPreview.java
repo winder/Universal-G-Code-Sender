@@ -45,7 +45,7 @@ public class AutoLevelPreview extends Renderable {
 
     private float high[] = {0, 255, 0}; // green
     private float low[] = {255, 0, 0}; // red
-
+    
     public AutoLevelPreview(String title) {
         super(10, title);
 

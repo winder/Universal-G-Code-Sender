@@ -276,6 +276,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         xMax = new javax.swing.JSpinner();
         yMax = new javax.swing.JSpinner();
         zMax = new javax.swing.JSpinner();
+        visibleAutoLeveler = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         resolutionLabel = new javax.swing.JLabel();
         stepResolution = new javax.swing.JSpinner();
@@ -300,38 +301,34 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         org.openide.awt.Mnemonics.setLocalizedText(zLabel, "Z");
 
         zMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        zMin.setSize(new java.awt.Dimension(33, 26));
 
         yMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        yMin.setSize(new java.awt.Dimension(33, 26));
 
         xMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        xMin.setSize(new java.awt.Dimension(33, 26));
 
         org.openide.awt.Mnemonics.setLocalizedText(maxLabel, "Max");
 
         xMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        xMax.setSize(new java.awt.Dimension(33, 26));
 
         yMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        yMax.setSize(new java.awt.Dimension(33, 26));
 
         zMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        zMax.setSize(new java.awt.Dimension(33, 26));
+
+        visibleAutoLeveler.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(visibleAutoLeveler, "Visible AutoLeveler");
+        visibleAutoLeveler.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                visibleAutoLevelerActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(xLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(minLabel)
-                            .addComponent(xMin, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(zLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -339,41 +336,57 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(yLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(yMin)))
+                        .addComponent(yMin))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(xLabel)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(minLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(13, 13, 13)
+                                .addComponent(xMin)))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(maxLabel)
                     .addComponent(yMax, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
-                    .addComponent(xMax)
-                    .addComponent(zMax))
+                    .addComponent(zMax)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(xMax, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(maxLabel)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(visibleAutoLeveler, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(31, 31, 31))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(13, 13, 13)
+                .addComponent(visibleAutoLeveler)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(maxLabel)
-                        .addGap(9, 9, 9)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(67, 67, 67)
-                                .addComponent(zMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(xMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(9, 9, 9)
-                                .addComponent(yMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(79, 79, 79)
+                        .addComponent(zMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(minLabel)
                         .addGap(9, 9, 9)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(xLabel)
-                            .addComponent(xMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(xMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(xMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(9, 9, 9)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(yLabel)
-                            .addComponent(yMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(yMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(yMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(zLabel)
@@ -421,14 +434,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     .addComponent(settingsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(resolutionLabel)
-                                .addGap(40, 40, 40)
-                                .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(zSurfaceLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(resolutionLabel)
+                            .addComponent(zSurfaceLabel))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(generateTestDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -652,6 +663,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         }
     }//GEN-LAST:event_generateTestDataButtonActionPerformed
 
+    private void visibleAutoLevelerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visibleAutoLevelerActionPerformed
+        r.setEnabled(visibleAutoLeveler.isSelected());
+    }//GEN-LAST:event_visibleAutoLevelerActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyToGcode;
     private javax.swing.JButton dataViewer;
@@ -669,6 +684,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     private javax.swing.JRadioButton unitInch;
     private javax.swing.JRadioButton unitMM;
     private javax.swing.JButton useLoadedFile;
+    private javax.swing.JCheckBox visibleAutoLeveler;
     private javax.swing.JLabel xLabel;
     private javax.swing.JSpinner xMax;
     private javax.swing.JSpinner xMin;
