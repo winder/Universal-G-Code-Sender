@@ -85,7 +85,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     // Used to disable the change listener temporarily.
     private boolean bulkChanges = false;
-    boolean scanningSurface = false;
 
     public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
     public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
@@ -160,9 +159,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isProbeEvent()) {
-            if (!scanningSurface) return;
-
-            Position probe = evt.getProbePosition();
+            if (!scanner.isCollectedAllProbe()) return;
+            
+            // position work
+            Position probe = backend.getWorkPosition();
             Position offset = this.settings.getAutoLevelSettings().autoLevelProbeOffset;
 
             if (probe.getUnits() == Units.UNKNOWN || offset.getUnits() == Units.UNKNOWN) {
@@ -544,11 +544,11 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             return;
         }
 
-        scanningSurface = true;
         Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
         updateScanner(u);
-        
+
         try {
+            scanner.enableCollectProbe();
             
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
@@ -558,8 +558,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-        } finally {
-            scanningSurface = false;
         }
     }//GEN-LAST:event_scanSurfaceButtonActionPerformed
 
@@ -641,6 +639,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         if(scanner.getProbeStartPositions() == null)
             return;
 
+        scanner.enableTestProbe();
+        
         // Generate some random test data.
         Random random = new Random();
 

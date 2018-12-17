@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableList;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import java.util.Collection;
 
 /**
  *
@@ -31,8 +30,10 @@ import java.util.Collection;
 public class SurfaceScanner {
     private ImmutableCollection<Position> probePositions;
     private Position[][] probePositionGrid;
-    private Collection<Position> surfacePositions;
 
+    // step error 
+    final private static double STEP_OFFSET = 1;
+    
     private Units u = null;
     private Position minXYZ = null;
     private Position maxXYZ = null;
@@ -40,19 +41,33 @@ public class SurfaceScanner {
     private double probeDistance = 0;
     private int yAxisPoints = -1;
     private int xAxisPoints = -1;
+    private int countProbe = 0;
+    private boolean scanningSurface = false;
     
     public SurfaceScanner(Units u) {
         this.u = u;
     }
 
-    public void probeEvent(final Position p) {
-        try {
-            int x = (int) Math.ceil((p.x - minXYZ.x) / resolution);
-            int y = (int) Math.ceil((p.y - minXYZ.y) / resolution);
-
-            probePositionGrid[x][y] = p.getPositionIn(u);
-        } catch (Exception e) {
-
+    public void probeEvent(final Position p) {      
+        Position pCount = probePositions.asList().get(countProbe);
+        
+        double pCountMinX = pCount.x - STEP_OFFSET;
+        double pCountMaxX = pCount.x + STEP_OFFSET;
+        double pCountMinY = pCount.y - STEP_OFFSET;
+        double pCountMaxY = pCount.y + STEP_OFFSET;
+              
+        if(p.x >= pCountMinX && p.x <= pCountMaxX &&
+           p.y >= pCountMinY && p.y <= pCountMaxY)
+        {
+            probePositionGrid[countProbe / yAxisPoints][countProbe % yAxisPoints] = p.getPositionIn(u);
+            pCount.z = p.z;
+            
+            countProbe++;
+            if(countProbe >= probePositions.size())
+                scanningSurface = false;
+            
+        } else{
+            scanningSurface = false;
         }
     }
 
@@ -102,7 +117,23 @@ public class SurfaceScanner {
 
         this.probePositions = probePositionBuilder.build();
     }
+    
+    
+    
+    public boolean isCollectedAllProbe(){
+        return scanningSurface;
+    }
+    
 
+    public void enableCollectProbe(){
+        countProbe = 0;
+        scanningSurface = true;
+    }
+
+    public void enableTestProbe(){
+        countProbe = 0;
+    }
+    
     public ImmutableCollection<Position> getProbeStartPositions() {
         return this.probePositions;
     }
