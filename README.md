@@ -24,8 +24,8 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 
 | Version | Description |
 |-|-|
-| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightweight user interface |
-| [UGS Platform](http://bit.ly/1DkClRW) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
+| [UGS Classic](http://bit.ly/2ErycR3)  | The nightly build of the classic version with a clean and lightweight user interface |
+| [UGS Platform](http://bit.ly/2R5zw2F) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
 ## Running 
 
