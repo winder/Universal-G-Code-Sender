@@ -37,6 +37,7 @@ public class SurfaceScanner {
     private Units u = null;
     private Position minXYZ = null;
     private Position maxXYZ = null;
+    private Position probeOffset = null;
     private double resolution = 1;
     private double probeDistance = 0;
     private int yAxisPoints = -1;
@@ -46,9 +47,15 @@ public class SurfaceScanner {
     
     public SurfaceScanner(Units u) {
         this.u = u;
+        probeOffset = new Position();
     }
 
     public void probeEvent(final Position p) {      
+        Position pOffset = new Position(
+                p.x + probeOffset.x, 
+                p.y + probeOffset.y, 
+                p.z + probeOffset.z, u);
+        
         Position pCount = probePositions.asList().get(countProbe);
         
         double pCountMinX = pCount.x - STEP_OFFSET;
@@ -56,11 +63,11 @@ public class SurfaceScanner {
         double pCountMinY = pCount.y - STEP_OFFSET;
         double pCountMaxY = pCount.y + STEP_OFFSET;
               
-        if(p.x >= pCountMinX && p.x <= pCountMaxX &&
-           p.y >= pCountMinY && p.y <= pCountMaxY)
+        if(pOffset.x >= pCountMinX && pOffset.x <= pCountMaxX &&
+           pOffset.y >= pCountMinY && pOffset.y <= pCountMaxY)
         {
-            probePositionGrid[countProbe / yAxisPoints][countProbe % yAxisPoints] = p.getPositionIn(u);
-            pCount.z = p.z;
+            probePositionGrid[countProbe / yAxisPoints][countProbe % yAxisPoints] = pOffset.getPositionIn(u);
+            pCount.z = pOffset.z;
             
             countProbe++;
             if(countProbe >= probePositions.size())
@@ -125,12 +132,18 @@ public class SurfaceScanner {
     }
     
 
-    public void enableCollectProbe(){
+    public void enableCollectProbe(Position work, Position machine){
+        probeOffset.x = (-1 * machine.x) + work.x;
+        probeOffset.y = (-1 * machine.y) + work.y;
+        probeOffset.z = (-1 * machine.z) + work.z;
         countProbe = 0;
         scanningSurface = true;
     }
 
     public void enableTestProbe(){
+        probeOffset.x = 0;
+        probeOffset.y = 0;
+        probeOffset.z = 0;
         countProbe = 0;
     }
     
