@@ -34,7 +34,7 @@ public class SurfaceScanner {
     // step error 
     final private static double STEP_OFFSET = 1;
     
-    private Units u = null;
+    private Units units = null;
     private Position minXYZ = null;
     private Position maxXYZ = null;
     private Position probeOffset = null;
@@ -45,8 +45,7 @@ public class SurfaceScanner {
     private int countProbe = 0;
     private boolean scanningSurface = false;
     
-    public SurfaceScanner(Units u) {
-        this.u = u;
+    public SurfaceScanner() {
         probeOffset = new Position();
     }
 
@@ -54,7 +53,7 @@ public class SurfaceScanner {
         Position pOffset = new Position(
                 p.x + probeOffset.x, 
                 p.y + probeOffset.y, 
-                p.z + probeOffset.z, u);
+                p.z + probeOffset.z, Units.MM).getPositionIn(units);
         
         Position pCount = probePositions.asList().get(countProbe);
         
@@ -66,7 +65,7 @@ public class SurfaceScanner {
         if(pOffset.x >= pCountMinX && pOffset.x <= pCountMaxX &&
            pOffset.y >= pCountMinY && pOffset.y <= pCountMaxY)
         {
-            probePositionGrid[countProbe / yAxisPoints][countProbe % yAxisPoints] = pOffset.getPositionIn(u);
+            probePositionGrid[countProbe / yAxisPoints][countProbe % yAxisPoints] = pOffset.getPositionIn(units);
             pCount.z = pOffset.z;
             
             countProbe++;
@@ -75,20 +74,21 @@ public class SurfaceScanner {
             
         } else{
             scanningSurface = false;
+            throw new IllegalArgumentException("Error in probe reference.");
         }
     }
 
     /**
      * Provides two points of the scanners bounding box and the number of points to sample in the X/Y directions.
      */
-    public void update(final Position corner1, final Position corner2, double resolution) {
+    public void update(final Position corner1, final Position corner2, double resolution, Units units) {
         if (corner1.getUnits() != corner2.getUnits()) {
             throw new IllegalArgumentException("Provide same unit for both measures.");
         }
-
+        this.units = units;
+        
         if (resolution == 0) return;
 
-        Units units = corner1.getUnits();
         double minx = Math.min(corner1.x, corner2.x);
         double maxx = Math.max(corner1.x, corner2.x);
         double miny = Math.min(corner1.y, corner2.y);
@@ -176,6 +176,6 @@ public class SurfaceScanner {
     }
 
     public final Units getUnits() {
-        return u;
+        return units;
     }
 }

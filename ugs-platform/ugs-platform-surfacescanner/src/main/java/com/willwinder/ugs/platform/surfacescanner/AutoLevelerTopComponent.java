@@ -207,12 +207,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         autoLevelerSettings.stepResolution = getValue(this.stepResolution);
         autoLevelerSettings.zSurface = getValue(this.zSurface);
 
-        scanner.update(corner1, corner2, autoLevelerSettings.stepResolution);
+        scanner.update(corner1, corner2, autoLevelerSettings.stepResolution, units);
 
         if (r != null) {
             r.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getUnits(),
+                    Units.MM,
                     scanner.getProbePositionGrid(),
                     scanner.getMaxXYZ(),
                     scanner.getMinXYZ());
@@ -564,9 +564,9 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
-                backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 X%f Y%f Z%f",(p.getUnits() == Units.MM)? 1:0, p.x, p.y, p.z));
                 backend.probe("Z", als.probeSpeed, this.scanner.getProbeDistance(), u);
-                backend.sendGcodeCommand(true, String.format("G90 G21 G0 Z%f", p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 Z%f",(p.getUnits() == Units.MM)? 1:0, p.z));
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
@@ -658,9 +658,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
         for (Position p : scanner.getProbeStartPositions()) {
-            Position probe = new Position(p);
             p.z = ((random.nextBoolean() ? -1 : 1) * random.nextFloat()) + getValue(this.zSurface);
-            scanner.probeEvent(p);
+            scanner.probeEvent(p.getPositionIn(Units.MM));
         }
     }//GEN-LAST:event_generateTestDataButtonActionPerformed
 
@@ -702,7 +701,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void componentOpened() {
         GUIHelpers.displayHelpDialog("The autoleveler feature currently doesn't work properly, close the autoleveler window to disable this message in the future.");
-        scanner = new SurfaceScanner(Units.MM);
+        scanner = new SurfaceScanner();
         if (r == null) {
             r = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
             RenderableUtils.registerRenderable(r);
