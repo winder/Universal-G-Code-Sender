@@ -136,6 +136,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         this.dataViewer.setText(Localization.getString("autoleveler.panel.view-data"));
         this.settingsButton.setText(Localization.getString("mainWindow.swing.settingsMenu"));
         this.generateTestDataButton.setText("Generate Test Data");
+        this.visibleAutoLeveler.setText(Localization.getString("autoleveler.panel.visible"));
     }
 
     private void updateSettings() {
