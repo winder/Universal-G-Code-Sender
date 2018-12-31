@@ -85,7 +85,6 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
     // Used to disable the change listener temporarily.
     private boolean bulkChanges = false;
-    boolean scanningSurface = false;
 
     public final static String AutoLevelerTitle = Localization.getString("platform.window.autoleveler", lang);
     public final static String AutoLevelerTooltip = Localization.getString("platform.window.autoleveler.tooltip", lang);
@@ -137,6 +136,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         this.dataViewer.setText(Localization.getString("autoleveler.panel.view-data"));
         this.settingsButton.setText(Localization.getString("mainWindow.swing.settingsMenu"));
         this.generateTestDataButton.setText("Generate Test Data");
+        this.visibleAutoLeveler.setText(Localization.getString("autoleveler.panel.visible"));
     }
 
     private void updateSettings() {
@@ -160,8 +160,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isProbeEvent()) {
-            if (!scanningSurface) return;
-
+            if (!scanner.isCollectedAllProbe()) return;
+            
             Position probe = evt.getProbePosition();
             Position offset = this.settings.getAutoLevelSettings().autoLevelProbeOffset;
 
@@ -180,6 +180,10 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         else if(evt.isSettingChangeEvent()) {
             updateSettings();
+        }
+        
+        else if(evt.isFileChangeEvent()){
+            applyToGcode.setEnabled(true);
         }
     }
 
@@ -203,12 +207,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         autoLevelerSettings.stepResolution = getValue(this.stepResolution);
         autoLevelerSettings.zSurface = getValue(this.zSurface);
 
-        scanner.update(corner1, corner2, autoLevelerSettings.stepResolution);
+        scanner.update(corner1, corner2, autoLevelerSettings.stepResolution, units);
 
         if (r != null) {
             r.updateSettings(
                     scanner.getProbeStartPositions(),
-                    scanner.getUnits(),
+                    Units.MM,
                     scanner.getProbePositionGrid(),
                     scanner.getMaxXYZ(),
                     scanner.getMinXYZ());
@@ -238,7 +242,8 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void stateChanged(ChangeEvent e) {
         // This state change handler is only for the visualizer.
-        if (bulkChanges || scanner == null) {
+        // prevent infinite loop, only call when the stateChange event was triggered by a swing component.
+        if (bulkChanges || scanner == null || e == null) {
             return;
         }
 
@@ -248,10 +253,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         autoLevelSettings.zSurface = getValue(this.zSurface);
         autoLevelSettings.stepResolution = getValue(this.stepResolution);
 
-        // prevent infinite loop, only call when the stateChange event was triggered by a swing component.
-        if (e != null) {
-            settings.setAutoLevelSettings(autoLevelSettings);
-        }
+        settings.setAutoLevelSettings(autoLevelSettings);
     }
 
     /**
@@ -274,6 +276,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         xMax = new javax.swing.JSpinner();
         yMax = new javax.swing.JSpinner();
         zMax = new javax.swing.JSpinner();
+        visibleAutoLeveler = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         resolutionLabel = new javax.swing.JLabel();
         stepResolution = new javax.swing.JSpinner();
@@ -298,80 +301,93 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
         org.openide.awt.Mnemonics.setLocalizedText(zLabel, "Z");
 
         zMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        zMin.setSize(new java.awt.Dimension(33, 26));
 
         yMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        yMin.setSize(new java.awt.Dimension(33, 26));
 
         xMin.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        xMin.setSize(new java.awt.Dimension(33, 26));
 
         org.openide.awt.Mnemonics.setLocalizedText(maxLabel, "Max");
 
         xMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        xMax.setSize(new java.awt.Dimension(33, 26));
 
         yMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        yMax.setSize(new java.awt.Dimension(33, 26));
 
         zMax.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
-        zMax.setSize(new java.awt.Dimension(33, 26));
+
+        visibleAutoLeveler.setSelected(true);
+        org.openide.awt.Mnemonics.setLocalizedText(visibleAutoLeveler, "Visible AutoLeveler");
+        visibleAutoLeveler.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                visibleAutoLevelerActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(xLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(minLabel)
-                            .addComponent(xMin, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(zLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(zMin))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(yLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(yMin)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(minLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 93, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(xMin, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(4, 4, 4))))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(zLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(zMin))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                .addComponent(yLabel)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(yMin)))
+                        .addGap(4, 4, 4)))
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(maxLabel)
                     .addComponent(yMax, javax.swing.GroupLayout.DEFAULT_SIZE, 107, Short.MAX_VALUE)
-                    .addComponent(xMax)
-                    .addComponent(zMax))
+                    .addComponent(zMax)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(maxLabel)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(xMax, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(visibleAutoLeveler)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(13, 13, 13)
+                .addComponent(visibleAutoLeveler)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(maxLabel)
-                        .addGap(9, 9, 9)
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGap(67, 67, 67)
-                                .addComponent(zMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(xMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(9, 9, 9)
-                                .addComponent(yMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(79, 79, 79)
+                        .addComponent(zMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(minLabel)
                         .addGap(9, 9, 9)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(xLabel)
-                            .addComponent(xMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(xMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(xMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(9, 9, 9)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(yLabel)
-                            .addComponent(yMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(yMin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(yMax, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(zLabel)
@@ -385,7 +401,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         org.openide.awt.Mnemonics.setLocalizedText(zSurfaceLabel, "Z Surface:");
 
-        zSurface.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 1.0d));
+        zSurface.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
 
         org.openide.awt.Mnemonics.setLocalizedText(dataViewer, "View Data");
         dataViewer.addActionListener(new java.awt.event.ActionListener() {
@@ -419,14 +435,12 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
                     .addComponent(settingsButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(resolutionLabel)
-                                .addGap(40, 40, 40)
-                                .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(zSurfaceLabel)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addComponent(resolutionLabel)
+                            .addComponent(zSurfaceLabel))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(stepResolution, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(zSurface, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(generateTestDataButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
@@ -542,19 +556,20 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
             return;
         }
 
-        scanningSurface = true;
+        Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
+        updateScanner(u);
+
         try {
-            Units u = this.unitMM.isSelected() ? Units.MM : Units.INCH;
+            scanner.enableCollectProbe(backend.getWorkPosition(), backend.getMachinePosition());
+            
             AutoLevelSettings als = settings.getAutoLevelSettings();
             for (Position p : scanner.getProbeStartPositions()) {
-                backend.sendGcodeCommand(true, String.format("G90 G21 G0 X%f Y%f Z%f", p.x, p.y, p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 X%f Y%f Z%f",(p.getUnits() == Units.MM)? 1:0, p.x, p.y, p.z));
                 backend.probe("Z", als.probeSpeed, this.scanner.getProbeDistance(), u);
-                backend.sendGcodeCommand(true, String.format("G90 G21 G0 Z%f", p.z));
+                backend.sendGcodeCommand(true, String.format("G90 G2%d G0 Z%f",(p.getUnits() == Units.MM)? 1:0, p.z));
             }
         } catch (Exception ex) {
             Exceptions.printStackTrace(ex);
-        } finally {
-            scanningSurface = false;
         }
     }//GEN-LAST:event_scanSurfaceButtonActionPerformed
 
@@ -601,6 +616,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
 
         try {
             backend.applyGcodeParser(gcp);
+            applyToGcode.setEnabled(false);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getMessage());
             Exceptions.printStackTrace(ex);
@@ -632,16 +648,24 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     }//GEN-LAST:event_useLoadedFileActionPerformed
 
     private void generateTestDataButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateTestDataButtonActionPerformed
+        if(scanner.getProbeStartPositions() == null)
+            return;
+
+        scanner.enableTestProbe();
+        
         // Generate some random test data.
         Random random = new Random();
 
         Settings.AutoLevelSettings autoLevelerSettings = this.settings.getAutoLevelSettings();
         for (Position p : scanner.getProbeStartPositions()) {
-            Position probe = new Position(p);
             p.z = ((random.nextBoolean() ? -1 : 1) * random.nextFloat()) + getValue(this.zSurface);
-            scanner.probeEvent(p);
+            scanner.probeEvent(p.getPositionIn(Units.MM));
         }
     }//GEN-LAST:event_generateTestDataButtonActionPerformed
+
+    private void visibleAutoLevelerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visibleAutoLevelerActionPerformed
+        r.setEnabled(visibleAutoLeveler.isSelected());
+    }//GEN-LAST:event_visibleAutoLevelerActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton applyToGcode;
@@ -660,6 +684,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     private javax.swing.JRadioButton unitInch;
     private javax.swing.JRadioButton unitMM;
     private javax.swing.JButton useLoadedFile;
+    private javax.swing.JCheckBox visibleAutoLeveler;
     private javax.swing.JLabel xLabel;
     private javax.swing.JSpinner xMax;
     private javax.swing.JSpinner xMin;
@@ -676,7 +701,7 @@ public final class AutoLevelerTopComponent extends TopComponent implements ItemL
     @Override
     public void componentOpened() {
         GUIHelpers.displayHelpDialog("The autoleveler feature currently doesn't work properly, close the autoleveler window to disable this message in the future.");
-        scanner = new SurfaceScanner(Units.MM);
+        scanner = new SurfaceScanner();
         if (r == null) {
             r = new AutoLevelPreview(Localization.getString("platform.visualizer.renderable.autolevel-preview"));
             RenderableUtils.registerRenderable(r);
