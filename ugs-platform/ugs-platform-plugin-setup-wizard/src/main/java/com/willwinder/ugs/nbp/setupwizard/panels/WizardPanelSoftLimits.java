@@ -228,19 +228,19 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 switch (axis) {
                     case X:
                         double limitX = Math.abs(decimalFormat.parse(textFieldSoftLimitX.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitX(limitX);
+                        firmwareSettings.setSoftLimit(axis, limitX);
                         buttonUpdateSettingsX.setEnabled(false);
                         break;
 
                     case Y:
                         double limitY = Math.abs(decimalFormat.parse(textFieldSoftLimitY.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitY(limitY);
+                        firmwareSettings.setSoftLimit(axis, limitY);
                         buttonUpdateSettingsY.setEnabled(false);
                         break;
 
                     case Z:
                         double limitZ = Math.abs(decimalFormat.parse(textFieldSoftLimitZ.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitZ(limitZ);
+                        firmwareSettings.setSoftLimit(axis, limitZ);
                         buttonUpdateSettingsZ.setEnabled(false);
                         break;
 
@@ -260,9 +260,9 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
         try {
             IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-            textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimitX()));
-            textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimitY()));
-            textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimitZ()));
+            textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.X)));
+            textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.Y)));
+            textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.Z)));
         } catch (FirmwareSettingsException e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch firmware settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);

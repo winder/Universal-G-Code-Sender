@@ -27,12 +27,15 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JCheckBox;
@@ -101,7 +104,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
         checkboxReverseX.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionX(checkboxReverseX.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.X, checkboxReverseX.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
@@ -112,7 +115,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
         checkboxReverseY.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionY(checkboxReverseY.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.Y, checkboxReverseY.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
@@ -123,7 +126,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
         checkboxReverseZ.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionZ(checkboxReverseZ.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.Z, checkboxReverseZ.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
@@ -191,9 +194,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private void refreshReverseDirectionCheckboxes() {
         IController controller = getBackend().getController();
         if (controller != null) {
-            checkboxReverseX.setSelected(controller.getFirmwareSettings().isInvertDirectionX());
-            checkboxReverseY.setSelected(controller.getFirmwareSettings().isInvertDirectionY());
-            checkboxReverseZ.setSelected(controller.getFirmwareSettings().isInvertDirectionZ());
+            try {
+                checkboxReverseX.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.X));
+                checkboxReverseY.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.Y));
+                checkboxReverseZ.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.Z));
+            } catch (FirmwareSettingsException e) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while getting setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            }
         }
     }
 }

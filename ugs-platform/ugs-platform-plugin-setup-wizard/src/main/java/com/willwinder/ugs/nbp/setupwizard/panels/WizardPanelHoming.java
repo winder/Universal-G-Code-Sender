@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
@@ -161,7 +162,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             IController controller = getBackend().getController();
             if (controller != null) {
                 try {
-                    controller.getFirmwareSettings().setHomingDirectionInvertedX(comboBoxInvertDirectionX.getSelectedIndex() == 1);
+                    controller.getFirmwareSettings().setHomingDirectionInverted(Axis.X, comboBoxInvertDirectionX.getSelectedIndex() == 1);
                 } catch (FirmwareSettingsException e) {
                     NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
@@ -177,7 +178,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             IController controller = getBackend().getController();
             if (controller != null) {
                 try {
-                    controller.getFirmwareSettings().setHomingDirectionInvertedY(comboBoxInvertDirectionY.getSelectedIndex() == 1);
+                    controller.getFirmwareSettings().setHomingDirectionInverted(Axis.Y, comboBoxInvertDirectionY.getSelectedIndex() == 1);
                 } catch (FirmwareSettingsException e) {
                     NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
@@ -193,7 +194,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
             IController controller = getBackend().getController();
             if (controller != null) {
                 try {
-                    controller.getFirmwareSettings().setHomingDirectionInvertedZ(comboBoxInvertDirectionZ.getSelectedIndex() == 1);
+                    controller.getFirmwareSettings().setHomingDirectionInverted(Axis.Z, comboBoxInvertDirectionZ.getSelectedIndex() == 1);
                 } catch (FirmwareSettingsException e) {
                     NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while updating setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
                     DialogDisplayer.getDefault().notify(nd);
@@ -222,13 +223,13 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
                             labelHomingDirection.setVisible(firmwareSettings.isHomingEnabled());
                             comboBoxInvertDirectionX.setVisible(firmwareSettings.isHomingEnabled());
-                            comboBoxInvertDirectionX.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedX() ? 1 : 0);
+                            comboBoxInvertDirectionX.setSelectedIndex(firmwareSettings.isHomingDirectionInverted(Axis.X) ? 1 : 0);
 
                             comboBoxInvertDirectionY.setVisible(firmwareSettings.isHomingEnabled());
-                            comboBoxInvertDirectionY.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedY() ? 1 : 0);
+                            comboBoxInvertDirectionY.setSelectedIndex(firmwareSettings.isHomingDirectionInverted(Axis.Y) ? 1 : 0);
 
                             comboBoxInvertDirectionZ.setVisible(firmwareSettings.isHomingEnabled());
-                            comboBoxInvertDirectionZ.setSelectedIndex(firmwareSettings.isHomingDirectionInvertedZ() ? 1 : 0);
+                            comboBoxInvertDirectionZ.setSelectedIndex(firmwareSettings.isHomingDirectionInverted(Axis.Z) ? 1 : 0);
 
                             labelHomingNotSupported.setVisible(false);
                             labelHardLimitsNotEnabled.setVisible(false);

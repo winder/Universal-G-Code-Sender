@@ -130,11 +130,17 @@ public class WizardPanelIterator implements WizardDescriptor.Iterator<WizardDesc
         this.wizardDescriptor = wizardDescriptor;
     }
 
+    /**
+     * Receive events from the step panels and update the wizard descriptor.
+     *
+     * @param e the fired event
+     */
     @Override
     public void stateChanged(ChangeEvent e) {
         if (wizardDescriptor != null) {
             // When a wizard step has changed, reload all steps in case new steps should be enabled.
             wizardDescriptor.putProperty(WizardDescriptor.PROP_CONTENT_DATA, getSteps());
+            wizardDescriptor.putProperty(WizardDescriptor.PROP_ERROR_MESSAGE, currentPanel.getErrorMessage());
         } else {
             logger.warning("No reference to the wizard descriptor set, we will not know if the steps have changed!");
         }

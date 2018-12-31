@@ -78,30 +78,18 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public void setInvertDirectionX(boolean inverted) {
-    }
-
-    @Override
-    public void setInvertDirectionY(boolean inverted) {
-    }
-
-    @Override
-    public void setInvertDirectionZ(boolean inverted) {
-    }
-
-    @Override
-    public boolean isInvertDirectionX() {
+    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
         return false;
     }
 
     @Override
-    public boolean isInvertDirectionY() {
-        return false;
+    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+
     }
 
     @Override
-    public boolean isInvertDirectionZ() {
-        return false;
+    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+
     }
 
     @Override
@@ -110,33 +98,7 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public double getSoftLimitX() {
-        return 0;
-    }
-
-    @Override
-    public void setSoftLimitX(double limit) {
-
-    }
-
-    @Override
-    public double getSoftLimitY() {
-        return 0;
-    }
-
-    @Override
-    public void setSoftLimitY(double limit) {
-
-    }
-
-    @Override
-    public double getSoftLimitZ() {
-        return 0;
-    }
-
-    @Override
-    public void setSoftLimitZ(double limit) {
-
+    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
     }
 
     @Override
@@ -145,37 +107,12 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
-    public boolean isHomingDirectionInvertedX() {
+    public boolean isHomingDirectionInverted(Axis axis) {
         return false;
     }
 
     @Override
-    public void setHomingDirectionInvertedX(boolean inverted) {
-
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedY() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedY(boolean inverted) {
-
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedZ() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedZ(boolean inverted) {
-
-    }
-
-    @Override
-    public void setHardLimitsInverted(boolean inverted) {
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) {
 
     }
 
@@ -185,8 +122,18 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     }
 
     @Override
+    public void setHardLimitsInverted(boolean inverted) {
+
+    }
+
+    @Override
     public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
 
+    }
+
+    @Override
+    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+        return 0;
     }
 
     @Override

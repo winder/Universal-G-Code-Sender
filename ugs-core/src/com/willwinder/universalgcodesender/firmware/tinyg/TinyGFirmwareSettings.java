@@ -126,33 +126,18 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
     }
 
     @Override
-    public boolean isInvertDirectionX() {
+    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
         return false;
     }
 
     @Override
-    public void setInvertDirectionX(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
+    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+
     }
 
     @Override
-    public boolean isInvertDirectionY() {
-        return false;
-    }
+    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
 
-    @Override
-    public void setInvertDirectionY(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public boolean isInvertDirectionZ() {
-        return false;
-    }
-
-    @Override
-    public void setInvertDirectionZ(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
     }
 
     @Override
@@ -161,33 +146,8 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
     }
 
     @Override
-    public double getSoftLimitX() throws FirmwareSettingsException {
-        return 0;
-    }
+    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
 
-    @Override
-    public void setSoftLimitX(double limit) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public double getSoftLimitY() throws FirmwareSettingsException {
-        return 0;
-    }
-
-    @Override
-    public void setSoftLimitY(double limit) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public double getSoftLimitZ() throws FirmwareSettingsException {
-        return 0;
-    }
-
-    @Override
-    public void setSoftLimitZ(double limit) throws FirmwareSettingsException {
-        // TODO add setting
     }
 
     @Override
@@ -196,32 +156,12 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
     }
 
     @Override
-    public boolean isHomingDirectionInvertedX() {
+    public boolean isHomingDirectionInverted(Axis axis) {
         return false;
     }
 
     @Override
-    public void setHomingDirectionInvertedX(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedY() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedY(boolean inverted) throws FirmwareSettingsException {
-        // TODO add setting
-    }
-
-    @Override
-    public boolean isHomingDirectionInvertedZ() {
-        return false;
-    }
-
-    @Override
-    public void setHomingDirectionInvertedZ(boolean inverted) throws FirmwareSettingsException {
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) {
         // TODO add setting
     }
 
@@ -244,6 +184,11 @@ public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmw
                 LOGGER.warning("Couldn't set the firmware setting " + setting.getKey() + " to value " + setting.getValue() + ". Error message: " + e.getMessage());
             }
         });
+    }
+
+    @Override
+    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+        return 0;
     }
 
     /*
