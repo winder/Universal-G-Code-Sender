@@ -68,6 +68,7 @@
   <modules>
     <module>ugs-core</module>
     <module>ugs-platform</module>
+    <module>ugs-cli</module>
   </modules>
 
   <!-- global dependencies -->
