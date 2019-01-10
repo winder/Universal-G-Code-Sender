@@ -941,14 +941,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             listeners.forEach(l -> l.receivedAlarm(alarm));
         }
     }
-    
-    protected void dispatchPostProcessData(int numRows) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.postProcessData(numRows);
-            }
-        }
-    }
 
     protected void dispatchProbeCoordinates(Position p) {
         if (listeners != null) {

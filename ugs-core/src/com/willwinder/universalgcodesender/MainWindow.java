@@ -1991,11 +1991,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + units.abbreviation );
         }
     }
-    
-    @Override
-    public void postProcessData(int numRows) {
-    }
-    
+
     /**
      * Updates the visualizer with the processed gcode file if it is available,
      * otherwise uses the unprocessed file.

@@ -224,11 +224,6 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
     }
 
-    @Override
-    public void postProcessData(int numRows) {
-
-    }
-
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if (this.openCloseButton.getText().equalsIgnoreCase(Localization.getString("open"))) {
             String firmware = this.firmwareCombo.getSelectedItem().toString();

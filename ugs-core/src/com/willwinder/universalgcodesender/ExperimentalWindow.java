@@ -512,11 +512,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     public void statusStringListener(ControllerStatus status) {
 
     }
-    
-    @Override
-    public void postProcessData(int numRows) {
-    }
-    
+
     @Override
     public void UGSEvent(UGSEvent evt) {
     }

@@ -369,10 +369,6 @@ public class PendantUI implements ControllerListener {
         
     }
 
-    @Override
-    public void postProcessData(int numRows) {
-    }
-
     public SystemStateBean getSystemState() {
         return systemState;
     }

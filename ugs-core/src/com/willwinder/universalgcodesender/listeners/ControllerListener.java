@@ -76,9 +76,4 @@ public interface ControllerListener {
      * Controller status information.
      */
     void statusStringListener(ControllerStatus status);
-    
-    /**
-     * Data gathered while preprocessing commands for queue.
-     */
-    void postProcessData(int numRows);
 }

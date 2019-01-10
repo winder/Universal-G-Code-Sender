@@ -164,11 +164,6 @@ implements ControllerListener, WindowListener {
     public void probeCoordinates(Position p) {
     }
     
-    @Override
-    public void postProcessData(int numRows) {
-        // Visualizer doesn't care.
-    }
-    
     // Window Listener Events.
 
     @Override
