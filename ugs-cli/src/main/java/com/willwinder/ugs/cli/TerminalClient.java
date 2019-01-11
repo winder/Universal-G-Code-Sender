@@ -18,116 +18,84 @@
  */
 package com.willwinder.ugs.cli;
 
-import com.willwinder.universalgcodesender.model.GUIBackend;
-import com.willwinder.universalgcodesender.utils.ControllerSettings;
-import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
-import com.willwinder.universalgcodesender.utils.ThreadHelper;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarBuilder;
-import me.tongfei.progressbar.ProgressBarStyle;
-import org.apache.commons.cli.*;
+import com.willwinder.universalgcodesender.utils.Version;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.LogManager;
 
+/**
+ * A terminal client implementation of UGS. Simply run this class with the argument -h to display
+ */
 public class TerminalClient {
 
     private static final String SOFTWARE_NAME = "ugs-cli";
-    private static final String OPTION_HELP = "help";
-    private static final String OPTION_VERSION = "version";
-    private static final String OPTION_FILE = "file";
-    private static final String OPTION_CONTROLLER_FIRMWARE = "firmware";
-    private static final String OPTION_PORT = "port";
-    private static final String OPTION_BAUD = "baud";
-    private static final String OPTION_HOME = "home";
+    private static final String SOFTWARE_DESCRIPTION = "This is a terminal version of Universal Gcode Sender used for sending gcode files to controllers using command line.";
 
-    private Options options;
-    private GUIBackend backend;
-    private String firmware = "grbl";
-    private String port = "/dev/ttsUSB0";
-    private int baudRate = 9600;
-    private String filename;
-    private boolean running;
-
-    private static String getVersion() {
-        String version = "unknown";
-        try {
-            final Properties properties = new Properties();
-            properties.load(TerminalClient.class.getResourceAsStream("/project.properties"));
-            version = properties.getProperty("project.version", version);
-        } catch (IOException e) {
-            // Never mind...
-        }
-        return version;
-    }
+    private final Configuration configuration;
+    private BackendAPI backend;
 
     public static void main(String[] args) throws IOException {
+        // Load our custom log properties preventing application to log to console
         LogManager.getLogManager().readConfiguration(TerminalClient.class.getResourceAsStream("/logging.properties"));
 
+        Configuration configuration = new Configuration();
+        configuration.parse(args);
 
-        TerminalClient terminalClient = new TerminalClient();
-
-        terminalClient.initializeOptions();
-        terminalClient.handleArguments(args);
-        terminalClient.initializeBackend();
-
+        TerminalClient terminalClient = new TerminalClient(configuration);
         terminalClient.runJob();
     }
 
-    private void runJob() {
+    /**
+     * Constructor for creating a terminal client. Given the configuration object different steps in the
+     * program can be switched on or off.
+     *
+     * @param configuration the configuration for how the job should be run.
+     */
+    public TerminalClient(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    /**
+     * Runs the job based on the options in the configuration
+     */
+    public void runJob() {
         try {
-            if (StringUtils.isNotEmpty(filename)) {
-                System.out.println("Running file \"" + filename + "\"");
-                File file = new File(filename);
-                backend.setGcodeFile(file);
-                backend.addControllerListener(new ProcessedLinePrinter());
-                if (!backend.canSend()) {
-                    System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getControlState());
-                }
+            if (configuration.hasOption(OptionEnum.HELP)) {
+                printHelpMessage();
+                System.exit(0);
+            }
 
-                if(!backend.isConnected() || !backend.isIdle() || !backend.getController().isReadyToReceiveCommands()) {
-                    System.out.println("Connecting");
-                }
+            if (configuration.hasOption(OptionEnum.LIST_PORTS)) {
+                listPorts();
+                System.exit(0);
+            }
 
-                Thread.sleep(5000);
-                /*ProgressBar pb = new ProgressBarBuilder()
-                        .setStyle(ProgressBarStyle.UNICODE_BLOCK)
-                        .setInitialMax(100)
-                        .setTaskName(file.getName())
-                        .setPrintStream(System.out)
-                        .build();*/
-                running = true;
-                ThreadHelper.invokeLater(() -> {
-                    try {
-                        backend.send();
+            initializeBackend();
 
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    running = false;
-                });
+            if (configuration.hasOption(OptionEnum.RESET_ALARM)) {
+                resetAlarm();
+            }
 
+            if (configuration.hasOption(OptionEnum.HOME)) {
+                homeMachine();
+            }
 
-
-                while (backend.isSendingFile() || running) {
-                    Thread.sleep(50);
-                }
-                /*pb.maxHint(backend.getNumRows());
-
-                while(backend.isSendingFile()) {
-                    pb.stepTo(backend.getNumCompletedRows());
-                }
-                pb.stepTo(backend.getNumCompletedRows());
-                System.out.println();*/
-
+            if (configuration.hasOption(OptionEnum.FILE)) {
+                sendFile();
             }
 
             backend.disconnect();
         } catch (Exception e) {
+            // TODO add fancy error handling
             e.printStackTrace();
             System.exit(-1);
         } finally {
@@ -136,154 +104,98 @@ public class TerminalClient {
         }
     }
 
-    private void initializeBackend() {
+    /**
+     * Resets an alarm in the controller
+     */
+    private void resetAlarm() {
         try {
-            backend = new GUIBackend();
-            backend.applySettings(SettingsFactory.loadSettings());
-            backend.getSettings().setFirmwareVersion(firmware);
-            backend.connect(firmware, port, baudRate);
-
-            System.out.println("Connected to \"" + firmware + "\" on " + port + " baud " + baudRate);
+            backend.killAlarmLock();
         } catch (Exception e) {
-            System.err.println("Couldn't connect to controller with firmware \"" + firmware + "\" on " + port + " baud " + baudRate);
-
-            if (StringUtils.isNotEmpty(e.getMessage())) {
-                System.err.println(e.getMessage());
-            } else {
-                e.printStackTrace();
-            }
+            throw new RuntimeException("The alarm couldn't be reset", e);
         }
     }
 
-    private void handleArguments(String[] args) {
-        // create the parser
-        CommandLineParser parser = new DefaultParser();
+    /**
+     * Lists all available ports
+     */
+    private void listPorts() {
+        Settings settings = SettingsFactory.loadSettings();
+        List<String> portNames = ConnectionFactory.getPortNames(settings.getConnectionDriver());
+        System.out.println("Available ports: " + Arrays.toString(portNames.toArray()));
+    }
+
+    /**
+     * Performs homing of the machine
+     */
+    private void homeMachine() {
         try {
-            // parse the command line arguments
-            CommandLine line = parser.parse(options, args);
-            if (line.getOptions().length <= 0) {
-                System.out.println("Use argument -h or --help for usage instructions");
-                System.exit(0);
+            backend.performHomingCycle();
+            while (!backend.isIdle()) {
+                Thread.sleep(10);
             }
-
-            if (line.hasOption(OPTION_HELP)) {
-                System.out.println(SOFTWARE_NAME + " " + getVersion());
-                System.out.println();
-                System.out.println("This is a terminal version of Universal Gcode Sender used for sending gcode files to controllers using command line.");
-                System.out.println();
-
-                HelpFormatter formatter = new HelpFormatter();
-                formatter.printHelp(SOFTWARE_NAME, options);
-                System.exit(0);
-            }
-
-            if (line.hasOption(OPTION_PORT)) {
-                port = line.getOptionValue(OPTION_PORT);
-            }
-
-            if (line.hasOption(OPTION_BAUD)) {
-                baudRate = Integer.valueOf(line.getOptionValue(OPTION_BAUD));
-            }
-
-            if (line.hasOption(OPTION_VERSION)) {
-                System.out.println(getVersion());
-            }
-
-            if (line.hasOption(OPTION_CONTROLLER_FIRMWARE)) {
-                String firmware = line.getOptionValue(OPTION_CONTROLLER_FIRMWARE);
-                try {
-                    this.firmware = firmware;
-                } catch (Exception e) {
-                    System.err.println("No controller type was found with the name \"" + firmware + "\", available controllers are: " + FirmwareUtils.getFirmwareList());
-                    System.exit(-1);
-                }
-            }
-
-            if (line.hasOption(OPTION_FILE)) {
-                filename = line.getOptionValue(OPTION_FILE);
-                File file = new File(filename);
-                if (!file.exists() || !file.isFile()) {
-                    System.err.println("File does not exist: \"" + filename + "\"");
-                    System.exit(-1);
-                }
-            }
-        } catch (ParseException exp) {
-            System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't home machine", e);
         }
     }
 
-    private Options initializeOptions() {
-        options = new Options();
+    /**
+     * Prints a help message with all available properties for the program
+     */
+    private void printHelpMessage() {
+        System.out.println(SOFTWARE_NAME + " " + Version.getVersionString());
+        System.out.println();
+        System.out.println(SOFTWARE_DESCRIPTION);
+        System.out.println();
 
-        options.addOption(Option.builder("h")
-                .longOpt(OPTION_HELP)
-                .argName(OPTION_HELP)
-                .hasArg(false)
-                .optionalArg(true)
-                .desc("Prints the help information.")
-                .build());
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp(SOFTWARE_NAME, configuration.getOptions());
+    }
 
-        options.addOption(Option.builder("v")
-                .longOpt(OPTION_VERSION)
-                .argName(OPTION_VERSION)
-                .hasArg(false)
-                .optionalArg(true)
-                .desc("Prints the software version.")
-                .build());
+    /**
+     * Starts streaming a file to the controller
+     */
+    private void sendFile() {
+        String filename = configuration.getOptionValue(OptionEnum.FILE);
+        if (StringUtils.isEmpty(filename)) {
+            return;
+        }
 
-        options.addOption(Option.builder("f")
-                .longOpt(OPTION_FILE)
-                .argName(OPTION_FILE)
-                .hasArg(true)
-                .optionalArg(true)
-                .desc("Opens a file for streaming to controller and will exit upon completion.")
-                .build());
+        try {
+            System.out.println("Running file \"" + filename + "\"");
+            File file = new File(filename);
+            backend.setGcodeFile(file);
 
-        options.addOption(Option.builder("c")
-                .longOpt(OPTION_CONTROLLER_FIRMWARE)
-                .argName(OPTION_CONTROLLER_FIRMWARE)
-                .hasArg(true)
-                .type(ControllerSettings.CONTROLLER.class)
-                .optionalArg(true)
-                .desc("What type of controller firmware we are connecting to, defaults to \"" + ControllerSettings.CONTROLLER.GRBL.name() + "\". These are the available firmwares: " + FirmwareUtils.getFirmwareList())
-                .build());
+            if (!backend.canSend()) {
+                System.out.println("The controller is in a state where it isn't able to process the file: " + backend.getControlState());
+                return;
+            }
 
-        options.addOption(Option.builder("p")
-                .longOpt(OPTION_PORT)
-                .argName(OPTION_PORT)
-                .hasArg(true)
-                .type(String.class)
-                .optionalArg(true)
-                .desc("Which port for the controller to connect to. I.e /dev/ttyUSB0 (on Unix-like systems or COM4 (on windows).")
-                .build());
 
-        options.addOption(Option.builder("b")
-                .longOpt(OPTION_BAUD)
-                .argName(OPTION_BAUD)
-                .hasArg(true)
-                .type(Integer.class)
-                .optionalArg(true)
-                .desc("Baud rate to connect with.")
-                .build());
+            backend.send();
 
-        options.addOption(Option.builder("ho")
-                .longOpt(OPTION_HOME)
-                .argName(OPTION_HOME)
-                .hasArg(false)
-                .type(Integer.class)
-                .optionalArg(true)
-                .desc("If a homing process should be done before any gcode files are sent to the controller.")
-                .build());
+            while (backend.isSendingFile()) {
+                Thread.sleep(50);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Couldn't send file", e);
+        }
+    }
 
-        options.addOption(Option.builder("ho")
-                .longOpt(OPTION_HOME)
-                .argName(OPTION_HOME)
-                .hasArg(false)
-                .type(Integer.class)
-                .optionalArg(true)
-                .desc("If a homing process should be done before any gcode files are sent to the controller.")
-                .build());
+    /**
+     * Initialize and connects the backend to the controller
+     */
+    private void initializeBackend() {
+        backend = BackendInitializerHelper.getInstance().initialize(configuration);
 
-        return options;
+        // It seems like the settings are working, save them for later.
+        SettingsFactory.saveSettings();
+
+        if (configuration.hasOption(OptionEnum.PRINT_STREAM)) {
+            backend.addControllerListener(new ProcessedLinePrinter());
+        } else if (configuration.hasOption(OptionEnum.PRINT_PROGRESSBAR)) {
+            ProgressBarPrinter progressBarPrinter = new ProgressBarPrinter(backend);
+            backend.addControllerListener(progressBarPrinter);
+            backend.addUGSEventListener(progressBarPrinter);
+        }
     }
 }
