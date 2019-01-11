@@ -868,7 +868,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public void removeListener(ControllerListener listener) {
         if (this.listeners.contains(listener)) {
-            this.listeners.remove(listener);
+            this.listeners.removeIf(l -> l == listener);
         }
     }
 
