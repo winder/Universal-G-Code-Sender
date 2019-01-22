@@ -149,15 +149,7 @@
           <include>resources/**</include>
         </includes>
       </resource>
-      <!--
-      <resource>
-        <targetPath>${project.build.outputDirectory}/com/willwinder/universalgcodesender/il8n</targetPath>
-        <directory>src/com/willwinder/universalgcodesender/il8n</directory>
-        <includes>
-          <include>MessagesBundle.*</include>
-        </includes>
-      </resource>
-      -->
+
       <resource>
         <directory>src</directory>
         <filtering>true</filtering>
@@ -178,66 +170,6 @@
           <stopPort>9393</stopPort>
           <scanIntervalSeconds>0</scanIntervalSeconds>
           <useTestClasspath>true</useTestClasspath>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>com.willwinder.universalgcodesender.MainWindow</mainClass>
-              <addDefaultImplementationEntries/>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- Configure the fat-jar -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.1</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>shade</goal>
-            </goals>
-            <configuration>
-              <finalName>UniversalGcodeSender</finalName>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer"/>
-              </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- Generate the zip file. -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.5.3</version>
-        <configuration>
-          <finalName>UniversalGcodeSender</finalName>
-          <appendAssemblyId>false</appendAssemblyId>
-          <descriptors>
-            <descriptor>src/assembly/assembly.xml</descriptor>
-          </descriptors>
         </configuration>
       </plugin>
 
