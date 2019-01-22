@@ -151,6 +151,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-pendant</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
             <version>${netbeans.version}</version>

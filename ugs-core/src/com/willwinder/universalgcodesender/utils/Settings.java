@@ -22,14 +22,19 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import java.util.*;
-import org.apache.commons.lang3.StringUtils;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class Settings {
     // Transient, don't serialize or deserialize.
@@ -81,8 +86,6 @@ public class Settings {
     private Map<Integer, Macro> macros = new HashMap<>();
 
     private String language = "en_US";
-    
-    private PendantConfigBean pendantConfig = new PendantConfigBean();
 
     private String connectionDriver;
 
@@ -324,15 +327,6 @@ public class Settings {
 
     public void setDisplayStateColor(boolean displayStateColor) {
         this.displayStateColor = displayStateColor;
-        changed();
-    }
-
-    public PendantConfigBean getPendantConfig() {
-        return pendantConfig;
-    }
-
-    public void setPendantConfig(PendantConfigBean pendantConfig) {
-        this.pendantConfig = pendantConfig;
         changed();
     }
         

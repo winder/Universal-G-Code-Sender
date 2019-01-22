@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,6 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Alarm;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
@@ -219,11 +222,49 @@ public class PendantUI implements ControllerListener {
         @Override
         public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
             baseRequest.setHandled(true);
-            mainWindow.updateSystemState(systemState);
+            updateSystemState(systemState);
             response.getWriter().print(getSystemStateJson());
         }
     }
-    
+
+    public void updateSystemState(SystemStateBean systemStateBean) {
+        logger.log(Level.FINE, "Getting system state 'updateSystemState'");
+        File gcodeFile = getMainWindow().getGcodeFile();
+        if (gcodeFile != null) {
+            systemStateBean.setFileName(gcodeFile.getAbsolutePath());
+        }
+        // TODO how do we get the last comment
+        //systemStateBean.setLatestComment(lastComment);
+        systemStateBean.setControlState(mainWindow.getControlState());
+
+        Position machineCoord = mainWindow.getMachinePosition();
+        if (machineCoord != null) {
+            systemStateBean.setMachineX(Utils.formatter.format(machineCoord.x));
+            systemStateBean.setMachineY(Utils.formatter.format(machineCoord.y));
+            systemStateBean.setMachineZ(Utils.formatter.format(machineCoord.z));
+        }
+
+        IController controller = mainWindow.getController();
+        if (controller != null) {
+            systemStateBean.setActiveState(mainWindow.getController().getControllerStatus().getStateString());
+            systemStateBean.setRemainingRows(String.valueOf(mainWindow.getNumRemainingRows()));
+            systemStateBean.setRowsInFile(String.valueOf(mainWindow.getNumRows()));
+            systemStateBean.setSentRows(String.valueOf(mainWindow.getNumSentRows()));
+            systemStateBean.setDuration(String.valueOf(mainWindow.getSendDuration()));
+            systemStateBean.setEstimatedTimeRemaining(String.valueOf(mainWindow.getSendRemainingDuration()));
+        }
+
+        Position workCoord = mainWindow.getWorkPosition();
+        if (workCoord != null) {
+            systemStateBean.setWorkX(Utils.formatter.format(workCoord.x));
+            systemStateBean.setWorkY(Utils.formatter.format(workCoord.y));
+            systemStateBean.setWorkZ(Utils.formatter.format(workCoord.z));
+        }
+        systemStateBean.setSendButtonEnabled(mainWindow.canSend());
+        systemStateBean.setPauseResumeButtonEnabled(mainWindow.canPause());
+        systemStateBean.setCancelButtonEnabled(mainWindow.canCancel());
+    }
+
     public String getSystemStateJson(){
         return new Gson().toJson(systemState);
     }
@@ -234,7 +275,8 @@ public class PendantUI implements ControllerListener {
         public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
             baseRequest.setHandled(true);
             response.setContentType("application/json");
-            response.getWriter().print(new Gson().toJson(mainWindow.getSettings().getPendantConfig()));
+            // TODO handle configuration
+            response.getWriter().print(new Gson().toJson(new PendantConfigBean()));
         }
     }
 

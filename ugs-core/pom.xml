@@ -142,7 +142,6 @@
 
 
     <resources>
-      <!-- PendantUI -->
       <resource>
         <directory>src</directory>
         <includes>
@@ -160,18 +159,6 @@
     </resources>
 
     <plugins>
-
-      <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>${jetty.version}</version>
-        <configuration>
-          <stopKey>t8qtoU5R8ny6nYqv</stopKey>
-          <stopPort>9393</stopPort>
-          <scanIntervalSeconds>0</scanIntervalSeconds>
-          <useTestClasspath>true</useTestClasspath>
-        </configuration>
-      </plugin>
 
       <!-- Code coverage -->
       <plugin>

@@ -67,6 +67,7 @@
 
   <modules>
     <module>ugs-core</module>
+    <module>ugs-pendant</module>
     <module>ugs-classic</module>
     <module>ugs-platform</module>
   </modules>
