@@ -254,15 +254,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
-        logger.log(Level.INFO, "Probing.");
+        logger.log(Level.INFO,
+                String.format("Probing. axis: %s, feedRate: %s, distance: %s, units: %s",
+                    axis, feedRate, distance, units));
 
         String probePattern = "G38.2 %s%s F%s";
-        double unitScale = scaleUnits(units, MM);
-        String probeCommand = String.format(probePattern, axis, 
-                formatter.format(distance * unitScale),
-                formatter.format(feedRate * unitScale));
+        String probeCommand = String.format(probePattern, axis, formatter.format(distance), formatter.format(feedRate));
 
-        GcodeCommand state = createCommand("G21 G91 G49");
+        GcodeCommand state = createCommand(GcodeUtils.unitCommand(units) + " G91 G49");
         state.setTemporaryParserModalChange(true);
 
         GcodeCommand probe = createCommand(probeCommand);
@@ -988,7 +987,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
           parser.addCommand(command.getCommandString());
           //System.out.println(parser.getCurrentState());
         } catch (Exception e) {
-          logger.log(Level.SEVERE, "Problem prasing command.", e);
+          logger.log(Level.SEVERE, "Problem parsing command.", e);
         }
 
         String gcode = command.getCommandString().toUpperCase();

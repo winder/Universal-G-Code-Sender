@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.platform.probe;
 
+import com.google.common.base.Preconditions;
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
@@ -45,11 +46,11 @@ public class ProbeService implements UGSEventListener {
     private final List<Position> probePositions = new ArrayList<>();
     private ProbeOperation currentOperation = ProbeOperation.NONE;
     private ProbeParameters params = null;
-    private Finalizer finalizer = null;
+    private Continuation continuation = null;
 
     @FunctionalInterface
-    private interface Finalizer {
-        void finish() throws Exception;
+    private interface Continuation {
+        void execute() throws Exception;
     }
 
     private enum ProbeOperation {
@@ -72,12 +73,6 @@ public class ProbeService implements UGSEventListener {
          */
         public int getNumProbes() {
             return numProbes;
-        }
-    }
-
-    private void finishCurrentOperation() throws Exception {
-        if (finalizer != null) {
-            finalizer.finish();
         }
     }
 
@@ -137,7 +132,7 @@ public class ProbeService implements UGSEventListener {
 
     private void resetProbe() {
         this.probePositions.clear();
-        this.finalizer = null;
+        this.continuation = null;
         this.params = null;
         this.currentOperation = ProbeOperation.NONE;
     }
@@ -155,164 +150,229 @@ public class ProbeService implements UGSEventListener {
     void performZProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.Z;
+        this.params = params;
+        performZProbeInternal(0);
+    }
 
+    private void performZProbeInternal(int stepNumber) throws IllegalStateException {
+        String unit = GcodeUtils.unitCommand(params.units);
+
+        continuation = () -> performZProbeInternal(stepNumber + 1);
         try {
-            String unit = GcodeUtils.unitCommand(params.units);
+            switch (stepNumber) {
+                case 0: {
+                    // Reset (_, _, 0) to make it easier to retract.
+                    updateWCS(params.wcsToUpdate, null, null, 0.0);
 
-            // Reset (_, _, 0) to make it easier to retract.
-            updateWCS(params.wcsToUpdate, null, null, 0.0);
+                    probe('Z', params.feedRate, params.zSpacing, params.units);
+                    break;
+                }
+                case 1: {
+                    gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    break;
+                }
+                case 2: {
+                    // Back to zero
+                    String g0Abs = "G90 " + unit + " G0";
+                    gcode(g0Abs + " Z0.0");
+                    break;
+                }
+                case 3: {
+                    // Once idle, perform calculations.
+                    Preconditions.checkState(probePositions.size() == 2, "Unexpected number of probe positions.");
+                    Position probe = probePositions.get(1).getPositionIn(params.units);
 
-            probe('Z', params.feedRate, params.zSpacing, params.units);
-            gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
-            probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    double zDir = Math.signum(params.zSpacing) * -1;
+                    double zProbedOffset = zDir * params.zOffset;
 
-            // Back to zero
-            String g0Abs = "G90 " + unit + " G0";
-            gcode(g0Abs + " Z0.0");
-
-            this.finalizer = this::zFinalizer;
-            this.params = params;
+                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
+                    updateWCS(params.wcsToUpdate,
+                            null,
+                            null,
+                            startPositionInUnits.z - probe.z + zProbedOffset);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("Invalid step number: " + stepNumber);
+            }
         } catch (Exception e) {
             resetProbe();
             logger.log(Level.SEVERE, "Exception during z probe operation.", e);
         }
     }
 
-    private void zFinalizer() throws Exception {
-        if (probePositions.size() != 2) throw new IllegalArgumentException("Unexpected number of probe positions.");
-        Position probe = probePositions.get(1).getPositionIn(params.units);
-
-        double zDir = Math.signum(params.zSpacing) * -1;
-        double zProbedOffset = zDir * params.zOffset;
-
-        Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
-        updateWCS(params.wcsToUpdate,
-                null,
-                null,
-                startPositionInUnits.z - probe.z + zProbedOffset);
-    }
-
     void performOutsideCornerProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.OUTSIDE_XY;
+        this.params = params;
+        performOutsideCornerProbeInternal(0);
+    }
+
+    private void performOutsideCornerProbeInternal(int stepNumber) throws IllegalStateException {
 
         String g = GcodeUtils.unitCommand(params.units);
         String g0Abs = "G90 " + g + " G0";
         String g0Rel = "G91 " + g + " G0";
 
+        continuation = () -> performOutsideCornerProbeInternal(stepNumber + 1);
+
         try {
-            // Reset (0,0,_) to make it easier to retract.
-            updateWCS(params.wcsToUpdate, 0.0, 0.0, null);
+            switch (stepNumber) {
+                case 0: {
+                    // Reset (0,0,_) to make it easier to retract.
+                    updateWCS(params.wcsToUpdate, 0.0, 0.0, null);
 
-            gcode(g0Abs + " X" + params.xSpacing);
-            probe('Y', params.feedRate, params.ySpacing, params.units);
-            gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
-            probe('Y', params.feedRateSlow, params.ySpacing, params.units);
-            gcode(g0Abs + " Y0.0");
-            gcode(g0Abs + " X0.0");
-            gcode(g0Abs + " Y" + params.ySpacing);
-            probe('X', params.feedRate, params.xSpacing, params.units);
-            gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
-            probe('X', params.feedRateSlow, params.xSpacing, params.units);
-            gcode(g0Abs + " X0.0");
-            gcode(g0Abs + " Y0.0");
+                    gcode(g0Abs + " X" + params.xSpacing);
+                    probe('Y', params.feedRate, params.ySpacing, params.units);
+                    break;
+                }
+                case 1: {
+                    gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
+                    probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+                    break;
+                }
+                case 2: {
+                    gcode(g0Abs + " Y0.0");
+                    gcode(g0Abs + " X0.0");
+                    gcode(g0Abs + " Y" + params.ySpacing);
+                    probe('X', params.feedRate, params.xSpacing, params.units);
+                    break;
+                }
+                case 3: {
+                    gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
+                    probe('X', params.feedRateSlow, params.xSpacing, params.units);
+                    break;
+                }
+                case 4: {
+                    gcode(g0Abs + " X0.0");
+                    gcode(g0Abs + " Y0.0");
+                    break;
+                }
+                case 5: {
+                    // Once idle, perform calculations.
+                    Preconditions.checkState(probePositions.size() == 4, "Unexpected number of probe positions.");
 
-            this.finalizer = this::outsideXYFinalizer;
-            this.params = params;
+                    Position probeY = probePositions.get(1).getPositionIn(params.units);
+                    Position probeX = probePositions.get(3).getPositionIn(params.units);
+
+                    double radius = params.probeDiameter / 2;
+                    double xDir = Math.signum(params.xSpacing) * -1;
+                    double yDir = Math.signum(params.ySpacing) * -1;
+                    double xProbedOffset = xDir * (radius + params.xOffset);
+                    double yProbedOffset = yDir * (radius + params.yOffset);
+
+                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
+                    updateWCS(params.wcsToUpdate,
+                            startPositionInUnits.x - probeX.x + xProbedOffset,
+                            startPositionInUnits.y - probeY.y + yProbedOffset,
+                            null);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("Invalid step number: " + stepNumber);
+            }
         } catch (Exception e) {
             resetProbe();
             logger.log(Level.SEVERE, "Exception during outside corner probe operation.", e);
         }
     }
 
-    private void outsideXYFinalizer() throws Exception {
-        if (probePositions.size() != 4) throw new IllegalArgumentException("Unexpected number of probe positions.");
-
-        Position probeY = probePositions.get(1).getPositionIn(params.units);
-        Position probeX = probePositions.get(3).getPositionIn(params.units);
-
-        double radius = params.probeDiameter / 2;
-        double xDir = Math.signum(params.xSpacing) * -1;
-        double yDir = Math.signum(params.ySpacing) * -1;
-        double xProbedOffset = xDir * (radius + params.xOffset);
-        double yProbedOffset = yDir * (radius + params.yOffset);
-
-        Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
-        updateWCS(params.wcsToUpdate,
-                startPositionInUnits.x - probeX.x + xProbedOffset,
-                startPositionInUnits.y - probeY.y + yProbedOffset,
-                null);
-    }
-
     void performXYZProbe(ProbeParameters params) throws IllegalStateException {
         validateState();
         currentOperation = ProbeOperation.OUTSIDE_XYZ;
+        this.params = params;
+        performXYZProbeInternal(0);
+    }
 
+    private void performXYZProbeInternal(int stepNumber) throws IllegalStateException {
         String g = GcodeUtils.unitCommand(params.units);
 
         String g0Abs = "G90 " + g + " G0";
         String g0Rel = "G91 " + g + " G0";
 
+        continuation = () -> performXYZProbeInternal(stepNumber + 1);
         try {
-            // Reset (0,0,0) to make it easier to retract.
-            updateWCS(params.wcsToUpdate, 0.0, 0.0, 0.0);
+            switch (stepNumber) {
+                case 0: {
+                    // Reset (0,0,0) to make it easier to retract.
+                    updateWCS(params.wcsToUpdate, 0.0, 0.0, 0.0);
 
-            // Z
-            probe('Z', params.feedRate, params.zSpacing, params.units);
-            gcode(g0Rel + " Z" + retractDistance(params.zSpacing, params.retractAmount));
-            probe('Z', params.feedRateSlow, params.zSpacing, params.units);
-            gcode(g0Abs + " Z0.0");
-            gcode(g0Abs + " X" + -params.xSpacing);
-            gcode(g0Abs + " Z" + params.zSpacing); // Probe motion for safety?
+                    // Z
+                    probe('Z', params.feedRate, params.zSpacing, params.units);
+                    break;
+                }
+                case 1: {
+                    gcode(g0Rel + " Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    break;
+                }
+                case 2: {
+                    gcode(g0Abs + " Z0.0");
+                    gcode(g0Abs + " X" + -params.xSpacing);
+                    gcode(g0Abs + " Z" + params.zSpacing); // Probe motion for safety?
 
-            // X
-            probe('X', params.feedRate, params.xSpacing, params.units);
-            gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
-            probe('X', params.feedRateSlow, params.xSpacing, params.units);
-            gcode(g0Abs + " X" + -params.xSpacing);
-            gcode(g0Abs + " Y" + -params.ySpacing);
-            gcode(g0Abs + " X" + params.xSpacing);
+                    // X
+                    probe('X', params.feedRate, params.xSpacing, params.units);
+                    break;
+                }
+                case 3: {
+                    gcode(g0Rel + " X" + retractDistance(params.xSpacing, params.retractAmount));
+                    probe('X', params.feedRateSlow, params.xSpacing, params.units);
+                    break;
+                }
+                case 4: {
+                    gcode(g0Abs + " X" + -params.xSpacing);
+                    gcode(g0Abs + " Y" + -params.ySpacing);
+                    gcode(g0Abs + " X" + params.xSpacing);
 
-            // Y
-            probe('Y', params.feedRate, params.ySpacing, params.units);
-            gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
-            probe('Y', params.feedRateSlow, params.ySpacing, params.units);
-            gcode(g0Abs + " Y" + -params.ySpacing);
+                    // Y
+                    probe('Y', params.feedRate, params.ySpacing, params.units);
+                    break;
+                }
+                case 5: {
+                    gcode(g0Rel + " Y" + retractDistance(params.ySpacing, params.retractAmount));
+                    probe('Y', params.feedRateSlow, params.ySpacing, params.units);
+                    break;
+                }
+                case 6: {
+                    gcode(g0Abs + " Y" + -params.ySpacing);
 
-            // Back to zero
-            gcode(g0Abs + " Z0.0");
-            gcode(g0Abs + " X0.0 Y0.0");
+                    // Back to zero
+                    gcode(g0Abs + " Z0.0");
+                    gcode(g0Abs + " X0.0 Y0.0");
+                    break;
+                }
+                case 7: {
+                    // Once idle, perform calculations.
+                    Preconditions.checkState(probePositions.size() == 6, "Unexpected number of probe positions.");
 
-            this.finalizer = this::outsideXYZFinalizer;
-            this.params = params;
+                    Position probeX = probePositions.get(3).getPositionIn(params.units);
+                    Position probeY = probePositions.get(5).getPositionIn(params.units);
+                    Position probeZ = probePositions.get(1).getPositionIn(params.units);
+
+                    double radius = params.probeDiameter / 2;
+                    double xDir = Math.signum(params.xSpacing) * -1;
+                    double yDir = Math.signum(params.ySpacing) * -1;
+                    double zDir = Math.signum(params.zSpacing) * -1;
+                    double xProbedOffset = xDir * (radius + params.xOffset);
+                    double yProbedOffset = yDir * (radius + params.yOffset);
+                    double zProbedOffset = zDir * params.zOffset;
+
+                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
+                    updateWCS(params.wcsToUpdate,
+                            startPositionInUnits.x - probeX.x + xProbedOffset,
+                            startPositionInUnits.y - probeY.y + yProbedOffset,
+                            startPositionInUnits.z - probeZ.z + zProbedOffset);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("Invalid step number: " + stepNumber);
+            }
         } catch (Exception e) {
             resetProbe();
             logger.log(Level.SEVERE, "Exception during XYZ probe operation.", e);
         }
-    }
-
-    private void outsideXYZFinalizer() throws Exception {
-        if (probePositions.size() != 6) {
-            throw new IllegalArgumentException("Unexpected number of probe positions.");
-        }
-
-        Position probeX = probePositions.get(3).getPositionIn(params.units);
-        Position probeY = probePositions.get(5).getPositionIn(params.units);
-        Position probeZ = probePositions.get(1).getPositionIn(params.units);
-
-        double radius = params.probeDiameter / 2;
-        double xDir = Math.signum(params.xSpacing) * -1;
-        double yDir = Math.signum(params.ySpacing) * -1;
-        double zDir = Math.signum(params.zSpacing) * -1;
-        double xProbedOffset = xDir * (radius + params.xOffset);
-        double yProbedOffset = yDir * (radius + params.yOffset);
-        double zProbedOffset = zDir * params.zOffset;
-
-        Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
-        updateWCS(params.wcsToUpdate,
-                startPositionInUnits.x - probeX.x + xProbedOffset,
-                startPositionInUnits.y - probeY.y + yProbedOffset,
-                startPositionInUnits.z - probeZ.z + zProbedOffset);
     }
 
     private void updateWCS(WorkCoordinateSystem wcs, Double x, Double y, Double z) throws Exception {
@@ -349,7 +409,7 @@ public class ProbeService implements UGSEventListener {
     public void UGSEvent(UGSEvent evt) {
         if (this.currentOperation == ProbeOperation.NONE) return;
 
-        switch(evt.getEventType()){
+        switch (evt.getEventType()) {
             case STATE_EVENT:
                 switch(evt.getControlState()) {
                   case COMM_DISCONNECTED:
@@ -359,7 +419,7 @@ public class ProbeService implements UGSEventListener {
                       // Finalize
                       if (this.currentOperation.getNumProbes() <= this.probePositions.size()) {
                           try {
-                              finishCurrentOperation();
+                              continuation.execute();
                           } catch (Exception e) {
                               logger.log(Level.SEVERE,
                                       "Exception finalizing " + this.currentOperation + " probe operation.", e);
@@ -375,6 +435,13 @@ public class ProbeService implements UGSEventListener {
                 break;
             case PROBE_EVENT:
                 this.probePositions.add(evt.getProbePosition());
+                try {
+                    continuation.execute();
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE,
+                            "Exception during " + this.currentOperation + " probe operation.", e);
+                    resetProbe();
+                }
                 break;
             case FILE_EVENT:
             default:
