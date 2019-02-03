@@ -1,26 +1,21 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.gson.Gson;
 import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.pendantui.controllers.StatusController;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
-
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -29,20 +24,26 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.glassfish.jersey.servlet.ServletContainer;
 
-import com.google.gson.Gson;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.MacroHelper;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -58,18 +59,19 @@ public class PendantUI implements ControllerListener {
     
     public PendantUI(BackendAPI mainWindow) {
         this.mainWindow = mainWindow;
+        BackendAPIFactory.getInstance().register(mainWindow);
     }
 
     public Resource getBaseResource(){
         try {
-            URL res = getClass().getResource("/resources/pendantUI");
+            URL res = getClass().getResource("/resources/ugs-pendant");
             return Resource.newResource(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
-    
+
+
     /**
      * Launches the local web server.
      * @return the url for the pendant interface
@@ -78,10 +80,14 @@ public class PendantUI implements ControllerListener {
         server = new Server(port);
 
         ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(false);
-        resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-        resourceHandler.setBaseResource(getBaseResource());
         resourceHandler.setDirectoriesListed(true);
+        resourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        resourceHandler.setBaseResource(getBaseResource());
+
+        ContextHandler resourceHandlerContext = new ContextHandler();
+        resourceHandlerContext.setContextPath("/");
+        resourceHandlerContext.setHandler(resourceHandler);
+
 
         ContextHandler sendGcodeContext = new ContextHandler();
         sendGcodeContext.setContextPath("/sendGcode");
@@ -108,8 +114,16 @@ public class PendantUI implements ControllerListener {
         configContext.setHandler(new ConfigHandler());
         configContext.setInitParameter("cacheControl", "max-age=0, public");
 
+        // Create at servlet servletContextHandler
+        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        servletContextHandler.setContextPath("/api");
+        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/*");
+        servletHolder.setInitOrder(1);
+        servletHolder.setInitParameter("javax.ws.rs.Application", AppConfig.class.getCanonicalName());
+
+        System.out.println(StatusController.class.getPackage().getName());
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
+        handlers.setHandlers(new Handler[] {servletContextHandler, configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandlerContext, new DefaultHandler()});
 
         server.setHandler(handlers);
 

@@ -1,0 +1,21 @@
+@import "~bootstrap/scss/bootstrap-grid";
+
+.component {
+  margin-bottom: 15px;
+}
+
+body {
+  margin-top: 15px;
+}
+
+@include media-breakpoint-down(xs) {
+  body {
+    margin-top: 0px;
+  }
+
+  /*.container-fluid {
+    padding-left: 0px;
+    padding-right: 0px;
+    margin-right:0px;
+  }*/
+}

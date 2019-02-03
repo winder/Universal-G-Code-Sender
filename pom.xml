@@ -35,7 +35,8 @@
   </developers>
 
   <properties>
-    <jetty.version>8.1.16.v20140903</jetty.version>
+    <jetty.version>9.4.7.v20170914</jetty.version>
+    <jersey.version>2.27</jersey.version>
     <gluegen.version>2.3.2</gluegen.version>
     <jogl.version>2.3.2</jogl.version>
     <miglayout.version>3.7.4</miglayout.version>
