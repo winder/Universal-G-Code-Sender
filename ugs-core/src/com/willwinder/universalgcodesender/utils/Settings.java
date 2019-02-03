@@ -29,10 +29,12 @@ import org.apache.commons.lang3.StringUtils;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -371,6 +373,10 @@ public class Settings {
             macro = new Macro(index.toString(), null, null);
         }
         return macro;
+    }
+
+    public List<Macro> getMacros() {
+        return new ArrayList<>(macros.values());
     }
 
     public Integer getNumMacros() {
