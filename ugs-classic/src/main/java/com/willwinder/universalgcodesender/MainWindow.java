@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
@@ -672,7 +673,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         commPortComboBox.setEditable(true);
 
-        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400" }));
+        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(BaudRateEnum.getAllBaudRates()));
         baudrateSelectionComboBox.setSelectedIndex(2);
         baudrateSelectionComboBox.setToolTipText("Select baudrate to use for the serial port.");
         baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {

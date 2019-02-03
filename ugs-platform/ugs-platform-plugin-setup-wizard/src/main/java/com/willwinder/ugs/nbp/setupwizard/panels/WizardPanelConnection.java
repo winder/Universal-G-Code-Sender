@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
@@ -109,7 +110,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
         // Baud rate options
         baudCombo = new JComboBox<>();
-        baudCombo.setModel(new DefaultComboBoxModel<>(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
+        baudCombo.setModel(new DefaultComboBoxModel<>(BaudRateEnum.getAllBaudRates()));
         baudCombo.setSelectedIndex(6);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
         baudCombo.addActionListener(e -> this.setBaudRate());
