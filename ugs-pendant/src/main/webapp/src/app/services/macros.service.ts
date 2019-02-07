@@ -12,19 +12,28 @@ export class MacrosService {
   constructor(private http:HttpClient) { }
 
   getMacroList():Observable<Macro[]> {
-      return this.http.get<any[]>('/api/macros/getMacroList')
-        .map(response => {
-          return response.map(macroResponse => {
-            let macro = new Macro();
-            macro.name = macroResponse.name;
-            macro.description = macroResponse.description;
-            macro.gcode = macroResponse.gcode;
-            return macro;
-          });
+    return this.http.get<any[]>('/api/macros/getMacroList')
+      .map(response => {
+        return response.map(macroResponse => {
+          let macro = new Macro();
+          macro.name = macroResponse.name;
+          macro.description = macroResponse.description;
+          macro.gcode = macroResponse.gcode;
+          return macro;
         });
+      });
   }
 
   runMacro(macro:Macro) {
-     console.log(macro);
+    return this.http.post<any[]>('/api/macros/executeMacro', )
+      .map(response => {
+        return response.map(macroResponse => {
+          let macro = new Macro();
+          macro.name = macroResponse.name;
+          macro.description = macroResponse.description;
+          macro.gcode = macroResponse.gcode;
+          return macro;
+        });
+      });
   }
 }
