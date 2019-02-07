@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.uielements.jog;
 
 import javax.swing.*;
+import javax.swing.text.DefaultFormatter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.ParseException;
@@ -29,6 +30,12 @@ public class StepSizeSpinner extends JSpinner {
 
     public StepSizeSpinner() {
         setModel(new StepSizeSpinnerModel());
+
+        // Make the editor fire update events when typing, not only after changing fields
+        JComponent comp = getEditor();
+        JFormattedTextField field = (JFormattedTextField) comp.getComponent(0);
+        DefaultFormatter formatter = (DefaultFormatter) field.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
     }
 
     @Override
