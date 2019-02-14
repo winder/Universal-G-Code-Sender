@@ -25,15 +25,12 @@ export class MacrosService {
   }
 
   runMacro(macro:Macro) {
-    return this.http.post<any[]>('/api/macros/executeMacro', )
-      .map(response => {
-        return response.map(macroResponse => {
-          let macro = new Macro();
-          macro.name = macroResponse.name;
-          macro.description = macroResponse.description;
-          macro.gcode = macroResponse.gcode;
-          return macro;
-        });
-      });
+    let data = {
+      gcode: macro.gcode,
+      name: macro.name,
+      description: macro.description
+    };
+
+    return this.http.post<any[]>('/api/macros/runMacro', data);
   }
 }

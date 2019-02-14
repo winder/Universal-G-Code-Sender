@@ -18,6 +18,6 @@ export class MacrosComponent implements OnInit {
   }
 
   public runMacro(macro) {
-    this.macrosService.runMacro(macro.name)
+    this.macrosService.runMacro(macro).subscribe();
   }
 }
