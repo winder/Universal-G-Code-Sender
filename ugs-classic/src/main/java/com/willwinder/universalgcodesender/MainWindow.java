@@ -162,23 +162,22 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         initFileChooser();
         
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                settings.setPort(commPortComboBox.getSelectedItem().toString());
-                settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
-                settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
-                settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
-                settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
-                settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down...");
 
-                SettingsFactory.saveSettings(settings);
-                
-                if(pendantUI!=null){
-                    pendantUI.stop();
-                }
+            settings.setPort(commPortComboBox.getSelectedItem().toString());
+            settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
+            settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
+            settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+            settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
+            settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+
+            SettingsFactory.saveSettings(settings);
+
+            if(pendantUI!=null){
+                pendantUI.stop();
             }
-        });
+        }));
     }
     
     /**
@@ -198,14 +197,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -287,23 +280,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         
         mw.initFileChooser();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
-                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
-                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings(mw.settings);
-                
-                if(mw.pendantUI!=null){
-                    mw.pendantUI.stop();
-                }
-            }
-        });
 
         // Check command line for a file to open.
         boolean open = false;
