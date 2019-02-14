@@ -248,6 +248,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         mw.showCommandTableCheckBoxActionPerformed(null);
         mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
 
+        if(mw.settings.isAutoStartPendant()) {
+            mw.pendantUI = new PendantUI(backend);
+            mw.pendantUI.start();
+            mw.startPendantServerButton.setEnabled(false);
+            mw.stopPendantServerButton.setEnabled(true);
+        }
+
         mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
         mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
 

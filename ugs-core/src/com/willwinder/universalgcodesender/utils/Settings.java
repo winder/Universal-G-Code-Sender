@@ -68,6 +68,7 @@ public class Settings {
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
+    private boolean autoStartPendant = false;
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
@@ -475,6 +476,15 @@ public class Settings {
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {
         this.connectionDriver = connectionDriver.name();
+    }
+
+    public void setAutoStartPendant(boolean autoStartPendant) {
+        this.autoStartPendant = autoStartPendant;
+        changed();
+    }
+
+    public boolean isAutoStartPendant() {
+        return this.autoStartPendant;
     }
 
     public static class AutoLevelSettings {
