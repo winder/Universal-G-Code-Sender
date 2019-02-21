@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -67,7 +66,7 @@ import java.util.logging.Level;
 public class ExperimentalWindow extends JFrame implements ControllerListener, UGSEventListener {
     private static final Logger logger = Logger.getLogger(ExperimentalWindow.class.getName());
 
-    final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
+    private static final String VERSION = Version.getVersionString();
 
     private PendantUI pendantUI;
 
