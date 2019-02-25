@@ -462,7 +462,7 @@ public class Settings {
     }
 
     public ConnectionDriver getConnectionDriver() {
-        ConnectionDriver connectionDriver = ConnectionDriver.JSSC;
+        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
         if (StringUtils.isNotEmpty(this.connectionDriver)) {
             try {
                 connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
