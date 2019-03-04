@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -84,16 +85,7 @@ public class startup extends OptionProcessor implements Runnable {
     private void setupVersionInformation(Settings settings) {
         // Only change the window title when all the UI components are fully loaded.
         WindowManager.getDefault().invokeWhenUIReady(() -> {
-            if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                        + "It contains all of the latest features and improvements, \n"
-                        + "but may also have bugs that still need to be fixed.\n"
-                        + "\n"
-                        + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }
+            Utils.checkNightlyBuild(settings);
         });
     }
 

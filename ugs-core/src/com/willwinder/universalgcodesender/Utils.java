@@ -21,7 +21,13 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.Version;
 
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import java.awt.EventQueue;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
@@ -74,4 +80,24 @@ public class Utils {
         }
         return text;
     }
+
+
+    public static void checkNightlyBuild(Settings settings) {
+        if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
+            EventQueue.invokeLater(() -> {
+                String title = Localization.getString("sender.notification.nightlyBuild.title");
+                String message = Localization.getString("sender.notification.nightlyBuild.message") + "\n\n";
+                String doNotShowAgainText = Localization.getString("sender.notification.nightlyBuild.doNotShowAgain");
+
+                JCheckBox checkbox = new JCheckBox(doNotShowAgainText);
+                Object[] params = {message, checkbox};
+                JOptionPane.showMessageDialog(new JFrame(), params,
+                        title , JOptionPane.INFORMATION_MESSAGE);
+
+                boolean showNightlyWarning = !checkbox.isSelected();
+                settings.setShowNightlyWarning(showNightlyWarning);
+            });
+        }
+    }
+
 }
