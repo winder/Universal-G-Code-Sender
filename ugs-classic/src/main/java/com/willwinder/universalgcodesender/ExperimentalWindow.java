@@ -21,7 +21,6 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -67,7 +66,7 @@ import java.util.logging.Level;
 public class ExperimentalWindow extends JFrame implements ControllerListener, UGSEventListener {
     private static final Logger logger = Logger.getLogger(ExperimentalWindow.class.getName());
 
-    final private static String VERSION = Version.getVersion() + " / " + Version.getTimestamp();
+    private static final String VERSION = Version.getVersionString();
 
     private PendantUI pendantUI;
 
@@ -89,23 +88,11 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
             throw new RuntimeException(e);
         }
 
-        if (backend.getSettings().isShowNightlyWarning() && ExperimentalWindow.VERSION.contains("nightly")) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                                + "It contains all of the latest features and improvements, \n"
-                                + "but may also have bugs that still need to be fixed.\n"
-                                + "\n"
-                                + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }});
-        }
-
         initComponents();
         initProgram();
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
+        Utils.checkNightlyBuild(backend.getSettings());
 
         setSize(backend.getSettings().getMainWindowSettings().width, backend.getSettings().getMainWindowSettings().height);
         setLocation(backend.getSettings().getMainWindowSettings().xLocation, backend.getSettings().getMainWindowSettings().yLocation);
@@ -512,11 +499,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     public void statusStringListener(ControllerStatus status) {
 
     }
-    
-    @Override
-    public void postProcessData(int numRows) {
-    }
-    
+
     @Override
     public void UGSEvent(UGSEvent evt) {
     }

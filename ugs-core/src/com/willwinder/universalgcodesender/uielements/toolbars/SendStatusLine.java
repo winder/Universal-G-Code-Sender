@@ -184,8 +184,4 @@ public class SendStatusLine extends JLabel implements UGSEventListener, Controll
     @Override
     public void statusStringListener(ControllerStatus status) {
     }
-
-    @Override
-    public void postProcessData(int numRows) {
-    }
 }

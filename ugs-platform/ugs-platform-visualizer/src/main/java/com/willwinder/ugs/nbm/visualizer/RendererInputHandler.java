@@ -380,8 +380,4 @@ public class RendererInputHandler implements
     @Override
     public void probeCoordinates(Position p) {
     }
-
-    @Override
-    public void postProcessData(int numRows) {
-    }
 }

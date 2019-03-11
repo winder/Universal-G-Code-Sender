@@ -37,8 +37,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 public class Settings {
+    private static final Logger logger = Logger.getLogger(Settings.class.getName());
+
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
     transient public static int HISTORY_SIZE = 20;
@@ -96,7 +99,7 @@ public class Settings {
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
-        System.out.println("Initializing...");
+        logger.fine("Initializing...");
 
         // Initialize macros with a default macro
         macros.put(1, new Macro(null, null, "G91 X0 Y0;"));
@@ -463,7 +466,7 @@ public class Settings {
     }
 
     public ConnectionDriver getConnectionDriver() {
-        ConnectionDriver connectionDriver = ConnectionDriver.JSSC;
+        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
         if (StringUtils.isNotEmpty(this.connectionDriver)) {
             try {
                 connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);

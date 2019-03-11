@@ -71,6 +71,7 @@
     <module>ugs-pendant</module>
     <module>ugs-classic</module>
     <module>ugs-platform</module>
+    <module>ugs-cli</module>
   </modules>
 
   <!-- global dependencies -->

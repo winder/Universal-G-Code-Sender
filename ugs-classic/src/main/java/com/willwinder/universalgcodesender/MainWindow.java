@@ -129,22 +129,11 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         this.macroPanel = new MacroPanel(backend);
 
-        if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
-            java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                                + "It contains all of the latest features and improvements, \n"
-                                + "but may also have bugs that still need to be fixed.\n"
-                                + "\n"
-                                + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }});
-        }
         initComponents();
         this.jogPanelPanel.setLayout(new BorderLayout());
         this.jogPanelPanel.add(jogPanel, BorderLayout.CENTER);
         initProgram();
+        Utils.checkNightlyBuild(settings);
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
 
@@ -1975,11 +1964,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             this.workPositionZValueLabel.setText( Utils.formatter.format(workCoord.z) + units.abbreviation );
         }
     }
-    
-    @Override
-    public void postProcessData(int numRows) {
-    }
-    
+
     /**
      * Updates the visualizer with the processed gcode file if it is available,
      * otherwise uses the unprocessed file.

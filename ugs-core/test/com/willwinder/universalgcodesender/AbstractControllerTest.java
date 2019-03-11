@@ -140,7 +140,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, portRate)).andReturn(true).once();
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
@@ -235,7 +235,7 @@ public class AbstractControllerTest {
         // Message for open and close.
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).times(2);
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, baud)).andReturn(true).once();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, baud)).andReturn(true).once();
         mockCommunicator.closeCommPort();
         expect(expectLastCall()).once();
         replay(instance, mockCommunicator, mockListener);

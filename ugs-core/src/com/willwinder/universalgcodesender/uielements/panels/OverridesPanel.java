@@ -306,10 +306,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
         }
     }
 
-    @Override
-    public void postProcessData(int numRows) {
-    }
-
     private static class RealTimeAction extends AbstractAction {
         private final Overrides command;
         private final BackendAPI backend;

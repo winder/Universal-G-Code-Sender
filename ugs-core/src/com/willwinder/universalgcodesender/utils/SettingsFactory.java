@@ -21,16 +21,12 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -177,5 +173,15 @@ public class SettingsFactory {
     private static File getSettingsFile() {
         File settingDir = SettingsFactory.getSettingsDirectory();
         return new File (settingDir, JSON_FILENAME);
+    }
+
+    /**
+     * Saves the current settings
+     */
+    public static void saveSettings() {
+        if(settings == null) {
+            throw new RuntimeException("No settings are loaded");
+        }
+        saveSettings(settings);
     }
 }

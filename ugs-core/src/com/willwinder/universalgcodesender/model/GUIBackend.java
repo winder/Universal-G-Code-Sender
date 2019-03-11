@@ -744,10 +744,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         this.lastResponse = System.currentTimeMillis();
         this.sendControllerStateEvent(new UGSEvent(status));
     }
-
-    @Override
-    public void postProcessData(int numRows) {
-    }
     
     ////////////////////
     // Utility functions
