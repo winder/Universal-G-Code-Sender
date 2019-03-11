@@ -124,11 +124,6 @@ public class VisualizerPanel extends JPanel implements ControllerListener, UGSEv
     }
 
     @Override
-    public void postProcessData(int numRows) {
-        // Visualizer doesn't care.
-    }
-
-    @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isFileChangeEvent()) {
             switch(evt.getFileState()) {

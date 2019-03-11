@@ -867,7 +867,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public void removeListener(ControllerListener listener) {
         if (this.listeners.contains(listener)) {
-            this.listeners.remove(listener);
+            // Needs to be removed with thread safe operation,
+            // will otherwise result in ConcurrentModifificationException
+            this.listeners.removeIf(l -> l.equals(listener));
         }
     }
 
@@ -938,14 +940,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     protected void dispatchAlarm(Alarm alarm) {
         if (listeners != null) {
             listeners.forEach(l -> l.receivedAlarm(alarm));
-        }
-    }
-    
-    protected void dispatchPostProcessData(int numRows) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.postProcessData(numRows);
-            }
         }
     }
 

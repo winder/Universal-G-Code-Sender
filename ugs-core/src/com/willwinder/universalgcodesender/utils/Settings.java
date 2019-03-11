@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -29,9 +30,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.*;
+import java.util.logging.Logger;
+
 import org.apache.commons.lang3.StringUtils;
 
 public class Settings {
+    private static final Logger logger = Logger.getLogger(Settings.class.getName());
+
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
     transient public static int HISTORY_SIZE = 20;
@@ -90,7 +95,7 @@ public class Settings {
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
-        System.out.println("Initializing...");
+        logger.fine("Initializing...");
 
         // Initialize macros with a default macro
         macros.put(1, new Macro(null, null, "G91 X0 Y0;"));

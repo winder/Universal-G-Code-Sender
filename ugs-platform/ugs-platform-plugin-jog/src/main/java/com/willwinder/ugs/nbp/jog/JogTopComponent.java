@@ -194,11 +194,6 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
-    public void postProcessData(int numRows) {
-
-    }
-
-    @Override
     public void onButtonClicked(JogPanelButtonEnum button) {
         switch (button) {
             case BUTTON_XNEG:

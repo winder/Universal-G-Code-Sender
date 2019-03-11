@@ -158,7 +158,7 @@ public class FirmwareUtils {
      * into the settings/firmware_config dir.
      */
     public synchronized static void initialize() {
-        System.out.println("Initializing firmware... ...");
+        logger.info("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -193,7 +193,7 @@ public class FirmwareUtils {
 
             Stream<Path> files = Files.walk(myPath, 1);
             for (Path path : (Iterable<Path>) () -> files.iterator()) {
-                System.out.println(path);
+                logger.info(path.toString());
                 final String name = path.getFileName().toString();
                 File fwConfig = new File(firmwareConfig, name);
                 if (name.endsWith(".json")) {
