@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.logging.LogManager;
 
 /**
- * A terminal client implementation of UGS. Simply run this class with the argument -h to display
+ * A terminal client implementation of UGS. Simply run this class with the argument -h to display run options
+ *
+ * @author Joacim Breiler
  */
 public class TerminalClient {
 
