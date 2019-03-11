@@ -79,15 +79,11 @@ export class MachineService {
     return this.http.get('/api/machine/jog?x=' + x + '&y=' + y + '&z=' + z);
   }
 
-  send(): Observable<any> {
-    return this.http.get('/api/machine/send');
+  getJogFeedRate() : Observable<number> {
+    return this.http.get<any>('/api/machine/getJogFeedRate').map(jogFeedRate => jogFeedRate.feedRate);
   }
 
-  pause(): Observable<any> {
-    return this.http.get('/api/machine/pause');
-  }
-
-  cancel(): Observable<any> {
-    return this.http.get('/api/machine/cancel');
+  setJogFeedRate(feedRate:number) : Observable<any> {
+    return this.http.post('/api/machine/setJogFeedRate&feedRate=' + feedRate, null);
   }
 }

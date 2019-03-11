@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { StatusService } from '../../services/status.service';
 import { MachineService } from '../../services/machine.service'
+import { FilesService } from '../../services/files.service'
 import { Status } from '../../model/status';
 import { StateEnum } from '../../model/state-enum';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -14,7 +15,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class SendFileComponent implements OnInit {
   private status:Status;
   private progress:number;
-  constructor(private http:HttpClient, private statusService:StatusService, private machineService:MachineService) { }
+  constructor(private http:HttpClient, private statusService:StatusService, private machineService:MachineService, private filesService:FilesService) { }
 
   public ngOnInit() {
     this.status = new Status();
@@ -27,20 +28,20 @@ export class SendFileComponent implements OnInit {
   }
 
   public send() {
-    this.machineService.send().subscribe(() => {
+    this.filesService.send().subscribe(() => {
       console.log("Sending file");
     });
   }
 
   public pause() {
-    this.machineService.pause().subscribe(() => {
+    this.filesService.pause().subscribe(() => {
       console.log("Pausing file");
     });
   }
 
 
   public cancel() {
-    this.machineService.cancel().subscribe(() => {
+    this.filesService.cancel().subscribe(() => {
       console.log("Canceling file send");
     });
   }
@@ -80,12 +81,10 @@ export class SendFileComponent implements OnInit {
     let fileList: FileList = event.target.files;
     if(fileList.length > 0) {
       let file: File = fileList[0];
-      let formData:FormData = new FormData();
-      formData.append('file', file, file.name);
-      return this.http.post("/api/machine/open", formData)
-        .map((response: Response) => {
-            return response;
-        }).subscribe();
+
+      this.filesService.uploadAndOpen(file).subscribe(() => {
+            console.log("Canceling file send");
+          });
     }
   }
 }

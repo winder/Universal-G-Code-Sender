@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.pendantui.controllers.FilesController;
 import com.willwinder.universalgcodesender.pendantui.controllers.MachineController;
 import com.willwinder.universalgcodesender.pendantui.controllers.MacrosController;
 import com.willwinder.universalgcodesender.pendantui.controllers.StatusController;
@@ -19,6 +20,7 @@ public class AppConfig extends ResourceConfig {
         register(MachineController.class);
         register(TextController.class);
         register(MacrosController.class);
+        register(FilesController.class);
         register(MultiPartFeature.class);
 
         BackendAPI backendAPI = BackendAPIFactory.getInstance().getBackendAPI();

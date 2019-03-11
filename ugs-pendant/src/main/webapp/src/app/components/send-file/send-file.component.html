@@ -1,5 +1,8 @@
 <div *ngIf="isReadyToOpen()">
   <div class="container">
+    <span class="fileContainer" *ngIf="isReadyToOpen() && !isSendingFile()">
+        <input id="file" type="file" (change)="open($event)" accept=".cnc,.nc,.ngc,.tap,.txt,.gcode"/>
+    </span>
     <div *ngIf="status.fileName"><strong>{{status.fileName}}</strong></div>
     <div *ngIf="status.fileName">Time left: {{formatTime(status.sendRemainingDuration)}}</div>
     <div *ngIf="status.fileName">Time spent: {{formatTime(status.sendDuration)}}</div>
@@ -13,14 +16,6 @@
       </div>
     </div>
     <div>
-      <span class="fileContainer" *ngIf="isReadyToOpen() && !isSendingFile()">
-        <button class="btn btn-secondary">
-          <fa-icon icon="folder-open" size="lg"></fa-icon>
-          <br/> Open
-        </button>
-        <input id="file" type="file" (change)="open($event)" accept=".cnc,.nc,.ngc,.tap,.txt,.gcode"/>
-      </span>
-
       <button class="btn btn-secondary" (click)="send()" *ngIf="isReadyToSend()">
         <fa-icon icon="play"></fa-icon>
         <br/> Send

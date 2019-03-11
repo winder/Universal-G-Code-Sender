@@ -8,12 +8,16 @@ import { MachineService } from '../../services/machine.service'
 })
 export class JogComponent implements OnInit {
 
-  private stepSizes:number[] = [0.01, 0.1, 1.0, 10.0, 100];
+  private feedRate:number = 0;
 
   constructor(private machineService:MachineService) {
   }
 
   ngOnInit() {
+    this.machineService.getJogFeedRate()
+      .subscribe((feedRate) => {
+        this.feedRate = feedRate;
+      });
   }
 
   jog(x:number, y:number, z:number) {
