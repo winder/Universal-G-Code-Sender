@@ -83,8 +83,8 @@ export class SendFileComponent implements OnInit {
       let file: File = fileList[0];
 
       this.filesService.uploadAndOpen(file).subscribe(() => {
-            console.log("Canceling file send");
-          });
+          console.log("Canceling file send");
+        });
     }
   }
 }

@@ -45,5 +45,4 @@ export class TabSetComponent implements OnInit {
 
     this.onSelect.emit(tab);
   }
-
 }
