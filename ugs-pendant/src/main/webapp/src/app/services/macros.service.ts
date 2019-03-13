@@ -12,7 +12,7 @@ export class MacrosService {
   constructor(private http:HttpClient) { }
 
   getMacroList():Observable<Macro[]> {
-    return this.http.get<any[]>('/api/macros/getMacroList')
+    return this.http.get<any[]>('/api/v1/macros/getMacroList')
       .map(response => {
         return response.map(macroResponse => {
           let macro = new Macro();
@@ -31,6 +31,6 @@ export class MacrosService {
       description: macro.description
     };
 
-    return this.http.post<any[]>('/api/macros/runMacro', data);
+    return this.http.post<any[]>('/api/v1/macros/runMacro', data);
   }
 }

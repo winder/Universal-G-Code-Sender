@@ -27,28 +27,28 @@ export class StatusService {
    * Starts a timer and refreshes the status with event intervals
    */
   start() {
-      interval(200)
-      .pipe(
-        switchMap(_ => this.refreshStatus()),
-        retryWhen(errors =>
-          // Retry on errors
-          errors.pipe(
-            // On error send an invalid status
-            tap(error => {
-              let status = new Status();
-              status.state = StateEnum.UNAVAILABLE;
-              this.statusSubject.next(status);
-            }),
-            // Restart in 5 seconds
-            delayWhen(error => timer(5000))
-          )
+    interval(200)
+    .pipe(
+      switchMap(_ => this.refreshStatus()),
+      retryWhen(errors =>
+        // Retry on errors
+        errors.pipe(
+          // On error send an invalid status
+          tap(error => {
+            let status = new Status();
+            status.state = StateEnum.UNAVAILABLE;
+            this.statusSubject.next(status);
+          }),
+          // Restart in 5 seconds
+          delayWhen(error => timer(5000))
         )
       )
-      .subscribe();
+    )
+    .subscribe();
   }
 
-  refreshStatus() {
-    return this.http.get<Status>('/api/status/getStatus')
+  refreshStatus():Observable<Status> {
+    return this.http.get<Status>('/api/v1/status/getStatus')
       .map(response => {
         let status = new Status();
         status.state = response.state;

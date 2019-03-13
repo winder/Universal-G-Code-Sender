@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.model;
+package com.willwinder.universalgcodesender.pendantui.v1.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
