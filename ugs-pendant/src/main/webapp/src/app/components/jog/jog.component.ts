@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MachineService } from '../../services/machine.service'
+import { SettingsService } from '../../services/settings.service'
+import { Settings } from '../../model/settings'
 
 @Component({
   selector: 'app-jog',
@@ -8,16 +10,17 @@ import { MachineService } from '../../services/machine.service'
 })
 export class JogComponent implements OnInit {
 
-  private feedRate:number = 0;
+  private settings:Settings;
 
-  constructor(private machineService:MachineService) {
+  constructor(private machineService:MachineService, private settingsService:SettingsService) {
+    this.settings = new Settings();
   }
 
   ngOnInit() {
-    this.machineService.getJogFeedRate()
-      .subscribe((feedRate) => {
-        this.feedRate = feedRate;
-      });
+    this.settingsService.getSettings()
+      .subscribe((settings) => {
+        this.settings = settings;
+      })
   }
 
   jog(x:number, y:number, z:number) {
@@ -29,5 +32,20 @@ export class JogComponent implements OnInit {
         // TODO handle this error
         console.log("Got error", error);
       })
+  }
+
+  onFeedRateChange(feedRate:number) {
+    this.settings.jogFeedRate = feedRate;
+    this.settingsService.setSettings(this.settings).subscribe();
+  }
+
+  onStepSizeXYChange(stepSize:number) {
+    this.settings.jogStepSizeXY = stepSize;
+    this.settingsService.setSettings(this.settings).subscribe();
+  }
+
+  onStepSizeZChange(stepSize:number) {
+    this.settings.jogStepSizeZ = stepSize;
+    this.settingsService.setSettings(this.settings).subscribe();
   }
 }
