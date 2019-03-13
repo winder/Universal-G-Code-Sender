@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -14,6 +14,7 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,10 +22,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-@Path("/machine")
+@Path("/v1/machine")
 public class MachineController {
 
     @Inject
@@ -37,7 +41,7 @@ public class MachineController {
     @Path("connect")
     @Produces(MediaType.APPLICATION_JSON)
     public Response connect() throws Exception {
-        if(backendAPI.isConnected()) {
+        if (backendAPI.isConnected()) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).build();
         }
         Settings settings = SettingsFactory.loadSettings();
@@ -49,7 +53,7 @@ public class MachineController {
     @Path("disconnect")
     @Produces(MediaType.APPLICATION_JSON)
     public Response disconnect() throws Exception {
-        if(!backendAPI.isConnected()) {
+        if (!backendAPI.isConnected()) {
             return Response.status(Response.Status.NOT_ACCEPTABLE).build();
         }
         backendAPI.disconnect();
@@ -152,7 +156,7 @@ public class MachineController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response resetToZero(@QueryParam("axis") Axis axis) {
         try {
-            if(axis == null) {
+            if (axis == null) {
                 backendAPI.resetCoordinatesToZero();
             } else {
                 backendAPI.resetCoordinateToZero(axis);
@@ -199,13 +203,19 @@ public class MachineController {
         }
     }
 
-    @GET
-    @Path("jog")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response jog(@QueryParam("x") int x, @QueryParam("y") int y, @QueryParam("z") int z) {
+    @POST
+    @Path("sendGCode")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response sendGCode(String gcode) {
         try {
-            jogService.adjustManualLocationXY(x, y);
-            jogService.adjustManualLocationZ(z);
+            List<String> lines = new BufferedReader(new StringReader(gcode))
+                    .lines()
+                    .collect(Collectors.toList());
+
+            for (String gcodeCommand : lines) {
+                backendAPI.sendGcodeCommand(gcodeCommand);
+            }
+
             return Response.ok().build();
         } catch (Exception e) {
             return Response.serverError().build();
@@ -213,25 +223,12 @@ public class MachineController {
     }
 
     @GET
-    @Path("getJogFeedRate")
+    @Path("jog")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getJogFeedRate() {
+    public Response jog(@QueryParam("x") int x, @QueryParam("y") int y, @QueryParam("z") int z) {
         try {
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.add("feedRate", new JsonPrimitive(jogService.getFeedRate()));
-            return Response.ok(jsonObject.toString()).build();
-
-        } catch (Exception e) {
-            return Response.serverError().build();
-        }
-    }
-
-    @GET
-    @Path("setJogFeedRate")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response setJogFeedRate(@QueryParam("feedRate") int feedRate) {
-        try {
-            jogService.setFeedRate(feedRate);
+            jogService.adjustManualLocationXY(x, y);
+            jogService.adjustManualLocationZ(z);
             return Response.ok().build();
         } catch (Exception e) {
             return Response.serverError().build();

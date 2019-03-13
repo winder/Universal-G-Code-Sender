@@ -1,11 +1,12 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.controllers.FilesController;
-import com.willwinder.universalgcodesender.pendantui.controllers.MachineController;
-import com.willwinder.universalgcodesender.pendantui.controllers.MacrosController;
-import com.willwinder.universalgcodesender.pendantui.controllers.StatusController;
-import com.willwinder.universalgcodesender.pendantui.controllers.TextController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.FilesController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.MachineController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.MacrosController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.SettingsController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.StatusController;
+import com.willwinder.universalgcodesender.pendantui.v1.controllers.TextController;
 import com.willwinder.universalgcodesender.services.JogService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -20,6 +21,7 @@ public class AppConfig extends ResourceConfig {
         register(MachineController.class);
         register(TextController.class);
         register(MacrosController.class);
+        register(SettingsController.class);
         register(FilesController.class);
         register(MultiPartFeature.class);
 

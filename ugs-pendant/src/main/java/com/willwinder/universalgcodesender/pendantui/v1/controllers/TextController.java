@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 
@@ -8,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/text")
+@Path("/v1/text")
 public class TextController {
     @GET
     @Path("getTexts")

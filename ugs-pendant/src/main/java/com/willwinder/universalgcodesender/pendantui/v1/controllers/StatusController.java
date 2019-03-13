@@ -1,10 +1,11 @@
-package com.willwinder.universalgcodesender.pendantui.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.model.Status;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.pendantui.v1.model.Status;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -13,7 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-@Path("/status")
+@Path("/v1/status")
 public class StatusController {
 
     @Inject
@@ -27,11 +28,11 @@ public class StatusController {
 
         IController controller = backendAPI.getController();
         if (controller != null) {
-
+            UnitUtils.Units preferredUnits = backendAPI.getSettings().getPreferredUnits();
             ControllerStatus controllerStatus = controller.getControllerStatus();
             if (controllerStatus != null) {
-                status.setMachineCoord(controllerStatus.getMachineCoord());
-                status.setWorkCoord(controllerStatus.getWorkCoord());
+                status.setMachineCoord(controllerStatus.getMachineCoord().getPositionIn(preferredUnits));
+                status.setWorkCoord(controllerStatus.getWorkCoord().getPositionIn(preferredUnits));
                 status.setState(controllerStatus.getState());
                 status.setFeedSpeed(controllerStatus.getFeedSpeed());
                 status.setSpindleSpeed(controllerStatus.getSpindleSpeed());

@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.apache.commons.io.IOUtils;
@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
-@Path("/files")
+@Path("/v1/files")
 public class FilesController {
 
     @Inject

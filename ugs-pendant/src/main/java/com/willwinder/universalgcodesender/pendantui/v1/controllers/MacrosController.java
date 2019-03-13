@@ -1,8 +1,8 @@
-package com.willwinder.universalgcodesender.pendantui.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.model.Macro;
+import com.willwinder.universalgcodesender.pendantui.v1.model.Macro;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 
@@ -17,7 +17,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Path("/macros")
+@Path("/v1/macros")
 public class MacrosController {
 
     @Inject
