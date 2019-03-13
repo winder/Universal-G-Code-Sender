@@ -2,8 +2,10 @@ package com.willwinder.universalgcodesender.pendantui.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.io.Serializable;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Macro {
+public class Macro implements Serializable {
     private String gcode;
     private String description;
     private String name;

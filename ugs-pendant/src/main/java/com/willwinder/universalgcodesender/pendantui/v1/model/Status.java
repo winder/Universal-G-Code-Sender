@@ -1,9 +1,13 @@
 package com.willwinder.universalgcodesender.pendantui.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Position;
 
-public class Status {
+import java.io.Serializable;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Status implements Serializable {
     private Position machineCoord = Position.ZERO;
     private Position workCoord = Position.ZERO;
     private Double feedSpeed = 0.0;
