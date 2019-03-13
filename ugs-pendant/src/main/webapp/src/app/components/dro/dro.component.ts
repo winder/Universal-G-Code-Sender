@@ -4,7 +4,9 @@ import { throttle, map, distinctUntilChanged} from 'rxjs/operators';
 
 import { StatusService } from '../../services/status.service';
 import { MachineService } from '../../services/machine.service';
+import { SettingsService } from '../../services/settings.service';
 import { Status } from '../../model/status';
+import { Settings } from '../../model/settings';
 import { StateEnum } from '../../model/state-enum';
 import { AxisEnum } from '../../model/axis-enum';
 
@@ -17,8 +19,9 @@ export class DroComponent implements OnInit {
 
   private status:Status;
   private stateClass:string;
+  private preferredUnits:string = Settings.UNITS_MM;
 
-  constructor(private statusService:StatusService, private machineService:MachineService) { }
+  constructor(private statusService:StatusService, private machineService:MachineService, private settingsService:SettingsService) { }
 
   ngOnInit() {
     this.stateClass = 'alert-dark';
@@ -47,6 +50,12 @@ export class DroComponent implements OnInit {
             this.stateClass = 'alert-dark';
         }
       });
+
+    this.settingsService.getSettings()
+      .subscribe(data => {
+        this.preferredUnits = data.preferredUnits;
+      });
+    this.settingsService.refreshSettings().subscribe();
   }
 
   killAlarm() {
