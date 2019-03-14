@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2018 Will Winder
+    Copyright 2014-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,7 +19,6 @@
 package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.model.GUIBackend;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -61,7 +60,6 @@ public class Settings {
     private boolean singleStepMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-    private boolean displayStateColor = true;
     private Units preferredUnits = Units.MM;
 
     private boolean showNightlyWarning = true;
@@ -320,15 +318,6 @@ public class Settings {
 
     public void setStatusUpdateRate(int statusUpdateRate) {
         this.statusUpdateRate = statusUpdateRate;
-        changed();
-    }
-
-    public boolean isDisplayStateColor() {
-        return displayStateColor;
-    }
-
-    public void setDisplayStateColor(boolean displayStateColor) {
-        this.displayStateColor = displayStateColor;
         changed();
     }
 
