@@ -12,7 +12,6 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.StatusController;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
@@ -62,9 +61,9 @@ public class PendantUI implements ControllerListener {
         BackendAPIFactory.getInstance().register(mainWindow);
     }
 
-    public Resource getBaseResource(){
+    public Resource getBaseResource(String directory) {
         try {
-            URL res = getClass().getResource("/resources/ugs-pendant");
+            URL res = getClass().getResource(directory);
             return Resource.newResource(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -79,52 +78,56 @@ public class PendantUI implements ControllerListener {
     public List<PendantURLBean> start(){
         server = new Server(port);
 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(true);
-        resourceHandler.setWelcomeFiles(new String[]{"index.html"});
-        resourceHandler.setBaseResource(getBaseResource());
+        ResourceHandler pendantResourceHandler = new ResourceHandler();
+        pendantResourceHandler.setDirectoriesListed(true);
+        pendantResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        pendantResourceHandler.setBaseResource(getBaseResource("/resources/ugs-pendant"));
 
-        ContextHandler resourceHandlerContext = new ContextHandler();
-        resourceHandlerContext.setContextPath("/");
-        resourceHandlerContext.setHandler(resourceHandler);
+        ContextHandler pendantResourceHandlerContext = new ContextHandler();
+        pendantResourceHandlerContext.setContextPath("/");
+        pendantResourceHandlerContext.setHandler(pendantResourceHandler);
+
+
+        ResourceHandler oldPendantResourceHandler = new ResourceHandler();
+        oldPendantResourceHandler.setDirectoriesListed(true);
+        oldPendantResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        oldPendantResourceHandler.setBaseResource(getBaseResource("/pendantUI/old"));
+
+        ContextHandler oldPendantResourceHandlerContext = new ContextHandler();
+        oldPendantResourceHandlerContext.setContextPath("/old");
+        oldPendantResourceHandlerContext.setHandler(oldPendantResourceHandler);
 
 
         ContextHandler sendGcodeContext = new ContextHandler();
         sendGcodeContext.setContextPath("/sendGcode");
-        sendGcodeContext.setBaseResource(getBaseResource());
         sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         sendGcodeContext.setHandler(new SendGcodeHandler());
 
         ContextHandler adjustManualLocationContext = new ContextHandler();
         adjustManualLocationContext.setContextPath("/adjustManualLocation");
-        adjustManualLocationContext.setBaseResource(getBaseResource());
         adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
 
         ContextHandler getSystemStateContext = new ContextHandler();
         getSystemStateContext.setContextPath("/getSystemState");
-        getSystemStateContext.setBaseResource(getBaseResource());
         getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         getSystemStateContext.setHandler(new GetSystemStateHandler());
 
         ContextHandler configContext = new ContextHandler();
         configContext.setContextPath("/config");
-        configContext.setBaseResource(getBaseResource());
         configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         configContext.setHandler(new ConfigHandler());
         configContext.setInitParameter("cacheControl", "max-age=0, public");
 
-        // Create at servlet servletContextHandler
+        // Create a servlet servletContextHandler
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         servletContextHandler.setContextPath("/api");
         ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/*");
         servletHolder.setInitOrder(1);
         servletHolder.setInitParameter("javax.ws.rs.Application", AppConfig.class.getCanonicalName());
 
-        System.out.println(StatusController.class.getPackage().getName());
         HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] {servletContextHandler, configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandlerContext, new DefaultHandler()});
-
+        handlers.setHandlers(new Handler[] {servletContextHandler, configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, oldPendantResourceHandlerContext, pendantResourceHandlerContext, new DefaultHandler()});
         server.setHandler(handlers);
 
         try {
