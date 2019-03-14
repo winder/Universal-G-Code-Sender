@@ -78,4 +78,12 @@ export class MachineService {
   jog(x:number, y:number, z:number): Observable<any> {
     return this.http.get('/api/v1/machine/jog?x=' + x + '&y=' + y + '&z=' + z);
   }
+
+  sendCommands(commands:string): Observable<any> {
+    var gcodeCommands = {
+      commands: commands
+    };
+
+    return this.http.post('/api/v1/machine/sendGcode', gcodeCommands);
+  }
 }

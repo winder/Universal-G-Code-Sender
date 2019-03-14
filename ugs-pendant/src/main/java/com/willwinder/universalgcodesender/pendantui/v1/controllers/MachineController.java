@@ -8,6 +8,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
+import com.willwinder.universalgcodesender.pendantui.v1.model.GcodeCommands;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
@@ -204,15 +205,15 @@ public class MachineController {
     }
 
     @POST
-    @Path("sendGCode")
+    @Path("sendGcode")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response sendGCode(String gcode) {
+    public Response sendGcode(GcodeCommands gcode) {
         try {
-            List<String> lines = new BufferedReader(new StringReader(gcode))
+            List<String> gcodeCommands = new BufferedReader(new StringReader(gcode.getCommands()))
                     .lines()
                     .collect(Collectors.toList());
 
-            for (String gcodeCommand : lines) {
+            for (String gcodeCommand : gcodeCommands) {
                 backendAPI.sendGcodeCommand(gcodeCommand);
             }
 
