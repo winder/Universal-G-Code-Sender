@@ -67,7 +67,7 @@ export class SettingsService {
     };
 
     return this.http.post('/api/v1/settings/setSettings', object).pipe(
-      tap(() => this.settingsSubject.next(settings))
+      tap(() => this.refreshSettings().subscribe())
     );
   }
 }

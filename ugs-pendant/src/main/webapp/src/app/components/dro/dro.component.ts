@@ -18,6 +18,7 @@ import { AxisEnum } from '../../model/axis-enum';
 export class DroComponent implements OnInit {
 
   private status:Status;
+  private settings:Settings;
   private stateClass:string;
   private preferredUnits:string = Settings.UNITS_MM;
 
@@ -53,6 +54,7 @@ export class DroComponent implements OnInit {
 
     this.settingsService.getSettings()
       .subscribe(data => {
+        this.settings = data;
         this.preferredUnits = data.preferredUnits;
       });
     this.settingsService.refreshSettings().subscribe();
@@ -68,5 +70,14 @@ export class DroComponent implements OnInit {
 
   resetToZero(axis:AxisEnum) {
     this.machineService.resetToZero(axis).subscribe();
+  }
+
+  toggleUnits() {
+    if(this.settings.preferredUnits == Settings.UNITS_MM) {
+      this.settings.preferredUnits = Settings.UNITS_INCH;
+    } else {
+      this.settings.preferredUnits = Settings.UNITS_MM;
+    }
+    this.settingsService.setSettings(this.settings).subscribe();
   }
 }

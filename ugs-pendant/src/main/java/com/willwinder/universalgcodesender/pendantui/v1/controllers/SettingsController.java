@@ -40,10 +40,10 @@ public class SettingsController {
     public Response setSettings(Settings settings) {
         try {
             com.willwinder.universalgcodesender.utils.Settings backendSettings = backendAPI.getSettings();
-            backendSettings.setPreferredUnits(settings.getPreferredUnits());
             backendSettings.setJogFeedRate(settings.getJogFeedRate());
             backendSettings.setManualModeStepSize(settings.getJogStepSizeXY());
             backendSettings.setzJogStepSize(settings.getJogStepSizeZ());
+            backendSettings.setPreferredUnits(settings.getPreferredUnits());
             backendAPI.applySettings(backendSettings);
             return Response.ok().build();
         } catch (Exception e) {
