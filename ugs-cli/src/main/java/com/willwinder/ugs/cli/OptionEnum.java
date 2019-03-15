@@ -24,7 +24,7 @@ import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 /**
  * An enum with all option attributes that can be used in the configuration. {@link Configuration}
  *
- *  @author Joacim Breiler
+ * @author Joacim Breiler
  */
 public enum OptionEnum {
 
@@ -38,7 +38,8 @@ public enum OptionEnum {
     LIST_PORTS("list", "l", false, "", "Lists all available ports."),
     PRINT_STREAM("print-stream", "ps", false, "", "Prints the streamed lines to console"),
     PRINT_PROGRESSBAR("print-progressbar", "pp", false, "", "Prints the progress of the file stream"),
-    RESET_ALARM("reset-alarm", "r", false, "", "Resets any alarm");
+    RESET_ALARM("reset-alarm", "r", false, "", "Resets any alarm"),
+    DAEMON("daemon", "d", false, "", "Starts in daemon mode providing a web pendant UI");
 
     /**
      * The long option name that will be displayed like this: --file
