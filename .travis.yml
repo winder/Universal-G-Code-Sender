@@ -22,5 +22,6 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUBAPIKEY  # Set in the settings page of your repository, as a secure variable
   keep-history: true
+  local-dir: /home/travis/build/mike-pittelko/Universal-G-Code-Sender-Build/ugs-platform
   on:
     branch: master
