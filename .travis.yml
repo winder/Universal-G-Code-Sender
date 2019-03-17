@@ -18,8 +18,8 @@ before_script:
 
 deploy:
   provider: releases
-  api_key: "GITHUB OAUTH TOKEN"
-  file: "FILE TO UPLOAD"
+  api_key: GITHUBAPIKEY
+  file: "/home/travis/build/mike-pittelko/Universal-G-Code-Sender-Build/ugs-platform/application/target/ugs-platform-app-2.0-SNAPSHOT.zip"
   skip_cleanup: true
   overwrite: true
   on:
