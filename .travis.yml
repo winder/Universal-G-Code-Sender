@@ -20,5 +20,6 @@ deploy:
   api_key: "GITHUB OAUTH TOKEN"
   file: "FILE TO UPLOAD"
   skip_cleanup: true
+  overwrite: true
   on:
     tags: true
