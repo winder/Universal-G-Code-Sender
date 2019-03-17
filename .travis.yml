@@ -1,6 +1,5 @@
 language: java
 
-
 cache:
   directories:
   - $HOME/.m2
@@ -16,13 +15,12 @@ after_success:
 before_script:
   - pip install --user codecov
 
+# deploy via pages on github
+
 deploy:
-  provider: releases
-  api_key: GITHUBAPIKEY
-  file: "/home/travis/build/mike-pittelko/Universal-G-Code-Sender-Build/ugs-platform/application/target/ugs-platform-app-2.0-SNAPSHOT.zip"
-  skip_cleanup: true
-  overwrite: true
+  provider: pages
+  skip-cleanup: true
+  github-token: $GITHUBAPIKEY  # Set in the settings page of your repository, as a secure variable
+  keep-history: true
   on:
-    tags: false
-    
-    
+    branch: master
