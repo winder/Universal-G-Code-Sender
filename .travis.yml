@@ -22,6 +22,6 @@ deploy:
   skip-cleanup: true
   github-token: $GITHUBAPIKEY  # Set in the settings page of your repository, as a secure variable
   keep-history: true
-  local-dir: target/ugsplatform
+  local-dir: ugs-platform/application/target/ugsplatform
   on:
     branch: master
