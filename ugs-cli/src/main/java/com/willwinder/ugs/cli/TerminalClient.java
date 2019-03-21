@@ -118,6 +118,7 @@ public class TerminalClient {
 
     private void startDaemon() {
         pendantUI = new PendantUI(backend);
+        pendantUI.start();
     }
 
     /**

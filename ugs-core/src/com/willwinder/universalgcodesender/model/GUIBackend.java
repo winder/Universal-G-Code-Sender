@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
@@ -51,6 +50,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -59,6 +59,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -480,6 +481,36 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         this.sendUGSEvent(new UGSEvent(FileState.FILE_LOADED,
                 processedGcodeFile.getAbsolutePath()), false);
+    }
+
+    @Override
+    public List<String> getWorkspaceFileList() {
+        String workspaceDirectory = settings.getWorkspaceDirectory();
+        if(StringUtils.isBlank(workspaceDirectory)) {
+            return Collections.emptyList();
+        }
+
+        File folder = new File(workspaceDirectory);
+        if(!folder.exists() || !folder.isDirectory()){
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
+                .map(File::getName)
+                .filter(name -> StringUtils.endsWithIgnoreCase(name, "gcode") ||
+                                StringUtils.endsWithIgnoreCase(name, "nc"))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void openWorkspaceFile(String file) throws Exception {
+        if(!getWorkspaceFileList().contains(file)) {
+            throw new FileNotFoundException("Couldn't find the file '" + file + "' in workspace directory");
+        }
+
+        String workspaceDirectory = settings.getWorkspaceDirectory();
+        String filename = workspaceDirectory + File.separatorChar + file;
+        setGcodeFile(new File(filename));
     }
 
     @Override

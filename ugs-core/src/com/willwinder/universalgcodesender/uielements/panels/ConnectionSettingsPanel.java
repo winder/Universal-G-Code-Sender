@@ -56,7 +56,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
             ConnectionDriver.JSSC.getPrettyName(),
             ConnectionDriver.JSERIALCOMM.getPrettyName(),
-            ConnectionDriver.TCP.getPrettyName(),});
+            ConnectionDriver.TCP.getPrettyName()});
+    private final JTextField workspaceDirectory = new JTextField();
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -95,6 +96,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         } else {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
+        settings.setWorkspaceDirectory(workspaceDirectory.getText());
         SettingsFactory.saveSettings(settings);
     }
 
@@ -148,5 +150,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         add(new JLabel(Localization.getString("settings.connectionDriver")), "gapleft 56");
         add(connectionDriver, "grow, wrap");
+
+        workspaceDirectory.setText(settings.getWorkspaceDirectory());
+        add(new JLabel(Localization.getString("settings.workspaceDirectory")), "gapleft 56");
+        add(workspaceDirectory, "grow, wrap");
     }
 }

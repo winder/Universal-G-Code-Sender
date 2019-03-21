@@ -1,6 +1,7 @@
 package com.willwinder.universalgcodesender.pendantui.v1.controllers;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.pendantui.v1.model.WorkspaceFileList;
 import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataParam;
@@ -10,13 +11,16 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 @Path("/v1/files")
 public class FilesController {
@@ -79,5 +83,27 @@ public class FilesController {
         } catch (Exception e) {
             return Response.serverError().build();
         }
+    }
+
+    @GET
+    @Path("getWorkspaceFileList")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getWorkspaceFileList() {
+        try {
+            List<String> workspaceFileList = backendAPI.getWorkspaceFileList();
+            WorkspaceFileList result = new WorkspaceFileList();
+            result.setFileList(workspaceFileList);
+            return Response.ok(result).build();
+        } catch (Exception e) {
+            return Response.serverError().build();
+        }
+    }
+
+    @POST
+    @Path("openWorkspaceFile")
+    public Response openWorkspaceFile(@QueryParam("file") String file) throws Exception {
+
+        backendAPI.openWorkspaceFile(file);
+        return Response.ok().build();
     }
 }
