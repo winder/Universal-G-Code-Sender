@@ -37,6 +37,11 @@
             <artifactId>ugs-pendant</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.willwinder.universalgcodesender</groupId>
+            <artifactId>ugs-cli</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- ************************* -->
         <!-- *** TEST dependencies ***-->
