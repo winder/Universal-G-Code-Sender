@@ -39,7 +39,8 @@ public enum OptionEnum {
     PRINT_STREAM("print-stream", "ps", false, "", "Prints the streamed lines to console"),
     PRINT_PROGRESSBAR("print-progressbar", "pp", false, "", "Prints the progress of the file stream"),
     RESET_ALARM("reset-alarm", "r", false, "", "Resets any alarm"),
-    DAEMON("daemon", "d", false, "", "Starts in daemon mode providing a web pendant UI");
+    DAEMON("daemon", "d", false, "", "Starts in daemon mode providing a web pendant UI"),
+    WORKSPACE("workspace", "w", true, "dir", "Sets the workspace directory");
 
     /**
      * The long option name that will be displayed like this: --file

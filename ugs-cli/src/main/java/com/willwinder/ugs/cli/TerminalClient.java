@@ -85,6 +85,11 @@ public class TerminalClient {
 
             initializeBackend();
 
+            if (configuration.hasOption(OptionEnum.WORKSPACE)) {
+                String directory = configuration.getOptionValue(OptionEnum.WORKSPACE);
+                backend.getSettings().setWorkspaceDirectory(directory);
+            }
+
             if (configuration.hasOption(OptionEnum.DAEMON)) {
                 startDaemon();
             }
