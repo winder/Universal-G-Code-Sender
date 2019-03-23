@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.cli;
 
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.GUIBackend;
@@ -25,6 +26,8 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 /**
  * Helper for initializing the backend. It will attempt to connect to controller using the given
@@ -63,12 +66,20 @@ public class BackendInitializerHelper implements UGSEventListener {
             backend.addUGSEventListener(this);
             backend.applySettings(backendSettings);
             backend.getSettings().setFirmwareVersion(firmware);
-            backend.connect(firmware, port, baudRate);
+
+            // Only connect if port is available
+            Settings settings = SettingsFactory.loadSettings();
+            List<String> portNames = ConnectionFactory.getPortNames(settings.getConnectionDriver());
+            if(portNames.contains(port)) {
+                backend.connect(firmware, port, baudRate);
+            }
 
             // TODO Wait until controller is finnished and in state IDLE or ALARM
             Thread.sleep(3000);
 
-            System.out.println("Connected to \"" + backend.getController().getFirmwareVersion() + "\" on " + port + " baud " + baudRate);
+            if(backend.isConnected()) {
+                System.out.println("Connected to \"" + backend.getController().getFirmwareVersion() + "\" on " + port + " baud " + baudRate);
+            }
         } catch (Exception e) {
             System.err.println("Couldn't connect to controller with firmware \"" + firmware + "\" on " + port + " baud " + baudRate);
 
