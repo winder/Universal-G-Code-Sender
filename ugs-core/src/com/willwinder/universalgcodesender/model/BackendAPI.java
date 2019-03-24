@@ -44,7 +44,8 @@ public interface BackendAPI extends BackendAPIReadOnly {
     List<String> getWorkspaceFileList();
 
     /**
-     * Opens a gcode file from the workspace directory
+     * Opens a gcode file from the workspace directory. Just supply one of the files from
+     * the method {@link #getWorkspaceFileList()}.
      *
      * @param file the file to open
      */

@@ -5,6 +5,7 @@ import com.google.gson.JsonPrimitive;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
@@ -54,9 +55,6 @@ public class MachineController {
     @Path("disconnect")
     @Produces(MediaType.APPLICATION_JSON)
     public Response disconnect() throws Exception {
-        if (!backendAPI.isConnected()) {
-            return Response.status(Response.Status.NOT_ACCEPTABLE).build();
-        }
         backendAPI.disconnect();
         return Response.ok().build();
     }
@@ -185,6 +183,10 @@ public class MachineController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response homeMachine() {
         try {
+            if(!backendAPI.getController().getFirmwareSettings().isHomingEnabled()) {
+                return Response.status(Response.Status.PRECONDITION_FAILED).build();
+            }
+
             backendAPI.performHomingCycle();
             return Response.ok().build();
         } catch (Exception e) {

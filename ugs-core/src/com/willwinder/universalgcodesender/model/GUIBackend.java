@@ -497,8 +497,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
                 .map(File::getName)
-                .filter(name -> StringUtils.endsWithIgnoreCase(name, "gcode") ||
-                                StringUtils.endsWithIgnoreCase(name, "nc"))
+                .filter(name -> StringUtils.endsWithIgnoreCase(name, ".gcode") ||
+                                StringUtils.endsWithIgnoreCase(name, ".nc"))
                 .collect(Collectors.toList());
     }
 
