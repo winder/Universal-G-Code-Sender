@@ -39,6 +39,10 @@ export class MachineService {
     return this.http.get<any>('/api/v1/machine/getSelectedPort').map(port => port.selectedPort);
   }
 
+  setSelectedPort(port:string): Observable<any> {
+    return this.http.post('/api/v1/machine/setSelectedPort?port=' + port, null);
+  }
+
   getFirmwareList(): Observable<string[]> {
     return this.http.get<string[]>('/api/v1/machine/getFirmwareList');
   }
