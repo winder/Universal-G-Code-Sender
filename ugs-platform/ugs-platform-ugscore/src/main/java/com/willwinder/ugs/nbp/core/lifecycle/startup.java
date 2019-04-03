@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.core.control.JogActionService;
+import com.willwinder.ugs.nbp.core.services.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.services.OverrideActionService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;

@@ -72,7 +72,7 @@ public final class MacroService {
             int numMacros = settings.getNumMacros();
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
-                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), m.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
+                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), m.getName(), actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
         } catch (Exception e) {
             e.printStackTrace();
