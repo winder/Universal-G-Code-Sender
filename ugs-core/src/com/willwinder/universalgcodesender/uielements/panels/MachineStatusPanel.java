@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -154,11 +154,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         activeStateValueLabel.setText(OFFLINE);
 
         activeStatePanel.setLayout(new MigLayout(debug + "fill, inset 0 5 0 5"));
-        if (backend.getSettings().isDisplayStateColor()) {
-            activeStatePanel.setBackground(Color.BLACK);
-        } else {
-            activeStatePanel.setBackground(Color.WHITE);
-        }
+        activeStatePanel.setBackground(Color.BLACK);
         activeStatePanel.setForeground(ThemeColors.VERY_DARK_GREY);
         activeStatePanel.add(activeStateValueLabel, "al center");
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
@@ -259,9 +255,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
             if (! backend.isConnected()) {
                 activeStateValueLabel.setText(OFFLINE);
-                if (backend.getSettings().isDisplayStateColor()) {
-                    activeStatePanel.setBackground(Color.BLACK);
-                }
+                activeStatePanel.setBackground(Color.BLACK);
             }
             GcodeState state = backend.getGcodeState();
             if (state == null) {
@@ -404,28 +398,26 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void updateStatePanel(ControllerState state) {
 
-        if (backend.getSettings().isDisplayStateColor()) {
-            Color background = ThemeColors.GREY;
-            String text = Utils.getControllerStateText(state);
-            if (state == ControllerState.ALARM) {
-                background = ThemeColors.RED;
-            } else if (state == ControllerState.HOLD) {
-                background = ThemeColors.ORANGE;
-            } else if (state == ControllerState.DOOR) {
-                background = ThemeColors.ORANGE;
-            } else if (state == ControllerState.RUN) {
-                background = ThemeColors.GREEN;
-            } else if (state == ControllerState.JOG) {
-                background = ThemeColors.GREEN;
-            } else if (state == ControllerState.CHECK) {
-                background = ThemeColors.LIGHT_BLUE;
-            } else if (state == ControllerState.IDLE) {
-                background = ThemeColors.GREY;
-            }
-
-            this.activeStatePanel.setBackground(background);
-            this.activeStateValueLabel.setText(text.toUpperCase());
+        Color background = ThemeColors.GREY;
+        String text = Utils.getControllerStateText(state);
+        if (state == ControllerState.ALARM) {
+            background = ThemeColors.RED;
+        } else if (state == ControllerState.HOLD) {
+            background = ThemeColors.ORANGE;
+        } else if (state == ControllerState.DOOR) {
+            background = ThemeColors.ORANGE;
+        } else if (state == ControllerState.RUN) {
+            background = ThemeColors.GREEN;
+        } else if (state == ControllerState.JOG) {
+            background = ThemeColors.GREEN;
+        } else if (state == ControllerState.CHECK) {
+            background = ThemeColors.LIGHT_BLUE;
+        } else if (state == ControllerState.IDLE) {
+            background = ThemeColors.GREY;
         }
+
+        this.activeStatePanel.setBackground(background);
+        this.activeStateValueLabel.setText(text.toUpperCase());
     }
 
     private void resetCoordinateButton(Axis coord) {
