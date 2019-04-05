@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.cli;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.pendantui.PendantUI;
@@ -78,17 +79,22 @@ public class TerminalClient {
                 System.exit(0);
             }
 
+            if (configuration.hasOption(OptionEnum.WORKSPACE)) {
+                String directory = configuration.getOptionValue(OptionEnum.WORKSPACE);
+                setWorkspaceDirectory(directory);
+            }
+
+            if (configuration.hasOption(OptionEnum.DRIVER)) {
+                ConnectionDriver driver = ConnectionDriver.valueOf(configuration.getOptionValue(OptionEnum.DRIVER));
+                setConnectionDriver(driver);
+            }
+
             if (configuration.hasOption(OptionEnum.LIST_PORTS)) {
                 listPorts();
                 System.exit(0);
             }
 
             initializeBackend();
-
-            if (configuration.hasOption(OptionEnum.WORKSPACE)) {
-                String directory = configuration.getOptionValue(OptionEnum.WORKSPACE);
-                backend.getSettings().setWorkspaceDirectory(directory);
-            }
 
             if (configuration.hasOption(OptionEnum.DAEMON)) {
                 startDaemon();
@@ -119,6 +125,18 @@ public class TerminalClient {
             // TODO This is a hack to exit threads, find out why threads aren't killed
             System.exit(0);
         }
+    }
+
+    private void setConnectionDriver(ConnectionDriver driver) {
+        Settings settings = SettingsFactory.loadSettings();
+        settings.setConnectionDriver(driver);
+        SettingsFactory.saveSettings(settings);
+    }
+
+    private void setWorkspaceDirectory(String directory) {
+        Settings settings = SettingsFactory.loadSettings();
+        settings.setWorkspaceDirectory(directory);
+        SettingsFactory.saveSettings(settings);
     }
 
     private void startDaemon() {
