@@ -84,8 +84,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private File gcodeFile = null;
     private File processedGcodeFile = null;
     private File tempDir = null;
-    private String lastComment;
-    private String activeState;
     private long estimatedSendDuration = -1L;
     private String firmware = null;
 
@@ -760,7 +758,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComment(String comment) {
-        this.lastComment = comment;
     }
 
     @Override
@@ -770,7 +767,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.activeState = status.getStateString();
         this.machineCoord = status.getMachineCoord();
         this.workCoord = status.getWorkCoord();
         this.lastResponse = System.currentTimeMillis();
