@@ -38,7 +38,7 @@ import java.util.logging.Logger;
 public class KeepAwakeUtils {
     private static final Logger LOGGER = Logger.getLogger(KeepAwakeUtils.class.getName());
 
-    private static Timer KEEP_ALIVE_TIMER;
+    private static Timer keepAliveTimer;
 
     private static void keepAwake() {
         LOGGER.log(Level.INFO, "Moving the mouse location slightly to keep the computer awake.");
@@ -53,12 +53,12 @@ public class KeepAwakeUtils {
     }
 
     public static void start(BackendAPI backendAPI) {
-        if (KEEP_ALIVE_TIMER != null) {
-            KEEP_ALIVE_TIMER.cancel();
+        if (keepAliveTimer != null) {
+            keepAliveTimer.cancel();
         }
 
-        KEEP_ALIVE_TIMER = new Timer("KeepAliveTimer", true);
-        KEEP_ALIVE_TIMER.scheduleAtFixedRate(new TimerTask() {
+        keepAliveTimer = new Timer("KeepAliveTimer", true);
+        keepAliveTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 // Move the mouse every 30 seconds to prevent sleeping.
