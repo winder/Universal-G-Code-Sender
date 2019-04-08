@@ -73,7 +73,7 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
