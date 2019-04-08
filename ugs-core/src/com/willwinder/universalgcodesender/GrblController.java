@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Overrides;
@@ -176,7 +177,11 @@ public class GrblController extends AbstractController {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
-                    controllerStatus = createControllerStatus(controllerStatus, ControllerState.ALARM, stateString);
+                    controllerStatus = ControllerStatusBuilder
+                            .newInstance(controllerStatus)
+                            .setState(ControllerState.ALARM)
+                            .setStateString(stateString)
+                            .build();
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
                     dispatchAlarm(alarm);
@@ -291,21 +296,6 @@ public class GrblController extends AbstractController {
             logger.log(Level.SEVERE, message, e);
             this.dispatchConsoleMessage(MessageType.ERROR,message + "\n");
         }
-    }
-
-    private ControllerStatus createControllerStatus(ControllerStatus controllerStatus, ControllerState controllerState, String stateString) {
-        return new ControllerStatus(
-                stateString,
-                controllerState,
-                controllerStatus.getMachineCoord(),
-                controllerStatus.getWorkCoord(),
-                controllerStatus.getFeedSpeed(),
-                controllerStatus.getFeedSpeedUnits(),
-                controllerStatus.getSpindleSpeed(),
-                controllerStatus.getOverrides(),
-                controllerStatus.getWorkCoordinateOffset(),
-                controllerStatus.getEnabledPins(),
-                controllerStatus.getAccessoryStates());
     }
 
     @Override
@@ -446,7 +436,10 @@ public class GrblController extends AbstractController {
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
                 sendCommandImmediately(command);
-                controllerStatus = createControllerStatus(controllerStatus, ControllerState.HOME, controllerStatus.getStateString());
+                controllerStatus = ControllerStatusBuilder
+                        .newInstance(controllerStatus)
+                        .setState(ControllerState.HOME)
+                        .build();
                 dispatchStatusString(controllerStatus);
                 return;
             }

@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
@@ -250,6 +251,18 @@ public class GrblControllerTest {
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
         assertEquals(expResult, mgc.queuedString);
     }
+
+    @Test
+    public void testPerformHomingCycleShouldChangeControllerState() throws Exception {
+        GrblController instance = new GrblController(mgc);
+        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
+        instance.rawResponseHandler("Grbl 0.9");
+        assertNull(instance.getControllerStatus());
+
+        instance.performHomingCycle();
+        assertEquals(ControllerState.HOME, instance.getControllerStatus().getState());
+    }
+
     /**
      * Test of issueSoftReset method, of class GrblController.
      */
