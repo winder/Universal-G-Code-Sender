@@ -176,22 +176,11 @@ public class GrblController extends AbstractController {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
-                    this.controllerStatus = new ControllerStatus(
-                            stateString,
-                            ControllerState.ALARM,
-                            this.controllerStatus.getMachineCoord(),
-                            this.controllerStatus.getWorkCoord(),
-                            this.controllerStatus.getFeedSpeed(),
-                            this.controllerStatus.getFeedSpeedUnits(),
-                            this.controllerStatus.getSpindleSpeed(),
-                            this.controllerStatus.getOverrides(),
-                            this.controllerStatus.getWorkCoordinateOffset(),
-                            this.controllerStatus.getEnabledPins(),
-                            this.controllerStatus.getAccessoryStates());
+                    controllerStatus = createControllerStatus(controllerStatus, ControllerState.ALARM, stateString);
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
                     dispatchAlarm(alarm);
-                    dispatchStatusString(this.controllerStatus);
+                    dispatchStatusString(controllerStatus);
                     dispatchStateChange(COMM_IDLE);
                 }
 
@@ -302,6 +291,21 @@ public class GrblController extends AbstractController {
             logger.log(Level.SEVERE, message, e);
             this.dispatchConsoleMessage(MessageType.ERROR,message + "\n");
         }
+    }
+
+    private ControllerStatus createControllerStatus(ControllerStatus controllerStatus, ControllerState controllerState, String stateString) {
+        return new ControllerStatus(
+                stateString,
+                controllerState,
+                controllerStatus.getMachineCoord(),
+                controllerStatus.getWorkCoord(),
+                controllerStatus.getFeedSpeed(),
+                controllerStatus.getFeedSpeedUnits(),
+                controllerStatus.getSpindleSpeed(),
+                controllerStatus.getOverrides(),
+                controllerStatus.getWorkCoordinateOffset(),
+                controllerStatus.getEnabledPins(),
+                controllerStatus.getAccessoryStates());
     }
 
     @Override
@@ -441,7 +445,9 @@ public class GrblController extends AbstractController {
             String gcode = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
-                this.sendCommandImmediately(command);
+                sendCommandImmediately(command);
+                controllerStatus = createControllerStatus(controllerStatus, ControllerState.HOME, controllerStatus.getStateString());
+                dispatchStatusString(controllerStatus);
                 return;
             }
         }
