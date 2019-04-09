@@ -48,7 +48,6 @@ public class SettingsTest {
         assertFalse(target.isAutoReconnect());
         assertFalse(target.isCommandTableEnabled());
         assertEquals("mm", target.getPreferredUnits().abbreviation);
-        assertTrue(target.isDisplayStateColor());
         assertNotNull(target.getFileStats());
         assertEquals("GRBL", target.getFirmwareVersion());
         assertEquals(Double.valueOf(10.0), Double.valueOf(target.getJogFeedRate()));

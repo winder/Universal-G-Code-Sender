@@ -1630,24 +1630,19 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     }
 
     private void setStatusColorForState(ControllerState state) {
-        if (settings.isDisplayStateColor()) {
-            java.awt.Color color = null; // default to a transparent background.
-            if (state == ControllerState.ALARM) {
-                color = Color.RED;
-            } else if (state == ControllerState.HOLD || state == ControllerState.DOOR || state == ControllerState.SLEEP) {
-                color = Color.YELLOW;
-            } else if (state == ControllerState.RUN || state == ControllerState.JOG || state == ControllerState.HOME) {
-                color = Color.GREEN;
-            } else {
-                color = Color.WHITE;
-            }
-
-            this.activeStateLabel.setBackground(color);
-            this.activeStateValueLabel.setBackground(color);
+        Color color = null; // default to a transparent background.
+        if (state == ControllerState.ALARM) {
+            color = Color.RED;
+        } else if (state == ControllerState.HOLD || state == ControllerState.DOOR || state == ControllerState.SLEEP) {
+            color = Color.YELLOW;
+        } else if (state == ControllerState.RUN || state == ControllerState.JOG || state == ControllerState.HOME) {
+            color = Color.GREEN;
         } else {
-            this.activeStateLabel.setBackground(null);
-            this.activeStateValueLabel.setBackground(null);
+            color = Color.WHITE;
         }
+
+        this.activeStateLabel.setBackground(color);
+        this.activeStateValueLabel.setBackground(color);
     }
     
     private void updateControls() {

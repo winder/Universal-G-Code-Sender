@@ -138,7 +138,6 @@ public class SettingsFactory {
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
-                out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
                 out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
                 out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));

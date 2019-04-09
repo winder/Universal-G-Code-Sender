@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2018 Will Winder
+    Copyright 2014-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -66,7 +66,6 @@ public class Settings {
     private boolean singleStepMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-    private boolean displayStateColor = true;
     private Units preferredUnits = Units.MM;
 
     private boolean showNightlyWarning = true;
@@ -329,15 +328,6 @@ public class Settings {
 
     public void setStatusUpdateRate(int statusUpdateRate) {
         this.statusUpdateRate = statusUpdateRate;
-        changed();
-    }
-
-    public boolean isDisplayStateColor() {
-        return displayStateColor;
-    }
-
-    public void setDisplayStateColor(boolean displayStateColor) {
-        this.displayStateColor = displayStateColor;
         changed();
     }
         

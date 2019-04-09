@@ -42,6 +42,6 @@ Run the software with java -jar, then combine with these options:
 # java -jar ugs-cli-2.0-SNAPSHOT.jar --controller GRBL --port /dev/ttyUSB0 --baud 115200 --print-progressbar --file test.gcode
 
 Connected to "Grbl 0.9z" on  baud 115200
-Running file "../../test_files/square.nc"
+Running file "test.gcode"
 test.gcode  52% │██████████████████████▉                    │  55/105 (0:00:06 / 0:00:05) 
 ```

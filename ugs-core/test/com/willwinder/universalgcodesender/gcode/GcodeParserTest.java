@@ -422,6 +422,13 @@ public class GcodeParserTest {
     }
 
     @Test
+    public void fWordFromJogCommandShouldNotBeParsed() throws Exception {
+        List<GcodeMeta> metaList = GcodeParser.processCommand("$J=G21G91X10F99", 0, new GcodeState(), true);
+        GcodeMeta meta = Iterables.getOnlyElement(metaList);
+        assertThat(meta.state.speed).isEqualTo(0.0);
+    }
+
+    @Test
     public void sWordOnly() throws Exception {
         List<GcodeMeta> metaList = GcodeParser.processCommand("S100", 0, new GcodeState(), true);
         GcodeMeta meta = Iterables.getOnlyElement(metaList);

@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -46,8 +46,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final Spinner statusPollRate = new Spinner(
                 Localization.getString("sender.status.rate"),
                 new SpinnerNumberModel(1, 1, null, 100));
-    private final Checkbox stateColorDisplayEnabled = new Checkbox(
-                Localization.getString("sender.state"));
     private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
     private final Checkbox autoStartPendant = new Checkbox(
@@ -84,7 +82,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setSingleStepMode(singleStepMode.getValue());
         settings.setStatusUpdatesEnabled(statusPollingEnabled.getValue());
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
-        settings.setDisplayStateColor(stateColorDisplayEnabled.getValue());
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
         settings.setAutoStartPendant(autoStartPendant.getValue());
@@ -126,9 +123,6 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         statusPollRate.setValue(s.getStatusUpdateRate());
         add(statusPollRate, "spanx, wrap");
-
-        stateColorDisplayEnabled.setSelected(s.isDisplayStateColor());
-        add(stateColorDisplayEnabled, "spanx, wrap");
 
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
