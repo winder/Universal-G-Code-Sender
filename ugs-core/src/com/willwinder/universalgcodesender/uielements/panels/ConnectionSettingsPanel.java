@@ -27,8 +27,12 @@ import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSetting
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.awt.event.ActionEvent;
+import java.io.File;
 
 /**
  *
@@ -56,6 +60,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
             ConnectionDriver.JSERIALCOMM.getPrettyName(),
             ConnectionDriver.TCP.getPrettyName()});
     private final JTextField workspaceDirectory = new JTextField();
+    private final JButton workspaceDirectoryBrowseButton = new JButton("Browse");
+
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -146,7 +152,46 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         add(connectionDriver, "grow, wrap");
 
         workspaceDirectory.setText(settings.getWorkspaceDirectory());
+        JPanel panel = new JPanel();
+        panel.setLayout(new MigLayout("insets 0", "fill"));
+        panel.add(workspaceDirectory, "gapright 0");
+        panel.add(workspaceDirectoryBrowseButton);
+        workspaceDirectoryBrowseButton.setAction(createBrowseDirectoryAction());
+
         add(new JLabel(Localization.getString("settings.workspaceDirectory")), "gapleft 56");
-        add(workspaceDirectory, "grow, wrap");
+        add(panel, "grow, wrap");
+    }
+
+    private AbstractAction createBrowseDirectoryAction() {
+        return new AbstractAction("Browse") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File directory = new File(".");
+                if(StringUtils.isNotEmpty(workspaceDirectory.getText())) {
+                    directory = new File(workspaceDirectory.getText());
+                }
+
+                JFileChooser chooser = new JFileChooser();
+                chooser.setCurrentDirectory(directory);
+                chooser.setDialogTitle(Localization.getString("settings.workspaceDirectory"));
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                chooser.setAcceptAllFileFilterUsed(false);
+                chooser.setFileFilter(new FileFilter() {
+                    @Override
+                    public boolean accept(File f) {
+                        return f.isDirectory();
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Directories";
+                    }
+                });
+
+                if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                    workspaceDirectory.setText(chooser.getSelectedFile().getPath());
+                }
+            }
+        };
     }
 }
