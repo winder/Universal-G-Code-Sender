@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.v1.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/v1/macros")
-public class MacrosController {
+public class MacrosResource {
 
     @Inject
     private BackendAPI backendAPI;
@@ -29,8 +29,8 @@ public class MacrosController {
     @GET
     @Path("getMacroList")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getMacroList() {
-        List<Macro> macroList = SettingsFactory.loadSettings().getMacros()
+    public List<Macro> getMacroList() {
+        return SettingsFactory.loadSettings().getMacros()
                 .stream()
                 .map(macro -> {
                     Macro result = new Macro();
@@ -40,15 +40,12 @@ public class MacrosController {
                     return result;
                 })
                 .collect(Collectors.toList());
-
-        return Response.ok(macroList).build();
     }
 
     @POST
     @Path("runMacro")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response executeMacro(Macro macro) throws Exception {
+    public void executeMacro(Macro macro) throws Exception {
         MacroHelper.executeCustomGcode(macro.getGcode(), backendAPI);
-        return Response.ok().build();
     }
 }
