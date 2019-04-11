@@ -244,6 +244,13 @@ public class PendantUI implements ControllerListener {
         }
     }
 
+    /**
+     * Updates the system state bean with the current UGS state.
+     *
+     * @deprecated This is only used in the old pendant implementation
+     * @param systemStateBean to update
+     */
+    @Deprecated
     public void updateSystemState(SystemStateBean systemStateBean) {
         logger.log(Level.FINE, "Getting system state 'updateSystemState'");
         File gcodeFile = getMainWindow().getGcodeFile();

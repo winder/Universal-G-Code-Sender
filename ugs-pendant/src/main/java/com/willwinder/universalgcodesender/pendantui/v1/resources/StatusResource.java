@@ -1,4 +1,4 @@
-package com.willwinder.universalgcodesender.pendantui.v1.controllers;
+package com.willwinder.universalgcodesender.pendantui.v1.resources;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -12,10 +12,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Path("/v1/status")
-public class StatusController {
+public class StatusResource {
 
     @Inject
     private BackendAPI backendAPI;
@@ -23,7 +22,7 @@ public class StatusController {
     @GET
     @Path("getStatus")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getStatus() {
+    public Status getStatus() {
         Status status = new Status();
 
         IController controller = backendAPI.getController();
@@ -53,6 +52,6 @@ public class StatusController {
             status.setSendRemainingDuration(backendAPI.getSendRemainingDuration());
         }
 
-        return Response.ok(status).build();
+        return status;
     }
 }

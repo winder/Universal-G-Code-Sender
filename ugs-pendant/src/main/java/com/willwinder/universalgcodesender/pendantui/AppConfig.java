@@ -1,12 +1,12 @@
 package com.willwinder.universalgcodesender.pendantui;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.FilesController;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.MachineController;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.MacrosController;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.SettingsController;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.StatusController;
-import com.willwinder.universalgcodesender.pendantui.v1.controllers.TextController;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.FilesResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.MachineResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.MacrosResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.SettingsResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.StatusResource;
+import com.willwinder.universalgcodesender.pendantui.v1.resources.TextResource;
 import com.willwinder.universalgcodesender.services.JogService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -17,12 +17,14 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/api")
 public class AppConfig extends ResourceConfig {
     public AppConfig() {
-        register(StatusController.class);
-        register(MachineController.class);
-        register(TextController.class);
-        register(MacrosController.class);
-        register(SettingsController.class);
-        register(FilesController.class);
+        register(ExceptionMapper.class);
+
+        register(StatusResource.class);
+        register(MachineResource.class);
+        register(TextResource.class);
+        register(MacrosResource.class);
+        register(SettingsResource.class);
+        register(FilesResource.class);
         register(MultiPartFeature.class);
 
         BackendAPI backendAPI = BackendAPIFactory.getInstance().getBackendAPI();
