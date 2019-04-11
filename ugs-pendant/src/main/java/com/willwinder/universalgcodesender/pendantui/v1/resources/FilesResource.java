@@ -59,7 +59,6 @@ public class FilesResource {
     @Path("cancel")
     @Produces(MediaType.APPLICATION_JSON)
     public void cancel() throws Exception {
-        throw new RuntimeException("Hepp");
-        //backendAPI.cancel();
+        backendAPI.cancel();
     }
 }
