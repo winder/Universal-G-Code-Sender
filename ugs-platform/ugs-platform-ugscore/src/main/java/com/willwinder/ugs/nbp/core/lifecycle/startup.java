@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.lifecycle;
 import com.willwinder.ugs.nbp.core.control.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.core.services.OverrideActionService;
+import com.willwinder.ugs.nbp.core.services.PendantService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
@@ -59,23 +60,25 @@ public class startup extends OptionProcessor implements Runnable {
 
     @Override
     public void run() {
-        System.out.println("Loading LocalizingService...");
+        logger.info("Loading LocalizingService...");
         Lookup.getDefault().lookup(LocalizingService.class);
-        System.out.println("Loading JogService...");
+        logger.info("Loading JogService...");
         Lookup.getDefault().lookup(JogActionService.class);
-        System.out.println("Loading ActionService...");
+        System.out.println("Loading OverrideActionService...");
         Lookup.getDefault().lookup(OverrideActionService.class);
         System.out.println("Loading MacroService...");
         Lookup.getDefault().lookup(MacroService.class);
-        System.out.println("Loading SendStatusLineService...");
+        logger.info("Loading SendStatusLineService...");
         Lookup.getDefault().lookup(SendStatusLineService.class);
-        System.out.println("Loading SettingsChangedNotificationService...");
+        logger.info("Loading SettingsChangedNotificationService...");
         Lookup.getDefault().lookup(SettingsChangedNotificationService.class);
-        System.out.println("Loading WindowTitleUpdaterService...");
+        logger.info("Loading WindowTitleUpdaterService...");
         Lookup.getDefault().lookup(WindowTitleUpdaterService.class);
-        System.out.println("Services loaded!");
+        logger.info("Loading PendantService...");
+        Lookup.getDefault().lookup(PendantService.class);
+        logger.info("Services loaded!");
 
-        System.out.println("Setting UGP version title.");
+        logger.info("Setting UGP version title.");
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         setupVersionInformation(settings);
     }
@@ -117,7 +120,7 @@ public class startup extends OptionProcessor implements Runnable {
             throw new CommandException(1, "Too many input files provided.");
         }
 
-        System.out.println("File to open: " + inputFile);
+        logger.info("File to open: " + inputFile);
         GUIHelpers.openGcodeFile(new File(inputFile), backend);
     }
 }

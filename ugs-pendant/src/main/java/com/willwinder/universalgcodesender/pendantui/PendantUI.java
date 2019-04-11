@@ -1,23 +1,20 @@
 package com.willwinder.universalgcodesender.pendantui;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.gson.Gson;
+import com.willwinder.universalgcodesender.IController;
+import com.willwinder.universalgcodesender.MacroHelper;
+import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import net.glxn.qrgen.QRCode;
 import net.glxn.qrgen.image.ImageType;
-
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
@@ -26,20 +23,26 @@ import org.eclipse.jetty.server.handler.ContextHandler;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.resource.Resource;
+import org.glassfish.jersey.servlet.ServletContainer;
 
-import com.google.gson.Gson;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.MacroHelper;
-import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class will launch a local webserver which will provide a simple pendant interface
@@ -55,18 +58,19 @@ public class PendantUI implements ControllerListener {
     
     public PendantUI(BackendAPI mainWindow) {
         this.mainWindow = mainWindow;
+        BackendAPIFactory.getInstance().register(mainWindow);
     }
 
-    public Resource getBaseResource(){
+    public Resource getBaseResource(String directory) {
         try {
-            URL res = getClass().getResource("/resources/pendantUI");
+            URL res = getClass().getResource(directory);
             return Resource.newResource(res);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    
-    
+
+
     /**
      * Launches the local web server.
      * @return the url for the pendant interface
@@ -74,46 +78,62 @@ public class PendantUI implements ControllerListener {
     public List<PendantURLBean> start(){
         server = new Server(port);
 
-        ResourceHandler resourceHandler = new ResourceHandler();
-        resourceHandler.setDirectoriesListed(false);
-        resourceHandler.setWelcomeFiles(new String[]{ "index.html" });
-        resourceHandler.setBaseResource(getBaseResource());
-        resourceHandler.setDirectoriesListed(true);
+        ResourceHandler pendantResourceHandler = new ResourceHandler();
+        pendantResourceHandler.setDirectoriesListed(true);
+        pendantResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        pendantResourceHandler.setBaseResource(getBaseResource("/resources/ugs-pendant"));
+
+        ContextHandler pendantResourceHandlerContext = new ContextHandler();
+        pendantResourceHandlerContext.setContextPath("/");
+        pendantResourceHandlerContext.setHandler(pendantResourceHandler);
+
+
+        ResourceHandler oldPendantResourceHandler = new ResourceHandler();
+        oldPendantResourceHandler.setDirectoriesListed(true);
+        oldPendantResourceHandler.setWelcomeFiles(new String[]{"index.html"});
+        oldPendantResourceHandler.setBaseResource(getBaseResource("/pendantUI/old"));
+
+        ContextHandler oldPendantResourceHandlerContext = new ContextHandler();
+        oldPendantResourceHandlerContext.setContextPath("/old");
+        oldPendantResourceHandlerContext.setHandler(oldPendantResourceHandler);
+
 
         ContextHandler sendGcodeContext = new ContextHandler();
         sendGcodeContext.setContextPath("/sendGcode");
-        sendGcodeContext.setBaseResource(getBaseResource());
         sendGcodeContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         sendGcodeContext.setHandler(new SendGcodeHandler());
 
         ContextHandler adjustManualLocationContext = new ContextHandler();
         adjustManualLocationContext.setContextPath("/adjustManualLocation");
-        adjustManualLocationContext.setBaseResource(getBaseResource());
         adjustManualLocationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         adjustManualLocationContext.setHandler(new AdjustManualLocationHandler());
 
         ContextHandler getSystemStateContext = new ContextHandler();
         getSystemStateContext.setContextPath("/getSystemState");
-        getSystemStateContext.setBaseResource(getBaseResource());
         getSystemStateContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         getSystemStateContext.setHandler(new GetSystemStateHandler());
 
         ContextHandler configContext = new ContextHandler();
         configContext.setContextPath("/config");
-        configContext.setBaseResource(getBaseResource());
         configContext.setClassLoader(Thread.currentThread().getContextClassLoader());
         configContext.setHandler(new ConfigHandler());
         configContext.setInitParameter("cacheControl", "max-age=0, public");
 
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] {configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, resourceHandler, new DefaultHandler()});
+        // Create a servlet servletContextHandler
+        ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        servletContextHandler.setContextPath("/api");
+        ServletHolder servletHolder = servletContextHandler.addServlet(ServletContainer.class, "/*");
+        servletHolder.setInitOrder(1);
+        servletHolder.setInitParameter("javax.ws.rs.Application", AppConfig.class.getCanonicalName());
 
+        HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[] {servletContextHandler, configContext, sendGcodeContext, adjustManualLocationContext, getSystemStateContext, oldPendantResourceHandlerContext, pendantResourceHandlerContext, new DefaultHandler()});
         server.setHandler(handlers);
 
         try {
-                server.start();
+            server.start();
         } catch (Exception e) {
-                throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
         return getUrlList();
@@ -219,11 +239,56 @@ public class PendantUI implements ControllerListener {
         @Override
         public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
             baseRequest.setHandled(true);
-            mainWindow.updateSystemState(systemState);
+            updateSystemState(systemState);
             response.getWriter().print(getSystemStateJson());
         }
     }
-    
+
+    /**
+     * Updates the system state bean with the current UGS state.
+     *
+     * @deprecated This is only used in the old pendant implementation
+     * @param systemStateBean to update
+     */
+    @Deprecated
+    public void updateSystemState(SystemStateBean systemStateBean) {
+        logger.log(Level.FINE, "Getting system state 'updateSystemState'");
+        File gcodeFile = getMainWindow().getGcodeFile();
+        if (gcodeFile != null) {
+            systemStateBean.setFileName(gcodeFile.getAbsolutePath());
+        }
+        // TODO how do we get the last comment
+        //systemStateBean.setLatestComment(lastComment);
+        systemStateBean.setControlState(mainWindow.getControlState());
+
+        Position machineCoord = mainWindow.getMachinePosition();
+        if (machineCoord != null) {
+            systemStateBean.setMachineX(Utils.formatter.format(machineCoord.x));
+            systemStateBean.setMachineY(Utils.formatter.format(machineCoord.y));
+            systemStateBean.setMachineZ(Utils.formatter.format(machineCoord.z));
+        }
+
+        IController controller = mainWindow.getController();
+        if (controller != null) {
+            systemStateBean.setActiveState(mainWindow.getController().getControllerStatus().getStateString());
+            systemStateBean.setRemainingRows(String.valueOf(mainWindow.getNumRemainingRows()));
+            systemStateBean.setRowsInFile(String.valueOf(mainWindow.getNumRows()));
+            systemStateBean.setSentRows(String.valueOf(mainWindow.getNumSentRows()));
+            systemStateBean.setDuration(String.valueOf(mainWindow.getSendDuration()));
+            systemStateBean.setEstimatedTimeRemaining(String.valueOf(mainWindow.getSendRemainingDuration()));
+        }
+
+        Position workCoord = mainWindow.getWorkPosition();
+        if (workCoord != null) {
+            systemStateBean.setWorkX(Utils.formatter.format(workCoord.x));
+            systemStateBean.setWorkY(Utils.formatter.format(workCoord.y));
+            systemStateBean.setWorkZ(Utils.formatter.format(workCoord.z));
+        }
+        systemStateBean.setSendButtonEnabled(mainWindow.canSend());
+        systemStateBean.setPauseResumeButtonEnabled(mainWindow.canPause());
+        systemStateBean.setCancelButtonEnabled(mainWindow.canCancel());
+    }
+
     public String getSystemStateJson(){
         return new Gson().toJson(systemState);
     }
@@ -234,7 +299,8 @@ public class PendantUI implements ControllerListener {
         public void handle(String target,Request baseRequest,HttpServletRequest request,HttpServletResponse response) throws IOException, ServletException {
             baseRequest.setHandled(true);
             response.setContentType("application/json");
-            response.getWriter().print(new Gson().toJson(mainWindow.getSettings().getPendantConfig()));
+            // TODO handle configuration
+            response.getWriter().print(new Gson().toJson(new PendantConfigBean()));
         }
     }
 

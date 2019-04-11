@@ -48,6 +48,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                 new SpinnerNumberModel(1, 1, null, 100));
     private final Checkbox showNightlyWarning = new Checkbox(
                 Localization.getString("sender.nightly-warning"));
+    private final Checkbox autoStartPendant = new Checkbox(
+            Localization.getString("sender.autostartpendant"));
     private final JComboBox<Language> languageCombo = new JComboBox<>(AvailableLanguages.getAvailableLanguages().toArray(new Language[0]));
     private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
             ConnectionDriver.JSSC.getPrettyName(),
@@ -81,6 +83,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         settings.setStatusUpdateRate((int)statusPollRate.getValue());
         //settings.setAutoConnectEnabled(autoConnect.getValue());
         settings.setShowNightlyWarning(showNightlyWarning.getValue());
+        settings.setAutoStartPendant(autoStartPendant.getValue());
         settings.setLanguage(((Language)languageCombo.getSelectedItem()).getLanguageCode());
         if (connectionDriver.getSelectedItem().equals(ConnectionDriver.JSERIALCOMM.getPrettyName())) {
             settings.setConnectionDriver(ConnectionDriver.JSERIALCOMM);
@@ -121,6 +124,9 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         showNightlyWarning.setSelected(s.isShowNightlyWarning());
         add(showNightlyWarning, "spanx, wrap");
+
+        autoStartPendant.setSelected(s.isAutoStartPendant());
+        add(autoStartPendant, "spanx, wrap");
 
         for (int i = 0; i < languageCombo.getItemCount(); i++) {
             Language l = languageCombo.getItemAt(i);

@@ -56,7 +56,6 @@ public class SettingsTest {
         assertNotNull(target.getMainWindowSettings());
         assertFalse(target.isManualModeEnabled());
         assertEquals(Double.valueOf(1.0), Double.valueOf(target.getManualModeStepSize()));
-        assertNotNull(target.getPendantConfig());
         assertEquals("", target.getPort());
         assertEquals("115200", target.getPortRate());
         assertTrue(target.isScrollWindowEnabled());
@@ -69,6 +68,7 @@ public class SettingsTest {
         assertFalse(target.isVerboseOutputEnabled());
         assertNotNull(target.getVisualizerWindowSettings());
         assertEquals(Double.valueOf(1), Double.valueOf(target.getzJogStepSize()));
+        assertFalse(target.isAutoStartPendant());
     }
 
     @Test

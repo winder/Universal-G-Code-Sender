@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
@@ -150,23 +151,22 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         initFileChooser();
         
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                settings.setPort(commPortComboBox.getSelectedItem().toString());
-                settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
-                settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
-                settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
-                settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
-                settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down...");
 
-                SettingsFactory.saveSettings(settings);
-                
-                if(pendantUI!=null){
-                    pendantUI.stop();
-                }
+            settings.setPort(commPortComboBox.getSelectedItem().toString());
+            settings.setPortRate(baudrateSelectionComboBox.getSelectedItem().toString());
+            settings.setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
+            settings.setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+            settings.setCommandTableEnabled(showCommandTableCheckBox.isSelected());
+            settings.setFirmwareVersion(firmwareComboBox.getSelectedItem().toString());
+
+            SettingsFactory.saveSettings(settings);
+
+            if(pendantUI!=null){
+                pendantUI.stop();
             }
-        });
+        }));
     }
     
     /**
@@ -186,14 +186,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
+            logger.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -236,6 +230,13 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         mw.showCommandTableCheckBoxActionPerformed(null);
         mw.firmwareComboBox.setSelectedItem(mw.settings.getFirmwareVersion());
 
+        if(mw.settings.isAutoStartPendant()) {
+            mw.pendantUI = new PendantUI(backend);
+            mw.pendantUI.start();
+            mw.startPendantServerButton.setEnabled(false);
+            mw.stopPendantServerButton.setEnabled(true);
+        }
+
         mw.setSize(mw.settings.getMainWindowSettings().width, mw.settings.getMainWindowSettings().height);
         mw.setLocation(mw.settings.getMainWindowSettings().xLocation, mw.settings.getMainWindowSettings().yLocation);
 
@@ -268,23 +269,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         
         mw.initFileChooser();
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                mw.settings.setPort(mw.commPortComboBox.getSelectedItem().toString());
-                mw.settings.setPortRate(mw.baudrateSelectionComboBox.getSelectedItem().toString());
-                mw.settings.setScrollWindowEnabled(mw.scrollWindowCheckBox.isSelected());
-                mw.settings.setVerboseOutputEnabled(mw.showVerboseOutputCheckBox.isSelected());
-                mw.settings.setCommandTableEnabled(mw.showCommandTableCheckBox.isSelected());
-                mw.settings.setFirmwareVersion(mw.firmwareComboBox.getSelectedItem().toString());
-                SettingsFactory.saveSettings(mw.settings);
-                
-                if(mw.pendantUI!=null){
-                    mw.pendantUI.stop();
-                }
-            }
-        });
 
         // Check command line for a file to open.
         boolean open = false;
@@ -661,7 +645,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         commPortComboBox.setEditable(true);
 
-        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400" }));
+        baudrateSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(BaudRateEnum.getAllBaudRates()));
         baudrateSelectionComboBox.setSelectedIndex(2);
         baudrateSelectionComboBox.setToolTipText("Select baudrate to use for the serial port.");
         baudrateSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {

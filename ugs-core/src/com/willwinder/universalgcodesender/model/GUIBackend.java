@@ -38,7 +38,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -366,37 +365,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new DecimalProcessor(4));
         parser.addCommandProcessor(new CommandLengthProcessor(50));
-    }
-
-    @Override
-    public void updateSystemState(SystemStateBean systemStateBean) {
-        logger.log(Level.FINE, "Getting system state 'updateSystemState'");
-        if (gcodeFile != null)
-            systemStateBean.setFileName(gcodeFile.getAbsolutePath());
-        systemStateBean.setLatestComment(lastComment);
-        systemStateBean.setActiveState(activeState);
-
-        systemStateBean.setControlState(getControlState());
-        if (this.machineCoord != null) {
-            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.x));
-            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.y));
-            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.z));
-        }
-        if (this.controller != null) {
-            systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
-            systemStateBean.setRowsInFile(String.valueOf(this.getNumRows()));
-            systemStateBean.setSentRows(String.valueOf(this.getNumSentRows()));
-            systemStateBean.setDuration(String.valueOf(this.getSendDuration()));
-            systemStateBean.setEstimatedTimeRemaining(String.valueOf(this.getSendRemainingDuration()));
-        }
-        if (this.workCoord != null) {
-            systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.x));
-            systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.y));
-            systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.z));
-        }
-        systemStateBean.setSendButtonEnabled(this.canSend());
-        systemStateBean.setPauseResumeButtonEnabled(this.canPause());
-        systemStateBean.setCancelButtonEnabled(this.canCancel());
     }
 
     @Override

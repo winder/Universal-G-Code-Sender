@@ -1,0 +1,10 @@
+<section class="tab-set">
+  <ul class="nav nav-tabs" [class.nav-pills]="vertical" [class.nav-tabs]="!vertical">
+    <a class="nav-item nav-link" *ngFor="let tab of tabs" (click)="tabClicked(tab)" [ngClass]="{'disabled' : tab.disabled, 'active': tab.active}">
+      <span>{{tab.title}}</span>
+    </a>
+  </ul>
+  <div class="tab-content">
+    <ng-content></ng-content>
+  </div>
+</section>

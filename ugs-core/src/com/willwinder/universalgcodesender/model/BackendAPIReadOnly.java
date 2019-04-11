@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import java.io.File;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
@@ -115,9 +114,6 @@ public interface BackendAPIReadOnly {
     long getSendDuration();
     long getSendRemainingDuration();
     String getPauseResumeText();
-
-    // Bulk status getter.
-    void updateSystemState(SystemStateBean systemStateBean);
 
     // Shouldn't be needed often.
     Settings getSettings();
