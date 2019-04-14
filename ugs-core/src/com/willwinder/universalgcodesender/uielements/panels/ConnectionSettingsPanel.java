@@ -26,13 +26,14 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.Optional;
 
 /**
  *
@@ -104,7 +105,7 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     }
 
     @Override
-    public void restoreDefaults() throws Exception {
+    public void restoreDefaults() {
         updateComponents(new Settings());
         save();
     }
@@ -171,26 +172,8 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
                     directory = new File(workspaceDirectory.getText());
                 }
 
-                JFileChooser chooser = new JFileChooser();
-                chooser.setCurrentDirectory(directory);
-                chooser.setDialogTitle(Localization.getString("settings.workspaceDirectory"));
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                chooser.setAcceptAllFileFilterUsed(false);
-                chooser.setFileFilter(new FileFilter() {
-                    @Override
-                    public boolean accept(File f) {
-                        return f.isDirectory();
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Directories";
-                    }
-                });
-
-                if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                    workspaceDirectory.setText(chooser.getSelectedFile().getPath());
-                }
+                Optional<File> optionalFile = SwingHelpers.openDirectory(Localization.getString("settings.workspaceDirectory"), directory);
+                optionalFile.ifPresent(file -> workspaceDirectory.setText(file.getPath()));
             }
         };
     }
