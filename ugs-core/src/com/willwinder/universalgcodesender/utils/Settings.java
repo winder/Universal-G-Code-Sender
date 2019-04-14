@@ -95,6 +95,11 @@ public class Settings {
     private String connectionDriver;
 
     /**
+     * A directory with gcode files for easy access through pendant
+     */
+    private String workspaceDirectory;
+
+    /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
@@ -478,6 +483,14 @@ public class Settings {
 
     public boolean isAutoStartPendant() {
         return this.autoStartPendant;
+    }
+
+    public void setWorkspaceDirectory(String workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
+
+    public String getWorkspaceDirectory() {
+        return this.workspaceDirectory;
     }
 
     public static class AutoLevelSettings {

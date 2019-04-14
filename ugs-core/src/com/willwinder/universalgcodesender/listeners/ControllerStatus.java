@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -41,6 +41,7 @@ public class ControllerStatus {
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
+     * 
      * @param stateString controller state, i.e. idle/hold/running
      * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates

@@ -55,9 +55,6 @@ public class MachineResource {
     @Path("disconnect")
     @Produces(MediaType.APPLICATION_JSON)
     public void disconnect() throws Exception {
-        if (!backendAPI.isConnected()) {
-            throw new NotAcceptableException("Not connected");
-        }
         backendAPI.disconnect();
     }
 
@@ -66,8 +63,7 @@ public class MachineResource {
     @Produces(MediaType.APPLICATION_JSON)
     public List<String> getPortList() {
         ConnectionDriver connectionDriver = SettingsFactory.loadSettings().getConnectionDriver();
-        List<String> portNames = ConnectionFactory.getPortNames(connectionDriver);
-        return portNames;
+        return ConnectionFactory.getPortNames(connectionDriver);
     }
 
     @GET

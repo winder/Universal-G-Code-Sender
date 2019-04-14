@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsP
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.KeepAwakeUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
@@ -136,6 +137,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         Utils.checkNightlyBuild(settings);
         backend.addControllerListener(this);
         backend.addUGSEventListener(this);
+        KeepAwakeUtils.start(backend);
 
         fileChooser = new JFileChooser(settings.getLastOpenedFilename());
         commPortComboBox.setSelectedItem(settings.getPort());

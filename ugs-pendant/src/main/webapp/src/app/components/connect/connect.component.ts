@@ -62,6 +62,12 @@ export class ConnectComponent implements OnInit {
       .subscribe();
   }
 
+  onSelectPort($event) {
+    this.machineService
+      .setSelectedPort(this.selectedPort)
+      .subscribe();
+  }
+
   connect() {
     this.machineService
       .connect()

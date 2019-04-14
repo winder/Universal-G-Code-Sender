@@ -26,9 +26,14 @@ import com.willwinder.universalgcodesender.uielements.IChanged;
 import com.willwinder.universalgcodesender.uielements.helpers.AbstractUGSSettings;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
+import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.util.Optional;
 
 /**
  *
@@ -54,7 +59,10 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
     private final JComboBox<String> connectionDriver = new JComboBox<>(new String[]{
             ConnectionDriver.JSSC.getPrettyName(),
             ConnectionDriver.JSERIALCOMM.getPrettyName(),
-            ConnectionDriver.TCP.getPrettyName(),});
+            ConnectionDriver.TCP.getPrettyName()});
+    private final JTextField workspaceDirectory = new JTextField();
+    private final JButton workspaceDirectoryBrowseButton = new JButton("Browse");
+
 
     public ConnectionSettingsPanel(Settings settings, IChanged changer) {
         super(settings, changer);
@@ -92,11 +100,12 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
         } else {
             settings.setConnectionDriver(ConnectionDriver.JSSC);
         }
+        settings.setWorkspaceDirectory(workspaceDirectory.getText());
         SettingsFactory.saveSettings(settings);
     }
 
     @Override
-    public void restoreDefaults() throws Exception {
+    public void restoreDefaults() {
         updateComponents(new Settings());
         save();
     }
@@ -142,5 +151,30 @@ public class ConnectionSettingsPanel extends AbstractUGSSettings {
 
         add(new JLabel(Localization.getString("settings.connectionDriver")), "gapleft 56");
         add(connectionDriver, "grow, wrap");
+
+        workspaceDirectory.setText(settings.getWorkspaceDirectory());
+        JPanel panel = new JPanel();
+        panel.setLayout(new MigLayout("insets 0", "fill"));
+        panel.add(workspaceDirectory, "gapright 0");
+        panel.add(workspaceDirectoryBrowseButton);
+        workspaceDirectoryBrowseButton.setAction(createBrowseDirectoryAction());
+
+        add(new JLabel(Localization.getString("settings.workspaceDirectory")), "gapleft 56");
+        add(panel, "grow, wrap");
+    }
+
+    private AbstractAction createBrowseDirectoryAction() {
+        return new AbstractAction("Browse") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File directory = new File(".");
+                if(StringUtils.isNotEmpty(workspaceDirectory.getText())) {
+                    directory = new File(workspaceDirectory.getText());
+                }
+
+                Optional<File> optionalFile = SwingHelpers.openDirectory(Localization.getString("settings.workspaceDirectory"), directory);
+                optionalFile.ifPresent(file -> workspaceDirectory.setText(file.getPath()));
+            }
+        };
     }
 }

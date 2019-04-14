@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Overrides;
@@ -72,7 +73,7 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -176,22 +177,15 @@ public class GrblController extends AbstractController {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
-                    this.controllerStatus = new ControllerStatus(
-                            stateString,
-                            ControllerState.ALARM,
-                            this.controllerStatus.getMachineCoord(),
-                            this.controllerStatus.getWorkCoord(),
-                            this.controllerStatus.getFeedSpeed(),
-                            this.controllerStatus.getFeedSpeedUnits(),
-                            this.controllerStatus.getSpindleSpeed(),
-                            this.controllerStatus.getOverrides(),
-                            this.controllerStatus.getWorkCoordinateOffset(),
-                            this.controllerStatus.getEnabledPins(),
-                            this.controllerStatus.getAccessoryStates());
+                    controllerStatus = ControllerStatusBuilder
+                            .newInstance(controllerStatus)
+                            .setState(ControllerState.ALARM)
+                            .setStateString(stateString)
+                            .build();
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
                     dispatchAlarm(alarm);
-                    dispatchStatusString(this.controllerStatus);
+                    dispatchStatusString(controllerStatus);
                     dispatchStateChange(COMM_IDLE);
                 }
 
@@ -441,7 +435,12 @@ public class GrblController extends AbstractController {
             String gcode = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
-                this.sendCommandImmediately(command);
+                sendCommandImmediately(command);
+                controllerStatus = ControllerStatusBuilder
+                        .newInstance(controllerStatus)
+                        .setState(ControllerState.HOME)
+                        .build();
+                dispatchStatusString(controllerStatus);
                 return;
             }
         }

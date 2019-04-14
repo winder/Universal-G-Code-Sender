@@ -410,6 +410,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             background = ThemeColors.GREEN;
         } else if (state == ControllerState.JOG) {
             background = ThemeColors.GREEN;
+        } else if (state == ControllerState.HOME) {
+            background = ThemeColors.GREEN;
         } else if (state == ControllerState.CHECK) {
             background = ThemeColors.LIGHT_BLUE;
         } else if (state == ControllerState.IDLE) {

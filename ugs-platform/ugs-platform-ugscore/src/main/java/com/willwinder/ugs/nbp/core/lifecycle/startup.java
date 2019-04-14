@@ -64,9 +64,9 @@ public class startup extends OptionProcessor implements Runnable {
         Lookup.getDefault().lookup(LocalizingService.class);
         logger.info("Loading JogService...");
         Lookup.getDefault().lookup(JogActionService.class);
-        System.out.println("Loading OverrideActionService...");
+        logger.info("Loading OverrideActionService...");
         Lookup.getDefault().lookup(OverrideActionService.class);
-        System.out.println("Loading MacroService...");
+        logger.info("Loading MacroService...");
         Lookup.getDefault().lookup(MacroService.class);
         logger.info("Loading SendStatusLineService...");
         Lookup.getDefault().lookup(SendStatusLineService.class);

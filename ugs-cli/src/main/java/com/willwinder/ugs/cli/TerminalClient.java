@@ -18,8 +18,10 @@
  */
 package com.willwinder.ugs.cli;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.pendantui.PendantUI;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import com.willwinder.universalgcodesender.utils.Version;
@@ -44,6 +46,7 @@ public class TerminalClient {
 
     private final Configuration configuration;
     private BackendAPI backend;
+    private PendantUI pendantUI;
 
     public static void main(String[] args) throws IOException {
         // Load our custom log properties preventing application to log to console
@@ -76,12 +79,26 @@ public class TerminalClient {
                 System.exit(0);
             }
 
+            if (configuration.hasOption(OptionEnum.WORKSPACE)) {
+                String directory = configuration.getOptionValue(OptionEnum.WORKSPACE);
+                setWorkspaceDirectory(directory);
+            }
+
+            if (configuration.hasOption(OptionEnum.DRIVER)) {
+                ConnectionDriver driver = ConnectionDriver.valueOf(configuration.getOptionValue(OptionEnum.DRIVER));
+                setConnectionDriver(driver);
+            }
+
             if (configuration.hasOption(OptionEnum.LIST_PORTS)) {
                 listPorts();
                 System.exit(0);
             }
 
             initializeBackend();
+
+            if (configuration.hasOption(OptionEnum.DAEMON)) {
+                startDaemon();
+            }
 
             if (configuration.hasOption(OptionEnum.RESET_ALARM)) {
                 resetAlarm();
@@ -95,6 +112,10 @@ public class TerminalClient {
                 sendFile();
             }
 
+            while (pendantUI != null) {
+                Thread.sleep(100);
+            }
+
             backend.disconnect();
         } catch (Exception e) {
             // TODO add fancy error handling
@@ -104,6 +125,23 @@ public class TerminalClient {
             // TODO This is a hack to exit threads, find out why threads aren't killed
             System.exit(0);
         }
+    }
+
+    private void setConnectionDriver(ConnectionDriver driver) {
+        Settings settings = SettingsFactory.loadSettings();
+        settings.setConnectionDriver(driver);
+        SettingsFactory.saveSettings(settings);
+    }
+
+    private void setWorkspaceDirectory(String directory) {
+        Settings settings = SettingsFactory.loadSettings();
+        settings.setWorkspaceDirectory(directory);
+        SettingsFactory.saveSettings(settings);
+    }
+
+    private void startDaemon() {
+        pendantUI = new PendantUI(backend);
+        pendantUI.start();
     }
 
     /**
