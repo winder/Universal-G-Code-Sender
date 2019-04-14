@@ -124,6 +124,8 @@ mvn package assembly:assembly
 * Plane selection support: G17, G18, G19
 * Setup wizard for CNC controllers
 * Improved support for TinyG / g2core
+* Improved web pendant
+* Added command line support
 
 1.0.8 -> 1.0.9
 * Many performance improvements.
