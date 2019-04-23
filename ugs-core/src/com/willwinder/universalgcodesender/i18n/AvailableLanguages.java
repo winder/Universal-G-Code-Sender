@@ -38,15 +38,16 @@ public class AvailableLanguages {
         availableLanguages.add(new Language("el", "EL", "Greek"));
         availableLanguages.add(new Language("it", "IT", "Italian"));
         availableLanguages.add(new Language("jp", "JA", "Japanese"));
-        availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
-        availableLanguages.add(new Language("ru", "RU", "Russian"));
-        availableLanguages.add(new Language("es", "ES", "Spanish"));
-        availableLanguages.add(new Language("sv", "SE", "Swedish"));
-        availableLanguages.add(new Language("tr", "TR", "Turkish"));
         availableLanguages.add(new Language("lt", "LT", "Lithuanian"));
         availableLanguages.add(new Language("nb", "NO", "Norwegian Bokmål"));
         availableLanguages.add(new Language("nn", "NO", "Norwegian Nynorsk"));
         availableLanguages.add(new Language("pl", "PL", "Polish"));
+        availableLanguages.add(new Language("pt", "BR", "Portuguese (Brazilian)"));
+        availableLanguages.add(new Language("ru", "RU", "Russian"));
+        availableLanguages.add(new Language("sk", "SK", "Slovak"));
+        availableLanguages.add(new Language("es", "ES", "Spanish"));
+        availableLanguages.add(new Language("sv", "SE", "Swedish"));
+        availableLanguages.add(new Language("tr", "TR", "Turkish"));
     }
 
     public static Collection<Language> getAvailableLanguages() {
