@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.services;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.utils.Settings;
 
@@ -246,6 +247,14 @@ public class JogService {
             backend.getController().cancelSend();
         } catch (Exception e) {
             logger.log(Level.WARNING, "Couldn't cancel the jog", e);
+        }
+    }
+
+    public void jogTo(Position position) {
+        try {
+            backend.getController().jogMachineTo(position, getFeedRate());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Couldn't jog to position " + position, e);
         }
     }
 }
