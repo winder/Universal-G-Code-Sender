@@ -67,13 +67,15 @@ public final class ReloadGcodeAction extends AbstractAction implements UGSEventL
         putValue(SMALL_ICON, ImageUtilities.loadImageIcon(ICON_BASE, false));
         putValue("menuText", LocalizingService.ReloadGcodeTitle);
         putValue(NAME, LocalizingService.ReloadGcodeTitle);
+
+        // set initial state to disabled, because otherwise the enabled state in the toolbar does not get correctly
+        // set after the first enable
+        setEnabled(isEnabled());
     }
 
     @Override
     public boolean isEnabled() {
-        boolean ena = backend != null && backend.getGcodeFile() != null && backend.getGcodeFile().exists();
-        logger.info("ReloadGcodeAction enable: " + ena);
-        return ena;
+        return backend != null && backend.getGcodeFile() != null && backend.getGcodeFile().exists();
     }
 
     @Override
@@ -82,6 +84,8 @@ public final class ReloadGcodeAction extends AbstractAction implements UGSEventL
             java.awt.EventQueue.invokeLater(() -> setEnabled(isEnabled()));
         }
     }
+
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (backend.getGcodeFile().exists()) {
