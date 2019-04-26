@@ -243,8 +243,18 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             double feedRate, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
-        String commandString = GcodeUtils.generateMoveCommand(GcodeUtils.unitCommand(units) + "G91G1",
-                stepSize, feedRate, dirX, dirY, dirZ);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1",
+                stepSize, feedRate, dirX, dirY, dirZ, units);
+
+        GcodeCommand command = createCommand(commandString);
+        command.setTemporaryParserModalChange(true);
+        sendCommandImmediately(command);
+        restoreParserModalState();
+    }
+
+    @Override
+    public void jogMachineTo(Position position, double feedRate) throws Exception {
+        String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);
@@ -387,7 +397,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public Boolean closeCommPort() throws Exception {
         // Already closed.
-        if (isCommOpen() == false) {
+        if (!isCommOpen()) {
             return true;
         }
         

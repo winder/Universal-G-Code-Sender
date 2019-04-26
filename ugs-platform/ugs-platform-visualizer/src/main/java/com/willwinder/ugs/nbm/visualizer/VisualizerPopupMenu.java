@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableCheckBox;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import org.openide.util.Lookup;
 
 import javax.swing.*;
@@ -102,11 +103,11 @@ public class VisualizerPopupMenu extends JPopupMenu {
         menu.add(menuItem);
     }
 
-    public void setJogLocation(double x, double y) {
-        String strX = decimalFormatter.format(x);
-        String strY = decimalFormatter.format(y);
+    public void setJogLocation(Position position) {
+        String strX = decimalFormatter.format(position.getX());
+        String strY = decimalFormatter.format(position.getY());
 
-        jogToHereAction.setJogLocation(strX, strY);
+        jogToHereAction.setJogLocation(position);
         String jogToHereString = Localization.getString("platform.visualizer.popup.jogToHere");
         jogToHereString = jogToHereString.replaceAll("%f", "%s");
         jogToHere.setText(String.format(jogToHereString, strX, strY));

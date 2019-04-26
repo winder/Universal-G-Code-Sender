@@ -18,9 +18,12 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +68,7 @@ public class TinyGControllerTest {
     }
 
     @Test
-    public void rawResponseWithAckResponse() throws Exception {
+    public void rawResponseWithAckResponse() {
         // When
         controller.rawResponseHandler("{\"ack\":true}");
 
@@ -79,7 +82,7 @@ public class TinyGControllerTest {
     }
 
     @Test
-    public void rawResponseWithStatusReport() throws Exception {
+    public void rawResponseWithStatusReport() {
         // Given
         ControllerListener controllerListener = mock(ControllerListener.class);
         controller.addListener(controllerListener);
@@ -93,7 +96,7 @@ public class TinyGControllerTest {
     }
 
     @Test
-    public void rawResponseWithResultForNoCommandShouldNotDispatchCommandComplete() throws Exception {
+    public void rawResponseWithResultForNoCommandShouldNotDispatchCommandComplete() {
         // Given
         ControllerListener controllerListener = mock(ControllerListener.class);
         controller.addListener(controllerListener);
@@ -106,7 +109,7 @@ public class TinyGControllerTest {
     }
 
     @Test
-    public void rawResponseWithResultForCommandShouldDispatchCommandComplete() throws Exception {
+    public void rawResponseWithResultForCommandShouldDispatchCommandComplete() {
         // Given
         ControllerListener controllerListener = mock(ControllerListener.class);
         controller.addListener(controllerListener);
@@ -201,5 +204,73 @@ public class TinyGControllerTest {
 
         // Ignore the code analysis warnings
         assertEquals("trick code analysis", "trick code analysis");
+    }
+
+    @Test
+    public void jogMachine() throws Exception {
+        // Given
+        when(communicator.isCommOpen()).thenReturn(true);
+
+        // Simulate that the machine is running in inches
+        controller.getCurrentGcodeState().units = Code.G21;
+
+        // When
+        InOrder orderVerifier = inOrder(communicator);
+        controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
+
+        // Then
+        orderVerifier.verify(communicator).queueStringForComm("G21G91G1X100Y100Z100F1000\n");
+        orderVerifier.verify(communicator).streamCommands();
+    }
+
+    @Test
+    public void jogMachineWhenUsingInchesShouldConvertCoordinates() throws Exception {
+        // Given
+        when(communicator.isCommOpen()).thenReturn(true);
+
+        // Simulate that the machine is running in inches
+        controller.getCurrentGcodeState().units = Code.G20;
+
+        // When
+        InOrder orderVerifier = inOrder(communicator);
+        controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
+
+        // Then
+        orderVerifier.verify(communicator).queueStringForComm("G20G91G1X3.937Y3.937Z3.937F39.37\n");
+        orderVerifier.verify(communicator).streamCommands();
+    }
+
+    @Test
+    public void jogMachineTo() throws Exception {
+        // Given
+        when(communicator.isCommOpen()).thenReturn(true);
+
+        // Simulate that the machine is running in mm
+        controller.getCurrentGcodeState().units = Code.G21;
+
+        // When
+        InOrder orderVerifier = inOrder(communicator);
+        controller.jogMachineTo(new Position(1, 2, 3, UnitUtils.Units.MM), 1000);
+
+        // Then
+        orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000\n");
+        orderVerifier.verify(communicator).streamCommands();
+    }
+
+    @Test
+    public void jogMachineToWhenUsingInchesShouldConvertCoordinates() throws Exception {
+        // Given
+        when(communicator.isCommOpen()).thenReturn(true);
+
+        // Simulate that the machine is running in inches
+        controller.getCurrentGcodeState().units = Code.G20;
+
+        // When
+        InOrder orderVerifier = inOrder(communicator);
+        controller.jogMachineTo(new Position(1, 2, 3, UnitUtils.Units.MM), 1000);
+
+        // Then
+        orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37\n");
+        orderVerifier.verify(communicator).streamCommands();
     }
 }
