@@ -111,6 +111,20 @@ mvn package -pl ugs-core
 mvn package assembly:assembly
 ```
 
+#### Develop via Intellij
+
+If you are more used to Intellij, you can also build, run and debug it there:
+
+- Run  `mvn nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
+- Import the Source, `File` -> `New` -> `Project from existing Sources`
+- Setup a new "Run Configuration", `Java Application`, with following settings:
+  - Main Class: `org.netbeans.Main`
+  - VM Options: `-Dnetbeans.user=$ProjectFileDir$/ugs-platform/application/target/userdir -Dnetbeans.home=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform -Dnetbeans.logger.console=true -Dnetbeans.indexing.noFileRefresh=true -Dnetbeans.dirs="$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ugsplatform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ide:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/extra:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/java"`
+  - Program arguments: `--branding ugsplatform`
+  - Working dir: `$ProjectFileDir$`
+  - Use classpath of module: `ugs-platfom-ugscore` 
+
+
 ## Changelog
 
 1.0.9 -> 2.0
