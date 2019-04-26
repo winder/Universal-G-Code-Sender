@@ -13,10 +13,10 @@
         <folder name="File">
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAction.shadow">
-                <attr name="position" intvalue="11"/>
+                <attr name="position" intvalue="20"/>
             </file>
             <file name="org-openide-actions-SaveAsAction.shadow">
-                <attr name="position" intvalue="12"/>
+                <attr name="position" intvalue="22"/>
             </file>
         </folder>
         <folder name="Tools">
