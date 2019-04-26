@@ -103,7 +103,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
         jogPanel.setUnit(jogService.getUnits());
         jogPanel.setUseStepSizeZ(jogService.useStepSizeZ());
         jogPanel.addListener(this);
-        
+
         backend.addUGSEventListener(this);
         backend.addControllerListener(this);
 
@@ -232,6 +232,14 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
                 } else {
                     jogService.setUnits(UnitUtils.Units.MM);
                 }
+                break;
+            case BUTTON_LARGER_STEP:
+                jogService.setStepSizeXY(jogService.getStepSizeXY() * 10);
+                jogService.setStepSizeZ(jogService.getStepSizeZ() * 5);
+                break;
+            case BUTTON_SMALLER_STEP:
+                jogService.setStepSizeXY(jogService.getStepSizeXY() / 10);
+                jogService.setStepSizeZ(jogService.getStepSizeZ() / 5);
                 break;
             default:
         }
