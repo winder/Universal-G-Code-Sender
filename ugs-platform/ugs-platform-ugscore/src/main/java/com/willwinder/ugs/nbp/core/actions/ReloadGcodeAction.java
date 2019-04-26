@@ -88,7 +88,7 @@ public final class ReloadGcodeAction extends AbstractAction implements UGSEventL
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (backend.getGcodeFile().exists()) {
+        if (backend.getGcodeFile() != null && backend.getGcodeFile().exists()) {
             GUIHelpers.openGcodeFile(backend.getGcodeFile(), backend);
         }
     }
