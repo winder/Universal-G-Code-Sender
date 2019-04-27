@@ -453,6 +453,7 @@ public class GcodePreprocessorUtils {
         }
 
         double linearIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearPos = plane.linear(lineStart);
         for(int i=0; i<numPoints; i++)
         {
             if (isCw) {
@@ -470,8 +471,9 @@ public class GcodePreprocessorUtils {
             //lineStart.y = Math.sin(angle) * radius + center.y;
             plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
             //lineStart.z += zIncrement;
-            plane.setLinear(lineStart, plane.linear(lineStart) + linearIncrement);
-            
+            plane.setLinear(lineStart, linearPos);
+            linearPos += linearIncrement;
+
             segments.add(new Position(lineStart));
         }
         
