@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Settings {
@@ -64,6 +65,7 @@ public class Settings {
     private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
     private boolean singleStepMode = false;
+    private boolean singleBlockMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private Units preferredUnits = Units.MM;
@@ -310,6 +312,16 @@ public class Settings {
 
     public void setSingleStepMode(boolean singleStepMode) {
         this.singleStepMode = singleStepMode;
+        changed();
+    }
+
+    public boolean isSingleBlockMode() {
+        return singleBlockMode;
+    }
+
+    public void setSingleBlockMode(boolean singleBlockMode) {
+        logger.log(Level.INFO, "Setting singleBlockMode to ".concat((singleBlockMode)?"true":"false"));
+        this.singleBlockMode = singleBlockMode;
         changed();
     }
 

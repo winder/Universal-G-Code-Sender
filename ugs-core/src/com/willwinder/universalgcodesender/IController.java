@@ -126,6 +126,8 @@ public interface IController {
     */
     void setSingleStepMode(boolean enabled);
     boolean getSingleStepMode();
+    void setSingleBlockMode(boolean enabled);
+    boolean getSingleBlockMode();
 
     void setStatusUpdatesEnabled(boolean enabled);
     boolean getStatusUpdatesEnabled();

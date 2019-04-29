@@ -47,6 +47,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     private int sentBufferSize = 0;
     
     private Boolean singleStepModeEnabled = false;
+    private Boolean singleBlockModeEnabled = false;
     
     abstract public int getBufferSize();
 
@@ -68,6 +69,16 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     public boolean getSingleStepMode() {
         return this.singleStepModeEnabled;
+    }
+
+    @Override
+    public void setSingleBlockMode(boolean enable) {
+        this.singleBlockModeEnabled = enable;
+    }
+
+    @Override
+    public boolean getSingleBlockMode() {
+        return this.singleBlockModeEnabled;
     }
     
     /**
@@ -187,6 +198,32 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         }
         return null;
     }
+
+    private GcodeCommand peekNextCommand() {
+        GcodeCommand nc = null;
+        
+        if (nextCommand != null) {
+            nc = nextCommand;
+        }
+        else if (!this.commandBuffer.isEmpty()) {
+            nc = new GcodeCommand(commandBuffer.peek());
+        }
+        else
+            try {
+                if (commandStream != null && commandStream.ready())
+                {
+                    nc = commandStream.peekNextCommand();
+                }
+            } catch (IOException ignored) {
+            // Fall through to null handling.
+            }
+
+        if (nc != null && nc.getCommandString().endsWith("\n")) {
+            nc.setCommand(nextCommand.getCommandString().trim());
+        }
+    
+        return nc;
+    }
    
     /**
      * Streams anything in the command buffer to the comm port.
@@ -234,6 +271,18 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             } catch (Exception e) {
                 e.printStackTrace();
                 System.exit(-1);
+            }
+
+            // Single block mode: pause after this command is sent
+            // iff the next command is from the commandStream
+            // (ie do not pause for commandBuffer commands)
+            if( this.getSingleBlockMode() &&
+                commandBuffer.isEmpty() &&
+                peekNextCommand() != null &&
+                !peekNextCommand().getCommandString().isEmpty() ) {
+
+                logger.log(Level.INFO, "singleBlockMode: pausing");
+                pauseSend();
             }
         }
     }

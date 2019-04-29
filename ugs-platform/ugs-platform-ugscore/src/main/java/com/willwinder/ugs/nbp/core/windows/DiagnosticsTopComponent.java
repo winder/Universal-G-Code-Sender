@@ -95,6 +95,7 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
     this.labels.put("communicator:numActiveCommands", new JLabel("-----"));
     this.labels.put("communicator:isPaused", new JLabel("-----"));
     this.labels.put("communicator:getSingleStepMode", new JLabel("-----"));
+    this.labels.put("communicator:getSingleBlockMode", new JLabel("-----"));
 
     this.labels.put("settings:isHomingEnabled", new JLabel("-----"));
     this.labels.put("settings:getReportingUnits", new JLabel("-----"));

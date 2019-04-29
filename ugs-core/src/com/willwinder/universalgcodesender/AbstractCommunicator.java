@@ -74,6 +74,8 @@ public abstract class AbstractCommunicator {
     /*********************/
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
+    abstract public void setSingleBlockMode(boolean enable);
+    abstract public boolean getSingleBlockMode();
     abstract public void queueStringForComm(final String input);
     abstract public void queueStreamForComm(final GcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;

@@ -347,6 +347,21 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
         return false;
     }
+
+    @Override
+    public void setSingleBlockMode(boolean enabled) {
+        if (this.comm != null) {
+            this.comm.setSingleBlockMode(enabled);
+        }
+    }
+
+    @Override
+    public boolean getSingleBlockMode() {
+        if (this.comm != null) {
+            return this.comm.getSingleBlockMode();
+        }
+        return false;
+    }
     
     @Override
     public void setStatusUpdatesEnabled(boolean enabled) {
