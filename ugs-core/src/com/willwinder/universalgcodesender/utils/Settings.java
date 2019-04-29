@@ -315,12 +315,25 @@ public class Settings {
         changed();
     }
 
+    /**
+     * Retrieve the setting to determine if communicator should pause
+     * streaming after each command in the communicator commandStream.
+     * @see AbstractCommunicator.getSingleBlockMode()
+     * @return true if singleBlockMode is enabled
+     */
     public boolean isSingleBlockMode() {
         return singleBlockMode;
     }
 
+    /**
+     * Enable / disable the pausing of streaming after each command in
+     * the commandStream of the communicator. Also requires
+     * singleStepMode to be enabled
+     * @see AbstractCommunicator.setSingleBlockMode()
+     * @param boolean singleBlockMode true if enabled
+     */
     public void setSingleBlockMode(boolean singleBlockMode) {
-        logger.log(Level.INFO, "Setting singleBlockMode to ".concat((singleBlockMode)?"true":"false"));
+        logger.log(Level.INFO, "Setting singleBlockMode to ".concat( ((Boolean)singleBlockMode).toString() ));
         this.singleBlockMode = singleBlockMode;
         changed();
     }

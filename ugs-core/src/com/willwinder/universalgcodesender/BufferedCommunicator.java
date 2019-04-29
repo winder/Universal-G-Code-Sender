@@ -199,6 +199,13 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         return null;
     }
 
+    /**
+     * See the next command to be sent out without popping from the
+     * commandBuffer or commandStream.
+     * @see BufferedCommunicator.getNextCommand()
+     * @see GcodeStreamReader.peekNextCommand()
+     * @return GcodeCommand the next command to be sent to the controller
+     */
     private GcodeCommand peekNextCommand() {
         GcodeCommand nc = null;
         
