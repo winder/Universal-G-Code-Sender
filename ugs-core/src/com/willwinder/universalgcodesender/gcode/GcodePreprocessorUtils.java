@@ -452,7 +452,8 @@ public class GcodePreprocessorUtils {
             radius = Math.sqrt(Math.pow(plane.axis0(p1) - plane.axis1(center), 2.0) + Math.pow(plane.axis1(p1) - plane.axis1(center), 2.0));
         }
 
-        double zIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearPos = plane.linear(lineStart);
         for(int i=0; i<numPoints; i++)
         {
             if (isCw) {
@@ -470,8 +471,9 @@ public class GcodePreprocessorUtils {
             //lineStart.y = Math.sin(angle) * radius + center.y;
             plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
             //lineStart.z += zIncrement;
-            plane.setLinear(lineStart, plane.linear(lineStart) + zIncrement);
-            
+            plane.setLinear(lineStart, linearPos);
+            linearPos += linearIncrement;
+
             segments.add(new Position(lineStart));
         }
         
