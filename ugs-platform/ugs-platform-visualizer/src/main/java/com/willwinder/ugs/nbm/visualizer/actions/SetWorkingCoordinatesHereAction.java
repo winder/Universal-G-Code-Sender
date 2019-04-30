@@ -18,9 +18,9 @@
  */
 package com.willwinder.ugs.nbm.visualizer.actions;
 
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
 import javax.swing.*;
@@ -29,14 +29,14 @@ import java.awt.event.ActionEvent;
 /**
  * An action that will jog to a coordinate
  */
-public class JogToHereAction extends AbstractAction {
-    private final JogService jogService;
+public class SetWorkingCoordinatesHereAction extends AbstractAction {
+    private final BackendAPI backend;
     private Position position;
 
-    public JogToHereAction(BackendAPI backend, Position position) {
-        this.jogService = new JogService(backend);
+    public SetWorkingCoordinatesHereAction(BackendAPI backend, Position position) {
+        this.backend = backend;
         this.position = position;
-        if (position == null || !jogService.canJog()) {
+        if (position == null || !backend.isConnected()) {
             setEnabled(false);
         }
     }
@@ -45,7 +45,8 @@ public class JogToHereAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            jogService.jogTo(position);
+            backend.setWorkPosition(Axis.X, position.getX());
+            backend.setWorkPosition(Axis.Y, position.getY());
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

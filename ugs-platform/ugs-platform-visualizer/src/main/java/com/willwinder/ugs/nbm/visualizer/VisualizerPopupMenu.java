@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.actions.JogToHereAction;
 import com.willwinder.ugs.nbm.visualizer.actions.MoveCameraAction;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.ugs.nbm.visualizer.shared.IRenderableRegistrationService;
@@ -31,7 +30,6 @@ import org.openide.util.Lookup;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.Comparator;
 
@@ -39,21 +37,14 @@ import java.util.Comparator;
  * @author wwinder
  */
 public class VisualizerPopupMenu extends JPopupMenu {
-    private final JogToHereAction jogToHereAction;
-    private final JMenuItem jogToHere = new JMenuItem();
-    private final DecimalFormat decimalFormatter =
-            new DecimalFormat("#.#####", Localization.dfs);
-
+    private final BackendAPI backend;
     private final GcodeRenderer gcodeRenderer;
+    private final Position position;
 
-    public VisualizerPopupMenu(BackendAPI backend, GcodeRenderer gcodeRenderer) {
-        jogToHereAction = new JogToHereAction(backend);
-
-        jogToHere.setText(String.format(Localization.getString("platform.visualizer.jogToHere"), 0, 0));
-
-        jogToHere.setAction(jogToHereAction);
-
+    public VisualizerPopupMenu(BackendAPI backend, GcodeRenderer gcodeRenderer, Position clickedWorkPosition) {
+        this.backend = backend;
         this.gcodeRenderer = gcodeRenderer;
+        this.position = clickedWorkPosition;
     }
 
     @Override
@@ -63,8 +54,9 @@ public class VisualizerPopupMenu extends JPopupMenu {
         createViewPresetSubmenu();
         createShowRenderablesSubmenu();
 
-        add(jogToHere);
+        CoordinatesSubMenu coordSubMenu = new CoordinatesSubMenu(backend, position);
 
+        add(coordSubMenu);
         super.show(invoker, x, y);
     }
 
@@ -103,13 +95,4 @@ public class VisualizerPopupMenu extends JPopupMenu {
         menu.add(menuItem);
     }
 
-    public void setJogLocation(Position position) {
-        String strX = decimalFormatter.format(position.getX());
-        String strY = decimalFormatter.format(position.getY());
-
-        jogToHereAction.setJogLocation(position);
-        String jogToHereString = Localization.getString("platform.visualizer.popup.jogToHere");
-        jogToHereString = jogToHereString.replaceAll("%f", "%s");
-        jogToHere.setText(String.format(jogToHereString, strX, strY));
-    }
-}
+ }
