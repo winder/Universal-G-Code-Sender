@@ -771,7 +771,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
         try {
             controller.setSingleStepMode(settings.isSingleStepMode());
-            controller.setSingleBlockMode(settings.isSingleStepMode());
+            controller.setSingleBlockMode(settings.isSingleBlockMode());
             controller.setStatusUpdatesEnabled(settings.isStatusUpdatesEnabled());
             controller.setStatusUpdateRate(settings.getStatusUpdateRate());
         } catch (Exception ex) {
