@@ -1,0 +1,15 @@
+@import "~bootstrap/scss/bootstrap-grid";
+
+.component {
+  margin-bottom: 15px;
+}
+
+body {
+  margin-top: 15px;
+}
+
+@include media-breakpoint-down(xs) {
+  body {
+    margin-top: 0px;
+  }
+}

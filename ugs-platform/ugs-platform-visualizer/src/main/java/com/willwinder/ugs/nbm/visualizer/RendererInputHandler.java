@@ -231,7 +231,11 @@ public class RendererInputHandler implements
         // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
             Point3d coords = gcodeRenderer.getMouseWorldLocation();
-            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
+
+            // The position is always given in millimeters, convert to the preferred units
+            Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
+                    .getPositionIn(settings.getPreferredUnits());
+            this.visualizerPopupMenu.setJogLocation(position);
             this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }

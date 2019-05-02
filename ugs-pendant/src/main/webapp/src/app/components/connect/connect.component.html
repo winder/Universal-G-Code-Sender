@@ -1,0 +1,31 @@
+<form>
+  <div class="form-group">
+    <div class="form-group">
+      <label for="firmware-select">Firmware</label>
+      <select class="form-control" id="firmware-select" name='firmware-select' (change)="onSelectFirmware($event)"
+              [(ngModel)]="selectedFirmware">
+        <option *ngFor="let firmware of firmwareList" [ngValue]="firmware">{{firmware}}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="port-select">Port</label>
+      <select class="form-control" id="port-select" name='port-select' (change)="onSelectPort($event)"
+              [(ngModel)]="selectedPort">
+        <option *ngFor="let port of portList" [ngValue]="port">{{port}}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="baudrate-select">Baud rate</label>
+      <select class="form-control" id="baudrate-select" name='baudrate-select' (change)="onSelectBaudRate($event)"
+              [(ngModel)]="selectedBaudRate">
+        <option *ngFor="let baudRate of baudRateList" [ngValue]="baudRate">{{baudRate}}</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-primary" (click)="connect()">Connect</button>
+    </div>
+  </div>
+</form>

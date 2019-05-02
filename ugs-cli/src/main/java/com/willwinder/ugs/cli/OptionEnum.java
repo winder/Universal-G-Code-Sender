@@ -18,13 +18,16 @@
  */
 package com.willwinder.ugs.cli;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.utils.ControllerSettings;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+
+import java.util.Arrays;
 
 /**
  * An enum with all option attributes that can be used in the configuration. {@link Configuration}
  *
- *  @author Joacim Breiler
+ * @author Joacim Breiler
  */
 public enum OptionEnum {
 
@@ -38,7 +41,10 @@ public enum OptionEnum {
     LIST_PORTS("list", "l", false, "", "Lists all available ports."),
     PRINT_STREAM("print-stream", "ps", false, "", "Prints the streamed lines to console"),
     PRINT_PROGRESSBAR("print-progressbar", "pp", false, "", "Prints the progress of the file stream"),
-    RESET_ALARM("reset-alarm", "r", false, "", "Resets any alarm");
+    RESET_ALARM("reset-alarm", "r", false, "", "Resets any alarm"),
+    DAEMON("daemon", "d", false, "", "Starts in daemon mode providing a web pendant UI"),
+    WORKSPACE("workspace", "w", true, "dir", "Sets and saves the workspace directory setting"),
+    DRIVER("driver", "dr", true, "driver", "Sets and saves the connection driver setting. These are the available drivers: " + Arrays.toString(ConnectionDriver.values()));
 
     /**
      * The long option name that will be displayed like this: --file

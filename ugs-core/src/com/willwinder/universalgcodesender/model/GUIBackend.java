@@ -20,46 +20,59 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.io.Files;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.GcodeStats;
-import com.willwinder.universalgcodesender.gcode.processors.*;
+import com.willwinder.universalgcodesender.gcode.processors.CommandLengthProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.DecimalProcessor;
+import com.willwinder.universalgcodesender.gcode.processors.M30Processor;
+import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UGSEvent.EventType;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
-import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.SettingChangeListener;
+import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.awt.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -84,40 +97,16 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private File gcodeFile = null;
     private File processedGcodeFile = null;
     private File tempDir = null;
-    private String lastComment;
-    private String activeState;
-    private long estimatedSendDuration = -1L;
     private String firmware = null;
 
     private long lastResponse = Long.MIN_VALUE;
     private boolean streamFailed = false;
     private boolean autoconnect = false;
-    private final Timer autoConnectTimer = new Timer("AutoConnectTimer", true);
     
     private GcodeParser gcp = new GcodeParser();
 
     public GUIBackend() {
-        scheduleTimers();
         messageService.addListener(this);
-    }
-
-    private void scheduleTimers() {
-        autoConnectTimer.scheduleAtFixedRate(new TimerTask() {
-            private int count = 0;
-            @Override
-            public void run() {
-                //autoconnect();
-
-                // Move the mouse every 30 seconds to prevent sleeping.
-                if (isPaused() || isActive()) {
-                    count++;
-                    if (count % 10 == 0) {
-                        keepAwake();
-                        count = 0;
-                    }
-                }
-            }
-        }, 1000, 1000);
     }
 
     @Override
@@ -327,20 +316,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         }
     }
 
-    private void keepAwake() {
-        logger.log(Level.INFO, "Moving the mouse location slightly to keep the computer awake.");
-        try {
-            Robot hal = new Robot();
-            Point pObj = MouseInfo.getPointerInfo().getLocation();
-            hal.mouseMove(pObj.x + 1, pObj.y + 1);
-            hal.mouseMove(pObj.x - 1, pObj.y - 1);
-            pObj = MouseInfo.getPointerInfo().getLocation();
-            logger.log(Level.INFO, pObj.toString() + "x>>" + pObj.x + "  y>>" + pObj.y);
-        } catch (AWTException | NullPointerException ex) {
-            Logger.getLogger(GUIBackend.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
     @Override
     public void applySettings(Settings settings) throws Exception {
         logger.log(Level.INFO, "Applying settings.");
@@ -366,37 +341,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
         parser.addCommandProcessor(new M30Processor());
         parser.addCommandProcessor(new DecimalProcessor(4));
         parser.addCommandProcessor(new CommandLengthProcessor(50));
-    }
-
-    @Override
-    public void updateSystemState(SystemStateBean systemStateBean) {
-        logger.log(Level.FINE, "Getting system state 'updateSystemState'");
-        if (gcodeFile != null)
-            systemStateBean.setFileName(gcodeFile.getAbsolutePath());
-        systemStateBean.setLatestComment(lastComment);
-        systemStateBean.setActiveState(activeState);
-
-        systemStateBean.setControlState(getControlState());
-        if (this.machineCoord != null) {
-            systemStateBean.setMachineX(Utils.formatter.format(this.machineCoord.x));
-            systemStateBean.setMachineY(Utils.formatter.format(this.machineCoord.y));
-            systemStateBean.setMachineZ(Utils.formatter.format(this.machineCoord.z));
-        }
-        if (this.controller != null) {
-            systemStateBean.setRemainingRows(String.valueOf(this.getNumRemainingRows()));
-            systemStateBean.setRowsInFile(String.valueOf(this.getNumRows()));
-            systemStateBean.setSentRows(String.valueOf(this.getNumSentRows()));
-            systemStateBean.setDuration(String.valueOf(this.getSendDuration()));
-            systemStateBean.setEstimatedTimeRemaining(String.valueOf(this.getSendRemainingDuration()));
-        }
-        if (this.workCoord != null) {
-            systemStateBean.setWorkX(Utils.formatter.format(this.workCoord.x));
-            systemStateBean.setWorkY(Utils.formatter.format(this.workCoord.y));
-            systemStateBean.setWorkZ(Utils.formatter.format(this.workCoord.z));
-        }
-        systemStateBean.setSendButtonEnabled(this.canSend());
-        systemStateBean.setPauseResumeButtonEnabled(this.canPause());
-        systemStateBean.setCancelButtonEnabled(this.canCancel());
     }
 
     @Override
@@ -515,6 +459,37 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     }
 
     @Override
+    public List<String> getWorkspaceFileList() {
+        String workspaceDirectory = settings.getWorkspaceDirectory();
+        if(StringUtils.isBlank(workspaceDirectory)) {
+            return Collections.emptyList();
+        }
+
+        File folder = new File(workspaceDirectory);
+        if(!folder.exists() || !folder.isDirectory()){
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
+                .map(File::getName)
+                .filter(name -> StringUtils.endsWithIgnoreCase(name, ".gcode") ||
+                                StringUtils.endsWithIgnoreCase(name, ".nc") ||
+                                StringUtils.endsWithIgnoreCase(name, ".tap"))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void openWorkspaceFile(String file) throws Exception {
+        if(!getWorkspaceFileList().contains(file)) {
+            throw new FileNotFoundException("Couldn't find the file '" + file + "' in workspace directory");
+        }
+
+        String workspaceDirectory = settings.getWorkspaceDirectory();
+        String filename = workspaceDirectory + File.separatorChar + file;
+        setGcodeFile(new File(filename));
+    }
+
+    @Override
     public void applyGcodeParser(GcodeParser parser) throws Exception {
         logger.log(Level.INFO, "Applying new parser filters.");
 
@@ -594,20 +569,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public long getSendRemainingDuration() {
-        long sent = this.getNumCompletedRows();
+        long completedRows = getNumCompletedRows();
 
         // Early exit condition. Can't make an estimate if we haven't started.
-        if (sent == 0) { return -1L; }
+        if (completedRows == 0) { return -1L; }
 
-        long estimate = this.estimatedSendDuration;
-        
-        long elapsedTime = this.getSendDuration();
-        // If we don't have an actual duration estimate, make a crude estimate.
-        if (estimate <= 0) {
-            long timePerCode = elapsedTime / sent;
-            estimate = timePerCode * this.getNumRows();
-        }
-        
+        long elapsedTime = getSendDuration();
+        long timePerRow = elapsedTime / completedRows;
+        long estimate = getNumRows() * timePerRow;
         return estimate - elapsedTime;
     }
 
@@ -760,7 +729,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void commandComment(String comment) {
-        this.lastComment = comment;
     }
 
     @Override
@@ -770,7 +738,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
 
     @Override
     public void statusStringListener(ControllerStatus status) {
-        this.activeState = status.getStateString();
         this.machineCoord = status.getMachineCoord();
         this.workCoord = status.getWorkCoord();
         this.lastResponse = System.currentTimeMillis();
@@ -895,14 +862,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");
-
-            if (this.isConnected()) {
-                this.estimatedSendDuration = -1L;
-
-                Thread estimateThread = new Thread(() ->
-                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile));
-                estimateThread.start();
-            }
         }
     }
     

@@ -11,13 +11,17 @@
     </folder>
     <folder name="Menu">
         <folder name="File">
+            <attr name="position" intvalue="10" />
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAction.shadow">
-                <attr name="position" intvalue="11"/>
+                <attr name="position" intvalue="20"/>
             </file>
             <file name="org-openide-actions-SaveAsAction.shadow">
-                <attr name="position" intvalue="12"/>
+                <attr name="position" intvalue="22"/>
             </file>
+        </folder>
+        <folder name="Edit">
+            <attr name="position" intvalue="20" />
         </folder>
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>

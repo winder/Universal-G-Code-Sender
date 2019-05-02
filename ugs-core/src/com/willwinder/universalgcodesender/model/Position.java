@@ -27,6 +27,8 @@ import javax.vecmath.Tuple3d;
 
 public class Position extends Point3d {
 
+    public static final Position ZERO = new Position(0, 0, 0, Units.MM);
+
     private final Units units;
 
     public Position() {

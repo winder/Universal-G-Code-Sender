@@ -13,6 +13,11 @@ Run the software with java -jar, then combine with these options:
                                 connecting to, defaults to "GRBL". These
                                 are the available firmwares: [GRBL, TinyG,
                                 Testing (Delay), Smoothie Board, Testing]
+ -d,--daemon                    Starts in daemon mode providing a web
+                                pendant UI
+ -dr,--driver <driver>          Sets and saves the connection driver
+                                setting. These are the available drivers:
+                                [JSERIALCOMM, JSSC, TCP]
  -f,--file <filename>           Opens a file for streaming to controller
                                 and will exit upon completion.
  -h,--help                      Prints the help information.
@@ -27,6 +32,8 @@ Run the software with java -jar, then combine with these options:
  -ps,--print-stream             Prints the streamed lines to console
  -r,--reset-alarm               Resets any alarm
  -v,--version                   Prints the software version.
+ -w,--workspace <dir>           Sets and saves the workspace directory
+                                setting
  ```
  
  ## Example

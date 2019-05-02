@@ -1,0 +1,7 @@
+<div class="container">
+  <div class="form-group">
+    <label for="gcode-commands">Gcode:</label>
+    <textarea class="form-control" rows="5" id="gcode-commands" [(ngModel)]="gcodeCommands"></textarea>
+  </div>
+  <input class="btn btn-primary" type="button" value="Send" [disabled]="!canSend()" (click)="sendCommands()">
+</div>

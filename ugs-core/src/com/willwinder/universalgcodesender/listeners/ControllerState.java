@@ -73,6 +73,11 @@ public enum ControllerState {
     SLEEP,
 
     /**
+     * When not connected to the controller
+     */
+    DISCONNECTED,
+
+    /**
      * When the machine is in an unknown state
      */
     UNKNOWN

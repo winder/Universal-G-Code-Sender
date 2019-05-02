@@ -22,16 +22,22 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
+import org.apache.commons.lang3.StringUtils;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Logger;
-
-import org.apache.commons.lang3.StringUtils;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -64,6 +70,7 @@ public class Settings {
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
+    private boolean autoStartPendant = false;
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
@@ -84,10 +91,13 @@ public class Settings {
     private Map<Integer, Macro> macros = new HashMap<>();
 
     private String language = "en_US";
-    
-    private PendantConfigBean pendantConfig = new PendantConfigBean();
 
     private String connectionDriver;
+
+    /**
+     * A directory with gcode files for easy access through pendant
+     */
+    private String workspaceDirectory;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
@@ -320,15 +330,6 @@ public class Settings {
         this.statusUpdateRate = statusUpdateRate;
         changed();
     }
-
-    public PendantConfigBean getPendantConfig() {
-        return pendantConfig;
-    }
-
-    public void setPendantConfig(PendantConfigBean pendantConfig) {
-        this.pendantConfig = pendantConfig;
-        changed();
-    }
         
     public Units getPreferredUnits() {
         return (preferredUnits == null) ? Units.MM : preferredUnits;
@@ -371,6 +372,10 @@ public class Settings {
             macro = new Macro(index.toString(), null, null);
         }
         return macro;
+    }
+
+    public List<Macro> getMacros() {
+        return new ArrayList<>(macros.values());
     }
 
     public Integer getNumMacros() {
@@ -469,6 +474,23 @@ public class Settings {
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {
         this.connectionDriver = connectionDriver.name();
+    }
+
+    public void setAutoStartPendant(boolean autoStartPendant) {
+        this.autoStartPendant = autoStartPendant;
+        changed();
+    }
+
+    public boolean isAutoStartPendant() {
+        return this.autoStartPendant;
+    }
+
+    public void setWorkspaceDirectory(String workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
+
+    public String getWorkspaceDirectory() {
+        return this.workspaceDirectory;
     }
 
     public static class AutoLevelSettings {
