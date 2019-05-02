@@ -2,7 +2,6 @@ package com.willwinder.universalgcodesender.model;
 
 
 import com.google.common.collect.ImmutableMap;
-import com.sun.tools.javac.util.Assert;
 
 import java.util.Map;
 import java.util.Objects;
@@ -46,17 +45,23 @@ public class PartialPosition {
     }
 
     public Double getX() {
-        Assert.checkNonNull(x, "Tried to get x-axis which is not set");
+        if (x == null) {
+            throw new IllegalArgumentException("Tried to get x-axis which is not set");
+        }
         return x;
     }
 
     public Double getY() {
-        Assert.checkNonNull(y, "Tried to get y-axis which is not set");
+        if (y == null) {
+            throw new IllegalArgumentException("Tried to get y-axis which is not set");
+        }
         return y;
     }
 
     public Double getZ() {
-        Assert.checkNonNull(z, "Tried to get y-axis which is not set");
+        if (z == null) {
+            throw new IllegalArgumentException("Tried to get y-axis which is not set");
+        }
         return z;
     }
 
