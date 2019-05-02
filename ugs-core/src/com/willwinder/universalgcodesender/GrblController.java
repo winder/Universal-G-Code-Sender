@@ -42,7 +42,6 @@ import com.willwinder.universalgcodesender.utils.GrblLookups;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,14 +116,6 @@ public class GrblController extends AbstractController {
         return firmwareSettings;
     }
 
-    @Override
-    public long getJobLengthEstimate(File gcodeFile) {
-        // Pending update to support cross-platform and multiple GRBL versions.
-        return 0;
-        //GrblSimulator simulator = new GrblSimulator(settings.getSettings());
-        //return simulator.estimateRunLength(jobLines);
-    }
-
     /***********************
      * API Implementation. *
      ***********************/
@@ -175,7 +166,6 @@ public class GrblController extends AbstractController {
             else if (GrblUtils.isOkErrorAlarmResponse(response)) {
                 if (GrblUtils.isAlarmResponse(response)) {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
-                    // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
                     controllerStatus = ControllerStatusBuilder
                             .newInstance(controllerStatus)

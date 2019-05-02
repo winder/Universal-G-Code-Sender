@@ -97,7 +97,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private File gcodeFile = null;
     private File processedGcodeFile = null;
     private File tempDir = null;
-    private long estimatedSendDuration = -1L;
     private String firmware = null;
 
     private long lastResponse = Long.MIN_VALUE;
@@ -570,20 +569,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     
     @Override
     public long getSendRemainingDuration() {
-        long sent = this.getNumCompletedRows();
+        long completedRows = getNumCompletedRows();
 
         // Early exit condition. Can't make an estimate if we haven't started.
-        if (sent == 0) { return -1L; }
+        if (completedRows == 0) { return -1L; }
 
-        long estimate = this.estimatedSendDuration;
-        
-        long elapsedTime = this.getSendDuration();
-        // If we don't have an actual duration estimate, make a crude estimate.
-        if (estimate <= 0) {
-            long timePerCode = elapsedTime / sent;
-            estimate = timePerCode * this.getNumRows();
-        }
-        
+        long elapsedTime = getSendDuration();
+        long timePerRow = elapsedTime / completedRows;
+        long estimate = getNumRows() * timePerRow;
         return estimate - elapsedTime;
     }
 
@@ -869,14 +862,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             }
             long end = System.currentTimeMillis();
             logger.info("Took " + (end - start) + "ms to preprocess");
-
-            if (this.isConnected()) {
-                this.estimatedSendDuration = -1L;
-
-                Thread estimateThread = new Thread(() ->
-                        estimatedSendDuration = controller.getJobLengthEstimate(processedGcodeFile));
-                estimateThread.start();
-            }
         }
     }
     
