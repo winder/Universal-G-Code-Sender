@@ -2,7 +2,9 @@ package com.willwinder.universalgcodesender.model;
 
 
 import com.google.common.collect.ImmutableMap;
+import com.willwinder.universalgcodesender.Utils;
 
+import java.text.NumberFormat;
 import java.util.Map;
 import java.util.Objects;
 
@@ -130,6 +132,25 @@ public class PartialPosition {
             this.z = z;
             return this;
         }
+    }
+
+    public String getFormatted() {
+        return getFormatted(Utils.formatter);
+
+    }
+
+    public String getFormatted(NumberFormat formatter) {
+        StringBuilder sb = new StringBuilder();
+        if (this.hasX()) {
+            sb.append("X").append(formatter.format(this.getX())).append(" ");
+        }
+        if (this.hasY()) {
+            sb.append("Y").append(formatter.format(this.getY())).append(" ");
+        }
+        if (this.hasZ()) {
+            sb.append("Z").append(formatter.format(this.getZ())).append(" ");
+        }
+        return sb.toString().trim();
     }
 
     @Override

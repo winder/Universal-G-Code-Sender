@@ -22,7 +22,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.*;
@@ -315,8 +314,7 @@ public class TinyGUtils {
             offsets.setValue(position.getKey(), axisOffset);
 
         }
-        return "G10 L2 P" + offsetCode + " " +
-                GcodeUtils.formatPartialPosition(offsets.build());
+        return "G10 L2 P" + offsetCode + " " + offsets.build().getFormatted();
     }
 
     /**

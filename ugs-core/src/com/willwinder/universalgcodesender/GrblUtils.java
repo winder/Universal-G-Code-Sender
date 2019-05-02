@@ -19,7 +19,6 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -174,7 +173,7 @@ public class GrblUtils {
      * @return a string with the gcode command
      */
     protected static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
-        String coordsString = GcodeUtils.formatPartialPosition(offsets);
+        String coordsString = offsets.getFormatted();
         if (grblVersion >= 0.9) {
             return GrblUtils.GCODE_SET_COORDINATE_V9 + " " + coordsString;
         }

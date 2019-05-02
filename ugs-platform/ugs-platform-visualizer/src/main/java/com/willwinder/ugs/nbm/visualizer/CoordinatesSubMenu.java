@@ -20,7 +20,6 @@ package com.willwinder.ugs.nbm.visualizer;
 
 import com.willwinder.ugs.nbm.visualizer.actions.JogToHereAction;
 import com.willwinder.ugs.nbm.visualizer.actions.SetWorkingCoordinatesHereAction;
-import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -62,7 +61,7 @@ public class CoordinatesSubMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 PartialPosition xyPosition = new PartialPosition(position.getX(), position.getY());
-                clipboard.setContents(new StringSelection(GcodeUtils.formatPartialPosition(xyPosition)), null);
+                clipboard.setContents(new StringSelection(xyPosition.getFormatted()), null);
             }
         });
 

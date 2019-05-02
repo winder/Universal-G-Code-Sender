@@ -20,7 +20,6 @@ package com.willwinder.universalgcodesender.gcode.util;
 
 import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 
@@ -131,17 +130,4 @@ public class GcodeUtils {
         return sb.toString();
     }
 
-    public static String formatPartialPosition(PartialPosition position) {
-        StringBuilder sb = new StringBuilder();
-        if (position.hasX()) {
-            sb.append("X").append(Utils.formatter.format(position.getX())).append(" ");
-        }
-        if (position.hasY()) {
-            sb.append("Y").append(Utils.formatter.format(position.getY())).append(" ");
-        }
-        if (position.hasZ()) {
-            sb.append("Z").append(Utils.formatter.format(position.getZ())).append(" ");
-        }
-        return sb.toString().trim();
-    }
 }
