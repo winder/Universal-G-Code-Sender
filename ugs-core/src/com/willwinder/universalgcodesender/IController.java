@@ -132,9 +132,7 @@ public interface IController {
     
     void setStatusUpdateRate(int rate);
     int getStatusUpdateRate();
-    
-    long getJobLengthEstimate(File gcodeFile);
-    
+
     /*
     Serial
     */

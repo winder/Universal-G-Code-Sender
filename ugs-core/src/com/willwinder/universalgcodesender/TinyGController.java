@@ -36,7 +36,6 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -92,11 +91,6 @@ public class TinyGController extends AbstractController {
     @Override
     public IFirmwareSettings getFirmwareSettings() {
         return firmwareSettings;
-    }
-
-    @Override
-    public long getJobLengthEstimate(File gcodeFile) {
-        return 0;
     }
 
     @Override
