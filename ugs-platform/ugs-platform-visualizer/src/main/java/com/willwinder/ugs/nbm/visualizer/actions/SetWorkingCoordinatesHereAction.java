@@ -18,8 +18,8 @@
  */
 package com.willwinder.ugs.nbm.visualizer.actions;
 
-import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
@@ -45,8 +45,7 @@ public class SetWorkingCoordinatesHereAction extends AbstractAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.setWorkPosition(Axis.X, position.getX());
-            backend.setWorkPosition(Axis.Y, position.getY());
+            backend.setWorkPosition(new PartialPosition(position.getX(), position.getY()));
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

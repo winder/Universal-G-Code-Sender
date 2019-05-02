@@ -19,10 +19,13 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -66,5 +69,37 @@ public class GcodeUtilsTest {
 
         result = GcodeUtils.generateMoveToCommand(new Position(-1.0, -2.0, -3.1, UnitUtils.Units.INCH), -10);
         assertEquals("G20G90G1X-1Y-2Z-3.1", result);
+    }
+
+    @Test
+    public void formatPartialCoordinates() {
+        assertEquals("Y0 Z0", GcodeUtils.formatPartialPosition(new PartialPosition(null, 0.0, 0.0)));
+        assertEquals("X0 Z0", GcodeUtils.formatPartialPosition(new PartialPosition(0.0, null, 0.0)));
+        assertEquals("X0 Y0", GcodeUtils.formatPartialPosition(new PartialPosition(0.0, 0.0, null)));
+
+        assertEquals("Y10 Z0", GcodeUtils.formatPartialPosition(new PartialPosition(null, 10.0, 0.0)));
+        assertEquals("X10 Z0", GcodeUtils.formatPartialPosition(new PartialPosition(10.0, null, 0.0)));
+        assertEquals("X0 Y10", GcodeUtils.formatPartialPosition(new PartialPosition(0.0, 10.0, null)));
+
+        assertEquals("Y10 Z-20", GcodeUtils.formatPartialPosition(new PartialPosition(null, 10.0, -20.0)));
+        assertEquals("X10 Z-20", GcodeUtils.formatPartialPosition(new PartialPosition(10.0, null, -20.0)));
+        assertEquals("X-20 Y10", GcodeUtils.formatPartialPosition(new PartialPosition(-20.0, 10.0, null)));
+
+        assertEquals("Y10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition(null, 10.5, -20.05)));
+        assertEquals("X10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition(10.5, null, -20.05)));
+        assertEquals("X-20.05 Y10.5", GcodeUtils.formatPartialPosition(new PartialPosition(-20.05, 10.5, null)));
+
+        assertEquals("X5.2 Y10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition(5.2, 10.5, -20.05)));
+        assertEquals("X10.5 Y5.2 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition(10.5, 5.2, -20.05)));
+        assertEquals("X-20.05 Y10.5 Z5.2", GcodeUtils.formatPartialPosition(new PartialPosition(-20.05, 10.5, 5.2)));
+
+        assertEquals("Y10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setY(10.5).setZ(-20.05).build()));
+        assertEquals("X10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setX(10.5).setZ(-20.05).build()));
+        assertEquals("X-20.05 Y10.5", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setY(10.5).setX(-20.05).build()));
+
+        assertEquals("Y10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setValue(Axis.Y,10.5).setValue(Axis.Z,-20.05).build()));
+        assertEquals("X10.5 Z-20.05", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setValue(Axis.X,10.5).setValue(Axis.Z,-20.05).build()));
+        assertEquals("X-20.05 Y10.5", GcodeUtils.formatPartialPosition(new PartialPosition.Builder().setValue(Axis.Y,10.5).setValue(Axis.X,-20.05).build()));
+
     }
 }

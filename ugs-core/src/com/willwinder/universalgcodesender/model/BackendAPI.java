@@ -90,11 +90,11 @@ public interface BackendAPI extends BackendAPIReadOnly {
     /**
      * Sets the work position for a given axis to a position.
      *
-     * @param axis the axis to change
-     * @param position the position to set the axis to.
+     * @param position the position to set the one or more axis to set
      * @throws Exception
      */
-    void setWorkPosition(Axis axis, double position) throws Exception;
+    void setWorkPosition(PartialPosition position) throws Exception;
+
 
     /**
      * Sets the work position for a given axis to a position defined by an mathematical

@@ -19,16 +19,13 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -73,14 +70,15 @@ public interface IController {
     void resetCoordinateToZero(final Axis coord) throws Exception;
 
     /**
-     * Sets the work position for a given axis to the position
+     * Sets the work position for any given axis to the position
      *
-     * @param axis the axis to change
-     * @param position the new position to set
+     * @param axisPosition the axis and the positions to change
      * @throws Exception if assigning the new position gave an error
      */
-    void setWorkPosition(Axis axis, double position) throws Exception;
-    
+    void setWorkPosition(PartialPosition axisPosition) throws Exception;
+
+
+
     void killAlarmLock() throws Exception;
     void toggleCheckMode() throws Exception;
     void viewParserState() throws Exception;

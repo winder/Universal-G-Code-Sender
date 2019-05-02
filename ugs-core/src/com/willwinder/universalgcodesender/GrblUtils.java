@@ -19,23 +19,21 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Collection of useful Grbl related utilities.
@@ -75,8 +73,8 @@ public class GrblUtils {
      * First string parameter should be either X, Y or Z. The second parameter should be a floating point number in
      * the format 0.000
      */
-    private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20 %s%s";
-    private static final String GCODE_SET_COORDINATE_V8 = "G92 %s%s";
+    private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20";
+    private static final String GCODE_SET_COORDINATE_V8 = "G92";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G90 G0 X0 Y0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8 = "G90 G0 Z0";
@@ -164,26 +162,26 @@ public class GrblUtils {
      * @return a string with the gcode command
      */
     protected static String getResetCoordToZeroCommand(final Axis axis, final double grblVersion, final Character grblVersionLetter) {
-        return getSetCoordCommand(axis, 0, grblVersion, grblVersionLetter);
+        return getSetCoordCommand(PartialPosition.from(axis, 0.0), grblVersion, grblVersionLetter);
     }
 
     /**
-     * Generate a command to set the work coordinate position for the given axis.
+     * Generate a command to set the work coordinate position for multiple axis.
      *
-     * @param axis the axis change
-     * @param position the new work position to use
+     * @param offsets the new work position to use (one ore more axis)
      * @param grblVersion the GRBL version
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command
      */
-    protected static String getSetCoordCommand(final Axis axis, final double position, final double grblVersion, final Character grblVersionLetter) {
+    protected static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
+        String coordsString = GcodeUtils.formatPartialPosition(offsets);
         if (grblVersion >= 0.9) {
-            return String.format(GrblUtils.GCODE_SET_COORDINATE_V9, axis.toString(), decimalFormatter.format(position));
+            return GrblUtils.GCODE_SET_COORDINATE_V9 + " " + coordsString;
         }
         else if (grblVersion >= 0.8 && (grblVersionLetter != null) && (grblVersionLetter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
-            return String.format(GrblUtils.GCODE_SET_COORDINATE_V8, axis.toString(), decimalFormatter.format(position));
+            return GrblUtils.GCODE_SET_COORDINATE_V8 + " " + coordsString;
         }
         else if (grblVersion >= 0.8) {
             return "";
@@ -191,8 +189,9 @@ public class GrblUtils {
         else {
             return "";
         }
+
     }
-    
+
     static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter, final double zHeight) {
         ArrayList<String> commands = new ArrayList<>();    
         // If Z is less than zero, raise it before further movement.
