@@ -19,12 +19,8 @@
 package com.willwinder.universalgcodesender.gcode.util;
 
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author wwinder
@@ -109,7 +105,7 @@ public class GcodeUtils {
      * @param feedRate the feed rate to use using the position units / minute
      * @return a command string
      */
-    public static String generateMoveToCommand(Position position, double feedRate) {
+    public static String generateMoveToCommand(PartialPosition position, double feedRate) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(unitCommand(position.getUnits()));
@@ -117,10 +113,7 @@ public class GcodeUtils {
         sb.append(Code.G1.name());
 
         // Add all axises
-        String positionCommand = Arrays.stream(Axis.values())
-                .map(axis -> axis.name() + Utils.formatter.format(position.get(axis)))
-                .collect(Collectors.joining());
-        sb.append(positionCommand);
+        sb.append(position.getFormattedGCode());
 
         String convertedFeedRate = Utils.formatter.format(feedRate);
         if (feedRate > 0 && convertedFeedRate != null) {

@@ -173,7 +173,7 @@ public class GrblUtils {
      * @return a string with the gcode command
      */
     protected static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
-        String coordsString = offsets.getFormatted();
+        String coordsString = offsets.getFormattedGCode();
         if (grblVersion >= 0.9) {
             return GrblUtils.GCODE_SET_COORDINATE_V9 + " " + coordsString;
         }

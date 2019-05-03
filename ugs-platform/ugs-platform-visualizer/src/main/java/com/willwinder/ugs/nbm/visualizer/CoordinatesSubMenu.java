@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.services.JogService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -46,7 +47,7 @@ public class CoordinatesSubMenu extends JMenu {
 
         // Jog
         JMenuItem jogToHere = new JMenuItem(
-                new JogToHereAction(backend, position)
+                new JogToHereAction(new JogService(backend), position)
         );
 
         // Set Offset
@@ -61,7 +62,7 @@ public class CoordinatesSubMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 PartialPosition xyPosition = new PartialPosition(position.getX(), position.getY());
-                clipboard.setContents(new StringSelection(xyPosition.getFormatted()), null);
+                clipboard.setContents(new StringSelection(xyPosition.getFormattedGCode()), null);
             }
         });
 

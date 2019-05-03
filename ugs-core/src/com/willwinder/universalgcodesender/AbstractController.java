@@ -244,7 +244,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void jogMachineTo(Position position, double feedRate) throws Exception {
+    public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
         String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
 
         GcodeCommand command = createCommand(commandString);

@@ -515,4 +515,5 @@ public class GUIBackendTest {
         // Then
         verify(controller, times(1)).setWorkPosition(new PartialPosition(25.0,99.0));
     }
+
 }

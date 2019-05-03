@@ -314,7 +314,7 @@ public class TinyGUtils {
             offsets.setValue(position.getKey(), axisOffset);
 
         }
-        return "G10 L2 P" + offsetCode + " " + offsets.build().getFormatted();
+        return "G10 L2 P" + offsetCode + " " + offsets.build().getFormattedGCode();
     }
 
     /**

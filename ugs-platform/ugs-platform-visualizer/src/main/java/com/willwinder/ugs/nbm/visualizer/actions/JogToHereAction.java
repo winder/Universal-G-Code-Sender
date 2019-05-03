@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbm.visualizer.actions;
 
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
@@ -31,12 +31,12 @@ import java.awt.event.ActionEvent;
  */
 public class JogToHereAction extends AbstractAction {
     private final JogService jogService;
-    private Position position;
+    private PartialPosition position;
 
-    public JogToHereAction(BackendAPI backend, Position position) {
-        this.jogService = new JogService(backend);
-        this.position = position;
-        if (position == null || !jogService.canJog()) {
+    public JogToHereAction(JogService jogService, Position position) {
+        this.jogService = jogService;
+        this.position = PartialPosition.fromXY(position);
+        if (!this.jogService.canJog()) {
             setEnabled(false);
         }
     }

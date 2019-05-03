@@ -71,11 +71,11 @@ public class TinyGUtilsTest {
 
         gcodeState.offset = Code.G59;
         command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0));
-        assertEquals("G10 L2 P6 X-0 Y-10", command); // the negative Zero gets formatted as "-0" - is this a problem?
+        assertEquals("G10 L2 P6 X-0Y-10", command); // the negative Zero gets formatted as "-0" - is this a problem?
 
         gcodeState.offset = Code.G59;
         command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0, 30.0));
-        assertEquals("G10 L2 P6 X-0 Y-10 Z-20", command);
+        assertEquals("G10 L2 P6 X-0Y-10Z-20", command);
     }
 
     @Test

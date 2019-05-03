@@ -23,35 +23,24 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.*;
+import org.apache.commons.io.FileUtils;
+import org.junit.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
-import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
-import com.willwinder.universalgcodesender.utils.Settings;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Ignore;
-
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
-import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
-import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  *
@@ -1163,6 +1152,37 @@ public class GrblControllerTest {
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
         assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11\n");
+    }
+
+    /**
+     * Test of jogMachineTo method
+     */
+    @Test
+    public void testJogMachineTo() throws Exception {
+        System.out.println("jogMachineTo");
+        GrblController instance = new GrblController(mgc);
+
+        instance.setDistanceModeCode("G90");
+        instance.setUnitsCode("G21");
+        instance.openCommPort(getSettings().getConnectionDriver(), "foo", 2400);
+
+        // Abstract controller should be used when grbl jog mode is disabled.
+        instance.rawResponseHandler("Grbl 0.8c");
+        instance.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 200);
+        assertEquals("G21G90G1X1Y2Z3F200\n", mgc.queuedStrings.get(2));
+        assertEquals("G90 G21 \n", mgc.queuedStrings.get(3));
+
+        instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM), 200);
+        assertEquals("G21G90G1X1Y2F200\n", mgc.queuedStrings.get(4));
+        assertEquals("G90 G21 \n", mgc.queuedStrings.get(5));
+
+        instance.jogMachineTo(new PartialPosition(1.2345678, 2.0, UnitUtils.Units.MM), 200);
+        assertEquals("G21G90G1X1.235Y2F200\n", mgc.queuedStrings.get(6));
+        assertEquals("G90 G21 \n", mgc.queuedStrings.get(7));
+
+        instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.INCH), 200);
+        assertEquals("G20G90G1X1Y2F200\n", mgc.queuedStrings.get(8));
+        assertEquals("G90 G21 \n", mgc.queuedStrings.get(9));
     }
 
     /**

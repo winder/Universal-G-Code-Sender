@@ -23,14 +23,16 @@ import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
-import java.io.File;
 import java.util.Optional;
 
 /**
@@ -102,11 +104,9 @@ public interface IController {
 
     /**
      * Jogs the machine to the given position. The feed rate is given in the same units / minute.
-     *
-     * @param position the position to move to
-     * @param feedRate the feed rate using the units in the position.
-     */
-    void jogMachineTo(Position position, double feedRate) throws Exception;
+     *  @param position the position to move to
+     * @param feedRate the feed rate using the units in the position.*/
+    void jogMachineTo(PartialPosition position, double feedRate) throws Exception;
 
     /**
      * Probe control
