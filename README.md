@@ -29,7 +29,7 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 
 ## Running 
 
-Make sure you have [Java 8](https://java.com/en/download/manual.jsp) or later installed. 
+Make sure you have [Java 8](https://java.com/en/download/manual.jsp) installed. 
 
 Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
 
