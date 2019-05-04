@@ -2,7 +2,6 @@
 /dist/
 /nbproject/private
 release
-release_files
 .DS_Store
 test_files/grbl_*.hex.txt
 target/
@@ -11,6 +10,7 @@ target/*
 .metadata
 tar.gz
 .classpath
+.factorypath
 .project
 .settings
 /*.log
@@ -47,3 +47,5 @@ dependency-reduced-pom.xml
 /UGSPlatform/VisualizerModule/nbproject/private/
 /ugs-core/nbproject/
 /ugs-platform/ProbeModule/nbproject/
+ugs-pendant/src/main/webapp/node/node_modules
+ugs-pendant/src/main/webapp/node

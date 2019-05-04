@@ -18,19 +18,21 @@
 */
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
-import java.io.File;
 import java.util.Optional;
 
 /**
@@ -54,6 +56,13 @@ public interface IController {
      */
     void removeListener(ControllerListener listener);
 
+    /**
+     * Assigns a message service to be used for writing messages to the console
+     *
+     * @param messageService the central message service
+     */
+    void setMessageService(MessageService messageService);
+
     /*
     Actions
     */
@@ -63,14 +72,15 @@ public interface IController {
     void resetCoordinateToZero(final Axis coord) throws Exception;
 
     /**
-     * Sets the work position for a given axis to the position
+     * Sets the work position for any given axis to the position
      *
-     * @param axis the axis to change
-     * @param position the new position to set
+     * @param axisPosition the axis and the positions to change
      * @throws Exception if assigning the new position gave an error
      */
-    void setWorkPosition(Axis axis, double position) throws Exception;
-    
+    void setWorkPosition(PartialPosition axisPosition) throws Exception;
+
+
+
     void killAlarmLock() throws Exception;
     void toggleCheckMode() throws Exception;
     void viewParserState() throws Exception;
@@ -85,11 +95,18 @@ public interface IController {
      * @param dirZ if the jogging should happen in Z-direction, possible values are 1, 0 or -1
      * @param stepSize how long should we jog and is given in mm or inches
      * @param feedRate how fast should we jog in the direction
-     * @param units the units of the stepSize
+     * @param units the units of the stepSize and feed rate
      * @throws Exception if something went wrong when jogging
      */
     void jogMachine(int dirX, int dirY, int dirZ,
                     double stepSize, double feedRate, Units units) throws Exception;
+
+
+    /**
+     * Jogs the machine to the given position. The feed rate is given in the same units / minute.
+     *  @param position the position to move to
+     * @param feedRate the feed rate using the units in the position.*/
+    void jogMachineTo(PartialPosition position, double feedRate) throws Exception;
 
     /**
      * Probe control
@@ -113,14 +130,11 @@ public interface IController {
     
     void setStatusUpdateRate(int rate);
     int getStatusUpdateRate();
-    
-    GcodeCommandCreator getCommandCreator();
-    long getJobLengthEstimate(File gcodeFile);
-    
+
     /*
     Serial
     */
-    Boolean openCommPort(String port, int portRate) throws Exception;
+    Boolean openCommPort(ConnectionDriver connectionDriver, String port, int portRate) throws Exception;
     Boolean closeCommPort() throws Exception;
     Boolean isCommOpen();
     
@@ -194,4 +208,18 @@ public interface IController {
      * @return the firmware settings for the controller.
      */
     IFirmwareSettings getFirmwareSettings();
+
+    /**
+     * When connected this will return the controller firmware version.
+     *
+     * @return a version string
+     */
+    String getFirmwareVersion();
+
+    /**
+     * Returns the controller status. This method may never return null.
+     *
+     * @return the current controller status
+     */
+    ControllerStatus getControllerStatus();
 }

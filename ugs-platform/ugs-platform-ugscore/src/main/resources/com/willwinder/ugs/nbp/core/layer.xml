@@ -3,7 +3,7 @@
 <filesystem>
     <folder name="Actions">
         <folder name="Machine">
-            <!-- deprecated item -->
+            <!-- ugs deprecated item -->
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionBaudRateToolbar.instance_hidden"/>
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionFirmwareToolbar.instance_hidden"/>
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionSerialPortToolbar.instance_hidden"/>
@@ -11,13 +11,17 @@
     </folder>
     <folder name="Menu">
         <folder name="File">
+            <attr name="position" intvalue="10" />
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAction.shadow">
-                <attr name="position" intvalue="11"/>
+                <attr name="position" intvalue="20"/>
             </file>
             <file name="org-openide-actions-SaveAsAction.shadow">
-                <attr name="position" intvalue="12"/>
+                <attr name="position" intvalue="22"/>
             </file>
+        </folder>
+        <folder name="Edit">
+            <attr name="position" intvalue="20" />
         </folder>
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>
@@ -51,7 +55,7 @@
         </folder>
         <folder name="UndoRedo_hidden"/>
         <folder name="Connection">
-            <!-- deprecated item -->
+            <!-- ugs deprecated item -->
             <attr intvalue="0" name="position"/>
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionBaudRateToolbar.shadow_hidden"/>
             <file name="com-willwinder-ugs-nbp-core-toolbars-ConnectionFirmwareToolbar.shadow_hidden"/>
@@ -69,6 +73,7 @@
     </folder>
     <folder name="Windows2">
         <folder name="Components">
+            <!-- ugs deprecated item -->
             <!-- Moved to another package -->
             <file name="ProbeTopComponent.settings_hidden"/>
         </folder>

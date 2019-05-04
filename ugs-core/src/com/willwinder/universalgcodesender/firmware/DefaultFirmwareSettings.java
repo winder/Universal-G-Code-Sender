@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.firmware;
 
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
 import java.util.Collections;
@@ -52,6 +53,87 @@ public class DefaultFirmwareSettings implements IFirmwareSettings {
     @Override
     public boolean isHomingEnabled() {
         return false;
+    }
+
+    @Override
+    public void setHomingEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean isHardLimitsEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setHardLimitsEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean isSoftLimitsEnabled() {
+        return false;
+    }
+
+    @Override
+    public void setSoftLimitsEnabled(boolean enabled) {
+    }
+
+    @Override
+    public boolean isInvertDirection(Axis axis) throws FirmwareSettingsException {
+        return false;
+    }
+
+    @Override
+    public void setInvertDirection(Axis axis, boolean inverted) throws FirmwareSettingsException {
+
+    }
+
+    @Override
+    public void setStepsPerMillimeter(Axis axis, int stepsPerMillimeter) throws FirmwareSettingsException {
+
+    }
+
+    @Override
+    public int getStepsPerMillimeter(Axis axis) {
+        return 0;
+    }
+
+    @Override
+    public void setSoftLimit(Axis axis, double limit) throws FirmwareSettingsException {
+    }
+
+    @Override
+    public double getSoftLimit(Axis axis) {
+        return 0;
+    }
+
+    @Override
+    public boolean isHomingDirectionInverted(Axis axis) {
+        return false;
+    }
+
+    @Override
+    public void setHomingDirectionInverted(Axis axis, boolean inverted) {
+
+    }
+
+    @Override
+    public boolean isHardLimitsInverted() {
+        return false;
+    }
+
+    @Override
+    public void setHardLimitsInverted(boolean inverted) {
+
+    }
+
+    @Override
+    public void setSettings(List<FirmwareSetting> settings) throws FirmwareSettingsException {
+
+    }
+
+    @Override
+    public double getMaximumRate(Axis axis) throws FirmwareSettingsException {
+        return 0;
     }
 
     @Override

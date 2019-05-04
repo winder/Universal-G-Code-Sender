@@ -55,16 +55,20 @@ public class SettingsChangedNotificationService {
 
     private void checkForLanguageChangeAndAskForRestart(UGSEvent ugsEvent) {
         if (ugsEvent.isSettingChangeEvent() && !StringUtils.equalsIgnoreCase(lastSelectedLanguage, backend.getSettings().getLanguage())) {
-            if (null != restartNotification) {
-                restartNotification.clear();
-            }
             lastSelectedLanguage = backend.getSettings().getLanguage();
             Localization.initialize(backend.getSettings().getLanguage());
-            restartNotification = NotificationDisplayer.getDefault().notify(Localization.getString("restart"),
-                    ImageUtilities.loadImageIcon(RESTART_ICON, false), //NOI18N
-                    createRestartNotificationDetails(), createRestartNotificationDetails(),
-                    NotificationDisplayer.Priority.HIGH, NotificationDisplayer.Category.INFO);
+            notifyRestartRequired();
         }
+    }
+
+    private void notifyRestartRequired() {
+        if (null != restartNotification) {
+            restartNotification.clear();
+        }
+        restartNotification = NotificationDisplayer.getDefault().notify(Localization.getString("restart"),
+                ImageUtilities.loadImageIcon(RESTART_ICON, false), //NOI18N
+                createRestartNotificationDetails(), createRestartNotificationDetails(),
+                NotificationDisplayer.Priority.HIGH, NotificationDisplayer.Category.INFO);
     }
 
     private JComponent createRestartNotificationDetails() {

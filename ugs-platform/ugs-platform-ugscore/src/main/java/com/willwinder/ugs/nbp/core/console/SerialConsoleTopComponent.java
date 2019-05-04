@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -43,29 +43,37 @@ import org.openide.windows.TopComponent;
         preferredID = "SerialConsoleTopComponent"
 )
 public final class SerialConsoleTopComponent extends TopComponent {
-    BackendAPI backend;
-    
+
+    private final CommandPanel commandPanel;
+    private final BackendAPI backend;
+
     public SerialConsoleTopComponent() {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        commandPanel = new CommandPanel(backend);
         this.setLayout(new BorderLayout());
-        this.add(new CommandPanel(backend), BorderLayout.CENTER);
+        this.add(commandPanel, BorderLayout.CENTER);
     }
 
     @Override
     public void componentOpened() {
+        super.componentOpened();
         setName(LocalizingService.SerialConsoleTitle);
         setToolTipText(LocalizingService.SerialConsoleTooltip);
+
+        backend.addUGSEventListener(commandPanel);
+        backend.addMessageListener(commandPanel);
     }
 
-    void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
+    @Override
+    protected void componentClosed() {
+        super.componentClosed();
+        backend.removeUGSEventListener(commandPanel);
+        backend.removeMessageListener(commandPanel);
     }
 
-    void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+    public void writeProperties(java.util.Properties p) {
+    }
+
+    public void readProperties(java.util.Properties p) {
     }
 }

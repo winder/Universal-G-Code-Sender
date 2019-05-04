@@ -19,21 +19,20 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import org.apache.commons.lang3.StringUtils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Collection of useful Grbl related utilities.
@@ -41,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author wwinder
  */
 public class GrblUtils {
-    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000");
+    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000", Localization.dfs);
 
     // Note: 5 characters of this buffer reserved for real time commands.
     public static final int GRBL_RX_BUFFER_SIZE= 123;
@@ -73,8 +72,8 @@ public class GrblUtils {
      * First string parameter should be either X, Y or Z. The second parameter should be a floating point number in
      * the format 0.000
      */
-    private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20 %s%s";
-    private static final String GCODE_SET_COORDINATE_V8 = "G92 %s%s";
+    private static final String GCODE_SET_COORDINATE_V9 = "G10 P0 L20";
+    private static final String GCODE_SET_COORDINATE_V8 = "G92";
     
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_V8 = "G90 G0 X0 Y0";
     public static final String GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8 = "G90 G0 Z0";
@@ -162,26 +161,26 @@ public class GrblUtils {
      * @return a string with the gcode command
      */
     protected static String getResetCoordToZeroCommand(final Axis axis, final double grblVersion, final Character grblVersionLetter) {
-        return getSetCoordCommand(axis, 0, grblVersion, grblVersionLetter);
+        return getSetCoordCommand(PartialPosition.from(axis, 0.0), grblVersion, grblVersionLetter);
     }
 
     /**
-     * Generate a command to set the work coordinate position for the given axis.
+     * Generate a command to set the work coordinate position for multiple axis.
      *
-     * @param axis the axis change
-     * @param position the new work position to use
+     * @param offsets the new work position to use (one ore more axis)
      * @param grblVersion the GRBL version
      * @param grblVersionLetter the GRBL build version
      * @return a string with the gcode command
      */
-    protected static String getSetCoordCommand(final Axis axis, final double position, final double grblVersion, final Character grblVersionLetter) {
+    protected static String getSetCoordCommand(PartialPosition offsets, final double grblVersion, final Character grblVersionLetter) {
+        String coordsString = offsets.getFormattedGCode();
         if (grblVersion >= 0.9) {
-            return String.format(GrblUtils.GCODE_SET_COORDINATE_V9, axis.toString(), decimalFormatter.format(position));
+            return GrblUtils.GCODE_SET_COORDINATE_V9 + " " + coordsString;
         }
         else if (grblVersion >= 0.8 && (grblVersionLetter != null) && (grblVersionLetter >= 'c')) {
             // TODO: Is G10 available in 0.8c?
             // No it is not -> error: Unsupported statement
-            return String.format(GrblUtils.GCODE_SET_COORDINATE_V8, axis.toString(), decimalFormatter.format(position));
+            return GrblUtils.GCODE_SET_COORDINATE_V8 + " " + coordsString;
         }
         else if (grblVersion >= 0.8) {
             return "";
@@ -189,8 +188,9 @@ public class GrblUtils {
         else {
             return "";
         }
+
     }
-    
+
     static protected ArrayList<String> getReturnToHomeCommands(final double version, final Character letter, final double zHeight) {
         ArrayList<String> commands = new ArrayList<>();    
         // If Z is less than zero, raise it before further movement.
@@ -239,22 +239,29 @@ public class GrblUtils {
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
+        ret.addCapability(CapabilitiesConstants.CHECK_MODE);
+        ret.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
 
-        // Check if real time commands are enabled.
+        if (version >= 0.8) {
+            ret.addCapability(CapabilitiesConstants.HOMING);
+            ret.addCapability(CapabilitiesConstants.HARD_LIMITS);
+        }
+
         if (version==0.8 && (letter != null) && (letter >= 'c')) {
-            ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
-        } else if (version >= 0.9) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         }
 
-        // Check for V1.x features
-        if (version >= 1.1) {
+        if (version >= 0.9) {
             ret.addCapability(GrblCapabilitiesConstants.REAL_TIME);
+            ret.addCapability(CapabilitiesConstants.SOFT_LIMITS);
+            ret.addCapability(CapabilitiesConstants.SETUP_WIZARD);
 
-            // GRBL 1.1
+        }
+
+        if (version >= 1.1) {
             ret.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-            ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING);
+            ret.addCapability(CapabilitiesConstants.OVERRIDES);
             ret.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         }
 
@@ -344,9 +351,13 @@ public class GrblUtils {
             OverridePercents overrides = null;
             EnabledPins pins = null;
             AccessoryStates accessoryStates = null;
-            Double feedSpeed = null;
-            Double spindleSpeed = null;
 
+            double feedSpeed = 0;
+            double spindleSpeed = 0;
+            if(lastStatus != null) {
+                feedSpeed = lastStatus.getFeedSpeed();
+                spindleSpeed = lastStatus.getSpindleSpeed();
+            }
             boolean isOverrideReport = false;
 
             // Parse out the status messages.
@@ -431,7 +442,7 @@ public class GrblUtils {
             }
 
             ControllerState state = getControllerStateFromStateString(stateString);
-            return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, spindleSpeed, overrides, WCO, pins, accessoryStates);
+            return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
         }
     }
 
@@ -583,5 +594,15 @@ public class GrblUtils {
 
     public static boolean isAlarmResponse(String response) {
         return StringUtils.startsWith(response, "ALARM");
+    }
+
+    public static Alarm parseAlarmResponse(String response) {
+        String alarmCode = StringUtils.substringAfter(response.toLowerCase(), "alarm:");
+        switch (alarmCode) {
+            case "1":
+                return Alarm.HARD_LIMIT;
+            default:
+                return Alarm.UNKONWN;
+        }
     }
 }

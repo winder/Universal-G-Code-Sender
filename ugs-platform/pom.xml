@@ -165,8 +165,10 @@
     <module>ugs-platform-gcode-editor</module>
     <module>ugs-platform-surfacescanner</module>
     <module>ugs-platform-plugin-jog</module>
+    <module>ugs-platform-plugin-setup-wizard</module>
     <module>ProbeModule</module>
     <module>DowelModule</module>
     <module>GcodeTools</module>
+    <module>ugs-platform-welcome-page</module>
   </modules>
 </project>

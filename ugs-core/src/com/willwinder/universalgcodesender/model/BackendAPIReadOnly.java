@@ -19,11 +19,11 @@
 package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
 import java.io.File;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 
@@ -73,6 +73,19 @@ public interface BackendAPIReadOnly {
      */
     void removeControllerListener(ControllerListener listener);
 
+    /**
+     * Adds a listener that will receive all messages that should be written to the console
+     *
+     * @param listener the listener to be added
+     */
+    void addMessageListener(MessageListener listener);
+
+    /**
+     * Removes a listener for console messages
+     *
+     * @parame listener the listener to be removed
+     */
+    void removeMessageListener(MessageListener listener);
 
     // Config options
     File getGcodeFile();
@@ -101,9 +114,6 @@ public interface BackendAPIReadOnly {
     long getSendDuration();
     long getSendRemainingDuration();
     String getPauseResumeText();
-
-    // Bulk status getter.
-    void updateSystemState(SystemStateBean systemStateBean);
 
     // Shouldn't be needed often.
     Settings getSettings();

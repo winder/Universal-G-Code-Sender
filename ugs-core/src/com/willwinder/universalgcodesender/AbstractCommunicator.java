@@ -21,6 +21,7 @@ package com.willwinder.universalgcodesender;
 import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -41,7 +42,6 @@ public abstract class AbstractCommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
     protected Connection conn;
-    private int commandCounter = 0;
 
     // Allow events to be sent from same thread for unit tests.
     private boolean launchEventsInDispatchThread = true;
@@ -51,29 +51,21 @@ public abstract class AbstractCommunicator {
         COMMAND_SENT,
         COMMAND_SKIPPED,
         RAW_RESPONSE,
-        CONSOLE_MESSAGE,
-        PAUSED,
-        VERBOSE_CONSOLE_MESSAGE
+        PAUSED
     }
     // Callback interfaces
     private ArrayList<SerialCommunicatorListener> commandEventListeners;
-    private ArrayList<SerialCommunicatorListener> commConsoleListeners;
-    private ArrayList<SerialCommunicatorListener> commVerboseConsoleListeners;
     private ArrayList<SerialCommunicatorListener> commRawResponseListener;
     private HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
 
     public AbstractCommunicator() {
         this.commandEventListeners       = new ArrayList<>();
-        this.commConsoleListeners        = new ArrayList<>();
-        this.commVerboseConsoleListeners = new ArrayList<>();
         this.commRawResponseListener     = new ArrayList<>();
 
         this.eventMap = new HashMap<>();
         eventMap.put(COMMAND_SENT,            commandEventListeners);
         eventMap.put(COMMAND_SKIPPED,         commandEventListeners);
         eventMap.put(PAUSED,                  commandEventListeners);
-        eventMap.put(CONSOLE_MESSAGE,         commConsoleListeners);
-        eventMap.put(VERBOSE_CONSOLE_MESSAGE, commVerboseConsoleListeners);
         eventMap.put(RAW_RESPONSE,            commRawResponseListener);
     }
     
@@ -113,9 +105,11 @@ public abstract class AbstractCommunicator {
     }
 
     //do common operations (related to the connection, that is shared by all communicators)
-    protected boolean openCommPort(String name, int baud) throws Exception {
+    protected boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         if (conn == null) {
-            conn = ConnectionFactory.getConnectionFor(name, baud);
+            String url = connectionDriver.getProtocol() + name + ":" + baud;
+            conn = ConnectionFactory.getConnection(url);
+            logger.info("Connecting to controller using class: " + conn.getClass().getSimpleName() + " with url " + url);
         }
 
         if (conn != null) {
@@ -123,14 +117,14 @@ public abstract class AbstractCommunicator {
         }
         
         if (conn==null) {
-            throw new Exception(Localization.getString("communicator.exception.port") + ": "+name);
+            throw new Exception(Localization.getString("communicator.exception.port") + ": " + name);
         }
         
         // Handle all events in a single thread.
         this.eventThread.start();
 
         //open it
-        return conn.openPort(name, baud);
+        return conn.openPort();
     }
 
     public boolean isCommOpen() {
@@ -142,14 +136,9 @@ public abstract class AbstractCommunicator {
     protected void closeCommPort() throws Exception {
         this.stop = true;
         this.eventThread.interrupt();
-
         conn.closePort();
     }
 
-    protected int getNextCommandId() {
-        return this.commandCounter++;
-    }
-    
     /** Getters & Setters. */
     abstract public String getLineTerminator();
     
@@ -158,15 +147,11 @@ public abstract class AbstractCommunicator {
     /* ****************** */
     void setListenAll(SerialCommunicatorListener scl) {
         this.addCommandEventListener(scl);
-        this.addCommConsoleListener(scl);
-        this.addCommVerboseConsoleListener(scl);
         this.addCommRawResponseListener(scl);
     }
 
     public void removeListenAll(SerialCommunicatorListener scl) {
         this.removeCommandEventListener(scl);
-        this.removeCommConsoleListener(scl);
-        this.removeCommVerboseConsoleListener(scl);
         this.removeCommRawResponseListener(scl);
     }
 
@@ -180,26 +165,6 @@ public abstract class AbstractCommunicator {
         this.commandEventListeners.remove(scl);
     }
 
-    private void addCommConsoleListener(SerialCommunicatorListener scl) {
-        if (!this.commConsoleListeners.contains(scl)) {
-            this.commConsoleListeners.add(scl);
-        }
-    }
-
-    private void removeCommConsoleListener(SerialCommunicatorListener scl) {
-        this.commConsoleListeners.remove(scl);
-    }
-
-    private void addCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        if (!this.commVerboseConsoleListeners.contains(scl)) {
-            this.commVerboseConsoleListeners.add(scl);
-        }
-    }
-
-    private void removeCommVerboseConsoleListener(SerialCommunicatorListener scl) {
-        this.commVerboseConsoleListeners.remove(scl);
-    }
-
     private void addCommRawResponseListener(SerialCommunicatorListener scl) {
         if (!this.commRawResponseListener.contains(scl)) {
             this.commRawResponseListener.add(scl);
@@ -208,28 +173,6 @@ public abstract class AbstractCommunicator {
 
     private void removeCommRawResponseListener(SerialCommunicatorListener scl) {
         this.commRawResponseListener.remove(scl);
-    }
-
-    // Helper for the console listener.              
-    protected void sendMessageToConsoleListener(String msg) {
-        this.sendMessageToConsoleListener(msg, false);
-    }
-    
-    protected void sendMessageToConsoleListener(String msg, boolean verbose) {
-        // Exit early if there are no listeners.
-        if (this.commConsoleListeners == null) {
-            return;
-        }
-        
-        SerialCommunicatorEvent verbosity;
-        if (!verbose) {
-            verbosity = SerialCommunicatorEvent.CONSOLE_MESSAGE;
-        }
-        else {
-            verbosity = SerialCommunicatorEvent.VERBOSE_CONSOLE_MESSAGE;
-        }
-        
-        dispatchListenerEvents(verbosity, msg);
     }
     
     /**
@@ -273,14 +216,6 @@ public abstract class AbstractCommunicator {
             case COMMAND_SKIPPED:
                 for (SerialCommunicatorListener scl : sclList)
                     scl.commandSkipped(command);
-                break;
-            case CONSOLE_MESSAGE:
-                for (SerialCommunicatorListener scl : sclList)
-                    scl.messageForConsole(string);
-                break;
-            case VERBOSE_CONSOLE_MESSAGE:
-                for (SerialCommunicatorListener scl : sclList)
-                    scl.verboseMessageForConsole(string);
                 break;
             case RAW_RESPONSE:
                 for (SerialCommunicatorListener scl : sclList)

@@ -20,6 +20,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * These objects are passed around by the GUI API to notify listeners of state
@@ -29,13 +30,14 @@ import com.willwinder.universalgcodesender.listeners.ControllerStatus;
  */
 public class UGSEvent {
     private final EventType evt;
+    private Alarm alarm;
     private ControlState controlState = null;
     private GcodeState gcodeState = null;
     private FileState fileState = null;
     private Position probePosition = null;
     private ControllerStatus controllerStatus = null;
     private String file = null;
-    
+
     public enum EventType {
         STATE_EVENT,
         FILE_EVENT,
@@ -43,7 +45,8 @@ public class UGSEvent {
         FIRMWARE_SETTING_EVENT,
         PROBE_EVENT,
         CONTROLLER_STATUS_EVENT,
-        GCODE_STATE_EVENT
+        GCODE_STATE_EVENT,
+        ALARM_EVENT
     }
 
     public enum FileState {
@@ -146,12 +149,24 @@ public class UGSEvent {
     /**
      * Create a controller status event.
      */
-    public UGSEvent(ControllerStatus controllerStatus){
+    public UGSEvent(ControllerStatus controllerStatus) {
         evt = EventType.CONTROLLER_STATUS_EVENT;
         this.controllerStatus = controllerStatus;
     }
-    
+
+    /**
+     * Create a controller alarm event.
+     */
+    public UGSEvent(Alarm alarm) {
+        evt = EventType.ALARM_EVENT;
+        this.alarm = alarm;
+    }
+
     // Getters
+
+    public Alarm getAlarm() {
+        return alarm;
+    }
 
     public ControlState getControlState() {
         return controlState;
@@ -175,5 +190,10 @@ public class UGSEvent {
 
     public GcodeState getGcodeState() {
       return gcodeState;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }

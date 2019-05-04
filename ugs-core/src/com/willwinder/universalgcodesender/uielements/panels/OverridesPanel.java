@@ -1,8 +1,5 @@
-/**
- * Send speed override commands to the backend.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -26,17 +23,13 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.miginfocom.swing.MigLayout;
+
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -44,10 +37,17 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.UIManager;
-import net.miginfocom.swing.MigLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
 
 /**
+ * Send speed override commands to the backend.
  *
  * @author wwinder
  */
@@ -106,15 +106,20 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     }
 
     public void updateControls() {
-        boolean enabled = backend.getControlState() != COMM_DISCONNECTED;
-        this.setEnabled(enabled);
+        boolean enabled = backend.isConnected() &&
+                backend.getController().getCapabilities().hasOverrides();
 
+        this.setEnabled(enabled);
         for (Component c : components) { 
             c.setEnabled(enabled);
         }
 
         if (enabled) {
             radioSelected();
+        } else {
+            toggleSpindle.setBackground(null);
+            toggleMistCoolant.setBackground(null);
+            toggleFloodCoolant.setBackground(null);
         }
     }
 
@@ -257,6 +262,11 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     }
 
     @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
+    @Override
     public void commandSkipped(GcodeCommand command) {
     }
 
@@ -277,10 +287,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
         if (status.getOverrides() != null) {
             this.feedSpeed.setText(status.getOverrides().feed + "%");
@@ -288,7 +294,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
             this.rapidSpeed.setText(status.getOverrides().rapid + "%");
         }
         if (status.getAccessoryStates() != null) {
-            Color defaultBackground = UIManager.getColor("Panel.background");
             AccessoryStates states = status.getAccessoryStates();
 
             toggleSpindle.setBackground((states.SpindleCW || states.SpindleCCW) ? Color.GREEN : Color.RED);
@@ -299,10 +304,6 @@ public final class OverridesPanel extends JPanel implements UGSEventListener, Co
             toggleFloodCoolant.setOpaque(true);
             toggleMistCoolant.setOpaque(true);
         }
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
     }
 
     private static class RealTimeAction extends AbstractAction {

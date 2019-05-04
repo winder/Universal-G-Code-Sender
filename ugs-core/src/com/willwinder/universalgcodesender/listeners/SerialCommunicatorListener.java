@@ -55,25 +55,4 @@ public interface SerialCommunicatorListener {
      * processing of commands.
      */
     void communicatorPausedOnError();
-
-    /**
-     * A message to be displayed in the console
-     *
-     * @param msg a text message
-     */
-    void messageForConsole(String msg);
-
-    /**
-     * A verbose message to be displayed in the console.
-     *
-     * @param msg a text message
-     */
-    void verboseMessageForConsole(String msg);
-
-    /**
-     * An error message to be displayed in the console
-     *
-     * @param msg a text message
-     */
-    void errorMessageForConsole(String msg);
 }

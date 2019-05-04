@@ -1,11 +1,5 @@
 /*
- * FirmwareUtils.java
- *
- * Created on April 2, 2013
- */
-
-/*
-    Copywrite 2012-2016 Will Winder
+    Copyright 2012-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -30,6 +24,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.BufferedReader;
 import java.io.File;
@@ -64,8 +59,11 @@ import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
  * @author wwinder
  */
 public class FirmwareUtils {
-    private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
     final private static String FIRMWARE_CONFIG_DIRNAME = "firmware_config";
+    private static final Logger logger = Logger.getLogger(FirmwareUtils.class.getName());
+    private static boolean userNotified = false;
+    private static boolean overwriteOldFiles = false;
+    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
 
     /**
      * Need a simple way to map the config loader (JSON in POJO format) to the
@@ -86,8 +84,6 @@ public class FirmwareUtils {
             }
         }
     }
-
-    private static Map<String,ConfigTuple> configFiles = new HashMap<>();
 
     public static Map<String,ConfigTuple> getConfigFiles() {
         return configFiles;
@@ -119,7 +115,7 @@ public class FirmwareUtils {
         ConfigTuple tuple = configFiles.get(firmware);
         JsonObject args = new JsonObject();
         args.addProperty("pattern", pattern);
-        tuple.loader.GcodeProcessors.Custom.add(
+        tuple.loader.getProcessorConfigs().Custom.add(
                 new ControllerSettings.ProcessorConfig("PatternRemover",
                         true, true, args));
         save(tuple.file, tuple.loader);
@@ -130,23 +126,11 @@ public class FirmwareUtils {
      * @param firmware
      * @return 
      */
-    public static Optional<AbstractController> getControllerFor(String firmware) {
+    public static Optional<IController> getControllerFor(String firmware) {
         if (!configFiles.containsKey(firmware)) {
             return Optional.empty();
         }
 
-        /*
-        ConfigLoader config = new Gson().fromJson(new FileReader(configFiles.get(firmware).configFile), ConfigLoader.class);
-        File f = configFiles.get(firmware).configFile;
-        File next = new File(f.getParent(), f.getName() + ".out");
-        try (FileWriter fileWriter = new FileWriter(next)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-             fileWriter.write(gson.toJson(config, ConfigLoader2.class));
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        System.out.println("Have config: " + config.toString());
-        */
         return Optional.of(configFiles.get(firmware).loader.getController());
     }
 
@@ -173,10 +157,8 @@ public class FirmwareUtils {
      * Copy any missing files from the the jar's resources/firmware_config/ dir
      * into the settings/firmware_config dir.
      */
-    static boolean userNotified = false;
-    static boolean overwriteOldFiles = false;
     public synchronized static void initialize() {
-        System.out.println("Initializing firmware... ...");
+        logger.info("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -211,7 +193,7 @@ public class FirmwareUtils {
 
             Stream<Path> files = Files.walk(myPath, 1);
             for (Path path : (Iterable<Path>) () -> files.iterator()) {
-                System.out.println(path);
+                logger.info(path.toString());
                 final String name = path.getFileName().toString();
                 File fwConfig = new File(firmwareConfig, name);
                 if (name.endsWith(".json")) {

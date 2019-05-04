@@ -35,6 +35,7 @@ public class MachineStatusFontManager {
     private List<Font> axisResetZeroFont = new ArrayList<>(3);
     private List<Font> propertyLabelFont = new ArrayList<>(3);
     private List<Font> speedValueFont = new ArrayList<>(3);
+    private List<Font> activeStateFont = new ArrayList<>(3);
 
     private List<JComponent> workCoordinateComponents = new ArrayList<>();
     private List<JComponent> machineCoordinateComponents = new ArrayList<>();
@@ -42,8 +43,7 @@ public class MachineStatusFontManager {
     private List<JComponent> axisResetZeroComponents = new ArrayList<>();
     private List<JComponent> propertyLabelComponents = new ArrayList<>();
     private List<JComponent> speedValueComponents = new ArrayList<>();
-
-    private Font activeStateFont;
+    private List<JComponent> activeStateLabelComponents = new ArrayList<>();
 
     public void init() {
         String fontPath = "/resources/";
@@ -51,12 +51,15 @@ public class MachineStatusFontManager {
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
 
         Font font = createFont(is, fontName);
+        workCoordinateFont.add(font.deriveFont(Font.PLAIN,28));
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,30));
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,38));
         workCoordinateFont.add(font.deriveFont(Font.PLAIN,46));
         machineCoordinateFont.add(font.deriveFont(Font.PLAIN,19));
+        machineCoordinateFont.add(font.deriveFont(Font.PLAIN,19));
         machineCoordinateFont.add(font.deriveFont(Font.PLAIN,27));
         machineCoordinateFont.add(font.deriveFont(Font.PLAIN,32));
+        speedValueFont.add(font.deriveFont(Font.PLAIN,20));
         speedValueFont.add(font.deriveFont(Font.PLAIN,24));
         speedValueFont.add(font.deriveFont(Font.PLAIN,32));
         speedValueFont.add(font.deriveFont(Font.PLAIN,40));
@@ -65,26 +68,28 @@ public class MachineStatusFontManager {
         fontName = "OpenSans-CondBold.ttf";
         is = getClass().getResourceAsStream(fontPath + fontName);
         font = createFont(is, fontName);
-        activeStateFont = font.deriveFont(Font.PLAIN, 38);
+        activeStateFont.add(font.deriveFont(Font.PLAIN, 26));
+        activeStateFont.add(font.deriveFont(Font.PLAIN, 30));
+        activeStateFont.add(font.deriveFont(Font.PLAIN, 38));
+        activeStateFont.add(font.deriveFont(Font.PLAIN, 46));
 
         fontName = "OpenSans-Regular.ttf";
         is = getClass().getResourceAsStream(fontPath + fontName);
         font = createFont(is, fontName);
+        axisResetFont.add(font.deriveFont(Font.PLAIN, 26));
         axisResetFont.add(font.deriveFont(Font.PLAIN, 30));
         axisResetFont.add(font.deriveFont(Font.PLAIN, 38));
         axisResetFont.add(font.deriveFont(Font.PLAIN, 46));
+
         Font zeroFont = font.deriveFont(Font.PLAIN, 18);
         axisResetZeroFont.add(zeroFont);
         axisResetZeroFont.add(zeroFont);
         axisResetZeroFont.add(zeroFont);
+
+        propertyLabelFont.add(font.deriveFont(Font.PLAIN, 12));
         propertyLabelFont.add(font.deriveFont(Font.PLAIN, 14));
         propertyLabelFont.add(font.deriveFont(Font.PLAIN, 17));
         propertyLabelFont.add(font.deriveFont(Font.PLAIN, 24));
-
-    }
-
-    public Font getActiveStateFont() {
-        return activeStateFont;
     }
 
     public void applyFonts(int size) {
@@ -95,6 +100,7 @@ public class MachineStatusFontManager {
         axisResetZeroComponents.forEach(c -> c.setFont(axisResetZeroFont.get(index)));
         propertyLabelComponents.forEach(c -> c.setFont(propertyLabelFont.get(index)));
         speedValueComponents.forEach(c -> c.setFont(speedValueFont.get(index)));
+        activeStateLabelComponents.forEach(c -> c.setFont(activeStateFont.get(index)));
     }
 
     public void addWorkCoordinateLabel(JComponent... label) {
@@ -121,6 +127,10 @@ public class MachineStatusFontManager {
         speedValueComponents.addAll(Arrays.asList(label));
     }
 
+    public void addActiveStateLabel(JLabel... labels) {
+        activeStateLabelComponents.addAll(Arrays.asList(labels));
+    }
+
     public void registerFonts(GraphicsEnvironment ge) {
         List<Font> all = new ArrayList<>();
         all.addAll(workCoordinateFont);
@@ -143,5 +153,4 @@ public class MachineStatusFontManager {
             return new Font("sans-serif", Font.PLAIN, 24);
         }
     }
-
 }

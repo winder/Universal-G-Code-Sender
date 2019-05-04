@@ -21,16 +21,12 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -40,39 +36,43 @@ public class SettingsFactory {
     private static final Logger logger = Logger.getLogger(SettingsFactory.class.getName());
     private static final String USER_HOME = "user.home";
     private static final String FALSE = "false";
+    private static Settings settings;
+
     public static final String SETTINGS_DIRECTORY_NAME = "ugs";
     public static final String PROPERTIES_FILENAME = "UniversalGcodeSender.properties";
     public static final String JSON_FILENAME = "UniversalGcodeSender.json";
     public static final String MAC_LIBRARY = "/Library/Preferences/";
 
     public static Settings loadSettings() {
-        migrateOldSettings();
+        if (settings == null) {
+            migrateOldSettings();
+            // the defaults are now in the settings bean
+            File settingsFile = getSettingsFile();
 
-        // the defaults are now in the settings bean
-        Settings out = null;
-        File settingsFile = getSettingsFile();
-
-        if (!settingsFile.exists()) {
-            out = new Settings();
-        } else {
-            try {
-                //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
-                logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
-                logger.info("Loading settings.");
-                out = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
-                if (out != null) {
-                    out.finalizeInitialization();
+            if (!settingsFile.exists()) {
+                settings = new Settings();
+            } else {
+                try {
+                    //logger.log(Level.INFO, "{0}: {1}", new Object[]{Localization.getString("settings.log.location"), settingsFile});
+                    logger.log(Level.INFO, "Log location: {0}", settingsFile.getAbsolutePath());
+                    logger.info("Loading settings.");
+                    settings = new Gson().fromJson(new FileReader(settingsFile), Settings.class);
+                    if (settings != null) {
+                        settings.finalizeInitialization();
+                    }
+                    // Localized setting not available here.
+                    //logger.info(Localization.getString("settings.log.loading"));
+                } catch (FileNotFoundException ex) {
+                    //logger.warning(Localization.getString("settings.log.error"));
+                    logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
                 }
-                // Localized setting not available here.
-                //logger.info(Localization.getString("settings.log.loading"));
-            } catch (FileNotFoundException ex) {
-                //logger.warning(Localization.getString("settings.log.error"));
-                logger.log(Level.SEVERE, "Can't load settings, using defaults.", ex);
             }
         }
-        
-        if (out == null) return new Settings();
-        return out;
+
+        if (settings == null) {
+            settings = new Settings();
+        }
+        return settings;
     }
 
     public static void saveSettings(Settings settings) {
@@ -138,7 +138,6 @@ public class SettingsFactory {
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
-                out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
                 out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
                 out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));
@@ -173,5 +172,15 @@ public class SettingsFactory {
     private static File getSettingsFile() {
         File settingDir = SettingsFactory.getSettingsDirectory();
         return new File (settingDir, JSON_FILENAME);
+    }
+
+    /**
+     * Saves the current settings
+     */
+    public static void saveSettings() {
+        if(settings == null) {
+            throw new RuntimeException("No settings are loaded");
+        }
+        saveSettings(settings);
     }
 }

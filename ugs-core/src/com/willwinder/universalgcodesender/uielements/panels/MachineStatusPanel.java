@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
@@ -28,7 +29,9 @@ import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.components.WorkCoordinateTextField;
@@ -129,7 +132,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void initSizer() {
         SteppedSizeManager sizer = new SteppedSizeManager(this,
-                new Dimension(240, 495),
+                new Dimension(200, 375),
+                new Dimension(240, 460),
                 new Dimension(310, 570));
         sizer.addListener(machineStatusFontManager::applyFonts);
     }
@@ -148,14 +152,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         activeStateValueLabel.setForeground(ThemeColors.VERY_DARK_GREY);
         activeStateValueLabel.setText(OFFLINE);
-        activeStateValueLabel.setFont(machineStatusFontManager.getActiveStateFont());
 
         activeStatePanel.setLayout(new MigLayout(debug + "fill, inset 0 5 0 5"));
-        if (backend.getSettings().isDisplayStateColor()) {
-            activeStatePanel.setBackground(Color.BLACK);
-        } else {
-            activeStatePanel.setBackground(Color.WHITE);
-        }
+        activeStatePanel.setBackground(Color.BLACK);
         activeStatePanel.setForeground(ThemeColors.VERY_DARK_GREY);
         activeStatePanel.add(activeStateValueLabel, "al center");
         activeStateValueLabel.setBorder(BorderFactory.createEmptyBorder());
@@ -195,6 +194,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
         setAllCaps(feedLabel, feedValue, spindleSpeedLabel, spindleSpeedValue);
 
+        machineStatusFontManager.addActiveStateLabel(activeStateValueLabel);
         machineStatusFontManager.addPropertyLabel(feedLabel, spindleSpeedLabel, pinStatesLabel, gStatesLabel);
         machineStatusFontManager.addSpeedLabel(feedValue, spindleSpeedValue);
         machineStatusFontManager.applyFonts(0);
@@ -255,9 +255,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         return new Timer((int) REFRESH_RATE.toMillis(), (ae) -> EventQueue.invokeLater(() -> {
             if (! backend.isConnected()) {
                 activeStateValueLabel.setText(OFFLINE);
-                if (backend.getSettings().isDisplayStateColor()) {
-                    activeStatePanel.setBackground(Color.BLACK);
-                }
+                activeStatePanel.setBackground(Color.BLACK);
             }
             GcodeState state = backend.getGcodeState();
             if (state == null) {
@@ -305,6 +303,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         if (evt.isControllerStatusEvent()) {
             onControllerStatusReceived(evt.getControllerStatus());
         }
+        if (evt.isSettingChangeEvent() && backend.getController() != null && backend.getController().getControllerStatus() != null) {
+            onControllerStatusReceived(backend.getController().getControllerStatus());
+        }
     }
 
     private void updateControls() {
@@ -343,41 +344,41 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             }
         }
 
+        this.setUnits(backend.getSettings().getPreferredUnits());
+
         if (status.getMachineCoord() != null) {
-            this.setUnits(status.getMachineCoord().getUnits());
+            Position machineCoord = status.getMachineCoord().getPositionIn(units);
+            this.setPositionValueColor(this.machinePositionXValue, this.machinePositionXValue.getText(), machineCoord.x);
+            this.machinePositionXValue.setText(decimalFormatter.format(machineCoord.x));
 
-            this.setPositionValueColor(this.machinePositionXValue, this.machinePositionXValue.getText(), status.getMachineCoord().x);
-            this.machinePositionXValue.setText(decimalFormatter.format(status.getMachineCoord().x));
+            this.setPositionValueColor(this.machinePositionYValue, this.machinePositionYValue.getText(), machineCoord.y);
+            this.machinePositionYValue.setText(decimalFormatter.format(machineCoord.y));
 
-            this.setPositionValueColor(this.machinePositionYValue, this.machinePositionYValue.getText(), status.getMachineCoord().y);
-            this.machinePositionYValue.setText(decimalFormatter.format(status.getMachineCoord().y));
-
-            this.setPositionValueColor(this.machinePositionZValue, this.machinePositionZValue.getText(), status.getMachineCoord().z);
-            this.machinePositionZValue.setText(decimalFormatter.format(status.getMachineCoord().z));
+            this.setPositionValueColor(this.machinePositionZValue, this.machinePositionZValue.getText(), machineCoord.z);
+            this.machinePositionZValue.setText(decimalFormatter.format(machineCoord.z));
         }
 
         if (status.getWorkCoord() != null) {
-            this.setUnits(status.getWorkCoord().getUnits());
-
+            Position workCoord = status.getWorkCoord().getPositionIn(units);
             if (!workPositionXValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionXValue, this.workPositionXValue.getText(), status.getWorkCoord().x);
-                this.workPositionXValue.setText(decimalFormatter.format(status.getWorkCoord().x));
+                this.setPositionValueColor(this.workPositionXValue, this.workPositionXValue.getText(), workCoord.x);
+                this.workPositionXValue.setText(decimalFormatter.format(workCoord.x));
             }
 
             if (!workPositionYValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionYValue, this.workPositionYValue.getText(), status.getWorkCoord().y);
-                this.workPositionYValue.setText(decimalFormatter.format(status.getWorkCoord().y));
+                this.setPositionValueColor(this.workPositionYValue, this.workPositionYValue.getText(), workCoord.y);
+                this.workPositionYValue.setText(decimalFormatter.format(workCoord.y));
             }
 
             if (!workPositionZValue.isFocusOwner()) {
-                this.setPositionValueColor(this.workPositionZValue, this.workPositionZValue.getText(), status.getWorkCoord().z);
-                this.workPositionZValue.setText(decimalFormatter.format(status.getWorkCoord().z));
+                this.setPositionValueColor(this.workPositionZValue, this.workPositionZValue.getText(), workCoord.z);
+                this.workPositionZValue.setText(decimalFormatter.format(workCoord.z));
             }
         }
 
         // Use real-time values if available, otherwise show the target values.
         int feedSpeed = status.getFeedSpeed() != null
-                ? status.getFeedSpeed().intValue()
+                ? (int) (status.getFeedSpeed() * UnitUtils.scaleUnits(status.getFeedSpeedUnits(), backend.getSettings().getPreferredUnits()))
                 : (int) this.backend.getGcodeState().speed;
         this.feedValue.setText(Integer.toString(feedSpeed));
 
@@ -397,35 +398,28 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
 
     private void updateStatePanel(ControllerState state) {
 
-        if (backend.getSettings().isDisplayStateColor()) {
-            Color background = ThemeColors.GREY;
-            String text = state.name();
-            if (state == ControllerState.ALARM) {
-                text = Localization.getString("mainWindow.status.alarm");
-                background = ThemeColors.RED;
-            } else if (state == ControllerState.HOLD) {
-                text = Localization.getString("mainWindow.status.hold");
-                background = ThemeColors.ORANGE;
-            } else if (state == ControllerState.DOOR) {
-                text = Localization.getString("mainWindow.status.door");
-                background = ThemeColors.ORANGE;
-            } else if (state == ControllerState.RUN) {
-                text = Localization.getString("mainWindow.status.run");
-                background = ThemeColors.GREEN;
-            } else if (state == ControllerState.JOG) {
-                text = Localization.getString("mainWindow.status.jog");
-                background = ThemeColors.GREEN;
-            } else if (state == ControllerState.CHECK) {
-                text = Localization.getString("mainWindow.status.check");
-                background = ThemeColors.LIGHT_BLUE;
-            } else if (state == ControllerState.IDLE) {
-                text = Localization.getString("mainWindow.status.idle");
-                background = ThemeColors.GREY;
-            }
-
-            this.activeStatePanel.setBackground(background);
-            this.activeStateValueLabel.setText(text.toUpperCase());
+        Color background = ThemeColors.GREY;
+        String text = Utils.getControllerStateText(state);
+        if (state == ControllerState.ALARM) {
+            background = ThemeColors.RED;
+        } else if (state == ControllerState.HOLD) {
+            background = ThemeColors.ORANGE;
+        } else if (state == ControllerState.DOOR) {
+            background = ThemeColors.ORANGE;
+        } else if (state == ControllerState.RUN) {
+            background = ThemeColors.GREEN;
+        } else if (state == ControllerState.JOG) {
+            background = ThemeColors.GREEN;
+        } else if (state == ControllerState.HOME) {
+            background = ThemeColors.GREEN;
+        } else if (state == ControllerState.CHECK) {
+            background = ThemeColors.LIGHT_BLUE;
+        } else if (state == ControllerState.IDLE) {
+            background = ThemeColors.GREY;
         }
+
+        this.activeStatePanel.setBackground(background);
+        this.activeStateValueLabel.setText(text.toUpperCase());
     }
 
     private void resetCoordinateButton(Axis coord) {

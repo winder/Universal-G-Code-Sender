@@ -40,6 +40,12 @@ public class WindowTitleUpdaterService {
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this::onEvent);
         updateTitle();
+        updateVersion();
+    }
+
+    private void updateVersion() {
+        // Sets the version string in the about dialog
+        System.setProperty("netbeans.buildnumber", String.valueOf(Version.getBuildDateAsNumber()));
     }
 
     private void onEvent(UGSEvent event) {

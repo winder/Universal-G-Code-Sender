@@ -18,17 +18,19 @@
  */
 package com.willwinder.universalgcodesender.uielements.panels;
 
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.utils.CommUtils;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
 
@@ -95,7 +97,7 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
         portCombo.setEditable(true);
 
-        baudCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
+        baudCombo.setModel(new DefaultComboBoxModel(BaudRateEnum.getAllBaudRates()));
         baudCombo.setSelectedIndex(2);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
 
@@ -189,6 +191,11 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
     }
 
     @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
+    @Override
     public void commandSkipped(GcodeCommand command) {
 
     }
@@ -214,17 +221,7 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
-
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
 
     }
 
@@ -252,9 +249,9 @@ public class ConnectionPanelGroup extends JPanel implements UGSEventListener, Co
 
     private void loadPortSelector() {
         portCombo.removeAllItems();
-        String[] portList = CommUtils.getSerialPortList();
+        List<String> portList = ConnectionFactory.getPortNames(backend.getSettings().getConnectionDriver());
 
-        if (portList.length < 1) {
+        if (portList.size() < 1) {
             if (backend.getSettings().isShowSerialPortWarning()) {
                 displayErrorDialog(Localization.getString("mainWindow.error.noSerialPort"));
             }

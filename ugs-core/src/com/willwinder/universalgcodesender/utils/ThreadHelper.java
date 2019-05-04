@@ -20,7 +20,12 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.AbstractController;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BooleanSupplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,21 +38,22 @@ import java.util.logging.Logger;
  */
 public class ThreadHelper {
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
+    private static final int THREAD_POOL_SIZE = 1024;
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(THREAD_POOL_SIZE);
 
     static public void invokeLater(Runnable r) {
-        executor.submit(r);
+        scheduledExecutor.submit(r);
     }
 
     /**
      * This method will wait for the given supplier to become true.
      * It will wait for the maximum given timeout and units and then throw a
      * timeout exception
-     *
+     * <p>
      * <p>There is no requirement that a new or distinct result be returned each
      * time the supplier is invoked.
-     *
+     * <p>
      * <p>Examples of usage:
      * <pre>{@code
      * // Will wait ten seconds and then throw a TimeoutException as true will never be equal to false
@@ -64,7 +70,7 @@ public class ThreadHelper {
      */
     static public void waitUntil(final BooleanSupplier waitUntilSupplier, int timeout, TimeUnit units) throws TimeoutException {
         try {
-            executor.submit(() -> {
+            scheduledExecutor.submit(() -> {
                 while (!waitUntilSupplier.getAsBoolean()) {
                     try {
                         Thread.sleep(50);
@@ -74,5 +80,16 @@ public class ThreadHelper {
         } catch (InterruptedException | ExecutionException e) {
             logger.log(Level.WARNING, "An error occured while waiting for the thread to finnish", e);
         }
+    }
+
+    /**
+     * Executes a task after a couple of milliseconds
+     *
+     * @param runnable   the runnable task to execute
+     * @param timeToWait the time to wait before executing in milliseconds
+     * @return a future for the scheduled future to execute
+     */
+    static public ScheduledFuture<?> invokeLater(Runnable runnable, long timeToWait) {
+        return scheduledExecutor.schedule(runnable, timeToWait, TimeUnit.MILLISECONDS);
     }
 }

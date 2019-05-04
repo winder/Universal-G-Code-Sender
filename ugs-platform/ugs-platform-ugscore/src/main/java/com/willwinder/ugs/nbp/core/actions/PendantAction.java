@@ -18,6 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.actions;
 
+import com.willwinder.ugs.nbp.core.services.PendantService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -36,6 +37,7 @@ import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 
 /**
  *
@@ -73,13 +75,8 @@ public class PendantAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Collection<PendantURLBean> results;
-        if (this.pendantUI == null) {
-            this.pendantUI = new PendantUI(this.backend);
-            results = this.pendantUI.start();
-        } else {
-            results = this.pendantUI.getUrlList();
-        }
+        PendantService pendantService = Lookup.getDefault().lookup(PendantService.class);
+        Collection<PendantURLBean> results = pendantService.startPendant();
 
         JPanel panel = new JPanel();
         panel.setLayout(new MigLayout("fill, wrap 1"));
@@ -92,9 +89,6 @@ public class PendantAction extends AbstractAction {
                     new ImageIcon(result.getQrCodeJpg(), "QR Code"),
                     JLabel.CENTER),
                     "al center");
-            backend.sendMessageForConsole("Pendant URL: " + result.getUrlString());
-
-            this.backend.addControllerListener(pendantUI);
 
             JOptionPane.showMessageDialog(null,panel,"Pendant Address",JOptionPane.PLAIN_MESSAGE);
 

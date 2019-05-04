@@ -24,6 +24,7 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -52,8 +53,8 @@ import javax.swing.JPopupMenu;
         preferredID = "JogTopComponent"
 )
 @TopComponent.Registration(
-        mode = "top_left",
-        openAtStartup = false)
+        mode = "middle_left",
+        openAtStartup = true)
 @ActionID(
         category = JogTopComponent.CATEGORY,
         id = JogTopComponent.ACTION_ID)
@@ -154,6 +155,11 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
+    public void receivedAlarm(Alarm alarm) {
+
+    }
+
+    @Override
     public void commandSkipped(GcodeCommand command) {
 
     }
@@ -183,17 +189,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
-
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
 
     }
 

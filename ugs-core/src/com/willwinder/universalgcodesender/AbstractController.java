@@ -18,18 +18,19 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerListener.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
@@ -37,17 +38,12 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Optional;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import static com.willwinder.universalgcodesender.Utils.formatter;
-import com.willwinder.universalgcodesender.model.Axis;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
@@ -62,6 +58,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     // These abstract objects are initialized in concrete class.
     protected final AbstractCommunicator comm;
+    protected MessageService messageService;
     protected GcodeCommandCreator commandCreator;
 
     // Outside influence
@@ -177,19 +174,19 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        throw new Exception(Localization.getString("controller.exception.reset"));
+        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0));
     }
     
     /**
      * Reset given machine coordinate to zero at the current location.
      */
     @Override
-    public void resetCoordinateToZero(final Axis coord) throws Exception {
-        throw new Exception(Localization.getString("controller.exception.reset"));
+    public void resetCoordinateToZero(final Axis axis) throws Exception {
+        setWorkPosition(PartialPosition.from(axis, 0.0));
     }
 
     @Override
-    public void setWorkPosition(Axis axis, double position) throws Exception {
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         throw new Exception(Localization.getString("controller.exception.setworkpos"));
     }
 
@@ -237,12 +234,18 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             double feedRate, UnitUtils.Units units) throws Exception {
         logger.log(Level.INFO, "Adjusting manual location.");
 
-        // Format step size from spinner.
-        String formattedStepSize = Utils.formatter.format(stepSize);
-        String formattedFeedRate = Utils.formatter.format(feedRate);
+        String commandString = GcodeUtils.generateMoveCommand("G91G1",
+                stepSize, feedRate, dirX, dirY, dirZ, units);
 
-        String commandString = GcodeUtils.generateXYZ("G91G0", units,
-                formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+        GcodeCommand command = createCommand(commandString);
+        command.setTemporaryParserModalChange(true);
+        sendCommandImmediately(command);
+        restoreParserModalState();
+    }
+
+    @Override
+    public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
+        String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);
@@ -252,15 +255,14 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void probe(String axis, double feedRate, double distance, UnitUtils.Units units) throws Exception {
-        logger.log(Level.INFO, "Probing.");
+        logger.log(Level.INFO,
+                String.format("Probing. axis: %s, feedRate: %s, distance: %s, units: %s",
+                    axis, feedRate, distance, units));
 
         String probePattern = "G38.2 %s%s F%s";
-        double unitScale = scaleUnits(units, MM);
-        String probeCommand = String.format(probePattern, axis, 
-                formatter.format(distance * unitScale),
-                formatter.format(feedRate * unitScale));
+        String probeCommand = String.format(probePattern, axis, formatter.format(distance), formatter.format(feedRate));
 
-        GcodeCommand state = createCommand("G21 G91 G49");
+        GcodeCommand state = createCommand(GcodeUtils.unitCommand(units) + " G91 G49");
         state.setTemporaryParserModalChange(true);
 
         GcodeCommand probe = createCommand(probeCommand);
@@ -364,20 +366,20 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     @Override
-    public Boolean openCommPort(String port, int portRate) throws Exception {
+    public Boolean openCommPort(ConnectionDriver connectionDriver, String port, int portRate) throws Exception {
         if (isCommOpen()) {
             throw new Exception("Comm port is already open.");
         }
         
         // No point in checking response, it throws an exception on errors.
-        this.comm.openCommPort(port, portRate);
+        this.comm.openCommPort(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
         
         if (isCommOpen()) {
             this.openCommAfterEvent();
 
-            this.messageForConsole(
-                   "**** Connected to " + port + " @ " + portRate + " baud ****\n");
+            this.dispatchConsoleMessage(MessageType.INFO,
+                    "**** Connected to " + port + " @ " + portRate + " baud ****\n");
         }
                 
         return isCommOpen();
@@ -386,13 +388,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public Boolean closeCommPort() throws Exception {
         // Already closed.
-        if (isCommOpen() == false) {
+        if (!isCommOpen()) {
             return true;
         }
         
         this.closeCommBeforeEvent();
         
-        this.messageForConsole("**** Connection closed ****\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"**** Connection closed ****\n");
         
         // I was noticing odd behavior, such as continuing to send 'ok's after
         // closing and reopening the comm port.
@@ -611,19 +613,19 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public void pauseStreaming() throws Exception {
-        this.messageForConsole("\n**** Pausing file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"\n**** Pausing file transfer. ****\n\n");
         pauseStreamingEvent();
         this.comm.pauseSend();
         this.setCurrentState(COMM_SENDING_PAUSED);
 
-        if (streamStopWatch.isStarted()) {
+        if (streamStopWatch.isStarted() && !streamStopWatch.isSuspended()) {
             this.streamStopWatch.suspend();
         }
     }
     
     @Override
     public void resumeStreaming() throws Exception {
-        this.messageForConsole("\n**** Resuming file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Resuming file transfer. ****\n\n");
         resumeStreamingEvent();
         this.comm.resumeSend();
         this.setCurrentState(COMM_SENDING);
@@ -654,7 +656,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void cancelSend() throws Exception {
-        this.messageForConsole("\n**** Canceling file transfer. ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO, "\n**** Canceling file transfer. ****\n\n");
 
         cancelSendBeforeEvent();
         
@@ -716,7 +718,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 com.willwinder.universalgcodesender.Utils.
                         formattedMillis(this.getSendDuration());
 
-        this.messageForConsole("\n**** Finished sending file in "+duration+" ****\n\n");
+        this.dispatchConsoleMessage(MessageType.INFO,"\n**** Finished sending file in "+duration+" ****\n\n");
         this.streamStopWatch.stop();
         this.isStreaming = false;
         dispatchStreamComplete(filename, success);        
@@ -735,6 +737,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             dispatchCommandCommment(command.getComment());
         }
         dispatchCommandSent(command);
+        dispatchConsoleMessage(MessageType.INFO, ">>> " + StringUtils.trimToEmpty(command.getCommandString()) + "\n");
     }
 
     @Override
@@ -806,7 +809,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             }
         }
         message.append("\n");
-        this.messageForConsole(message.toString());
+        this.dispatchConsoleMessage(MessageType.INFO, message.toString());
         command.setResponse("<skipped by application>");
         command.setSkipped(true);
         dispatchCommandSkipped(command);
@@ -842,28 +845,13 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         dispatchCommandComplete(command);
         checkStreamFinished();
     }
-    
-    @Override
-    public void messageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.INFO, msg);
-    }
-    
-    @Override
-    public void verboseMessageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.VERBOSE, msg);
-    }
-    
-    @Override
-    public void errorMessageForConsole(String msg) {
-        dispatchConsoleMessage(MessageType.ERROR, msg);
-    }
 
     @Override
     public void rawResponseListener(String response) {
         rawResponseHandler(response);
     }
 
-    private void setCurrentState(ControlState state) {
+    protected void setCurrentState(ControlState state) {
         this.currentState = state;
         if (!this.handlesAllStateChangeEvents()) {
             this.dispatchStateChange(state);
@@ -880,7 +868,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public void removeListener(ControllerListener listener) {
         if (this.listeners.contains(listener)) {
-            this.listeners.remove(listener);
+            // Needs to be removed with thread safe operation,
+            // will otherwise result in ConcurrentModifificationException
+            this.listeners.removeIf(l -> l.equals(listener));
         }
     }
 
@@ -893,10 +883,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
     
     protected void dispatchConsoleMessage(MessageType type, String message) {
-        if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.messageForConsole(type, message);
-            }
+        if (messageService != null) {
+            messageService.dispatchMessage(type, message);
+        } else {
+            logger.warning("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
         }
     }
     
@@ -947,12 +937,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             }
         }
     }
-    
-    protected void dispatchPostProcessData(int numRows) {
+
+    protected void dispatchAlarm(Alarm alarm) {
         if (listeners != null) {
-            for (ControllerListener c : listeners) {
-                c.postProcessData(numRows);
-            }
+            listeners.forEach(l -> l.receivedAlarm(alarm));
         }
     }
 
@@ -994,7 +982,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
           parser.addCommand(command.getCommandString());
           //System.out.println(parser.getCurrentState());
         } catch (Exception e) {
-          logger.log(Level.SEVERE, "Problem prasing command.", e);
+          logger.log(Level.SEVERE, "Problem parsing command.", e);
         }
 
         String gcode = command.getCommandString().toUpperCase();
@@ -1034,6 +1022,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     public class UnexpectedCommand extends Exception {

@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils
 import java.io.PrintWriter
 import java.util.Date
 import javax.vecmath.Point3d
-import sun.misc.Version
 
 /*
 

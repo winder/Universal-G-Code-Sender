@@ -19,53 +19,55 @@
 package com.willwinder.universalgcodesender.connection;
 
 import jssc.SerialPort;
-import jssc.SerialPortEventListener;
 import jssc.SerialPortEvent;
-import jssc.SerialPortException;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortList;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A serial connection object implementing the connection API.
  *
  * @author wwinder
  */
-public class JSSCConnection extends Connection implements SerialPortEventListener {
-    @Deprecated private String lineTerminator;
+public class JSSCConnection extends AbstractConnection implements SerialPortEventListener {
+
+    private int baudRate;
+    private String portName;
 
     // General variables
     private SerialPort serialPort;
-    private StringBuilder inputBuffer = null;
+    private ResponseMessageHandler responseMessageHandler;
 
-    public JSSCConnection() {
-        this("\r\n");
-    }
-    
-    public JSSCConnection(String terminator) {
-        lineTerminator = terminator;
-    }
-    
-    @Deprecated public void setLineTerminator(String lt) {
-        this.lineTerminator = lt;
-    }
-    
-    @Deprecated public String getLineTerminator() {
-        return this.lineTerminator;
-    }
     @Override
-    synchronized public boolean openPort(String name, int baud) throws Exception {
-        this.inputBuffer = new StringBuilder();
-        
-        this.serialPort = new SerialPort(name);
+    public void setUri(String uri) {
+        try {
+            portName = StringUtils.substringBetween(uri, ConnectionDriver.JSSC.getProtocol(), ":");
+            baudRate = Integer.valueOf(StringUtils.substringAfterLast(uri, ":"));
+        } catch (Exception e) {
+            throw new ConnectionException("Couldn't parse connection string " + uri, e);
+        }
+    }
+
+    @Override
+    public boolean openPort() throws Exception {
+        if (StringUtils.isEmpty(portName) || baudRate == 0) {
+            throw new ConnectionException("Couldn't open port " + portName + " using baud rate " + baudRate);
+        }
+        this.responseMessageHandler = new ResponseMessageHandler();
+        this.serialPort = new SerialPort(portName);
         this.serialPort.openPort();
-        this.serialPort.setParams(baud, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
+        this.serialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
         this.serialPort.addEventListener(this);
 
         if (this.serialPort == null) {
-            throw new Exception("Serial port not found.");
+            throw new ConnectionException("Serial port not found.");
         }
-
         return serialPort.isOpened();
     }
-        
+
     @Override
     public void closePort() throws Exception {
         if (this.serialPort != null) {
@@ -76,7 +78,6 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
                     this.serialPort.closePort();
                 }
             } finally {
-                this.inputBuffer = null;
                 this.serialPort = null;
             }
         }
@@ -85,6 +86,11 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
     @Override
     public boolean isOpen() {
         return serialPort != null && serialPort.isOpened();
+    }
+
+    @Override
+    public List<String> getPortNames() {
+        return Arrays.asList(SerialPortList.getPortNames());
     }
 
     /**
@@ -110,31 +116,14 @@ public class JSSCConnection extends Connection implements SerialPortEventListene
      */
     @Override
     public void serialEvent(SerialPortEvent evt) {
-        if (inputBuffer == null) {
-            inputBuffer = new StringBuilder();
-        }
-
         try {
             byte[] buf = this.serialPort.readBytes();
-            if (buf != null && buf.length > 0) {
-                String s = new String(buf, 0, buf.length);
-                inputBuffer.append(s);
-                // Check for line terminator and split out command(s).
-                if (inputBuffer.toString().contains(comm.getLineTerminator())) {
-                    // Split with the -1 option will give an empty string at
-                    // the end if there is a terminator there as well.
-                    String []commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
-                    for (int i=0; i < commands.length; i++) {
-                        // Make sure this isn't the last command.
-                        if ((i+1) < commands.length) {
-                            comm.responseMessage(commands[i]);
-                        // Append last command to input buffer because it didn't have a terminator.
-                        } else {
-                            inputBuffer = new StringBuilder().append(commands[i]);
-                        }
-                    }
-                }
+            if (buf == null || buf.length <= 0) {
+                return;
             }
+
+            String s = new String(buf, 0, buf.length);
+            responseMessageHandler.handleResponse(s, comm);
         } catch ( Exception e ) {
             e.printStackTrace();
             System.exit(-1);

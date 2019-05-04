@@ -1,9 +1,5 @@
-/**
- * Opens all the widgets in their own little frame with the widget name as its
- * title.
- */
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -49,6 +45,8 @@ import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 
 /**
+ * Opens all the widgets in their own little frame with the widget name as its
+ * title.
  *
  * @author wwinder
  */
@@ -74,14 +72,12 @@ public class WidgetPreviewer {
         panel.add(dialogLauncherButton("ConnectionSettingsPanel",
                 new UGSSettingsDialog(
                         "ConnectionSettingsPanel",
-                        backend.getSettings(),
                         new ConnectionSettingsPanel(backend.getSettings()),
                         frame,
                         true)));
         panel.add(dialogLauncherButton("ControllerProcessorSettingsPanel",
                 new UGSSettingsDialog(
                         "ControllerProcessorSettingsPanel",
-                        backend.getSettings(),
                         new ControllerProcessorSettingsPanel(backend.getSettings(), FirmwareUtils.getConfigFiles()),
                         frame,
                         true)));

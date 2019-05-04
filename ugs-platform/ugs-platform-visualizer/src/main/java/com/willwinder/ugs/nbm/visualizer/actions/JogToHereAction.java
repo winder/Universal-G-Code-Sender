@@ -18,7 +18,9 @@
  */
 package com.willwinder.ugs.nbm.visualizer.actions;
 
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 
 import javax.swing.*;
@@ -28,23 +30,22 @@ import java.awt.event.ActionEvent;
  * An action that will jog to a coordinate
  */
 public class JogToHereAction extends AbstractAction {
-    private final BackendAPI backend;
-    private String x = "0";
-    private String y = "0";
+    private final JogService jogService;
+    private PartialPosition position;
 
-    public JogToHereAction(BackendAPI backend) {
-        this.backend = backend;
+    public JogToHereAction(JogService jogService, Position position) {
+        this.jogService = jogService;
+        this.position = PartialPosition.fromXY(position);
+        if (!this.jogService.canJog()) {
+            setEnabled(false);
+        }
     }
 
-    public void setJogLocation(String x, String y) {
-        this.x = x;
-        this.y = y;
-    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         try {
-            backend.sendGcodeCommand("G0 X" + x + " Y" + y);
+            jogService.jogTo(position);
         } catch (Exception ex) {
             GUIHelpers.displayErrorDialog(ex.getLocalizedMessage());
         }

@@ -38,7 +38,14 @@ public enum Code {
     G92_2(NonModal),
     G92_3(NonModal),
 
+    /**
+     * Rapid linear movement
+     */
     G0(Motion, false, true),
+
+    /**
+     * Rapid movement
+     */
     G1(Motion, false, true),
     G2(Motion, false, true),
     G3(Motion, false, true),
@@ -67,7 +74,14 @@ public enum Code {
     G18_1(Plane),
     G19_1(Plane),
 
+    /**
+     * Absolute movement
+     */
     G90(Distance),
+
+    /**
+     * Relative movement
+     */
     G91(Distance),
 
     G90_1(Arc),

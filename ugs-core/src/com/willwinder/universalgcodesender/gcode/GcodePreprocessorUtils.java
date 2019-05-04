@@ -19,20 +19,18 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 
 /**
  * Collection of useful command preprocessor methods.
@@ -254,7 +252,7 @@ public class GcodePreprocessorUtils {
     static public String generateLineFromPoints(final Code command, final Position start, final Position end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
-            df = new DecimalFormat("#.####");
+            df = new DecimalFormat("0.####", Localization.dfs);
         }
         
         StringBuilder sb = new StringBuilder();
@@ -297,6 +295,11 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
+        // Special handling for GRBL system commands which will not be splitted
+        if(command.startsWith("$")) {
+            return Collections.singletonList(command);
+        }
+
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
@@ -449,7 +452,8 @@ public class GcodePreprocessorUtils {
             radius = Math.sqrt(Math.pow(plane.axis0(p1) - plane.axis1(center), 2.0) + Math.pow(plane.axis1(p1) - plane.axis1(center), 2.0));
         }
 
-        double zIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearPos = plane.linear(lineStart);
         for(int i=0; i<numPoints; i++)
         {
             if (isCw) {
@@ -467,8 +471,9 @@ public class GcodePreprocessorUtils {
             //lineStart.y = Math.sin(angle) * radius + center.y;
             plane.setAxis1(lineStart, Math.sin(angle) * radius + plane.axis1(center));
             //lineStart.z += zIncrement;
-            plane.setLinear(lineStart, plane.linear(lineStart) + zIncrement);
-            
+            plane.setLinear(lineStart, linearPos);
+            linearPos += linearIncrement;
+
             segments.add(new Position(lineStart));
         }
         

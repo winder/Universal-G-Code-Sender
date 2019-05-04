@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.macros;
 
+import com.google.common.base.Strings;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -87,7 +88,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             Macro macro = macros.get(i);
             JButton button;
             if (customGcodeButtons.size() <= i) {
-                button = new JButton(i+"");
+                button = new JButton();
                 button.setEnabled(false);
                 customGcodeButtons.add(button);
                 // Add action listener
@@ -98,12 +99,13 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
                 button = customGcodeButtons.get(i);
             }
 
-
-            if (!StringUtils.isEmpty(macro.getName())) {
-                button.setText(macro.getName());
-            } else if (!StringUtils.isEmpty(macro.getDescription())) {
-                button.setText(macro.getDescription());
+            // set full name or otherwise use the index as text
+            if (Strings.isNullOrEmpty(macro.getNameAndDescription())) {
+                button.setText(Integer.toString(i));
+            } else {
+                button.setText(macro.getNameAndDescription());
             }
+
 
             if (!StringUtils.isEmpty(macro.getDescription())) {
                 button.setToolTipText(macro.getDescription());
@@ -158,6 +160,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         }
 
         super.doLayout();
+        updateEnabledState();
     }
 
     private void customGcodeButtonActionPerformed(int macroIndex) {
@@ -187,7 +190,11 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             doLayout();
         }
         else {
-            updateCustomGcodeControls(backend.isIdle());
+            updateEnabledState();
         }
+    }
+
+    private void updateEnabledState() {
+        updateCustomGcodeControls(backend.isIdle());
     }
 }

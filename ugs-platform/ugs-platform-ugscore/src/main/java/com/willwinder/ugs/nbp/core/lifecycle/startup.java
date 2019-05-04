@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,23 +18,25 @@
  */
 package com.willwinder.ugs.nbp.core.lifecycle;
 
-import com.willwinder.ugs.nbp.core.control.JogActionService;
+import com.willwinder.ugs.nbp.core.services.JogActionService;
 import com.willwinder.ugs.nbp.core.control.MacroService;
-import com.willwinder.ugs.nbp.core.control.RunActionService;
+import com.willwinder.ugs.nbp.core.services.OverrideActionService;
+import com.willwinder.ugs.nbp.core.services.PendantService;
 import com.willwinder.ugs.nbp.core.services.SettingsChangedNotificationService;
 import com.willwinder.ugs.nbp.core.services.WindowTitleUpdaterService;
 import com.willwinder.ugs.nbp.core.statusline.SendStatusLineService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.Utils;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.utils.Version;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
+import java.util.logging.Logger;
 
 import org.netbeans.api.sendopts.CommandException;
 import org.netbeans.spi.sendopts.Env;
@@ -52,25 +54,31 @@ import org.openide.windows.WindowManager;
 @ServiceProvider(service=OptionProcessor.class)
 @OnStart
 public class startup extends OptionProcessor implements Runnable {
+    private static final Logger logger = Logger.getLogger(startup.class.getName());
+
+    private final Option openOption = Option.additionalArguments('o', "open");
+
     @Override
     public void run() {
-        System.out.println("Loading LocalizingService...");
+        logger.info("Loading LocalizingService...");
         Lookup.getDefault().lookup(LocalizingService.class);
-        System.out.println("Loading JogService...");
+        logger.info("Loading JogService...");
         Lookup.getDefault().lookup(JogActionService.class);
-        System.out.println("Loading ActionService...");
-        Lookup.getDefault().lookup(RunActionService.class);
-        System.out.println("Loading MacroService...");
+        logger.info("Loading OverrideActionService...");
+        Lookup.getDefault().lookup(OverrideActionService.class);
+        logger.info("Loading MacroService...");
         Lookup.getDefault().lookup(MacroService.class);
-        System.out.println("Loading SendStatusLineService...");
+        logger.info("Loading SendStatusLineService...");
         Lookup.getDefault().lookup(SendStatusLineService.class);
-        System.out.println("Loading SettingsChangedNotificationService...");
+        logger.info("Loading SettingsChangedNotificationService...");
         Lookup.getDefault().lookup(SettingsChangedNotificationService.class);
-        System.out.println("Loading WindowTitleUpdaterService...");
+        logger.info("Loading WindowTitleUpdaterService...");
         Lookup.getDefault().lookup(WindowTitleUpdaterService.class);
-        System.out.println("Services loaded!");
+        logger.info("Loading PendantService...");
+        Lookup.getDefault().lookup(PendantService.class);
+        logger.info("Services loaded!");
 
-        System.out.println("Setting UGP version title.");
+        logger.info("Setting UGP version title.");
         Settings settings = CentralLookup.getDefault().lookup(Settings.class);
         setupVersionInformation(settings);
     }
@@ -78,21 +86,13 @@ public class startup extends OptionProcessor implements Runnable {
     private void setupVersionInformation(Settings settings) {
         // Only change the window title when all the UI components are fully loaded.
         WindowManager.getDefault().invokeWhenUIReady(() -> {
-            if (settings.isShowNightlyWarning() && Version.isNightlyBuild()) {
-                String message =
-                        "This version of Universal Gcode Sender is a nightly build.\n"
-                        + "It contains all of the latest features and improvements, \n"
-                        + "but may also have bugs that still need to be fixed.\n"
-                        + "\n"
-                        + "If you encounter any problems, please report them on github.";
-                JOptionPane.showMessageDialog(new JFrame(), message,
-                        "", JOptionPane.INFORMATION_MESSAGE);
-            }
+            Utils.checkNightlyBuild(settings);
         });
     }
 
-    private final Option openOption = Option.additionalArguments('o', "open");
-
+    /**
+     * Register interest in the "open" option.
+     */
     @Override       
     public Set getOptions() {
         HashSet set = new HashSet();
@@ -100,6 +100,9 @@ public class startup extends OptionProcessor implements Runnable {
         return set;
     }
 
+    /**
+     * CLI Handler.
+     */
     @Override
     protected void process(Env env, Map<Option, String[]> maps) throws CommandException {
         BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
@@ -117,11 +120,7 @@ public class startup extends OptionProcessor implements Runnable {
             throw new CommandException(1, "Too many input files provided.");
         }
 
-        System.out.println("File to open: " + inputFile);
-        try {
-            backend.setGcodeFile(new File(inputFile));
-        } catch (Exception e) {
-            throw new CommandException(1, "Unable to open input file: " + e.getMessage());
-        }
+        logger.info("File to open: " + inputFile);
+        GUIHelpers.openGcodeFile(new File(inputFile), backend);
     }
 }

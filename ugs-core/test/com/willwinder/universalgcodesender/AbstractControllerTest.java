@@ -1,5 +1,5 @@
 /*
-    Copyright 2015-2017 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,24 +19,35 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.PipedReader;
-import java.io.PipedWriter;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.Collection;
+import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
+import org.easymock.IMockBuilder;
+import org.hamcrest.CoreMatchers;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
+
 import static org.easymock.EasyMock.anyObject;
 import static org.easymock.EasyMock.anyString;
 import static org.easymock.EasyMock.capture;
@@ -45,15 +56,10 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.newCapture;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.reset;
-import org.easymock.IMockBuilder;
-import org.hamcrest.CoreMatchers;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
+import static org.easymock.EasyMock.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -61,24 +67,23 @@ import org.junit.Ignore;
  */
 public class AbstractControllerTest {
     
-    public AbstractControllerTest() {
-    }
+    private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
+    private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
+    private final static MessageService mockMessageService = EasyMock.createMock(MessageService.class);
+    private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
 
-    final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
-    final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
-    final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
+    private Settings settings = new Settings();
 
-    static AbstractController instance;
-    static AbstractController niceInstance;
-    static IMockBuilder<AbstractController> instanceBuilder;
+    private static AbstractController instance;
+    private static AbstractController niceInstance;
 
     private static File tempDir = null;
 
     //@BeforeClass
     public static void init() throws NoSuchFieldException, IllegalArgumentException, IllegalAccessException, IOException {
-        instanceBuilder = EasyMock
+        IMockBuilder<AbstractController> instanceBuilder = EasyMock
                 .createMockBuilder(AbstractController.class)
-                    .addMockedMethods(
+                .addMockedMethods(
                         "closeCommBeforeEvent",
                         "closeCommAfterEvent",
                         "openCommAfterEvent",
@@ -92,8 +97,8 @@ public class AbstractControllerTest {
                         "statusUpdatesEnabledValueChanged",
                         "statusUpdatesRateValueChanged",
                         "isCommOpen")
-                    .withConstructor(AbstractCommunicator.class)
-                    .withArgs(mockCommunicator);
+                .withConstructor(AbstractCommunicator.class)
+                .withArgs(mockCommunicator);
         instance = instanceBuilder.createMock();
         niceInstance = instanceBuilder.createNiceMock();
 
@@ -104,6 +109,7 @@ public class AbstractControllerTest {
         f.set(niceInstance, gcodeCreator);
         
         instance.addListener(mockListener);
+        instance.setMessageService(mockMessageService);
     }
 
     @BeforeClass
@@ -120,31 +126,31 @@ public class AbstractControllerTest {
     public void setUp() throws Exception {
         // AbstractCommunicator calls a function on mockCommunicator that I
         // don't want to deal with.
-        EasyMock.reset(mockCommunicator, mockListener);
+        reset(mockCommunicator, mockListener, mockMessageService);
         init();
-        EasyMock.reset(mockCommunicator, mockListener);
+        reset(mockCommunicator, mockListener, mockMessageService);
     }
 
 
     ///////////////
     // UTILITIES //
     ///////////////
-    public void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
+    private void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
         instance.openCommAfterEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
-        mockListener.messageForConsole(anyObject(), EasyMock.anyString());
-        EasyMock.expect(EasyMock.expectLastCall()).anyTimes();
-        EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
-        EasyMock.expect(instance.isCommOpen()).andReturn(false).once();
-        EasyMock.expect(instance.isCommOpen()).andReturn(true).anyTimes();
-        EasyMock.expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
+        expect(expectLastCall()).anyTimes();
+        mockMessageService.dispatchMessage(anyObject(), anyString());
+        expect(expectLastCall()).anyTimes();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, portRate)).andReturn(true).once();
+        expect(instance.isCommOpen()).andReturn(false).once();
+        expect(instance.isCommOpen()).andReturn(true).anyTimes();
+        expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
     }
     private void streamInstanceExpectUtility() throws Exception {
-        EasyMock.expect(mockCommunicator.areActiveCommands()).andReturn(false).anyTimes();
+        expect(mockCommunicator.areActiveCommands()).andReturn(false).anyTimes();
         instance.isReadyToStreamCommandsEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+        expect(expectLastCall()).once();
         mockCommunicator.streamCommands();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+        expect(expectLastCall()).once();
     }
     private void startStreamExpectation(String port, int rate, String command, boolean handleStateChange) throws Exception {
         openInstanceExpectUtility(port, rate, handleStateChange);
@@ -152,14 +158,17 @@ public class AbstractControllerTest {
         
         // Making sure the commands get queued.
         mockCommunicator.queueStringForComm(command + "\n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
+        expect(expectLastCall()).times(2);
     }
     private void startStream(String port, int rate, String command) throws Exception {
         // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(port, rate);
+        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
         instance.queueCommand(instance.createCommand(command));
         instance.queueCommand(instance.createCommand(command));
         instance.beginStreaming();
+    }
+    private Settings getSettings() {
+        return settings;
     }
 
     /**
@@ -183,25 +192,25 @@ public class AbstractControllerTest {
         int portRate = 0;
 
         instance.openCommAfterEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
-        mockListener.messageForConsole(anyObject(), anyString());
-        EasyMock.expect(EasyMock.expectLastCall()).once();
-        EasyMock.expect(mockCommunicator.openCommPort(port, portRate)).andReturn(true).once();
-        EasyMock.replay(instance, mockCommunicator, mockListener);
+        expect(expectLastCall()).once();
+        mockMessageService.dispatchMessage(anyObject(), anyString());
+        expect(expectLastCall()).once();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
+        replay(instance, mockCommunicator, mockListener);
 
         Boolean expResult = true;
-        Boolean result = instance.openCommPort(port, portRate);
+        Boolean result = instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
         assertEquals(expResult, result);
 
         boolean threw = false;
         try {
-            instance.openCommPort(port, portRate);
-        } catch (Exception e) {
+            instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
+        } catch (Exception ignored) {
             threw = true;
         }
         assertEquals("Cannot open a comm port twice.", true, threw);
         
-        EasyMock.verify(instance, mockCommunicator, mockListener);
+        verify(instance, mockCommunicator, mockListener);
     }
 
     /**
@@ -217,26 +226,26 @@ public class AbstractControllerTest {
 
         // Events
         instance.openCommAfterEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+        expect(expectLastCall()).once();
         instance.closeCommBeforeEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+        expect(expectLastCall()).once();
         instance.closeCommAfterEvent();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
+        expect(expectLastCall()).once();
 
         // Message for open and close.
-        mockListener.messageForConsole(anyObject(), anyString());
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
-        EasyMock.expect(mockCommunicator.openCommPort(port, baud)).andReturn(true).once();
+        mockMessageService.dispatchMessage(anyObject(), anyString());
+        expect(expectLastCall()).times(2);
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, baud)).andReturn(true).once();
         mockCommunicator.closeCommPort();
-        EasyMock.expect(EasyMock.expectLastCall()).once();
-        EasyMock.replay(instance, mockCommunicator, mockListener);
+        expect(expectLastCall()).once();
+        replay(instance, mockCommunicator, mockListener);
 
         // Close a closed port.
         Boolean result = instance.closeCommPort();
         assertEquals(true, result);
 
         // Open port to close it.
-        result = instance.openCommPort(port, baud);
+        result = instance.openCommPort(getSettings().getConnectionDriver(), port, baud);
         assertEquals(result, result);
 
         // Close an open port.
@@ -252,14 +261,14 @@ public class AbstractControllerTest {
     public void testIsCommOpen() throws Exception {
         System.out.println("isCommOpen");
 
-        EasyMock.expect(mockCommunicator.openCommPort("port", 1234)).andReturn(true);
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, "port", 1234)).andReturn(true);
         mockCommunicator.closeCommPort();
-        EasyMock.expect(EasyMock.expectLastCall());
-        EasyMock.replay(mockCommunicator);
+        expect(expectLastCall());
+        replay(mockCommunicator);
 
         assertEquals(false, instance.isCommOpen());
 
-        instance.openCommPort("port", 1234);
+        instance.openCommPort(getSettings().getConnectionDriver(), "port", 1234);
 
         assertEquals(true, instance.isCommOpen());
 
@@ -307,7 +316,7 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate, command, false);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        EasyMock.replay(instance, mockCommunicator);
+        replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
         assertEquals(0L, instance.getSendDuration());
@@ -342,7 +351,7 @@ public class AbstractControllerTest {
         long newtime = instance.getSendDuration();
         assertEquals( time, newtime );
 
-        EasyMock.verify(mockCommunicator, instance);
+        verify(mockCommunicator, instance);
     }
 
     @Test
@@ -372,7 +381,6 @@ public class AbstractControllerTest {
         }
         Assert.assertTrue(threwException);
 
-        String command = "command";
         String port = "/some/port";
         int rate = 1234;
 
@@ -381,12 +389,12 @@ public class AbstractControllerTest {
         expect(expectLastCall()).times(1);
         mockCommunicator.streamCommands();
         expect(expectLastCall()).times(1);
-        EasyMock.replay(instance, mockCommunicator);
+        replay(instance, mockCommunicator);
 
-        instance.openCommPort(port, rate);
+        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
         instance.sendCommandImmediately(instance.createCommand(str));
 
-        EasyMock.verify(mockCommunicator, instance);
+        verify(mockCommunicator, instance);
     }
 
     /**
@@ -402,7 +410,7 @@ public class AbstractControllerTest {
 
         Boolean commPortNotOpen = false;
         try {
-            Boolean result = instance.isReadyToStreamFile();
+            instance.isReadyToStreamFile();
         } catch (Exception e) {
             assertTrue(e.getMessage().contains("comm port is not open"));
             commPortNotOpen = true;
@@ -416,7 +424,7 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate, command, false);
         replay(instance, mockCommunicator);
 
-        instance.openCommPort(port, rate);
+        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
 
         assertEquals(true, instance.isReadyToStreamFile());
 
@@ -462,17 +470,17 @@ public class AbstractControllerTest {
                 // Making sure the commands get queued.
                 mockCommunicator.queueStreamForComm(gsr);
 
-                EasyMock.expect(EasyMock.expectLastCall()).times(1);
+                expect(expectLastCall()).times(1);
 
-                EasyMock.replay(instance, mockCommunicator);
+                replay(instance, mockCommunicator);
 
                 // Open port, send some commands, make sure they are streamed.
-                instance.openCommPort(port, rate);
+                instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
                 instance.queueStream(gsr);
                 instance.beginStreaming();
             }
 
-            EasyMock.verify(mockCommunicator, instance);
+            verify(mockCommunicator, instance);
         } finally {
             FileUtils.forceDelete(f);
         }
@@ -494,17 +502,17 @@ public class AbstractControllerTest {
         
         // Making sure the commands get queued.
         mockCommunicator.queueStringForComm(command + "\n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
+        expect(expectLastCall()).times(2);
 
-        EasyMock.replay(instance, mockCommunicator);
+        replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(port, rate);
+        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
         instance.queueCommand(instance.createCommand(command));
         instance.queueCommand(instance.createCommand(command));
         instance.beginStreaming();
 
-        EasyMock.verify(mockCommunicator, instance);
+        verify(mockCommunicator, instance);
     }
 
     /**
@@ -523,17 +531,17 @@ public class AbstractControllerTest {
         
         // Making sure the commands get queued.
         mockCommunicator.queueStringForComm(command + "\n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
+        expect(expectLastCall()).times(2);
 
-        EasyMock.replay(instance, mockCommunicator);
+        replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
-        instance.openCommPort(port, rate);
+        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
         instance.queueCommand(instance.createCommand(command));
         instance.queueCommand(instance.createCommand(command));
         instance.beginStreaming();
 
-        EasyMock.verify(mockCommunicator, instance);
+        verify(mockCommunicator, instance);
     }
 
     /**
@@ -595,19 +603,19 @@ public class AbstractControllerTest {
 
         // Setup instance with commands buffered on the communicator.
         startStreamExpectation(port, baud, command, false);
-        EasyMock.replay(instance, mockCommunicator);
+        replay(instance, mockCommunicator);
         startStream(port, baud, command);
-        EasyMock.reset(instance, mockCommunicator, mockListener);
+        reset(instance, mockCommunicator, mockListener);
 
         // Make sure the events are triggered.
         Capture<GcodeCommand> gc1 = EasyMock.newCapture();
         Capture<GcodeCommand> gc2 = EasyMock.newCapture();
         mockListener.commandSent(EasyMock.capture(gc1));
-        EasyMock.expect(EasyMock.expectLastCall());
+        expect(expectLastCall());
         mockListener.commandSent(EasyMock.capture(gc2));
-        EasyMock.expect(EasyMock.expectLastCall());
+        expect(expectLastCall());
 
-        EasyMock.replay(instance, mockCommunicator, mockListener);
+        replay(instance, mockCommunicator, mockListener);
 
         // Run test.
         //assertEquals(0, instance.rowsSent());
@@ -618,7 +626,7 @@ public class AbstractControllerTest {
         assertTrue(gc1.getValue().isSent());
         assertTrue(gc2.getValue().isSent());
 
-        EasyMock.verify(mockListener);
+        verify(mockListener);
     }
 
     /**
@@ -630,7 +638,7 @@ public class AbstractControllerTest {
 
         // Setup test with commands sent by communicator waiting on response.
         testCommandSent();
-        reset(instance, mockCommunicator, mockListener);
+        reset(instance, mockCommunicator, mockListener, mockMessageService);
         expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
 
         // Make sure the events are triggered.
@@ -641,7 +649,7 @@ public class AbstractControllerTest {
         mockListener.commandComplete(capture(gc2));
         expect(expectLastCall());
         expect(expectLastCall());
-        mockListener.messageForConsole(anyObject(), anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall());
         mockListener.fileStreamComplete("queued commands", true);
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
@@ -652,9 +660,9 @@ public class AbstractControllerTest {
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
         replay(instance, mockCommunicator, mockListener);
 
-        GcodeCommand first = instance.getActiveCommand().get();
+        GcodeCommand first = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find first command"));
         instance.commandComplete("ok");
-        GcodeCommand second = instance.getActiveCommand().get();
+        GcodeCommand second = instance.getActiveCommand().orElseThrow(() -> new RuntimeException("Couldn't find second command"));
         instance.commandComplete("ok");
 
         assertEquals(true, gc1.getValue().isDone());
@@ -664,7 +672,7 @@ public class AbstractControllerTest {
         assertEquals(first, gc1.getValue());
         assertEquals(second, gc2.getValue());
 
-        EasyMock.verify(mockListener);
+        verify(mockListener);
     }
 
     // Exception tossing unimplemented methods.
@@ -765,23 +773,23 @@ public class AbstractControllerTest {
     public void testJogMachine() throws Exception {
         System.out.println("jogMachine");
 
-        EasyMock.expect(niceInstance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
-        EasyMock.expect(niceInstance.isCommOpen()).andReturn(true).anyTimes();
+        expect(niceInstance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
+        expect(niceInstance.isCommOpen()).andReturn(true).anyTimes();
         mockCommunicator.streamCommands();
-        EasyMock.expect(expectLastCall()).anyTimes();
+        expect(expectLastCall()).anyTimes();
 
         // Modal state should be restored.
         mockCommunicator.queueStringForComm("G90 G21 \n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
+        expect(expectLastCall()).times(2);
 
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm("G20G91G0X-10Z10F11\n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(1);
+        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11\n");
+        expect(expectLastCall()).times(1);
 
-        mockCommunicator.queueStringForComm("G21G91G0Y10F11\n");
-        EasyMock.expect(EasyMock.expectLastCall()).times(1);
+        mockCommunicator.queueStringForComm("G21G91G1Y10F11\n");
+        expect(expectLastCall()).times(1);
 
-        EasyMock.replay(niceInstance, mockCommunicator);
+        replay(niceInstance, mockCommunicator);
 
         niceInstance.setDistanceModeCode("G90");
         niceInstance.setUnitsCode("G21");

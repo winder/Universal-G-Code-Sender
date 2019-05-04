@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2017 Will Winder
+    Copyright 2014-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -18,26 +18,43 @@
  */
 package com.willwinder.universalgcodesender.utils;
 
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
-
-import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Logger;
+
 public class Settings {
+    private static final Logger logger = Logger.getLogger(Settings.class.getName());
+
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
+    transient public static int HISTORY_SIZE = 20;
 
     private String firmwareVersion = "GRBL";
     private String fileName = System.getProperty("user.home");
+    private Deque<String> fileHistory = new ArrayDeque<>();
+    private Deque<String> dirHistory = new ArrayDeque<>();
     private String port = "";
     private String portRate = "115200";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
-    private boolean useZStepSize = false;
+    private boolean useZStepSize = true;
     private double zJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
@@ -49,17 +66,11 @@ public class Settings {
     private boolean singleStepMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-    private boolean displayStateColor = true;
-    private String defaultUnits = Units.MM.abbreviation;
-
-    // Probe settings
-    private double probeFeed = 5.0;
-    private double probeDistance = -10;
-    private double probeOffset = 0;
-    private double retractHeight = 0;
+    private Units preferredUnits = Units.MM;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
+    private boolean autoStartPendant = false;
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
@@ -80,14 +91,19 @@ public class Settings {
     private Map<Integer, Macro> macros = new HashMap<>();
 
     private String language = "en_US";
-    
-    private PendantConfigBean pendantConfig = new PendantConfigBean();
+
+    private String connectionDriver;
+
+    /**
+     * A directory with gcode files for easy access through pendant
+     */
+    private String workspaceDirectory;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
-        System.out.println("Initializing...");
+        logger.fine("Initializing...");
 
         // Initialize macros with a default macro
         macros.put(1, new Macro(null, null, "G91 X0 Y0;"));
@@ -128,7 +144,9 @@ public class Settings {
     }
 
     private void changed() {
-        listener.settingChanged();
+        if (listener != null) {
+            listener.settingChanged();
+        }
     }
 
     public String getFirmwareVersion() {
@@ -145,9 +163,35 @@ public class Settings {
         return fileName;
     }
 
-    public void setLastOpenedFilename(String fileName) {
-        this.fileName = fileName;
+    public void setLastOpenedFilename(String absolutePath) {
+        Path p = Paths.get(absolutePath).toAbsolutePath();
+        this.fileName = p.toString();
+        updateRecentFiles(p.toString());
+        updateRecentDirectory(p.getParent().toString());
         changed();
+    }
+
+    public Collection<String> getRecentFiles() {
+      return Collections.unmodifiableCollection(fileHistory);
+    }
+
+    public void updateRecentFiles(String absolutePath) {
+      updateRecent(this.fileHistory, HISTORY_SIZE, absolutePath);
+    }
+
+    public Collection<String> getRecentDirectories() {
+      return Collections.unmodifiableCollection(dirHistory);
+    }
+
+    public void updateRecentDirectory(String absolutePath) {
+      updateRecent(this.dirHistory, HISTORY_SIZE, absolutePath);
+    }
+
+    private static void updateRecent(Deque<String> stack, int maxSize, String element) {
+      stack.remove(element);
+      stack.push(element);
+      while( stack.size() > maxSize)
+        stack.removeLast();
     }
 
     public String getPort() {
@@ -286,43 +330,21 @@ public class Settings {
         this.statusUpdateRate = statusUpdateRate;
         changed();
     }
-
-    public boolean isDisplayStateColor() {
-        return displayStateColor;
-    }
-
-    public void setDisplayStateColor(boolean displayStateColor) {
-        this.displayStateColor = displayStateColor;
-        changed();
-    }
-
-    public PendantConfigBean getPendantConfig() {
-        return pendantConfig;
-    }
-
-    public void setPendantConfig(PendantConfigBean pendantConfig) {
-        this.pendantConfig = pendantConfig;
-        changed();
-    }
         
     public Units getPreferredUnits() {
-        Units u = Units.getUnit(defaultUnits);
-
-        return (u == null) ? Units.MM : u;
-    }
-
-    @Deprecated
-    public String getDefaultUnits() {
-        if (Units.getUnit(defaultUnits) == null) {
-            return Units.MM.abbreviation;
-        }
-        return defaultUnits;
+        return (preferredUnits == null) ? Units.MM : preferredUnits;
     }
         
-    public void setDefaultUnits(String units) {
-        if (Units.getUnit(defaultUnits) != null) {
-            defaultUnits = units;
+    public void setPreferredUnits(Units units) {
+        if (units != null) {
+            double scaleUnits = UnitUtils.scaleUnits(preferredUnits, units);
+            preferredUnits = units;
             changed();
+
+            // Change
+            setManualModeStepSize(manualModeStepSize * scaleUnits);
+            setzJogStepSize(zJogStepSize * scaleUnits);
+            setJogFeedRate(Math.round(jogFeedRate * scaleUnits));
         }
     }
 
@@ -352,13 +374,17 @@ public class Settings {
         return macro;
     }
 
+    public List<Macro> getMacros() {
+        return new ArrayList<>(macros.values());
+    }
+
     public Integer getNumMacros() {
         return macros.size();
     }
 
     public Integer getLastMacroIndex() {
-        //Obviously it would be more efficient to just store the max index value, but this is safer in that it's one less thing
-        //to keep in sync.
+        // Obviously it would be more efficient to just store the max index
+        // value, but this is safer in that it's one less thing to keep in sync.
         int i = -1;
         for (Integer index : macros.keySet()) {
             i = Math.max(i, index);
@@ -366,6 +392,10 @@ public class Settings {
         return i;
     }
 
+    public void clearMacros() {
+        macros.clear();
+        changed();
+    }
 
     public void clearMacro(Integer index) {
         macros.remove(index);
@@ -430,17 +460,40 @@ public class Settings {
         return this.fileStats;
     }
 
-    public static class AutoLevelSettings {
-        public boolean equals(AutoLevelSettings obj) {
-            return
-                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
-                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
-                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
-                            this.stepResolution == obj.stepResolution &&
-                            this.probeSpeed == obj.probeSpeed &&
-                            this.zSurface == obj.zSurface;
+    public ConnectionDriver getConnectionDriver() {
+        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
+        if (StringUtils.isNotEmpty(this.connectionDriver)) {
+            try {
+                connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+                // Never mind, we'll use the default
+            }
         }
+        return connectionDriver;
+    }
 
+    public void setConnectionDriver(ConnectionDriver connectionDriver) {
+        this.connectionDriver = connectionDriver.name();
+    }
+
+    public void setAutoStartPendant(boolean autoStartPendant) {
+        this.autoStartPendant = autoStartPendant;
+        changed();
+    }
+
+    public boolean isAutoStartPendant() {
+        return this.autoStartPendant;
+    }
+
+    public void setWorkspaceDirectory(String workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
+
+    public String getWorkspaceDirectory() {
+        return this.workspaceDirectory;
+    }
+
+    public static class AutoLevelSettings {
         // Setting window
         public double autoLevelProbeZeroHeight = 0;
         public Position autoLevelProbeOffset = new Position(0, 0, 0, Units.UNKNOWN);
@@ -450,12 +503,22 @@ public class Settings {
         public double stepResolution = 10;
         public double probeSpeed = 10;
         public double zSurface = 0;
+
+        public boolean equals(AutoLevelSettings obj) {
+            return
+                    this.autoLevelProbeZeroHeight == obj.autoLevelProbeZeroHeight &&
+                            Objects.equals(this.autoLevelProbeOffset, obj.autoLevelProbeOffset) &&
+                            this.autoLevelArcSliceLength == obj.autoLevelArcSliceLength &&
+                            this.stepResolution == obj.stepResolution &&
+                            this.probeSpeed == obj.probeSpeed &&
+                            this.zSurface == obj.zSurface;
+        }
     }
 
     public static class FileStats {
         public Position minCoordinate;
         public Position maxCoordinate;
-        long numCommands;
+        public long numCommands;
 
         public FileStats() {
             this.minCoordinate = new Position(0, 0, 0, Units.MM);

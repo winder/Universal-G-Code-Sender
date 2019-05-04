@@ -1,8 +1,5 @@
-/**
- * Process all the listeners and call methods in the renderer.
- */
 /*
-    Copyright 2016-2017 Will Winder
+    Copyright 2016-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,37 +18,33 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
-import java.awt.Point;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowListener;
+
+import javax.swing.*;
+import javax.vecmath.Point3d;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
-import javax.swing.SwingUtilities;
-import javax.vecmath.Point3d;
 
 /**
+ * Process all the listeners and call methods in the renderer.
  *
  * @author wwinder
  */
@@ -61,26 +54,26 @@ public class RendererInputHandler implements
         ControllerListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
+    private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
-    private final VisualizerPopupMenu visualizerPopupMenu;
     private Settings settings;
 
     private static final int HIGH_FPS = 15;
     private static final int LOW_FPS = 4;
 
-    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
-            VisualizerPopupMenu popup, Settings s) {
+    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a, BackendAPI backend) {
         gcodeRenderer = gr;
         animator = a;
+        this.backend = backend;
         animator.start();
-        visualizerPopupMenu = popup;
-        settings = s;
+        settings = backend.getSettings();
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
-        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
+        sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
+        sizeDisplay.setUnits(settings.getPreferredUnits());
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
@@ -133,6 +126,10 @@ public class RendererInputHandler implements
             }
 
             animator.resume();
+        }
+
+        if(cse.isSettingChangeEvent()) {
+            sizeDisplay.setUnits(settings.getPreferredUnits());
         }
     }
 
@@ -226,8 +223,13 @@ public class RendererInputHandler implements
         // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
             Point3d coords = gcodeRenderer.getMouseWorldLocation();
-            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
-            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+
+            // The position is always given in millimeters, convert to the preferred units
+            Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
+                    .getPositionIn(settings.getPreferredUnits());
+
+            VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, gcodeRenderer, position);
+            visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
@@ -336,7 +338,6 @@ public class RendererInputHandler implements
      */
     @Override
     public void statusStringListener(ControllerStatus status) {
-        sizeDisplay.setUnits(status.getMachineCoord().getUnits());
         gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
         gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
     }
@@ -348,6 +349,11 @@ public class RendererInputHandler implements
     @Override
     public void fileStreamComplete(String filename, boolean success) {
         gcodeModel.setCurrentCommandNumber(0);
+    }
+
+    @Override
+    public void receivedAlarm(Alarm alarm) {
+
     }
 
     @Override
@@ -370,13 +376,5 @@ public class RendererInputHandler implements
 
     @Override
     public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
     }
 }

@@ -103,6 +103,11 @@ public abstract class AbstractUGSSettings extends JPanel {
         return ret;
     }
 
+    public void add(Component comp, Object constraints) {
+        super.add(comp, constraints);
+        components.add(comp);
+    }
+
     public Component add(JPanel panel, Component comp) {
         Component ret = panel.add(comp);
         components.add(comp);

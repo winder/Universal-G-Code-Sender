@@ -1,5 +1,5 @@
 /*
-    Copywrite 2015-2016 Will Winder
+    Copyright 2015-2018 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.Connection;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -131,8 +132,6 @@ public class BufferedCommunicatorTest {
 
         // Check events and connection:
         // console message, connection stream, sent event
-        mockScl.messageForConsole(EasyMock.anyString());
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
         mockConnection.sendStringToComm(input + "\n");
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
         mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
@@ -153,9 +152,6 @@ public class BufferedCommunicatorTest {
         String[] inputs = {"input1", "input2"};
 
         for (String i : inputs) {
-            mockScl.messageForConsole(EasyMock.anyString());
-            EasyMock.expect(EasyMock.expectLastCall());
-
             mockConnection.sendStringToComm(i + "\n");
             EasyMock.expect(EasyMock.expectLastCall());
 
@@ -193,9 +189,6 @@ public class BufferedCommunicatorTest {
         String input = "input";
 
         // Setup 2 active commands.
-        mockScl.messageForConsole(EasyMock.anyString());
-        EasyMock.expect(EasyMock.expectLastCall()).times(2);
-
         mockConnection.sendStringToComm(input + "\n");
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
@@ -330,10 +323,10 @@ public class BufferedCommunicatorTest {
 
         mockConnection.setCommunicator(EasyMock.<AbstractCommunicator>anyObject());
         EasyMock.expect(EasyMock.expectLastCall()).once();
-        EasyMock.expect(mockConnection.openPort(name, baud)).andReturn(true).once();
+        EasyMock.expect(mockConnection.openPort()).andReturn(true).once();
         EasyMock.replay(mockConnection);
 
-        boolean result = instance.openCommPort(name, baud);
+        boolean result = instance.openCommPort(ConnectionDriver.JSSC, name, baud);
         assertEquals(expResult, result);
 
         EasyMock.verify(mockConnection);
