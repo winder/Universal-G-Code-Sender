@@ -225,13 +225,9 @@ public class RendererInputHandler implements
             // The position is always given in millimeters, convert to the preferred units
             Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
                     .getPositionIn(settings.getPreferredUnits());
-<<<<<<< HEAD
-            this.visualizerPopupMenu.setJogLocation(position);
-=======
 
             VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, gcodeRenderer, position);
             visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
->>>>>>> master
         }
     }
 
