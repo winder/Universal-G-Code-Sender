@@ -13,15 +13,15 @@ before_script:
 - sudo apt-get install -qq genisoimage
 - sudo apt-get install -qq curl
 
-after_success:
+script:
 - codecov
-- mvn install
+- mvn install -DskipTests=true
 
 deploy:
   # Only deploy to a specific branch.
  - provider: script
    script:
-   - mvn package -pl ugs-core assembly:assembly
+   - mvn package -pl ugs-core assembly:assembly -DskipTests=true
    - mvn package -pl ugs-platform/application -P create-autoupdate,create-dmg -DskipTests=true
    - curl -fL https://getcli.jfrog.io | sh
    - "./jfrog rt config --interactive=false --url $ARTIFACTORY_URL --user $ARTIFACTORY_LOGIN --apikey $ARTIFACTORY_API_KEY"
