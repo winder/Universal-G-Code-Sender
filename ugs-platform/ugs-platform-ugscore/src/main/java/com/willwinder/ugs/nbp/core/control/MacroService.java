@@ -18,23 +18,24 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
+import com.google.common.base.Strings;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.Settings;
-
-import java.awt.EventQueue;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
 
 /**
  *
@@ -72,7 +73,15 @@ public final class MacroService {
             int numMacros = settings.getNumMacros();
             for (int i = 0; i < numMacros; i++) {
                 Macro m = settings.getMacro(i);
-                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), m.getName(), actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
+
+                String text;
+                if (Strings.isNullOrEmpty(m.getNameAndDescription())){
+                    text = Integer.toString(i);
+                } else {
+                    text = m.getNameAndDescription();
+                }
+
+                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), text, actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
         } catch (Exception e) {
             e.printStackTrace();
