@@ -25,13 +25,11 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
@@ -40,17 +38,12 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.Optional;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_DISCONNECTED;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 import static com.willwinder.universalgcodesender.Utils.formatter;
-import com.willwinder.universalgcodesender.model.Axis;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 import static com.willwinder.universalgcodesender.model.UnitUtils.Units.MM;
 import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
 
@@ -181,9 +174,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     @Override
     public void resetCoordinatesToZero() throws Exception {
-        setWorkPosition(Axis.X, 0);
-        setWorkPosition(Axis.Y, 0);
-        setWorkPosition(Axis.Z, 0);
+        setWorkPosition(new PartialPosition(0.0, 0.0, 0.0));
     }
     
     /**
@@ -191,11 +182,11 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     @Override
     public void resetCoordinateToZero(final Axis axis) throws Exception {
-        setWorkPosition(axis, 0);
+        setWorkPosition(PartialPosition.from(axis, 0.0));
     }
 
     @Override
-    public void setWorkPosition(Axis axis, double position) throws Exception {
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         throw new Exception(Localization.getString("controller.exception.setworkpos"));
     }
 
@@ -253,7 +244,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void jogMachineTo(Position position, double feedRate) throws Exception {
+    public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
         String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
 
         GcodeCommand command = createCommand(commandString);

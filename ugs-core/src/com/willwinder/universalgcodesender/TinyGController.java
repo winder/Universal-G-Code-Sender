@@ -27,11 +27,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
@@ -41,10 +37,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -129,13 +122,13 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void jogMachineTo(final Position position, final double feedRate) throws Exception {
+    public void jogMachineTo(final PartialPosition position, final double feedRate) throws Exception {
         // Fetch the current coordinate units in which the machine is running
         UnitUtils.Units targetUnits = UnitUtils.Units.getUnits(getCurrentGcodeState().units);
 
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(position.getUnits(), targetUnits);
-        Position positionInTargetUnits = position.getPositionIn(targetUnits);
+        PartialPosition positionInTargetUnits = position.getPositionIn(targetUnits);
         String commandString = GcodeUtils.generateMoveToCommand(positionInTargetUnits, feedRate * scale);
 
         GcodeCommand command = createCommand(commandString);
@@ -349,9 +342,10 @@ public class TinyGController extends AbstractController {
         sendInitCommands();
     }
 
+
     @Override
-    public void setWorkPosition(Axis axis, double position) throws Exception {
-        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axis, position);
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, getCurrentGcodeState(), axisPosition);
         sendCommandImmediately(new GcodeCommand(command));
     }
 

@@ -18,6 +18,8 @@
  */
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -25,28 +27,27 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
-import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.GrblFeedbackMessage;
 import com.willwinder.universalgcodesender.types.GrblSettingMessage;
 import com.willwinder.universalgcodesender.utils.GrblLookups;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.Timer;
-import org.apache.commons.lang3.StringUtils;
+
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 
 /**
  * GRBL Control layer, coordinates all aspects of control.
@@ -467,12 +468,12 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public void setWorkPosition(Axis axis, double position) throws Exception {
+    public void setWorkPosition(PartialPosition axisPosition) throws Exception {
         if (!this.isCommOpen()) {
             throw new Exception("Must be connected to set work position");
         }
 
-        String gcode = GrblUtils.getSetCoordCommand(axis, position, this.grblVersion, this.grblVersionLetter);
+        String gcode = GrblUtils.getSetCoordCommand(axisPosition, this.grblVersion, this.grblVersionLetter);
         if (StringUtils.isNotEmpty(gcode)) {
             GcodeCommand command = createCommand(gcode);
             this.sendCommandImmediately(command);

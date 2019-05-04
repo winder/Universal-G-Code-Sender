@@ -23,9 +23,10 @@ import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.listeners.MessageListener;
 import com.willwinder.universalgcodesender.listeners.MessageType;
+import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
-import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+
 import java.io.File;
 import java.util.List;
 
@@ -89,14 +90,14 @@ public interface BackendAPI extends BackendAPIReadOnly {
     /**
      * Sets the work position for a given axis to a position.
      *
-     * @param axis the axis to change
-     * @param position the position to set the axis to.
+     * @param position the position to set the one or more axis to set
      * @throws Exception
      */
-    void setWorkPosition(Axis axis, double position) throws Exception;
+    void setWorkPosition(PartialPosition position) throws Exception;
+
 
     /**
-     * Sets the work position for a given axis to a position defined by an mathimatical
+     * Sets the work position for a given axis to a position defined by an mathematical
      * expression. The character '#' will be replaced by the current work position. If the
      * expression starts with '/' or '*' the expression will be prepended with the current
      * work position.

@@ -28,6 +28,7 @@ import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
@@ -35,18 +36,10 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.vecmath.Point3d;
-import java.awt.Point;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.prefs.PreferenceChangeEvent;
 import java.util.prefs.PreferenceChangeListener;
 
@@ -61,22 +54,21 @@ public class RendererInputHandler implements
         ControllerListener, UGSEventListener {
     final private GcodeRenderer gcodeRenderer;
     final private FPSAnimator animator;
+    private final BackendAPI backend;
     private final GcodeModel gcodeModel;
     private final SizeDisplay sizeDisplay;
     private final Selection selection;
-    private final VisualizerPopupMenu visualizerPopupMenu;
     private Settings settings;
 
     private static final int HIGH_FPS = 15;
     private static final int LOW_FPS = 4;
 
-    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a,
-            VisualizerPopupMenu popup, Settings s) {
+    public RendererInputHandler(GcodeRenderer gr, FPSAnimator a, BackendAPI backend) {
         gcodeRenderer = gr;
         animator = a;
+        this.backend = backend;
         animator.start();
-        visualizerPopupMenu = popup;
-        settings = s;
+        settings = backend.getSettings();
 
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
@@ -235,8 +227,9 @@ public class RendererInputHandler implements
             // The position is always given in millimeters, convert to the preferred units
             Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
                     .getPositionIn(settings.getPreferredUnits());
-            this.visualizerPopupMenu.setJogLocation(position);
-            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+
+            VisualizerPopupMenu visualizerPopupMenu = new VisualizerPopupMenu(backend, gcodeRenderer, position);
+            visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
