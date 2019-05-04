@@ -1,5 +1,5 @@
 /*
-    Copyright 2014-2018 Will Winder
+    Copyright 2014-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,17 +20,28 @@ package com.willwinder.universalgcodesender.utils;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.pendantui.PendantConfigBean;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.types.WindowSettings;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Logger;
+
 public class Settings {
+    private static final Logger logger = Logger.getLogger(Settings.class.getName());
+
     // Transient, don't serialize or deserialize.
     transient private SettingChangeListener listener = null;
     transient public static int HISTORY_SIZE = 20;
@@ -43,7 +54,7 @@ public class Settings {
     private String portRate = "115200";
     private boolean manualModeEnabled = false;
     private double manualModeStepSize = 1;
-    private boolean useZStepSize = false;
+    private boolean useZStepSize = true;
     private double zJogStepSize = 1;
     private double jogFeedRate = 10;
     private boolean scrollWindowEnabled = true;
@@ -55,11 +66,11 @@ public class Settings {
     private boolean singleStepMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
-    private boolean displayStateColor = true;
-    private String defaultUnits = Units.MM.abbreviation;
+    private Units preferredUnits = Units.MM;
 
     private boolean showNightlyWarning = true;
     private boolean showSerialPortWarning = true;
+    private boolean autoStartPendant = false;
 
     private boolean autoConnect = false;
     private boolean autoReconnect = false;
@@ -80,16 +91,19 @@ public class Settings {
     private Map<Integer, Macro> macros = new HashMap<>();
 
     private String language = "en_US";
-    
-    private PendantConfigBean pendantConfig = new PendantConfigBean();
 
     private String connectionDriver;
+
+    /**
+     * A directory with gcode files for easy access through pendant
+     */
+    private String workspaceDirectory;
 
     /**
      * The GSON deserialization doesn't do anything beyond initialize what's in the json document.  Call finalizeInitialization() before using the Settings.
      */
     public Settings() {
-        System.out.println("Initializing...");
+        logger.fine("Initializing...");
 
         // Initialize macros with a default macro
         macros.put(1, new Macro(null, null, "G91 X0 Y0;"));
@@ -316,43 +330,21 @@ public class Settings {
         this.statusUpdateRate = statusUpdateRate;
         changed();
     }
-
-    public boolean isDisplayStateColor() {
-        return displayStateColor;
-    }
-
-    public void setDisplayStateColor(boolean displayStateColor) {
-        this.displayStateColor = displayStateColor;
-        changed();
-    }
-
-    public PendantConfigBean getPendantConfig() {
-        return pendantConfig;
-    }
-
-    public void setPendantConfig(PendantConfigBean pendantConfig) {
-        this.pendantConfig = pendantConfig;
-        changed();
-    }
         
     public Units getPreferredUnits() {
-        Units u = Units.getUnit(defaultUnits);
-
-        return (u == null) ? Units.MM : u;
-    }
-
-    @Deprecated
-    public String getDefaultUnits() {
-        if (Units.getUnit(defaultUnits) == null) {
-            return Units.MM.abbreviation;
-        }
-        return defaultUnits;
+        return (preferredUnits == null) ? Units.MM : preferredUnits;
     }
         
-    public void setDefaultUnits(String units) {
-        if (Units.getUnit(defaultUnits) != null) {
-            defaultUnits = units;
+    public void setPreferredUnits(Units units) {
+        if (units != null) {
+            double scaleUnits = UnitUtils.scaleUnits(preferredUnits, units);
+            preferredUnits = units;
             changed();
+
+            // Change
+            setManualModeStepSize(manualModeStepSize * scaleUnits);
+            setzJogStepSize(zJogStepSize * scaleUnits);
+            setJogFeedRate(Math.round(jogFeedRate * scaleUnits));
         }
     }
 
@@ -380,6 +372,10 @@ public class Settings {
             macro = new Macro(index.toString(), null, null);
         }
         return macro;
+    }
+
+    public List<Macro> getMacros() {
+        return new ArrayList<>(macros.values());
     }
 
     public Integer getNumMacros() {
@@ -465,7 +461,7 @@ public class Settings {
     }
 
     public ConnectionDriver getConnectionDriver() {
-        ConnectionDriver connectionDriver = ConnectionDriver.JSSC;
+        ConnectionDriver connectionDriver = ConnectionDriver.JSERIALCOMM;
         if (StringUtils.isNotEmpty(this.connectionDriver)) {
             try {
                 connectionDriver = ConnectionDriver.valueOf(this.connectionDriver);
@@ -478,6 +474,23 @@ public class Settings {
 
     public void setConnectionDriver(ConnectionDriver connectionDriver) {
         this.connectionDriver = connectionDriver.name();
+    }
+
+    public void setAutoStartPendant(boolean autoStartPendant) {
+        this.autoStartPendant = autoStartPendant;
+        changed();
+    }
+
+    public boolean isAutoStartPendant() {
+        return this.autoStartPendant;
+    }
+
+    public void setWorkspaceDirectory(String workspaceDirectory) {
+        this.workspaceDirectory = workspaceDirectory;
+    }
+
+    public String getWorkspaceDirectory() {
+        return this.workspaceDirectory;
     }
 
     public static class AutoLevelSettings {

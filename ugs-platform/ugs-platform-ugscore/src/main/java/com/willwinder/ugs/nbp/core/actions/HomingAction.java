@@ -92,7 +92,8 @@ public final class HomingAction extends AbstractAction implements UGSEventListen
             isHomingEnabled = backend.getController().getFirmwareSettings().isHomingEnabled();
         } catch (FirmwareSettingsException ignored) {
             // Never mind
-        } return isHomingEnabled;
+        }
+        return isHomingEnabled;
     }
 
     @Override

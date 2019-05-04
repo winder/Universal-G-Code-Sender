@@ -53,8 +53,8 @@ import javax.swing.JPopupMenu;
         preferredID = "JogTopComponent"
 )
 @TopComponent.Registration(
-        mode = "top_left",
-        openAtStartup = false)
+        mode = "middle_left",
+        openAtStartup = true)
 @ActionID(
         category = JogTopComponent.CATEGORY,
         id = JogTopComponent.ACTION_ID)
@@ -189,17 +189,7 @@ public final class JogTopComponent extends TopComponent implements UGSEventListe
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
-
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
 
     }
 

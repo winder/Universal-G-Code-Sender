@@ -73,6 +73,8 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
      */
     private boolean isFinishPanel;
 
+    private String errorMessage;
+
     /**
      * Constructs a wizard panel which can be used to display a step in a wizard
      *
@@ -162,6 +164,15 @@ public abstract class AbstractWizardPanel implements WizardDescriptor.Finishable
 
     public String getName() {
         return name;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+        fireChange();
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
     @Override

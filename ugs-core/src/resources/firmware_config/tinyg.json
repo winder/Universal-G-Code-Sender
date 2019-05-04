@@ -1,6 +1,6 @@
 {
     "Name": "TinyG",
-    "Version": 4,
+    "Version": 5,
     "Controller": {
         "name": "TinyG",
         "args": null
@@ -47,7 +47,7 @@
                 "enabled": true,
                 "optional": true
             },{
-                "name": "M3Dweller",
+                "name": "SpindleOnDweller",
                 "enabled": false,
                 "optional": true,
                 "args": {

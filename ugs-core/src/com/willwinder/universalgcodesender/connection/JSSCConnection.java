@@ -39,7 +39,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
 
     // General variables
     private SerialPort serialPort;
-    private StringBuilder inputBuffer = null;
+    private ResponseMessageHandler responseMessageHandler;
 
     @Override
     public void setUri(String uri) {
@@ -56,8 +56,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
         if (StringUtils.isEmpty(portName) || baudRate == 0) {
             throw new ConnectionException("Couldn't open port " + portName + " using baud rate " + baudRate);
         }
-
-        this.inputBuffer = new StringBuilder();
+        this.responseMessageHandler = new ResponseMessageHandler();
         this.serialPort = new SerialPort(portName);
         this.serialPort.openPort();
         this.serialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
@@ -79,7 +78,6 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
                     this.serialPort.closePort();
                 }
             } finally {
-                this.inputBuffer = null;
                 this.serialPort = null;
             }
         }
@@ -118,10 +116,6 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
      */
     @Override
     public void serialEvent(SerialPortEvent evt) {
-        if (inputBuffer == null) {
-            inputBuffer = new StringBuilder();
-        }
-
         try {
             byte[] buf = this.serialPort.readBytes();
             if (buf == null || buf.length <= 0) {
@@ -129,25 +123,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
             }
 
             String s = new String(buf, 0, buf.length);
-            inputBuffer.append(s);
-
-            // Only continue if there is a line terminator and split out command(s).
-            if (!inputBuffer.toString().contains(comm.getLineTerminator())) {
-                return;
-            }
-
-            // Split with the -1 option will give an empty string at
-            // the end if there is a terminator there as well.
-            String[] commands = inputBuffer.toString().split(comm.getLineTerminator(), -1);
-            for (int i=0; i < commands.length; i++) {
-                // Make sure this isn't the last command.
-                if ((i+1) < commands.length) {
-                    comm.responseMessage(commands[i]);
-                // Append last command to input buffer because it didn't have a terminator.
-                } else {
-                    inputBuffer = new StringBuilder().append(commands[i]);
-                }
-            }
+            responseMessageHandler.handleResponse(s, comm);
         } catch ( Exception e ) {
             e.printStackTrace();
             System.exit(-1);

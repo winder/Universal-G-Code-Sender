@@ -88,7 +88,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     private JPanel softLimitPanel;
 
     public WizardPanelSoftLimits(BackendAPI backend) {
-        super(backend, "Soft limits");
+        super(backend, Localization.getString("platform.plugin.setupwizard.soft-limits.title"));
         decimalFormat = new DecimalFormat("0.0##", Localization.dfs);
         positionDecimalFormat = new DecimalFormat("0.0", Localization.dfs);
 
@@ -141,21 +141,21 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
-                "<p>Soft limits will prevent the machine to move beyond it's safe work area.</p>" +
-                "</body></html>");
+        labelDescription = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.soft-limits.intro") +
+                "</p></body></html>");
 
-        labelInstructions = new JLabel("<html><body>" +
-                "<p>Home your machine and then move it to the maximum safe position in the opposite direction. Use this position as your soft limit.</p>" +
-                "</body></html>");
+        labelInstructions = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.soft-limits.instructions") +
+                "</p></body></html>");
 
         navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
 
         checkboxEnableSoftLimits = new JCheckBox("Enable soft limits");
         checkboxEnableSoftLimits.addActionListener(event -> onSoftLimitsClicked());
 
-        labelHomingIsNotEnabled = new JLabel("Homing needs to be enabled before enabling soft limits.", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
-        labelSoftLimitsNotSupported = new JLabel("Soft limits is not available on your hardware", ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelHomingIsNotEnabled = new JLabel(Localization.getString("platform.plugin.setupwizard.soft-limits.require-homing"), ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
+        labelSoftLimitsNotSupported = new JLabel(Localization.getString("platform.plugin.setupwizard.soft-limits.not-available"), ImageUtilities.loadImageIcon("icons/information24.png", false), JLabel.LEFT);
 
         homeButton = new JButton("Home");
         homeButton.setMinimumSize(new Dimension(40, 36));
@@ -167,7 +167,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
             }
         });
 
-        buttonUpdateSettingsX = new JButton("Update");
+        buttonUpdateSettingsX = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsX.setEnabled(false);
         buttonUpdateSettingsX.addActionListener(event -> onSave(Axis.X));
 
@@ -176,7 +176,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
         textFieldSoftLimitX = new JTextField("0.00");
         textFieldSoftLimitX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
 
-        buttonUpdateSettingsY = new JButton("Update");
+        buttonUpdateSettingsY = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsY.setEnabled(false);
         buttonUpdateSettingsY.addActionListener(event -> onSave(Axis.Y));
 
@@ -185,7 +185,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
         textFieldSoftLimitY = new JTextField("0.00");
         textFieldSoftLimitY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
 
-        buttonUpdateSettingsZ = new JButton("Update");
+        buttonUpdateSettingsZ = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         buttonUpdateSettingsZ.setEnabled(false);
         buttonUpdateSettingsZ.addActionListener(event -> onSave(Axis.Z));
         labelPositionZ = new JLabel("  0.0 mm");
@@ -228,19 +228,19 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 switch (axis) {
                     case X:
                         double limitX = Math.abs(decimalFormat.parse(textFieldSoftLimitX.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitX(limitX);
+                        firmwareSettings.setSoftLimit(axis, limitX);
                         buttonUpdateSettingsX.setEnabled(false);
                         break;
 
                     case Y:
                         double limitY = Math.abs(decimalFormat.parse(textFieldSoftLimitY.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitY(limitY);
+                        firmwareSettings.setSoftLimit(axis, limitY);
                         buttonUpdateSettingsY.setEnabled(false);
                         break;
 
                     case Z:
                         double limitZ = Math.abs(decimalFormat.parse(textFieldSoftLimitZ.getText()).doubleValue());
-                        firmwareSettings.setSoftLimitZ(limitZ);
+                        firmwareSettings.setSoftLimit(axis, limitZ);
                         buttonUpdateSettingsZ.setEnabled(false);
                         break;
 
@@ -260,9 +260,9 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
         try {
             IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-            textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimitX()));
-            textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimitY()));
-            textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimitZ()));
+            textFieldSoftLimitX.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.X)));
+            textFieldSoftLimitY.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.Y)));
+            textFieldSoftLimitZ.setText(decimalFormat.format(firmwareSettings.getSoftLimit(Axis.Z)));
         } catch (FirmwareSettingsException e) {
             NotifyDescriptor nd = new NotifyDescriptor.Message("Couldn't fetch firmware settings: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
@@ -351,17 +351,17 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
 
     private void addHeaderRow(JPanel panel) {
         Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
-        JLabel headerLabel = new JLabel("Home", JLabel.CENTER);
+        JLabel headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.home"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Move", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.move"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Update settings", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.update-settings"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 2, wrap, gapbottom 5, gaptop 7");
     }

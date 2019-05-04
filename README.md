@@ -1,6 +1,6 @@
 ![Universal G-Code Sender](https://raw.githubusercontent.com/winder/Universal-G-Code-Sender/master/ugs-platform/branding/src/main/nbm-branding/core/core.jar/org/netbeans/core/startup/splash.gif "UGS Splash Image")
 
-Universal G-Code Sender is a Java based, [GRBL](https://github.com/gnea/grbl/) compatible and cross platform G-Code sender. Use this program to run a GRBL controlled CNC machine. 
+Universal G-Code Sender is a Java based, cross platform G-Code sender, compatible with [GRBL](https://github.com/gnea/grbl/) and [TinyG](https://github.com/synthetos/TinyG)/[g2core](https://github.com/synthetos/g2). Use this program to run a GRBL or TinyG/g2core controlled CNC machine. 
 
 Online documentation and releases: http://winder.github.io/ugs_website/<br/>
 Discussion forum: https://groups.google.com/forum/#!forum/universal-gcode-sender
@@ -24,8 +24,8 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 
 | Version | Description |
 |-|-|
-| [UGS Classic](http://bit.ly/1hftIhy)  | The nightly build of the classic version with a clean and lightweight user interface |
-| [UGS Platform](http://bit.ly/1DkClRW) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
+| [UGS Classic](http://bit.ly/2GGgNF7)  | The nightly build of the classic version with a clean and lightweight user interface |
+| [UGS Platform](http://bit.ly/2XANF7B) | The nightly build of the next generation, feature packed version based on the Netbeans Platform |
 
 ## Running 
 
@@ -111,6 +111,20 @@ mvn package -pl ugs-core
 mvn package assembly:assembly
 ```
 
+#### Develop via Intellij
+
+If you are more used to Intellij, you can also build, run and debug it there:
+
+- Run  `mvn nbm:run-platform -pl ugs-platform/application` once via terminal to build everything
+- Import the Source, `File` -> `New` -> `Project from existing Sources`
+- Setup a new "Run Configuration", `Java Application`, with following settings:
+  - Main Class: `org.netbeans.Main`
+  - VM Options: `-Dnetbeans.user=$ProjectFileDir$/ugs-platform/application/target/userdir -Dnetbeans.home=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform -Dnetbeans.logger.console=true -Dnetbeans.indexing.noFileRefresh=true -Dnetbeans.dirs="$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ugsplatform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ide:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/extra:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/java"`
+  - Program arguments: `--branding ugsplatform`
+  - Working dir: `$ProjectFileDir$`
+  - Use classpath of module: `ugs-platfom-ugscore` 
+
+
 ## Changelog
 
 1.0.9 -> 2.0
@@ -123,6 +137,9 @@ mvn package assembly:assembly
 * Added restore default buttons on settings pages.
 * Plane selection support: G17, G18, G19
 * Setup wizard for CNC controllers
+* Improved support for TinyG / g2core
+* Improved web pendant
+* Added command line support
 
 1.0.8 -> 1.0.9
 * Many performance improvements.

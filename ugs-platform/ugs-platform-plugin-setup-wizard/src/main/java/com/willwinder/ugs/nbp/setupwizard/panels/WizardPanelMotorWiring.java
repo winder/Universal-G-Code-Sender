@@ -23,15 +23,19 @@ import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
 import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerStateListener;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.uielements.components.RoundedPanel;
 import com.willwinder.universalgcodesender.uielements.helpers.ThemeColors;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.ImageUtilities;
 
 import javax.swing.JCheckBox;
@@ -57,7 +61,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private RoundedPanel softLimitsInfo;
 
     public WizardPanelMotorWiring(BackendAPI backend) {
-        super(backend, "Motor wiring");
+        super(backend, Localization.getString("platform.plugin.setupwizard.motor-wiring.title"));
 
         initComponents();
         initLayout();
@@ -83,46 +87,46 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
-                "<p>We will now test that your motors are wired correctly. Test each axis using the step buttons.</p>" +
-                "</body></html>");
+        labelDescription = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.motor-wiring.intro") +
+                "</p></body></html>");
 
         softLimitsInfo = new RoundedPanel(8);
         softLimitsInfo.setLayout(new MigLayout("fill, inset 10, gap 0"));
         softLimitsInfo.setBackground(ThemeColors.VERY_LIGHT_BLUE_GREY);
         softLimitsInfo.setForeground(ThemeColors.LIGHT_GREY);
         softLimitsInfo.add(new JLabel(ImageUtilities.loadImageIcon("icons/information24.png", false)), "gapright 10");
-        softLimitsInfo.add(new JLabel("<html><body>You have soft limits activated. Any button that would move the machine past these limits will be inactivated.</body></html>"));
+        softLimitsInfo.add(new JLabel("<html><body>" + Localization.getString("platform.plugin.setupwizard.motor-wiring.soft-limits-enabled") + "</body></html>"));
 
         navigationButtons = new NavigationButtons(getBackend(), 0.1, 100);
 
-        checkboxReverseX = new JCheckBox("Reverse direction");
+        checkboxReverseX = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseX.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionX(checkboxReverseX.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.X, checkboxReverseX.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        checkboxReverseY = new JCheckBox("Reverse direction");
+        checkboxReverseY = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseY.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionY(checkboxReverseY.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.Y, checkboxReverseY.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
             }
         });
 
-        checkboxReverseZ = new JCheckBox("Reverse direction");
+        checkboxReverseZ = new JCheckBox(Localization.getString("platform.plugin.setupwizard.motor-wiring.reverse-direction"));
         checkboxReverseZ.addActionListener(event -> {
             if (getBackend().getController() != null) {
                 try {
-                    getBackend().getController().getFirmwareSettings().setInvertDirectionZ(checkboxReverseZ.isSelected());
+                    getBackend().getController().getFirmwareSettings().setInvertDirection(Axis.Z, checkboxReverseZ.isSelected());
                 } catch (FirmwareSettingsException e) {
                     e.printStackTrace();
                 }
@@ -190,9 +194,14 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
     private void refreshReverseDirectionCheckboxes() {
         IController controller = getBackend().getController();
         if (controller != null) {
-            checkboxReverseX.setSelected(controller.getFirmwareSettings().isInvertDirectionX());
-            checkboxReverseY.setSelected(controller.getFirmwareSettings().isInvertDirectionY());
-            checkboxReverseZ.setSelected(controller.getFirmwareSettings().isInvertDirectionZ());
+            try {
+                checkboxReverseX.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.X));
+                checkboxReverseY.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.Y));
+                checkboxReverseZ.setSelected(controller.getFirmwareSettings().isInvertDirection(Axis.Z));
+            } catch (FirmwareSettingsException e) {
+                NotifyDescriptor nd = new NotifyDescriptor.Message("Unexpected error while getting setting: " + e.getMessage(), NotifyDescriptor.ERROR_MESSAGE);
+                DialogDisplayer.getDefault().notify(nd);
+            }
         }
     }
 }

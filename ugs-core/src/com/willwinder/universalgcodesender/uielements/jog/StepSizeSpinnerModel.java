@@ -23,7 +23,7 @@ import javax.swing.*;
 public class StepSizeSpinnerModel extends SpinnerNumberModel {
 
     public static final double MIN_VALUE = 0.001;
-    public static final double MAX_VALUE = 1000.0;
+    public static final double MAX_VALUE = 100000.0;
 
     public StepSizeSpinnerModel() {
         super(1.0, MIN_VALUE, MAX_VALUE, 1.0);

@@ -19,8 +19,8 @@
 package com.willwinder.universalgcodesender;
 
 /**
- * Constants for defining capabilities that a controller may support. The constants
- * may be added to a {@link Capabilities} object.
+ * Constants for defining additional capabilities from {@link CapabilitiesConstants} that a
+ * GRBL controller may support. The constants may be added to a {@link Capabilities} object.
  *
  * @author Joacim Breiler
  */

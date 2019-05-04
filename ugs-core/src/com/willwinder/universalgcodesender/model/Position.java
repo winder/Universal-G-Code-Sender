@@ -25,6 +25,8 @@ import java.util.Objects;
 
 public class Position extends CNCPoint {
 
+    public static final Position ZERO = new Position(0, 0, 0, Units.MM);
+
     private final Units units;
 
     public Position() {

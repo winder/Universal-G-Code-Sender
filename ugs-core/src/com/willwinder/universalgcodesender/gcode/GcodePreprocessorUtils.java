@@ -20,20 +20,18 @@ package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.base.Preconditions;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
+
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 
 /**
  * Collection of useful command preprocessor methods.
@@ -277,7 +275,7 @@ public class GcodePreprocessorUtils {
     static public String generateLineFromPoints(final Code command, final Position start, final Position end, final boolean absoluteMode, DecimalFormat formatter) {
         DecimalFormat df = formatter;
         if (df == null) {
-            df = new DecimalFormat("#.####");
+            df = new DecimalFormat("0.####", Localization.dfs);
         }
         
         StringBuilder sb = new StringBuilder();
@@ -320,6 +318,11 @@ public class GcodePreprocessorUtils {
      * but might be a little faster using precompiled regex.
      */
     static public List<String> splitCommand(String command) {
+        // Special handling for GRBL system commands which will not be splitted
+        if(command.startsWith("$")) {
+            return Collections.singletonList(command);
+        }
+
         List<String> l = new ArrayList<>();
         boolean readNumeric = false;
         StringBuilder sb = new StringBuilder();
@@ -487,7 +490,13 @@ public class GcodePreprocessorUtils {
         List<Position> segments = new ArrayList<>();
         double angle;
 
-        double zIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        // Calculate radius if necessary.
+        if (radius == 0) {
+            radius = Math.sqrt(Math.pow(plane.axis0(p1) - plane.axis1(center), 2.0) + Math.pow(plane.axis1(p1) - plane.axis1(center), 2.0));
+        }
+
+        double linearIncrement = (plane.linear(p2) - plane.linear(p1)) / numPoints;
+        double linearPos = plane.linear(nextPoint);
         double aIncrement = (p2.a - p1.a) / numPoints;
         double bIncrement = (p2.b - p1.b) / numPoints;
         double cIncrement = (p2.c - p1.c) / numPoints;
@@ -510,11 +519,12 @@ public class GcodePreprocessorUtils {
             plane.setAxis1(nextPoint, Math.sin(angle) * radius + plane.axis1(center));
 
             // Increment (optional) linear motions.
-            plane.setLinear(nextPoint, plane.linear(nextPoint) + zIncrement);
+            plane.setLinear(nextPoint, linearPos);
+            linearPos += linearIncrement;
             nextPoint.a += aIncrement;
             nextPoint.b += bIncrement;
             nextPoint.c += cIncrement;
-            
+
             segments.add(new Position(nextPoint));
         }
         

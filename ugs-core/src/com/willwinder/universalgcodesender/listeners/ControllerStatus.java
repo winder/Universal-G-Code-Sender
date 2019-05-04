@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender.listeners;
 
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 
 /**
  *
@@ -35,24 +36,26 @@ public class ControllerStatus {
     private final EnabledPins pins;
     private final AccessoryStates accessoryStates;
     private final ControllerState state;
+    private final UnitUtils.Units feedSpeedUnits;
 
     /**
      * Baseline constructor. This data should always be present. Represents the
      * controller status.
+     * 
      * @param stateString controller state, i.e. idle/hold/running
      * @param state controller state, i.e. {@link ControllerState#IDLE}/{@link ControllerState#HOLD}/{@link ControllerState#RUN}
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
     public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
-        this(stateString, state, machineCoord, workCoord, null, null, null, null, null, null);
+        this(stateString, state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
     public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
-                            Position workCoord, Double feedSpeed, Double spindleSpeed,
+                            Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {
         this.stateString = stateString;
@@ -61,6 +64,7 @@ public class ControllerStatus {
         this.workCoord = workCoord;
         this.workCoordinateOffset = workCoordinateOffset;
         this.feedSpeed = feedSpeed;
+        this.feedSpeedUnits = feedSpeedUnits;
         this.spindleSpeed = spindleSpeed;
         this.overrides = overrides;
         this.pins = pins;
@@ -113,6 +117,10 @@ public class ControllerStatus {
         return accessoryStates;
     }
 
+    public UnitUtils.Units getFeedSpeedUnits() {
+        return feedSpeedUnits;
+    }
+
     public static class EnabledPins {
         final public boolean X;
         final public boolean Y;
@@ -155,10 +163,10 @@ public class ControllerStatus {
         final public int feed;
         final public int rapid;
         final public int spindle;
-        public OverridePercents(int f, int r, int s) {
-            feed = f;
-            rapid = r;
-            spindle = s;
+        public OverridePercents(int feed, int rapid, int spindle) {
+            this.feed = feed;
+            this.rapid = rapid;
+            this.spindle = spindle;
         }
     }
 }

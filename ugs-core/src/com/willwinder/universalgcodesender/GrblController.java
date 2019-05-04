@@ -23,6 +23,8 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.Position;
@@ -30,7 +32,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -71,7 +73,7 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.
@@ -175,21 +177,15 @@ public class GrblController extends AbstractController {
                     //this is not updating the state to Alarm in the GUI, and the alarm is no longer being processed
                     // TODO: Find a builder library.
                     String stateString = lookupCode(response, true);
-                    this.controllerStatus = new ControllerStatus(
-                            stateString,
-                            ControllerState.ALARM,
-                            this.controllerStatus.getMachineCoord(),
-                            this.controllerStatus.getWorkCoord(),
-                            this.controllerStatus.getFeedSpeed(),
-                            this.controllerStatus.getSpindleSpeed(),
-                            this.controllerStatus.getOverrides(),
-                            this.controllerStatus.getWorkCoordinateOffset(),
-                            this.controllerStatus.getEnabledPins(),
-                            this.controllerStatus.getAccessoryStates());
+                    controllerStatus = ControllerStatusBuilder
+                            .newInstance(controllerStatus)
+                            .setState(ControllerState.ALARM)
+                            .setStateString(stateString)
+                            .build();
 
                     Alarm alarm = GrblUtils.parseAlarmResponse(response);
                     dispatchAlarm(alarm);
-                    dispatchStatusString(this.controllerStatus);
+                    dispatchStatusString(controllerStatus);
                     dispatchStateChange(COMM_IDLE);
                 }
 
@@ -200,13 +196,13 @@ public class GrblController extends AbstractController {
                             String.format(Localization.getString("controller.exception.sendError"),
                                     activeCommand.get().getCommandString(),
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                    this.errorMessageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.ERROR, processed + "\n");
                     this.commandComplete(processed);
                 } else {
                     processed =
                             String.format(Localization.getString("controller.exception.unexpectedError"),
                                     lookupCode(response, false)).replaceAll("\\.\\.", "\\.");
-                    this.messageForConsole(processed + "\n");
+                    dispatchConsoleMessage(MessageType.INFO,processed + "\n");
                 }
                 checkStreamFinished();
                 processed = "";
@@ -271,7 +267,7 @@ public class GrblController extends AbstractController {
                 GrblFeedbackMessage grblFeedbackMessage = new GrblFeedbackMessage(response);
                 // Convert feedback message to raw commands to update modal state.
                 this.updateParserModalState(new GcodeCommand(GrblUtils.parseFeedbackMessage(response, capabilities)));
-                this.verboseMessageForConsole(grblFeedbackMessage.toString() + "\n");
+                this.dispatchConsoleMessage(MessageType.VERBOSE, grblFeedbackMessage.toString() + "\n");
                 setDistanceModeCode(grblFeedbackMessage.getDistanceMode());
                 setUnitsCode(grblFeedbackMessage.getUnits());
                 dispatchStateChange(COMM_IDLE);
@@ -284,9 +280,9 @@ public class GrblController extends AbstractController {
 
             if (StringUtils.isNotBlank(processed)) {
                 if (verbose) {
-                    this.verboseMessageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.VERBOSE,processed + "\n");
                 } else {
-                    this.messageForConsole(processed + "\n");
+                    this.dispatchConsoleMessage(MessageType.INFO, processed + "\n");
                 }
             }
         } catch (Exception e) {
@@ -298,7 +294,7 @@ public class GrblController extends AbstractController {
                     + " <" + processed + ">" + message;
 
             logger.log(Level.SEVERE, message, e);
-            this.errorMessageForConsole(message + "\n");
+            this.dispatchConsoleMessage(MessageType.ERROR,message + "\n");
         }
     }
 
@@ -439,7 +435,12 @@ public class GrblController extends AbstractController {
             String gcode = GrblUtils.getHomingCommand(this.grblVersion, this.grblVersionLetter);
             if (!"".equals(gcode)) {
                 GcodeCommand command = createCommand(gcode);
-                this.sendCommandImmediately(command);
+                sendCommandImmediately(command);
+                controllerStatus = ControllerStatusBuilder
+                        .newInstance(controllerStatus)
+                        .setState(ControllerState.HOME)
+                        .build();
+                dispatchStatusString(controllerStatus);
                 return;
             }
         }
@@ -567,12 +568,8 @@ public class GrblController extends AbstractController {
     public void jogMachine(int dirX, int dirY, int dirZ, double stepSize, 
             double feedRate, Units units) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
-            // Format step size from spinner.
-            String formattedStepSize = Utils.formatter.format(stepSize);
-            String formattedFeedRate = Utils.formatter.format(feedRate);
-
-            String commandString = GcodeUtils.generateXYZ("G91", units,
-                    formattedStepSize, formattedFeedRate, dirX, dirY, dirZ);
+            String commandString = GcodeUtils.generateMoveCommand( "G91",
+                    stepSize, feedRate, dirX, dirY, dirZ, units);
             GcodeCommand command = createCommand("$J=" + commandString);
             sendCommandImmediately(command);
         } else {
@@ -610,12 +607,8 @@ public class GrblController extends AbstractController {
     }
 
     @Override
-    public ControllerState getState() {
-        if (controllerStatus == null) {
-            return ControllerState.UNKNOWN;
-        }
-
-        return controllerStatus.getState();
+    public ControllerStatus getControllerStatus() {
+        return controllerStatus;
     }
 
     /**
@@ -642,7 +635,7 @@ public class GrblController extends AbstractController {
                                 }
                             }
                         } catch (Exception ex) {
-                            messageForConsole(Localization.getString("controller.exception.sendingstatus")
+                            dispatchConsoleMessage(MessageType.INFO,Localization.getString("controller.exception.sendingstatus")
                                     + " (" + ex.getMessage() + ")\n");
                             ex.printStackTrace();
                         }
@@ -728,12 +721,12 @@ public class GrblController extends AbstractController {
                     try {
                         this.issueSoftReset();
                     } catch(Exception e) {
-                        this.errorMessageForConsole(e.getMessage() + "\n");
+                        this.dispatchConsoleMessage(MessageType.ERROR, e.getMessage() + "\n");
                     }
                     isCanceling = false;
                 }
                 if (isCanceling && attemptsRemaining == 0) {
-                    this.errorMessageForConsole(Localization.getString("grbl.exception.cancelReset") + "\n");
+                    this.dispatchConsoleMessage(MessageType.ERROR, Localization.getString("grbl.exception.cancelReset") + "\n");
                 }
             }
             lastLocation = new Position(this.controllerStatus.getMachineCoord());
@@ -778,7 +771,7 @@ public class GrblController extends AbstractController {
     public void sendOverrideCommand(Overrides command) throws Exception {
         Byte realTimeCommand = GrblUtils.getOverrideForEnum(command, capabilities);
         if (realTimeCommand != null) {
-            this.messageForConsole(String.format(">>> 0x%02x\n", realTimeCommand));
+            this.dispatchConsoleMessage(MessageType.INFO, String.format(">>> 0x%02x\n", realTimeCommand));
             this.comm.sendByteImmediately(realTimeCommand);
         }
     }

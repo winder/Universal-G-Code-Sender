@@ -241,6 +241,8 @@ public class GrblUtils {
     static protected Capabilities getGrblStatusCapabilities(final double version, final Character letter) {
         Capabilities ret = new Capabilities();
         ret.addCapability(CapabilitiesConstants.JOGGING);
+        ret.addCapability(CapabilitiesConstants.CHECK_MODE);
+        ret.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
 
         if (version >= 0.8) {
             ret.addCapability(CapabilitiesConstants.HOMING);
@@ -351,9 +353,13 @@ public class GrblUtils {
             OverridePercents overrides = null;
             EnabledPins pins = null;
             AccessoryStates accessoryStates = null;
-            Double feedSpeed = null;
-            Double spindleSpeed = null;
 
+            double feedSpeed = 0;
+            double spindleSpeed = 0;
+            if(lastStatus != null) {
+                feedSpeed = lastStatus.getFeedSpeed();
+                spindleSpeed = lastStatus.getSpindleSpeed();
+            }
             boolean isOverrideReport = false;
 
             // Parse out the status messages.
@@ -438,7 +444,7 @@ public class GrblUtils {
             }
 
             ControllerState state = getControllerStateFromStateString(stateString);
-            return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, spindleSpeed, overrides, WCO, pins, accessoryStates);
+            return new ControllerStatus(stateString, state, MPos, WPos, feedSpeed, reportingUnits, spindleSpeed, overrides, WCO, pins, accessoryStates);
         }
     }
 

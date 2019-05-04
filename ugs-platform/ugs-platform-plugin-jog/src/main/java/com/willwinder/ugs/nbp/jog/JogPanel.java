@@ -32,6 +32,7 @@ import org.openide.util.ImageUtilities;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.SwingUtilities; // isLeftMouseButton() isRightMouseButton()
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
@@ -233,6 +234,9 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         LongPressMouseListener longPressMouseListener = new LongPressMouseListener(LONG_PRESS_DELAY) {
             @Override
             protected void onMouseClicked(MouseEvent e) {
+                if(!SwingUtilities.isLeftMouseButton(e)) {
+                    return; // ignore RMB
+                }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
                 listeners.forEach(a -> a.onButtonClicked(buttonEnum));
             }
@@ -254,12 +258,18 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
             @Override
             protected void onMouseLongPressed(MouseEvent e) {
+                if(!SwingUtilities.isLeftMouseButton(e)) {
+                    return; // ignore RMB
+                }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
                 listeners.forEach(a -> a.onButtonLongPressed(buttonEnum));
             }
 
             @Override
             protected void onMouseLongRelease(MouseEvent e) {
+                if(!SwingUtilities.isLeftMouseButton(e)) {
+                    return; // ignore RMB
+                }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
                 listeners.forEach(a -> a.onButtonLongReleased(buttonEnum));
             }

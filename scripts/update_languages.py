@@ -36,10 +36,12 @@ LANGUAGES = {
         'ja': 'jp_JA',
         'lt': 'lt_LT',
         'nb': 'nb_NO',
+        'nn': 'nn_NO',
         'nl': 'nl_NL',
         'pl': 'pl_PL',
         'pt-br': 'pt_BR',
         'ru': 'ru_RU',
+        'sk': 'sk_SK',
         'sv': 'sv_SE',
         'tr': 'tr_TR',
         'zh-CN': 'zh_CN'

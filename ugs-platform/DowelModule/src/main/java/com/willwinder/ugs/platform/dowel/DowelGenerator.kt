@@ -24,7 +24,6 @@ import com.willwinder.universalgcodesender.model.UnitUtils
 import com.willwinder.universalgcodesender.model.Position
 import java.io.PrintWriter
 import java.util.Date
-import sun.misc.Version
 
 /*
 

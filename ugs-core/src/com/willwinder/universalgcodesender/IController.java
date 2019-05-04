@@ -19,16 +19,17 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
-import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
@@ -55,6 +56,13 @@ public interface IController {
      * @param listener to be removed
      */
     void removeListener(ControllerListener listener);
+
+    /**
+     * Assigns a message service to be used for writing messages to the console
+     *
+     * @param messageService the central message service
+     */
+    void setMessageService(MessageService messageService);
 
     /*
     Actions
@@ -87,11 +95,20 @@ public interface IController {
      * @param dirZ if the jogging should happen in Z-direction, possible values are 1, 0 or -1
      * @param stepSize how long should we jog and is given in mm or inches
      * @param feedRate how fast should we jog in the direction
-     * @param units the units of the stepSize
+     * @param units the units of the stepSize and feed rate
      * @throws Exception if something went wrong when jogging
      */
     void jogMachine(int dirX, int dirY, int dirZ,
                     double stepSize, double feedRate, Units units) throws Exception;
+
+
+    /**
+     * Jogs the machine to the given position. The feed rate is given in the same units / minute.
+     *
+     * @param position the position to move to
+     * @param feedRate the feed rate using the units in the position.
+     */
+    void jogMachineTo(Position position, double feedRate) throws Exception;
 
     /**
      * Probe control
@@ -116,7 +133,6 @@ public interface IController {
     void setStatusUpdateRate(int rate);
     int getStatusUpdateRate();
     
-    GcodeCommandCreator getCommandCreator();
     long getJobLengthEstimate(File gcodeFile);
     
     /*
@@ -205,9 +221,9 @@ public interface IController {
     String getFirmwareVersion();
 
     /**
-     * Get the current state of the controller
+     * Returns the controller status. This method may never return null.
      *
-     * @return the current state
+     * @return the current controller status
      */
-    ControllerState getState();
+    ControllerStatus getControllerStatus();
 }

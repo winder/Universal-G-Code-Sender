@@ -29,25 +29,24 @@
 package com.willwinder.universalgcodesender.gcode;
 
 import com.google.common.collect.Iterables;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
-import static com.willwinder.universalgcodesender.gcode.util.Plane.*;
+import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.Stats;
 import com.willwinder.universalgcodesender.gcode.util.Code;
-import static com.willwinder.universalgcodesender.gcode.util.Code.*;
-import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
-import static com.willwinder.universalgcodesender.gcode.util.Code.UNKNOWN;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
+import com.willwinder.universalgcodesender.gcode.util.Plane;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.PointSegment;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import com.willwinder.universalgcodesender.gcode.processors.CommandProcessor;
-import com.willwinder.universalgcodesender.gcode.util.Plane;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+
+import static com.willwinder.universalgcodesender.gcode.util.Code.*;
+import static com.willwinder.universalgcodesender.gcode.util.Code.ModalGroup.Motion;
 
 /**
  *
@@ -315,17 +314,19 @@ public class GcodeParser implements IGcodeParser {
 
         PointSegment ps = new PointSegment(nextPoint, line);
 
+        PlaneFormatter plane = new PlaneFormatter(state.plane);
         Position center =
                 GcodePreprocessorUtils.updateCenterWithCommand(
-                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, new PlaneFormatter(state.plane));
+                        args, state.currentPoint, nextPoint, state.inAbsoluteIJKMode, clockwise, plane);
 
         double radius = GcodePreprocessorUtils.parseCoord(args, 'R');
 
-        // Calculate radius if necessary.
+        // Calculate radius if necessary, according to the current G17/18/19 Plane
         if (Double.isNaN(radius)) {
+
             radius = Math.sqrt(
-                    Math.pow(state.currentPoint.x - center.x, 2.0)
-                            + Math.pow(state.currentPoint.y - center.y, 2.0));
+                    Math.pow(plane.axis0(state.currentPoint)  - plane.axis0(center), 2.0)
+                            + Math.pow(plane.axis1(state.currentPoint) - plane.axis1(center), 2.0));
         }
 
         ps.setIsMetric(state.isMetric);

@@ -9,12 +9,17 @@ fi
 
 cd "$( realpath "$1" )"
 
-if [ -f /Applications/Inkscape.app/Contents/Resources/bin/inkscape ]; then
-	alias inkscape="/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
-else
+# Try to find inkscape on mac and linux
+INKSCAPE=`which inkscape`
+if [ ! -f $INKSCAPE ]; then
+	INKSCAPE="/Applications/Inkscape.app/Contents/Resources/bin/inkscape"
+fi
+
+if [ ! -f $INKSCAPE ]; then
     echo "Inkscape not found"
     exit 1
 fi
+
 
 TRUE_BLACK="#000000"
 BLACKISH="#353a40"
@@ -23,10 +28,13 @@ LIGHT_BLUE="#0ac9f1"
 DARK_BLUE="#41818f"
 
 # Make sure nobody is using black instead of blackish
-for INPUT in *.svg ; do 
+for INPUT in *.svg ; do
   sed -e "s/$TRUE_BLACK/$BLACKISH/g" "${PWD}/${INPUT}" > "${PWD}/temp"
   mv "${PWD}/temp" "${PWD}/${INPUT}"
 done
+
+# Delete generated ..._dark.svg files
+rm ${PWD}/*_dark.svg 2> /dev/null
 
 # Generate _dark and _disabled_dark vectors
 for INPUT in *.svg ; do
@@ -47,7 +55,7 @@ for INPUT in *.svg ; do
 		SUFFIX="_dark.png"
 	fi
 
-	inkscape --export-area-page --file "${PWD}/${INPUT}" -w 16 -h 16 --export-png "${PWD}/${FILENAME}${SUFFIX}"
-	inkscape --export-area-page --file "${PWD}/${INPUT}" -w 24 -h 24 --export-png "${PWD}/${FILENAME}24${SUFFIX}"
-	inkscape --export-area-page --file "${PWD}/${INPUT}" -w 32 -h 32 --export-png "${PWD}/${FILENAME}32${SUFFIX}"
+	$INKSCAPE --export-area-page --file "${PWD}/${INPUT}" -w 16 -h 16 --export-png "${PWD}/${FILENAME}${SUFFIX}"
+	$INKSCAPE --export-area-page --file "${PWD}/${INPUT}" -w 24 -h 24 --export-png "${PWD}/${FILENAME}24${SUFFIX}"
+	$INKSCAPE --export-area-page --file "${PWD}/${INPUT}" -w 32 -h 32 --export-png "${PWD}/${FILENAME}32${SUFFIX}"
 done

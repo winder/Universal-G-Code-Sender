@@ -68,7 +68,7 @@ public class UnitUtils {
                 }
             case INCH:
                 switch(to) {
-                    case MM: return 25.4;
+                    case MM: return mmPerInch;
                     case INCH: return 1.0;
                     default: break;
                 }

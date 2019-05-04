@@ -23,6 +23,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
 import net.miginfocom.swing.MigLayout;
@@ -76,7 +77,7 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     private JLabel labelNotSupported;
 
     public WizardPanelConnection(BackendAPI backend) {
-        super(backend, "Connection", false);
+        super(backend, Localization.getString("platform.plugin.setupwizard.connection.title"), false);
 
         initComponents();
         initLayout();
@@ -98,9 +99,9 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
     }
 
     private void initComponents() {
-        labelDescription = new JLabel("<html><body>" +
-                "<p>This guide will help you set up your CNC controller with <b>Universal Gcode Sender</b>. Let's start with connecting to your controller.</p>" +
-                "</body></html>");
+        labelDescription = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.connection.intro") +
+                "</p></body></html>");
 
         // Firmware options
         firmwareCombo = new JComboBox<>();
@@ -109,17 +110,17 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
         // Baud rate options
         baudCombo = new JComboBox<>();
-        baudCombo.setModel(new DefaultComboBoxModel<>(new String[]{"2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400"}));
+        baudCombo.setModel(new DefaultComboBoxModel<>(BaudRateEnum.getAllBaudRates()));
         baudCombo.setSelectedIndex(6);
         baudCombo.setToolTipText("Select baudrate to use for the serial port.");
         baudCombo.addActionListener(e -> this.setBaudRate());
-        labelBaud = new JLabel("Port rate:");
+        labelBaud = new JLabel(Localization.getString("platform.plugin.setupwizard.port-rate"));
 
         portCombo = new JComboBox<>();
         portCombo.addActionListener(e -> this.setPort());
-        labelPort = new JLabel("Port:");
+        labelPort = new JLabel(Localization.getString("platform.plugin.setupwizard.port"));
 
-        connectButton = new JButton("Connect");
+        connectButton = new JButton(Localization.getString("platform.plugin.setupwizard.connect"));
         connectButton.addActionListener((e) -> {
             try {
                 getBackend().connect(getBackend().getSettings().getFirmwareVersion(), getBackend().getSettings().getPort(), Integer.valueOf(getBackend().getSettings().getPortRate()));
@@ -128,10 +129,10 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
             }
         });
 
-        labelVersion = new JLabel("Unknown version");
+        labelVersion = new JLabel(Localization.getString("platform.plugin.setupwizard.unknown-version"));
         labelVersion.setVisible(false);
 
-        labelNotSupported = new JLabel("The setup wizard is not supported for this controller");
+        labelNotSupported = new JLabel(Localization.getString("platform.plugin.setupwizard.connection.not-supported"));
         labelNotSupported.setIcon(ImageUtilities.loadImageIcon("icons/information24.png", false));
         labelNotSupported.setVisible(false);
     }
@@ -220,19 +221,19 @@ public class WizardPanelConnection extends AbstractWizardPanel implements UGSEve
 
         if (getBackend().isConnected() && StringUtils.isNotEmpty(getBackend().getController().getFirmwareVersion()) && getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setText("<html><body><h2> " + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(ImageUtilities.loadImageIcon("icons/checked24.png", false));
             labelNotSupported.setVisible(false);
             setFinishPanel(false);
         } else if (getBackend().isConnected() && !getBackend().getController().getCapabilities().hasSetupWizardSupport() && finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connected to " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
+            labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connected-to") + " " + getBackend().getController().getFirmwareVersion() + "</h2></body></html>");
             labelVersion.setIcon(null);
             labelNotSupported.setVisible(true);
             setFinishPanel(true);
         } else if (getBackend().isConnected() && !finishedConnecting) {
             labelVersion.setVisible(true);
-            labelVersion.setText("<html><body><h2>Connecting...</h2></body></html>");
+            labelVersion.setText("<html><body><h2>" + Localization.getString("platform.plugin.setupwizard.connection.connecting") + "</h2></body></html>");
             labelVersion.setIcon(null);
             labelNotSupported.setVisible(false);
             setFinishPanel(false);

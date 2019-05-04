@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.pendantui.SystemStateBean;
+import com.willwinder.universalgcodesender.model.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -95,9 +95,6 @@ public class MacroHelper {
      * @return 
      */
     protected static String substituteValues(String str, BackendAPI backend) {
-        SystemStateBean bean = new SystemStateBean();
-        backend.updateSystemState(bean);
-
         // Early exit if there is nothing to match.
         if (!str.contains("{")) {
             return str;
@@ -105,12 +102,15 @@ public class MacroHelper {
 
         // Do simple substitutions
         String command = str;
-        command = MACHINE_X.matcher(command).replaceAll(bean.getMachineX());
-        command = MACHINE_Y.matcher(command).replaceAll(bean.getMachineY());
-        command = MACHINE_Z.matcher(command).replaceAll(bean.getMachineZ());
-        command = WORK_X.matcher(command).replaceAll(bean.getWorkX());
-        command = WORK_Y.matcher(command).replaceAll(bean.getWorkY());
-        command = WORK_Z.matcher(command).replaceAll(bean.getWorkZ());
+        Position machinePosition = backend.getMachinePosition();
+        command = MACHINE_X.matcher(command).replaceAll(Utils.formatter.format(machinePosition.getX()));
+        command = MACHINE_Y.matcher(command).replaceAll(Utils.formatter.format(machinePosition.getY()));
+        command = MACHINE_Z.matcher(command).replaceAll(Utils.formatter.format(machinePosition.getZ()));
+
+        Position workPosition = backend.getWorkPosition();
+        command = WORK_X.matcher(command).replaceAll(Utils.formatter.format(workPosition.getX()));
+        command = WORK_Y.matcher(command).replaceAll(Utils.formatter.format(workPosition.getY()));
+        command = WORK_Z.matcher(command).replaceAll(Utils.formatter.format(workPosition.getZ()));
 
         // Prompt for additional substitutions
         Matcher m = PROMPT_REGEX.matcher(command);

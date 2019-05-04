@@ -27,16 +27,18 @@ package com.willwinder.universalgcodesender.visualizer;
 
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 import com.willwinder.universalgcodesender.gcode.GcodeParser.GcodeMeta;
-import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
 import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
+import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
 import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,7 +183,18 @@ public class GcodeViewParse {
                 for (GcodeMeta meta : points) {
                     if (meta.point != null) {
                         addLinesFromPointSegment(start, meta.point, arcSegmentLength, lines);
-                        start.set(meta.point.point());
+                        // if the last set point is in a different or unknown unit, crate a new point-instance with the correct unit set
+                        if (start.getUnits() != UnitUtils.Units.MM && gp.getCurrentState().isMetric){
+                            start=new Position(
+                                    meta.point.point().x,
+                                    meta.point.point().y,
+                                    meta.point.point().z,
+                                    gp.getCurrentState().isMetric ? UnitUtils.Units.MM : UnitUtils.Units.INCH
+                                    );
+                        } else {
+                            // ...otherwise recycle the old instance and just update the x,y,z coords
+                            start.set(meta.point.point());
+                        }
                     }
                 }
             }

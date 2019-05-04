@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.setupwizard.panels;
 import com.willwinder.ugs.nbp.setupwizard.AbstractWizardPanel;
 import com.willwinder.ugs.nbp.setupwizard.NavigationButtons;
 import com.willwinder.ugs.nbp.setupwizard.WizardUtils;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -43,6 +44,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.DecimalFormat;
@@ -78,7 +80,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     private Timer updateTimer;
 
     public WizardPanelStepCalibration(BackendAPI backend) {
-        super(backend, "Step calibration");
+        super(backend, Localization.getString("platform.plugin.setupwizard.calibration.title"));
         decimalFormat = new DecimalFormat("0.0", Localization.dfs);
 
         initComponents();
@@ -89,9 +91,9 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
     private void initLayout() {
 
-        JLabel description = new JLabel("<html><body>" +
-                "<p>We will now attempt to calibrate your machine. Try <b>moving</b> the machine and <b>measure</b> the results, then <b>calibrate</b> to the estimated steps.</p>" +
-                "</body></html>");
+        JLabel description = new JLabel("<html><body><p>" +
+                Localization.getString("platform.plugin.setupwizard.calibration.intro") +
+                "</p></body></html>");
         getPanel().add(description, "grow, wrap");
 
         JPanel panel = new JPanel(new MigLayout("fill, inset 0"));
@@ -129,7 +131,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
     }
 
     private void addSubHeaderRow(JPanel panel) {
-        JButton resetButton = new JButton("Reset to zero");
+        JButton resetButton = new JButton(Localization.getString("platform.plugin.setupwizard.reset-to-zero"));
         resetButton.setMinimumSize(new Dimension(36, 36));
         resetButton.addActionListener(event -> {
             try {
@@ -139,63 +141,78 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             }
         });
         panel.add(resetButton, "grow, spanx 3, gapbottom 0, gaptop 0");
-        panel.add(new JLabel("Actual movement:"), "span 2, grow");
-        panel.add(new JLabel("Adjust steps per millimeter:"), "spanx 5, grow, wrap");
+        panel.add(new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.actual-movement")), "span 2, grow");
+        panel.add(new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.adjust")), "spanx 5, grow, wrap");
     }
 
     private void addHeaderRow(JPanel panel) {
         Font labelHeaderFont = new Font(Font.SANS_SERIF, Font.BOLD, 16);
-        JLabel headerLabel = new JLabel("Move", JLabel.CENTER);
+        JLabel headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.move"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Measure", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.measure"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 2, gapbottom 5, gaptop 7");
         panel.add(new JSeparator(SwingConstants.VERTICAL), "spany 5, gapleft 5, gapright 5, wmin 10, grow");
 
-        headerLabel = new JLabel("Calibrate", JLabel.CENTER);
+        headerLabel = new JLabel(Localization.getString("platform.plugin.setupwizard.calibrate"), JLabel.CENTER);
         headerLabel.setFont(labelHeaderFont);
         panel.add(headerLabel, "growx, spanx 3, wrap, gapbottom 5, gaptop 7");
     }
 
     private void initComponents() {
         Font labelEstimatedFont = new Font(Font.SANS_SERIF, Font.PLAIN, 12);
-        navigationButtons = new NavigationButtons(getBackend(), 1.0, (int)getBackend().getSettings().getJogFeedRate());
+        navigationButtons = new NavigationButtons(getBackend(), 1.0, (int) getBackend().getSettings().getJogFeedRate());
 
-        buttonUpdateSettingsX = new JButton("Update");
-        buttonUpdateSettingsX.setEnabled(false);
+        buttonUpdateSettingsX = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         labelEstimatedStepsX = new JLabel("0 steps/mm");
         labelEstimatedStepsX.setFont(labelEstimatedFont);
         labelPositionX = new JLabel("  0.0 mm", JLabel.RIGHT);
         textFieldMeasuredX = new JTextField("0");
         textFieldMeasuredX.addKeyListener(createKeyListener(Axis.X, labelEstimatedStepsX));
         textFieldSettingStepsX = new JTextField("0");
-        textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting(Axis.X, buttonUpdateSettingsX));
+        textFieldSettingStepsX.addKeyListener(createKeyListenerChangeSetting());
+        buttonUpdateSettingsX.setEnabled(false);
+        buttonUpdateSettingsX.addActionListener(createListenerUpdateSetting(Axis.X, textFieldSettingStepsX));
 
-        buttonUpdateSettingsY = new JButton("Update");
-        buttonUpdateSettingsY.setEnabled(false);
-        labelEstimatedStepsY = new JLabel("Setting (Steps / MM)");
+        buttonUpdateSettingsY = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
+        labelEstimatedStepsY = new JLabel(Localization.getString("platform.plugin.setupwizard.calibration.setting"));
         labelEstimatedStepsY.setFont(labelEstimatedFont);
         labelPositionY = new JLabel("  0.0 mm", JLabel.RIGHT);
         textFieldMeasuredY = new JTextField("0");
         textFieldMeasuredY.addKeyListener(createKeyListener(Axis.Y, labelEstimatedStepsY));
         textFieldSettingStepsY = new JTextField("0");
-        textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting(Axis.Y, buttonUpdateSettingsY));
+        textFieldSettingStepsY.addKeyListener(createKeyListenerChangeSetting());
+        buttonUpdateSettingsY.setEnabled(false);
+        buttonUpdateSettingsY.addActionListener(createListenerUpdateSetting(Axis.Y, textFieldSettingStepsY));
 
-        buttonUpdateSettingsZ = new JButton("Update");
-        buttonUpdateSettingsZ.setEnabled(false);
+        buttonUpdateSettingsZ = new JButton(Localization.getString("platform.plugin.setupwizard.update"));
         labelEstimatedStepsZ = new JLabel("0 steps/mm");
         labelEstimatedStepsZ.setFont(labelEstimatedFont);
         labelPositionZ = new JLabel("  0.0 mm", JLabel.RIGHT);
         textFieldMeasuredZ = new JTextField("0");
         textFieldMeasuredZ.addKeyListener(createKeyListener(Axis.Z, labelEstimatedStepsZ));
         textFieldSettingStepsZ = new JTextField("0");
-        textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting(Axis.Z, buttonUpdateSettingsZ));
+        textFieldSettingStepsZ.addKeyListener(createKeyListenerChangeSetting());
+        buttonUpdateSettingsZ.setEnabled(false);
+        buttonUpdateSettingsZ.addActionListener(createListenerUpdateSetting(Axis.Z, textFieldSettingStepsZ));
     }
 
-    private KeyListener createKeyListenerChangeSetting(Axis axis, JButton buttonUpdateSettings) {
+    private ActionListener createListenerUpdateSetting(Axis axis, JTextField textFieldSetting) {
+        return event -> {
+            try {
+                IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+                Integer value = Integer.valueOf(textFieldSetting.getText());
+                firmwareSettings.setStepsPerMillimeter(axis, value);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        };
+    }
+
+    private KeyListener createKeyListenerChangeSetting() {
         return new KeyListener() {
             @Override
             public void keyTyped(KeyEvent event) {
@@ -209,22 +226,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
 
             @Override
             public void keyReleased(KeyEvent event) {
-                if (getBackend().getController() != null && getBackend().getController().getFirmwareSettings() != null) {
-                    try {
-                        JTextField source = (JTextField) event.getSource();
-                        IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
-
-                        int stepsPerMillimeter = firmwareSettings.getStepsPerMillimeter(axis);
-                        if (!StringUtils.isNumeric(source.getText()) ||
-                                source.getText().trim().equalsIgnoreCase(String.valueOf(stepsPerMillimeter))) {
-                            buttonUpdateSettings.setEnabled(false);
-                        } else if (StringUtils.isNumeric(source.getText())) {
-                            buttonUpdateSettings.setEnabled(true);
-                        }
-                    } catch (FirmwareSettingsException e) {
-                        e.printStackTrace();
-                    }
-                }
+                checkUpdatedValues();
+                checkPulseIntervalLimits();
             }
         };
     }
@@ -276,6 +279,7 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         WizardUtils.killAlarm(getBackend());
         updateMeasurementEstimatesFields();
         updateSettingFieldsFromFirmware();
+        checkPulseIntervalLimits();
 
         if (updateTimer != null) {
             updateTimer.cancel();
@@ -323,6 +327,8 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
             ThreadHelper.invokeLater(() -> {
                 updateMeasurementEstimatesFields();
                 updateSettingFieldsFromFirmware();
+                checkPulseIntervalLimits();
+                checkUpdatedValues();
             });
         } else if (event.getEventType() == UGSEvent.EventType.ALARM_EVENT && event.getAlarm() == Alarm.HARD_LIMIT) {
             ThreadHelper.invokeLater(() -> {
@@ -337,6 +343,110 @@ public class WizardPanelStepCalibration extends AbstractWizardPanel implements U
         if (event.isControllerStatusEvent()) {
             navigationButtons.refresh(event.getControllerStatus().getMachineCoord());
         }
+    }
+
+    /**
+     * Check if values are updated in the text fields. It will enable the update buttons if it's a new setting.
+     */
+    private void checkUpdatedValues() {
+        if (getBackend().getController() != null && getBackend().getController().getFirmwareSettings() != null) {
+            try {
+                IFirmwareSettings firmwareSettings = getBackend().getController().getFirmwareSettings();
+
+                for (Axis axis : Axis.values()) {
+                    int stepsPerMillimeter = firmwareSettings.getStepsPerMillimeter(axis);
+                    JTextField textField = getSettingsTextField(axis);
+                    JButton buttonUpdateSettings = getUpdateSettingsButton(axis);
+
+                    if(textField == null || buttonUpdateSettings == null) {
+                        continue;
+                    }
+
+                    if (!StringUtils.isNumeric(textField.getText()) ||
+                            textField.getText().trim().equalsIgnoreCase(String.valueOf(stepsPerMillimeter))) {
+                        buttonUpdateSettings.setEnabled(false);
+                    } else if (StringUtils.isNumeric(textField.getText())) {
+                        buttonUpdateSettings.setEnabled(true);
+                    }
+                }
+            } catch (FirmwareSettingsException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private JTextField getSettingsTextField(Axis axis) {
+        switch (axis) {
+            case X:
+                return textFieldSettingStepsX;
+            case Y:
+                return textFieldSettingStepsY;
+            case Z:
+                return textFieldSettingStepsZ;
+            default:
+                return null;
+        }
+    }
+
+    private JButton getUpdateSettingsButton(Axis axis) {
+        switch (axis) {
+            case X:
+                return buttonUpdateSettingsX;
+            case Y:
+                return buttonUpdateSettingsY;
+            case Z:
+                return buttonUpdateSettingsZ;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * Calculates if the pulse interval would exceed the max computing speed and will set an warning message.
+     * <p>
+     * It's calculated as:
+     * maxFeedRate / 60 * stepsPerMM
+     * <p>
+     * Where maxFeedRate is given in mm/minute
+     */
+    private void checkPulseIntervalLimits() {
+        IController controller = getBackend().getController();
+        IFirmwareSettings firmwareSettings = controller.getFirmwareSettings();
+
+        int maxComputingSpeed = 0;
+        for (Axis axis : Axis.values()) {
+            try {
+                // Get the maximum feed rate in mm/min
+                double maxFeedRate = firmwareSettings.getMaximumRate(axis);
+
+                // Fetch the current steps per mm setting
+                double newStepsPerMMSetting = parseDouble(getSettingsTextField(axis).getText());
+                double currentStepsPerMMSetting = firmwareSettings.getStepsPerMillimeter(axis);
+                double stepsPerMMSetting = Math.max(newStepsPerMMSetting, currentStepsPerMMSetting);
+
+                // Calculate the currently needed processing speed
+                double computingSpeed = (maxFeedRate / 60.0) * stepsPerMMSetting;
+                maxComputingSpeed = (int) Math.max(computingSpeed, maxComputingSpeed);
+            } catch (FirmwareSettingsException ignored) {
+                // Never mind
+            }
+        }
+
+        if (maxComputingSpeed > 30000) {
+            setErrorMessage(" " + String.format(Localization.getString("platform.plugin.setupwizard.calibration.computer-speed-warning"), (maxComputingSpeed / 1000) + "kHz"));
+        } else {
+            setErrorMessage("");
+        }
+    }
+
+    private double parseDouble(String text) {
+        try {
+            return decimalFormat.parse(text).doubleValue();
+        } catch (ParseException ignored) {
+            // Never mind
+        }
+
+        return 0;
     }
 
     private void updateMeasurementEstimatesFields() {

@@ -21,10 +21,13 @@ package com.willwinder.universalgcodesender.model;
 
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
+import com.willwinder.universalgcodesender.listeners.MessageListener;
+import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import java.io.File;
+import java.util.List;
 
 /**
  * API used by front ends to interface with the model.
@@ -32,6 +35,22 @@ import java.io.File;
 public interface BackendAPI extends BackendAPIReadOnly {
     // Config options
     void setGcodeFile(File file) throws Exception;
+
+    /**
+     * Returns a list of files from the configured workspace directory
+     *
+     * @return a list of files in the workspace
+     */
+    List<String> getWorkspaceFileList();
+
+    /**
+     * Opens a gcode file from the workspace directory. Just supply one of the files from
+     * the method {@link #getWorkspaceFileList()}.
+     *
+     * @param file the file to open
+     */
+    void openWorkspaceFile(String file) throws Exception;
+
     void applySettings(Settings settings) throws Exception;
 
     /**
@@ -105,5 +124,11 @@ public interface BackendAPI extends BackendAPIReadOnly {
     IController getController();
     void applySettingsToController(Settings settings, IController controller) throws Exception;
 
-    void sendMessageForConsole(String msg);
+    /**
+     * Dispatch a message with the given type to all registered message listeners using {@link MessageListener#onMessage(MessageType, String)}
+     *
+     * @param messageType the type of message to be printed
+     * @param message the message to be written
+     */
+    void dispatchMessage(MessageType messageType, String message);
 }

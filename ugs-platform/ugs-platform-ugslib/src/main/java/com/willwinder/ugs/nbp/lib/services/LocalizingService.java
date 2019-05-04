@@ -107,6 +107,12 @@ public class LocalizingService {
     public final static String OpenActionId = "com.willwinder.ugs.nbp.core.actions.OpenAction";
     public final static String OpenCategory = CATEGORY_FILE;
 
+    public final static String ReloadGcodeTitleKey = "platform.menu.reload";
+    public final static String ReloadGcodeTitle = Localization.getString(ReloadGcodeTitleKey, lang);
+    public final static String ReloadGcodeWindowPath = MENU_FILE;
+    public final static String ReloadGcodeActionId = "com.willwinder.ugs.nbp.core.actions.ReloadGcodeAction";
+    public final static String ReloadGcodeCategory = CATEGORY_FILE;
+
     public final static String StartTitleKey = "mainWindow.swing.sendButton";
     public final static String StartTitle = Localization.getString(StartTitleKey, lang);
     public final static String StartWindowPath = MENU_MACHINE;

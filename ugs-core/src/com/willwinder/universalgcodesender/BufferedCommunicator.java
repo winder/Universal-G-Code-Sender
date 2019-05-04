@@ -196,7 +196,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     synchronized public void streamCommands() {
         // If there are no commands to send, exit.
         if (this.getNextCommand() == null) {
-            logger.log(Level.INFO, "There are no more commands to stream");
+            logger.log(Level.FINE, "There are no more commands to stream");
             return;
         }
         
@@ -225,10 +225,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             
             this.activeCommandList.add(command);
             this.sentBufferSize += (commandString.length() + 1);
-        
-            // Command already has a newline attached.
-            this.sendMessageToConsoleListener(">>> " + commandString + "\n");
-            
+
             try {
                 this.sendingCommand(commandString);
                 conn.sendStringToComm(commandString + "\n");

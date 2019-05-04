@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
-import com.willwinder.universalgcodesender.firmware.GrblFirmwareSettings;
+import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettings;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -29,6 +29,8 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -50,7 +52,7 @@ public class GrblControllerMockTests {
     gc.rawResponseListener("$10=100");
 
     ArgumentCaptor<String> consoleMessageCaptor = ArgumentCaptor.forClass(String.class);
-    verify(gc, times(1)).messageForConsole(consoleMessageCaptor.capture());
+    verify(gc, times(1)).dispatchConsoleMessage(any(), consoleMessageCaptor.capture());
     assertThat(consoleMessageCaptor.getValue(), containsString(description));
   }
 

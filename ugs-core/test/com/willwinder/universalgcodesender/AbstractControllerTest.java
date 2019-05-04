@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -68,6 +69,7 @@ public class AbstractControllerTest {
     
     private final static AbstractCommunicator mockCommunicator = EasyMock.createMock(AbstractCommunicator.class);
     private final static ControllerListener mockListener = EasyMock.createMock(ControllerListener.class);
+    private final static MessageService mockMessageService = EasyMock.createMock(MessageService.class);
     private final static GcodeCommandCreator gcodeCreator = new GcodeCommandCreator();
 
     private Settings settings = new Settings();
@@ -107,6 +109,7 @@ public class AbstractControllerTest {
         f.set(niceInstance, gcodeCreator);
         
         instance.addListener(mockListener);
+        instance.setMessageService(mockMessageService);
     }
 
     @BeforeClass
@@ -123,9 +126,9 @@ public class AbstractControllerTest {
     public void setUp() throws Exception {
         // AbstractCommunicator calls a function on mockCommunicator that I
         // don't want to deal with.
-        reset(mockCommunicator, mockListener);
+        reset(mockCommunicator, mockListener, mockMessageService);
         init();
-        reset(mockCommunicator, mockListener);
+        reset(mockCommunicator, mockListener, mockMessageService);
     }
 
 
@@ -135,9 +138,9 @@ public class AbstractControllerTest {
     private void openInstanceExpectUtility(String port, int portRate, boolean handleStateChange) throws Exception {
         instance.openCommAfterEvent();
         expect(expectLastCall()).anyTimes();
-        mockListener.messageForConsole(anyObject(), EasyMock.anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, portRate)).andReturn(true).once();
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
@@ -190,7 +193,7 @@ public class AbstractControllerTest {
 
         instance.openCommAfterEvent();
         expect(expectLastCall()).once();
-        mockListener.messageForConsole(anyObject(), anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).once();
         expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
         replay(instance, mockCommunicator, mockListener);
@@ -230,9 +233,9 @@ public class AbstractControllerTest {
         expect(expectLastCall()).once();
 
         // Message for open and close.
-        mockListener.messageForConsole(anyObject(), anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).times(2);
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, baud)).andReturn(true).once();
+        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, baud)).andReturn(true).once();
         mockCommunicator.closeCommPort();
         expect(expectLastCall()).once();
         replay(instance, mockCommunicator, mockListener);
@@ -635,7 +638,7 @@ public class AbstractControllerTest {
 
         // Setup test with commands sent by communicator waiting on response.
         testCommandSent();
-        reset(instance, mockCommunicator, mockListener);
+        reset(instance, mockCommunicator, mockListener, mockMessageService);
         expect(instance.handlesAllStateChangeEvents()).andReturn(true).anyTimes();
 
         // Make sure the events are triggered.
@@ -646,7 +649,7 @@ public class AbstractControllerTest {
         mockListener.commandComplete(capture(gc2));
         expect(expectLastCall());
         expect(expectLastCall());
-        mockListener.messageForConsole(anyObject(), anyString());
+        mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall());
         mockListener.fileStreamComplete("queued commands", true);
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);

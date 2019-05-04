@@ -1,0 +1,35 @@
+<div class="card">
+  <div class="alert {{stateClass}}" role="alert">
+    <div class="d-flex justify-content-between">
+      <div>{{status.state}}</div>
+      <div><a href="#" class="badge badge-danger" (click)="killAlarm()" *ngIf="isStatusAlarm()">Kill alarm</a></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row label">
+      <div class="col-2"></div>
+      <div class="col-6 text-right work">Work</div>
+      <div class="col-4 text-right">Machine</div>
+    </div>
+    <div class="row axis-row">
+      <div class="col-2 axis-label">X</div>
+      <div class="col-6 work-coord">{{status.workCoord.x.toFixed(3)}} <a href="#" (click)="resetToZero('X')"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-4 machine-coord">{{status.machineCoord.x.toFixed(3)}}</div>
+    </div>
+    <div class="row axis-row">
+      <div class="col-2 axis-label">Y</div>
+      <div class="col-6 work-coord">{{status.workCoord.y.toFixed(3)}} <a href="#" (click)="resetToZero('Y')"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-4 machine-coord">{{status.machineCoord.y.toFixed(3)}}</div>
+    </div>
+    <div class="row axis-row">
+      <div class="col-2 axis-label">Z</div>
+      <div class="col-6 work-coord">{{status.workCoord.z.toFixed(3)}} <a href="#" (click)="resetToZero('Z')"><fa-icon icon="backspace"></fa-icon></a></div>
+      <div class="col-4 machine-coord">{{status.machineCoord.z.toFixed(3)}}</div>
+    </div>
+  </div>
+
+  <div class="card-footer text-muted">
+    <button class="badge badge-secondary" (click)="toggleUnits()">Units: {{preferredUnits}}</button>
+  </div>
+</div>

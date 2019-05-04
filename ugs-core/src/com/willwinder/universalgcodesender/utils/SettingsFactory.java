@@ -21,16 +21,12 @@ package com.willwinder.universalgcodesender.utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -142,7 +138,6 @@ public class SettingsFactory {
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
-                out.setDisplayStateColor(Boolean.valueOf(properties.getProperty("displayStateColor", "true")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
                 out.updateMacro(2, null, null, properties.getProperty("customGcode2", "G0 G91 X10;G0 G91 Y10;"));
                 out.updateMacro(3, null, null, properties.getProperty("customGcode3", ""));
@@ -177,5 +172,15 @@ public class SettingsFactory {
     private static File getSettingsFile() {
         File settingDir = SettingsFactory.getSettingsDirectory();
         return new File (settingDir, JSON_FILENAME);
+    }
+
+    /**
+     * Saves the current settings
+     */
+    public static void saveSettings() {
+        if(settings == null) {
+            throw new RuntimeException("No settings are loaded");
+        }
+        saveSettings(settings);
     }
 }

@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.filechooser.FileFilter;
 
 /**
  *
@@ -66,6 +67,33 @@ public class SwingHelpers {
     } else {
       return Optional.empty();
     }  
+  }
+
+  public static Optional<File> openDirectory(String title, File defaultDirectory) {
+    JFileChooser chooser = new JFileChooser();
+    if(defaultDirectory != null && defaultDirectory.isDirectory()) {
+      chooser.setCurrentDirectory(defaultDirectory);
+    }
+    chooser.setDialogTitle(title);
+    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    chooser.setAcceptAllFileFilterUsed(false);
+    chooser.setFileFilter(new FileFilter() {
+      @Override
+      public boolean accept(File f) {
+        return f.isDirectory();
+      }
+
+      @Override
+      public String getDescription() {
+        return "Directories";
+      }
+    });
+
+    if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+      return Optional.of(chooser.getSelectedFile());
+    }
+
+    return Optional.empty();
   }
 
   @FunctionalInterface

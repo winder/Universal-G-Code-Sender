@@ -243,16 +243,6 @@ public class JogPanel extends JPanel implements UGSEventListener, ControllerList
     }
 
     @Override
-    public void messageForConsole(MessageType type, String msg) {
-
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
-
-    }
-
-    @Override
     public void statusStringListener(ControllerStatus status) {
     }
 

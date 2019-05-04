@@ -45,7 +45,7 @@ public class WindowTitleUpdaterService {
 
     private void updateVersion() {
         // Sets the version string in the about dialog
-        System.setProperty("netbeans.buildnumber", Version.getVersionString());
+        System.setProperty("netbeans.buildnumber", String.valueOf(Version.getBuildDateAsNumber()));
     }
 
     private void onEvent(UGSEvent event) {

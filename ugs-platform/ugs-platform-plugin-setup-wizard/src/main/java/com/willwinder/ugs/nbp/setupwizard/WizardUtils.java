@@ -37,7 +37,7 @@ public class WizardUtils {
     public static void killAlarm(BackendAPI backendAPI) {
         IController controller = backendAPI.getController();
         if (controller != null) {
-            ControllerState state = controller.getState();
+            ControllerState state = controller.getControllerStatus().getState();
             if (state == ControllerState.ALARM) {
                 try {
                     controller.killAlarmLock();

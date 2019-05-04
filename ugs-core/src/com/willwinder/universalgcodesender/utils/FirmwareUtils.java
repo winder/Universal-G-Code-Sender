@@ -24,6 +24,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.willwinder.universalgcodesender.AbstractController;
+import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import java.io.BufferedReader;
 import java.io.File;
@@ -125,23 +126,11 @@ public class FirmwareUtils {
      * @param firmware
      * @return 
      */
-    public static Optional<AbstractController> getControllerFor(String firmware) {
+    public static Optional<IController> getControllerFor(String firmware) {
         if (!configFiles.containsKey(firmware)) {
             return Optional.empty();
         }
 
-        /*
-        ConfigLoader config = new Gson().fromJson(new FileReader(configFiles.get(firmware).configFile), ConfigLoader.class);
-        File f = configFiles.get(firmware).configFile;
-        File next = new File(f.getParent(), f.getName() + ".out");
-        try (FileWriter fileWriter = new FileWriter(next)) {
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-             fileWriter.write(gson.toJson(config, ConfigLoader2.class));
-        } catch (IOException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-        System.out.println("Have config: " + config.toString());
-        */
         return Optional.of(configFiles.get(firmware).loader.getController());
     }
 
@@ -169,7 +158,7 @@ public class FirmwareUtils {
      * into the settings/firmware_config dir.
      */
     public synchronized static void initialize() {
-        System.out.println("Initializing firmware... ...");
+        logger.info("Initializing firmware... ...");
         File firmwareConfig = new File(SettingsFactory.getSettingsDirectory(),
                 FIRMWARE_CONFIG_DIRNAME);
 
@@ -204,7 +193,7 @@ public class FirmwareUtils {
 
             Stream<Path> files = Files.walk(myPath, 1);
             for (Path path : (Iterable<Path>) () -> files.iterator()) {
-                System.out.println(path);
+                logger.info(path.toString());
                 final String name = path.getFileName().toString();
                 File fwConfig = new File(firmwareConfig, name);
                 if (name.endsWith(".json")) {

@@ -41,22 +41,23 @@ public class TinyGGcodeCommand extends GcodeCommand {
         // wrap in json
         if ("\n".equals(command) ||
                 "\r\n".equals(command) ||
-                "?".equals(command) ||
-                command.startsWith("{\"sr")) {
+                "?".equals(command)) {
                 // this is a status request cmd
                 ret = "{\"sr\":\"\"}";
-        } else if (command.startsWith("{")) {
-            // it is already json ready. leave it alone.
+        } else if (command.startsWith("{") || command.startsWith("$")) {
+            // it is already json ready or a system command. leave it alone.
             ret = command.trim();
         } else if (command.startsWith("(")) {
             // it's a comment. pass it thru. this app will handle it nicely
             ret = command;
         } else {
-            // assume it needs wrapping for gcode cmd
-            String c = command.trim();
-            ret = "{\"gc\":\"" + c + "\"}";
+            ret = command.trim();
         }
         
         return ret;
+    }
+
+    public static boolean isQueueReportResponse(String response) {
+        return response.startsWith("{\"qr\"");
     }
 }

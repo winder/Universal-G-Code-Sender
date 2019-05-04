@@ -1,6 +1,3 @@
-/**
- * Process all the listeners and call methods in the renderer.
- */
 /*
     Copyright 2016-2018 Will Winder
 
@@ -21,12 +18,12 @@
  */
 package com.willwinder.ugs.nbm.visualizer;
 
-import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.jogamp.opengl.util.FPSAnimator;
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.renderables.Selection;
 import com.willwinder.ugs.nbm.visualizer.renderables.SizeDisplay;
 import com.willwinder.ugs.nbm.visualizer.shared.RotationService;
+import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
@@ -38,6 +35,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.Settings.FileStats;
+
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -53,6 +51,7 @@ import java.util.prefs.PreferenceChangeListener;
 import javax.swing.SwingUtilities;
 
 /**
+ * Process all the listeners and call methods in the renderer.
  *
  * @author wwinder
  */
@@ -83,6 +82,7 @@ public class RendererInputHandler implements
         gcodeModel = new GcodeModel(Localization.getString("platform.visualizer.renderable.gcode-model"), rs);
         sizeDisplay = new SizeDisplay(Localization.getString("platform.visualizer.renderable.gcode-model-size"));
         selection = new Selection(Localization.getString("platform.visualizer.renderable.selection"));
+        sizeDisplay.setUnits(settings.getPreferredUnits());
 
         gr.registerRenderable(gcodeModel);
         gr.registerRenderable(sizeDisplay);
@@ -134,6 +134,10 @@ public class RendererInputHandler implements
             }
 
             animator.resume();
+        }
+
+        if(cse.isSettingChangeEvent()) {
+            sizeDisplay.setUnits(settings.getPreferredUnits());
         }
     }
 
@@ -224,8 +228,11 @@ public class RendererInputHandler implements
         // Show popup
         if (SwingUtilities.isRightMouseButton(e) || e.isControlDown()) {
             Position coords = gcodeRenderer.getMouseWorldLocation();
-            this.visualizerPopupMenu.setJogLocation(coords.x, coords.y);
-            this.visualizerPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+
+            // The position is always given in millimeters, convert to the preferred units
+            Position position = new Position(coords.getX(), coords.getY(), coords.getZ(), Units.MM)
+                    .getPositionIn(settings.getPreferredUnits());
+            this.visualizerPopupMenu.setJogLocation(position);
         }
     }
 
@@ -334,7 +341,6 @@ public class RendererInputHandler implements
      */
     @Override
     public void statusStringListener(ControllerStatus status) {
-        sizeDisplay.setUnits(status.getMachineCoord().getUnits());
         gcodeRenderer.setMachineCoordinate(status.getMachineCoord());
         gcodeRenderer.setWorkCoordinate(status.getWorkCoord());
     }
@@ -373,13 +379,5 @@ public class RendererInputHandler implements
 
     @Override
     public void probeCoordinates(Position p) {
-    }
-
-    @Override
-    public void messageForConsole(MessageType type, String msg) {
-    }
-
-    @Override
-    public void postProcessData(int numRows) {
     }
 }
