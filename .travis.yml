@@ -15,13 +15,13 @@ before_script:
 
 after_success:
 - codecov
-- mvn package -pl ugs-core assembly:assembly
 - mvn install
 
 deploy:
-  # deploy develop to the staging environment
+  # Only deploy to a specific branch.
  - provider: script
    script:
+   - mvn package -pl ugs-core assembly:assembly
    - mvn package -pl ugs-platform/application -P create-autoupdate,create-dmg -DskipTests=true
    - curl -fL https://getcli.jfrog.io | sh
    - "./jfrog rt config --interactive=false --url $ARTIFACTORY_URL --user $ARTIFACTORY_LOGIN --apikey $ARTIFACTORY_API_KEY"
@@ -31,8 +31,8 @@ deploy:
    - ./jfrog rt u "ugs-platform/application/target/site/netbeans_site/" "/UGS/update-center/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER
    - "./jfrog rt bce $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER"
    - "./jfrog rt bp $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER"
-    on:
-      branch: deployments
+   on:
+     branch: deployments
 
 env:
   global:
