@@ -81,7 +81,7 @@ public final class MacroService {
                     text = m.getNameAndDescription();
                 }
 
-                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), text, actionCategory, localCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
+                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), text, actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
             }
         } catch (Exception e) {
             e.printStackTrace();
