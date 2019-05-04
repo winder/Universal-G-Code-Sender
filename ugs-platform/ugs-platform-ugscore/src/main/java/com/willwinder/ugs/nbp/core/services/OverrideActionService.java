@@ -74,23 +74,23 @@ public class OverrideActionService {
             String pattern = Localization.getString("overrides.feed") + " (%s)";
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_FINE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_COARSE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".feedOvrReset", String.format(pattern, OverridesPanel.RESET_FEED),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_FEED_OVR_RESET));
 
             // Spindle Overrides
@@ -101,23 +101,23 @@ public class OverrideActionService {
             pattern = Localization.getString("overrides.spindle") + " (%s)";
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarseMinus", String.format(pattern, OverridesPanel.MINUS_COARSE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFineMinus", String.format(pattern, OverridesPanel.MINUS_FINE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_MINUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrFinePlus", String.format(pattern, OverridesPanel.PLUS_FINE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_FINE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrCoarsePlus", String.format(pattern, OverridesPanel.PLUS_COARSE),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_COARSE_PLUS));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".spindleOvrReset", String.format(pattern, Localization.getString("mainWindow.swing.reset")),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_SPINDLE_OVR_RESET));
 
             // Rapid Overrides
@@ -129,15 +129,15 @@ public class OverrideActionService {
             pattern = Localization.getString("overrides.rapid") + " (%s)";
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrLow", String.format(pattern, OverridesPanel.RAPID_LOW),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_LOW));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrMedium", String.format(pattern, OverridesPanel.RAPID_MEDIUM),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_MEDIUM));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".rapidOvrReset", String.format(pattern, OverridesPanel.RAPID_FULL),
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_RAPID_OVR_RESET));
 
             // Toggles
@@ -148,15 +148,15 @@ public class OverrideActionService {
                     Localization.getString("overrides.toggle.short"));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleSpindle", OverridesPanel.SPINDLE_SHORT,
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_SPINDLE));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toogleFloodCoolant", OverridesPanel.FLOOD,
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_FLOOD_COOLANT));
 
             ars.registerAction(OverrideAction.class.getCanonicalName() + ".toggleMistCoolant", OverridesPanel.MIST,
-                    category, localizedCategory, null, menuPath, localized,
+                    category, null, menuPath, localized,
                     new OverrideAction(this, Overrides.CMD_TOGGLE_MIST_COOLANT));
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);

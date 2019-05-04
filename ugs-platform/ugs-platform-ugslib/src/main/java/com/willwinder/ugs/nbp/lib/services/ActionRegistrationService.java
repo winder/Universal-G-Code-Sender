@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -28,10 +28,11 @@ import org.openide.util.Exceptions;
 import org.openide.util.lookup.ServiceProvider;
 
 /**
+ * A service for dynamically registering actions.
  *
  * @author wwinder
  */
-@ServiceProvider(service=ActionRegistrationService.class) 
+@ServiceProvider(service=ActionRegistrationService.class)
 public class ActionRegistrationService {
 
     private static final String SHADOW = "shadow";
@@ -47,18 +48,15 @@ public class ActionRegistrationService {
      * @param menuPath Menu location starting with "Menu", like "Menu/Head/Hats"
      * @param localMenu Localized menu location starting with "Menu", like "Menu/Cabeza/Sombreros"
      * @param action an action object to attach to the action entry.
-     * @throws IOException 
+     * @throws IOException if the action couldn't be registered
      */
-    public void registerAction(String id, String name, String category, String localCategory, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
+    public void registerAction(String id, String name, String category, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
         ///////////////////////
         // Add/Update Action //
         ///////////////////////
         String originalFile = "Actions/" + category + "/" + id + ".instance";
         FileObject root = FileUtil.getConfigRoot();
         FileObject in = FileUtil.createFolder(root, "Actions/" + category);
-        //in.setAttribute("displayName", localCategory);
-        //in.setAttribute("SystemFileSystem.localizingBundle", localCategory + "lkhaglk");
-        //in.setAttribute("SystemFileSystem.localizingBundle", localCategory);
         in.refresh();
 
         FileObject obj = in.getFileObject(id, "instance");
@@ -135,7 +133,7 @@ public class ActionRegistrationService {
         try {
             FileObject root = FileUtil.getConfigRoot();
             FileObject in = FileUtil.createFolder(root, "Actions/" + category);
-            
+
             FileObject obj = in.getFileObject(key.replaceAll("\\.", "-"), "instance");
             if (obj != null) {
                 obj.setAttribute("displayName", name);

@@ -29,7 +29,7 @@ For stable releases visit the [downloads page](http://winder.github.io/ugs_websi
 
 ## Running 
 
-Make sure you have [Java 8](https://java.com/en/download/manual.jsp) or later installed. 
+Make sure you have [Java 8](https://java.com/en/download/manual.jsp) installed. 
 
 Download either **UGS Classic** or **UGS Platform** and unzip the .zip file.
 
@@ -122,7 +122,8 @@ If you are more used to Intellij, you can also build, run and debug it there:
   - VM Options: `-Dnetbeans.user=$ProjectFileDir$/ugs-platform/application/target/userdir -Dnetbeans.home=$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform -Dnetbeans.logger.console=true -Dnetbeans.indexing.noFileRefresh=true -Dnetbeans.dirs="$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ugsplatform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/platform:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/ide:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/extra:$ProjectFileDir$/ugs-platform/application/target/ugsplatform/java"`
   - Program arguments: `--branding ugsplatform`
   - Working dir: `$ProjectFileDir$`
-  - Use classpath of module: `ugs-platfom-ugscore` 
+  - Use classpath of module: `ugs-platform-app` 
+- There is a [runConfiguration](.idea/runConfigurations/UGS_Platform.xml) in the repository, which should be available after importing the project
 
 
 ## Changelog

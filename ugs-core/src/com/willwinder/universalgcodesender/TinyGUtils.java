@@ -24,16 +24,13 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
-import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -303,16 +300,21 @@ public class TinyGUtils {
      *
      * @param controllerStatus the current controller status
      * @param gcodeState       the current gcode state
-     * @param axis             the axis to set
-     * @param position         the position to set
+     * @param positions         the position to set
      * @return a command for setting the position
      */
-    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, Axis axis, double position) {
+    public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
         int offsetCode = WorkCoordinateSystem.fromGCode(gcodeState.offset).getPValue();
         Position machineCoord = controllerStatus.getMachineCoord();
-        double coordinate = -(position - machineCoord.get(axis));
-        return "G10 L2 P" + offsetCode + " " +
-                axis.name() + Utils.formatter.format(coordinate);
+
+
+        PartialPosition.Builder offsets = new PartialPosition.Builder();
+        for (Map.Entry<Axis, Double> position : positions.getAll().entrySet()) {
+            double axisOffset = -(position.getValue() - machineCoord.get(position.getKey()));
+            offsets.setValue(position.getKey(), axisOffset);
+
+        }
+        return "G10 L2 P" + offsetCode + " " + offsets.build().getFormattedGCode();
     }
 
     /**

@@ -20,13 +20,13 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import static com.willwinder.universalgcodesender.model.Axis.*;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static com.willwinder.universalgcodesender.model.Axis.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
@@ -370,20 +370,20 @@ public class GrblUtilsTest {
         String result;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G92 X0.0000", result);
+        assertEquals("G92 X0", result);
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G92 Y0.0000", result);
+        assertEquals("G92 Y0", result);
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G92 Z0.0000", result);
+        assertEquals("G92 Z0", result);
         
         version = 0.9;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G10 P0 L20 X0.0000", result);
+        assertEquals("G10 P0 L20 X0", result);
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G10 P0 L20 Y0.0000", result);
+        assertEquals("G10 P0 L20 Y0", result);
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G10 P0 L20 Z0.0000", result);
+        assertEquals("G10 P0 L20 Z0", result);
     }
 
     @Test
