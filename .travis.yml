@@ -12,16 +12,11 @@ before_script:
 script:
 - mvn package -pl ugs-platform/application -P create-autoupdate,create-dmg -DskipTests=true
 - curl -fL https://getcli.jfrog.io | sh
-- "./jfrog rt config --interactive=false --url $ARTIFACTORY_URL --apikey $ARTIFACTORY_API_KEY
-  $ARTIFACTORY_SERVER_ID"
-- ./jfrog rt u "ugs-core/target/UniversalGcodeSender.jar" "/ugs/dist/" --build-name=$ARTIFACTORY_NAME
-  --build-number=$TRAVIS_BUILD_NUMBER --flat=true
-- ./jfrog rt u "ugs-platform/application/target/ugs-platform-app-*.zip" "/ugs/dist/"
-  --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=true
-- ./jfrog rt u "ugs-platform/application/target/ugs-platform-app-*.dmg" "/ugs/dist/"
-  --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=true
-- ./jfrog rt u "ugs-platform/application/target/site/netbeans_site/" "/ugs/update-center/"
-  --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER
+- "./jfrog rt config --interactive=false --url $ARTIFACTORY_URL --user $ARTIFACTORY_LOGIN --apikey $ARTIFACTORY_API_KEY"
+- ./jfrog rt u "ugs-core/target/UniversalGcodeSender.jar" "/ugs/dist/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=true
+- ./jfrog rt u "ugs-platform/application/target/ugs-platform-app-*.zip" "/ugs/dist/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=true
+- ./jfrog rt u "ugs-platform/application/target/ugs-platform-app-*.dmg" "/ugs/dist/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER --flat=true
+- ./jfrog rt u "ugs-platform/application/target/site/netbeans_site/" "/ugs/update-center/" --build-name=$ARTIFACTORY_NAME --build-number=$TRAVIS_BUILD_NUMBER
 - "./jfrog rt bce $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER"
 - "./jfrog rt bp $ARTIFACTORY_NAME $TRAVIS_BUILD_NUMBER"
 after_success:
@@ -32,3 +27,6 @@ env:
   global:
   - ARTIFACTORY_NAME=ugs
   - JFROG_CLI_OFFER_CONFIG=false
+  - secure: lMfSAZW/B9bYaq3Q/FmlgQYJpBfOmMWpVHOIaqpTPGWAfsxG5nKVD1Gco4QFo3eMjduz1S3chw/pPbq39nlLsSNvN4xNOwjyFwP2FoOaHBJIEDAOzcsAN8YfGYap+PgsElz995GsiWfNYBvVoeqYDZ8I1NWWHxwOV8U1LFyDsW87t4dVS7jtfEjKAdzTc5Lo1Xd2b+AL/sI5dhTKD1gO8x2e3DMmW7wkus/Gu4rgKX/gr0eWDAGRQj6qPZyHTFYgm3Mw6jmcrfogpFRidJiQzX2Byf/HXq5jahar7gX8eIID+JZ75ZIGPgq7VS9zf8LXFXEGlDK3RCE8RIYSXh/Gpp9oSeRSQlhycDc2sDOlbXeUeoXqvxf3lVG4z4bGQMFRibmhR1OWcLzFqOgWUQSjw2TjSNUR/hMQkpzKo/1Hz5KOdftDM43AfFGoGqrMrMpG+J1IZJF5RnZqFFDu6M4VJg7z3ICs00TsG+44vchNuk+H+BytUUm8/v6tI0W0n/1YX/6VhBsZ7oEwhgq84b53j478pVlL87p6b9zxxxAt5gUu6lKJ6GgN45jLRYokDp3gpLHyCjTkK0EK1FyDYTPzvr2b7veuxXDhPEDQ058pdjk5w664S8X2iMN5zyGgkTl6VaF4rDI2FkBMrhGJZVf4N1k8HdzQhTaaOLfCn7GaGiM=
+  - secure: CBpgoP+cAY9oyWzPYR4zRxu9ZbNMwm4q+DwK/vYNIH9Mhk9R+MbZ8LcVNadpCDg8qz00dUDJmak9unCI4TAFXNJ5xx0AtVPpWbICb7qZ0Dt2nys4OAq/sNzyGaCjOJDHvj94y87jK7abkWDlS7CBFB9HAdOIrx8TbsKmIp6kgB9BOSv1iiwx3yIs9kvdRQQI3hzkJbzGRb34a1y/fv9+nzW2J7uulhS1XxKuDOP7LgALGPTvOPVKS2wNiJx6nHlPbQXMbY3rSgoSxXWU2rFyYOz34BeTUwGtQRg1SzBwuf+rZ7w9Y5dSKNQYJJzfjzAfASIegrUazW142wfcAq+S1faqA9uyaDc31PBCnm1uVqrR1FDLrMHECh1yDbS1V3zut75iMT6T6ugwSJLsBQhTdw09Cw/DSkO5gPSq67lOQA0G+ENf3Fka8Akkk+S/fQOwLHR2RqLIlBumv80hpsLPy4Sf6S9WDMRI0qVXu0F9wAe+HvAugUbHwZaBALM9nv+xjBDpLGJwj0RPw/UVDekrkvYQ/Iy6Mh74h6Jt3OZkcizNnXrrvhO9IPNT+aGsRglAZN3Ptt4RkEUTImSc66NF7n3xpEJzM+s15bcFwudIZ9OEQghEBkVq/ZrFBSxbZNSFiLF4aXjFXZ2gNalIr5VUHX9SzkaAc5yL3iVEHZy7coU=
+  - secure: OuTLAi3CVI/gJDBPYecbcoTZNbB+nPToWXS3eZw9XhTHKY2Pmb9R0X07Gx0h2WY5l1pl5sHfGZbKzwmRTy5Ufnk9ZSIxeaLF4PxSil3okBvxR5eAiRxtH+GsGBAGdbMZmL40V3NOUTJXSeN8VKFP/Uo2Zw/pD7nNvfavIZVCj3Q8/opeGdSRyMAZE5rVJkDbwn8YgrzwZZljj5nDah/WRgp+JWlCU5l62QvGDbLRrtuSxEwwFFiUFgaI84lKH2DyK3iXIgYh05lVbK40Fe1I+KborgnK3hcIlRSTKSuE8UkykZKx29d1kRg8l0Hy3HgyKqjoNTPy/YjsLIxtp67diFb9aMw2CV1y3h6wJnLC8w9dKCUMdWYA35j2wlr4w5GpNZPQSZzcTFhzKR58Dy6Und89B4suogzM68OynBRG1mM7pHdQKiC69lFla0Jjc9UYZx6MdIa2C/jTp7hs47D2i5yb0LU4Wisj0D/mJTKEmoKTtjIDpmdBdTiUGHYjZjRwp5Qe124bZOMPU5uRPLIE++RvSrHyqo2nawynxtnRJ0zqP3EbIqAOYjNtznDCblym3nd1mEZbldUMsdWbFbxwsOBmorgHa0daLbIDNauNHyrP4V2pHesQu86UhB43PuNBOMSya5OXHZFO5OTtZPYwI4GkZuO1ynvI5rLJgzBUQbo=
