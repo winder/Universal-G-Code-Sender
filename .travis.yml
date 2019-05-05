@@ -7,6 +7,10 @@ cache:
 jdk:
 - oraclejdk8
 
+# Skip automatic java build command
+install:
+  -
+
 before_script:
 - sudo apt-get update -qq
 - pip install --user codecov
