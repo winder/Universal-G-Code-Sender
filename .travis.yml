@@ -14,6 +14,7 @@ before_script:
 - sudo apt-get install -qq curl
 
 script:
+- mvn test -B
 - codecov
 - mvn install -DskipTests=true
 
