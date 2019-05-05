@@ -22,16 +22,16 @@ before_script:
 script:
 - mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
 - codecov
-
-after_script:
 # Make sure artifacts can be built
-- mvn package -pl ugs-core assembly:assembly -DskipTests=true
-- mvn package -pl ugs-platform/application -P create-autoupdate,create-dmg -DskipTests=true
+- mvn package -pl ugs-classic assembly:assembly -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
+# OSX installer don't seem to be working at the moment.
+#- mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
 
 deploy:
   # Only deploy to a specific branch.
  - provider: script
-   script: bash scripts/package_and_deploy.sh
+   script: bash scripts/deploy.sh
    skip_cleanup: true
    on:
      branch: deployments
