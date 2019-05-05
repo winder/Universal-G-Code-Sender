@@ -37,7 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -366,48 +368,28 @@ public class Settings {
         changed();
     }
 
-    public Macro getMacro(Integer index) {
-        Macro macro = macros.get(index);
-        if (macro == null) {
-            macro = new Macro(index.toString(), null, null);
-        }
-        return macro;
-    }
-
     public List<Macro> getMacros() {
-        return new ArrayList<>(macros.values());
+        return Collections.unmodifiableList(new ArrayList<>(macros.values()));
     }
 
-    public Integer getNumMacros() {
-        return macros.size();
-    }
-
-    public Integer getLastMacroIndex() {
-        // Obviously it would be more efficient to just store the max index
-        // value, but this is safer in that it's one less thing to keep in sync.
-        int i = -1;
-        for (Integer index : macros.keySet()) {
-            i = Math.max(i, index);
+    public void updateMacro(Macro macro) {
+        Optional<Integer> macroIndex = getMacroIndex(macro);
+        if(macroIndex.isPresent()) {
+            macros.put(macroIndex.get(), macro);
+            changed();
+        } else {
+            addMacro(macro);
         }
-        return i;
     }
 
-    public void clearMacros() {
-        macros.clear();
-        changed();
-    }
-
-    public void clearMacro(Integer index) {
-        macros.remove(index);
-        changed();
-    }
-
-    public void updateMacro(Integer index, Macro macro) {
-        updateMacro(index, macro.getName(), macro.getDescription(), macro.getGcode());
+    private Optional<Integer> getMacroIndex(Macro macro) {
+        return macros.keySet().stream()
+                .filter(key -> macros.get(key).equals(macro))
+                .findFirst();
     }
 
     public void updateMacro(Integer index, String name, String description, String gcode) {
-        if (gcode == null || gcode.trim().isEmpty()) {
+        if (gcode == null) {
             macros.remove(index);
         } else {
             if (name == null) {
@@ -415,6 +397,15 @@ public class Settings {
             }
             macros.put(index, new Macro(name, description, gcode));
         }
+        changed();
+    }
+
+    public void deleteMacro(Macro macro) {
+        List<Integer> keyList = macros.keySet().stream()
+                .filter(key -> macros.get(key).equals(macro))
+                .collect(Collectors.toList());
+
+        keyList.forEach(key -> macros.remove(key));
         changed();
     }
 
@@ -491,6 +482,12 @@ public class Settings {
 
     public String getWorkspaceDirectory() {
         return this.workspaceDirectory;
+    }
+
+    public void addMacro(Macro macro) {
+        int newIndex = macros.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+        macros.put(newIndex, macro);
+        changed();
     }
 
     public static class AutoLevelSettings {

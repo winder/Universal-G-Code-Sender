@@ -1,5 +1,5 @@
 /*
-    Copywrite 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,9 +21,9 @@ package com.willwinder.universalgcodesender.uielements.macros;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.Settings;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,11 +40,8 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     private final BackendAPI backend;
     private final List<JButton> customGcodeButtons = new ArrayList<>();
-    private final ArrayList<Macro> macros = new ArrayList<>();
-    JPanel macroPanel = new JPanel();
-
-    // Indicates that the macro list needs to be refreshed.
-    private boolean macrosDirty = true;
+    private List<Macro> macros = new ArrayList<>();
+    private JPanel macroPanel = new JPanel();
 
     public MacroActionPanel(BackendAPI backend) {
         if (backend == null) {
@@ -54,50 +51,33 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         this.backend = backend;
         backend.addUGSEventListener(this);
 
+        macros = backend.getSettings().getMacros();
+
         // Insert a scrollpane in case the buttons wont fit.
         JScrollPane scrollPane = new JScrollPane(macroPanel, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
+        doLayout();
     }
 
     @Override
     public void doLayout() {
-        Settings s = backend.getSettings();
-
-        // Lookup macros.
-        if (macrosDirty) {
-            Integer lastMacroIndex = s.getLastMacroIndex()+1;
-            macros.clear();
-            for (int i = 0 ; i < lastMacroIndex; i++) {
-                Macro m = s.getMacro(i);
-                if (StringUtils.isNotEmpty(m.getGcode())) {
-                    macros.add(s.getMacro(i));
-                }
-            }
-        }
+        customGcodeButtons.forEach(button -> macroPanel.remove(button));
+        customGcodeButtons.clear();
 
         // Cache the largest width amongst the buttons.
         int maxWidth = 0;
         int maxHeight = 0;
 
         // Create buttons.
-        for (int i = 0; i < macros.size() ; i++) {
-            final int index = i;
-            Macro macro = macros.get(i);
-            JButton button;
-            if (customGcodeButtons.size() <= i) {
-                button = new JButton(i+"");
-                button.setEnabled(false);
-                customGcodeButtons.add(button);
-                // Add action listener
-                button.addActionListener((ActionEvent evt) -> {
-                    customGcodeButtonActionPerformed(index);
-                });
-            } else {
-                button = customGcodeButtons.get(i);
-            }
+        for (Macro macro : macros) {
+            JButton button = new JButton(macro.getName());
+            button.setEnabled(backend.isIdle());
+            customGcodeButtons.add(button);
 
+            // Add action listener
+            button.addActionListener((ActionEvent evt) -> customGcodeButtonActionPerformed(macro));
 
             if (!StringUtils.isEmpty(macro.getName())) {
                 button.setText(macro.getName());
@@ -109,16 +89,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
                 button.setToolTipText(macro.getDescription());
             }
 
-            if (button.getPreferredSize().width > maxWidth) maxWidth = button.getPreferredSize().width;
-            if (button.getPreferredSize().height > maxHeight) maxHeight = button.getPreferredSize().height;
-        }
+            if (button.getPreferredSize().width > maxWidth) {
+                maxWidth = button.getPreferredSize().width;
+            }
 
-        // If button count was reduced, clear out any extras.
-        if (customGcodeButtons.size() > macros.size()) {
-            this.macroPanel.removeAll();
-            this.macroPanel.repaint();
-            for (int i = customGcodeButtons.size(); i > macros.size(); i--) {
-                JButton b = customGcodeButtons.remove(i-1);
+            if (button.getPreferredSize().height > maxHeight) {
+                maxHeight = button.getPreferredSize().height;
             }
         }
 
@@ -132,7 +108,9 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         // Update number of rows if more are needed.
         if (columns * rows < customGcodeButtons.size()) {
             rows = customGcodeButtons.size() / columns;
-            if (customGcodeButtons.size() % columns != 0) rows++;
+            if (customGcodeButtons.size() % columns != 0) {
+                rows++;
+            }
         }
 
         // Layout for buttons.
@@ -147,7 +125,8 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         macroPanel.setLayout(layout);
         
         // Put buttons in grid.
-        int x = 0; int y = 0;
+        int x = 0;
+        int y = 0;
         for (JButton button : customGcodeButtons) {
             macroPanel.add(button, "cell " + x +  " " + y);
             y++;
@@ -160,16 +139,12 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         super.doLayout();
     }
 
-    private void customGcodeButtonActionPerformed(int macroIndex) {
-        Macro macro = backend.getSettings().getMacro(macroIndex);
-        EventQueue.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-                } catch (Exception ex) {
-                    GUIHelpers.displayErrorDialog(ex.getMessage());
-                }
+    private void customGcodeButtonActionPerformed(Macro macro) {
+        EventQueue.invokeLater(() -> {
+            try {
+                MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+            } catch (Exception ex) {
+                GUIHelpers.displayErrorDialog(ex.getMessage());
             }
         });
     }
@@ -181,12 +156,11 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     }
 
     @Override
-    public void UGSEvent(com.willwinder.universalgcodesender.model.UGSEvent evt) {
+    public void UGSEvent(UGSEvent evt) {
         if (evt.isSettingChangeEvent()) {
-            macrosDirty = true;
+            macros = backend.getSettings().getMacros();
             doLayout();
-        }
-        else {
+        } else {
             updateCustomGcodeControls(backend.isIdle());
         }
     }

@@ -1,5 +1,8 @@
 package com.willwinder.universalgcodesender.types;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 /**
  * Created by Phil on 9/6/2015.
  */
@@ -48,5 +51,15 @@ public class Macro {
                 ", description='" + description + '\'' +
                 ", gcode='" + gcode + '\'' +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }
