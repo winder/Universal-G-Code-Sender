@@ -18,6 +18,7 @@ deploy:
   # Only deploy to a specific branch.
  - provider: script
    script: bash scripts/package_and_deploy.sh
+   skip_cleanup: true
    on:
      branch: deployments
 
