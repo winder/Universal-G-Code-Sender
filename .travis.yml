@@ -31,7 +31,7 @@ script:
 deploy:
   # Only deploy to a specific branch.
  - provider: script
-   script: bash scripts/deploy.sh
+   script: bash scripts/deploy.sh nightly
    skip_cleanup: true
    on:
      branch: deployments
