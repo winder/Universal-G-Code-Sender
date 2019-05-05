@@ -16,7 +16,7 @@ before_script:
 - curl -fL https://getcli.jfrog.io | sh
 
 script:
-- mvn test install -B
+- mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
 - codecov
 
 after_script:
