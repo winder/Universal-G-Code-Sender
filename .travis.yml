@@ -2,16 +2,44 @@ language: java
 
 cache:
   directories:
-  - $HOME/.m2
+  - "$HOME/.m2"
 
 jdk:
-  - oraclejdk8
+- oraclejdk8
 
-after_success:
-  - codecov
-  - mvn package -pl ugs-core assembly:assembly
-  - mvn install
+# Skip automatic java build command
+install:
+  -
 
 before_script:
-  - pip install --user codecov
+- sudo apt-get update -qq
+- pip install --user codecov
+# These are needed for deployments.
+- sudo apt-get install -qq genisoimage
+- sudo apt-get install -qq curl
+- curl -fL https://getcli.jfrog.io | sh
 
+script:
+- mvn test install -B -Djava.util.logging.config.file=scripts/logging.config
+- codecov
+# Make sure artifacts can be built
+- mvn package -pl ugs-classic assembly:assembly -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
+# OSX installer don't seem to be working at the moment.
+#- mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
+
+deploy:
+  # Only deploy to a specific branch.
+ - provider: script
+   script: bash scripts/deploy.sh nightly
+   skip_cleanup: true
+   on:
+     branch: deployments
+
+env:
+  global:
+  - ARTIFACTORY_NAME=ugs
+  - JFROG_CLI_OFFER_CONFIG=false
+  - secure: C6q/rpdH5CWXPdF2syv/WK/YpFJw1R2Cflj+kYgXxjUTFDEpJdbgUCecEBGUjxY+JBrnaPaZAymbGSIURu0xpulg2W369rhdBEPWMDYAx1FXWp3+dwc+Nt+bvDbmptTb16keiVQkqviZhPPDJIk9d9Q8fODXLv2cwN/8fzXDSxn1OTQSIf6k9yNLJQLAIJ9q0JKAPKY+vmRs0IlK64r2b++xg4ASITwjFUCPYIZeX8dvkEjoFOBxVdWYW07RH8Kl63GxuKMDsQWr85Axi3GwgD45ZX3vbogTtMCLPaMhEpSebi9Yx4WUYrLTjIIvfMxMOzNm/+2e9yHBikXdPMOQW/Pe74+5T0APb0v2bxViMhyatjCO1bzFgKrvaC4kZTqGwMuGfgXr9MmoJCRVWGq3JMcUN2MD+AqfD6yEVjLpS7k7hioPuN395TQvHEJCBv0EzOjGiKuvUn2RoUPxOC6OdZVEHsS7nKP7deUvus7+2QVkRQEauViRsuixq0qJwUom+K4DvhB6akxQnyUt99sX0ezgnkwOATf/R/tEKkbLpMPHWDE7DHJIjDIgIzsKnpLWxrhmNoTG+7TiGqhfT/p8Ys6LY9p0IjjvuMxijI4kgAc2S4GpZ4UGKNrDsnWzdmtp0kf1rauTyz3rjLzjx0wcf/xurFEJupOhIUtPjN0S+V0=
+  - secure: Ey1mfPV4EN2uIkPAvblB/UVl6i7cxTLmRrw4aO6IAuHTgP5osM2lkCB6nserF9izvWKBVk8s2ye/4VfdAZmgZ/ExPBo2T8UcfPnOwzkMFS9iQaGIZiDnspvDhAxL9dVwCXAOsHX2OffwVRAxq5zQXlmc/3WCMDRWQU1sS2N6i2LlUjgYfg8JaTrOsZ7vJr6tUNamn6DiKc/TnSvPkIczmWbHWzP+mKiFFICx886COl1oJGitbLnJVjZLTtxE2w0GSy7rmpt+XaX8OYv2/9hDiG3xg10iMvF8EAgQqSF9SDL4kDkiI8dJIlM7+e+7WyODq0PLgTKF7ps8INA3IPyo3cktsaQ0KRXmxA6j8wNWFTh76+HQ1+qyBw8/hWDNWRtD5rR84LJ0yg2HOoLLmge7KeJs22t8Uqe8Piz2stlnDjfQI3ljVpoO0S+fnRqvP8WEMYAnhfa9n8LJihJq5eceyAjsoSKOstpk9/Cw6sNLER5Fy3A1I7Gr5xNWLplGauNIOY54uU50tYXeSzDeXk59MgcDSNcy51tHTuAr18vhyZfz2zupFMyhUm5OCI2AyuJENd9xfvNIYM8HPFeEMJS1w7+kFTKD4apqBY+hB6xEAFTTTauY7vm1BAtZ9ZXXuo9ovZ/nxY6cdBHeLUgWpr8eA2wMpFEHPLhfPQ4e0JJbgNg=
+  - secure: xQvS0zUicxz71mao1HVRi4ApcHj/8yhnRFfEVivpe9NH2n4xPsyY+dpkrodgTmGVPDZKVEWMJMjQepgovqdwiSqAVN2383ma+JPpJL23mm8u4vNxkxjaKuc4jrbKbHpU792Sik5JaN88MBtwNPKW9933jafysFr2lwphH5aw6+Qydat9WmTnlKzX341glJfeJb304bkH5aTeF9JHfJJ5wmKIkLEU8Jfm8LXRSbHtnxN5C7ZwQQU1ryiVLXfBEquRy3NXW+soRCrKH39vOmS3Dnn2iXdRuknrUyGwpDWmAy5y6ZVCZ8eNNDZhkY9PFbaJhI4RZtAxS8X2FUtzwjs/wVjkmB0DPTRVzShOvCITGefrubECmKoDGeQNoeyGK/Xu3iryJ5qZ0YaNXIIot7bgreFgzrqM7i2eqsEwnlTZycooc1Mx9GnkP/TkDRkhDJ4FmQXU5rrSucpfHwDJsOnEvZqjQyCtMCQbinpRqqMF/IRJbhf+i0mkFFEh8BT7V6+tFHDcFnZLTjRtM46xP+5auEFGOUvsCUC1jQUu3ylDDji+9O9bDSgv3iSU4QCnu7P4s2a9MXaoZkFZw27cbuQ5Q2dpRERD5/PQkem4OwxIHrOElE5/dXHyvo+e3qzl0JIWkYnvPVh9D9AuUOGDdX/JjplRtJSIh5XE9sjpIQNNNJw=
