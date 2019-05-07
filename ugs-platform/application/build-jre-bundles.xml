@@ -66,9 +66,6 @@
         <arg line="@{dir}/@{sfx.output}"/>
         <arg line="@{dir}/jre/*"/>
       </exec>
-
-      <!-- remove old jre directory. -->
-      <delete dir="@{dir}/jre"/>
     </sequential>
   </macrodef>
 
@@ -114,7 +111,6 @@
       <echo message="In: @{bundle.dir}"/>
 
       <!-- download -->
-      <echo message="Downloading bundle: @{url.prefix}/@{bundle}.tar.gz"/>
       <exec dir="${project.build.directory}" executable="curl" failonerror="true">
         <arg line="-L"/>
         <arg line="-b"/>
