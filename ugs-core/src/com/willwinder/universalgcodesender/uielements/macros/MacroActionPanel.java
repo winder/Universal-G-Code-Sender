@@ -135,7 +135,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
                 y = 0;
             }             
         }
-
+        revalidate();
         super.doLayout();
     }
 

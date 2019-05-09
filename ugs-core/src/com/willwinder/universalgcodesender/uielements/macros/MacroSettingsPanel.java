@@ -28,14 +28,17 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.Settings;
-
-import java.lang.reflect.Type;
 import net.miginfocom.swing.MigLayout;
+import org.apache.commons.lang3.SerializationUtils;
 
-
-import javax.swing.*;
-
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -43,18 +46,22 @@ import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-public class MacroPanel extends JPanel implements UGSEventListener {
-    private static final Logger logger = Logger.getLogger(MacroPanel.class.getName());
-    public static final String BUTTON_HEIGHT = "wmin 16";
+public class MacroSettingsPanel extends JPanel implements UGSEventListener {
+    private static final Logger logger = Logger.getLogger(MacroSettingsPanel.class.getName());
 
     private final BackendAPI backend;
-    private final List<JButton> customGcodeButtons = new ArrayList<>();
+    private final List<JButton> moveUpButtons = new ArrayList<>();
+    private final List<JButton> moveDownButtons = new ArrayList<>();
+    private final List<JButton> tryButton = new ArrayList<>();
     private final List<JButton> deleteButtons = new ArrayList<>();
     private final List<JTextField> macroNameFields = new ArrayList<>();
     private final List<JTextField> macroGcodeFields = new ArrayList<>();
@@ -66,6 +73,9 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     private final Icon importIcon = new ImageIcon(getClass().getResource("/resources/icons/download.png"));
     private final Icon helpIcon = new ImageIcon(getClass().getResource("/resources/icons/information.png"));
     private final Icon runIcon = new ImageIcon(getClass().getResource("/resources/icons/bug.png"));
+    private final Icon upIcon = new ImageIcon(getClass().getResource("/resources/icons/up.png"));
+    private final Icon downIcon = new ImageIcon(getClass().getResource("/resources/icons/down.png"));
+
 
     private final String helpText = Localization.getString("mainWindow.swing.macroInstructions");
     private final JButton helpButton = new JButton(Localization.getString("help"), helpIcon);
@@ -80,6 +90,11 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     private final JLabel deleteHeader = new JLabel("");
 
     private final JPanel buttonPanel = new JPanel(new MigLayout("fill, ins 0"));
+    private List<Macro> macros;
+
+    public void save() {
+        backend.getSettings().setMacros(macros);
+    }
 
     /**
      * Helper for updating macros and creating the different fields.
@@ -88,59 +103,99 @@ public class MacroPanel extends JPanel implements UGSEventListener {
         NAME, CODE, DESCRIPTION, DELETE_BUTTON
     }
 
-    public MacroPanel(BackendAPI backend) {
-        super(new MigLayout("fillx, wrap 5", "[fill, grow 10, sg 1]r[fill, grow 45]r[fill, grow 45]r[fill]r[fill]"));
+    public MacroSettingsPanel(BackendAPI backend) {
+        super(new MigLayout("fillx, wrap 7", "[fill, grow 10, sg 1]r[fill, grow 10]r[fill, grow 10]r[fill, grow 45]r[fill, grow 45]r[fill]r[fill]"));
 
         if (backend == null) {
             throw new RuntimeException();
         }
         this.backend = backend;
-        backend.addUGSEventListener(this);
+        this.backend.addUGSEventListener(this);
+
+        this.macros = backend.getSettings().getMacros().stream()
+                .map(SerializationUtils::clone)
+                .collect(Collectors.toList());
 
         addListeners();
 
-        buttonPanel.add(helpButton, "grow, " + BUTTON_HEIGHT);
-        buttonPanel.add(importButton, "grow, " + BUTTON_HEIGHT);
-        buttonPanel.add(exportButton, "grow, " + BUTTON_HEIGHT);
+        buttonPanel.add(helpButton, "grow");
+        buttonPanel.add(importButton, "grow");
+        buttonPanel.add(exportButton, "grow");
     }
 
     @Override
     public void doLayout() {
         clearForm();
 
-        // Create components if needed
-        backend.getSettings().getMacros().forEach(macro -> {
-            customGcodeButtons.add(createMacroButton(macro));
+        macros.forEach(macro -> {
+            moveUpButtons.add(createMoveUpButton(macro));
+            moveDownButtons.add(createMoveDownButton(macro));
+            tryButton.add(createMacroButton(macro));
             macroGcodeFields.add(createMacroField(macro, MacroFieldEnum.CODE, macro.getGcode()));
             macroNameFields.add(createMacroField(macro, MacroFieldEnum.NAME, macro.getName()));
             macroDescriptionFields.add(createMacroField(macro, MacroFieldEnum.DESCRIPTION, macro.getDescription()));
             deleteButtons.add(createDeleteMacroButton(macro));
         });
 
-        add(buttonPanel, "grow, span 5");
-        add(nameHeader, "sg 1");
+        add(buttonPanel, "grow, spanx, wrap");
+        add(new JPanel(), "span 2, sg 1");
+        add(nameHeader);
         add(gcodeHeader);
         add(descriptionHeader);
         add(buttonHeader);
         add(deleteHeader);
 
-        for (int i = 0; i < customGcodeButtons.size(); i++) {
-            add(macroNameFields.get(i), BUTTON_HEIGHT + ", sg 1");
-            add(macroGcodeFields.get(i), BUTTON_HEIGHT);
-            add(macroDescriptionFields.get(i), BUTTON_HEIGHT);
-            add(customGcodeButtons.get(i), BUTTON_HEIGHT);
-            add(deleteButtons.get(i), BUTTON_HEIGHT);
+        for (int i = 0; i < tryButton.size(); i++) {
+            add(moveUpButtons.get(i), "sg 1");
+            add(moveDownButtons.get(i));
+            add(macroNameFields.get(i));
+            add(macroGcodeFields.get(i));
+            add(macroDescriptionFields.get(i));
+            add(tryButton.get(i));
+            add(deleteButtons.get(i));
         }
 
-        add(addButton, BUTTON_HEIGHT);
+        add(new JPanel(), "span 5");
+        add(addButton, "span 2");
 
         updateCustomGcodeControls(backend.isIdle());
         super.doLayout();
+        revalidate();
+    }
+
+    private JButton createMoveUpButton(Macro macro) {
+        JButton button = new JButton(upIcon);
+        button.addActionListener((ActionEvent evt) -> {
+            int index = macros.indexOf(macro);
+            if(index > 0) {
+                Collections.swap(macros, index, index - 1);
+                doLayout();
+            }
+        });
+        return button;
+    }
+
+    private JButton createMoveDownButton(Macro macro) {
+        JButton button = new JButton(downIcon);
+        button.addActionListener((ActionEvent evt) -> {
+            int index = macros.indexOf(macro);
+            if(index < macros.size() - 1) {
+                Collections.swap(macros, index, index + 1);
+                doLayout();
+            }
+        });
+        return button;
     }
 
     private void clearForm() {
-        customGcodeButtons.forEach(this::remove);
-        customGcodeButtons.clear();
+        moveUpButtons.forEach(this::remove);
+        moveUpButtons.clear();
+
+        moveDownButtons.forEach(this::remove);
+        moveDownButtons.clear();
+
+        tryButton.forEach(this::remove);
+        tryButton.clear();
 
         macroGcodeFields.forEach(this::remove);
         macroGcodeFields.clear();
@@ -153,12 +208,14 @@ public class MacroPanel extends JPanel implements UGSEventListener {
 
         deleteButtons.forEach(this::remove);
         deleteButtons.clear();
+
+        removeAll();
     }
 
     private JButton createDeleteMacroButton(Macro macro) {
         JButton button = new JButton(Localization.getString("delete"), removeIcon);
         button.addActionListener((ActionEvent evt) -> {
-            backend.getSettings().deleteMacro(macro);
+            macros.remove(macro);
             doLayout();
         });
         return button;
@@ -171,7 +228,6 @@ public class MacroPanel extends JPanel implements UGSEventListener {
      * @param text updated text
      */
     private void update(Macro macro, MacroFieldEnum field, String text) {
-        Settings s = backend.getSettings();
         switch (field) {
             case NAME:
                 macro.setName(text);
@@ -183,7 +239,11 @@ public class MacroPanel extends JPanel implements UGSEventListener {
                 macro.setDescription(text);
                 break;
         }
-        s.updateMacro(macro);
+
+        // Add it if it doesn't exists
+        if (!macros.contains(macro)) {
+            macros.add(macro);
+        }
     }
 
     private JTextField createMacroField(Macro macro, MacroFieldEnum f, String text) {
@@ -229,7 +289,7 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     }
 
     private void updateCustomGcodeControls(boolean enabled) {
-        for (JButton button : customGcodeButtons) {
+        for (JButton button : tryButton) {
             button.setEnabled(enabled);
         }
     }
@@ -242,8 +302,8 @@ public class MacroPanel extends JPanel implements UGSEventListener {
     private void addListeners() {
 
         this.addButton.addActionListener(l -> {
-            int lastMacroIndex = backend.getSettings().getMacros().size() + 1;
-            backend.getSettings().addMacro(new Macro("Macro #" + lastMacroIndex, null, ""));
+            String macroName = findUniqueMacroName(macros.size());
+            macros.add(new Macro(macroName, null, ""));
             doLayout();
         });
 
@@ -275,10 +335,7 @@ public class MacroPanel extends JPanel implements UGSEventListener {
                     try (FileReader reader = new FileReader(importFile)) {
                         Type type = new TypeToken<ArrayList<Macro>>(){}.getType();
                         List<Macro> macros = new Gson().fromJson(reader, type);
-
-                        for (Macro m : macros) {
-                            backend.getSettings().updateMacro(m);
-                        }
+                        this.macros.addAll(macros);
 
                         // Update the window.
                         SwingUtilities.invokeLater(() -> {
@@ -292,5 +349,13 @@ public class MacroPanel extends JPanel implements UGSEventListener {
                 }
             }
         });
+    }
+
+    private String findUniqueMacroName(int index) {
+        final String macroName = "Macro #" + index;
+        if(macros.stream().noneMatch(m -> m.getName().equalsIgnoreCase(macroName))) {
+            return macroName;
+        }
+        return findUniqueMacroName(index + 1);
     }
 }

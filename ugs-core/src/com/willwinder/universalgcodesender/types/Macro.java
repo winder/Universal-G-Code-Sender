@@ -3,10 +3,12 @@ package com.willwinder.universalgcodesender.types;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.io.Serializable;
+
 /**
  * Created by Phil on 9/6/2015.
  */
-public class Macro {
+public class Macro implements Serializable {
     private String name;
     private String description;
     private String gcode;

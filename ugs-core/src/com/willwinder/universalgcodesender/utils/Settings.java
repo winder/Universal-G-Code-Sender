@@ -372,22 +372,6 @@ public class Settings {
         return Collections.unmodifiableList(new ArrayList<>(macros.values()));
     }
 
-    public void updateMacro(Macro macro) {
-        Optional<Integer> macroIndex = getMacroIndex(macro);
-        if(macroIndex.isPresent()) {
-            macros.put(macroIndex.get(), macro);
-            changed();
-        } else {
-            addMacro(macro);
-        }
-    }
-
-    private Optional<Integer> getMacroIndex(Macro macro) {
-        return macros.keySet().stream()
-                .filter(key -> macros.get(key).equals(macro))
-                .findFirst();
-    }
-
     public void updateMacro(Integer index, String name, String description, String gcode) {
         if (gcode == null) {
             macros.remove(index);
@@ -397,15 +381,6 @@ public class Settings {
             }
             macros.put(index, new Macro(name, description, gcode));
         }
-        changed();
-    }
-
-    public void deleteMacro(Macro macro) {
-        List<Integer> keyList = macros.keySet().stream()
-                .filter(key -> macros.get(key).equals(macro))
-                .collect(Collectors.toList());
-
-        keyList.forEach(key -> macros.remove(key));
         changed();
     }
 
@@ -487,6 +462,12 @@ public class Settings {
     public void addMacro(Macro macro) {
         int newIndex = macros.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
         macros.put(newIndex, macro);
+        changed();
+    }
+
+    public void setMacros(List<Macro> macros) {
+        this.macros.clear();
+        macros.forEach(this::addMacro);
         changed();
     }
 
