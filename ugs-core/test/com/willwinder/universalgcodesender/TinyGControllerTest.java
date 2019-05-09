@@ -21,7 +21,7 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.PartialPosition;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -33,12 +33,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Test TinyG controller implementation
@@ -250,7 +245,7 @@ public class TinyGControllerTest {
 
         // When
         InOrder orderVerifier = inOrder(communicator);
-        controller.jogMachineTo(new Position(1, 2, 3, UnitUtils.Units.MM), 1000);
+        controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
         orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000\n");
@@ -267,7 +262,7 @@ public class TinyGControllerTest {
 
         // When
         InOrder orderVerifier = inOrder(communicator);
-        controller.jogMachineTo(new Position(1, 2, 3, UnitUtils.Units.MM), 1000);
+        controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
         orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37\n");

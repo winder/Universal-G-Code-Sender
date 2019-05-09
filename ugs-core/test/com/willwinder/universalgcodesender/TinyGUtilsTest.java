@@ -23,10 +23,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.Overrides;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 
@@ -49,42 +46,50 @@ public class TinyGUtilsTest {
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
-        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.X, 5);
+        String command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.X, 5.0));
         assertEquals("G10 L2 P1 X5", command);
 
         gcodeState.offset = Code.G55;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.Y, 15);
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Y, 15.0));
         assertEquals("G10 L2 P2 Y-5", command);
 
         gcodeState.offset = Code.G56;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.Z, 0);
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
         assertEquals("G10 L2 P3 Z10", command);
 
         gcodeState.offset = Code.G57;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.Z, 0);
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
         assertEquals("G10 L2 P4 Z10", command);
 
         gcodeState.offset = Code.G58;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.Z, 0);
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
         assertEquals("G10 L2 P5 Z10", command);
 
         gcodeState.offset = Code.G59;
-        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, Axis.Z, 0);
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, PartialPosition.from(Axis.Z, 0.0));
         assertEquals("G10 L2 P6 Z10", command);
+
+        gcodeState.offset = Code.G59;
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0));
+        assertEquals("G10 L2 P6 X-0Y-10", command); // the negative Zero gets formatted as "-0" - is this a problem?
+
+        gcodeState.offset = Code.G59;
+        command = TinyGUtils.generateSetWorkPositionCommand(controllerStatus, gcodeState, new PartialPosition(10.0, 20.0, 30.0));
+        assertEquals("G10 L2 P6 X-0Y-10Z-20", command);
     }
 
     @Test
     public void generateResetCoordinatesToZeroCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
         String command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, gcodeState);
-        assertEquals("G10 L2 P1 X10 Y10 Z10", command);
+        assertEquals("G10 L2 P1 X10 Y20 Z30", command);
 
         gcodeState.offset = Code.G55;
         command = TinyGUtils.generateResetCoordinatesToZeroCommand(controllerStatus, gcodeState);
-        assertEquals("G10 L2 P2 X10 Y10 Z10", command);
+        assertEquals("G10 L2 P2 X10 Y20 Z30", command);
     }
 
     @Test

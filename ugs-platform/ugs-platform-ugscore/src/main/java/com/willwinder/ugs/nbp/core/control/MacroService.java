@@ -18,7 +18,7 @@
  */
 package com.willwinder.ugs.nbp.core.control;
 
-import com.willwinder.ugs.nbp.core.actions.EditMacrosAction;
+import com.google.common.base.Strings;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
@@ -38,6 +38,7 @@ import javax.swing.AbstractAction;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +57,6 @@ public final class MacroService {
     public void reInitActions() {
         String menuPath = LocalizingService.MENU_MACROS;
         String actionCategory = "Macro";
-        String localCategory = Localization.getString("platform.menu.macros");
         String localized = String.format("Menu/%s/%s",
                 Localization.getString("platform.menu.machine"),
                 Localization.getString("platform.menu.macros"));
@@ -75,9 +75,17 @@ public final class MacroService {
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
             Settings settings = backend.getSettings();
 
-            settings.getMacros().forEach(macro -> {
+            List<Macro> macros = settings.getMacros();
+            macros.forEach(macro -> {
                 try {
-                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), macro.getName(), actionCategory, localCategory, null, menuPath, localized, new MacroAction(backend, macro));
+                    String text;
+                    if (Strings.isNullOrEmpty(macro.getNameAndDescription())){
+                        text = Integer.toString(macros.indexOf(macro) + 1);
+                    } else {
+                        text = macro.getNameAndDescription();
+                    }
+
+                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, localized, new MacroAction(backend, macro));
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
                 }

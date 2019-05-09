@@ -18,6 +18,7 @@
  */
 package com.willwinder.universalgcodesender.uielements.macros;
 
+import com.google.common.base.Strings;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -79,10 +80,10 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             // Add action listener
             button.addActionListener((ActionEvent evt) -> customGcodeButtonActionPerformed(macro));
 
-            if (!StringUtils.isEmpty(macro.getName())) {
-                button.setText(macro.getName());
+            if (Strings.isNullOrEmpty(macro.getName())) {
+                button.setText(Integer.toString(macros.indexOf(macro)));
             } else if (!StringUtils.isEmpty(macro.getDescription())) {
-                button.setText(macro.getDescription());
+                button.setText(macro.getNameAndDescription());
             }
 
             if (!StringUtils.isEmpty(macro.getDescription())) {
@@ -137,6 +138,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         }
         revalidate();
         super.doLayout();
+        updateEnabledState();
     }
 
     private void customGcodeButtonActionPerformed(Macro macro) {
@@ -161,7 +163,11 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             macros = backend.getSettings().getMacros();
             doLayout();
         } else {
-            updateCustomGcodeControls(backend.isIdle());
+            updateEnabledState();
         }
+    }
+
+    private void updateEnabledState() {
+        updateCustomGcodeControls(backend.isIdle());
     }
 }

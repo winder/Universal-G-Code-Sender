@@ -1,5 +1,6 @@
 package com.willwinder.universalgcodesender.types;
 
+import com.google.common.base.Strings;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -26,6 +27,19 @@ public class Macro implements Serializable {
         return name;
     }
 
+    public String getNameAndDescription(){
+        if (!Strings.isNullOrEmpty(getName()) && !Strings.isNullOrEmpty(getDescription())){
+            return String.format("%s: %s", getName(), getDescription());
+        } else {
+            if (!Strings.isNullOrEmpty(getName())){
+                return this.getName();
+            } else if (!Strings.isNullOrEmpty(getDescription())){
+                return this.getDescription();
+            } else {
+                return "";
+            }
+        }
+    }
     public void setName(String name) {
         this.name = name;
     }
