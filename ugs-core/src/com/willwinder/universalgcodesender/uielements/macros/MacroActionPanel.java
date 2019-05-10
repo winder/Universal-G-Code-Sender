@@ -70,9 +70,10 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
         // Cache the largest width amongst the buttons.
         int maxWidth = 0;
         int maxHeight = 0;
-
+        int idx = 0;
         // Create buttons.
         for (Macro macro : macros) {
+            idx++;
             JButton button = new JButton(macro.getName());
             button.setEnabled(backend.isIdle());
             customGcodeButtons.add(button);
@@ -80,9 +81,10 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
             // Add action listener
             button.addActionListener((ActionEvent evt) -> customGcodeButtonActionPerformed(macro));
 
-            if (Strings.isNullOrEmpty(macro.getName())) {
-                button.setText(Integer.toString(macros.indexOf(macro)));
-            } else if (!StringUtils.isEmpty(macro.getDescription())) {
+            // set full name or otherwise use the index as text
+            if (Strings.isNullOrEmpty(macro.getNameAndDescription())) {
+                button.setText(Integer.toString(idx));
+            } else {
                 button.setText(macro.getNameAndDescription());
             }
 
