@@ -77,15 +77,16 @@ public final class MacroService {
 
             List<Macro> macros = settings.getMacros();
             macros.forEach(macro -> {
+                int index = macros.indexOf(macro);
                 try {
                     String text;
                     if (Strings.isNullOrEmpty(macro.getNameAndDescription())){
-                        text = Integer.toString(macros.indexOf(macro) + 1);
+                        text = Integer.toString(index + 1);
                     } else {
                         text = macro.getNameAndDescription();
                     }
 
-                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, localized, new MacroAction(backend, macro));
+                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, index, localized, new MacroAction(backend, macro));
                 } catch (IOException e) {
                     logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
                 }
