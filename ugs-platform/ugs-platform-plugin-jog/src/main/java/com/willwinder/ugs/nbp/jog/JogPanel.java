@@ -135,7 +135,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
             feedRateLabel.setForeground(ThemeColors.ORANGE);
             xyStepLabel.setForeground(ThemeColors.ORANGE);
             zStepLabel.setForeground(ThemeColors.ORANGE);
-            //unitToggleButton.setForeground(ThemeColors.LIGHT_BLUE);
+            unitToggleButton.setForeground(ThemeColors.LIGHT_BLUE);
         }
     }
 
