@@ -6,6 +6,24 @@
     </folder>
     <folder name="Editors">
         <folder name="Actions_hidden"/>
+        <folder name="text">
+            <folder name="xgcode">
+                <file name="org-netbeans-modules-editor-NbEditorKit.instance"/>
+                <file name="language.instance">
+                    <attr name="instanceCreate" methodvalue="com.willwinder.ugs.nbp.editor.GcodeTokenId.getLanguage"/>
+                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
+                </file>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="FontAndColors.xml" url="FontAndColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="resources.MessagesBundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
     </folder>
     <folder name="Menu">
         <file name="Edit_hidden"/>
@@ -17,14 +35,6 @@
         <file name="View_hidden"/>
     </folder>
     <folder name="Actions">
-        <!--
-        <file name="Edit_hidden"/>
-        <folder name="File">
-            <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
-        </folder>
-        <file name="View_hidden"/>
-        <file name="System_hidden"/>
-        -->
         <folder name="Edit">
             <file name="org-netbeans-core-ui-options-filetypes-OpenAsAction.instance_hidden"/>
             <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
