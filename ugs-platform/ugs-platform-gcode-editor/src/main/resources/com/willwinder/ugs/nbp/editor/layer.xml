@@ -5,14 +5,14 @@
         <file name="org-openide-actions-FindAction.shadow_hidden"/>
     </folder>
     <folder name="Editors">
-        <folder name="Actions_hidden"/>
+        <folder name="AnnotationTypes">
+            <file name="ugs-some-annotation.xml" url="ugs-some-annotation.xml"/>
+        </folder>
         <folder name="text">
             <folder name="xgcode">
-                <file name="org-netbeans-modules-editor-NbEditorKit.instance"/>
-                <file name="language.instance">
-                    <attr name="instanceCreate" methodvalue="com.willwinder.ugs.nbp.editor.GcodeTokenId.getLanguage"/>
-                    <attr name="instanceOf" stringvalue="org.netbeans.api.lexer.Language"/>
-                </file>
+                <file name="com-willwinder-ugs-nbp-editor-parser-GcodeParserFactory.instance"/>
+                <file name="com-willwinder-ugs-nbp-editor-parser-SyntaxErrorHighlightingTaskFactory.instance"/>
+
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
@@ -50,7 +50,7 @@
             <file name="org-openide-actions-MoveUpAction.instance_hidden"/>
             <file name="org-openide-actions-NewAction.instance_hidden"/>
             <file name="org-openide-actions-NewTemplateAction.instance_hidden"/>
-            <file name="org-openide-actions-OpenAction.instance_hidden"/>
+            <file name="org-openide-actions-OpenAction.instance"/>
             <file name="org-openide-actions-PageSetupAction.instance_hidden"/>
             <file name="org-openide-actions-PopupAction.instance_hidden"/>
             <file name="org-openide-actions-PrintAction.instance_hidden"/>

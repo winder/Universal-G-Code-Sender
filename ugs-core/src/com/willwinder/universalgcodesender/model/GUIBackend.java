@@ -854,10 +854,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 return;
             }
         }
-        
-        for (UGSEventListener l : ugsEventListener) {
-            l.UGSEvent(event);
-        }
+
+        ugsEventListener.forEach(l -> l.UGSEvent(event));
     }
 
     private void sendControllerStateEvent(UGSEvent event) {

@@ -19,6 +19,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publicPackages>
+                        <publicPackage>com.willwinder.ugs.nbm.visualizer</publicPackage>
+                        <publicPackage>com.willwinder.ugs.nbm.visualizer.actions</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.shared</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.options</publicPackage>
                         <publicPackage>com.willwinder.ugs.nbm.visualizer.renderables</publicPackage>

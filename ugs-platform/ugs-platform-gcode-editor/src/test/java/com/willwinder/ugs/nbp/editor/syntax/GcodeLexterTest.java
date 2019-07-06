@@ -18,7 +18,7 @@
 */
 package com.willwinder.ugs.nbp.editor.syntax;
 
-import com.willwinder.ugs.nbp.editor.GcodeTokenId;
+import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import org.junit.Test;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;

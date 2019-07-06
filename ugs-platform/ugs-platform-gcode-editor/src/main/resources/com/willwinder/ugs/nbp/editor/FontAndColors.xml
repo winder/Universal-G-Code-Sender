@@ -8,4 +8,8 @@
     <fontcolor name="AXIS" foreColor="339EAA"/>
     <fontcolor name="WHITESPACE" foreColor="black"/>
     <fontcolor name="COMMENT" foreColor="808080"/>
+
+    <fontcolor name="mod-package-private" foreColor="808080" bgColor="FF0000"/>
+    <fontcolor name="PACKAGE_PRIVATE" foreColor="808080" bgColor="FF0000"/>
+
 </fontscolors>

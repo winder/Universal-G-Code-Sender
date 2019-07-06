@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.lexer;
 
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.TokenId;
@@ -35,7 +35,8 @@ public enum GcodeTokenId implements TokenId {
     WHITESPACE("whitespace"),
     ERROR("error"),
     PROGRAM("program"),
-    START_OR_END("start or end");
+    START_OR_END("start or end"),
+    END_OF_LINE("end of line");
 
     private final String primaryCategory;
 

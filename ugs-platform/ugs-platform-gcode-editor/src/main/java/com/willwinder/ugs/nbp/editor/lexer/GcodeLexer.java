@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.lexer;
 
 import org.netbeans.api.lexer.Token;
 import org.netbeans.spi.lexer.Lexer;
@@ -33,6 +33,7 @@ import static org.apache.commons.lang3.CharUtils.isAsciiNumeric;
 public class GcodeLexer implements Lexer<GcodeTokenId> {
     private LexerRestartInfo<GcodeTokenId> info;
     private LexerInput input;
+    private long lineIndex = 0;
 
     public GcodeLexer(LexerRestartInfo<GcodeTokenId> info) {
         this.info = info;
@@ -112,7 +113,9 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
     }
 
     private Token<GcodeTokenId> parseWhitespace(int character) {
-        if (Character.isWhitespace((char) character)) {
+        if (character == '\n') {
+            return createToken(GcodeTokenId.END_OF_LINE);
+        } else if (Character.isWhitespace((char) character)) {
             character = input.read();
             while (character != LexerInput.EOF && Character.isWhitespace((char) character)) {
                 character = input.read();

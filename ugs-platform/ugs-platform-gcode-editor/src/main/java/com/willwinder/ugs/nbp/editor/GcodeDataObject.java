@@ -18,7 +18,6 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
-import java.io.IOException;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
@@ -33,96 +32,85 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
+import java.io.IOException;
+
 @Messages({
-    "LBL_Gcode_LOADER=Files of Gcode"
+        "LBL_Gcode_LOADER=Files of Gcode"
 })
 @MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_Gcode_LOADER",
-        mimeType = "text/xgcode",
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
         extension = {"gcode", "GCODE", "cnc", "CNC", "nc", "NC", "ngc", "NGC", "tap", "TAP", "txt", "TXT", "gc", "GC"},
         position = 1
 )
 @DataObject.Registration(
-        mimeType = "text/xgcode",
+        mimeType = GcodeLanguageConfig.MIME_TYPE,
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
         displayName = "#LBL_Gcode_LOADER",
         position = 300
 )
 @ActionReferences({
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
-            position = 100,
-            separatorAfter = 200
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
-            position = 300
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
-            position = 400,
-            separatorAfter = 500
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
-            position = 600
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
-            position = 700,
-            separatorAfter = 800
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
-            position = 900,
-            separatorAfter = 1000
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
-            position = 1100,
-            separatorAfter = 1200
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
-            position = 1300
-    ),
-    @ActionReference(
-            path = "Loaders/text/xgcode/Actions",
-            id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
-            position = 1400
-    )
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
+                position = 100,
+                separatorAfter = 200
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
+                position = 300
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
+                position = 400,
+                separatorAfter = 500
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
+                position = 600
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
+                position = 700,
+                separatorAfter = 800
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
+                position = 900,
+                separatorAfter = 1000
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
+                position = 1100,
+                separatorAfter = 1200
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
+                position = 1300
+        ),
+        @ActionReference(
+                path = "Loaders/text/xgcode/Actions",
+                id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
+                position = 1400
+        )
 })
 public class GcodeDataObject extends MultiDataObject {
 
     public GcodeDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
-        registerEditor("text/xgcode", true);
+        registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
     }
 
     @Override
     protected int associateLookup() {
         return 1;
-    }
-
-    @MultiViewElement.Registration(
-            displayName = "#LBL_Gcode_EDITOR",
-            iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
-            mimeType = "text/xgcode",
-            persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-            preferredID = "Gcode",
-            position = 1000
-    )
-    @Messages("LBL_Gcode_EDITOR=Source")
-    public static MultiViewEditorElement createEditor(Lookup lkp) {
-        return new MultiViewEditorElement(lkp);
     }
 
 }

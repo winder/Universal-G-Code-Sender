@@ -16,8 +16,9 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.lexer;
 
+import com.willwinder.ugs.nbp.editor.GcodeLanguageConfig;
 import org.netbeans.spi.lexer.LanguageHierarchy;
 import org.netbeans.spi.lexer.Lexer;
 import org.netbeans.spi.lexer.LexerRestartInfo;
@@ -44,6 +45,6 @@ public class GcodeLanguageHierarcy extends LanguageHierarchy<GcodeTokenId> {
 
     @Override
     protected String mimeType() {
-        return "text/xgcode";
+        return GcodeLanguageConfig.MIME_TYPE;
     }
 }

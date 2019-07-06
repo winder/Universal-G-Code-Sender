@@ -19,9 +19,11 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.actions;
 
+import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
@@ -33,7 +35,7 @@ import java.util.Collection;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JEditorPane;
-import org.netbeans.modules.editor.NbEditorUtilities;
+
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -67,7 +69,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
     private final BackendAPI backend;
     
     public EditGcodeFile() {
-      putValue(Action.NAME, org.openide.util.NbBundle.getMessage(EditGcodeFile.class, "EditGcodeFile.action.name")); // NOI18N
+      putValue(Action.NAME, Localization.getString("EditGcodeFile.action.name")); // NOI18N
 
       backend = CentralLookup.getDefault().lookup(BackendAPI.class);
       backend.addUGSEventListener(this);
@@ -134,7 +136,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
         editor.close();
       }
     }
-    
+
     /**
      * Get all the windows in the "Editor" mode, then filter to just editors.
      */
