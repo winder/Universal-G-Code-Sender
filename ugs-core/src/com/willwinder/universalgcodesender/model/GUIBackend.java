@@ -502,16 +502,11 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
-
-            //this.controller.queueCommands(processedCommandLines);
-            //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
             this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
-
             this.controller.beginStreaming();
         } catch (Exception e) {
             this.sendUGSEvent(new UGSEvent(ControlState.COMM_IDLE), false);
-            e.printStackTrace();
-            throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
+            throw new Exception(Localization.getString("mainWindow.error.startingStream"), e);
         }
     }
     

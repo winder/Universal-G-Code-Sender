@@ -389,6 +389,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         scrollWindowCheckBox.setText("Scroll output window");
         scrollWindowCheckBox.addActionListener(this::scrollWindowCheckBoxActionPerformed);
 
+        showVerboseOutputCheckBox.setText("Show verbose output");
+        showVerboseOutputCheckBox.addActionListener(this::showVerboseCheckBoxActionPerformed);
+
         bottomTabbedPane.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
         bottomTabbedPane.setMinimumSize(new java.awt.Dimension(0, 0));
         bottomTabbedPane.setPreferredSize(new java.awt.Dimension(468, 100));
@@ -665,8 +668,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                     .add(firmwareComboBox, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-
-        showVerboseOutputCheckBox.setText("Show verbose output");
 
         statusPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Machine status"));
         statusPanel.setMinimumSize(new java.awt.Dimension(247, 160));
@@ -1100,6 +1101,10 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private void scrollWindowCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
         backend.getSettings().setScrollWindowEnabled(scrollWindowCheckBox.isSelected());
     }//GEN-LAST:event_scrollWindowCheckBoxActionPerformed
+
+    private void showVerboseCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_scrollWindowCheckBoxActionPerformed
+        backend.getSettings().setVerboseOutputEnabled(showVerboseOutputCheckBox.isSelected());
+    }
 
     private void opencloseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_opencloseButtonActionPerformed
         if( this.opencloseButton.getText().equalsIgnoreCase(Localization.getString("open")) ) {
@@ -1900,6 +1905,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         if (evt.isSettingChangeEvent()) {
             scrollWindowCheckBox.setSelected(backend.getSettings().isScrollWindowEnabled());
+            showVerboseOutputCheckBox.setSelected(backend.getSettings().isVerboseOutputEnabled());
             commandTable.setAutoWindowScroll(backend.getSettings().isScrollWindowEnabled());
         }
 
