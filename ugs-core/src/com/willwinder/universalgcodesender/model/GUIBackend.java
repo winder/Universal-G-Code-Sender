@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener, MessageListener {
+public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
 
@@ -84,10 +84,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean autoconnect = false;
     
     private GcodeParser gcp = new GcodeParser();
-
-    public GUIBackend() {
-        messageService.addListener(this);
-    }
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -881,12 +877,5 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
         this.sendUGSEvent(new UGSEvent(EventType.FIRMWARE_SETTING_EVENT), false);
-    }
-
-    @Override
-    public void onMessage(MessageType messageType, String message) {
-        if (messageType == MessageType.ERROR) {
-            GUIHelpers.displayErrorDialog(message);
-        }
     }
 }
