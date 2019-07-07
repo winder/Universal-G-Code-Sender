@@ -100,8 +100,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     // Duration timer
     private Timer timer;
 
-    // Services
-    private JogService jogService;
     private JogPanel jogPanel;
     private final MacroPanel macroPanel;
 
@@ -120,7 +118,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             throw new RuntimeException(e);
         }
 
-        this.jogService = new JogService(backend);
+        JogService jogService = new JogService(backend);
 
         this.jogPanel = new JogPanel(backend, jogService, true);
 
@@ -1325,10 +1323,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         showCommandTable(showCommandTableCheckBox.isSelected());
     }//GEN-LAST:event_showCommandTableCheckBoxActionPerformed
 
-    private void commandTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_commandTextFieldActionPerformed
-
     private void controlContextTabbedPaneComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_controlContextTabbedPaneComponentShown
         // TODO add your handling code here:
     }//GEN-LAST:event_controlContextTabbedPaneComponentShown
@@ -1444,7 +1438,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 this, true);
         
         gcsd.setVisible(true);
-        
+
         if (gcsd.saveChanges()) {
             // TODO: Reprocess gcode file?
             /*
@@ -1598,8 +1592,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         
         boolean hasFile = backend.getGcodeFile() != null;
         if (hasFile) {
-                this.saveButton.setEnabled(true);
-                this.visualizeButton.setEnabled(true);
+            this.saveButton.setEnabled(true);
+            this.visualizeButton.setEnabled(true);
         }
         
         switch (backend.getControlState()) {
@@ -1688,7 +1682,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.controlContextTabbedPane.setTitleAt(1, Localization.getString("mainWindow.swing.controlContextTabbedPane.macros"));
         this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
-        //this.jogPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.keyboardMovementPanel")));
         this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
         this.firmwareSettings.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
@@ -1780,7 +1773,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         remainingTimeValueLabel.setText(Utils.formattedMillis(0));
         remainingRowsValueLabel.setText("" + backend.getNumRemainingRows());
 
-        final String durationLabelCopy = this.durationValueLabel.getText();
         if (success) {
             java.awt.EventQueue.invokeLater(new Runnable() { @Override public void run() {
                 JOptionPane.showMessageDialog(new JFrame(),
