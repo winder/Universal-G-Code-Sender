@@ -102,6 +102,16 @@ public class BufferedCommunicatorTest {
     }
 
     /**
+     * Test of setSingleBlockMode method of class BufferedCommunicator.
+     */
+    @Test
+    @Ignore
+    public void testSingleBlockMode() {
+        System.out.println("testSingleBlockMode");
+        fail("Not implemented yet.");
+    }
+
+    /**
      * Test of getBufferSize method, of class BufferedCommunicator.
      */
     @Test

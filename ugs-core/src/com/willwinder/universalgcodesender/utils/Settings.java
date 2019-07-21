@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Settings {
@@ -64,6 +65,7 @@ public class Settings {
     private WindowSettings mainWindowSettings = new WindowSettings(0,0,640,520);
     private WindowSettings visualizerWindowSettings = new WindowSettings(0,0,640,480);
     private boolean singleStepMode = false;
+    private boolean singleBlockMode = false;
     private boolean statusUpdatesEnabled = true;
     private int statusUpdateRate = 200;
     private Units preferredUnits = Units.MM;
@@ -310,6 +312,29 @@ public class Settings {
 
     public void setSingleStepMode(boolean singleStepMode) {
         this.singleStepMode = singleStepMode;
+        changed();
+    }
+
+    /**
+     * Retrieve the setting to determine if communicator should pause
+     * streaming after each command in the communicator commandStream.
+     * @see AbstractCommunicator.getSingleBlockMode()
+     * @return true if singleBlockMode is enabled
+     */
+    public boolean isSingleBlockMode() {
+        return singleBlockMode;
+    }
+
+    /**
+     * Enable / disable the pausing of streaming after each command in
+     * the commandStream of the communicator. Also requires
+     * singleStepMode to be enabled
+     * @see AbstractCommunicator.setSingleBlockMode()
+     * @param boolean singleBlockMode true if enabled
+     */
+    public void setSingleBlockMode(boolean singleBlockMode) {
+        logger.log(Level.INFO, "Setting singleBlockMode to ".concat( ((Boolean)singleBlockMode).toString() ));
+        this.singleBlockMode = singleBlockMode;
         changed();
     }
 

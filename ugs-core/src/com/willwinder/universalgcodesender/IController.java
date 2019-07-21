@@ -125,6 +125,21 @@ public interface IController {
     void setSingleStepMode(boolean enabled);
     boolean getSingleStepMode();
 
+    /**
+     * Wrapper to set singleBlockMode in the communicator
+     * @see AbstractCommunicator.setSingleBlockMode()
+     * @param boolean true to enable
+     */
+    void setSingleBlockMode(boolean enabled);
+
+    /**
+     * Wrapper to get the singleBlockMode in the communicator.
+     * getSingleBlockMode wrapper for AbstractCommunicator
+     * @see AbstractCommunicator.getSingleBlockMode()
+     * @return boolean true if enabled else false
+     */
+    boolean getSingleBlockMode();
+
     void setStatusUpdatesEnabled(boolean enabled);
     boolean getStatusUpdatesEnabled();
     

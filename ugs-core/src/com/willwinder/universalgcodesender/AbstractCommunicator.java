@@ -74,6 +74,21 @@ public abstract class AbstractCommunicator {
     /*********************/
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
+    
+    /**
+     * Enable singleBlockMode, pausing the commandStream after every
+     * block sent to the controller.
+     * @param boolean enable true if enabled
+     */
+    abstract public void setSingleBlockMode(boolean enable);
+    
+    /**
+     * Get the state of singleBlockMode, which pauses the commandStream
+     * after every block sent to the controller.
+     * @return boolean true if enabled
+     */
+    abstract public boolean getSingleBlockMode();
+    
     abstract public void queueStringForComm(final String input);
     abstract public void queueStreamForComm(final GcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;

@@ -98,6 +98,31 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
                 Integer.parseInt(nextLine[COL_COMMAND_NUMBER]));
     }
 
+    /**
+     * Peek at the next command without moving the pointers
+     * NOTE: this calls mark() and reset() so reset() calls outside of
+     * peekNextCommand() may be interfered with by this.
+     * @return GcodeCommand containing next line
+     * @throws IOException
+     */
+    public GcodeCommand peekNextCommand() throws IOException {
+        if (numRowsRemaining == 0) return null;
+
+        reader.mark(NUM_COLUMNS);              // bookmark for rollback
+        String line = reader.readLine();
+        reader.reset();                        // rollback to mark
+
+        String nextLine[] = parseLine(line);
+        if (nextLine.length != NUM_COLUMNS) {
+            throw new IOException("Corrupt data found while processing gcode stream: " + line);
+        }
+        return new GcodeCommand(
+                nextLine[COL_PROCESSED_COMMAND],
+                nextLine[COL_ORIGINAL_COMMAND],
+                nextLine[COL_COMMENT],
+                Integer.parseInt(nextLine[COL_COMMAND_NUMBER]));
+    }
+
     @Override
     public void close() throws IOException {
         reader.close();

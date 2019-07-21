@@ -136,6 +136,7 @@ public class SettingsFactory {
                 out.setVerboseOutputEnabled(Boolean.valueOf(properties.getProperty("verboseOutput.enabled", FALSE)));
                 out.setFirmwareVersion(properties.getProperty("firmwareVersion", "GRBL"));
                 out.setSingleStepMode(Boolean.valueOf(properties.getProperty("singleStepMode", FALSE)));
+                out.setSingleBlockMode(Boolean.valueOf(properties.getProperty("singleBlockMode", FALSE)));
                 out.setStatusUpdatesEnabled(Boolean.valueOf(properties.getProperty("statusUpdatesEnabled", "true")));
                 out.setStatusUpdateRate(Integer.valueOf(properties.getProperty("statusUpdateRate", "200")));
                 out.updateMacro(1, null, null, properties.getProperty("customGcode1", "G0 X0 Y0;"));
