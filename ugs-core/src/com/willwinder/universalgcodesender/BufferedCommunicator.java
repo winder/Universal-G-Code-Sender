@@ -70,23 +70,13 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     public boolean getSingleStepMode() {
         return this.singleStepModeEnabled;
     }
-    
-    /**
-     * Add command to the command queue outside file mode. This is the only way
-     * to send a command to the comm port without being in file mode.
-     * These commands will be sent prior to any queued stream, they should
-     * typically be control commands calculated by the application.
-     */
+
     @Override
     public void queueStringForComm(final String input) {
         // Add command to queue
         this.commandBuffer.add(input);
     }
 
-    /**
-     * Arbitrary length of commands to send to the communicator.
-     * @param input
-     */
     @Override
     public void queueStreamForComm(final IGcodeStreamReader input) {
         commandStream = input;
@@ -105,7 +95,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     /** File Stream Methods. **/
     @Override
-    public void resetBuffersInternal() {
+    public void resetBuffers() {
+        super.resetBuffers();
         if (activeCommandList != null) {
             activeCommandList.clear();
         }
@@ -229,7 +220,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
             try {
                 this.sendingCommand(commandString);
-                conn.sendStringToComm(commandString + "\n");
+                connection.sendStringToComm(commandString + "\n");
                 dispatchListenerEvents(COMMAND_SENT, command);
                 nextCommand = null;
             } catch (Exception e) {
@@ -262,15 +253,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.activeCommandList.clear();
         this.commandStream = null;
         this.sendPaused = false;
-    }
-    
-    /**
-     * This is to allow the GRBL Ctrl-C soft reset command.
-     */
-    @Override
-    public void softReset() {
         this.sentBufferSize = 0;
-        cancelSend();
     }
 
     /**
@@ -301,7 +284,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @param response
      */
     @Override
-    public void responseMessage(String response) {
+    public void handleResponseMessage(String response) {
         // Send this information back up to the Controller.
         dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
 
@@ -355,6 +338,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
     @Override
     public void sendByteImmediately(byte b) throws Exception {
-        conn.sendByteImmediately(b);
+        connection.sendByteImmediately(b);
     }
 }

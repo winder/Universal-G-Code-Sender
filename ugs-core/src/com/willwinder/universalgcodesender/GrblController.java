@@ -90,7 +90,7 @@ public class GrblController extends AbstractController {
 
         // Add our controller settings manager
         this.firmwareSettings = new GrblFirmwareSettings(this);
-        this.comm.setListenAll(firmwareSettings);
+        this.comm.addListener(firmwareSettings);
     }
     
     public GrblController() {
@@ -544,7 +544,7 @@ public class GrblController extends AbstractController {
         if (this.isCommOpen() && this.capabilities.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
             this.comm.sendByteImmediately(GrblUtils.GRBL_RESET_COMMAND);
             //Does GRBL need more time to handle the reset?
-            this.comm.softReset();
+            this.comm.cancelSend();
         }
     }
 

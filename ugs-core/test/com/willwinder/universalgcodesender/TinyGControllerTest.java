@@ -184,7 +184,7 @@ public class TinyGControllerTest {
     @Test
     public void cancelSend() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
         InOrder orderVerifier = inOrder(communicator);
 
         // When
@@ -193,7 +193,7 @@ public class TinyGControllerTest {
         // Then
         orderVerifier.verify(communicator).cancelSend();
         orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
-        orderVerifier.verify(communicator).softReset(); // Work around for clearing buffers and counters in communicator
+        orderVerifier.verify(communicator).cancelSend(); // Work around for clearing buffers and counters in communicator
         orderVerifier.verify(communicator).queueStringForComm(TinyGUtils.COMMAND_KILL_ALARM_LOCK + "\n");
         orderVerifier.verify(communicator).streamCommands();
 
@@ -204,7 +204,7 @@ public class TinyGControllerTest {
     @Test
     public void jogMachine() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G21;
@@ -221,7 +221,7 @@ public class TinyGControllerTest {
     @Test
     public void jogMachineWhenUsingInchesShouldConvertCoordinates() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G20;
@@ -238,7 +238,7 @@ public class TinyGControllerTest {
     @Test
     public void jogMachineTo() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in mm
         controller.getCurrentGcodeState().units = Code.G21;
@@ -255,7 +255,7 @@ public class TinyGControllerTest {
     @Test
     public void jogMachineToWhenUsingInchesShouldConvertCoordinates() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G20;

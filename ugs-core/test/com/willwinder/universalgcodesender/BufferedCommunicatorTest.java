@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.Connection;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
@@ -56,7 +56,7 @@ public class BufferedCommunicatorTest {
 
     private static File tempDir;
     private final static Connection mockConnection = EasyMock.createMock(Connection.class);
-    private final static SerialCommunicatorListener mockScl = EasyMock.createMock(SerialCommunicatorListener.class);
+    private final static CommunicatorListener mockScl = EasyMock.createMock(CommunicatorListener.class);
     private BufferedCommunicator instance;
     private LinkedBlockingDeque<String> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
@@ -82,7 +82,7 @@ public class BufferedCommunicatorTest {
 
         instance = new BufferedCommunicatorImpl(cb, asl);
         instance.setConnection(mockConnection);
-        instance.setListenAll(mockScl);
+        instance.addListener(mockScl);
 
         // Initialize private variable.
         Field f = AbstractCommunicator.class.getDeclaredField("launchEventsInDispatchThread");
@@ -222,9 +222,9 @@ public class BufferedCommunicatorTest {
         assertEquals(input + ", " + input, instance.activeCommandSummary());
 
         // Clear out active commands.
-        instance.responseMessage("ok");
+        instance.handleResponseMessage("ok");
         assertEquals(true, instance.areActiveCommands());
-        instance.responseMessage("ok");
+        instance.handleResponseMessage("ok");
         assertEquals(false, instance.areActiveCommands());
 
         assertEquals(0, instance.numActiveCommands());
@@ -254,7 +254,7 @@ public class BufferedCommunicatorTest {
 
         assertEquals("First 10 commands sent.", 10, asl.size());
         for (int i = 0; i < 10; i++) {
-            instance.responseMessage("ok");
+            instance.handleResponseMessage("ok");
         }
         assertEquals("First 10 commands done.", 0, asl.size());
 
@@ -283,7 +283,7 @@ public class BufferedCommunicatorTest {
         instance.cancelSend();
 
         for (int i = 0; i < 10; i++) {
-            instance.responseMessage("ok");
+            instance.handleResponseMessage("ok");
         }
 
         assertEquals(false, instance.areActiveCommands());
@@ -306,9 +306,9 @@ public class BufferedCommunicatorTest {
         EasyMock.replay(mockScl);
 
         asl.add(new GcodeCommand("command"));
-        instance.responseMessage(first);
+        instance.handleResponseMessage(first);
         assertEquals(1, asl.size());
-        instance.responseMessage("ok");
+        instance.handleResponseMessage("ok");
         assertEquals(0, asl.size());
     }
 
@@ -322,7 +322,7 @@ public class BufferedCommunicatorTest {
         int baud = 0;
         boolean expResult = true;
 
-        mockConnection.setCommunicator(EasyMock.<AbstractCommunicator>anyObject());
+        mockConnection.addListener(EasyMock.<AbstractCommunicator>anyObject());
         EasyMock.expect(EasyMock.expectLastCall()).once();
         EasyMock.expect(mockConnection.openPort()).andReturn(true).once();
         EasyMock.replay(mockConnection);
@@ -437,7 +437,7 @@ public class BufferedCommunicatorTest {
         assertEquals(1, instance.numBufferedCommands());
 
         // When
-        instance.softReset();
+        instance.cancelSend();
 
         // Then
         assertFalse("The communicator should resume operation after a reset", instance.isPaused());
@@ -455,7 +455,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertTrue(instance.isPaused());
@@ -467,19 +467,19 @@ public class BufferedCommunicatorTest {
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
 
-        SerialCommunicatorListener serialCommunicatorListener = mock(SerialCommunicatorListener.class);
-        instance.addCommandEventListener(serialCommunicatorListener);
+        CommunicatorListener communicatorListener = mock(CommunicatorListener.class);
+        instance.addListener(communicatorListener);
 
         asl.add(new GcodeCommand("G0"));
         asl.add(new GcodeCommand("G0"));
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertTrue(instance.isPaused());
-        verify(serialCommunicatorListener, times(1)).communicatorPausedOnError();
+        verify(communicatorListener, times(1)).communicatorPausedOnError();
     }
 
     @Test
@@ -492,7 +492,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertTrue(instance.isPaused());
@@ -507,7 +507,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertFalse(instance.isPaused());
@@ -522,7 +522,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertFalse(instance.isPaused());
@@ -546,7 +546,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertTrue(instance.isPaused());
@@ -569,7 +569,7 @@ public class BufferedCommunicatorTest {
         instance.streamCommands();
 
         // When
-        instance.responseMessage("error");
+        instance.handleResponseMessage("error");
 
         // Then
         assertFalse(instance.isPaused());
@@ -594,11 +594,6 @@ public class BufferedCommunicatorTest {
 
         public boolean processedCommandIsError(String response) {
             return (response != null && response.startsWith("error"));
-        }
-
-        @Override
-        public String getLineTerminator() {
-            return "\r\n";
         }
     }
 }

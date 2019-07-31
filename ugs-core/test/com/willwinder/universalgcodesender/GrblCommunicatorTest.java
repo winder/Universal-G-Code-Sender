@@ -196,8 +196,8 @@ public class GrblCommunicatorTest {
         assertEquals(expResult, result);
         
         // Send result to communicator.
-        instance.responseMessage("ok");
-        instance.responseMessage("ok");
+        instance.handleResponseMessage("ok");
+        instance.handleResponseMessage("ok");
                 
         expResult = false;
         result = instance.areActiveCommands();
@@ -392,7 +392,7 @@ public class GrblCommunicatorTest {
             instance.queueStringForComm(twentyCharString);
         }
         instance.streamCommands();
-        instance.softReset();
+        instance.cancelSend();
         // Verify that there are several active commands.
         expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());

@@ -44,18 +44,13 @@ public class GrblCommunicator extends BufferedCommunicator {
         // Base constructor.
         //this();
         //TODO-f4grx-DONE: Mock connection
-        this.conn = c;
-        this.conn.setCommunicator(this);
+        this.connection = c;
+        this.connection.addListener(this);
     }
 
     @Override
     public int getBufferSize() {
         return GrblUtils.GRBL_RX_BUFFER_SIZE;
-    }
-
-    @Override
-    public String getLineTerminator() {
-        return "\r\n";
     }
 
     @Override

@@ -16,40 +16,52 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.universalgcodesender.firmware.tinyg;
+package com.willwinder.universalgcodesender.firmware.grbl;
 
-import com.google.gson.JsonObject;
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.IController;
-import com.willwinder.universalgcodesender.TinyGUtils;
 import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
-import com.willwinder.universalgcodesender.firmware.grbl.GrblFirmwareSettingsSerialCommunicator;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
+import com.willwinder.universalgcodesender.utils.GrblLookups;
 import com.willwinder.universalgcodesender.utils.ThreadHelper;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Handles the communication between the controller and the firmware settings engine.
- * It will try to parse all responses to see if it contains the result of a changed
- * setting. If it finds one it will notify all listeners.
+ * A serial communicator for handling settings on a GRBL controller.
+ *
+ * When updating a setting through {@link GrblFirmwareSettingsCommunicatorListener#updateSettingOnController(FirmwareSetting)}
+ * the method will block until the update process is finished or if the operation took too long.
  *
  * @author Joacim Breiler
  */
-public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicatorListener {
+public class GrblFirmwareSettingsCommunicatorListener implements CommunicatorListener {
+    private static final Logger logger = Logger.getLogger(GrblFirmwareSettingsCommunicatorListener.class.getName());
 
     /**
      * Number of seconds to wait until the controller has persisted the setting
      */
     private static final int UPDATE_TIMEOUT_SECONDS = 2;
+
+    /**
+     * Parser for settings message from GRBL containing the key and value. Ex: $13=0
+     * Starting in GRBL 1.1 the description is disabled by default.
+     */
+    private static final Pattern SETTING_MESSAGE_REGEX = Pattern.compile("\\$(\\d+)=([^ ]*)");
+
+    /**
+     * A lookup helper for fetching setting descriptions
+     */
+    private final GrblLookups grblLookups;
 
     /**
      * A connected controller
@@ -71,9 +83,25 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
      */
     private FirmwareSetting updatedSetting;
 
-    public TinyGFirmwareSettingsSerialCommunicator(IController controller) {
+    /**
+     * Constructor for creating a serial communicator
+     *
+     * @param controller the controller that is used for storing settings
+     */
+    public GrblFirmwareSettingsCommunicatorListener(IController controller) {
+        this.grblLookups = new GrblLookups("setting_codes");
         this.controller = controller;
         this.listeners = Collections.synchronizedSet(new HashSet<>());
+    }
+
+    /**
+     * Returns if the serial communicator is still sending the setting command
+     * and is awaiting reply from the controller.
+     *
+     * @return true if a setting is updating
+     */
+    private boolean isUpdatingSettings() {
+        return newSetting != null;
     }
 
     /**
@@ -94,62 +122,33 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
         listeners.remove(listener);
     }
 
-
-    @Override
-    public void rawResponseListener(String response) {
-        try {
-            JsonObject jsonObject = TinyGUtils.jsonToObject(response);
-            if (TinyGGcodeCommand.isOkErrorResponse(response)) {
-                JsonObject responseJson = jsonObject.get("r").getAsJsonObject();
-                extractSettingGroupFromResponse(responseJson);
-            }
-        } catch (Exception ignored) {
-            // Some TinyG responses aren't JSON, those will end up here.
+    /**
+     * Converts a response message to a firmware setting. If the response message isn't in the format
+     * {@code $[key]=[value]} an empty optional will be returned.
+     *
+     * @param response the response message from the controller
+     * @return the converted firmware setting or an empty optional if the response was unknown.
+     */
+    private Optional<FirmwareSetting> convertMessageToSetting(String response) {
+        Matcher settingMatcher = SETTING_MESSAGE_REGEX.matcher(response);
+        if (!settingMatcher.find()) {
+            return Optional.empty();
         }
-    }
 
-    private void extractSettingGroupFromResponse(JsonObject responseJson) {
-        for (TinyGSettingGroupType group : TinyGSettingGroupType.values()) {
-            if (responseJson.has(group.getGroupName())) {
-                JsonObject groupSettingsJson = responseJson.get(group.getGroupName()).getAsJsonObject();
-                extractSettingFromResponse(group, groupSettingsJson);
-            }
+        String key = "$" + settingMatcher.group(1);
+        String value = settingMatcher.group(2);
+        String units = "";
+        String description = "";
+        String shortDescription = "";
+
+        String[] lookup = grblLookups.lookup(settingMatcher.group(1));
+        if (lookup != null) {
+            shortDescription = lookup[1];
+            units = lookup[2];
+            description = lookup[3];
         }
-    }
 
-    private void extractSettingFromResponse(TinyGSettingGroupType group, JsonObject groupSettingsJson) {
-        for (TinyGSettingType setting : group.getSettingTypes()) {
-            if (groupSettingsJson.has(setting.getSettingName())) {
-                String key = group.getGroupName() + setting.getSettingName();
-                String value = groupSettingsJson.get(setting.getSettingName()).getAsString();
-                String description = group.getDescription() + " - " + setting.getDescription();
-                String shortDescription = group.getDescription() + " - " + setting.getShortDescription();
-
-                updatedSetting = new FirmwareSetting(key,
-                        value,
-                        setting.getType(),
-                        description,
-                        shortDescription);
-
-                newSetting = null;
-                listeners.forEach(listener -> listener.onUpdatedFirmwareSetting(updatedSetting));
-            }
-        }
-    }
-
-    @Override
-    public void commandSent(GcodeCommand command) {
-        // Not used
-    }
-
-    @Override
-    public void commandSkipped(GcodeCommand command) {
-        // Not used
-    }
-
-    @Override
-    public void communicatorPausedOnError() {
-        // Not used
+        return Optional.of(new FirmwareSetting(key, value, units, description, shortDescription));
     }
 
     /**
@@ -189,10 +188,7 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
             try {
                 updatedSetting = null;
                 newSetting = setting;
-                TinyGSettingGroupType groupType = TinyGSettingGroupType.fromSettingKey(setting.getKey()).orElseThrow(() -> new IllegalArgumentException("Unknown setting group for key " + setting.getKey()));
-                TinyGSettingType settingType = TinyGSettingType.fromSettingKey(setting.getKey()).orElseThrow(() -> new IllegalArgumentException("Unknown setting type for key " + setting.getKey()));
-
-                GcodeCommand command = controller.createCommand("{" + groupType.getGroupName() + ": {" + settingType.getSettingName() + ":" + setting.getValue() + "}}");
+                GcodeCommand command = controller.createCommand(setting.getKey() + "=" + setting.getValue());
                 controller.sendCommandImmediately(command);
             } catch (Exception e) {
                 throw new FirmwareSettingsException("Couldn't send update setting command to the controller: " + setting.getKey() + "=" + setting.getValue() + ".", e);
@@ -213,7 +209,7 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
 
     /**
      * Block and wait until the setting has been updated or until a timeout has occured.
-     * The timeout will wait {@link GrblFirmwareSettingsSerialCommunicator#UPDATE_TIMEOUT_SECONDS}.
+     * The timeout will wait {@link GrblFirmwareSettingsCommunicatorListener#UPDATE_TIMEOUT_SECONDS}.
      *
      * @throws FirmwareSettingsException if a timeout has occured.
      */
@@ -226,13 +222,50 @@ public class TinyGFirmwareSettingsSerialCommunicator implements SerialCommunicat
         }
     }
 
-    /**
-     * Returns if the serial communicator is still sending the setting command
-     * and is awaiting reply from the controller.
-     *
-     * @return true if a setting is updating
-     */
-    private boolean isUpdatingSettings() {
-        return newSetting != null;
+    @Override
+    public void rawResponseListener(String response) {
+
+        // Make sure we either got a setting response or has sent an update command to the controller.
+        if (!SETTING_MESSAGE_REGEX.matcher(response).find() && !isUpdatingSettings()) {
+            return;
+        }
+
+        Optional<FirmwareSetting> setting = convertMessageToSetting(response);
+        if (setting.isPresent()) {
+            updatedSetting = setting.get();
+            newSetting = null;
+            listeners.forEach(listener -> listener.onUpdatedFirmwareSetting(updatedSetting));
+        } else if (isUpdatingSettings() && GrblUtils.isErrorResponse(response)) {
+            logger.log(Level.WARNING, "Couldn't update setting " + newSetting.getKey() + " with value " + newSetting.getValue());
+            updatedSetting = null;
+            newSetting = null;
+            controller.cancelCommands();
+        } else if (isUpdatingSettings() && GrblUtils.isOkResponse(response)) {
+            logger.log(Level.INFO, "Updated setting " + newSetting.getKey() + " to " + newSetting.getValue());
+            updatedSetting = newSetting;
+            newSetting = null;
+            listeners.forEach(listener -> listener.onUpdatedFirmwareSetting(updatedSetting));
+        } else {
+            logger.log(Level.WARNING, "Got unexpected message while waiting for setting update status: " + response);
+        }
+    }
+
+    @Override
+    public void commandSent(GcodeCommand command) {
+        // We are about to receive all settings from the controller
+        if (command.getCommandString().startsWith(GrblUtils.GRBL_VIEW_SETTINGS_COMMAND)) {
+            newSetting = null;
+            updatedSetting = null;
+        }
+    }
+
+    @Override
+    public void commandSkipped(GcodeCommand command) {
+
+    }
+
+    @Override
+    public void communicatorPausedOnError() {
+
     }
 }

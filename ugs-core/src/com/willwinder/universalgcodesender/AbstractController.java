@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -52,7 +52,7 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
  *
  * @author wwinder
  */
-public abstract class AbstractController implements SerialCommunicatorListener, IController {;
+public abstract class AbstractController implements CommunicatorListener, IController {;
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
 
@@ -309,8 +309,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
      */
     protected AbstractController(AbstractCommunicator comm) {
         this.comm = comm;
-        this.comm.setListenAll(this);
-        
+        this.comm.addListener(this);
+
         this.activeCommands = new ArrayList<>();
         this.listeners = new ArrayList<>();
     }
@@ -408,7 +408,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public Boolean isCommOpen() {
-        return comm != null && comm.isCommOpen();
+        return comm != null && comm.isConnected();
     }
     
     //// File send metadata ////

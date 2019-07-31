@@ -65,7 +65,7 @@ public class TinyGController extends AbstractController {
         commandCreator = new TinyGGcodeCommandCreator();
 
         firmwareSettings = new TinyGFirmwareSettings(this);
-        abstractCommunicator.setListenAll(firmwareSettings);
+        abstractCommunicator.addListener(firmwareSettings);
 
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";
@@ -143,7 +143,7 @@ public class TinyGController extends AbstractController {
         comm.sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
 
         // Work around for clearing the sent buffer size
-        comm.softReset();
+        comm.cancelSend();
 
         // We will end up in an alarm state, clear the alarm
         killAlarmLock();

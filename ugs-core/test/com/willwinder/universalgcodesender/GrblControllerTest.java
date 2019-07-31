@@ -266,7 +266,7 @@ public class GrblControllerTest {
         instance.issueSoftReset();
         // Did not send reset command to communicator or issue reset.
         assertEquals(0, mgc.sentBytes.size());
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
 
         try {
             instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
@@ -276,14 +276,14 @@ public class GrblControllerTest {
 
         // Automatic soft reset
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
 
         // Enable real time mode by sending correct GRBL version:
         instance.rawResponseHandler("Grbl 0.8c");
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
-        assertEquals(1, mgc.numSoftResetCalls);
+        assertEquals(1, mgc.numCancelSendCalls);
         
         // GRBL version that might not have the command but I send it to anyway:
         mgc.resetInputsAndFunctionCalls();
@@ -292,7 +292,7 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.8a");
         instance.issueSoftReset();
         // This version doesn't support soft reset.
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
         
         // GRBL version that should not be sent the command:
         mgc.resetInputsAndFunctionCalls();
@@ -303,7 +303,7 @@ public class GrblControllerTest {
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
         assertEquals(0, mgc.sentBytes.size());
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
     }
 
     /**
@@ -697,7 +697,6 @@ public class GrblControllerTest {
         }
         assertEquals(1, mgc.numPauseSendCalls);
         assertEquals(1, mgc.numCancelSendCalls);
-        assertEquals(0, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
         setState(instance, COMM_IDLE);
@@ -706,17 +705,15 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.7");
         instance.cancelSend();
         assertEquals(2, mgc.numCancelSendCalls);
-        assertEquals(0, mgc.numSoftResetCalls);
-        
+
         // Test 1.2 Cancel when nothing is running (Grbl 0.8c).
         //          Check for soft reset.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(3, mgc.numCancelSendCalls);
+        assertEquals(4, mgc.numCancelSendCalls);
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
         // Test 2.1 
@@ -733,9 +730,8 @@ public class GrblControllerTest {
             fail("Unexpected exception from GrblController: " +ex.getMessage());
         }
         instance.cancelSend();
-        assertEquals(4, mgc.numCancelSendCalls);
+        assertEquals(5, mgc.numCancelSendCalls);
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
         assertEquals(30, instance.rowsInSend());
         assertEquals(30, instance.rowsRemaining());
         
@@ -760,9 +756,8 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
-        assertEquals(5, mgc.numCancelSendCalls);
+        assertEquals(7, mgc.numCancelSendCalls);
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(2, mgc.numSoftResetCalls);
         instance.resumeStreaming();
         
         // Test 3.1
@@ -785,9 +780,8 @@ public class GrblControllerTest {
             fail("Unexpected exception from command sent: " + ex.getMessage());
         }
         instance.cancelSend();
-        assertEquals(6, mgc.numCancelSendCalls);
+        assertEquals(8, mgc.numCancelSendCalls);
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(2, mgc.numSoftResetCalls);
         assertEquals(30, instance.rowsInSend());
         assertEquals(30, instance.rowsRemaining());
         // wrap up
@@ -821,9 +815,8 @@ public class GrblControllerTest {
         assertEquals(15, instance.rowsSent());
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
-        assertEquals(7, mgc.numCancelSendCalls);
+        assertEquals(10, mgc.numCancelSendCalls);
         assertEquals(4, mgc.numPauseSendCalls);
-        assertEquals(3, mgc.numSoftResetCalls);
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.resumeStreaming();
     }
@@ -855,8 +848,7 @@ public class GrblControllerTest {
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(1, mgc.numCancelSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
+        assertEquals(2, mgc.numCancelSendCalls);
         instance.resumeStreaming();
 
         // Test 2.1 
@@ -1392,7 +1384,7 @@ public class GrblControllerTest {
         gc.addListener(controllerListener);
         gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
         gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
-        doReturn(true).when(communicator).isCommOpen();
+        doReturn(true).when(communicator).isConnected();
 
         // When
         gc.queueStream(new SimpleGcodeStreamReader("G0 X10"));

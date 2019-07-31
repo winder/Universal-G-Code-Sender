@@ -25,7 +25,6 @@ package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
-import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
@@ -56,7 +55,6 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public int numPauseSendCalls;
     public int numResumeSendCalls;
     public int numCancelSendCalls;
-    public int numSoftResetCalls;
     private IGcodeStreamReader gcodeStreamReader;
 
     public void resetInputsAndFunctionCalls() {
@@ -75,13 +73,12 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.numPauseSendCalls = 0;
         this.numResumeSendCalls = 0;
         this.numCancelSendCalls = 0;
-        this.numSoftResetCalls = 0;
     }
     
     public MockGrblCommunicator() {
         //super();
-        this.conn = new MockConnection();
-        this.conn.setCommunicator(this);
+        this.connection = new MockConnection();
+        this.connection.addListener(this);
     }   
 
     @Override
@@ -102,7 +99,7 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
 
     @Override
-    public boolean isCommOpen() {
+    public boolean isConnected() {
         return open;
     }
 
@@ -155,10 +152,5 @@ public class MockGrblCommunicator extends GrblCommunicator {
     @Override
     public void cancelSend() {
         this.numCancelSendCalls++;
-    }
-
-    @Override
-    public void softReset() {
-        this.numSoftResetCalls++;
     }
 }

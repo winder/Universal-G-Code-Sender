@@ -23,8 +23,5 @@ package com.willwinder.universalgcodesender;
  * @author wwinder
  */
 public class SmoothieCommunicator extends GrblCommunicator {
-    @Override
-    public String getLineTerminator() {
-        return "\n";
-    }
+
 }

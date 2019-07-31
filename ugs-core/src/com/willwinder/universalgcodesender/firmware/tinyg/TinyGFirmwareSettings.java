@@ -23,7 +23,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSetting;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -41,15 +41,15 @@ import java.util.logging.Logger;
  *
  * @author Joacim Breiler
  */
-public class TinyGFirmwareSettings implements SerialCommunicatorListener, IFirmwareSettings, IFirmwareSettingsListener {
+public class TinyGFirmwareSettings implements CommunicatorListener, IFirmwareSettings, IFirmwareSettingsListener {
     private static final Logger LOGGER = Logger.getLogger(TinyGFirmwareSettings.class.getName());
 
     private final Map<String, FirmwareSetting> settings = new ConcurrentHashMap<>();
 
-    private final TinyGFirmwareSettingsSerialCommunicator serialCommunicatorDelegate;
+    private final TinyGFirmwareSettingsCommunicatorListener serialCommunicatorDelegate;
 
     public TinyGFirmwareSettings(IController controller) {
-        this.serialCommunicatorDelegate = new TinyGFirmwareSettingsSerialCommunicator(controller);
+        this.serialCommunicatorDelegate = new TinyGFirmwareSettingsCommunicatorListener(controller);
         this.serialCommunicatorDelegate.addListener(this);
     }
 

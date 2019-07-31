@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
 import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodeParser;
 
@@ -41,12 +40,12 @@ public class LoopBackConnection extends AbstractConnection {
     private Thread  okThread;
     private int ms = 0;
 
-    private static void initialize(AbstractCommunicator comm) {
-        comm.responseMessage(" ");
-        comm.responseMessage("Grbl 0.9z [ugs diagnostic mode]");
-        comm.responseMessage(" ");
-        comm.responseMessage("This is a diagnostic end point which responds to each gcode");
-        comm.responseMessage("command as fast as possible while doing nothing else.");
+    private void initialize() {
+        responseMessageHandler.handleResponse(" ");
+        responseMessageHandler.handleResponse("Grbl 0.9z [ugs diagnostic mode]");
+        responseMessageHandler.handleResponse(" ");
+        responseMessageHandler.handleResponse("This is a diagnostic end point which responds to each gcode");
+        responseMessageHandler.handleResponse("command as fast as possible while doing nothing else.");
     }
 
     Runnable okRunnable = () -> {
@@ -54,7 +53,7 @@ public class LoopBackConnection extends AbstractConnection {
             Thread.sleep(1000);
         } catch (Exception e) {}
         // This is nested beneath a GrblController, notify it that we're ready.
-        initialize(comm);
+        initialize();
 
         int count = 0;
         Point3d lastCommand = null;
@@ -69,13 +68,13 @@ public class LoopBackConnection extends AbstractConnection {
                     if (lastCommand != null) {
                         xyz = String.format("%f,%f,%f", lastCommand.x, lastCommand.y, lastCommand.z);
                     }
-                    comm.responseMessage(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
+                    responseMessageHandler.handleResponse(String.format("<Idle,MPos:%s,WPos:%s>", xyz, xyz));
                 } else if (command.equals("G61")) {
-                    comm.responseMessage("error: G61 not supported.");
+                    responseMessageHandler.handleResponse("error: G61 not supported.");
                 } else {
                     count++;
                     if (count == 2) {
-                        initialize(comm);
+                        initialize();
                     }
                     else if (count > 2) {
                         try {
@@ -83,7 +82,7 @@ public class LoopBackConnection extends AbstractConnection {
                             lastCommand = gcp.getCurrentState().currentPoint;
                         } catch (Exception e) {
                         }
-                        comm.responseMessage("ok");
+                        responseMessageHandler.handleResponse("ok");
                     }
                 }
             } catch (InterruptedException ex) {
