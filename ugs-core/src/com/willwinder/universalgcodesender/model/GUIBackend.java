@@ -513,7 +513,7 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public long getNumRows() {
         logger.log(Level.FINEST, "Getting number of rows.");
-        return this.controller.rowsInSend();
+        return controller == null ? 0 : this.controller.rowsInSend();
     }
     
     @Override
