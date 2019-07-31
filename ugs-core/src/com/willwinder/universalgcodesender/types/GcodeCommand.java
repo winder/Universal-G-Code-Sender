@@ -83,7 +83,6 @@ public class GcodeCommand {
     
     public void setResponse(String response) {
         this.response = response;
-        this.parseResponse();
         this.done = this.isDone();
     }
     
@@ -158,44 +157,16 @@ public class GcodeCommand {
     public void setTemporaryParserModalChange(boolean isGUICommand) {
         this.isTemporaryParserModalChange = isGUICommand;
     }
-
-    public Boolean parseResponse() {
-        // No response? Set it to false.
-        if (response.length() < 0) {
-            this.isOk = false;
-            this.isError = false;
-        }
-        
-        // Command complete, can be 'ok' or 'error'.
-        if (GrblUtils.isOkResponse(response)) {
-            this.isOk = true;
-            this.isError = false;
-        } else if (GrblUtils.isErrorResponse(response) || GrblUtils.isAlarmResponse(response)) {
-            this.isOk = false;
-            this.isError = true;
-        }
-        
-        return this.isOk;
-    }
-    
-    public String responseString() {
-        String returnString = "";
-        String number = "";
-        
-        if (this.commandNum != -1) {
-            number = this.commandNum.toString();
-        }
-        if (this.isOk) {
-            returnString = "ok" + number;
-        }
-        else if (this.isError) {
-            returnString = "error"+number+"["+response.substring("error: ".length()) + "]";
-        }
-        
-        return returnString;
-    }
     
     public Boolean isDone() {
         return (this.response != null);
+    }
+
+    public void setOk(boolean isOk) {
+        this.isOk = isOk;
+    }
+
+    public void setError(boolean isError) {
+        this.isError = isError;
     }
 }

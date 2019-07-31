@@ -811,6 +811,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         GcodeCommand command = this.activeCommands.remove(0);
 
         command.setResponse(response);
+        GrblUtils.updateGcodeCommandFromResponse(command, response);
 
         updateParserModalState(command);
 
