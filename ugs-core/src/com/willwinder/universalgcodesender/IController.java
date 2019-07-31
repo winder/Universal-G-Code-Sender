@@ -181,7 +181,6 @@ public interface IController {
     */
     GcodeCommand createCommand(String gcode) throws Exception;
     void sendCommandImmediately(GcodeCommand cmd) throws Exception;
-    void queueCommand(GcodeCommand cmd) throws Exception;
     void queueStream(IGcodeStreamReader r);
 
     /**

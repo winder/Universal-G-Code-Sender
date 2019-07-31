@@ -82,12 +82,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     // been sent.
     //
     // Algorithm:
-    //   1) Send all manually queued commands to the Communicator.
-    //   2) Queue file stream(s).
-    //   3) As commands are sent by the Communicator create a GCodeCommand
+    //   1) Queue file stream(s).
+    //   2) As commands are sent by the Communicator create a GCodeCommand
     //      (with command number) object and add it to the activeCommands list.
-    //   4) As commands are completed remove them from the activeCommand list.
-    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
+    //   3) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
     private IGcodeStreamReader streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
@@ -313,9 +311,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm = comm;
         this.comm.setListenAll(this);
         
-        activeCommands = new ArrayList<>();
-        queuedCommands = new ArrayList<>();
-        
+        this.activeCommands = new ArrayList<>();
         this.listeners = new ArrayList<>();
     }
     
@@ -555,12 +551,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     public GcodeCommand createCommand(String gcode) throws Exception {
         return this.commandCreator.createCommand(gcode);
     }
-
-    @Override
-    public void queueCommand(GcodeCommand command) throws Exception {
-        this.queuedCommands.add(command);
-        updateNumCommands();
-    }
     
     /**
      * Send all queued commands to comm port.
@@ -572,8 +562,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.isReadyToStreamFile();
 
         // Throw if there's nothing queued.
-        if (this.queuedCommands.size() == 0 &&
-                this.streamCommands == null) {
+        if (this.streamCommands == null) {
             throw new Exception("There are no commands queued for streaming.");
         }
         
@@ -594,10 +583,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         // Send all queued commands and streams then kick off the stream.
         try {
-            while (this.queuedCommands.size() > 0) {
-                this.sendStringToComm(this.queuedCommands.remove(0).getCommandString());
-            }
-
             if (this.streamCommands != null) {
                 comm.queueStreamForComm(this.streamCommands);
             }
@@ -679,7 +664,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void cancelCommands() {
-        flushQueuedCommands();
         this.comm.cancelSend();
     }
 
@@ -689,11 +673,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm.resetBuffers();
         this.setCurrentState(COMM_IDLE);
     }
-    
-    private synchronized void flushQueuedCommands() {
-        // TODO: Special handling for stream necessary?
-        this.queuedCommands.clear();
-    }
 
     // Reset send queue and idx's.
     private void flushSendQueues() {
@@ -702,9 +681,8 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     private void updateNumCommands() {
-        numCommands = queuedCommands.size();
         if (streamCommands != null) {
-            numCommands += streamCommands.getNumRows();
+            numCommands = streamCommands.getNumRows();
         }
         numCommandsSkipped = 0;
         numCommandsCompleted = 0;

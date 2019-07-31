@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
 import org.easymock.EasyMock;
@@ -158,14 +159,13 @@ public class AbstractControllerTest {
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
     }
     private void startStream(String port, int rate, String command) throws Exception {
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
     }
     private Settings getSettings() {
@@ -429,8 +429,7 @@ public class AbstractControllerTest {
 
         assertEquals(true, instance.isReadyToStreamFile());
 
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
 
         Boolean alreadyStreaming = false;
@@ -502,15 +501,14 @@ public class AbstractControllerTest {
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
 
         replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);
@@ -531,15 +529,14 @@ public class AbstractControllerTest {
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
 
         replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);

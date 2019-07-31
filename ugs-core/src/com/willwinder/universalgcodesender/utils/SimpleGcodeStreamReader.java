@@ -23,6 +23,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,38 +33,35 @@ import java.util.List;
  *
  * @author Joacim Breiler
  */
-public class StringGcodeStreamReader implements IGcodeStreamReader {
+public class SimpleGcodeStreamReader implements IGcodeStreamReader {
 
-    private final List<String> lines;
+    private final List<GcodeCommand> commands = new ArrayList<>();
     private int currentLine;
-
-    /**
-     * A constructor for creating a stream using a multiline string with a gcode program.
-     * Each line should be seperated by an escaped new line character \n
-     *
-     * @param gcode the gcode program as a multi line string
-     * @throws IOException
-     */
-    public StringGcodeStreamReader(String gcode) throws IOException {
-        this(IOUtils.readLines(new StringReader(gcode)));
-    }
 
     /**
      * A constructor for creating a stream using multiple strings for each line of gcode.
      *
      * @param gcodeLines multiple gcode commands as an array
      */
-    public StringGcodeStreamReader(String... gcodeLines) {
-        this(Arrays.asList(gcodeLines));
+    public SimpleGcodeStreamReader(String... gcodeLines) {
+        for (int i = 0; i < gcodeLines.length; i++) {
+            commands.add(new GcodeCommand(gcodeLines[i], i));
+        }
+        currentLine = 0;
     }
 
     /**
      * A constructor for creating a stream using a list of gcode commands
      *
-     * @param gcodeLines a list of gcode commands
+     * @param commands a list of gcode commands
      */
-    public StringGcodeStreamReader(List<String> gcodeLines) {
-        lines = gcodeLines;
+    public SimpleGcodeStreamReader(GcodeCommand... commands) {
+        this.commands.addAll(Arrays.asList(commands));
+        currentLine = 0;
+    }
+
+    public SimpleGcodeStreamReader(List<GcodeCommand> commands) {
+        this.commands.addAll(commands);
         currentLine = 0;
     }
 
@@ -74,28 +72,26 @@ public class StringGcodeStreamReader implements IGcodeStreamReader {
 
     @Override
     public int getNumRows() {
-        return lines.size();
+        return commands.size();
     }
 
     @Override
     public int getNumRowsRemaining() {
-        return lines.size() - currentLine;
+        return commands.size() - currentLine;
     }
 
     @Override
     public GcodeCommand getNextCommand() {
-        if (currentLine > lines.size()) {
+        if (currentLine > commands.size()) {
             return null;
         }
 
-        GcodeCommand gcodeCommand = new GcodeCommand(lines.get(currentLine), currentLine);
-        currentLine++;
-        return gcodeCommand;
+        return commands.get(currentLine++);
     }
 
     @Override
     public void close() {
         currentLine = 0;
-        lines.clear();
+        commands.clear();
     }
 }
