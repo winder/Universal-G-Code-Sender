@@ -1,3 +1,21 @@
+/*
+    Copyright 2019 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.Connection;
@@ -5,6 +23,12 @@ import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
+/**
+ * An interface for describing a communicator, responsible for handling gcode command
+ * queues and its streaming to a hardware connection.
+ *
+ * @author Joacim Breiler
+ */
 public interface ICommunicator extends IConnectionListener {
     /**
      * Add command to the command buffer outside file mode. These commands will be sent
