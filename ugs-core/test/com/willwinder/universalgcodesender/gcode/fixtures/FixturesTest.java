@@ -11,6 +11,7 @@ import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -127,7 +128,7 @@ public class FixturesTest {
         checkOrInitializeFixture(fixtureName + "-stream", streamOutputFixture, testLines);
 
         // compare the generated output, parsed
-        GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
+        IGcodeStreamReader reader = new GcodeStreamReader(output.toFile());
 
         // also verify the parsed representation of the GCode against a separate fixture
         List<String> gcode = new ArrayList<>();

@@ -24,7 +24,8 @@ import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCom
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
@@ -41,7 +42,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
-    private GcodeStreamReader commandStream;               // Arbitrary number of commands
+    private IGcodeStreamReader commandStream;               // Arbitrary number of commands
     private final LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
     private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
@@ -87,7 +88,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @param input
      */
     @Override
-    public void queueStreamForComm(final GcodeStreamReader input) {
+    public void queueStreamForComm(final IGcodeStreamReader input) {
         commandStream = input;
     }
        

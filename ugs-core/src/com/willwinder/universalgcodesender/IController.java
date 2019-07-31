@@ -31,7 +31,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.util.Optional;
 
@@ -182,7 +182,7 @@ public interface IController {
     GcodeCommand createCommand(String gcode) throws Exception;
     void sendCommandImmediately(GcodeCommand cmd) throws Exception;
     void queueCommand(GcodeCommand cmd) throws Exception;
-    void queueStream(GcodeStreamReader r);
+    void queueStream(IGcodeStreamReader r);
 
     /**
      * Cancel the running command and clear the command queue.

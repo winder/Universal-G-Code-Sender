@@ -32,7 +32,7 @@ import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -89,7 +89,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     //   4) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private GcodeStreamReader       streamCommands;    // The stream of commands to send.
+    private IGcodeStreamReader streamCommands;    // The stream of commands to send.
     private int                     errorCount;        // Number of 'error' responses.
 
     // Listeners
@@ -546,7 +546,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueStream(GcodeStreamReader r) {
+    public void queueStream(IGcodeStreamReader r) {
         this.streamCommands = r;
         updateNumCommands();
     }

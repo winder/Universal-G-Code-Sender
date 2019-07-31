@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.junit.AfterClass;
@@ -169,7 +170,7 @@ public class BufferedCommunicatorTest {
             }
         }
 
-        GcodeStreamReader gsr = new GcodeStreamReader(f);
+        IGcodeStreamReader gsr = new GcodeStreamReader(f);
  
         instance.queueStreamForComm(gsr);
         instance.streamCommands();

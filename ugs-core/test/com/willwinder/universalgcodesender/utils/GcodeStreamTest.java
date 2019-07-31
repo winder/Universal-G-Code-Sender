@@ -89,7 +89,7 @@ public class GcodeStreamTest {
                 }
             }
 
-            try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
                 Assert.assertEquals(rows, gsr.getNumRows());
 
                 int count = 0;

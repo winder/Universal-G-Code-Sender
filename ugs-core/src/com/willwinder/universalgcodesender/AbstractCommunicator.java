@@ -25,7 +25,7 @@ import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -75,7 +75,7 @@ public abstract class AbstractCommunicator {
     abstract public void setSingleStepMode(boolean enable);
     abstract public boolean getSingleStepMode();
     abstract public void queueStringForComm(final String input);
-    abstract public void queueStreamForComm(final GcodeStreamReader input);
+    abstract public void queueStreamForComm(final IGcodeStreamReader input);
     abstract public void sendByteImmediately(byte b) throws Exception;
     abstract public String activeCommandSummary();
     abstract public boolean areActiveCommands();

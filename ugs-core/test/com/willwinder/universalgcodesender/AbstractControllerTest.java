@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
@@ -462,7 +463,7 @@ public class AbstractControllerTest {
                 }
             }
 
-            try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
                 openInstanceExpectUtility(port, rate, false);
                 streamInstanceExpectUtility();
 

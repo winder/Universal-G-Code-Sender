@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -87,7 +89,7 @@ public class GcodeParserUtils {
 
         // Preprocess a GcodeStream file.
         try {
-            GcodeStreamReader gsr = new GcodeStreamReader(input);
+            IGcodeStreamReader gsr = new GcodeStreamReader(input);
             try (GcodeStreamWriter gsw = new GcodeStreamWriter(output)) {
                 int i = 0;
                 while (gsr.getNumRowsRemaining() > 0) {
