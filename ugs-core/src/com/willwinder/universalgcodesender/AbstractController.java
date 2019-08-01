@@ -25,6 +25,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
@@ -57,7 +58,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     private final GcodeParser parser = new GcodeParser();
 
     // These abstract objects are initialized in concrete class.
-    protected final AbstractCommunicator comm;
+    protected final ICommunicator comm;
     protected MessageService messageService;
     protected GcodeCommandCreator commandCreator;
 
@@ -307,17 +308,12 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     /**
      * Dependency injection constructor to allow a mock communicator.
      */
-    protected AbstractController(AbstractCommunicator comm) {
+    protected AbstractController(ICommunicator comm) {
         this.comm = comm;
         this.comm.addListener(this);
 
         this.activeCommands = new ArrayList<>();
         this.listeners = new ArrayList<>();
-    }
-    
-    @Deprecated
-    public AbstractController() {
-        this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
 
     @Override
@@ -368,7 +364,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
         
         // No point in checking response, it throws an exception on errors.
-        this.comm.openCommPort(connectionDriver, port, portRate);
+        this.comm.connect(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
         
         if (isCommOpen()) {
@@ -400,7 +396,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         //this.issueSoftReset();
         this.flushSendQueues();
         this.commandCreator.resetNum();
-        this.comm.closeCommPort();
+        this.comm.disconnect();
 
         this.closeCommAfterEvent();
         return true;
@@ -741,7 +737,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
                 !this.comm.areActiveCommands() &&
                 this.comm.numActiveCommands() == 0 &&
                 rowsRemaining() <= 0 &&
-                (getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
+                (getControllerStatus().getState().equals(ControllerState.CHECK) || getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
             String streamName = "queued commands";
             boolean isSuccess = (this.errorCount == 0);
             this.fileStreamComplete(streamName, isSuccess);
@@ -980,7 +976,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     }
 
     @Override
-    public AbstractCommunicator getCommunicator() {
+    public ICommunicator getCommunicator() {
         return comm;
     }
 

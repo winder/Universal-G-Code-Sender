@@ -19,6 +19,7 @@
 package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.connection.Connection;
+import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.connection.IConnectionListener;
 import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
@@ -160,4 +161,21 @@ public interface ICommunicator extends IConnectionListener {
      * @param listener a listener to add
      */
     void addListener(CommunicatorListener listener);
+
+    /**
+     * Connects to the hardware
+     *
+     * @param connectionDriver the connection driver to use
+     * @param port the port adress to use (i.e. /dev/ttyUSB0)
+     * @param portRate the port rate to use
+     * @throws Exception if the connection couldn't be established
+     */
+    void connect(ConnectionDriver connectionDriver, String port, int portRate) throws Exception;
+
+    /**
+     * Disconnects from the hardware
+     *
+     * @throws Exception if the hardware couldn't be disconnected
+     */
+    void disconnect() throws Exception;
 }

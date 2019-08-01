@@ -21,9 +21,11 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -41,6 +43,7 @@ import java.util.List;
 
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
 import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -315,6 +318,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,WPos:1,2,3,MPos:1,2,3>");
 
         // Test 1.
         // Result when not sending and nothing has been sent.
@@ -551,9 +555,11 @@ public class GrblControllerTest {
     public void testBeginStreaming() throws Exception {
         System.out.println("beginStreaming");
         GrblController instance = new GrblController(mgc);
-        
+
         instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,WPos:1,2,3,MPos:1,2,3>");
+
         //$G and $$ get queued on startup
         assertEquals(2, mgc.numQueueStringForCommCalls);
 

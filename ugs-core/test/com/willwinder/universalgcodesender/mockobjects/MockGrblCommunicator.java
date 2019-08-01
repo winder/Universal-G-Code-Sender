@@ -82,17 +82,16 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }   
 
     @Override
-    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         this.numOpenCommPortCalls++;
 
         this.portName = name;
         this.portRate = baud;
         this.open     = true;
-        return true;
     }
 
     @Override
-    public void closeCommPort() {
+    public void disconnect() {
         this.numCloseCommPortCalls++;
         
         this.open = false;

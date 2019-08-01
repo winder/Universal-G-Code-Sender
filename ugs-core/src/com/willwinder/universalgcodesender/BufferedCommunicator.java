@@ -315,21 +315,18 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
-        boolean ret = super.openCommPort(connectionDriver, name, baud);
-        
-        if (ret) {
-            this.commandBuffer.clear();
-            this.activeCommandList.clear();
-            this.sentBufferSize = 0;
-        }
-        return ret;
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+        super.connect(connectionDriver, name, baud);
+
+        this.commandBuffer.clear();
+        this.activeCommandList.clear();
+        this.sentBufferSize = 0;
     }
 
     @Override
-    public void closeCommPort() throws Exception {
+    public void disconnect() throws Exception {
         this.cancelSend();
-        super.closeCommPort();
+        super.disconnect();
         
         this.sendPaused = false;
         this.commandBuffer.clear();

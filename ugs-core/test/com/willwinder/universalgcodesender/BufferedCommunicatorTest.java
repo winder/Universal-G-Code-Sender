@@ -327,8 +327,7 @@ public class BufferedCommunicatorTest {
         EasyMock.expect(mockConnection.openPort()).andReturn(true).once();
         EasyMock.replay(mockConnection);
 
-        boolean result = instance.openCommPort(ConnectionDriver.JSSC, name, baud);
-        assertEquals(expResult, result);
+        instance.connect(ConnectionDriver.JSSC, name, baud);
 
         EasyMock.verify(mockConnection);
     }
@@ -345,7 +344,7 @@ public class BufferedCommunicatorTest {
         EasyMock.expect(EasyMock.expectLastCall()).once();
         EasyMock.replay(mockConnection);
 
-        instance.closeCommPort();
+        instance.disconnect();
 
         EasyMock.verify(mockConnection);
     }

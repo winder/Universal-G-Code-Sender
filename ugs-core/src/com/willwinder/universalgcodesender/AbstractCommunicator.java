@@ -79,7 +79,8 @@ public abstract class AbstractCommunicator implements ICommunicator {
     }
 
     //do common operations (related to the connection, that is shared by all communicators)
-    protected boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+    @Override
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         if (connection == null) {
             String url = connectionDriver.getProtocol() + name + ":" + baud;
             connection = ConnectionFactory.getConnection(url);
@@ -98,7 +99,7 @@ public abstract class AbstractCommunicator implements ICommunicator {
         this.eventThread.start();
 
         //open it
-        return connection.openPort();
+        connection.openPort();
     }
 
     @Override
@@ -108,7 +109,8 @@ public abstract class AbstractCommunicator implements ICommunicator {
 
 
     //do common things (related to the connection, that is shared by all communicators)
-    protected void closeCommPort() throws Exception {
+    @Override
+    public void disconnect() throws Exception {
         this.stop = true;
         this.eventThread.interrupt();
         connection.closePort();

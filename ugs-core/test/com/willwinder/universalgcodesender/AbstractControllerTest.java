@@ -22,6 +22,9 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -99,8 +102,9 @@ public class AbstractControllerTest {
                         "statusUpdatesEnabledValueChanged",
                         "statusUpdatesRateValueChanged",
                         "isCommOpen")
-                .withConstructor(AbstractCommunicator.class)
+                .withConstructor(ICommunicator.class)
                 .withArgs(mockCommunicator);
+
         instance = instanceBuilder.createMock();
         niceInstance = instanceBuilder.createNiceMock();
 
@@ -142,7 +146,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, portRate)).andReturn(true).once();
+        mockCommunicator.connect(ConnectionDriver.JSERIALCOMM, port, portRate);
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
@@ -196,7 +200,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).once();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).once();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
+        mockCommunicator.connect(ConnectionDriver.JSSC, port, portRate);
         replay(instance, mockCommunicator, mockListener);
 
         Boolean expResult = true;
@@ -236,8 +240,8 @@ public class AbstractControllerTest {
         // Message for open and close.
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).times(2);
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, baud)).andReturn(true).once();
-        mockCommunicator.closeCommPort();
+        mockCommunicator.connect(ConnectionDriver.JSERIALCOMM, port, baud);
+        mockCommunicator.disconnect();
         expect(expectLastCall()).once();
         replay(instance, mockCommunicator, mockListener);
 
@@ -262,8 +266,8 @@ public class AbstractControllerTest {
     public void testIsCommOpen() throws Exception {
         System.out.println("isCommOpen");
 
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, "port", 1234)).andReturn(true);
-        mockCommunicator.closeCommPort();
+        mockCommunicator.connect(ConnectionDriver.JSSC, "port", 1234);
+        mockCommunicator.disconnect();
         expect(expectLastCall());
         replay(mockCommunicator);
 
@@ -317,6 +321,7 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate, command, false);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
@@ -653,6 +658,7 @@ public class AbstractControllerTest {
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
         expect(expectLastCall());
 
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);

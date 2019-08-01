@@ -191,7 +191,7 @@ public interface IController {
     void restoreParserModalState();
     void updateParserModalState(GcodeCommand command);
 
-    AbstractCommunicator getCommunicator();
+    ICommunicator getCommunicator();
 
     /**
      * Returns the capabilities that is supported by the controller

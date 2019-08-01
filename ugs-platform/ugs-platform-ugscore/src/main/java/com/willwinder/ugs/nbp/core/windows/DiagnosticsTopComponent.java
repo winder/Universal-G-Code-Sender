@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.windows;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.AbstractCommunicator;
+import com.willwinder.universalgcodesender.ICommunicator;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -149,8 +150,8 @@ public final class DiagnosticsTopComponent extends TopComponent implements UGSEv
         labels.get("settings:isHomingEnabled").setText(String.valueOf(controller.getFirmwareSettings().isHomingEnabled()));
         labels.get("settings:getReportingUnits").setText(controller.getFirmwareSettings().getReportingUnits().toString());
 
-        AbstractCommunicator communicator = controller.getCommunicator();
-        if ( communicator != null) {
+        ICommunicator communicator = controller.getCommunicator();
+        if (communicator != null) {
           labels.get("communicator:numActiveCommands").setText(String.valueOf(communicator.numActiveCommands()));
           labels.get("communicator:isPaused").setText(String.valueOf(communicator.isPaused()));
           labels.get("communicator:getSingleStepMode").setText(String.valueOf(communicator.getSingleStepMode()));
