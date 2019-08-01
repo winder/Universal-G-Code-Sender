@@ -44,7 +44,7 @@ public class ResponseMessageHandler {
 
     /**
      * Appends the response data to a buffer, then splits out response rows and sends them
-     * to the communicator using the {@link AbstractCommunicator#handleResponseMessage(String)}
+     * to the communicator using the {@link IConnectionListener#handleResponseMessage(String)}
      *
      * @param response a complete or part of a response message
      */
