@@ -89,7 +89,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
     //   3) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
     private IGcodeStreamReader streamCommands;    // The stream of commands to send.
-    private int                     errorCount;        // Number of 'error' responses.
 
     // Listeners
     private ArrayList<ControllerListener> listeners;
@@ -446,7 +445,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
             case ROWS_COMPLETED:
                 return this.numCommandsCompleted + this.numCommandsSkipped;
             case ROWS_REMAINING:
-                return this.numCommands - (this.numCommandsCompleted + this.numCommandsSkipped);
+                return this.numCommands <= 0 ? 0 : this.numCommands - (this.numCommandsCompleted + this.numCommandsSkipped);
             default:
                 throw new IllegalStateException("This should be impossible - RowStat default case.");
         }
@@ -672,7 +671,6 @@ public abstract class AbstractController implements CommunicatorListener, IContr
 
     // Reset send queue and idx's.
     private void flushSendQueues() {
-        errorCount = 0;
         numCommands = 0;
     }
 
@@ -739,8 +737,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
                 rowsRemaining() <= 0 &&
                 (getControllerStatus().getState().equals(ControllerState.CHECK) || getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
             String streamName = "queued commands";
-            boolean isSuccess = (this.errorCount == 0);
-            this.fileStreamComplete(streamName, isSuccess);
+            this.fileStreamComplete(streamName, true);
 
             // Make sure the GUI gets updated when the file finishes
             this.dispatchStateChange(getControlState());

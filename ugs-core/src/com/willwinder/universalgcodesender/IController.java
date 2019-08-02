@@ -104,8 +104,10 @@ public interface IController {
 
     /**
      * Jogs the machine to the given position. The feed rate is given in the same units / minute.
-     *  @param position the position to move to
-     * @param feedRate the feed rate using the units in the position.*/
+     *
+     * @param position the position to move to
+     * @param feedRate the feed rate using the units in the position.
+     */
     void jogMachineTo(PartialPosition position, double feedRate) throws Exception;
 
     /**
