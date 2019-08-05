@@ -99,7 +99,8 @@ public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader
                 nextLine[COL_PROCESSED_COMMAND],
                 nextLine[COL_ORIGINAL_COMMAND],
                 nextLine[COL_COMMENT],
-                Integer.parseInt(nextLine[COL_COMMAND_NUMBER]));
+                Integer.parseInt(nextLine[COL_COMMAND_NUMBER]),
+                false);
     }
 
     @Override
