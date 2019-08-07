@@ -1,11 +1,15 @@
 package com.willwinder.universalgcodesender.types;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import java.io.Serializable;
 
 /**
  * Created by Phil on 9/6/2015.
  */
-public class Macro {
+public class Macro implements Serializable {
     private String name;
     private String description;
     private String gcode;
@@ -63,5 +67,15 @@ public class Macro {
                 ", description='" + description + '\'' +
                 ", gcode='" + gcode + '\'' +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj);
     }
 }

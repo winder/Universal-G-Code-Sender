@@ -34,7 +34,7 @@ import com.willwinder.universalgcodesender.uielements.UGSSettingsDialog;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.firmware.FirmwareSettingsDialog;
-import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionPanelGroup;
@@ -246,7 +246,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         controlContextTabbedPane = new JTabbedPane();
         actionPanel = new ActionPanel(backend);
         macroEditPanel = new JScrollPane();
-        macroPanel = new MacroPanel(backend);
+        macroSettingsPanel = new MacroSettingsPanel(backend);
         visualizerPanel = new VisualizerPanel(backend);
         connectionPanel = new ConnectionPanelGroup(backend, jogService);
         commandPanel = new CommandPanel(backend);
@@ -274,7 +274,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
         });
         controlContextTabbedPane.addTab("Machine Control", actionPanel);
 
-        macroEditPanel.setViewportView(macroPanel);
+        macroEditPanel.setViewportView(macroSettingsPanel);
 
         controlContextTabbedPane.addTab("Macros", macroEditPanel);
         controlContextTabbedPane.addTab("Visualizer", visualizerPanel);
@@ -513,7 +513,7 @@ public class ExperimentalWindow extends JFrame implements ControllerListener, UG
     private javax.swing.JMenuItem grblFirmwareSettingsMenuItem;
     private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JScrollPane macroEditPanel;
-    private com.willwinder.universalgcodesender.uielements.macros.MacroPanel macroPanel;
+    private MacroSettingsPanel macroSettingsPanel;
     private javax.swing.JMenuBar mainMenuBar;
     private com.willwinder.universalgcodesender.uielements.components.PendantMenu pendantMenu;
     private javax.swing.JMenu settingsMenu;
