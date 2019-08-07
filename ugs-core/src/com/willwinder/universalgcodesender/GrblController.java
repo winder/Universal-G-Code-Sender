@@ -560,7 +560,18 @@ public class GrblController extends AbstractController {
             super.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
         }
     }
-
+    
+    @Override
+    public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
+        if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
+            String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+            GcodeCommand command = createCommand("$J=" + commandString);
+            sendCommandImmediately(command);
+        } else {
+            super.jogMachineTo(position, feedRate);
+        }
+    }
+    
     /************
      * Helpers.
      ************/
