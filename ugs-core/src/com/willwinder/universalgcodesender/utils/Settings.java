@@ -37,7 +37,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Settings {
     private static final Logger logger = Logger.getLogger(Settings.class.getName());
@@ -366,48 +368,12 @@ public class Settings {
         changed();
     }
 
-    public Macro getMacro(Integer index) {
-        Macro macro = macros.get(index);
-        if (macro == null) {
-            macro = new Macro(index.toString(), null, null);
-        }
-        return macro;
-    }
-
     public List<Macro> getMacros() {
-        return new ArrayList<>(macros.values());
-    }
-
-    public Integer getNumMacros() {
-        return macros.size();
-    }
-
-    public Integer getLastMacroIndex() {
-        // Obviously it would be more efficient to just store the max index
-        // value, but this is safer in that it's one less thing to keep in sync.
-        int i = -1;
-        for (Integer index : macros.keySet()) {
-            i = Math.max(i, index);
-        }
-        return i;
-    }
-
-    public void clearMacros() {
-        macros.clear();
-        changed();
-    }
-
-    public void clearMacro(Integer index) {
-        macros.remove(index);
-        changed();
-    }
-
-    public void updateMacro(Integer index, Macro macro) {
-        updateMacro(index, macro.getName(), macro.getDescription(), macro.getGcode());
+        return Collections.unmodifiableList(new ArrayList<>(macros.values()));
     }
 
     public void updateMacro(Integer index, String name, String description, String gcode) {
-        if (gcode == null || gcode.trim().isEmpty()) {
+        if (gcode == null) {
             macros.remove(index);
         } else {
             if (name == null) {
@@ -491,6 +457,18 @@ public class Settings {
 
     public String getWorkspaceDirectory() {
         return this.workspaceDirectory;
+    }
+
+    public void addMacro(Macro macro) {
+        int newIndex = macros.keySet().stream().max(Integer::compareTo).orElse(0) + 1;
+        macros.put(newIndex, macro);
+        changed();
+    }
+
+    public void setMacros(List<Macro> macros) {
+        this.macros.clear();
+        macros.forEach(this::addMacro);
+        changed();
     }
 
     public static class AutoLevelSettings {

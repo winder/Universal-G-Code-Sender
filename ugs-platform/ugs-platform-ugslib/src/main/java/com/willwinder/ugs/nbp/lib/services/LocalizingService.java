@@ -44,6 +44,7 @@ public class LocalizingService {
     public static final String MENU_MACHINE_JOG_STEP_SIZE = "Menu/Machine/Jog/Step Size";
     public static final String MENU_MACHINE_ACTIONS = "Menu/Machine/Actions";
     public static final String MENU_VISUALIZER = "Menu/Visualizer";
+    public static final String MENU_MACROS = "Menu/Machine/Macros";
 
     public static final String CATEGORY_WINDOW = "Window";
     public static final String CATEGORY_MACHINE = "Machine";
@@ -76,6 +77,13 @@ public class LocalizingService {
     public final static String MacrosWindowPath = MENU_WINDOW;
     public final static String MacrosActionId = "com.willwinder.ugs.nbp.core.control.MacrosTopComponent";
     public final static String MacrosCategory = CATEGORY_WINDOW;
+
+    public final static String EditMacrosTitleKey = "platform.window.edit.macros";
+    public final static String EditMacrosTitle = Localization.getString("platform.window.edit.macros", lang);
+    public final static String EditMacrosTooltip = Localization.getString("platform.window.edit.macros.tooltip", lang);
+    public final static String EditMacrosWindowPath = LocalizingService.MENU_MACHINE;
+    public final static String EditMacrosActionId = "com.willwinder.ugs.nbp.core.control.EditMacrosAction";
+    public final static String EditMacrosActionCategory = CATEGORY_MACHINE;
 
     public final static String JogControlTitle = Localization.getString("platform.window.jogcontrol", lang);
     public final static String JogControlTooltip = Localization.getString("platform.window.jogcontrol.tooltip", lang);
