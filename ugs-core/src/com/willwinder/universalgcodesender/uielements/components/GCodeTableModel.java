@@ -109,6 +109,7 @@ public class GCodeTableModel extends AbstractTableModel implements RemovalListen
 
     public void removeRow(int index) {
         GcodeCommand command = gcodeCommandList.get(index);
+        gcodeCommandList.remove(command);
         gcodeCommandMap.invalidate(command);
     }
 }
