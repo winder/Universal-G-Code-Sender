@@ -19,6 +19,8 @@
 
 package com.willwinder.universalgcodesender;
 
+import com.willwinder.universalgcodesender.actions.ConfigureFirmwareAction;
+import com.willwinder.universalgcodesender.actions.OpenMacroSettingsAction;
 import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.MessageType;
@@ -26,6 +28,7 @@ import com.willwinder.universalgcodesender.model.Alarm;
 import com.willwinder.universalgcodesender.model.BaudRateEnum;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.uielements.components.GcodeFileTypeFilter;
+import com.willwinder.universalgcodesender.uielements.macros.MacroActionPanel;
 import com.willwinder.universalgcodesender.uielements.panels.CommandPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
@@ -69,7 +72,6 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.pendantui.PendantURLBean;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.uielements.jog.JogPanel;
-import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import java.awt.BorderLayout;
@@ -102,7 +104,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private Timer timer;
 
     private JogPanel jogPanel;
-    private final MacroPanel macroPanel;
+    private final MacroActionPanel macroPanel;
 
     /** Creates new form MainWindow */
     public MainWindow(BackendAPI backend) {
@@ -123,7 +125,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
 
         this.jogPanel = new JogPanel(backend, jogService, true);
 
-        this.macroPanel = new MacroPanel(backend);
+        this.macroPanel = new MacroActionPanel(backend);
 
         initComponents();
         this.jogPanelPanel.setLayout(new BorderLayout());
@@ -369,7 +371,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         mainMenuBar = new javax.swing.JMenuBar();
         settingsMenu = new javax.swing.JMenu();
         grblConnectionSettingsMenuItem = new javax.swing.JMenuItem();
-        firmwareSettings = new javax.swing.JMenuItem(new com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction(backend));
+        firmwareSettingsMenuItem = new javax.swing.JMenuItem(new ConfigureFirmwareAction(backend));
+        macroSettingsMenuItem = new JMenuItem(new OpenMacroSettingsAction(backend));
         gcodeProcessorSettings = new javax.swing.JMenuItem();
         PendantMenu = new javax.swing.JMenu();
         startPendantServerButton = new javax.swing.JMenuItem();
@@ -1006,8 +1009,8 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         });
         settingsMenu.add(grblConnectionSettingsMenuItem);
 
-        firmwareSettings.setText("Firmware Settings");
-        settingsMenu.add(firmwareSettings);
+        firmwareSettingsMenuItem.setText("Firmware Settings");
+        settingsMenu.add(firmwareSettingsMenuItem);
 
         gcodeProcessorSettings.setText("Gcode Processor Settings");
         gcodeProcessorSettings.addActionListener(new java.awt.event.ActionListener() {
@@ -1016,6 +1019,9 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
         });
         settingsMenu.add(gcodeProcessorSettings);
+
+        macroSettingsMenuItem.setText("Macro Settings");
+        settingsMenu.add(macroSettingsMenuItem);
 
         mainMenuBar.add(settingsMenu);
 
@@ -1684,7 +1690,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
         this.durationLabel.setText(Localization.getString("mainWindow.swing.durationLabel"));
         this.fileModePanel.setBorder(javax.swing.BorderFactory.createTitledBorder(Localization.getString("mainWindow.swing.fileLabel")));
         this.firmwareLabel.setText(Localization.getString("mainWindow.swing.firmwareLabel"));
-        this.firmwareSettings.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
+        this.firmwareSettingsMenuItem.setText(Localization.getString("mainWindow.swing.firmwareSettingsMenu"));
         this.grblConnectionSettingsMenuItem.setText(Localization.getString("mainWindow.swing.grblConnectionSettingsMenuItem"));
         this.helpButtonMachineControl.setText(Localization.getString("help"));
         this.settingsMenu.setText(Localization.getString("mainWindow.swing.settingsMenu"));
@@ -1950,7 +1956,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JPanel fileRunPanel;
     private javax.swing.JComboBox firmwareComboBox;
     private javax.swing.JLabel firmwareLabel;
-    private javax.swing.JMenuItem firmwareSettings;
+    private javax.swing.JMenuItem firmwareSettingsMenuItem;
     private javax.swing.JMenuItem gcodeProcessorSettings;
     private javax.swing.JMenuItem grblConnectionSettingsMenuItem;
     private javax.swing.JButton helpButtonMachineControl;
@@ -2000,6 +2006,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
     private javax.swing.JMenuItem startPendantServerButton;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JMenuItem stopPendantServerButton;
+    private javax.swing.JMenuItem macroSettingsMenuItem;
     private javax.swing.JButton toggleCheckMode;
     private javax.swing.JButton visualizeButton;
     private javax.swing.JLabel workPositionLabel;

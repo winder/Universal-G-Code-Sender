@@ -122,7 +122,7 @@
                         <package>com.willwinder.universalgcodesender.services</package>
                         <package>com.willwinder.universalgcodesender.types</package>
                         <package>com.willwinder.universalgcodesender.uielements</package>
-                        <package>com.willwinder.universalgcodesender.uielements.actions</package>
+                        <package>com.willwinder.universalgcodesender.actions</package>
                         <package>com.willwinder.universalgcodesender.uielements.components</package>
                         <package>com.willwinder.universalgcodesender.uielements.helpers</package>
                         <package>com.willwinder.universalgcodesender.uielements.jog</package>

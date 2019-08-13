@@ -52,7 +52,6 @@ public class SettingsTest {
         assertEquals("GRBL", target.getFirmwareVersion());
         assertEquals(Double.valueOf(10.0), Double.valueOf(target.getJogFeedRate()));
         assertEquals("en_US", target.getLanguage());
-        assertEquals(Integer.valueOf(1), target.getNumMacros());
         assertNotNull(target.getMainWindowSettings());
         assertFalse(target.isManualModeEnabled());
         assertEquals(Double.valueOf(1.0), Double.valueOf(target.getManualModeStepSize()));

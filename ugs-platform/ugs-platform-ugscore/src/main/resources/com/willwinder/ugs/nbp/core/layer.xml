@@ -53,6 +53,7 @@
         <folder name="File">
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
         </folder>
+        <folder name="Memory_hidden"/>
         <folder name="UndoRedo_hidden"/>
         <folder name="Connection">
             <!-- ugs deprecated item -->
