@@ -39,7 +39,7 @@ public class GrblCommunicator extends BufferedCommunicator {
      * act as GRBL.
      */
     protected GrblCommunicator(
-            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
+            LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
         super(cb, asl);
         // Base constructor.
         //this();

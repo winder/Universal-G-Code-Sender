@@ -783,14 +783,14 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
 
         // Modal state should be restored.
-        mockCommunicator.queueStringForComm("G90 G21 \n");
+        mockCommunicator.queueStringForComm("G90 G21 ");
         expect(expectLastCall()).times(2);
 
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11\n");
+        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11");
         expect(expectLastCall()).times(1);
 
-        mockCommunicator.queueStringForComm("G21G91G1Y10F11\n");
+        mockCommunicator.queueStringForComm("G21G91G1Y10F11");
         expect(expectLastCall()).times(1);
 
         replay(niceInstance, mockCommunicator);

@@ -194,7 +194,7 @@ public class TinyGControllerTest {
         orderVerifier.verify(communicator).cancelSend();
         orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
         orderVerifier.verify(communicator).cancelSend(); // Work around for clearing buffers and counters in communicator
-        orderVerifier.verify(communicator).queueStringForComm(TinyGUtils.COMMAND_KILL_ALARM_LOCK + "\n");
+        orderVerifier.verify(communicator).queueStringForComm(TinyGUtils.COMMAND_KILL_ALARM_LOCK);
         orderVerifier.verify(communicator).streamCommands();
 
         // Ignore the code analysis warnings
@@ -214,7 +214,7 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G91G1X100Y100Z100F1000\n");
+        orderVerifier.verify(communicator).queueStringForComm("G21G91G1X100Y100Z100F1000");
         orderVerifier.verify(communicator).streamCommands();
     }
 
@@ -231,7 +231,7 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G91G1X3.937Y3.937Z3.937F39.37\n");
+        orderVerifier.verify(communicator).queueStringForComm("G20G91G1X3.937Y3.937Z3.937F39.37");
         orderVerifier.verify(communicator).streamCommands();
     }
 
@@ -248,7 +248,7 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000\n");
+        orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000");
         orderVerifier.verify(communicator).streamCommands();
     }
 
@@ -265,7 +265,7 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37\n");
+        orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37");
         orderVerifier.verify(communicator).streamCommands();
     }
 }

@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class GrblCommunicatorTest {
     private MockGrbl mg;
-    private LinkedBlockingDeque<String> cb;
+    private LinkedBlockingDeque<GcodeCommand> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
     
     public GrblCommunicatorTest() {
@@ -82,8 +82,7 @@ public class GrblCommunicatorTest {
             assertEquals(1, cb.size());
             
             // Test that instance adds newline to improperly formed command.
-            String next = cb.peek();
-            assertEquals(input, cb.peek());
+            assertEquals(input, cb.peek().getCommandString());
             
             instance.queueStringForComm(input);
             instance.queueStringForComm(input);
@@ -98,7 +97,7 @@ public class GrblCommunicatorTest {
 
             instance.queueStringForComm(input);
             // Test that instance doesn't add superfluous newlines.
-            assertEquals(input, cb.peek());
+            assertEquals(input, cb.peek().getCommandString());
 
         } catch (Exception e) {
             fail("queueStringForComm threw an exception: "+e.getMessage());

@@ -59,13 +59,13 @@ public class TinyGController extends AbstractController {
         this(new TinyGCommunicator());
     }
 
-    public TinyGController(AbstractCommunicator abstractCommunicator) {
-        super(abstractCommunicator);
+    public TinyGController(ICommunicator communicator) {
+        super(communicator);
         capabilities = new Capabilities();
         commandCreator = new TinyGGcodeCommandCreator();
 
         firmwareSettings = new TinyGFirmwareSettings(this);
-        abstractCommunicator.addListener(firmwareSettings);
+        communicator.addListener(firmwareSettings);
 
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";

@@ -43,7 +43,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
     private IGcodeStreamReader commandStream;               // Arbitrary number of commands
-    private final LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
+    private final LinkedBlockingDeque<GcodeCommand> commandBuffer;     // Manually specified commands
     private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
     
@@ -56,7 +56,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.activeCommandList = new LinkedBlockingDeque<>();
     }
 
-    public BufferedCommunicator(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+    public BufferedCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
         this.commandBuffer = cb;
         this.activeCommandList = asl;
     }
@@ -74,7 +74,14 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     @Override
     public void queueStringForComm(final String input) {
         // Add command to queue
-        this.commandBuffer.add(input);
+        this.commandBuffer.add(new GcodeCommand(input));
+    }
+
+
+    @Override
+    public void queueCommand(GcodeCommand command) {
+        // Add command to queue
+        this.commandBuffer.add(command);
     }
 
     @Override
@@ -161,7 +168,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             return nextCommand;
         }
         else if (!this.commandBuffer.isEmpty()) {
-            nextCommand = new GcodeCommand(commandBuffer.pop());
+            nextCommand = commandBuffer.pop();
         }
         else try {
             if (commandStream != null && commandStream.ready()) {

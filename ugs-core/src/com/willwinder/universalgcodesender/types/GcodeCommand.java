@@ -20,6 +20,10 @@
 package com.willwinder.universalgcodesender.types;
 
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -105,7 +109,7 @@ public class GcodeCommand {
     /** Getters. */
     @Override
     public String toString() {
-        return getCommandString()  + "("+commandNum+")";
+        return ToStringBuilder.reflectionToString(this,  ToStringStyle.SHORT_PREFIX_STYLE);
     }
     
     public String getCommandString() {
@@ -188,5 +192,15 @@ public class GcodeCommand {
 
     public void setGenerated(boolean generated) {
         isGenerated = generated;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return EqualsBuilder.reflectionEquals(this, object);
     }
 }

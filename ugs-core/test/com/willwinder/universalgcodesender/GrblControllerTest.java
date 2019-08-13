@@ -226,7 +226,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(5, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8 + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.8c");
@@ -234,7 +234,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(8, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.9");
@@ -242,7 +242,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(11, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         assertEquals(expResult, mgc.queuedString);
     }
 
@@ -492,7 +492,7 @@ public class GrblControllerTest {
         instance.sendCommandImmediately(command);
         assertEquals(3, mgc.numQueueStringForCommCalls);
         assertEquals(3, mgc.numStreamCommandsCalls);
-        assertEquals(str  + "\n", mgc.queuedString);
+        assertEquals(str, mgc.queuedString);
     }
 
     /**
@@ -1081,19 +1081,19 @@ public class GrblControllerTest {
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11\n");
-        assertEquals(mgc.queuedStrings.get(3), "G90 G21 \n");
+        assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11");
+        assertEquals(mgc.queuedStrings.get(3), "G90 G21 ");
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
-        assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11\n");
-        assertEquals(mgc.queuedStrings.get(5), "G90 G21 \n");
+        assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11");
+        assertEquals(mgc.queuedStrings.get(5), "G90 G21 ");
 
         instance.rawResponseHandler("Grbl 1.1a");
         instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11\n");
+        assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11");
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
-        assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11\n");
+        assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11");
     }
 
     /**
@@ -1111,20 +1111,20 @@ public class GrblControllerTest {
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1Y2Z3F200\n", mgc.queuedStrings.get(2));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(3));
+        assertEquals("G21G90G1X1Y2Z3F200", mgc.queuedStrings.get(2));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(3));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1Y2F200\n", mgc.queuedStrings.get(4));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(5));
+        assertEquals("G21G90G1X1Y2F200", mgc.queuedStrings.get(4));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(5));
 
         instance.jogMachineTo(new PartialPosition(1.2345678, 2.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1.235Y2F200\n", mgc.queuedStrings.get(6));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(7));
+        assertEquals("G21G90G1X1.235Y2F200", mgc.queuedStrings.get(6));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(7));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.INCH), 200);
-        assertEquals("G20G90G1X1Y2F200\n", mgc.queuedStrings.get(8));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(9));
+        assertEquals("G20G90G1X1Y2F200", mgc.queuedStrings.get(8));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(9));
     }
 
     /**
@@ -1155,10 +1155,10 @@ public class GrblControllerTest {
         instance.returnToHome();
 
         assertEquals(4, mgc.queuedStrings.size());
-        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
-        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
-        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(2));
-        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(3));
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(2));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(3));
     }
 
     @Test
@@ -1176,11 +1176,11 @@ public class GrblControllerTest {
         instance.returnToHome();
 
         assertEquals(5, mgc.queuedStrings.size());
-        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
-        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
-        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0\n", mgc.queuedStrings.get(2));
-        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(3));
-        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(4));
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0", mgc.queuedStrings.get(2));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(3));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(4));
     }
 
     @Test

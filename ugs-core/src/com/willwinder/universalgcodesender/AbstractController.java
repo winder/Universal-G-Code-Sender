@@ -497,18 +497,10 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
 
         this.setCurrentState(ControlState.COMM_SENDING);
-        this.sendStringToComm(command.getCommandString());
+        this.comm.queueStringForComm(command.getCommandString());
         this.comm.streamCommands();
     }
-    
-    /**
-     * This is the only place where commands with an expected 'ok'/'error'
-     * response are sent to the comm - with the exception of command streams.
-     */
-    private void sendStringToComm(String command) {
-        this.comm.queueStringForComm(command + "\n");
-    }
-    
+
     @Override
     public Boolean isReadyToReceiveCommands() throws Exception {
         if (!isCommOpen()) {

@@ -58,7 +58,7 @@ public class BufferedCommunicatorTest {
     private final static Connection mockConnection = EasyMock.createMock(Connection.class);
     private final static CommunicatorListener mockScl = EasyMock.createMock(CommunicatorListener.class);
     private BufferedCommunicator instance;
-    private LinkedBlockingDeque<String> cb;
+    private LinkedBlockingDeque<GcodeCommand> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
 
     public BufferedCommunicatorTest() {
@@ -119,7 +119,7 @@ public class BufferedCommunicatorTest {
         System.out.println("queueStringForComm");
         String input = "input";
         instance.queueStringForComm(input);
-        assertEquals(input, cb.getFirst());
+        assertEquals(input, cb.getFirst().getCommandString());
     }
 
     /**
@@ -428,7 +428,7 @@ public class BufferedCommunicatorTest {
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
         asl.add(new GcodeCommand("G0"));
-        cb.add("G0");
+        cb.add(new GcodeCommand("G0"));
 
         instance.pauseSend();
         assertTrue(instance.isPaused());
@@ -486,8 +486,8 @@ public class BufferedCommunicatorTest {
         // Given
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
-        cb.add("G0");
-        cb.add("G0");
+        cb.add(new GcodeCommand("G0"));
+        cb.add(new GcodeCommand("G0"));
         instance.streamCommands();
 
         // When
@@ -502,7 +502,7 @@ public class BufferedCommunicatorTest {
         // Given
         Connection connection = mock(Connection.class);
         instance.setConnection(connection);
-        cb.add("G0");
+        cb.add(new GcodeCommand("G0"));
         instance.streamCommands();
 
         // When
@@ -575,7 +575,7 @@ public class BufferedCommunicatorTest {
     }
 
     public class BufferedCommunicatorImpl extends BufferedCommunicator {
-        BufferedCommunicatorImpl(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+        BufferedCommunicatorImpl(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
             super(cb, asl);
         }
 
