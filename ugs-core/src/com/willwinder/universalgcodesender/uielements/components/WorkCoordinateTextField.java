@@ -47,7 +47,7 @@ public class WorkCoordinateTextField extends JTextField implements KeyListener, 
         this.backend = backend;
         this.axis = axis;
 
-        setText("0.00");
+        setText("0.000");
 
         setHorizontalAlignment(JTextField.RIGHT);
         setForeground(ThemeColors.LIGHT_BLUE);

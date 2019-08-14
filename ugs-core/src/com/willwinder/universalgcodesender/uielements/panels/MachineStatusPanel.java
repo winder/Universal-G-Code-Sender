@@ -80,9 +80,9 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final RoundedPanel activeStatePanel = new RoundedPanel(COMMON_RADIUS);
     private final JLabel activeStateValueLabel = new JLabel(" ");
 
-    private final JLabel machinePositionXValue = new JLabel("0.00");
-    private final JLabel machinePositionYValue = new JLabel("0.00");
-    private final JLabel machinePositionZValue = new JLabel("0.00");
+    private final JLabel machinePositionXValue = new JLabel("0.000");
+    private final JLabel machinePositionYValue = new JLabel("0.000");
+    private final JLabel machinePositionZValue = new JLabel("0.000");
 
     private final JTextField workPositionXValue;
     private final JTextField workPositionYValue;
@@ -104,7 +104,8 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
     private final Timer statePollTimer;
 
     private Units units;
-    private DecimalFormat decimalFormatter;
+    private final DecimalFormat decimalFormatter;
+
 
     public MachineStatusPanel(BackendAPI backend) {
         this.backend = backend;
@@ -112,6 +113,7 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
             this.backend.addUGSEventListener(this);
             this.backend.addControllerStateListener(this);
         }
+        decimalFormatter = new DecimalFormat("0.000");
         statePollTimer = createTimer();
         workPositionXValue = new WorkCoordinateTextField(backend, X);
         workPositionYValue = new WorkCoordinateTextField(backend, Y);
@@ -278,14 +280,11 @@ public class MachineStatusPanel extends JPanel implements UGSEventListener, Cont
         units = u;
         switch(u) {
             case MM:
-                this.decimalFormatter = new DecimalFormat("0.00");
                 break;
             case INCH:
-                this.decimalFormatter = new DecimalFormat("0.000");
                 break;
             default:
                 units = Units.MM;
-                this.decimalFormatter = new DecimalFormat("0.00");
                 break;
         }
     }
