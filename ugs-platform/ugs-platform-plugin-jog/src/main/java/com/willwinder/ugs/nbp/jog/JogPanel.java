@@ -29,11 +29,17 @@ import com.willwinder.universalgcodesender.uielements.jog.StepSizeSpinner;
 import net.miginfocom.swing.MigLayout;
 import org.openide.util.ImageUtilities;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.SwingUtilities; // isLeftMouseButton() isRightMouseButton()
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.io.InputStream;
 import java.util.HashSet;
@@ -84,6 +90,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
     private StepSizeSpinner zStepSizeSpinner;
     private StepSizeSpinner feedRateSpinner;
     private StepSizeSpinner xyStepSizeSpinner;
+    private JButton stealFocusButton;
 
     public JogPanel() {
         createComponents();
@@ -101,6 +108,12 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         String fontName = "OpenSans-Regular.ttf";
         InputStream is = getClass().getResourceAsStream(fontPath + fontName);
         Font font = MachineStatusFontManager.createFont(is, fontName).deriveFont(Font.PLAIN, FONT_SIZE_LABEL_LARGE);
+
+        // Create our focus stealing button first
+        stealFocusButton = createImageButton("icons/keyboard.png");
+        stealFocusButton.setFocusable(true);
+        stealFocusButton.setToolTipText(Localization.getString("platform.plugin.jog.stealKeyboardFocus"));
+        stealFocusButton.addActionListener(e -> stealFocusButton.requestFocusInWindow());
 
         // Create our buttons
         buttons.put(JogPanelButtonEnum.BUTTON_XPOS, createImageButton("icons/xpos.png", "X+", SwingConstants.CENTER, SwingConstants.LEFT));
@@ -205,11 +218,10 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_ZPOS), "grow");
 
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XNEG), "grow");
-        JPanel space = new JPanel();
-        space.setOpaque(false);
-        xyzPanel.add(space, "grow");
+        xyzPanel.add(stealFocusButton, "grow");
         xyzPanel.add(getButtonFromEnum(JogPanelButtonEnum.BUTTON_XPOS), "grow");
-        space = new JPanel();
+
+        JPanel space = new JPanel();
         space.setOpaque(false);
         xyzPanel.add(space, "grow");
 
@@ -234,7 +246,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         LongPressMouseListener longPressMouseListener = new LongPressMouseListener(LONG_PRESS_DELAY) {
             @Override
             protected void onMouseClicked(MouseEvent e) {
-                if(!SwingUtilities.isLeftMouseButton(e)) {
+                if (!SwingUtilities.isLeftMouseButton(e)) {
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
@@ -258,7 +270,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
             @Override
             protected void onMouseLongPressed(MouseEvent e) {
-                if(!SwingUtilities.isLeftMouseButton(e)) {
+                if (!SwingUtilities.isLeftMouseButton(e)) {
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
@@ -267,7 +279,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
 
             @Override
             protected void onMouseLongRelease(MouseEvent e) {
-                if(!SwingUtilities.isLeftMouseButton(e)) {
+                if (!SwingUtilities.isLeftMouseButton(e)) {
                     return; // ignore RMB
                 }
                 JogPanelButtonEnum buttonEnum = getButtonEnumFromMouseEvent(e);
@@ -346,6 +358,7 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         JButton button = new JButton(imageIcon);
         button.setMinimumSize(new Dimension(MINIMUM_BUTTON_SIZE, MINIMUM_BUTTON_SIZE));
         button.setFocusable(false);
+        button.addActionListener((e) -> stealFocusButton.requestFocusInWindow());
         return button;
     }
 
@@ -361,6 +374,8 @@ public class JogPanel extends JPanel implements SteppedSizeManager.SteppedSizeCh
         xyStepLabel.setEnabled(enabled);
         zStepLabel.setEnabled(enabled);
         feedRateLabel.setEnabled(enabled);
+
+        stealFocusButton.setEnabled(enabled);
     }
 
     @Override
