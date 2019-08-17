@@ -25,6 +25,7 @@ package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
@@ -108,6 +109,14 @@ public class MockGrblCommunicator extends GrblCommunicator {
         
         this.queuedString = input;
         this.queuedStrings.add(input);
+    }
+
+    @Override
+    public void queueCommand(GcodeCommand command) {
+        this.numQueueStringForCommCalls++;
+
+        this.queuedString = command.getCommandString();
+        this.queuedStrings.add(command.getCommandString());
     }
 
     @Override

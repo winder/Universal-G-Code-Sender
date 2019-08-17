@@ -53,7 +53,6 @@ public interface ICommunicator extends IConnectionListener {
      * Invoke the method {@link #streamCommands()} to start sending any queued commands.
      *
      * @param command the command to send
-     * @deprecated use @link{#queueCommand}
      */
     void queueCommand(GcodeCommand command);
 

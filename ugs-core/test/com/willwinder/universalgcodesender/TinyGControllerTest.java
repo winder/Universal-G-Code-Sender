@@ -27,11 +27,13 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -46,11 +48,15 @@ public class TinyGControllerTest {
     private AbstractCommunicator communicator;
 
     private TinyGController controller;
+    private ArgumentCaptor<GcodeCommand> queueCommandArgumentCaptor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         controller = new TinyGController(communicator);
+
+        queueCommandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(queueCommandArgumentCaptor.capture());
     }
 
     @Test
@@ -194,11 +200,11 @@ public class TinyGControllerTest {
         orderVerifier.verify(communicator).cancelSend();
         orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
         orderVerifier.verify(communicator).cancelSend(); // Work around for clearing buffers and counters in communicator
-        orderVerifier.verify(communicator).queueStringForComm(TinyGUtils.COMMAND_KILL_ALARM_LOCK);
+        orderVerifier.verify(communicator).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
 
-        // Ignore the code analysis warnings
-        assertEquals("trick code analysis", "trick code analysis");
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals(TinyGUtils.COMMAND_KILL_ALARM_LOCK, command.getCommandString());
     }
 
     @Test
@@ -214,8 +220,13 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G91G1X100Y100Z100F1000");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G21G91G1X100Y100Z100F1000", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
@@ -231,8 +242,13 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G91G1X3.937Y3.937Z3.937F39.37");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G20G91G1X3.937Y3.937Z3.937F39.37", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
@@ -248,8 +264,13 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G21G90G1X1Y2Z3F1000", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
@@ -265,7 +286,12 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 }

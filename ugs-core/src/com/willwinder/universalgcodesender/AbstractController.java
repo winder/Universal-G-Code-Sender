@@ -497,7 +497,7 @@ public abstract class AbstractController implements CommunicatorListener, IContr
         }
 
         this.setCurrentState(ControlState.COMM_SENDING);
-        this.comm.queueStringForComm(command.getCommandString());
+        this.comm.queueCommand(command);
         this.comm.streamCommands();
     }
 

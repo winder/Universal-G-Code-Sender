@@ -37,6 +37,7 @@ import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IMockBuilder;
 import org.hamcrest.CoreMatchers;
@@ -782,16 +783,9 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         expect(expectLastCall()).anyTimes();
 
-        // Modal state should be restored.
-        mockCommunicator.queueStringForComm("G90 G21 ");
-        expect(expectLastCall()).times(2);
-
-        // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11");
-        expect(expectLastCall()).times(1);
-
-        mockCommunicator.queueStringForComm("G21G91G1Y10F11");
-        expect(expectLastCall()).times(1);
+        Capture<GcodeCommand> gcodeCommandCapture = EasyMock.newCapture(CaptureType.ALL);
+        mockCommunicator.queueCommand(capture(gcodeCommandCapture));
+        expect(expectLastCall()).times(4);
 
         replay(niceInstance, mockCommunicator);
 
@@ -800,6 +794,15 @@ public class AbstractControllerTest {
 
         niceInstance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
         niceInstance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+
+        assertEquals(4, gcodeCommandCapture.getValues().size());
+        assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());
+        assertTrue(gcodeCommandCapture.getValues().get(0).isTemporaryParserModalChange());
+
+        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(1).getCommandString());
+        assertEquals("G21G91G1Y10F11", gcodeCommandCapture.getValues().get(2).getCommandString());
+        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(3).getCommandString());
+        assertTrue(gcodeCommandCapture.getValues().get(3).isTemporaryParserModalChange());
     }
 
     /**
