@@ -118,7 +118,7 @@ public class BufferedCommunicatorTest {
     public void testQueueStringForComm() {
         System.out.println("queueStringForComm");
         String input = "input";
-        instance.queueStringForComm(input);
+        instance.queueCommand(new GcodeCommand(input));
         assertEquals(input, cb.getFirst().getCommandString());
     }
 

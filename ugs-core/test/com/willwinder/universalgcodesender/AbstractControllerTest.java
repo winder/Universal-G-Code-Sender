@@ -159,8 +159,8 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         expect(expectLastCall()).once();
     }
-    private void startStreamExpectation(String port, int rate, String command, boolean handleStateChange) throws Exception {
-        openInstanceExpectUtility(port, rate, handleStateChange);
+    private void startStreamExpectation(String port, int rate) throws Exception {
+        openInstanceExpectUtility(port, rate, false);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
@@ -188,115 +188,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of openCommPort method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testOpenCommPort() throws Exception {
-        System.out.println("openCommPort");
-        String port = "";
-        int portRate = 0;
-
-        instance.openCommAfterEvent();
-        expect(expectLastCall()).once();
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall()).once();
-        mockCommunicator.connect(ConnectionDriver.JSSC, port, portRate);
-        replay(instance, mockCommunicator, mockListener);
-
-        Boolean expResult = true;
-        Boolean result = instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
-        assertEquals(expResult, result);
-
-        boolean threw = false;
-        try {
-            instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
-        } catch (Exception ignored) {
-            threw = true;
-        }
-        assertEquals("Cannot open a comm port twice.", true, threw);
-        
-        verify(instance, mockCommunicator, mockListener);
-    }
-
-    /**
-     * Test of closeCommPort method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testCloseCommPort() throws Exception {
-        System.out.println("closeCommPort");
-
-        String port = "/some/port";
-        int baud = 1234;
-
-        // Events
-        instance.openCommAfterEvent();
-        expect(expectLastCall()).once();
-        instance.closeCommBeforeEvent();
-        expect(expectLastCall()).once();
-        instance.closeCommAfterEvent();
-        expect(expectLastCall()).once();
-
-        // Message for open and close.
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall()).times(2);
-        mockCommunicator.connect(ConnectionDriver.JSERIALCOMM, port, baud);
-        mockCommunicator.disconnect();
-        expect(expectLastCall()).once();
-        replay(instance, mockCommunicator, mockListener);
-
-        // Close a closed port.
-        Boolean result = instance.closeCommPort();
-        assertEquals(true, result);
-
-        // Open port to close it.
-        result = instance.openCommPort(getSettings().getConnectionDriver(), port, baud);
-        assertEquals(result, result);
-
-        // Close an open port.
-        result = instance.closeCommPort();
-        assertEquals(true, result);
-    }
-
-    /**
-     * Test of isCommOpen method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testIsCommOpen() throws Exception {
-        System.out.println("isCommOpen");
-
-        mockCommunicator.connect(ConnectionDriver.JSSC, "port", 1234);
-        mockCommunicator.disconnect();
-        expect(expectLastCall());
-        replay(mockCommunicator);
-
-        assertEquals(false, instance.isCommOpen());
-
-        instance.openCommPort(getSettings().getConnectionDriver(), "port", 1234);
-
-        assertEquals(true, instance.isCommOpen());
-
-        instance.closeCommPort();
-
-        assertEquals(false, instance.isCommOpen());
-    }
-
-    /**
-     * Test of setStatusUpdatesEnabled method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testStatusUpdates() {
-        System.out.println("testStatusUpdates");
-        boolean enabled = false;
-        instance.setStatusUpdatesEnabled(enabled);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of isStreamingFile method, of class AbstractController.
      */
     @Test
@@ -319,7 +210,7 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        startStreamExpectation(port, rate, command, false);
+        startStreamExpectation(port, rate);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
         expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
@@ -368,84 +259,6 @@ public class AbstractControllerTest {
         Assert.assertThat(instance.rowsSent(), CoreMatchers.equalTo(0));
         Assert.assertThat(instance.rowsRemaining(), CoreMatchers.equalTo(2));
         Assert.assertThat(instance.rowsInSend(), CoreMatchers.equalTo(2));
-    }
-
-    /**
-     * Test of sendCommandImmediately method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testSendCommandImmediately() throws Exception {
-        System.out.println("sendCommandImmediately");
-        String str = "";
-
-        boolean threwException = false;
-        try {
-            instance.sendCommandImmediately(instance.createCommand(str));
-        } catch (Exception e) {
-            Assert.assertThat(e.getMessage(), CoreMatchers.startsWith("Cannot send command(s)"));
-            threwException = true;
-        }
-        Assert.assertTrue(threwException);
-
-        String port = "/some/port";
-        int rate = 1234;
-
-        openInstanceExpectUtility(port, rate, false);
-        mockCommunicator.queueStringForComm(str + "\n");
-        expect(expectLastCall()).times(1);
-        mockCommunicator.streamCommands();
-        expect(expectLastCall()).times(1);
-        replay(instance, mockCommunicator);
-
-        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.sendCommandImmediately(instance.createCommand(str));
-
-        verify(mockCommunicator, instance);
-    }
-
-    /**
-     * Test of isReadyToStreamFile method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testIsReadyToStreamFile() throws Exception {
-        System.out.println("isReadyToStreamFile");
-
-        instance.isReadyToStreamCommandsEvent();
-        expect(expectLastCall()).times(3);
-
-        Boolean commPortNotOpen = false;
-        try {
-            instance.isReadyToStreamFile();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("comm port is not open"));
-            commPortNotOpen = true;
-        }
-        assertTrue(commPortNotOpen);
-
-        String command = "command";
-        String port = "/some/port";
-        int rate = 1234;
-
-        startStreamExpectation(port, rate, command, false);
-        replay(instance, mockCommunicator);
-
-        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-
-        assertEquals(true, instance.isReadyToStreamFile());
-
-        instance.queueStream(new SimpleGcodeStreamReader(command, command));
-        instance.beginStreaming();
-
-        Boolean alreadyStreaming = false;
-        try {
-            instance.isReadyToStreamFile();
-        } catch (Exception e) {
-            assertEquals("Already streaming.", e.getMessage());
-            alreadyStreaming = true;
-        }
-        assertTrue(alreadyStreaming);
     }
 
     /**
@@ -558,43 +371,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of pauseStreaming method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testPauseStreaming() throws Exception {
-        System.out.println("pauseStreaming");
-        instance.pauseStreaming();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of resumeStreaming method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testResumeStreaming() throws Exception {
-        System.out.println("resumeStreaming");
-        instance.resumeStreaming();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of cancelSend method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testCancelSend() throws Exception {
-        // This is covered pretty thoroughly in GrblControllerTest.
-        System.out.println("cancelSend");
-        instance.cancelSend();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of commandSent method, of class AbstractController.
      */
     @Test
@@ -606,7 +382,7 @@ public class AbstractControllerTest {
         String command = "command";
 
         // Setup instance with commands buffered on the communicator.
-        startStreamExpectation(port, baud, command, false);
+        startStreamExpectation(port, baud);
         replay(instance, mockCommunicator);
         startStream(port, baud, command);
         reset(instance, mockCommunicator, mockListener);

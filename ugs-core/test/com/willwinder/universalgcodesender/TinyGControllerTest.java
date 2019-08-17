@@ -74,12 +74,16 @@ public class TinyGControllerTest {
         controller.rawResponseHandler("{\"ack\":true}");
 
         // Then
-        verify(communicator).queueStringForComm("{ej:1}");
-        verify(communicator).queueStringForComm("{jv:4}");
-        verify(communicator).queueStringForComm("{qv:0}");
-        verify(communicator).queueStringForComm("{sv:1}");
-        verify(communicator).queueStringForComm("{sr:n}");
+        verify(communicator, times(10)).queueCommand(any(GcodeCommand.class));
         verify(communicator).streamCommands();
+
+        assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());
+        assertEquals("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}", queueCommandArgumentCaptor.getAllValues().get(1).getCommandString());
+        assertEquals("{jv:4}", queueCommandArgumentCaptor.getAllValues().get(2).getCommandString());
+        assertEquals("{qv:0}", queueCommandArgumentCaptor.getAllValues().get(3).getCommandString());
+        assertEquals("{sv:1}", queueCommandArgumentCaptor.getAllValues().get(4).getCommandString());
+        assertEquals("$$", queueCommandArgumentCaptor.getAllValues().get(5).getCommandString());
+        assertEquals("{sr:n}", queueCommandArgumentCaptor.getAllValues().get(6).getCommandString());
     }
 
     @Test
