@@ -72,13 +72,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public void queueStringForComm(final String input) {
-        // Add command to queue
-        this.commandBuffer.add(new GcodeCommand(input));
-    }
-
-
-    @Override
     public void queueCommand(GcodeCommand command) {
         // Add command to queue
         this.commandBuffer.add(command);

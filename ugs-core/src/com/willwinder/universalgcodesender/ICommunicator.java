@@ -32,18 +32,6 @@ import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
  * @author Joacim Breiler
  */
 public interface ICommunicator extends IConnectionListener {
-    /**
-     * Add command to the command buffer outside file mode. These commands will be sent
-     * prior to any queued stream, they should typically be control commands calculated
-     * by the application.
-     * <p>
-     * Invoke the method {@link #streamCommands()} to start sending any queued commands.
-     *
-     * @param command the command to send
-     * @deprecated use @link{#queueCommand} instead.
-     */
-    @Deprecated
-    void queueStringForComm(String command);
 
     /**
      * Add command to the command buffer outside file mode. These commands will be sent

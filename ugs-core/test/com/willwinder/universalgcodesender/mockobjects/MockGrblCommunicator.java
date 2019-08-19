@@ -104,14 +104,6 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
 
     @Override
-    public void queueStringForComm(String input) {
-        this.numQueueStringForCommCalls++;
-        
-        this.queuedString = input;
-        this.queuedStrings.add(input);
-    }
-
-    @Override
     public void queueCommand(GcodeCommand command) {
         this.numQueueStringForCommCalls++;
 

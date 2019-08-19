@@ -135,14 +135,14 @@ public class BufferedCommunicatorTest {
         // console message, connection stream, sent event
         mockConnection.sendStringToComm(input + "\n");
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
-        mockScl.commandSent(EasyMock.<GcodeCommand>anyObject());
+        mockScl.commandSent(EasyMock.anyObject(GcodeCommand.class));
         EasyMock.expect(EasyMock.expectLastCall()).times(2);
 
         EasyMock.replay(mockConnection, mockScl);
 
         // Test
-        instance.queueStringForComm(input);
-        instance.queueStringForComm(input);
+        instance.queueCommand(new GcodeCommand(input));
+        instance.queueCommand(new GcodeCommand(input));
         instance.streamCommands();
 
         EasyMock.verify(mockConnection, mockScl);
@@ -213,8 +213,8 @@ public class BufferedCommunicatorTest {
         assertEquals(0, instance.numActiveCommands());
 
         // Leave active commands in pipeline.
-        instance.queueStringForComm(input);
-        instance.queueStringForComm(input);
+        instance.queueCommand(new GcodeCommand(input));
+        instance.queueCommand(new GcodeCommand(input));
         instance.streamCommands();
 
         assertEquals(true, instance.areActiveCommands());
@@ -247,7 +247,7 @@ public class BufferedCommunicatorTest {
 
         // Send the first 10 commands, pause 11th
         for (int i = 0; i < 11; i++) {
-            instance.queueStringForComm(input);
+            instance.queueCommand(new GcodeCommand(input));
         }
         instance.streamCommands();
         instance.pauseSend();
@@ -275,7 +275,7 @@ public class BufferedCommunicatorTest {
         // Queue up 200 characters.
         String tenChar = "123456789";
         for (int i = 0; i < 20; i++) {
-            instance.queueStringForComm(tenChar);
+            instance.queueCommand(new GcodeCommand(tenChar));
         }
         instance.streamCommands();
 
@@ -367,7 +367,7 @@ public class BufferedCommunicatorTest {
 
         // Queue up 200 characters.
         for (int i = 0; i < 20; i++) {
-            instance.queueStringForComm(tenChar);
+            instance.queueCommand(new GcodeCommand(tenChar));
         }
         instance.streamCommands();
 
@@ -411,7 +411,7 @@ public class BufferedCommunicatorTest {
         gcodeStreamWriter.close();
 
         instance.queueStreamForComm(new GcodeStreamReader(gcodeFile));
-        instance.queueStringForComm("G1");
+        instance.queueCommand(new GcodeCommand("G1"));
 
         // When
         instance.streamCommands();
