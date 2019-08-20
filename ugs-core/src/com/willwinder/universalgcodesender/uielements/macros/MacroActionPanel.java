@@ -25,11 +25,18 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.Macro;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.ThreadHelper;
 import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +71,7 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
 
     @Override
     public void doLayout() {
-        customGcodeButtons.forEach(button -> macroPanel.remove(button));
+        macroPanel.removeAll();
         customGcodeButtons.clear();
 
         // Cache the largest width amongst the buttons.
@@ -162,8 +169,10 @@ public class MacroActionPanel extends JPanel implements UGSEventListener {
     @Override
     public void UGSEvent(UGSEvent evt) {
         if (evt.isSettingChangeEvent()) {
-            macros = backend.getSettings().getMacros();
-            doLayout();
+            ThreadHelper.invokeLater(() -> {
+                macros = backend.getSettings().getMacros();
+                doLayout();
+            });
         } else {
             updateEnabledState();
         }
