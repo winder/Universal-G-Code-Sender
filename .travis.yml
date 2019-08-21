@@ -26,8 +26,7 @@ script:
 # Make sure artifacts can be built
 - mvn package -pl ugs-classic assembly:assembly -DskipTests=true
 - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
-# OSX installer don't seem to be working at the moment.
-#- mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
 
 deploy:
   # Only deploy to a specific branch.

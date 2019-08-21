@@ -274,8 +274,6 @@
                               <!-- Download and untar JRE -->
                               <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                                   <arg line="-L"/>
-                                  <arg line="-b"/>
-                                  <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
                                   <arg line="-O"/>
                                   <arg line="${ugs.bundle.java.url}/${ugs.mac.bundle.jvm.version}.tar.gz"/>
                               </exec>
@@ -298,19 +296,15 @@
                               -->
 
                               <!-- Get the JRE folder name -->
-                              <path id="jre_name_osx">
-                                  <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jre*" />
+                              <path id="jdk_name_osx">
+                                  <dirset dir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns" includes="jdk*" />
                               </path>
-                              <property name="bundle.mac.jvm.path" refid="jre_name_osx" />
+                              <property name="bundle.mac.jvm.path" refid="jdk_name_osx" />
                               <basename property="bundle.mac.jvm.name" file="${bundle.mac.jvm.path}"/>
 
                               <!-- Configure relative JRE path into ugsplatform.conf -->
                               <replace file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/Resources/${brandingToken}/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../../PlugIns/${bundle.mac.jvm.name}/Contents/Home&quot;"/>
                               <chmod file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/**" perm="+x" type="both"/>
-
-                              <!-- Fix JRE by replacing libjli.dylib symlink with real file -->
-                              <delete file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/Contents/MacOS/libjli.dylib"/>
-                              <copy file="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/Contents/Home/lib/jli/libjli.dylib" todir="${project.build.directory}/${ugs.appbundle.name}.app/Contents/PlugIns/${bundle.mac.jvm.name}/Contents/MacOS"/>
 
                               <!-- Codesign JRE -->
                               <!--
@@ -337,33 +331,14 @@
                               <move file="${project.build.directory}/${ugs.appbundle.name}.app" todir="${project.build.directory}/${ugs.app.title}/" />
                               <symlink link="${project.build.directory}/${ugs.app.title}/Applications" resource="/Applications" failonerror="false" />
 
-                              <!-- Create DMG (Mac OS X) -->
-                              <exec dir="${project.build.directory}" os="Mac OS X" executable="hdiutil" failonerror="true">
-                                  <arg value="create"/>
-                                  <arg value="-noanyowners"/>
-                                  <arg value="-imagekey"/>
-                                  <arg value="zlib-level=9"/>
-                                  <arg value="-srcfolder"/>
-                                  <arg value="${project.build.directory}/${ugs.app.title}"/>
-                                  <arg value="${project.artifactId}-${project.version}.dmg"/>
-                              </exec>
-
-                              <!-- Create DMG (Linux), only for testing -->
-                              <exec dir="${project.build.directory}" os="Linux" executable="genisoimage" failonerror="true">
+                              <!-- Create DMG -->
+                              <!-- For this to work on MacOSX you need to install cdrtools: 'brew install cdrtools' -->
+                              <exec dir="${project.build.directory}" executable="mkisofs" failonerror="true">
                                   <arg value="-V"/>
                                   <arg value="${ugs.appbundle.name}"/>
-                                  <arg value="-U"/>
-                                  <arg value="-D"/>
-                                  <arg value="-l"/>
-                                  <arg value="-allow-multidot"/>
-                                  <arg value="-max-iso9660-filenames"/>
-                                  <arg value="-relaxed-filenames"/>
-                                  <arg value="-no-iso-translate"/>
                                   <arg value="-r"/>
                                   <arg value="-o"/>
                                   <arg value="${project.artifactId}-${project.version}.dmg"/>
-                                  <arg value="-root"/>
-                                  <arg value="${project.build.directory}/${ugs.app.title}"/>
                                   <arg value="${project.build.directory}/${ugs.app.title}"/>
                               </exec>
                           </target>
@@ -374,112 +349,6 @@
             </plugins>
           </build>
         </profile>
-
-     <!-- Create the RaspberryPi application bundle -->
-     <profile>
-       <id>create-raspberry-pi</id>
-       <properties>
-           <skipCreateRPi>false</skipCreateRPi>
-       </properties>
-       <build>
-         <plugins>
-           <plugin>
-             <groupId>org.apache.maven.plugins</groupId>
-             <artifactId>maven-antrun-plugin</artifactId>
-             <executions>
-               <execution>
-                 <id>create-rpi-bundle</id>
-                 <phase>package</phase>
-                 <goals>
-                     <goal>run</goal>
-                 </goals>
-                 <configuration>
-                   <skip>${skipCreateRPi}</skip>
-                   <target>
-                     <!-- Clean -->
-                     <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                       <fileset dir="${project.build.directory}/${ugs.appbundle.name}.pi" followsymlinks="false"/>
-                     </delete>
-                     <delete file="${project.build.directory}/${project.artifactId}-${project.version}.pi.tar.gz" failonerror="false"/>
-
-                     <!-- Create folders -->
-                     <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.pi"/>
-
-                     <!-- Copy application -->
-                     <copy todir="${project.build.directory}/${ugs.appbundle.name}.pi">
-                       <fileset dir="${project.build.directory}/${brandingToken}"/>
-                     </copy>
-
-                     <!-- Download and untar JRE -->
-                     <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-                       <arg line="-L"/>
-                       <arg line="-b"/>
-                       <arg line="&quot;oraclelicense=accept-securebackup-cookie&quot;"/>
-                       <arg line="-O"/>
-                       <arg line="${ugs.bundle.java.url}/${ugs.rpi.bundle.jvm.version}.tar.gz"/>
-                     </exec>
-
-                     <!-- Unzip archive -->
-                     <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                       <arg line="-zxf"/>
-                       <arg line="${ugs.rpi.bundle.jvm.version}.tar.gz"/>
-                       <arg line="-C &quot;${ugs.appbundle.name}.pi&quot;"/>
-                     </exec>
-
-                     <!-- Download ARM JavaFX binaries -->
-                     <exec dir="${project.build.directory}" executable="curl" failonerror="true">
-                       <arg line="${ugs.rpi.bundle.javafx.url}"/>
-                       <arg line="-o"/>
-                       <arg line="${project.build.directory}/gluon.javafx.zip"/>
-                     </exec>
-
-                     <!-- Get the JRE folder name -->
-                     <path id="jre_name">
-                       <dirset dir="${project.build.directory}/${ugs.appbundle.name}.pi" includes="jdk*" />
-                     </path>
-                     <property name="bundle.rpi.jvm.path" refid="jre_name" />
-                     <basename property="bundle.rpi.jvm.name" file="${bundle.rpi.jvm.path}"/>
-
-                     <!-- Unzip into build directory -->
-                     <mkdir dir="${project.build.directory}/gluon"/>
-                     <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                       <arg line="-zxf"/>
-                       <arg line="gluon.javafx.zip"/>
-                       <arg line="-C ${project.build.directory}/gluon"/>
-                     </exec>
-
-                     <!-- Get the JavaFX folder name -->
-                     <path id="javafx_name">
-                       <dirset dir="${project.build.directory}/gluon" includes="*" />
-                     </path>
-                     <property name="bundle.javafx.path" refid="javafx_name" />
-
-                     <!-- Sync JavaFX libraries into JDK -->
-                     <exec dir="${project.build.directory}" executable="rsync" failonerror="true">
-                       <arg line="-a"/>
-                       <arg line="${bundle.javafx.path}/"/>
-                       <arg line="&quot;${bundle.rpi.jvm.path}/&quot;"/>
-                     </exec>
-
-                     <!-- Configure relative JRE path into ugsplatform.conf -->
-                     <replace file="${project.build.directory}/${ugs.appbundle.name}.pi/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../${bundle.rpi.jvm.name}&quot;"/>
-                     <chmod file="${project.build.directory}/${ugs.appbundle.name}.pi/bin/**" perm="+x" type="both"/>
-
-                     <!-- Create Archive -->
-                     <exec dir="${project.build.directory}" executable="tar" failonerror="true">
-                       <env key="GZIP" value="-9"/>
-                       <arg value="-czvf"/>
-                       <arg value="${project.artifactId}-${project.version}.pi.tar.gz"/>
-                       <arg value="${project.build.directory}/${ugs.appbundle.name}.pi"/>
-                     </exec>
-                   </target>
-                 </configuration>
-               </execution>
-             </executions>
-           </plugin>
-         </plugins>
-       </build>
-     </profile>
 
       <profile>
         <id>create-autoupdate</id>

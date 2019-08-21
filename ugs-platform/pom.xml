@@ -31,14 +31,12 @@
       </ugs.modules.specification.version>
 
       <!--==== JRE Bundle Properties ====-->
-      <ugs.bundle.java.url>http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8</ugs.bundle.java.url>
+      <ugs.bundle.java.url>https://download.java.net/java/GA/jdk12.0.2/e482c34c86bd4bf8b56c0b35558996b9/10/GPL/</ugs.bundle.java.url>
 
-      <ugs.mac.bundle.jvm.version>jre-8u171-macosx-x64</ugs.mac.bundle.jvm.version>
+      <ugs.mac.bundle.jvm.version>openjdk-12.0.2_osx-x64_bin</ugs.mac.bundle.jvm.version>
       <!-- should I use -x64 for win/linux instead? -->
-      <ugs.linux.bundle.jvm.version>jre-8u171-linux-i586</ugs.linux.bundle.jvm.version>
-      <ugs.windows.bundle.jvm.version>jre-8u171-windows-i586</ugs.windows.bundle.jvm.version>
-      <ugs.rpi.bundle.jvm.version>jdk-8u171-linux-arm64-vfp-hflt</ugs.rpi.bundle.jvm.version>
-      <ugs.rpi.bundle.javafx.url>http://download.gluonhq.com/javafxports/embedded/armv6hf-sdk-8.60.9.zip</ugs.rpi.bundle.javafx.url>
+      <ugs.linux.bundle.jvm.version>openjdk-12.0.2_linux-x64_bin</ugs.linux.bundle.jvm.version>
+      <ugs.windows.bundle.jvm.version>openjdk-12.0.2_windows-x64_bin</ugs.windows.bundle.jvm.version>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
