@@ -31,12 +31,8 @@
       </ugs.modules.specification.version>
 
       <!--==== JRE Bundle Properties ====-->
-      <ugs.bundle.java.url>https://download.java.net/java/GA/jdk12.0.2/e482c34c86bd4bf8b56c0b35558996b9/10/GPL/</ugs.bundle.java.url>
-
-      <ugs.mac.bundle.jvm.version>openjdk-12.0.2_osx-x64_bin</ugs.mac.bundle.jvm.version>
-      <!-- should I use -x64 for win/linux instead? -->
-      <ugs.linux.bundle.jvm.version>openjdk-12.0.2_linux-x64_bin</ugs.linux.bundle.jvm.version>
-      <ugs.windows.bundle.jvm.version>openjdk-12.0.2_windows-x64_bin</ugs.windows.bundle.jvm.version>
+      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10.2/OpenJDK12U-jre_x64_mac_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.mac.url>
+      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jdk_arm_linux_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.rpi.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
