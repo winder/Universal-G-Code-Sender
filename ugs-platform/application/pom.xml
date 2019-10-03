@@ -106,7 +106,7 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
+                <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <!-- Set up the gephi.conf for the final artifact -->
@@ -436,7 +436,7 @@
           <plugins>
             <!-- NBM Plugin settings. Enable the autoupdate generation -->
             <plugin>
-              <groupId>org.codehaus.mojo</groupId>
+              <groupId>org.apache.netbeans.utilities</groupId>
               <artifactId>nbm-maven-plugin</artifactId>
               <executions>
                 <execution>
