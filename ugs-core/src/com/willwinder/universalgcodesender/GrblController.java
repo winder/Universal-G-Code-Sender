@@ -39,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Optional;
@@ -67,9 +66,6 @@ public class GrblController extends AbstractController {
     private Capabilities capabilities = new Capabilities();
     private final GrblFirmwareSettings firmwareSettings;
 
-    // Grbl status members.
-    private double maxZLocationMM;
-
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
@@ -91,7 +87,6 @@ public class GrblController extends AbstractController {
         
         this.commandCreator = new GcodeCommandCreator();
         this.positionPollTimer = createPositionPollTimer();
-        this.maxZLocationMM = -1;
 
         // Add our controller settings manager
         this.firmwareSettings = new GrblFirmwareSettings(this);
@@ -329,7 +324,7 @@ public class GrblController extends AbstractController {
 
     @Override
     protected void isReadyToSendCommandsEvent() throws Exception {
-        if (this.isReady == false) {
+        if (!this.isReady) {
             throw new Exception(Localization.getString("controller.exception.booting"));
         }
     }
@@ -367,8 +362,6 @@ public class GrblController extends AbstractController {
             this.attemptsRemaining = 50;
             this.isCanceling = true;
             this.lastLocation = null;
-        } else {
-
         }
     }
 
@@ -567,7 +560,18 @@ public class GrblController extends AbstractController {
             super.jogMachine(dirX, dirY, dirZ, stepSize, feedRate, units);
         }
     }
-
+    
+    @Override
+    public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
+        if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
+            String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+            GcodeCommand command = createCommand("$J=" + commandString);
+            sendCommandImmediately(command);
+        } else {
+            super.jogMachineTo(position, feedRate);
+        }
+    }
+    
     /************
      * Helpers.
      ************/
@@ -645,7 +649,7 @@ public class GrblController extends AbstractController {
     private void beginPollingPosition() {
         // Start sending '?' commands if supported and enabled.
         if (this.isReady && this.capabilities != null && this.getStatusUpdatesEnabled()) {
-            if (this.positionPollTimer.isRunning() == false) {
+            if (!this.positionPollTimer.isRunning()) {
                 this.outstandingPolls = 0;
                 this.positionPollTimer.start();
             }
@@ -721,20 +725,6 @@ public class GrblController extends AbstractController {
                 }
             }
             lastLocation = new Position(this.controllerStatus.getMachineCoord());
-        }
-        
-        // Save max Z location
-        if (this.controllerStatus != null && this.getUnitsCode() != null
-                && this.controllerStatus.getMachineCoord() != null) {
-            Units u = this.getUnitsCode().equalsIgnoreCase("G21") ?
-                    Units.MM : Units.INCH;
-            double zLocationMM = this.controllerStatus.getMachineCoord().z;
-            if (u == Units.INCH)
-                zLocationMM *= 26.4;
-            
-            if (zLocationMM > this.maxZLocationMM) {
-                maxZLocationMM = zLocationMM;
-            }
         }
 
         dispatchStatusString(controllerStatus);

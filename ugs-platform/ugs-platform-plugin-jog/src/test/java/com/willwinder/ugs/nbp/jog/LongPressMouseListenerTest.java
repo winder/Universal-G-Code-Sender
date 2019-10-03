@@ -73,7 +73,7 @@ public class LongPressMouseListenerTest {
         assertTrue(isMousePressed);
         assertFalse(isMouseLongPressed);
 
-        Thread.sleep(LONG_PRESS_DELAY + 10); // add a couple of milliseconds to make sure it gets triggered
+        Thread.sleep(LONG_PRESS_DELAY + 100); // add a couple of milliseconds to make sure it gets triggered
         assertTrue(isMouseLongPressed);
         assertFalse(isMouseLongRelease);
     }
@@ -84,7 +84,7 @@ public class LongPressMouseListenerTest {
         assertTrue(isMousePressed);
         assertFalse(isMouseLongPressed);
 
-        Thread.sleep(LONG_PRESS_DELAY + 10); // add a couple of milliseconds to make sure it gets triggered
+        Thread.sleep(LONG_PRESS_DELAY + 100); // add a couple of milliseconds to make sure it gets triggered
         longPressMouseListener.mouseReleased(event);
 
         assertTrue(isMouseLongPressed);
