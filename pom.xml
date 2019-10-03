@@ -42,7 +42,7 @@
     <miglayout.version>3.7.4</miglayout.version>
     <guava.version>19.0</guava.version>
     <jssc.version>2.8.0</jssc.version>
-    <jserialcomm.version>1.3.11</jserialcomm.version>
+    <jserialcomm.version>2.5.2</jserialcomm.version>
     <commons-lang3.version>3.3.1</commons-lang3.version>
     <commons-io.version>2.4</commons-io.version>
     <commons-csv.version>1.5</commons-csv.version>

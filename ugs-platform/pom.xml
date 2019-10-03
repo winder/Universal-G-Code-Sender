@@ -48,7 +48,7 @@
 
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>4.2</ugs.nbm-maven-plugin.version>
 
       <ugs.maven-resources-plugin.version>3.0.2</ugs.maven-resources-plugin.version>
     </properties>
@@ -57,7 +57,7 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>org.apache.netbeans.utilities</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
                     <version>${ugs.nbm-maven-plugin.version}</version>
                     <extensions>true</extensions>
