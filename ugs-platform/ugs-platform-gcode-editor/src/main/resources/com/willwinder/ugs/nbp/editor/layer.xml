@@ -5,11 +5,9 @@
         <file name="org-openide-actions-FindAction.shadow_hidden"/>
     </folder>
     <folder name="Editors">
-        <folder name="AnnotationTypes">
-            <file name="ugs-some-annotation.xml" url="ugs-some-annotation.xml"/>
-        </folder>
         <folder name="text">
             <folder name="xgcode">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="resources.MessagesBundle"/>
                 <file name="com-willwinder-ugs-nbp-editor-parser-GcodeParserFactory.instance"/>
                 <file name="com-willwinder-ugs-nbp-editor-parser-SyntaxErrorHighlightingTaskFactory.instance"/>
 
@@ -25,6 +23,15 @@
             </folder>
         </folder>
     </folder>
+
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="xgcode" url="GcodeTemplate.gcode"/>
+            </folder>
+        </folder>
+    </folder>
+
     <folder name="Menu">
         <file name="Edit_hidden"/>
         <folder name="File">
