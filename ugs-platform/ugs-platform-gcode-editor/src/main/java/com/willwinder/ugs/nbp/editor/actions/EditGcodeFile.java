@@ -1,6 +1,3 @@
-/**
- * Opens an editor and connects a listener.
- */
 /*
     Copyright 2016-2018 Will Winder
 
@@ -23,19 +20,12 @@ package com.willwinder.ugs.nbp.editor.actions;
 
 import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UGSEvent.FileState;
-import java.awt.event.ActionEvent;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JEditorPane;
-
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -44,37 +34,50 @@ import org.openide.cookies.EditorCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataNode;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.Node;
-import org.openide.util.*;
+import org.openide.util.ContextAwareAction;
+import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.JEditorPane;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Optional;
+
+/**
+ * Opens an editor and connects a listener.
+ */
 @ActionID(
-  category = "File",
-  id = "com.willwinder.ugs.nbp.editor.EditGcodeFile"
+        category = "File",
+        id = "com.willwinder.ugs.nbp.editor.EditGcodeFile"
 )
 @ActionRegistration(
-  displayName = "#CTL_EditGcodeFile",
-  lazy = false
+        displayName = "resources#platform.menu.edit",
+        lazy = false
 )
 @ActionReferences({
-  @ActionReference(path = "Menu/File", position = 1301),
-  @ActionReference(path="Shortcuts", name="M-E")
+        @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN, position = 1301),
+        @ActionReference(path = "Shortcuts", name = "M-E")
 })
-@Messages("CTL_EditGcodeFile=Edit Gcode File...")
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
     private final EditorListener editorListener;
     private final BackendAPI backend;
-    
+
     public EditGcodeFile() {
-      putValue(Action.NAME, Localization.getString("EditGcodeFile.action.name")); // NOI18N
+        putValue(Action.NAME, Localization.getString("platform.menu.edit")); // NOI18N
 
-      backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-      backend.addUGSEventListener(this);
+        backend = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backend.addUGSEventListener(this);
 
-      editorListener = new EditorListener();
+        editorListener = new EditorListener();
     }
 
     /**
@@ -83,15 +86,18 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
      */
     @Override
     public void UGSEvent(UGSEvent evt) {
-      if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
-        if (backend == null || backend.getGcodeFile() == null) return;
+        if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
+            if (backend == null || backend.getGcodeFile() == null) return;
 
-        java.awt.EventQueue.invokeLater(() -> {
-          if (getCurrentlyOpenedEditors().isEmpty()) return;
+            java.awt.EventQueue.invokeLater(() -> {
+                // Only open the editor if it has been activated
+                if (getCurrentlyOpenedEditors().isEmpty()) {
+                    return;
+                }
 
-          openFile(backend.getGcodeFile());
-        });
-      }
+                openFile();
+            });
+        }
     }
 
     @Override
@@ -101,77 +107,90 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
 
     @Override
     public boolean isEnabled() {
-      return backend.getGcodeFile() != null;
+        return backend.getGcodeFile() != null;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      if (backend == null || backend.getGcodeFile() == null) return;
+        if (backend == null || backend.getGcodeFile() == null) return;
 
-      openFile(backend.getGcodeFile());
+        openFile();
     }
 
     /**
      * Open an Editor Window in the application, ensuring that only one editor
      * is ever opened at the same time.
      */
-    private void openFile(File f) {
-      // Close any opened file.
-      closeOpenFile();
+    private void openFile() {
+        try {
+            FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
+            DataObject dOb = DataObject.find(fo);
+            dOb.getLookup().lookup(OpenCookie.class).open();
+            java.awt.EventQueue.invokeLater(() -> {
+                updateListener(true);
+                closeOpenFile();
+            });
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        }
 
-      try {
-        FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
-        DataObject dOb = DataObject.find(fo);
-        dOb.getLookup().lookup(OpenCookie.class).open();
-        java.awt.EventQueue.invokeLater(() -> updateListener(true));
-      } catch (DataObjectNotFoundException ex) {
-        Exceptions.printStackTrace(ex);
-      }
     }
 
     private void closeOpenFile() {
-      updateListener(false);
-      Collection<TopComponent> editors = getCurrentlyOpenedEditors();
-      for (TopComponent editor : editors) {
-        editor.close();
-      }
+        updateListener(false);
+        Collection<TopComponent> editors = getCurrentlyOpenedEditors();
+        for (TopComponent editor : editors) {
+            Optional<String> editorFilename = getEditorFilename(editor);
+            if(editorFilename.isPresent() && editorFilename.get().equals(backend.getGcodeFile().getPath())) {
+                // Never mind...
+            } else {
+                editor.close();
+            }
+        }
+    }
+
+    private Optional<String> getEditorFilename(TopComponent editor) {
+        if (editor.getActivatedNodes().length > 0) {
+            return Optional.of(((DataNode) editor.getActivatedNodes()[0]).getDataObject().getPrimaryFile().getPath());
+        }
+        return Optional.empty();
     }
 
     /**
      * Get all the windows in the "Editor" mode, then filter to just editors.
      */
     private Collection<TopComponent> getCurrentlyOpenedEditors() {
-      final ArrayList<TopComponent> result = new ArrayList<>();
-      Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
-      for (TopComponent tc: comps) {
-        Node[] arr = tc.getActivatedNodes();
-        for (int j = 0; arr != null && j < arr.length; j++) {
-          EditorCookie ec = arr[j].getCookie(EditorCookie.class);
-          if (ec != null) {
-            result.add(tc);
-          }
+        final ArrayList<TopComponent> result = new ArrayList<>();
+        Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
+        for (TopComponent tc : comps) {
+            Node[] arr = tc.getActivatedNodes();
+            for (int j = 0; arr != null && j < arr.length; j++) {
+                EditorCookie ec = arr[j].getCookie(EditorCookie.class);
+                if (ec != null) {
+                    result.add(tc);
+                }
+            }
         }
-      }
-      return result;
+        return result;
     }
 
     private void updateListener(Boolean enabled) {
-      Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
-      for (TopComponent tc: comps) {
-        Node[] arr = tc.getActivatedNodes();
-        for (int j = 0; arr != null && j < arr.length; j++) {
-          EditorCookie ec = arr[j].getCookie(EditorCookie.class);
-          if (ec != null) {
-            JEditorPane[] panes = ec.getOpenedPanes();
-            for (JEditorPane pane : panes) {
-              if (enabled) {
-                pane.addCaretListener(editorListener);
-              } else {
-                pane.removeCaretListener(editorListener);
-              }
+        Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
+        for (TopComponent tc : comps) {
+            Node[] arr = tc.getActivatedNodes();
+            for (int j = 0; arr != null && j < arr.length; j++) {
+                EditorCookie ec = arr[j].getCookie(EditorCookie.class);
+                if (ec != null) {
+                    JEditorPane[] panes = ec.getOpenedPanes();
+                    for (JEditorPane pane : panes) {
+                        if (enabled) {
+                            pane.addCaretListener(editorListener);
+                        } else {
+                            pane.removeCaretListener(editorListener);
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
 }

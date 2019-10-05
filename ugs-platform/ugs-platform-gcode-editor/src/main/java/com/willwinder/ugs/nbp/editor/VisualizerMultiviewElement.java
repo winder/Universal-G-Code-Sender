@@ -29,14 +29,15 @@ import java.awt.BorderLayout;
 import java.io.File;
 import java.util.prefs.Preferences;
 
-@MultiViewElement.Registration(
+// WIP still needs some work
+/*@MultiViewElement.Registration(
         displayName = "#LBL_Gcode_Visualiser",
         iconBase = "com/willwinder/ugs/nbp/editor/edit.png",
         mimeType = "text/xgcode",
         persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
         preferredID = "Gcode",
         position = 1001
-)
+)*/
 @NbBundle.Messages("LBL_Gcode_Visualiser=Visualiser")
 public class VisualizerMultiviewElement extends JPanel implements MultiViewElement {
     private final BackendAPI backend;

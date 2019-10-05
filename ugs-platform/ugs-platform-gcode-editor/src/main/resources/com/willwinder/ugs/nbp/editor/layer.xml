@@ -29,10 +29,22 @@
         <file name="Edit_hidden"/>
         <folder name="File">
             <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+            <file name="org-openide-actions-SaveAction.instance">
+                <attr name="position" intvalue="20"/>
+            </file>
+            <file name="org-openide-actions-SaveAsAction.instance">
+                <attr name="position" intvalue="22"/>
+            </file>
         </folder>
         <file name="Source_hidden"/>
+        <file name="Refactor_hidden"/>
         <file name="GoTo_hidden"/>
         <file name="View_hidden"/>
+    </folder>
+    <folder name="Shortcuts">
+        <file name="M-S.shadow">
+            <attr name="originalFile" stringvalue="Menu/File/org-openide-actions-SaveAction.instance"/>
+        </file>
     </folder>
     <folder name="Actions">
         <folder name="Edit">

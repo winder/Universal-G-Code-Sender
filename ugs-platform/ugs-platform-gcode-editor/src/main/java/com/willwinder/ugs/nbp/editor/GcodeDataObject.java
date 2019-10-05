@@ -18,8 +18,10 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
-import org.netbeans.core.spi.multiview.MultiViewElement;
-import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
+import com.willwinder.universalgcodesender.listeners.UGSEventListener;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.UGSEvent;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
@@ -28,9 +30,7 @@ import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
 
 import java.io.IOException;
 
@@ -101,11 +101,13 @@ import java.io.IOException;
                 position = 1400
         )
 })
-public class GcodeDataObject extends MultiDataObject {
+public class GcodeDataObject extends MultiDataObject implements UGSEventListener {
 
     public GcodeDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
         registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
+        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
+        backendAPI.addUGSEventListener(this);
     }
 
     @Override
@@ -113,4 +115,10 @@ public class GcodeDataObject extends MultiDataObject {
         return 1;
     }
 
+    @Override
+    public void UGSEvent(UGSEvent evt) {
+        if(evt.getEventType() == UGSEvent.EventType.STATE_EVENT && evt.getControlState() == UGSEvent.ControlState.COMM_SENDING) {
+
+        }
+    }
 }
