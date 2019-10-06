@@ -5,6 +5,7 @@ import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.spi.SchedulerTask;
 import org.netbeans.modules.parsing.spi.TaskFactory;
+import org.netbeans.modules.parsing.spi.TaskIndexingMode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -15,13 +16,10 @@ import java.util.Collections;
 @MimeRegistration(mimeType = GcodeLanguageConfig.MIME_TYPE, service = TaskFactory.class)
 public class SyntaxErrorHighlightingTaskFactory extends TaskFactory {
 
-    public SyntaxErrorHighlightingTaskFactory() {
-
-    }
+    public SyntaxErrorHighlightingTaskFactory() { }
 
     @Override
-    public Collection<? extends SchedulerTask> create(Snapshot snpsht) {
-        return Collections.singleton(new SyntaxErrorTask());
+    public Collection<? extends SchedulerTask> create(Snapshot snapshot) {
+        return Collections.singleton(new SyntaxErrorTask(TaskIndexingMode.ALLOWED_DURING_SCAN));
     }
-
 }

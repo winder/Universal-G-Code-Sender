@@ -8,6 +8,9 @@
     <fontcolor name="MACHINE" default="keyword">
         <font style="bold" />
     </fontcolor>
+    <fontcolor name="TOOL" default="keyword">
+        <font style="bold" />
+    </fontcolor>
     <fontcolor name="PARAMETER" foreColor="8E358E"/>
     <fontcolor name="AXIS" foreColor="339EAA"/>
     <fontcolor name="WHITESPACE" default="whitespace"/>

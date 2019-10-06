@@ -8,9 +8,6 @@
         <folder name="text">
             <folder name="xgcode">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="resources.MessagesBundle"/>
-                <file name="com-willwinder-ugs-nbp-editor-parser-GcodeParserFactory.instance"/>
-                <file name="com-willwinder-ugs-nbp-editor-parser-SyntaxErrorHighlightingTaskFactory.instance"/>
-
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">

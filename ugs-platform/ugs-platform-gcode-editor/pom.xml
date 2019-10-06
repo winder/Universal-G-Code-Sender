@@ -50,11 +50,6 @@
             <artifactId>ugs-platform-ugslib</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency> 
-            <groupId>${project.groupId}</groupId>  
-            <artifactId>ugs-platform-visualizer</artifactId>  
-            <version>${project.version}</version> 
-        </dependency>  
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-core-multiview</artifactId>
@@ -121,42 +116,6 @@
             <version>${netbeans.version}</version>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-masterfs-ui</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-editor-util</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-editor-lib2</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-editor-settings</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-modules-projectapi-nb</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.modules</groupId>
-            <artifactId>org-netbeans-modules-parsing-nb</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-
         <!-- Language configuration -->
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -188,17 +147,5 @@
             <artifactId>org-netbeans-modules-csl-types</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-projectapi</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-
-        <!--dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-parsing-indexing</artifactId>
-            <version>${netbeans.version}</version>
-        </dependency-->
-
     </dependencies>
 </project>

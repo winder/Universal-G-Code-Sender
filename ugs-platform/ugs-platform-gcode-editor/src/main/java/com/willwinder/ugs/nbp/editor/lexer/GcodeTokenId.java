@@ -30,6 +30,7 @@ public enum GcodeTokenId implements TokenId {
     COMMENT("comment"),
     MOVEMENT("movement"),
     MACHINE("machine"),
+    TOOL("tool"),
     AXIS("axis"),
     PARAMETER("parameter"),
     WHITESPACE("whitespace"),

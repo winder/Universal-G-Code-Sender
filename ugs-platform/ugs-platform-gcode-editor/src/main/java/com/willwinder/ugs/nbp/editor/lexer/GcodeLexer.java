@@ -78,8 +78,10 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
                 case 'Q':
                 case 'R':
                 case 'S':
-                case 'T':
                     return parseNumericField(GcodeTokenId.PARAMETER);
+
+                case 'T':
+                    return parseCommand(GcodeTokenId.TOOL);
 
                 case 'M':
                     return parseCommand(GcodeTokenId.MACHINE);

@@ -1,6 +1,5 @@
 package com.willwinder.ugs.nbp.editor.parser;
 
-import org.netbeans.modules.csl.api.Error;
 import org.netbeans.modules.csl.spi.ParserResult;
 import org.netbeans.modules.parsing.api.Snapshot;
 

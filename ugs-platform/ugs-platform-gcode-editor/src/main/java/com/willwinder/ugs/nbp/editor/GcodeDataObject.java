@@ -101,24 +101,15 @@ import java.io.IOException;
                 position = 1400
         )
 })
-public class GcodeDataObject extends MultiDataObject implements UGSEventListener {
+public class GcodeDataObject extends MultiDataObject {
 
     public GcodeDataObject(FileObject pf, MultiFileLoader loader) throws IOException {
         super(pf, loader);
         registerEditor(GcodeLanguageConfig.MIME_TYPE, true);
-        BackendAPI backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backendAPI.addUGSEventListener(this);
     }
 
     @Override
     protected int associateLookup() {
         return 1;
-    }
-
-    @Override
-    public void UGSEvent(UGSEvent evt) {
-        if(evt.getEventType() == UGSEvent.EventType.STATE_EVENT && evt.getControlState() == UGSEvent.ControlState.COMM_SENDING) {
-
-        }
     }
 }
