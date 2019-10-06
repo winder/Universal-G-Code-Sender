@@ -129,7 +129,7 @@ public class GcodeLexterTest {
 
         ts.moveNext();
         t = ts.token();
-        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(GcodeTokenId.END_OF_LINE, t.id());
         assertEquals("\n", t.text());
 
         ts.moveNext();
@@ -150,7 +150,7 @@ public class GcodeLexterTest {
 
         ts.moveNext();
         t = ts.token();
-        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(GcodeTokenId.END_OF_LINE, t.id());
         assertEquals("\n", t.text());
 
         ts.moveNext();
