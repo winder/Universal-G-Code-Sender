@@ -1,6 +1,23 @@
+/*
+    Copyright 2016-2019 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package com.willwinder.ugs.nbp.editor;
 
-import com.willwinder.ugs.nbm.visualizer.Visualizer2TopComponent;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -16,8 +33,6 @@ import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_Gcode_EDITOR",
@@ -29,10 +44,6 @@ import java.util.logging.Logger;
 )
 @NbBundle.Messages("LBL_Gcode_EDITOR=Source")
 public class SourceMultiviewElement extends MultiViewEditorElement {
-
-    private static final Logger LOGGER = Logger.getLogger(SourceMultiviewElement.class.getName());
-
-
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
 

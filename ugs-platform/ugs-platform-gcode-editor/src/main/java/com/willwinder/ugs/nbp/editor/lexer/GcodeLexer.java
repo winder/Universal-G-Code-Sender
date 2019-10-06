@@ -33,7 +33,6 @@ import static org.apache.commons.lang3.CharUtils.isAsciiNumeric;
 public class GcodeLexer implements Lexer<GcodeTokenId> {
     private LexerRestartInfo<GcodeTokenId> info;
     private LexerInput input;
-    private long lineIndex = 0;
 
     public GcodeLexer(LexerRestartInfo<GcodeTokenId> info) {
         this.info = info;
@@ -42,64 +41,62 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
 
     @Override
     public Token<GcodeTokenId> nextToken() {
-        while (true) {
-            int character = input.read();
+        int character = input.read();
+        switch (Character.toUpperCase(character)) {
+            case '%':
+                return parseStartOrEnd();
 
-            switch (Character.toUpperCase(character)) {
-                case '%':
-                    return parseStartOrEnd();
+            case ';':
+                return parseComment();
 
-                case ';':
-                    return parseComment();
+            case '(':
+                return parseCommentSection();
 
-                case '(':
-                    return parseCommentSection();
+            case 'A':
+            case 'B':
+            case 'C':
+            case 'U':
+            case 'V':
+            case 'W':
+            case 'X':
+            case 'Y':
+            case 'Z':
+                return parseNumericField(GcodeTokenId.AXIS);
 
-                case 'A':
-                case 'B':
-                case 'C':
-                case 'U':
-                case 'V':
-                case 'W':
-                case 'X':
-                case 'Y':
-                case 'Z':
-                    return parseNumericField(GcodeTokenId.AXIS);
+            case 'D':
+            case 'E':
+            case 'F':
+            case 'H':
+            case 'I':
+            case 'J':
+            case 'K':
+            case 'L':
+            case 'P':
+            case 'Q':
+            case 'R':
+            case 'S':
+                return parseNumericField(GcodeTokenId.PARAMETER);
 
-                case 'D':
-                case 'E':
-                case 'F':
-                case 'H':
-                case 'I':
-                case 'J':
-                case 'K':
-                case 'L':
-                case 'P':
-                case 'Q':
-                case 'R':
-                case 'S':
-                    return parseNumericField(GcodeTokenId.PARAMETER);
+            case 'T':
+                return parseCommand(GcodeTokenId.TOOL);
 
-                case 'T':
-                    return parseCommand(GcodeTokenId.TOOL);
+            case 'M':
+                return parseCommand(GcodeTokenId.MACHINE);
 
-                case 'M':
-                    return parseCommand(GcodeTokenId.MACHINE);
+            case 'N':
+            case 'O':
+                return parseCommand(GcodeTokenId.PROGRAM);
 
-                case 'N':
-                case 'O':
-                    return parseCommand(GcodeTokenId.PROGRAM);
+            case 'G':
+                return parseCommand(GcodeTokenId.MOVEMENT);
 
-                case 'G':
-                    return parseCommand(GcodeTokenId.MOVEMENT);
+            case LexerInput.EOF:
+                return null;
 
-                case LexerInput.EOF:
-                    return null;
-
-                default:
-                    return parseWhitespace(character);
-            }
+            default:
+                return parseWhitespace(character);
         }
+
     }
 
     private Token<GcodeTokenId> parseStartOrEnd() {
