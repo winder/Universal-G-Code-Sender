@@ -26,7 +26,7 @@ import org.netbeans.api.lexer.Token;
 import org.netbeans.modules.csl.api.Severity;
 import org.openide.filesystems.FileObject;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class FeedRateMissingErrorParser implements ErrorParser {
@@ -58,13 +58,14 @@ public class FeedRateMissingErrorParser implements ErrorParser {
 
     @Override
     public List<GcodeError> getErrors() {
-        List<GcodeError> errorList = new ArrayList<>();
-        if ((firstFeedRateToken == null && firstMovementToken != null) ||
-                (firstFeedRateToken != null && firstMovementToken != null && firstMovementLine < firstFeedRateLine)) {
+        if (firstFeedRateToken == null && firstMovementToken == null) {
+            return Collections.emptyList();
+        } else if (firstFeedRateToken == null || firstMovementLine < firstFeedRateLine) {
             int offset = firstMovementToken.offset(null);
             GcodeError error = new GcodeError("no-feed-rate", "No feed rate", "No feed rate has been assigned before movement command", fileObject, offset, offset + firstMovementToken.length(), true, Severity.ERROR);
-            errorList.add(error);
+            return Collections.singletonList(error);
         }
-        return errorList;
+
+        return Collections.emptyList();
     }
 }

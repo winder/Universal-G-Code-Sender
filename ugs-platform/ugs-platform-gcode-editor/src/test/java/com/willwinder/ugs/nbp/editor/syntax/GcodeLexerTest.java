@@ -26,7 +26,7 @@ import org.netbeans.api.lexer.TokenSequence;
 
 import static org.junit.Assert.assertEquals;
 
-public class GcodeLexterTest {
+public class GcodeLexerTest {
     @Test
     public void parsingGcodeShouldIdentifyInlineComments() {
         String text = "G21 ;inline comment 1";
