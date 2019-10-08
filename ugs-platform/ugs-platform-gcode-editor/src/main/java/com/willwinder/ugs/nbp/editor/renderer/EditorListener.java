@@ -1,9 +1,5 @@
-/**
- * Listens for editor events to notify visualizer, puts changes on the
- * HighlightEventBus as HighlightEvent objects.
- */
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -20,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.renderer;
 
 import com.willwinder.ugs.nbm.visualizer.renderables.GcodeModel;
 import com.willwinder.ugs.nbm.visualizer.shared.GcodeRenderer;
@@ -36,16 +32,18 @@ import javax.swing.text.Element;
 import org.openide.util.Lookup;
 
 /**
+ * Listens for editor events to notify visualizer, puts changes on the
+ * HighlightEventBus as HighlightEvent objects.
  *
  * @author wwinder
  */
 public class EditorListener implements CaretListener {
-  private GcodeModel gcodeModel = null;
-  private Highlight highlight = null;
+    private Highlight highlight = null;
 
   public EditorListener() {
     GcodeRenderer gcodeRenderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-    for (Renderable renderable : gcodeRenderer.getRenderables()) {
+      GcodeModel gcodeModel = null;
+      for (Renderable renderable : gcodeRenderer.getRenderables()) {
       if (renderable.getClass() == GcodeModel.class) {
         gcodeModel = (GcodeModel) renderable;
       }
@@ -60,9 +58,8 @@ public class EditorListener implements CaretListener {
 
   @Override
   public void caretUpdate(CaretEvent e) {
-    JEditorPane jep = null;
     if (e.getSource() instanceof JEditorPane) {
-      jep = (JEditorPane) e.getSource();
+      JEditorPane jep = (JEditorPane) e.getSource();
 
       Element map = jep.getDocument().getDefaultRootElement();
       int startIndex = map.getElementIndex(jep.getSelectionStart());
