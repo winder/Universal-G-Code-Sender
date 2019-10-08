@@ -60,7 +60,7 @@ import java.util.Optional;
         lazy = false
 )
 @ActionReferences({
-        @ActionReference(path = LocalizingService.MENU_WINDOW_PLUGIN, position = 1301),
+  @ActionReference(path = "Menu/File", position = 1301),
         @ActionReference(path = "Shortcuts", name = "M-E")
 })
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {

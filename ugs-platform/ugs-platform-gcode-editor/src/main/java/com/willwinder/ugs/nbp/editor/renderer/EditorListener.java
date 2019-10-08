@@ -1,9 +1,5 @@
-/**
- * Listens for editor events to notify visualizer, puts changes on the
- * HighlightEventBus as HighlightEvent objects.
- */
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -36,16 +32,18 @@ import javax.swing.text.Element;
 import org.openide.util.Lookup;
 
 /**
+ * Listens for editor events to notify visualizer, puts changes on the
+ * HighlightEventBus as HighlightEvent objects.
  *
  * @author wwinder
  */
 public class EditorListener implements CaretListener {
-  private GcodeModel gcodeModel = null;
-  private Highlight highlight = null;
+    private Highlight highlight = null;
 
   public EditorListener() {
     GcodeRenderer gcodeRenderer = Lookup.getDefault().lookup(GcodeRenderer.class);
-    for (Renderable renderable : gcodeRenderer.getRenderables()) {
+      GcodeModel gcodeModel = null;
+      for (Renderable renderable : gcodeRenderer.getRenderables()) {
       if (renderable.getClass() == GcodeModel.class) {
         gcodeModel = (GcodeModel) renderable;
       }

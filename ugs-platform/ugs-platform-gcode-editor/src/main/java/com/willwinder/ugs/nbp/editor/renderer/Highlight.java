@@ -113,7 +113,7 @@ public class Highlight extends Renderable {
         ArrayList<LineSegment> highlights = new ArrayList<>();
         int vertIndex = 0;
         for (LineSegment ls : model.getLineList()) {
-            if (lines.contains(ls.getLineNumber())) {
+            if (lines.contains(ls.getLineNumber() -1)) {
                 highlights.add(ls);
             }
         }
