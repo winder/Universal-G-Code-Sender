@@ -60,9 +60,8 @@ public class EditorListener implements CaretListener {
 
   @Override
   public void caretUpdate(CaretEvent e) {
-    JEditorPane jep = null;
     if (e.getSource() instanceof JEditorPane) {
-      jep = (JEditorPane) e.getSource();
+      JEditorPane jep = (JEditorPane) e.getSource();
 
       Element map = jep.getDocument().getDefaultRootElement();
       int startIndex = map.getElementIndex(jep.getSelectionStart());

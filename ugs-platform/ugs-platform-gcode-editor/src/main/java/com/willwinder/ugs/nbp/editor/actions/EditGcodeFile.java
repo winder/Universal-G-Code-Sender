@@ -18,7 +18,6 @@
  */
 package com.willwinder.ugs.nbp.editor.actions;
 
-import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.i18n.Localization;
@@ -41,12 +40,9 @@ import org.openide.nodes.Node;
 import org.openide.util.ContextAwareAction;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JEditorPane;
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +64,6 @@ import java.util.Optional;
         @ActionReference(path = "Shortcuts", name = "M-E")
 })
 public final class EditGcodeFile extends AbstractAction implements ContextAwareAction, UGSEventListener {
-    private final EditorListener editorListener;
     private final BackendAPI backend;
 
     public EditGcodeFile() {
@@ -76,8 +71,6 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
 
         backend = CentralLookup.getDefault().lookup(BackendAPI.class);
         backend.addUGSEventListener(this);
-
-        editorListener = new EditorListener();
     }
 
     /**
@@ -86,7 +79,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
      */
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.isFileChangeEvent() && evt.getFileState() == FileState.FILE_LOADING) {
+        if (evt.isFileChangeEvent() && FileState.FILE_LOADING.equals(evt.getFileState())) {
             if (backend == null || backend.getGcodeFile() == null) return;
 
             java.awt.EventQueue.invokeLater(() -> {
@@ -112,7 +105,9 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (backend == null || backend.getGcodeFile() == null) return;
+        if (backend == null || backend.getGcodeFile() == null) {
+            return;
+        }
 
         openFile();
     }
@@ -126,10 +121,7 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
             FileObject fo = FileUtil.toFileObject(backend.getGcodeFile());
             DataObject dOb = DataObject.find(fo);
             dOb.getLookup().lookup(OpenCookie.class).open();
-            java.awt.EventQueue.invokeLater(() -> {
-                updateListener(true);
-                closeOpenFile();
-            });
+            java.awt.EventQueue.invokeLater(this::closeOpenFile);
         } catch (DataObjectNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         }
@@ -137,7 +129,6 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
     }
 
     private void closeOpenFile() {
-        updateListener(false);
         Collection<TopComponent> editors = getCurrentlyOpenedEditors();
         for (TopComponent editor : editors) {
             Optional<String> editorFilename = getEditorFilename(editor);
@@ -172,25 +163,5 @@ public final class EditGcodeFile extends AbstractAction implements ContextAwareA
             }
         }
         return result;
-    }
-
-    private void updateListener(Boolean enabled) {
-        Collection<TopComponent> comps = TopComponent.getRegistry().getOpened();
-        for (TopComponent tc : comps) {
-            Node[] arr = tc.getActivatedNodes();
-            for (int j = 0; arr != null && j < arr.length; j++) {
-                EditorCookie ec = arr[j].getCookie(EditorCookie.class);
-                if (ec != null) {
-                    JEditorPane[] panes = ec.getOpenedPanes();
-                    for (JEditorPane pane : panes) {
-                        if (enabled) {
-                            pane.addCaretListener(editorListener);
-                        } else {
-                            pane.removeCaretListener(editorListener);
-                        }
-                    }
-                }
-            }
-        }
     }
 }

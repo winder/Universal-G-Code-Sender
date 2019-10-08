@@ -18,21 +18,26 @@
 */
 package com.willwinder.ugs.nbp.editor;
 
+import com.willwinder.ugs.nbp.editor.renderer.EditorListener;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.ErrorManager;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileAttributeEvent;
 import org.openide.filesystems.FileChangeListener;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileRenameEvent;
 import org.openide.filesystems.FileUtil;
+import org.openide.nodes.Node;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
 import java.io.File;
+import java.util.Collection;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_Gcode_EDITOR",
@@ -44,9 +49,15 @@ import java.io.File;
 )
 @NbBundle.Messages("LBL_Gcode_EDITOR=Source")
 public class SourceMultiviewElement extends MultiViewEditorElement {
+
+    private static EditorListener editorListener;
+
     public SourceMultiviewElement(Lookup lookup) {
         super(lookup);
 
+        if (editorListener == null) {
+           editorListener = new EditorListener();
+        }
 
         FileUtil.addFileChangeListener(new FileChangeListener() {
             @Override
@@ -86,5 +97,17 @@ public class SourceMultiviewElement extends MultiViewEditorElement {
 
             }
         });
+    }
+
+    @Override
+    public void componentActivated() {
+        super.componentActivated();
+        SwingUtilities.invokeLater(() -> getEditorPane().addCaretListener(editorListener));
+    }
+
+    @Override
+    public void componentClosed() {
+        getEditorPane().removeCaretListener(editorListener);
+        super.componentClosed();
     }
 }
