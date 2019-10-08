@@ -43,8 +43,7 @@ public class FeedRateMissingErrorParser implements ErrorParser {
     @Override
     public void handleToken(Token<GcodeTokenId> token, int line) {
         if (GcodeTokenId.MOVEMENT.equals(token.id())) {
-            if ((StringUtils.equalsIgnoreCase(token.text(), Code.G1.name()) ||
-                    StringUtils.equalsIgnoreCase(token.text(), Code.G3.name())) && firstMovementToken == null) {
+            if (isMovementCommand(token) && firstMovementToken == null) {
                 firstMovementToken = token;
                 firstMovementLine = line;
             }
@@ -56,11 +55,21 @@ public class FeedRateMissingErrorParser implements ErrorParser {
         }
     }
 
+    private boolean isMovementCommand(Token<GcodeTokenId> token) {
+        return StringUtils.equalsIgnoreCase(token.text(), Code.G1.name()) ||
+                StringUtils.equalsIgnoreCase(token.text(), "G01") ||
+                StringUtils.equalsIgnoreCase(token.text(), Code.G2.name()) ||
+                StringUtils.equalsIgnoreCase(token.text(), "G02") ||
+                StringUtils.equalsIgnoreCase(token.text(), Code.G3.name()) ||
+                StringUtils.equalsIgnoreCase(token.text(), "G03") ||
+                StringUtils.equalsIgnoreCase(token.text(), Code.G42.name());
+    }
+
     @Override
     public List<GcodeError> getErrors() {
         if (firstFeedRateToken == null && firstMovementToken == null) {
             return Collections.emptyList();
-        } else if (firstFeedRateToken == null || firstMovementLine < firstFeedRateLine) {
+        } else if (firstMovementToken != null && (firstFeedRateToken == null || firstMovementLine < firstFeedRateLine)) {
             int offset = firstMovementToken.offset(null);
             GcodeError error = new GcodeError("no-feed-rate", "No feed rate", "No feed rate has been assigned before movement command", fileObject, offset, offset + firstMovementToken.length(), true, Severity.ERROR);
             return Collections.singletonList(error);
