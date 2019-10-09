@@ -42,22 +42,18 @@ public class InvalidGrblCommandErrorParser implements ErrorParser {
     );
 
     private final FileObject fileObject;
-    private boolean isGrbl = false;
+    private final BackendAPI backend;
 
     private List<GcodeError> errorList = new ArrayList<>();
 
     public InvalidGrblCommandErrorParser(FileObject fileObject) {
         this.fileObject = fileObject;
-
-        BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
-        if (backend.getController() instanceof GrblController) {
-            isGrbl = true;
-        }
+        this.backend = CentralLookup.getDefault().lookup(BackendAPI.class);
     }
 
     @Override
     public void handleToken(Token<GcodeTokenId> token, int line) {
-        if (!isGrbl) {
+        if (!(backend.getController() instanceof GrblController)) {
             return;
         }
 
