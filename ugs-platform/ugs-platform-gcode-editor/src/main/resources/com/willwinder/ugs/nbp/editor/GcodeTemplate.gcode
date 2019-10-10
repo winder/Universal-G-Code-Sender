@@ -1,9 +1,8 @@
-(first comment)
-;second comment
-G21 ;inline comment 1
-G21 (inline comment 2)
-G0 X10 Y10 Z10
-; another comment
-G0 X20 Y20 Z20
-(another comment)
-G0 X30 Y30 Z30
+; Gcode for a circle
+G17 G20 G90 G94 G54 M0 M5 M9 ; Setup
+G0 Z0.25 F5
+X-0.5 Y0.
+G1 Z0.
+(arcs...)
+G2 X0. Y-0.5 I0.5 J0.
+G2 X-0.5 Y0. I0. J0.5

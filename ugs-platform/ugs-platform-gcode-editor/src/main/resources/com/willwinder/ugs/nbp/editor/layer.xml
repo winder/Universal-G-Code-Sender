@@ -7,12 +7,12 @@
     <folder name="Editors">
         <folder name="text">
             <folder name="xgcode">
-                <attr name="SystemFileSystem.localizingBundle" stringvalue="resources.MessagesBundle"/>
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.editor.Bundle"/>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">
                             <file name="FontAndColors.xml" url="FontAndColors.xml">
-                                <attr name="SystemFileSystem.localizingBundle" stringvalue="resources.MessagesBundle"/>
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.editor.Bundle"/>
                             </file>
                         </folder>
                     </folder>
