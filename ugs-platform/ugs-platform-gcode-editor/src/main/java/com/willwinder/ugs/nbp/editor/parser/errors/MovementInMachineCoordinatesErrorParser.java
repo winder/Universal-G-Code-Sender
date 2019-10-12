@@ -28,7 +28,7 @@ public class MovementInMachineCoordinatesErrorParser implements ErrorParser {
 
     @Override
     public void handleToken(Token<GcodeTokenId> token, int line) {
-        if (StringUtils.equalsIgnoreCase("G53", token.text()) && isHomingEnabled()) {
+        if (StringUtils.equalsIgnoreCase("G53", token.text()) && !isHomingEnabled()) {
             int offset = token.offset(null);
             GcodeError error = new GcodeError("movement-in-machine-coordinates-without-homing",
                     "Using movement in machine coordinates without homing enabled",
