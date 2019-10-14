@@ -61,6 +61,10 @@ One of many plugins
 
 ![Dowel Maker](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_dowel_maker_plugin.png "Dowel maker plugin")
 
+Basic gcode editor
+
+![Basic gcode editor](https://github.com/winder/Universal-G-Code-Sender/raw/master/pictures/2.0_platform_editor.png "Basic gcode editor")
+
 ### UGS Classic
 
 UGS Classic main window
