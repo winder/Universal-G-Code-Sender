@@ -1,3 +1,21 @@
+/*
+    Copyright 2016-2019 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL2;
@@ -18,6 +36,8 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 
 /**
  * Displays the machine boundries based on the soft limits
+ *
+ * @author Joacim Breiler
  */
 public class MachineBoundries extends Renderable {
     private final BackendAPI backendAPI;
@@ -125,12 +145,13 @@ public class MachineBoundries extends Renderable {
     }
 
     private void drawBase(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+        double bottomZ = Math.min(bottomLeft.getZ(), topRight.getZ());
         gl.glColor4fv(machineBoundryBottomColor, 0);
         gl.glBegin(GL2.GL_QUADS);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
+            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
+            gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
+            gl.glVertex3d(topRight.x, topRight.y, bottomZ);
+            gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
         gl.glEnd();
     }
 
