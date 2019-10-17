@@ -46,6 +46,13 @@ public class PartialPosition {
         this.units = units;
     }
 
+    public PartialPosition() {
+        this.x = null;
+        this.y = null;
+        this.z = null;
+        this.units = UnitUtils.Units.UNKNOWN;
+    }
+
 
     // a shortcut to builder (needed, because of final coords)
     public static PartialPosition from(Axis axis, Double value) {
@@ -189,7 +196,13 @@ public class PartialPosition {
             return this;
         }
 
-
+        public Builder copy(PartialPosition position) {
+            this.x = position.getX();
+            this.y = position.getY();
+            this.z = position.getZ();
+            this.units = position.getUnits();
+            return this;
+        }
     }
 
     public String getFormattedGCode() {

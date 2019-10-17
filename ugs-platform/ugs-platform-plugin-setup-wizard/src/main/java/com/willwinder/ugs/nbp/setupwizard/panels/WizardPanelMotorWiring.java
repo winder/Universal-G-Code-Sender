@@ -158,7 +158,7 @@ public class WizardPanelMotorWiring extends AbstractWizardPanel implements UGSEv
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+        if (event.isFirmwareSettingEvent()) {
             ThreadHelper.invokeLater(this::refreshReverseDirectionCheckboxes);
         } else if (event.isControllerStatusEvent() || event.isStateChangeEvent()) {
             WizardUtils.killAlarm(getBackend());
