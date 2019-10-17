@@ -3,7 +3,6 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.willwinder.universalgcodesender.Utils;
-import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 
 import java.text.NumberFormat;
 import java.util.Map;
