@@ -6,8 +6,8 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.model.*;
 
 import javax.vecmath.Point3d;
 
@@ -21,9 +21,7 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
  */
 public class MachineBoundries extends Renderable {
     private final BackendAPI backendAPI;
-    private double softLimitX = 0;
-    private double softLimitY = 0;
-    private double softLimitZ = 0;
+    private PartialPosition maxPosition = new PartialPosition(0d, 0d, 0d, UnitUtils.Units.MM);
     private float[] machineBoundryBottomColor;
     private float[] machineBoundryLineColor;
     private float[] yAxisColor;
@@ -39,28 +37,41 @@ public class MachineBoundries extends Renderable {
         super(Integer.MIN_VALUE, title);
         reloadPreferences(new VisualizerOptions());
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backendAPI.addUGSEventListener(event -> onUGSEvent());
+        backendAPI.addUGSEventListener(this::onUGSEvent);
     }
 
-    private void onUGSEvent() {
-        try {
-            // This will prevent us from accessing the firmware settings before the init
-            // processes has finished and it will also prevent us from accessing the
-            // controller after it has disconnected
-            if (!backendAPI.isConnected() || !backendAPI.isIdle()) {
-                return;
-            }
+    private void onUGSEvent(UGSEvent event) {
+        if (!isFirmwareSettingsEvent(event)) {
+            return;
+        }
 
-            softLimitsEnabled = backendAPI.getController().getFirmwareSettings().isSoftLimitsEnabled();
+        try {
+            IFirmwareSettings firmwareSettings = backendAPI.getController().getFirmwareSettings();
+            softLimitsEnabled = firmwareSettings.isSoftLimitsEnabled();
             if (softLimitsEnabled) {
-                softLimitX = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.X);
-                softLimitY = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Y);
-                softLimitZ = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Z);
+                PartialPosition.Builder builder = new PartialPosition.Builder().copy(maxPosition);
+                for (Axis axis : Axis.values()) {
+                    double maxPosition = firmwareSettings.getSoftLimit(axis);
+
+                    // If the homing process for an axis is inverted so will the machine zero position
+                    if (firmwareSettings.isHomingDirectionInverted(axis)) {
+                        maxPosition = -maxPosition;
+                    }
+
+                    builder.setValue(axis, maxPosition);
+                }
+                maxPosition = builder.build();
             }
         } catch (FirmwareSettingsException ignored) {
             // Never mind this.
         }
+    }
 
+    private boolean isFirmwareSettingsEvent(UGSEvent event) {
+        // This will prevent us from accessing the firmware settings before the init
+        // processes has finished and it will also prevent us from accessing the
+        // controller after it has disconnected
+        return backendAPI.isConnected() && backendAPI.isIdle() && event.isFirmwareSettingEvent();
     }
 
     @Override
@@ -102,7 +113,7 @@ public class MachineBoundries extends Renderable {
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        Point3d bottomLeft = new Point3d(-softLimitX + xOffset, -softLimitY + yOffset, -softLimitZ + zOffset);
+        Point3d bottomLeft = new Point3d(-maxPosition.getX() + xOffset, -maxPosition.getY() + yOffset, -maxPosition.getZ() + zOffset);
         Point3d topRight = new Point3d(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();

@@ -3,6 +3,7 @@ package com.willwinder.universalgcodesender.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.willwinder.universalgcodesender.Utils;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 
 import java.text.NumberFormat;
 import java.util.Map;
@@ -44,6 +45,13 @@ public class PartialPosition {
         this.y = y;
         this.z = z;
         this.units = units;
+    }
+
+    public PartialPosition() {
+        this.x = null;
+        this.y = null;
+        this.z = null;
+        this.units = UnitUtils.Units.UNKNOWN;
     }
 
 
@@ -189,7 +197,13 @@ public class PartialPosition {
             return this;
         }
 
-
+        public Builder copy(PartialPosition position) {
+            this.x = position.getX();
+            this.y = position.getY();
+            this.z = position.getZ();
+            this.units = position.getUnits();
+            return this;
+        }
     }
 
     public String getFormattedGCode() {

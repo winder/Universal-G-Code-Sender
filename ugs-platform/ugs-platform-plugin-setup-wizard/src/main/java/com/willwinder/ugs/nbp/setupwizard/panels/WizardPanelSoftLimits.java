@@ -340,7 +340,7 @@ public class WizardPanelSoftLimits extends AbstractWizardPanel implements UGSEve
                 labelPositionY.setText(positionDecimalFormat.format(machineCoord.get(Axis.Y)) + " mm");
                 labelPositionZ.setText(positionDecimalFormat.format(machineCoord.get(Axis.Z)) + " mm");
             }
-        } else if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+        } else if (event.isFirmwareSettingEvent()) {
             refeshControls();
         }
 
