@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -245,7 +245,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
-        String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+        String commandString = GcodeUtils.generateMoveToCommand("G90G1", position, feedRate);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

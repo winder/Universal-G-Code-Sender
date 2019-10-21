@@ -1,5 +1,5 @@
 /*
-    Copyright 2016-2018 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -101,16 +101,17 @@ public class GcodeUtils {
     /**
      * Generate a command to move to a specific coordinate
      *
+     *
+     * @param command  the base command to use, ie: G91G1 or G1
      * @param position the position to move to
      * @param feedRate the feed rate to use using the position units / minute
      * @return a command string
      */
-    public static String generateMoveToCommand(PartialPosition position, double feedRate) {
+    public static String generateMoveToCommand(String command, PartialPosition position, double feedRate) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(unitCommand(position.getUnits()));
-        sb.append(Code.G90.name());
-        sb.append(Code.G1.name());
+        sb.append(command);
 
         // Add all axises
         sb.append(position.getFormattedGCode());

@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -564,7 +564,7 @@ public class GrblController extends AbstractController {
     @Override
     public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
         if (capabilities.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)) {
-            String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+            String commandString = GcodeUtils.generateMoveToCommand("G90", position, feedRate);
             GcodeCommand command = createCommand("$J=" + commandString);
             sendCommandImmediately(command);
         } else {
