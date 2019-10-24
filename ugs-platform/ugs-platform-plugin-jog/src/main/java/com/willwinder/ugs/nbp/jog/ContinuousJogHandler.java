@@ -102,7 +102,7 @@ public class ContinuousJogHandler implements ControllerListener {
     }
 
     /**
-     * Calculates how long we could theoretically move withing the defined jog interval.
+     * Calculates how long we could theoretically move within the defined jog command interval.
      * The step size is given using the current units of {@link Settings#getJogFeedRate()}.
      *
      * @return the step size in the units of {@link Settings#getJogFeedRate()}
