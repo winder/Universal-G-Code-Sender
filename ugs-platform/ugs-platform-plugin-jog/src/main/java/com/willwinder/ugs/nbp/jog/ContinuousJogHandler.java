@@ -62,30 +62,10 @@ public class ContinuousJogHandler implements ControllerListener {
         if (isRunning) {
             return;
         }
-
+        
         isRunning = true;
         isWaitingForCommandComplete = false;
-
-        final double stepSize = calculateStepSize();
-        ThreadHelper.invokeLater(() -> {
-            try {
-                while (isRunning) {
-                    // Ensure that we only send one command at the time, waiting for it to complete
-                    if (!isWaitingForCommandComplete) {
-                        isWaitingForCommandComplete = true;
-                        jogService.adjustManualLocation(button.getX(), button.getY(), button.getZ(), stepSize);
-                    } else {
-                        Thread.sleep(JOG_COMMAND_INTERVAL);
-                    }
-                }
-
-                waitForCommandToComplete();
-            } catch (InterruptedException e) {
-                // The timers got interrupted, never mind...
-            }
-
-            jogService.cancelJog();
-        });
+        ThreadHelper.invokeLater(() -> sendContinuousJogCommands(button));
     }
 
     /**
@@ -93,6 +73,27 @@ public class ContinuousJogHandler implements ControllerListener {
      */
     public void stop() {
         isRunning = false;
+    }
+
+    private void sendContinuousJogCommands(JogPanelButtonEnum button) {
+        try {
+            final double stepSize = calculateStepSize();
+            while (isRunning) {
+                // Ensure that we only send one command at the time, waiting for it to complete
+                if (!isWaitingForCommandComplete) {
+                    isWaitingForCommandComplete = true;
+                    jogService.adjustManualLocation(button.getX(), button.getY(), button.getZ(), stepSize);
+                } else {
+                    Thread.sleep(JOG_COMMAND_INTERVAL);
+                }
+            }
+
+            waitForCommandToComplete();
+        } catch (InterruptedException e) {
+            // The timers got interrupted, never mind...
+        }
+
+        jogService.cancelJog();
     }
 
     private void waitForCommandToComplete() throws InterruptedException {
