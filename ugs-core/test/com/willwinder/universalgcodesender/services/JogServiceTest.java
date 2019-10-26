@@ -24,7 +24,7 @@ public class JogServiceTest {
     private AbstractController controller;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         // We need to mock the method that loads the controller
         backendAPI = spy(new GUIBackend());
@@ -46,7 +46,6 @@ public class JogServiceTest {
         settings.setJogFeedRate(200);
         doReturn(settings).when(backendAPI).getSettings();
     }
-
 
     @Test
     public void testJogTo3D() throws Exception {
