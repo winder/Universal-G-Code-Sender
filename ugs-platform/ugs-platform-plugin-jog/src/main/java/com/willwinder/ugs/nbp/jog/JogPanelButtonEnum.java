@@ -24,15 +24,37 @@ package com.willwinder.ugs.nbp.jog;
  * @author Joacim Breiler
  */
 public enum JogPanelButtonEnum {
-    BUTTON_XPOS,
-    BUTTON_XNEG,
-    BUTTON_YPOS,
-    BUTTON_YNEG,
-    BUTTON_ZPOS,
-    BUTTON_ZNEG,
-    BUTTON_DIAG_XNEG_YNEG,
-    BUTTON_DIAG_XNEG_YPOS,
-    BUTTON_DIAG_XPOS_YNEG,
-    BUTTON_DIAG_XPOS_YPOS,
-    BUTTON_TOGGLE_UNIT
+    BUTTON_XPOS(1, 0, 0),
+    BUTTON_XNEG(-1, 0, 0),
+    BUTTON_YPOS(0, 1, 0),
+    BUTTON_YNEG(0, -1, 0),
+    BUTTON_ZPOS(0, 0, 1),
+    BUTTON_ZNEG(0, 0, -1),
+    BUTTON_DIAG_XNEG_YNEG(-1, -1, 0),
+    BUTTON_DIAG_XNEG_YPOS(-1, 1, 0),
+    BUTTON_DIAG_XPOS_YNEG(1, -1, 0),
+    BUTTON_DIAG_XPOS_YPOS(1, 1, 0),
+    BUTTON_TOGGLE_UNIT(0, 0, 0);
+
+    private final int x;
+    private final int y;
+    private final int z;
+
+    JogPanelButtonEnum(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
 }
