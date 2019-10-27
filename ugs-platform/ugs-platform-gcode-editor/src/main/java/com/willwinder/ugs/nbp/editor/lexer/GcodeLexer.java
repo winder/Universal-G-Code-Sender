@@ -159,10 +159,13 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
         int length = 0;
         int minusCount = 0;
         int commaCount = 0;
+        int numberCount = 0;
 
         while (true) {
             char character = (char) input.read();
-            if (!isNumeric(character)) {
+            if (character == ' ' && length == 0) {
+                // It's allowed to have a leading space after parameter name
+            } else if (!isNumeric(character)) {
                 input.backup(1);
                 break;
             } else if (character == ',' || character == '.') {
@@ -171,10 +174,14 @@ public class GcodeLexer implements Lexer<GcodeTokenId> {
                 minusCount++;
             }
 
+            if (isNumeric(character)) {
+                numberCount++;
+            }
+
             length++;
         }
 
-        if (length == 0 || minusCount > 1 || commaCount > 1) {
+        if (length == 0 || minusCount > 1 || commaCount > 1 || numberCount == 0) {
             return createToken(GcodeTokenId.ERROR);
         }
 

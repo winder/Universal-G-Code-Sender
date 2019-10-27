@@ -1425,6 +1425,7 @@ public class GrblControllerTest {
     public void errorInCheckModeNotSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        when(communicator.isCommOpen()).thenReturn(true);
         GrblController gc = new GrblController(communicator);
         gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
         gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
@@ -1443,6 +1444,7 @@ public class GrblControllerTest {
     public void errorInCheckModeSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        when(communicator.isCommOpen()).thenReturn(true);
         ControllerListener controllerListener = mock(ControllerListener.class);
         GrblController gc = new GrblController(communicator);
         gc.addListener(controllerListener);
