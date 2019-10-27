@@ -886,7 +886,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (messageService != null) {
             messageService.dispatchMessage(type, message);
         } else {
-            logger.warning("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
+            logger.fine("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
         }
     }
     
