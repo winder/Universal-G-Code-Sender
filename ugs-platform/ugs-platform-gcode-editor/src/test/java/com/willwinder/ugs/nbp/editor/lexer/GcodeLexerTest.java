@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.willwinder.ugs.nbp.editor.syntax;
+package com.willwinder.ugs.nbp.editor.lexer;
 
 import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import org.junit.Test;
@@ -250,5 +250,122 @@ public class GcodeLexerTest {
         t = ts.token();
         assertEquals(GcodeTokenId.ERROR, t.id());
         assertEquals("S.100.10", t.text());
+    }
+
+    @Test
+    public void parsingParametersWithLeadingSpaceShouldBeOk() {
+        String text = "G01 X -.100 Y 10 Z 0.3 S 1000 F 500";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("X -.100", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("Y 10", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("Z 0.3", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.PARAMETER, t.id());
+        assertEquals("S 1000", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.PARAMETER, t.id());
+        assertEquals("F 500", t.text());
+    }
+
+    @Test
+    public void parsingParametersWithSpaceShouldGenerateErrors() {
+        String text = "G01 X- .100 Z0. 3";
+        TokenSequence<GcodeTokenId> ts = parseTokenSequence(text);
+
+        ts.moveNext();
+        Token<?> t = ts.token();
+        assertEquals(GcodeTokenId.MOVEMENT, t.id());
+        assertEquals("G01", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("X-", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.ERROR, t.id());
+        assertEquals(".1", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.ERROR, t.id());
+        assertEquals("00", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.AXIS, t.id());
+        assertEquals("Z0.", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.WHITESPACE, t.id());
+        assertEquals(" ", t.text());
+
+        ts.moveNext();
+        t = ts.token();
+        assertEquals(GcodeTokenId.ERROR, t.id());
+        assertEquals("3", t.text());
     }
 }
