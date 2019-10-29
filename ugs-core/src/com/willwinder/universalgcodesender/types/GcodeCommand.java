@@ -41,7 +41,6 @@ public class GcodeCommand {
     private Boolean sent = false;
     private Boolean isOk = false;
     private Boolean isError = false;
-    // TODO: Get rid of the commandNum member which is used in the GUI for indexing a table of these objects.
     private Integer commandNum = -1;
     private Boolean isSkipped = false;
     private boolean isComment = false;

@@ -21,18 +21,27 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.AbstractController.UnexpectedCommand;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
-import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
 import com.willwinder.universalgcodesender.mockobjects.MockGrblCommunicator;
 import com.willwinder.universalgcodesender.model.PartialPosition;
-import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,10 +51,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
-import static org.easymock.EasyMock.expect;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -1367,7 +1388,7 @@ public class GrblControllerTest {
     public void errorInCheckModeNotSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
         GrblController gc = new GrblController(communicator);
         gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
         gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
@@ -1386,7 +1407,7 @@ public class GrblControllerTest {
     public void errorInCheckModeSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
         ControllerListener controllerListener = mock(ControllerListener.class);
         GrblController gc = new GrblController(communicator);
         gc.addListener(controllerListener);
