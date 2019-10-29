@@ -24,7 +24,8 @@ import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCom
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.CommUtils;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+
 import java.io.IOException;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
@@ -41,8 +42,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     // Command streaming variables
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
-    private GcodeStreamReader commandStream;               // Arbitrary number of commands
-    private final LinkedBlockingDeque<String> commandBuffer;     // Manually specified commands
+    private IGcodeStreamReader commandStream;               // Arbitrary number of commands
+    private final LinkedBlockingDeque<GcodeCommand> commandBuffer;     // Manually specified commands
     private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
     
@@ -55,7 +56,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.activeCommandList = new LinkedBlockingDeque<>();
     }
 
-    public BufferedCommunicator(LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl) {
+    public BufferedCommunicator(LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl) {
         this.commandBuffer = cb;
         this.activeCommandList = asl;
     }
@@ -69,25 +70,15 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     public boolean getSingleStepMode() {
         return this.singleStepModeEnabled;
     }
-    
-    /**
-     * Add command to the command queue outside file mode. This is the only way
-     * to send a command to the comm port without being in file mode.
-     * These commands will be sent prior to any queued stream, they should
-     * typically be control commands calculated by the application.
-     */
+
     @Override
-    public void queueStringForComm(final String input) {
+    public void queueCommand(GcodeCommand command) {
         // Add command to queue
-        this.commandBuffer.add(input);
+        this.commandBuffer.add(command);
     }
 
-    /**
-     * Arbitrary length of commands to send to the communicator.
-     * @param input
-     */
     @Override
-    public void queueStreamForComm(final GcodeStreamReader input) {
+    public void queueStreamForComm(final IGcodeStreamReader input) {
         commandStream = input;
     }
        
@@ -104,7 +95,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     
     /** File Stream Methods. **/
     @Override
-    public void resetBuffersInternal() {
+    public void resetBuffers() {
+        super.resetBuffers();
         if (activeCommandList != null) {
             activeCommandList.clear();
         }
@@ -169,7 +161,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
             return nextCommand;
         }
         else if (!this.commandBuffer.isEmpty()) {
-            nextCommand = new GcodeCommand(commandBuffer.pop());
+            nextCommand = commandBuffer.pop();
         }
         else try {
             if (commandStream != null && commandStream.ready()) {
@@ -228,7 +220,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
             try {
                 this.sendingCommand(commandString);
-                conn.sendStringToComm(commandString + "\n");
+                connection.sendStringToComm(commandString + "\n");
                 dispatchListenerEvents(COMMAND_SENT, command);
                 nextCommand = null;
             } catch (Exception e) {
@@ -261,15 +253,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         this.activeCommandList.clear();
         this.commandStream = null;
         this.sendPaused = false;
-    }
-    
-    /**
-     * This is to allow the GRBL Ctrl-C soft reset command.
-     */
-    @Override
-    public void softReset() {
         this.sentBufferSize = 0;
-        cancelSend();
     }
 
     /**
@@ -300,7 +284,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * @param response
      */
     @Override
-    public void responseMessage(String response) {
+    public void handleResponseMessage(String response) {
         // Send this information back up to the Controller.
         dispatchListenerEvents(SerialCommunicatorEvent.RAW_RESPONSE, response);
 
@@ -331,21 +315,18 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     @Override
-    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
-        boolean ret = super.openCommPort(connectionDriver, name, baud);
-        
-        if (ret) {
-            this.commandBuffer.clear();
-            this.activeCommandList.clear();
-            this.sentBufferSize = 0;
-        }
-        return ret;
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+        super.connect(connectionDriver, name, baud);
+
+        this.commandBuffer.clear();
+        this.activeCommandList.clear();
+        this.sentBufferSize = 0;
     }
 
     @Override
-    public void closeCommPort() throws Exception {
+    public void disconnect() throws Exception {
         this.cancelSend();
-        super.closeCommPort();
+        super.disconnect();
         
         this.sendPaused = false;
         this.commandBuffer.clear();
@@ -354,6 +335,6 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
 
     @Override
     public void sendByteImmediately(byte b) throws Exception {
-        conn.sendByteImmediately(b);
+        connection.sendByteImmediately(b);
     }
 }

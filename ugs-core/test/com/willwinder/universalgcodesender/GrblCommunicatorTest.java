@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class GrblCommunicatorTest {
     private MockGrbl mg;
-    private LinkedBlockingDeque<String> cb;
+    private LinkedBlockingDeque<GcodeCommand> cb;
     private LinkedBlockingDeque<GcodeCommand> asl;
     
     public GrblCommunicatorTest() {
@@ -77,16 +77,15 @@ public class GrblCommunicatorTest {
         GrblCommunicator instance = new GrblCommunicator(cb, asl, mc);
         
         try {
-            instance.queueStringForComm(input);
+            instance.queueCommand(new GcodeCommand(input));
             // The cb preloads commands so the size represents queued commands.
             assertEquals(1, cb.size());
             
             // Test that instance adds newline to improperly formed command.
-            String next = cb.peek();
-            assertEquals(input, cb.peek());
+            assertEquals(input, cb.peek().getCommandString());
             
-            instance.queueStringForComm(input);
-            instance.queueStringForComm(input);
+            instance.queueCommand(new GcodeCommand(input));
+            instance.queueCommand(new GcodeCommand(input));
             
             // Test that instance continues to queue inputs.
             assertEquals(3, cb.size());
@@ -96,9 +95,9 @@ public class GrblCommunicatorTest {
             mc = new MockConnection(mg.in, mg.out);
             instance = new GrblCommunicator(cb, asl, mc);
 
-            instance.queueStringForComm(input);
+            instance.queueCommand(new GcodeCommand(input));
             // Test that instance doesn't add superfluous newlines.
-            assertEquals(input, cb.peek());
+            assertEquals(input, cb.peek().getCommandString());
 
         } catch (Exception e) {
             fail("queueStringForComm threw an exception: "+e.getMessage());
@@ -182,22 +181,22 @@ public class GrblCommunicatorTest {
         assertEquals(expResult, result);
         
         // Add a command and stream it (activate it).
-        instance.queueStringForComm("command one");
+        instance.queueCommand(new GcodeCommand("command one"));
         instance.streamCommands();
         expResult = true;
         result = instance.areActiveCommands();
         assertEquals(expResult, result);
         
         // Add another command and stream it.
-        instance.queueStringForComm("command one");
+        instance.queueCommand(new GcodeCommand("command one"));
         instance.streamCommands();
         expResult = true;
         result = instance.areActiveCommands();
         assertEquals(expResult, result);
         
         // Send result to communicator.
-        instance.responseMessage("ok");
-        instance.responseMessage("ok");
+        instance.handleResponseMessage("ok");
+        instance.handleResponseMessage("ok");
                 
         expResult = false;
         result = instance.areActiveCommands();
@@ -228,10 +227,10 @@ public class GrblCommunicatorTest {
 
         // Add a bunch of commands so that the buffer is full.
         // 39*3 + 3 newlines + 3 CommUtils caution  = 123 == buffer size.
-        instance.queueStringForComm(thirtyNineCharString);
-        instance.queueStringForComm(thirtyNineCharString);
-        instance.queueStringForComm(thirtyNineCharString);
-        
+        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
+        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
+        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
+
         // Stream them so that there are active commands.
         instance.streamCommands();
         expResult = true;
@@ -239,7 +238,7 @@ public class GrblCommunicatorTest {
         assertEquals(expResult, result);
 
         // Add another command and stream it so that something is queued.
-        instance.queueStringForComm(thirtyNineCharString);
+        instance.queueCommand(new GcodeCommand(thirtyNineCharString));
         instance.streamCommands();
         expResult = true;
         result = instance.areActiveCommands();
@@ -285,7 +284,7 @@ public class GrblCommunicatorTest {
         
         // Queue a bunch of commands
         for (int i=0; i < 30; i++) {
-            instance.queueStringForComm(twentyCharString);
+            instance.queueCommand(new GcodeCommand(twentyCharString));
         }
         
         // Fill initial buffer, then pause.
@@ -336,7 +335,7 @@ public class GrblCommunicatorTest {
         // 1.
         // Queue some commands, but cancel before sending them.
         for (int i=0; i < 30; i++) {
-            instance.queueStringForComm(twentyCharString);
+            instance.queueCommand(new GcodeCommand(twentyCharString));
         }
         instance.cancelSend();
 
@@ -350,7 +349,7 @@ public class GrblCommunicatorTest {
         // We can't un-send things to GRBL, so make sure we still acknowledge
         // that there are active commands.
         for (int i=0; i < 30; i++) {
-            instance.queueStringForComm(twentyCharString);
+            instance.queueCommand(new GcodeCommand(twentyCharString));
         }
         instance.streamCommands();
         instance.cancelSend();
@@ -389,10 +388,10 @@ public class GrblCommunicatorTest {
         // This is essentially a cancel that "un sends" commands.
         // Send some commands, make them active, then soft-reset to reset them.
         for (int i=0; i < 30; i++) {
-            instance.queueStringForComm(twentyCharString);
+            instance.queueCommand(new GcodeCommand(twentyCharString));
         }
         instance.streamCommands();
-        instance.softReset();
+        instance.cancelSend();
         // Verify that there are several active commands.
         expectedBool = false;
         assertEquals(expectedBool, instance.areActiveCommands());
@@ -408,10 +407,10 @@ public class GrblCommunicatorTest {
 
         // Add a bunch of commands so that the buffer is full.
         // 39*3 + 3 newlines + 3 CommUtils caution  = 123 == buffer size.
-        instance.queueStringForComm("1" + thirtyEightCharString);
-        instance.queueStringForComm("2" + thirtyEightCharString);
-        instance.queueStringForComm("3" + thirtyEightCharString);
-        instance.queueStringForComm("4" + thirtyEightCharString);
+        instance.queueCommand(new GcodeCommand("1" + thirtyEightCharString));
+        instance.queueCommand(new GcodeCommand("2" + thirtyEightCharString));
+        instance.queueCommand(new GcodeCommand("3" + thirtyEightCharString));
+        instance.queueCommand(new GcodeCommand("4" + thirtyEightCharString));
 
         // We should have no active comands and a buffer of four commands
         assertEquals(0, asl.size());
@@ -464,8 +463,8 @@ public class GrblCommunicatorTest {
         String thirtyEightCharString = "thirty-nine character command here....";
 
         // Add a bunch of commands
-        instance.queueStringForComm("1" + thirtyEightCharString);
-        instance.queueStringForComm("2" + thirtyEightCharString);
+        instance.queueCommand(new GcodeCommand("1" + thirtyEightCharString));
+        instance.queueCommand(new GcodeCommand("2" + thirtyEightCharString));
 
         // We should have no active comands, only buffered commands
         assertEquals(0, asl.size());

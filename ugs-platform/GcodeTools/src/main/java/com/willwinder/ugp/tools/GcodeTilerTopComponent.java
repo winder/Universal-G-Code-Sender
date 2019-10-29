@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import static com.willwinder.universalgcodesender.utils.SwingHelpers.selectedUnit;
@@ -256,7 +257,7 @@ public final class GcodeTilerTopComponent extends TopComponent {
     try {
       File file = new File(gcodeFile);
       try {
-          try (GcodeStreamReader gsr = new GcodeStreamReader(file)) {
+          try (IGcodeStreamReader gsr = new GcodeStreamReader(file)) {
             while (gsr.getNumRowsRemaining() > 0) {
               GcodeCommand next = gsr.getNextCommand();
               applyTranslation(next.getCommandString(), parser, output);

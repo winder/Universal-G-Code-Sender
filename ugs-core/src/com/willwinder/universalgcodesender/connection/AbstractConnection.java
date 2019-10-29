@@ -18,17 +18,17 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
-
 /**
  * Abstract Connection
  *
  * @author wwinder
  */
 public abstract class AbstractConnection implements Connection {
-    protected AbstractCommunicator comm;
 
-    public void setCommunicator(AbstractCommunicator ac) {
-        comm = ac;
+    protected final ResponseMessageHandler responseMessageHandler = new ResponseMessageHandler();
+
+    @Override
+    public void addListener(IConnectionListener connectionListener) {
+        responseMessageHandler.addListener(connectionListener);
     }
 }

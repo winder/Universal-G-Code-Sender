@@ -27,11 +27,13 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -46,11 +48,15 @@ public class TinyGControllerTest {
     private AbstractCommunicator communicator;
 
     private TinyGController controller;
+    private ArgumentCaptor<GcodeCommand> queueCommandArgumentCaptor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         controller = new TinyGController(communicator);
+
+        queueCommandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
+        doNothing().when(communicator).queueCommand(queueCommandArgumentCaptor.capture());
     }
 
     @Test
@@ -68,12 +74,16 @@ public class TinyGControllerTest {
         controller.rawResponseHandler("{\"ack\":true}");
 
         // Then
-        verify(communicator).queueStringForComm("{ej:1}");
-        verify(communicator).queueStringForComm("{jv:4}");
-        verify(communicator).queueStringForComm("{qv:0}");
-        verify(communicator).queueStringForComm("{sv:1}");
-        verify(communicator).queueStringForComm("{sr:n}");
+        verify(communicator, times(10)).queueCommand(any(GcodeCommand.class));
         verify(communicator).streamCommands();
+
+        assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());
+        assertEquals("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}", queueCommandArgumentCaptor.getAllValues().get(1).getCommandString());
+        assertEquals("{jv:4}", queueCommandArgumentCaptor.getAllValues().get(2).getCommandString());
+        assertEquals("{qv:0}", queueCommandArgumentCaptor.getAllValues().get(3).getCommandString());
+        assertEquals("{sv:1}", queueCommandArgumentCaptor.getAllValues().get(4).getCommandString());
+        assertEquals("$$", queueCommandArgumentCaptor.getAllValues().get(5).getCommandString());
+        assertEquals("{sr:n}", queueCommandArgumentCaptor.getAllValues().get(6).getCommandString());
     }
 
     @Test
@@ -184,7 +194,7 @@ public class TinyGControllerTest {
     @Test
     public void cancelSend() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
         InOrder orderVerifier = inOrder(communicator);
 
         // When
@@ -193,18 +203,18 @@ public class TinyGControllerTest {
         // Then
         orderVerifier.verify(communicator).cancelSend();
         orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
-        orderVerifier.verify(communicator).softReset(); // Work around for clearing buffers and counters in communicator
-        orderVerifier.verify(communicator).queueStringForComm(TinyGUtils.COMMAND_KILL_ALARM_LOCK + "\n");
+        orderVerifier.verify(communicator).cancelSend(); // Work around for clearing buffers and counters in communicator
+        orderVerifier.verify(communicator).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
 
-        // Ignore the code analysis warnings
-        assertEquals("trick code analysis", "trick code analysis");
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals(TinyGUtils.COMMAND_KILL_ALARM_LOCK, command.getCommandString());
     }
 
     @Test
     public void jogMachine() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G21;
@@ -214,14 +224,19 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G91G1X100Y100Z100F1000\n");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G21G91G1X100Y100Z100F1000", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
     public void jogMachineWhenUsingInchesShouldConvertCoordinates() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G20;
@@ -231,14 +246,19 @@ public class TinyGControllerTest {
         controller.jogMachine(1, 1, 1, 100, 1000, UnitUtils.Units.MM);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G91G1X3.937Y3.937Z3.937F39.37\n");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G20G91G1X3.937Y3.937Z3.937F39.37", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
     public void jogMachineTo() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in mm
         controller.getCurrentGcodeState().units = Code.G21;
@@ -248,14 +268,19 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G21G90G1X1Y2Z3F1000\n");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G21G90G1X1Y2Z3F1000", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 
     @Test
     public void jogMachineToWhenUsingInchesShouldConvertCoordinates() throws Exception {
         // Given
-        when(communicator.isCommOpen()).thenReturn(true);
+        when(communicator.isConnected()).thenReturn(true);
 
         // Simulate that the machine is running in inches
         controller.getCurrentGcodeState().units = Code.G20;
@@ -265,7 +290,12 @@ public class TinyGControllerTest {
         controller.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 1000);
 
         // Then
-        orderVerifier.verify(communicator).queueStringForComm("G20G90G1X0.039Y0.079Z0.118F39.37\n");
+        orderVerifier.verify(communicator, times(1)).queueCommand(any(GcodeCommand.class));
         orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals("G20G90G1X0.039Y0.079Z0.118F39.37", command.getCommandString());
+        assertTrue(command.isGenerated());
+        assertTrue(command.isTemporaryParserModalChange());
     }
 }

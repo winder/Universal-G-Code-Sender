@@ -59,13 +59,13 @@ public class TinyGController extends AbstractController {
         this(new TinyGCommunicator());
     }
 
-    public TinyGController(AbstractCommunicator abstractCommunicator) {
-        super(abstractCommunicator);
+    public TinyGController(ICommunicator communicator) {
+        super(communicator);
         capabilities = new Capabilities();
         commandCreator = new TinyGGcodeCommandCreator();
 
         firmwareSettings = new TinyGFirmwareSettings(this);
-        abstractCommunicator.setListenAll(firmwareSettings);
+        communicator.addListener(firmwareSettings);
 
         controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
         firmwareVersion = "TinyG unknown version";
@@ -143,7 +143,7 @@ public class TinyGController extends AbstractController {
         comm.sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
 
         // Work around for clearing the sent buffer size
-        comm.softReset();
+        comm.cancelSend();
 
         // We will end up in an alarm state, clear the alarm
         killAlarmLock();
@@ -252,33 +252,33 @@ public class TinyGController extends AbstractController {
     private void sendInitCommands() {
         // Enable JSON mode
         // 0=text mode, 1=JSON mode
-        comm.queueStringForComm("{ej:1}");
+        comm.queueCommand(new GcodeCommand("{ej:1}"));
 
         // Configure status reports
-        comm.queueStringForComm("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}");
+        comm.queueCommand(new GcodeCommand("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}"));
 
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
-        comm.queueStringForComm("{jv:4}");
+        comm.queueCommand(new GcodeCommand("{jv:4}"));
 
         // Queue report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueStringForComm("{qv:0}");
+        comm.queueCommand(new GcodeCommand("{qv:0}"));
 
         // Status report verbosity
         // 0=off, 1=filtered, 2=verbose
-        comm.queueStringForComm("{sv:1}");
+        comm.queueCommand(new GcodeCommand("{sv:1}"));
 
         // Request firmware settings
-        comm.queueStringForComm("$$");
+        comm.queueCommand(new GcodeCommand("$$"));
 
         // Request initial status report
-        comm.queueStringForComm("{sr:n}");
+        comm.queueCommand(new GcodeCommand("{sr:n}"));
 
         // Enable feed overrides
-        comm.queueStringForComm("{mfoe:1}");
-        comm.queueStringForComm("{mtoe:1}");
-        comm.queueStringForComm("{ssoe:1}");
+        comm.queueCommand(new GcodeCommand("{mfoe:1}"));
+        comm.queueCommand(new GcodeCommand("{mtoe:1}"));
+        comm.queueCommand(new GcodeCommand("{ssoe:1}"));
 
         comm.streamCommands();
 
@@ -367,7 +367,7 @@ public class TinyGController extends AbstractController {
     @Override
     protected void statusUpdatesRateValueChanged(int rate) {
         // Status report interval in milliseconds (50ms minimum interval)
-        comm.queueStringForComm("{si:" + rate + "}");
+        comm.queueCommand(new GcodeCommand("{si:" + rate + "}"));
     }
 
     @Override

@@ -18,30 +18,31 @@
  */
 package com.willwinder.universalgcodesender;
 
-import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.*;
 import com.willwinder.universalgcodesender.connection.Connection;
-import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.connection.ConnectionFactory;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.COMMAND_SENT;
+import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.COMMAND_SKIPPED;
 
 /**
  * An Abstract communicator interface which implements listeners.
  *
  * @author wwinder
  */
-public abstract class AbstractCommunicator {
+public abstract class AbstractCommunicator implements ICommunicator {
     private static final Logger logger = Logger.getLogger(AbstractCommunicator.class.getName());
 
-    protected Connection conn;
+    protected Connection connection;
 
     // Allow events to be sent from same thread for unit tests.
     private boolean launchEventsInDispatchThread = true;
@@ -53,176 +54,125 @@ public abstract class AbstractCommunicator {
         RAW_RESPONSE,
         PAUSED
     }
+
     // Callback interfaces
-    private ArrayList<SerialCommunicatorListener> commandEventListeners;
-    private ArrayList<SerialCommunicatorListener> commRawResponseListener;
-    private HashMap<SerialCommunicatorEvent, ArrayList<SerialCommunicatorListener>> eventMap;
+    private Set<CommunicatorListener> communicatorListeners;
 
     public AbstractCommunicator() {
-        this.commandEventListeners       = new ArrayList<>();
-        this.commRawResponseListener     = new ArrayList<>();
-
-        this.eventMap = new HashMap<>();
-        eventMap.put(COMMAND_SENT,            commandEventListeners);
-        eventMap.put(COMMAND_SKIPPED,         commandEventListeners);
-        eventMap.put(PAUSED,                  commandEventListeners);
-        eventMap.put(RAW_RESPONSE,            commRawResponseListener);
+        this.communicatorListeners = new HashSet<>();
     }
-    
+
     /*********************/
     /* Serial Layer API. */
     /*********************/
-    abstract public void setSingleStepMode(boolean enable);
-    abstract public boolean getSingleStepMode();
-    abstract public void queueStringForComm(final String input);
-    abstract public void queueStreamForComm(final GcodeStreamReader input);
-    abstract public void sendByteImmediately(byte b) throws Exception;
-    abstract public String activeCommandSummary();
-    abstract public boolean areActiveCommands();
-    abstract public void streamCommands();
-    abstract public void pauseSend();
-    abstract public void resumeSend();
-    abstract public boolean isPaused();
-    abstract public void cancelSend();
-    abstract public void softReset();
-    abstract public void responseMessage(String response);
-    abstract public int numActiveCommands();
-
-    /**
-     * Reset any internal buffers. In case a controller reset was detected call
-     * this.
-     */
-    abstract public void resetBuffersInternal();
-    final public void resetBuffers() {
+    @Override
+    public void resetBuffers() {
         if (eventQueue != null) {
             eventQueue.clear();
         }
-        resetBuffersInternal();
     }
-    
+
+    @Override
     public void setConnection(Connection c) {
-        conn = c;
+        connection = c;
+        c.addListener(this);
     }
 
     //do common operations (related to the connection, that is shared by all communicators)
-    protected boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
-        if (conn == null) {
+    @Override
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+        if (connection == null) {
             String url = connectionDriver.getProtocol() + name + ":" + baud;
-            conn = ConnectionFactory.getConnection(url);
-            logger.info("Connecting to controller using class: " + conn.getClass().getSimpleName() + " with url " + url);
+            connection = ConnectionFactory.getConnection(url);
+            logger.info("Connecting to controller using class: " + connection.getClass().getSimpleName() + " with url " + url);
         }
 
-        if (conn != null) {
-            conn.setCommunicator(this);
+        if (connection != null) {
+            connection.addListener(this);
         }
-        
-        if (conn==null) {
+
+        if (connection == null) {
             throw new Exception(Localization.getString("communicator.exception.port") + ": " + name);
         }
-        
+
         // Handle all events in a single thread.
         this.eventThread.start();
 
         //open it
-        return conn.openPort();
+        connection.openPort();
     }
 
-    public boolean isCommOpen() {
-        return conn != null && conn.isOpen();
+    @Override
+    public boolean isConnected() {
+        return connection != null && connection.isOpen();
     }
 
 
     //do common things (related to the connection, that is shared by all communicators)
-    protected void closeCommPort() throws Exception {
+    @Override
+    public void disconnect() throws Exception {
         this.stop = true;
         this.eventThread.interrupt();
-        conn.closePort();
+        connection.closePort();
     }
 
-    /** Getters & Setters. */
-    abstract public String getLineTerminator();
-    
     /* ****************** */
-    /** Listener helpers. */
-    /* ****************** */
-    void setListenAll(SerialCommunicatorListener scl) {
-        this.addCommandEventListener(scl);
-        this.addCommRawResponseListener(scl);
+
+    @Override
+    public void removeListener(CommunicatorListener scl) {
+        this.communicatorListeners.remove(scl);
     }
 
-    public void removeListenAll(SerialCommunicatorListener scl) {
-        this.removeCommandEventListener(scl);
-        this.removeCommRawResponseListener(scl);
+    @Override
+    public void addListener(CommunicatorListener scl) {
+        this.communicatorListeners.add(scl);
     }
 
-    public void addCommandEventListener(SerialCommunicatorListener scl) {
-        if (!this.commandEventListeners.contains(scl)) {
-            this.commandEventListeners.add(scl);
-        }
-    }
-
-    private void removeCommandEventListener(SerialCommunicatorListener scl) {
-        this.commandEventListeners.remove(scl);
-    }
-
-    private void addCommRawResponseListener(SerialCommunicatorListener scl) {
-        if (!this.commRawResponseListener.contains(scl)) {
-            this.commRawResponseListener.add(scl);
-        }
-    }
-
-    private void removeCommRawResponseListener(SerialCommunicatorListener scl) {
-        this.commRawResponseListener.remove(scl);
-    }
-    
     /**
      * A bunch of methods to dispatch listener events with various arguments.
      */
     protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final String message) {
         dispatchListenerEvents(event, message, null);
     }
-    
+
     protected void dispatchListenerEvents(final SerialCommunicatorEvent event, final GcodeCommand command) {
         dispatchListenerEvents(event, null, command);
     }
 
-    private void dispatchListenerEvents(final SerialCommunicatorEvent event, 
-                                            final String string, final GcodeCommand command) {
+    private void dispatchListenerEvents(final SerialCommunicatorEvent event,
+                                        final String string, final GcodeCommand command) {
         if (event == COMMAND_SENT || event == COMMAND_SKIPPED) {
-            if (command == null)
+            if (command == null) {
                 throw new IllegalArgumentException("Dispatching a COMMAND_SENT event requires a GcodeCommand object.");
+            }
         } else if (string == null) {
-            throw new IllegalArgumentException("Dispatching a " +event+ " event requires a String object.");
+            throw new IllegalArgumentException("Dispatching a " + event + " event requires a String object.");
         }
 
-
-        final ArrayList<SerialCommunicatorListener> sclList = eventMap.get(event);
-
         if (launchEventsInDispatchThread) {
-            this.eventQueue.add(new EventData(event, sclList, string, command));
+            this.eventQueue.add(new EventData(event, string, command));
         } else {
-            sendEventToListeners(event, sclList, string, command);
+            sendEventToListeners(event, string, command);
         }
     }
 
-    private void sendEventToListeners(final SerialCommunicatorEvent event, 
-                                            ArrayList<SerialCommunicatorListener> sclList,
-                                            String string, GcodeCommand command) {
-        switch(event) {
+    private void sendEventToListeners(final SerialCommunicatorEvent event,
+                                      String string, GcodeCommand command) {
+        switch (event) {
             case COMMAND_SENT:
-                for (SerialCommunicatorListener scl : sclList)
+                for (CommunicatorListener scl : communicatorListeners)
                     scl.commandSent(command);
                 break;
             case COMMAND_SKIPPED:
-                for (SerialCommunicatorListener scl : sclList)
+                for (CommunicatorListener scl : communicatorListeners)
                     scl.commandSkipped(command);
                 break;
             case RAW_RESPONSE:
-                for (SerialCommunicatorListener scl : sclList)
+                for (CommunicatorListener scl : communicatorListeners)
                     scl.rawResponseListener(string);
                 break;
             case PAUSED:
-                sclList.forEach(SerialCommunicatorListener::communicatorPausedOnError);
+                communicatorListeners.forEach(CommunicatorListener::communicatorPausedOnError);
                 break;
             default:
 
@@ -241,7 +191,7 @@ public abstract class AbstractCommunicator {
         while (!stop) {
             try {
                 EventData e = eventQueue.take();
-                sendEventToListeners(e.event, e.sclList, e.string, e.command);
+                sendEventToListeners(e.event, e.string, e.command);
             } catch (InterruptedException ignored) {
                 stop = true;
             } catch (Exception e) {
@@ -254,19 +204,16 @@ public abstract class AbstractCommunicator {
     // Simple data class used to pass data to the event thread.
     private class EventData {
         public EventData(
-                SerialCommunicatorEvent               event,
-                ArrayList<SerialCommunicatorListener> sclList, 
-                String                                string,
-                GcodeCommand                          command) {
-            this.sclList = sclList;
+                SerialCommunicatorEvent event,
+                String string,
+                GcodeCommand command) {
             this.event = event;
             this.command = command;
             this.string = string;
         }
-        public ArrayList<SerialCommunicatorListener> sclList;
-        public SerialCommunicatorEvent               event;
-        public GcodeCommand                          command;
-        public String                                string;
-    }
 
+        public SerialCommunicatorEvent event;
+        public GcodeCommand command;
+        public String string;
+    }
 }

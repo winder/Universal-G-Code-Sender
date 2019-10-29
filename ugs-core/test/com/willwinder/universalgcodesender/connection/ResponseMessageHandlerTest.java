@@ -40,78 +40,84 @@ public class ResponseMessageHandlerTest {
     public void responseWithNoLineEndingShouldNotDispatchMessage() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test", communicator);
+        responseMessageHandler.handleResponse("test");
 
         // Then
-        verify(communicator, times(0)).responseMessage(any());
+        verify(communicator, times(0)).handleResponseMessage(any());
     }
 
     @Test
     public void responseWithCarrierReturnShouldNotDispatchMessage() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test\r", communicator);
+        responseMessageHandler.handleResponse("test\r");
 
         // Then
-        verify(communicator, times(0)).responseMessage(any());
+        verify(communicator, times(0)).handleResponseMessage(any());
     }
 
     @Test
     public void responseWithUnixLineEndingShouldDispatchMessage() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test\n", communicator);
+        responseMessageHandler.handleResponse("test\n");
 
         // Then
-        verify(communicator, times(1)).responseMessage("test");
+        verify(communicator, times(1)).handleResponseMessage("test");
     }
 
     @Test
     public void responseWithWindowsLineEndingShouldDispatchMessage() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test\r\n", communicator);
+        responseMessageHandler.handleResponse("test\r\n");
 
         // Then
-        verify(communicator, times(1)).responseMessage("test");
+        verify(communicator, times(1)).handleResponseMessage("test");
     }
 
     @Test
     public void responseWithMultipleMessagesShouldDispatchMessages() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test1\r\n test2 \ntest3", communicator);
+        responseMessageHandler.handleResponse("test1\r\n test2 \ntest3");
 
         // Then
-        verify(communicator, times(1)).responseMessage("test1");
-        verify(communicator, times(1)).responseMessage(" test2 ");
-        verify(communicator, times(0)).responseMessage("test3");
+        verify(communicator, times(1)).handleResponseMessage("test1");
+        verify(communicator, times(1)).handleResponseMessage(" test2 ");
+        verify(communicator, times(0)).handleResponseMessage("test3");
     }
 
     @Test
     public void multipleResponsesShouldDispatchMessages() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        responseMessageHandler.addListener(communicator);
 
         // When
-        responseMessageHandler.handleResponse("test1\r\n ", communicator);
-        responseMessageHandler.handleResponse("test2", communicator);
-        responseMessageHandler.handleResponse(" \r\n", communicator);
-        responseMessageHandler.handleResponse("test3\n", communicator);
+        responseMessageHandler.handleResponse("test1\r\n ");
+        responseMessageHandler.handleResponse("test2");
+        responseMessageHandler.handleResponse(" \r\n");
+        responseMessageHandler.handleResponse("test3\n");
 
         // Then
-        verify(communicator, times(1)).responseMessage("test1");
-        verify(communicator, times(1)).responseMessage(" test2 ");
-        verify(communicator, times(1)).responseMessage("test3");
+        verify(communicator, times(1)).handleResponseMessage("test1");
+        verify(communicator, times(1)).handleResponseMessage(" test2 ");
+        verify(communicator, times(1)).handleResponseMessage("test3");
     }
 }

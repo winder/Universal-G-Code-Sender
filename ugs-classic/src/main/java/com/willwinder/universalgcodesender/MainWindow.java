@@ -34,6 +34,7 @@ import com.willwinder.universalgcodesender.uielements.panels.ConnectionSettingsP
 import com.willwinder.universalgcodesender.uielements.panels.ControllerProcessorSettingsPanel;
 import com.willwinder.universalgcodesender.uielements.*;
 import com.willwinder.universalgcodesender.utils.FirmwareUtils;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.KeepAwakeUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
@@ -1919,7 +1920,7 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
                 case FILE_LOADED:
                     processedGcodeFile = evt.getFile();
                     try {
-                        try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                        try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                             resetSentRowLabels(gsr.getNumRows());
                         }
                     } catch (IOException | GcodeStreamReader.NotGcodeStreamFile ex) {}

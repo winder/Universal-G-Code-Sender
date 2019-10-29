@@ -24,7 +24,7 @@ import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettingsListener;
 import com.willwinder.universalgcodesender.i18n.Localization;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -41,13 +41,13 @@ import java.util.logging.Logger;
 
 /**
  * Handles the firmware settings on a GRBL controller. It needs to be registered as a listener
- * to {@link com.willwinder.universalgcodesender.AbstractCommunicator#setListenAll(SerialCommunicatorListener)}
+ * to {@link com.willwinder.universalgcodesender.AbstractCommunicator#setListenAll(CommunicatorListener)}
  * for it to be able to process all commands to/from the controller.
  *
  * @author Joacim Breiler
  * @author MerrellM
  */
-public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwareSettingsListener, IFirmwareSettings {
+public class GrblFirmwareSettings implements CommunicatorListener, IFirmwareSettingsListener, IFirmwareSettings {
     private static final Logger LOGGER = Logger.getLogger(GrblFirmwareSettings.class.getName());
 
     /**
@@ -78,10 +78,10 @@ public class GrblFirmwareSettings implements SerialCommunicatorListener, IFirmwa
     /**
      * A delegate for all serial communication handling
      */
-    private final GrblFirmwareSettingsSerialCommunicator serialCommunicatorDelegate;
+    private final GrblFirmwareSettingsCommunicatorListener serialCommunicatorDelegate;
 
     public GrblFirmwareSettings(IController controller) {
-        this.serialCommunicatorDelegate = new GrblFirmwareSettingsSerialCommunicator(controller);
+        this.serialCommunicatorDelegate = new GrblFirmwareSettingsCommunicatorListener(controller);
         this.serialCommunicatorDelegate.addListener(this);
     }
 

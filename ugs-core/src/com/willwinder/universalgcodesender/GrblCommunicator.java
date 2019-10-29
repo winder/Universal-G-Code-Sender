@@ -39,23 +39,18 @@ public class GrblCommunicator extends BufferedCommunicator {
      * act as GRBL.
      */
     protected GrblCommunicator(
-            LinkedBlockingDeque<String> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
+            LinkedBlockingDeque<GcodeCommand> cb, LinkedBlockingDeque<GcodeCommand> asl, Connection c) {
         super(cb, asl);
         // Base constructor.
         //this();
         //TODO-f4grx-DONE: Mock connection
-        this.conn = c;
-        this.conn.setCommunicator(this);
+        this.connection = c;
+        this.connection.addListener(this);
     }
 
     @Override
     public int getBufferSize() {
         return GrblUtils.GRBL_RX_BUFFER_SIZE;
-    }
-
-    @Override
-    public String getLineTerminator() {
-        return "\r\n";
     }
 
     @Override

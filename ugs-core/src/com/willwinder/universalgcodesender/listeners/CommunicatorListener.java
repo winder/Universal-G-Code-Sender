@@ -27,7 +27,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
  *
  * @author wwinder
  */
-public interface SerialCommunicatorListener {
+public interface CommunicatorListener {
 
     /**
      * Is called when a raw response message is received from the controller

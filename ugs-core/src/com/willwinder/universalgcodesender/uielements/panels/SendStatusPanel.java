@@ -30,6 +30,7 @@ import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.JLabel;
@@ -173,7 +174,7 @@ public class SendStatusPanel extends JPanel implements UGSEventListener, Control
         long numRows = 0;
         if (backend.getProcessedGcodeFile() != null) {
             try {
-                try (GcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
+                try (IGcodeStreamReader gsr = new GcodeStreamReader(backend.getProcessedGcodeFile())) {
                     numRows = gsr.getNumRows();
                     System.out.println("NUM ROWS: " + numRows);
                 }

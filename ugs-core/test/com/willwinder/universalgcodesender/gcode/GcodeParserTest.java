@@ -31,6 +31,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.assertj.core.api.Assertions;
@@ -296,7 +297,7 @@ public class GcodeParserTest {
 
         GcodeParserUtils.processAndExport(gcp, tempFile, output.toFile());
 
-        GcodeStreamReader reader = new GcodeStreamReader(output.toFile());
+        IGcodeStreamReader reader = new GcodeStreamReader(output.toFile());
 
         file = this.getClass().getClassLoader().getResource("./gcode/circle_test.nc.processed");
         Files.lines(Paths.get(file.toURI())).forEach((t) -> {

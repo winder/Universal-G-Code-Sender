@@ -30,10 +30,10 @@ import com.willwinder.universalgcodesender.connection.LoopBackConnection;
  */
 public class LoopBackCommunicator extends GrblCommunicator {
     public LoopBackCommunicator(int ms) {
-        this.conn = new LoopBackConnection(ms);
+        this.connection = new LoopBackConnection(ms);
     }
 
     public LoopBackCommunicator() {
-        this.conn = new LoopBackConnection(0);
+        this.connection = new LoopBackConnection(0);
     }
 }
