@@ -13,16 +13,13 @@
         <folder name="File">
             <attr name="position" intvalue="10" />
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
-            <file name="org-openide-actions-SaveAction.shadow">
-                <attr name="position" intvalue="20"/>
-            </file>
-            <file name="org-openide-actions-SaveAsAction.shadow">
-                <attr name="position" intvalue="22"/>
-            </file>
+            <file name="org-openide-actions-SaveAction.shadow_hidden"/>
+            <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
         </folder>
         <folder name="Edit">
             <attr name="position" intvalue="20" />
         </folder>
+        <folder name="Refactoring_hidden"/>
         <folder name="Tools">
             <file name="Separator1.instance_hidden"/>
             <file name="Separator2.instance_hidden"/>
@@ -36,10 +33,11 @@
             <folder name="Plugins">
                 <attr name="position" intvalue="20002"/>
             </folder>
+            <file name="org-netbeans-core-windows-actions-ToggleFullScreenAction.instance"/>
             <file name="Web_hidden"/>
             <file name="Tools_hidden"/>
             <file name="ConfigureWindow_hidden"/>
-
+            <file name="org-netbeans-modules-favorites-View.shadow_hidden"/>
             <file name="Separator4.instance_hidden"/>
             <file name="SwitchToRecentDocumentAction.shadow_hidden"/>
             <file name="CloseAllButThisAction.shadow_hidden"/>

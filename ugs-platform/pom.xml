@@ -31,14 +31,8 @@
       </ugs.modules.specification.version>
 
       <!--==== JRE Bundle Properties ====-->
-      <ugs.bundle.java.url>http://download.oracle.com/otn-pub/java/jdk/8u171-b11/512cd62ec5174c3487ac17c61aaa89e8</ugs.bundle.java.url>
-
-      <ugs.mac.bundle.jvm.version>jre-8u171-macosx-x64</ugs.mac.bundle.jvm.version>
-      <!-- should I use -x64 for win/linux instead? -->
-      <ugs.linux.bundle.jvm.version>jre-8u171-linux-i586</ugs.linux.bundle.jvm.version>
-      <ugs.windows.bundle.jvm.version>jre-8u171-windows-i586</ugs.windows.bundle.jvm.version>
-      <ugs.rpi.bundle.jvm.version>jdk-8u171-linux-arm64-vfp-hflt</ugs.rpi.bundle.jvm.version>
-      <ugs.rpi.bundle.javafx.url>http://download.gluonhq.com/javafxports/embedded/armv6hf-sdk-8.60.9.zip</ugs.rpi.bundle.javafx.url>
+      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10.2/OpenJDK12U-jre_x64_mac_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.mac.url>
+      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jdk_arm_linux_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.rpi.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
@@ -54,7 +48,7 @@
 
       <ugs.maven-antrun-plugin.version>1.8</ugs.maven-antrun-plugin.version>
 
-      <ugs.nbm-maven-plugin.version>4.1</ugs.nbm-maven-plugin.version>
+      <ugs.nbm-maven-plugin.version>4.2</ugs.nbm-maven-plugin.version>
 
       <ugs.maven-resources-plugin.version>3.0.2</ugs.maven-resources-plugin.version>
     </properties>
@@ -63,7 +57,7 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.codehaus.mojo</groupId>
+                    <groupId>org.apache.netbeans.utilities</groupId>
                     <artifactId>nbm-maven-plugin</artifactId>
                     <version>${ugs.nbm-maven-plugin.version}</version>
                     <extensions>true</extensions>

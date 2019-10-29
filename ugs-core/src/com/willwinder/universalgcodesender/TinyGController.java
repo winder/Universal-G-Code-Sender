@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -129,7 +129,7 @@ public class TinyGController extends AbstractController {
         // We need to convert to these units as we can not change the units in one command in TinyG
         double scale = UnitUtils.scaleUnits(position.getUnits(), targetUnits);
         PartialPosition positionInTargetUnits = position.getPositionIn(targetUnits);
-        String commandString = GcodeUtils.generateMoveToCommand(positionInTargetUnits, feedRate * scale);
+        String commandString = GcodeUtils.generateMoveToCommand("G90G1", positionInTargetUnits, feedRate * scale);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);

@@ -16,7 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with UGS.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.willwinder.ugs.nbp.editor;
+package com.willwinder.ugs.nbp.editor.renderer;
 
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import static com.jogamp.opengl.GL.GL_LINES;
@@ -37,7 +37,7 @@ import javax.vecmath.Point3d;
  */
 public class Highlight extends Renderable {
 
-    GcodeModel model;
+    private GcodeModel model;
 
     private Collection<Integer> highlightedLines = null;
 
@@ -45,7 +45,7 @@ public class Highlight extends Renderable {
     private float[] lineVertexData = null;
 
     // Preferences
-    Color highlightColor;
+    private Color highlightColor;
 
     public Highlight(GcodeModel model, String title) {
         super(9, title);
@@ -113,7 +113,7 @@ public class Highlight extends Renderable {
         ArrayList<LineSegment> highlights = new ArrayList<>();
         int vertIndex = 0;
         for (LineSegment ls : model.getLineList()) {
-            if (lines.contains(ls.getLineNumber())) {
+            if (lines.contains(ls.getLineNumber() -1)) {
                 highlights.add(ls);
             }
         }
@@ -122,7 +122,6 @@ public class Highlight extends Renderable {
         this.lineVertexData = new float[numberOfVertices * 3];
 
         for (LineSegment ls : highlights) {
-            System.out.println("Line number: " + ls.getLineNumber());
             Point3d p1 = ls.getStart();
             Point3d p2 = ls.getEnd();
 

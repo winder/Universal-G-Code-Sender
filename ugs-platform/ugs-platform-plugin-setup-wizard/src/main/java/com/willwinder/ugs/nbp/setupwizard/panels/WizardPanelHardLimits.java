@@ -158,7 +158,7 @@ public class WizardPanelHardLimits extends AbstractWizardPanel implements UGSEve
 
     @Override
     public void UGSEvent(UGSEvent evt) {
-        if (evt.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+        if (evt.isFirmwareSettingEvent()) {
             refreshComponents();
         } else if (evt.isControllerStatusEvent()) {
             ThreadHelper.invokeLater(() -> {

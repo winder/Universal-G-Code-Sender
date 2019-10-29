@@ -1,3 +1,21 @@
+/*
+    Copyright 2016-2019 Will Winder
+
+    This file is part of Universal Gcode Sender (UGS).
+
+    UGS is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    UGS is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with UGS.  If not, see <http://www.gnu.org/licenses/>.
+*/
 package com.willwinder.ugs.nbm.visualizer.renderables;
 
 import com.jogamp.opengl.GL2;
@@ -6,8 +24,8 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.firmware.FirmwareSettingsException;
-import com.willwinder.universalgcodesender.model.Axis;
-import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
+import com.willwinder.universalgcodesender.model.*;
 
 import javax.vecmath.Point3d;
 
@@ -18,12 +36,12 @@ import static com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions.VISUAL
 
 /**
  * Displays the machine boundries based on the soft limits
+ *
+ * @author Joacim Breiler
  */
 public class MachineBoundries extends Renderable {
     private final BackendAPI backendAPI;
-    private double softLimitX = 0;
-    private double softLimitY = 0;
-    private double softLimitZ = 0;
+    private PartialPosition maxPosition = new PartialPosition(0d, 0d, 0d, UnitUtils.Units.MM);
     private float[] machineBoundryBottomColor;
     private float[] machineBoundryLineColor;
     private float[] yAxisColor;
@@ -39,28 +57,41 @@ public class MachineBoundries extends Renderable {
         super(Integer.MIN_VALUE, title);
         reloadPreferences(new VisualizerOptions());
         backendAPI = CentralLookup.getDefault().lookup(BackendAPI.class);
-        backendAPI.addUGSEventListener(event -> onUGSEvent());
+        backendAPI.addUGSEventListener(this::onUGSEvent);
     }
 
-    private void onUGSEvent() {
-        try {
-            // This will prevent us from accessing the firmware settings before the init
-            // processes has finished and it will also prevent us from accessing the
-            // controller after it has disconnected
-            if (!backendAPI.isConnected() || !backendAPI.isIdle()) {
-                return;
-            }
+    private void onUGSEvent(UGSEvent event) {
+        if (!isFirmwareSettingsEvent(event)) {
+            return;
+        }
 
-            softLimitsEnabled = backendAPI.getController().getFirmwareSettings().isSoftLimitsEnabled();
+        try {
+            IFirmwareSettings firmwareSettings = backendAPI.getController().getFirmwareSettings();
+            softLimitsEnabled = firmwareSettings.isSoftLimitsEnabled();
             if (softLimitsEnabled) {
-                softLimitX = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.X);
-                softLimitY = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Y);
-                softLimitZ = backendAPI.getController().getFirmwareSettings().getSoftLimit(Axis.Z);
+                PartialPosition.Builder builder = new PartialPosition.Builder().copy(maxPosition);
+                for (Axis axis : Axis.values()) {
+                    double maxPosition = firmwareSettings.getSoftLimit(axis);
+
+                    // If the homing process for an axis is inverted so will the machine zero position
+                    if (firmwareSettings.isHomingDirectionInverted(axis)) {
+                        maxPosition = -maxPosition;
+                    }
+
+                    builder.setValue(axis, maxPosition);
+                }
+                maxPosition = builder.build();
             }
         } catch (FirmwareSettingsException ignored) {
             // Never mind this.
         }
+    }
 
+    private boolean isFirmwareSettingsEvent(UGSEvent event) {
+        // This will prevent us from accessing the firmware settings before the init
+        // processes has finished and it will also prevent us from accessing the
+        // controller after it has disconnected
+        return backendAPI.isConnected() && backendAPI.isIdle() && event.isFirmwareSettingEvent();
     }
 
     @Override
@@ -102,7 +133,7 @@ public class MachineBoundries extends Renderable {
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        Point3d bottomLeft = new Point3d(-softLimitX + xOffset, -softLimitY + yOffset, -softLimitZ + zOffset);
+        Point3d bottomLeft = new Point3d(-maxPosition.getX() + xOffset, -maxPosition.getY() + yOffset, -maxPosition.getZ() + zOffset);
         Point3d topRight = new Point3d(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();
@@ -114,12 +145,13 @@ public class MachineBoundries extends Renderable {
     }
 
     private void drawBase(GL2 gl, Point3d bottomLeft, Point3d topRight) {
+        double bottomZ = Math.min(bottomLeft.getZ(), topRight.getZ());
         gl.glColor4fv(machineBoundryBottomColor, 0);
         gl.glBegin(GL2.GL_QUADS);
-            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomLeft.getZ());
-            gl.glVertex3d(bottomLeft.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, topRight.y, bottomLeft.getZ());
-            gl.glVertex3d(topRight.x, bottomLeft.y, bottomLeft.getZ());
+            gl.glVertex3d(bottomLeft.x, bottomLeft.y, bottomZ);
+            gl.glVertex3d(bottomLeft.x, topRight.y, bottomZ);
+            gl.glVertex3d(topRight.x, topRight.y, bottomZ);
+            gl.glVertex3d(topRight.x, bottomLeft.y, bottomZ);
         gl.glEnd();
     }
 
