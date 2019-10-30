@@ -255,7 +255,7 @@ public class TinyGController extends AbstractController {
         comm.queueCommand(new GcodeCommand("{ej:1}"));
 
         // Configure status reports
-        comm.queueCommand(new GcodeCommand("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}"));
+        comm.queueCommand(new GcodeCommand("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}"));
 
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
