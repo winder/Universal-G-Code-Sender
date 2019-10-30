@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.editor.parser;
 import com.willwinder.ugs.nbp.editor.lexer.GcodeTokenId;
 import com.willwinder.ugs.nbp.editor.parser.errors.ErrorParser;
 import com.willwinder.ugs.nbp.editor.parser.errors.FeedRateMissingErrorParser;
+import com.willwinder.ugs.nbp.editor.parser.errors.InvalidG2CommandErrorParser;
 import com.willwinder.ugs.nbp.editor.parser.errors.InvalidGrblCommandErrorParser;
 import com.willwinder.ugs.nbp.editor.parser.errors.MovementInMachineCoordinatesErrorParser;
 import org.netbeans.api.lexer.Token;
@@ -77,6 +78,7 @@ public class GcodeParser extends Parser {
         errorParserList.add(new FeedRateMissingErrorParser(fileObject));
         errorParserList.add(new InvalidGrblCommandErrorParser(fileObject));
         errorParserList.add(new MovementInMachineCoordinatesErrorParser(fileObject));
+        errorParserList.add(new InvalidG2CommandErrorParser(fileObject));
 
         tokenSequence = (TokenSequence<GcodeTokenId>) snapshot.getTokenHierarchy().tokenSequence();
         tokenSequence.moveStart();

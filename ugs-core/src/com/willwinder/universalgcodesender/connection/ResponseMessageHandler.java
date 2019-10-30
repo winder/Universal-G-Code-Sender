@@ -18,8 +18,6 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
-
 import java.util.HashSet;
 import java.util.Set;
 
