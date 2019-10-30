@@ -78,7 +78,7 @@ public class TinyGControllerTest {
         verify(communicator).streamCommands();
 
         assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());
-        assertEquals("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t, mfo:t, sso:t, mto:t}}", queueCommandArgumentCaptor.getAllValues().get(1).getCommandString());
+        assertEquals("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}", queueCommandArgumentCaptor.getAllValues().get(1).getCommandString());
         assertEquals("{jv:4}", queueCommandArgumentCaptor.getAllValues().get(2).getCommandString());
         assertEquals("{qv:0}", queueCommandArgumentCaptor.getAllValues().get(3).getCommandString());
         assertEquals("{sv:1}", queueCommandArgumentCaptor.getAllValues().get(4).getCommandString());
