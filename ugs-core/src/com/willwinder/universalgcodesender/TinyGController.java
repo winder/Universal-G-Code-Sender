@@ -280,6 +280,9 @@ public class TinyGController extends AbstractController {
         comm.queueCommand(new GcodeCommand("{mtoe:1}"));
         comm.queueCommand(new GcodeCommand("{ssoe:1}"));
 
+        // Activate motors by default
+        comm.queueCommand(new GcodeCommand("{xam:1, yam:1, zam:1}"));
+
         comm.streamCommands();
 
         // Refresh the status update
