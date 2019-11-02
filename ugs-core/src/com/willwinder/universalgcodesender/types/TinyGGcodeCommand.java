@@ -60,4 +60,8 @@ public class TinyGGcodeCommand extends GcodeCommand {
     public static boolean isQueueReportResponse(String response) {
         return response.startsWith("{\"qr\"");
     }
+
+    public static boolean isRecieveQueueReportResponse(String response) {
+        return response.startsWith("{\"rx\"");
+    }
 }

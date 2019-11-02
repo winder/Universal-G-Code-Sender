@@ -35,28 +35,61 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * Test TinyG controller implementation
+ * Test G2Core controller implementation
  *
  * @author Joacim Breiler
  */
-public class TinyGControllerTest {
+public class G2CoreControllerTest {
 
     @Mock
     private AbstractCommunicator communicator;
 
-    private TinyGController controller;
+    private G2CoreController controller;
     private ArgumentCaptor<GcodeCommand> queueCommandArgumentCaptor;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        controller = new TinyGController(communicator);
+        controller = new G2CoreController(communicator);
 
         queueCommandArgumentCaptor = ArgumentCaptor.forClass(GcodeCommand.class);
         doNothing().when(communicator).queueCommand(queueCommandArgumentCaptor.capture());
+    }
+
+    @Test
+    public void rawResponseWithReadyResponse() throws Exception {
+        // When
+        controller.rawResponseHandler("{\"r\":{\"msg\":\"SYSTEM READY\"}}");
+
+        // Then
+        verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_ENQUIRE_STATUS);
+    }
+
+    @Test
+    public void rawResponseWithAckResponse() {
+        // When
+        controller.rawResponseHandler("{\"ack\":true}");
+
+        // Then
+        verify(communicator, times(11)).queueCommand(any(GcodeCommand.class));
+        verify(communicator).streamCommands();
+
+        assertEquals("{ej:1}", queueCommandArgumentCaptor.getAllValues().get(0).getCommandString());
+        assertEquals("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}", queueCommandArgumentCaptor.getAllValues().get(1).getCommandString());
+        assertEquals("{jv:4}", queueCommandArgumentCaptor.getAllValues().get(2).getCommandString());
+        assertEquals("{qv:0}", queueCommandArgumentCaptor.getAllValues().get(3).getCommandString());
+        assertEquals("{sv:1}", queueCommandArgumentCaptor.getAllValues().get(4).getCommandString());
+        assertEquals("$$", queueCommandArgumentCaptor.getAllValues().get(5).getCommandString());
+        assertEquals("{mfoe:1}", queueCommandArgumentCaptor.getAllValues().get(6).getCommandString());
     }
 
     @Test
@@ -175,9 +208,13 @@ public class TinyGControllerTest {
 
         // Then
         orderVerifier.verify(communicator).cancelSend();
-        orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_PAUSE);
-        orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_QUEUE_FLUSH);
+        orderVerifier.verify(communicator).sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
         orderVerifier.verify(communicator).cancelSend(); // Work around for clearing buffers and counters in communicator
+        orderVerifier.verify(communicator).queueCommand(any(GcodeCommand.class));
+        orderVerifier.verify(communicator).streamCommands();
+
+        GcodeCommand command = queueCommandArgumentCaptor.getAllValues().get(0);
+        assertEquals(TinyGUtils.COMMAND_KILL_ALARM_LOCK, command.getCommandString());
     }
 
     @Test

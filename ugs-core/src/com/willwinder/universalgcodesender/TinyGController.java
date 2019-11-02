@@ -26,8 +26,13 @@ import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.TinyGGcodeCommand;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +42,10 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
 
 /**
  * TinyG Control layer, coordinates all aspects of control.
@@ -48,12 +56,12 @@ import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
 public class TinyGController extends AbstractController {
     private static final Logger LOGGER = Logger.getLogger(TinyGController.class.getSimpleName());
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
-
+    private static final String STATUS_REPORT_CONFIG = "{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, frmo:t, coor:t}}";
+    protected final Capabilities capabilities;
     private final TinyGFirmwareSettings firmwareSettings;
-    private final Capabilities capabilities;
-
-    private ControllerStatus controllerStatus;
-    private String firmwareVersion;
+    protected ControllerStatus controllerStatus;
+    protected String firmwareVersion;
+    protected double firmwareVersionNumber;
 
     public TinyGController() {
         this(new TinyGCommunicator());
@@ -97,8 +105,12 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void openCommAfterEvent() throws Exception {
-        // Not needed yet
+    protected void openCommAfterEvent() {
+        try {
+            this.comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -140,13 +152,11 @@ public class TinyGController extends AbstractController {
     @Override
     protected void cancelSendAfterEvent() throws Exception {
         // Canceling the job on the controller (which will also flush the buffer)
-        comm.sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
+        comm.sendByteImmediately(TinyGUtils.COMMAND_PAUSE);
+        comm.sendByteImmediately(TinyGUtils.COMMAND_QUEUE_FLUSH);
 
         // Work around for clearing the sent buffer size
         comm.cancelSend();
-
-        // We will end up in an alarm state, clear the alarm
-        killAlarmLock();
     }
 
     @Override
@@ -172,32 +182,14 @@ public class TinyGController extends AbstractController {
             jo = TinyGUtils.jsonToObject(response);
         } catch (Exception ignored) {
             // Some TinyG responses aren't JSON, those will end up here.
-            //this.messageForConsole(response + "\n");
+            this.dispatchConsoleMessage(MessageType.VERBOSE, response + "\n");
             return;
         }
 
         if (TinyGUtils.isRestartingResponse(jo)) {
             this.dispatchConsoleMessage(MessageType.INFO, "[restarting] " + response + "\n");
         } else if (TinyGUtils.isReadyResponse(jo)) {
-            if (TinyGUtils.isTinyGVersion(jo)) {
-                firmwareVersion = "TinyG " + TinyGUtils.getVersion(jo);
-            }
-
-            capabilities.addCapability(CapabilitiesConstants.JOGGING);
-            capabilities.addCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
-            capabilities.addCapability(CapabilitiesConstants.HOMING);
-            capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
-            capabilities.addCapability(CapabilitiesConstants.OVERRIDES);
-            capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
-
-            setCurrentState(COMM_IDLE);
-            dispatchConsoleMessage(MessageType.INFO, "[ready] " + response + "\n");
-
-            try {
-                comm.sendByteImmediately(TinyGUtils.COMMAND_ENQUIRE_STATUS);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            handleReadyResponse(response, jo);
         } else if (jo.has("ack")) {
             // TODO what do we do with ack=false, or if we don't get any response at all?
             dispatchConsoleMessage(MessageType.INFO, "[ack] " + response + "\n");
@@ -222,10 +214,30 @@ public class TinyGController extends AbstractController {
             this.dispatchConsoleMessage(MessageType.INFO, response + "\n");
         } else if (TinyGGcodeCommand.isQueueReportResponse(response)) {
             LOGGER.log(Level.FINE, "Queue buffer usage: " + jo.get("qr").getAsString());
+        } else if (TinyGGcodeCommand.isRecieveQueueReportResponse(response)) {
+            LOGGER.log(Level.FINE, "Receive queue buffer usage: " + jo.get("rx").getAsString());
         } else {
             // Display any unhandled messages
             this.dispatchConsoleMessage(MessageType.INFO, "[unhandled message] " + response + "\n");
         }
+    }
+
+    protected void handleReadyResponse(String response, JsonObject jo) {
+        if (TinyGUtils.isTinyGVersion(jo)) {
+            firmwareVersionNumber = TinyGUtils.getVersion(jo);
+            firmwareVersion = "TinyG " + firmwareVersionNumber;
+        }
+
+        capabilities.addCapability(CapabilitiesConstants.JOGGING);
+        capabilities.removeCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
+        capabilities.addCapability(CapabilitiesConstants.HOMING);
+        capabilities.addCapability(CapabilitiesConstants.FIRMWARE_SETTINGS);
+        capabilities.removeCapability(CapabilitiesConstants.OVERRIDES);
+        capabilities.removeCapability(CapabilitiesConstants.SETUP_WIZARD);
+
+        setCurrentState(COMM_IDLE);
+        dispatchConsoleMessage(MessageType.INFO, "[ready] " + response + "\n");
+        sendInitCommands();
     }
 
     private void updateControllerStatus(JsonObject jo) {
@@ -249,13 +261,13 @@ public class TinyGController extends AbstractController {
         }
     }
 
-    private void sendInitCommands() {
+    protected void sendInitCommands() {
         // Enable JSON mode
         // 0=text mode, 1=JSON mode
         comm.queueCommand(new GcodeCommand("{ej:1}"));
 
         // Configure status reports
-        comm.queueCommand(new GcodeCommand("{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}"));
+        comm.queueCommand(new GcodeCommand(STATUS_REPORT_CONFIG));
 
         // JSON verbosity
         // 0=silent, 1=footer, 2=messages, 3=configs, 4=linenum, 5=verbose
@@ -269,19 +281,8 @@ public class TinyGController extends AbstractController {
         // 0=off, 1=filtered, 2=verbose
         comm.queueCommand(new GcodeCommand("{sv:1}"));
 
-        // Request firmware settings
-        comm.queueCommand(new GcodeCommand("$$"));
-
         // Request initial status report
         comm.queueCommand(new GcodeCommand("{sr:n}"));
-
-        // Enable feed overrides
-        comm.queueCommand(new GcodeCommand("{mfoe:1}"));
-        comm.queueCommand(new GcodeCommand("{mtoe:1}"));
-        comm.queueCommand(new GcodeCommand("{ssoe:1}"));
-
-        // Activate motors by default
-        comm.queueCommand(new GcodeCommand("{xam:1, yam:1, zam:1}"));
 
         comm.streamCommands();
 
@@ -323,7 +324,7 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    public void toggleCheckMode() throws Exception {
+    public void toggleCheckMode() {
         throw new UnsupportedOperationException(NOT_SUPPORTED_YET);
     }
 
@@ -336,13 +337,15 @@ public class TinyGController extends AbstractController {
 
     @Override
     public void softReset() throws Exception {
-        // TODO This doesn't work, it will disconnect from the host
-        //this.comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
+        comm.cancelSend();
+        comm.sendByteImmediately(TinyGUtils.COMMAND_RESET);
 
-        this.comm.sendByteImmediately(TinyGUtils.COMMAND_KILL_JOB);
-        this.comm.sendByteImmediately(TinyGUtils.COMMAND_QUEUE_FLUSH);
-        this.comm.sendByteImmediately((byte) '\n');
-        sendInitCommands();
+        setCurrentState(UGSEvent.ControlState.COMM_DISCONNECTED);
+        controllerStatus = ControllerStatusBuilder.newInstance(controllerStatus)
+                .setState(ControllerState.DISCONNECTED)
+                .build();
+
+        dispatchStatusString(controllerStatus);
     }
 
 

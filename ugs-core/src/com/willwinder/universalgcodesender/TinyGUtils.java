@@ -109,14 +109,14 @@ public class TinyGUtils {
         return false;
     }
 
-    public static String getVersion(JsonObject response) {
+    public static double getVersion(JsonObject response) {
         if (response.has(FIELD_RESPONSE)) {
             JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
             if (jo.has(FIELD_FIRMWARE_VERSION)) {
-                return jo.get(FIELD_FIRMWARE_VERSION).getAsString();
+                return jo.get(FIELD_FIRMWARE_VERSION).getAsDouble();
             }
         }
-        return "";
+        return 0;
     }
 
     public static boolean isRestartingResponse(JsonObject response) {
