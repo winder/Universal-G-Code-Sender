@@ -36,6 +36,14 @@ public class G2CoreController extends TinyGController {
 
     private static final String STATUS_REPORT_CONFIG = "{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, admo:t, frmo:t, coor:t}}";
 
+    public G2CoreController() {
+        super();
+    }
+
+    public G2CoreController(ICommunicator communicator) {
+        super(communicator);
+    }
+
     @Override
     protected void openCommAfterEvent() {
     }
