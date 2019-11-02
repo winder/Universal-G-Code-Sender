@@ -57,6 +57,8 @@ public class TinyGController extends AbstractController {
     private static final Logger LOGGER = Logger.getLogger(TinyGController.class.getSimpleName());
     private static final String NOT_SUPPORTED_YET = "Not supported yet.";
     private static final String STATUS_REPORT_CONFIG = "{sr:{posx:t, posy:t, posz:t, mpox:t, mpoy:t, mpoz:t, plan:t, vel:t, unit:t, stat:t, dist:t, frmo:t, coor:t}}";
+    private static final double LATEST_TINYG_FIRMWARE_VERSION = 0.97;
+
     protected final Capabilities capabilities;
     private final TinyGFirmwareSettings firmwareSettings;
     protected ControllerStatus controllerStatus;
@@ -228,6 +230,11 @@ public class TinyGController extends AbstractController {
             firmwareVersion = "TinyG " + firmwareVersionNumber;
         }
 
+        if (firmwareVersionNumber > LATEST_TINYG_FIRMWARE_VERSION) {
+            dispatchConsoleMessage(MessageType.ERROR, String.format(Localization.getString("tinyg.exception.unknownVersion"), firmwareVersionNumber)  + "\n");
+            return;
+        }
+
         capabilities.addCapability(CapabilitiesConstants.JOGGING);
         capabilities.removeCapability(CapabilitiesConstants.CONTINUOUS_JOGGING);
         capabilities.addCapability(CapabilitiesConstants.HOMING);
@@ -356,12 +363,12 @@ public class TinyGController extends AbstractController {
     }
 
     @Override
-    protected void isReadyToStreamCommandsEvent() throws Exception {
+    protected void isReadyToStreamCommandsEvent() {
         // Not needed yet
     }
 
     @Override
-    protected void isReadyToSendCommandsEvent() throws Exception {
+    protected void isReadyToSendCommandsEvent() {
         // Not needed yet
     }
 
