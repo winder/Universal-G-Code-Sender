@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { SendFileComponent } from './send-file.component';
 
@@ -8,7 +10,8 @@ describe('SendFileComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SendFileComponent ]
+      declarations: [ SendFileComponent, FaIconComponent ],
+      imports: [HttpClientTestingModule]
     })
     .compileComponents();
   }));

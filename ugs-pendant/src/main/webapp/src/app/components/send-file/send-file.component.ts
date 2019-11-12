@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+
 import { StatusService } from '../../services/status.service';
 import { MachineService } from '../../services/machine.service'
 import { FilesService } from '../../services/files.service'
 import { Status } from '../../model/status';
 import { StateEnum } from '../../model/state-enum';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-
 
 @Component({
   selector: 'app-send-file',
@@ -15,7 +15,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class SendFileComponent implements OnInit {
   private status:Status;
   private progress:number;
-  constructor(private http:HttpClient, private statusService:StatusService, private machineService:MachineService, private filesService:FilesService) { }
+  constructor(private statusService:StatusService, private machineService:MachineService, private filesService:FilesService) { }
 
   public ngOnInit() {
     this.status = new Status();

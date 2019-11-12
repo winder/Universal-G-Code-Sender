@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FaIconComponent } from "@fortawesome/angular-fontawesome";
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { DroComponent } from './dro.component';
 
@@ -8,7 +10,8 @@ describe('DroComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ DroComponent ]
+      declarations: [ DroComponent, FaIconComponent ],
+      imports: [ HttpClientTestingModule ]
     })
     .compileComponents();
   }));
