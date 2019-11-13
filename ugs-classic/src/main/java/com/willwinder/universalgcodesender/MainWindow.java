@@ -1317,7 +1317,6 @@ public class MainWindow extends JFrame implements ControllerListener, UGSEventLi
             }
             this.startPendantServerButton.setEnabled(false);
             this.stopPendantServerButton.setEnabled(true);
-            this.backend.addControllerListener(pendantUI);
         }//GEN-LAST:event_startPendantServerButtonActionPerformed
 
         private void stopPendantServerButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopPendantServerButtonActionPerformed
