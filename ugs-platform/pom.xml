@@ -31,8 +31,9 @@
       </ugs.modules.specification.version>
 
       <!--==== JRE Bundle Properties ====-->
-      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10.2/OpenJDK12U-jre_x64_mac_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.mac.url>
-      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12.0.2%2B10/OpenJDK12U-jdk_arm_linux_hotspot_12.0.2_10.tar.gz</ugs.bundle.java.rpi.url>
+      <ugs.bundle.java.mac.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jre_x64_mac_hotspot_12_33.tar.gz</ugs.bundle.java.mac.url>
+      <ugs.bundle.java.win.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_x64_windows_hotspot_12_33.zip</ugs.bundle.java.win.url>
+      <ugs.bundle.java.rpi.url>https://github.com/AdoptOpenJDK/openjdk12-binaries/releases/download/jdk-12%2B33/OpenJDK12U-jdk_arm_linux_hotspot_12_33.tar.gz</ugs.bundle.java.rpi.url>
 
       <!-- Mac OS X signing identity - must match with a verified Apple developer certificate in the keychain -->
       <ugs.codesign.identity>Developer ID Application</ugs.codesign.identity>
