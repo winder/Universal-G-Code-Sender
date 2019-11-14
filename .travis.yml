@@ -27,6 +27,7 @@ script:
 - mvn package -pl ugs-classic assembly:assembly -DskipTests=true
 - mvn package -pl ugs-platform/application -P create-autoupdate -DskipTests=true
 - mvn package -pl ugs-platform/application -P create-dmg -DskipTests=true
+- mvn package -pl ugs-platform/application -P create-win-package -DskipTests=true
 
 deploy:
   # Only deploy to a specific branch.
