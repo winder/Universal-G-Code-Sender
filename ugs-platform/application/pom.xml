@@ -234,7 +234,7 @@
                         <executions>
                             <!-- Create the Windows application bundle -->
                             <execution>
-                                <id>create-app-bundle</id>
+                                <id>create-win-app-bundle</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>run</goal>
@@ -243,20 +243,20 @@
                                     <target>
                                         <!-- Clean -->
                                         <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                                            <fileset dir="${project.build.directory}/${ugs.appbundle.name}.win" followsymlinks="false"/>
+                                            <fileset dir="${project.build.directory}/${brandingToken}-win" followsymlinks="false"/>
                                             <fileset dir="${project.build.directory}/${ugs.app.title}" followsymlinks="false"/>
                                             <fileset dir="${project.build.directory}/${project.artifactId}-${project.version}.zip" followsymlinks="false"/>
                                         </delete>
 
                                         <!-- Create folders -->
-                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.win"/>
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-win"/>
 
                                         <!-- Copy application -->
-                                        <copy todir="${project.build.directory}/${ugs.appbundle.name}.win">
+                                        <copy todir="${project.build.directory}/${brandingToken}-win">
                                             <fileset dir="${project.build.directory}/${brandingToken}"/>
                                         </copy>
 
-                                        <!-- Download and untar JRE -->
+                                        <!-- Download and unzip JRE -->
                                         <exec dir="${project.build.directory}" executable="curl" failonerror="true">
                                             <arg line="-L"/>
                                             <arg line="${ugs.bundle.java.win.url}"/>
@@ -265,28 +265,28 @@
                                         </exec>
 
                                         <!-- Unzip archive -->
-                                        <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.win/jdk"/>
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-win/jdk"/>
                                         <exec dir="${project.build.directory}" executable="unzip" failonerror="true">
                                             <arg line="-e"/>
                                             <arg line="jre-win.zip"/>
-                                            <arg line="-d &quot;${ugs.appbundle.name}.win/jdk&quot;"/>
+                                            <arg line="-d &quot;${brandingToken}-win/jdk&quot;"/>
                                         </exec>
 
                                         <!-- Get the JRE folder name -->
                                         <path id="jre_name">
-                                            <dirset dir="${project.build.directory}/${ugs.appbundle.name}.win/jdk" includes="jdk*" />
+                                            <dirset dir="${project.build.directory}/${brandingToken}-win/jdk" includes="jdk*" />
                                         </path>
                                         <property name="bundle.jvm.path" refid="jre_name" />
                                         <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
 
                                         <!-- Configure relative JRE path into ugsplatform.conf -->
-                                        <replace file="${project.build.directory}/${ugs.appbundle.name}.win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../jdk/${bundle.jvm.name}&quot;"/>
+                                        <replace file="${project.build.directory}/${brandingToken}-win/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
 
                                         <!-- Create Archive -->
                                         <exec dir="${project.build.directory}" executable="zip" failonerror="true">
                                             <arg value="-r"/>
-                                            <arg value="${project.artifactId}-${project.version}.win.zip"/>
-                                            <arg value="${ugs.appbundle.name}.win"/>
+                                            <arg value="${project.artifactId}-${project.version}-win.zip"/>
+                                            <arg value="${brandingToken}-win"/>
                                         </exec>
 
                                     </target>
@@ -299,7 +299,7 @@
         </profile>
 
         <profile>
-          <id>create-dmg</id>
+          <id>create-macosx-package</id>
           <build>
             <plugins>
               <plugin>
@@ -308,7 +308,7 @@
                 <executions>
                   <!-- Create the Mac OS X application bundle and dmg file -->
                   <execution>
-                      <id>create-app-bundle</id>
+                      <id>create-mac-app-bundle</id>
                       <phase>package</phase>
                       <goals>
                           <goal>run</goal>
@@ -440,15 +440,15 @@
                    <target>
                      <!-- Clean -->
                      <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
-                       <fileset dir="${project.build.directory}/${ugs.appbundle.name}.pi" followsymlinks="false"/>
+                       <fileset dir="${project.build.directory}/${brandingToken}-pi" followsymlinks="false"/>
                      </delete>
-                     <delete file="${project.build.directory}/${project.artifactId}-${project.version}.pi.tar.gz" failonerror="false"/>
+                     <delete file="${project.build.directory}/${project.artifactId}-${project.version}-pi.tar.gz" failonerror="false"/>
 
                      <!-- Create folders -->
-                     <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.pi"/>
+                     <mkdir dir="${project.build.directory}/${brandingToken}-pi"/>
 
                      <!-- Copy application -->
-                     <copy todir="${project.build.directory}/${ugs.appbundle.name}.pi">
+                     <copy todir="${project.build.directory}/${brandingToken}-pi">
                        <fileset dir="${project.build.directory}/${brandingToken}"/>
                      </copy>
 
@@ -461,32 +461,32 @@
                      </exec>
 
                      <!-- Unzip archive -->
-                       <mkdir dir="${project.build.directory}/${ugs.appbundle.name}.pi/jdk"/>
+                       <mkdir dir="${project.build.directory}/${brandingToken}-pi/jdk"/>
                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
                        <arg line="-zxf"/>
                        <arg line="jre-rpi.tar.gz"/>
-                       <arg line="-C &quot;${ugs.appbundle.name}.pi/jdk&quot;"/>
+                       <arg line="-C &quot;${brandingToken}-pi/jdk&quot;"/>
                      </exec>
 
                      <!-- Get the JRE folder name -->
                      <path id="jre_name">
-                       <dirset dir="${project.build.directory}/${ugs.appbundle.name}.pi/jdk" includes="jdk*" />
+                       <dirset dir="${project.build.directory}/${brandingToken}-pi/jdk" includes="jdk*" />
                      </path>
                      <property name="bundle.jvm.path" refid="jre_name" />
                      <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
 
                      <!-- Configure relative JRE path into ugsplatform.conf -->
-                     <replace file="${project.build.directory}/${ugs.appbundle.name}.pi/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;../jdk/${bundle.jvm.path}&quot;"/>
-                     <chmod file="${project.build.directory}/${ugs.appbundle.name}.pi/bin/**" perm="+x" type="both"/>
+                     <replace file="${project.build.directory}/${brandingToken}-pi/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+                     <chmod file="${project.build.directory}/${brandingToken}-pi/bin/**" perm="+x" type="both"/>
 
                      <!-- Create Archive -->
                      <exec dir="${project.build.directory}" executable="tar" failonerror="true">
                        <env key="GZIP" value="-9"/>
                        <arg value="-czvf"/>
-                       <arg value="${project.artifactId}-${project.version}.pi.tar.gz"/>
+                       <arg value="${project.artifactId}-${project.version}-pi.tar.gz"/>
                        <arg value="-C"/>
                        <arg value="${project.build.directory}"/>
-                       <arg value="${ugs.appbundle.name}.pi"/>
+                       <arg value="${brandingToken}-pi"/>
                      </exec>
                    </target>
                  </configuration>
@@ -497,7 +497,83 @@
        </build>
      </profile>
 
-      <profile>
+        <!-- Create the Linux application bundle -->
+        <profile>
+            <id>create-linux-package</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>create-rpi-bundle</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <!-- Clean -->
+                                        <delete includeEmptyDirs="true" failonerror="false" removeNotFollowedSymlinks="true">
+                                            <fileset dir="${project.build.directory}/${brandingToken}-linux" followsymlinks="false"/>
+                                        </delete>
+                                        <delete file="${project.build.directory}/${project.artifactId}-${project.version}-linux.tar.gz" failonerror="false"/>
+
+                                        <!-- Create folders -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux"/>
+
+                                        <!-- Copy application -->
+                                        <copy todir="${project.build.directory}/${brandingToken}-linux">
+                                            <fileset dir="${project.build.directory}/${brandingToken}"/>
+                                        </copy>
+
+                                        <!-- Download and untar JRE -->
+                                        <exec dir="${project.build.directory}" executable="curl" failonerror="true">
+                                          <arg line="-L"/>
+                                          <arg line="${ugs.bundle.java.linux.url}"/>
+                                          <arg line="-o"/>
+                                          <arg line="jre-linux.tar.gz"/>
+                                        </exec>
+
+                                        <!-- Unzip archive -->
+                                        <mkdir dir="${project.build.directory}/${brandingToken}-linux/jdk"/>
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <arg line="-zxf"/>
+                                            <arg line="jre-linux.tar.gz"/>
+                                            <arg line="-C &quot;${brandingToken}-linux/jdk&quot;"/>
+                                        </exec>
+
+                                        <!-- Get the JRE folder name -->
+                                        <path id="jre_name">
+                                            <dirset dir="${project.build.directory}/${brandingToken}-linux/jdk" includes="jdk*" />
+                                        </path>
+                                        <property name="bundle.jvm.path" refid="jre_name" />
+                                        <basename property="bundle.jvm.name" file="${bundle.jvm.path}"/>
+
+                                        <!-- Configure relative JRE path into ugsplatform.conf -->
+                                        <replace file="${project.build.directory}/${brandingToken}-linux/etc/${brandingToken}.conf" token="#jdkhome=&quot;/path/to/jdk&quot;" value="jdkhome=&quot;jdk/${bundle.jvm.name}&quot;"/>
+                                        <chmod file="${project.build.directory}/${brandingToken}-linux/bin/**" perm="+x" type="both"/>
+
+                                        <!-- Create Archive -->
+                                        <exec dir="${project.build.directory}" executable="tar" failonerror="true">
+                                            <env key="GZIP" value="-9"/>
+                                            <arg value="-czvf"/>
+                                            <arg value="${project.artifactId}-${project.version}-linux.tar.gz"/>
+                                            <arg value="-C"/>
+                                            <arg value="${project.build.directory}"/>
+                                            <arg value="${brandingToken}-linux"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
         <id>create-autoupdate</id>
         <build>
           <plugins>
