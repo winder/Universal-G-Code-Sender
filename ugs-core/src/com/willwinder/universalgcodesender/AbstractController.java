@@ -1,5 +1,5 @@
 /*
-    Copyright 2013-2018 Will Winder
+    Copyright 2013-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -25,14 +25,15 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.GcodeUtils;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.listeners.SerialCommunicatorListener;
+import com.willwinder.universalgcodesender.listeners.CommunicatorListener;
 import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 
@@ -52,12 +53,12 @@ import static com.willwinder.universalgcodesender.model.UnitUtils.scaleUnits;
  *
  * @author wwinder
  */
-public abstract class AbstractController implements SerialCommunicatorListener, IController {;
+public abstract class AbstractController implements CommunicatorListener, IController {;
     private static final Logger logger = Logger.getLogger(AbstractController.class.getName());
     private final GcodeParser parser = new GcodeParser();
 
     // These abstract objects are initialized in concrete class.
-    protected final AbstractCommunicator comm;
+    protected final ICommunicator comm;
     protected MessageService messageService;
     protected GcodeCommandCreator commandCreator;
 
@@ -82,15 +83,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     // been sent.
     //
     // Algorithm:
-    //   1) Send all manually queued commands to the Communicator.
-    //   2) Queue file stream(s).
-    //   3) As commands are sent by the Communicator create a GCodeCommand
+    //   1) Queue file stream(s).
+    //   2) As commands are sent by the Communicator create a GCodeCommand
     //      (with command number) object and add it to the activeCommands list.
-    //   4) As commands are completed remove them from the activeCommand list.
-    private ArrayList<GcodeCommand> queuedCommands;    // The list of specially queued commands to be sent.
+    //   3) As commands are completed remove them from the activeCommand list.
     private ArrayList<GcodeCommand> activeCommands;    // The list of active commands.
-    private GcodeStreamReader       streamCommands;    // The stream of commands to send.
-    private int                     errorCount;        // Number of 'error' responses.
+    private IGcodeStreamReader streamCommands;    // The stream of commands to send.
 
     // Listeners
     private ArrayList<ControllerListener> listeners;
@@ -245,7 +243,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void jogMachineTo(PartialPosition position, double feedRate) throws Exception {
-        String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+        String commandString = GcodeUtils.generateMoveToCommand("G90G1", position, feedRate);
 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);
@@ -309,19 +307,12 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     /**
      * Dependency injection constructor to allow a mock communicator.
      */
-    protected AbstractController(AbstractCommunicator comm) {
+    protected AbstractController(ICommunicator comm) {
         this.comm = comm;
-        this.comm.setListenAll(this);
-        
-        activeCommands = new ArrayList<>();
-        queuedCommands = new ArrayList<>();
-        
+        this.comm.addListener(this);
+
+        this.activeCommands = new ArrayList<>();
         this.listeners = new ArrayList<>();
-    }
-    
-    @Deprecated
-    public AbstractController() {
-        this(new GrblCommunicator()); //f4grx: connection created at opencomm() time
     }
 
     @Override
@@ -372,7 +363,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
         
         // No point in checking response, it throws an exception on errors.
-        this.comm.openCommPort(connectionDriver, port, portRate);
+        this.comm.connect(connectionDriver, port, portRate);
         this.setCurrentState(COMM_IDLE);
         
         if (isCommOpen()) {
@@ -404,7 +395,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         //this.issueSoftReset();
         this.flushSendQueues();
         this.commandCreator.resetNum();
-        this.comm.closeCommPort();
+        this.comm.disconnect();
 
         this.closeCommAfterEvent();
         return true;
@@ -412,7 +403,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     
     @Override
     public Boolean isCommOpen() {
-        return comm != null && comm.isCommOpen();
+        return comm != null && comm.isConnected();
     }
     
     //// File send metadata ////
@@ -454,7 +445,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
             case ROWS_COMPLETED:
                 return this.numCommandsCompleted + this.numCommandsSkipped;
             case ROWS_REMAINING:
-                return this.numCommands - (this.numCommandsCompleted + this.numCommandsSkipped);
+                return this.numCommands <= 0 ? 0 : this.numCommands - (this.numCommandsCompleted + this.numCommandsSkipped);
             default:
                 throw new IllegalStateException("This should be impossible - RowStat default case.");
         }
@@ -506,18 +497,10 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         }
 
         this.setCurrentState(ControlState.COMM_SENDING);
-        this.sendStringToComm(command.getCommandString());
+        this.comm.queueCommand(command);
         this.comm.streamCommands();
     }
-    
-    /**
-     * This is the only place where commands with an expected 'ok'/'error'
-     * response are sent to the comm - with the exception of command streams.
-     */
-    private void sendStringToComm(String command) {
-        this.comm.queueStringForComm(command + "\n");
-    }
-    
+
     @Override
     public Boolean isReadyToReceiveCommands() throws Exception {
         if (!isCommOpen()) {
@@ -546,7 +529,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public void queueStream(GcodeStreamReader r) {
+    public void queueStream(IGcodeStreamReader r) {
         this.streamCommands = r;
         updateNumCommands();
     }
@@ -554,12 +537,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     @Override
     public GcodeCommand createCommand(String gcode) throws Exception {
         return this.commandCreator.createCommand(gcode);
-    }
-
-    @Override
-    public void queueCommand(GcodeCommand command) throws Exception {
-        this.queuedCommands.add(command);
-        updateNumCommands();
     }
     
     /**
@@ -572,8 +549,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.isReadyToStreamFile();
 
         // Throw if there's nothing queued.
-        if (this.queuedCommands.size() == 0 &&
-                this.streamCommands == null) {
+        if (this.streamCommands == null) {
             throw new Exception("There are no commands queued for streaming.");
         }
         
@@ -594,10 +570,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
         // Send all queued commands and streams then kick off the stream.
         try {
-            while (this.queuedCommands.size() > 0) {
-                this.sendStringToComm(this.queuedCommands.remove(0).getCommandString());
-            }
-
             if (this.streamCommands != null) {
                 comm.queueStreamForComm(this.streamCommands);
             }
@@ -679,7 +651,6 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
 
     @Override
     public void cancelCommands() {
-        flushQueuedCommands();
         this.comm.cancelSend();
     }
 
@@ -689,22 +660,15 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         this.comm.resetBuffers();
         this.setCurrentState(COMM_IDLE);
     }
-    
-    private synchronized void flushQueuedCommands() {
-        // TODO: Special handling for stream necessary?
-        this.queuedCommands.clear();
-    }
 
     // Reset send queue and idx's.
     private void flushSendQueues() {
-        errorCount = 0;
         numCommands = 0;
     }
 
     private void updateNumCommands() {
-        numCommands = queuedCommands.size();
         if (streamCommands != null) {
-            numCommands += streamCommands.getNumRows();
+            numCommands = streamCommands.getNumRows();
         }
         numCommandsSkipped = 0;
         numCommandsCompleted = 0;
@@ -763,10 +727,9 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
                 !this.comm.areActiveCommands() &&
                 this.comm.numActiveCommands() == 0 &&
                 rowsRemaining() <= 0 &&
-                (getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
+                (getControllerStatus().getState().equals(ControllerState.CHECK) || getControlState() == COMM_IDLE || getControlState() == COMM_SENDING_PAUSED)) {
             String streamName = "queued commands";
-            boolean isSuccess = (this.errorCount == 0);
-            this.fileStreamComplete(streamName, isSuccess);
+            this.fileStreamComplete(streamName, true);
 
             // Make sure the GUI gets updated when the file finishes
             this.dispatchStateChange(getControlState());
@@ -833,6 +796,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         GcodeCommand command = this.activeCommands.remove(0);
 
         command.setResponse(response);
+        GrblUtils.updateGcodeCommandFromResponse(command, response);
 
         updateParserModalState(command);
 
@@ -886,7 +850,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         if (messageService != null) {
             messageService.dispatchMessage(type, message);
         } else {
-            logger.warning("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
+            logger.fine("No message service is assigned, so the message could not be delivered: " + type + ": " + message);
         }
     }
     
@@ -1001,7 +965,7 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
     }
 
     @Override
-    public AbstractCommunicator getCommunicator() {
+    public ICommunicator getCommunicator() {
         return comm;
     }
 

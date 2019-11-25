@@ -170,7 +170,7 @@ public interface IFirmwareSettings {
      *
      * @param axis the axis to retrieve
      * @return the soft limits in millimeters
-     * @throws FirmwareSettingsException if the setting couldn't be retreived
+     * @throws FirmwareSettingsException if the setting couldn't be retrieved
      */
     double getSoftLimit(Axis axis) throws FirmwareSettingsException;
 

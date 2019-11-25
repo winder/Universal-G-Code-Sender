@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
+
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -91,7 +93,7 @@ public class GUIBackendPreprocessorTest {
 
         List<String> expectedResults = Arrays.asList("line one", "line one", "", "line two", "line two");
 
-        try (GcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
+        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());
 
             for (String expected : expectedResults) {
@@ -122,7 +124,7 @@ public class GUIBackendPreprocessorTest {
                 "line one", "line one", "line one", "line one", 
                 "line two", "line two", "line two", "line two");
 
-        try (GcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
+        try (IGcodeStreamReader reader = new GcodeStreamReader(outputFile.toFile())) {
             Assert.assertEquals(expectedResults.size(), reader.getNumRows());
 
             for (String expected : expectedResults) {

@@ -39,7 +39,6 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
 
     // General variables
     private SerialPort serialPort;
-    private ResponseMessageHandler responseMessageHandler;
 
     @Override
     public void setUri(String uri) {
@@ -56,7 +55,6 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
         if (StringUtils.isEmpty(portName) || baudRate == 0) {
             throw new ConnectionException("Couldn't open port " + portName + " using baud rate " + baudRate);
         }
-        this.responseMessageHandler = new ResponseMessageHandler();
         this.serialPort = new SerialPort(portName);
         this.serialPort.openPort();
         this.serialPort.setParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE, true, true);
@@ -123,7 +121,7 @@ public class JSSCConnection extends AbstractConnection implements SerialPortEven
             }
 
             String s = new String(buf, 0, buf.length);
-            responseMessageHandler.handleResponse(s, comm);
+            responseMessageHandler.handleResponse(s);
         } catch ( Exception e ) {
             e.printStackTrace();
             System.exit(-1);

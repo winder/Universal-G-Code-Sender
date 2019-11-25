@@ -29,6 +29,7 @@ import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
 import com.willwinder.universalgcodesender.visualizer.LineSegment;
 import com.willwinder.universalgcodesender.visualizer.VisualizerUtils;
@@ -326,7 +327,7 @@ public class GcodeModel extends Renderable {
             GcodeViewParse gcvp = new GcodeViewParse();
             logger.log(Level.INFO, "About to process {}", gcodeFile);
             try {
-                GcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
+                IGcodeStreamReader gsr = new GcodeStreamReader(new File(gcodeFile));
                 gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
             } catch (GcodeStreamReader.NotGcodeStreamFile e) {
                 List<String> linesInFile;

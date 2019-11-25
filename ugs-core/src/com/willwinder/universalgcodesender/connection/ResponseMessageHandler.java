@@ -18,7 +18,8 @@
  */
 package com.willwinder.universalgcodesender.connection;
 
-import com.willwinder.universalgcodesender.AbstractCommunicator;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Handles response messages from the serial connection buffering the data
@@ -31,19 +32,21 @@ import com.willwinder.universalgcodesender.AbstractCommunicator;
 public class ResponseMessageHandler {
 
     private final StringBuilder inputBuffer;
+    private Set<IConnectionListener> listeners = new HashSet<>();
 
     public ResponseMessageHandler() {
         inputBuffer = new StringBuilder();
     }
 
+
+
     /**
      * Appends the response data to a buffer, then splits out response rows and sends them
-     * to the communicator using the {@link AbstractCommunicator#responseMessage(String)}
+     * to the communicator using the {@link IConnectionListener#handleResponseMessage(String)}
      *
      * @param response a complete or part of a response message
-     * @param communicator the communicator to dispatch the message to
      */
-    public void handleResponse(String response, AbstractCommunicator communicator) {
+    public void handleResponse(String response) {
         inputBuffer.append(response);
 
         // Only continue if there is a line terminator and split out command(response).
@@ -53,17 +56,28 @@ public class ResponseMessageHandler {
 
         // Split with the -1 option will give an empty string at
         // the end if there is a terminator there as well.
-        String[] commands = inputBuffer.toString().split("\\r?\\n", -1);
-        for (int i = 0; i < commands.length; i++) {
+        String[] messages = inputBuffer.toString().split("\\r?\\n", -1);
+        for (int i = 0; i < messages.length; i++) {
             // Make sure this isn't the last command.
-            if ((i + 1) < commands.length) {
-                communicator.responseMessage(commands[i]);
+            if ((i + 1) < messages.length) {
+
+                notifyListeners(messages[i]);
 
                 // Append last command to input buffer because it didn't have a terminator.
             } else {
                 inputBuffer.setLength(0);
-                inputBuffer.append(commands[i]);
+                inputBuffer.append(messages[i]);
             }
         }
+    }
+
+    public void notifyListeners(String message) {
+        listeners.forEach(listener -> {
+            listener.handleResponseMessage(message);
+        });
+    }
+
+    public void addListener(IConnectionListener connectionListener) {
+        listeners.add(connectionListener);
     }
 }

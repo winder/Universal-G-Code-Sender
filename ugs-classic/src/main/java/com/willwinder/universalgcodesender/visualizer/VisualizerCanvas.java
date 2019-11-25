@@ -49,6 +49,8 @@ import com.willwinder.universalgcodesender.uielements.helpers.FPSCounter;
 import com.willwinder.universalgcodesender.uielements.helpers.Overlay;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
+
 import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.*;
@@ -470,7 +472,7 @@ public class VisualizerCanvas extends GLCanvas implements GLEventListener, KeyLi
 
             // Load from stream
             if (this.processedGcodeFile) {
-                GcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile));
+                IGcodeStreamReader gsr = new GcodeStreamReader(new File(this.gcodeFile));
                 gcodeLineList = gcvp.toObjFromReader(gsr, 0.3);
             }
             // Load raw file

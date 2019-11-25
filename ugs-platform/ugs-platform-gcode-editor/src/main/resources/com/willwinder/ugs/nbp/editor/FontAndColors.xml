@@ -1,0 +1,18 @@
+<!DOCTYPE fontscolors PUBLIC
+        "-//NetBeans//DTD Editor Fonts and Colors settings 1.1//EN"
+        "http://www.netbeans.org/dtds/EditorFontsColors-1_1.dtd">
+<fontscolors>
+    <fontcolor name="MOVEMENT" default="keyword">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="MACHINE" default="keyword">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="TOOL" default="keyword">
+        <font style="bold" />
+    </fontcolor>
+    <fontcolor name="PARAMETER" foreColor="8E358E"/>
+    <fontcolor name="AXIS" foreColor="339EAA"/>
+    <fontcolor name="WHITESPACE" default="whitespace"/>
+    <fontcolor name="COMMENT" default="comment"/>
+</fontscolors>

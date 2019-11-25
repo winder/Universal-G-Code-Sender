@@ -58,7 +58,7 @@ import java.util.stream.Collectors;
  *
  * @author wwinder
  */
-public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener, MessageListener {
+public class GUIBackend implements BackendAPI, ControllerListener, SettingChangeListener, IFirmwareSettingsListener {
     private static final Logger logger = Logger.getLogger(GUIBackend.class.getName());
     private static final String NEW_LINE = "\n    ";
 
@@ -84,10 +84,6 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     private boolean autoconnect = false;
     
     private GcodeParser gcp = new GcodeParser();
-
-    public GUIBackend() {
-        messageService.addListener(this);
-    }
 
     @Override
     public void addUGSEventListener(UGSEventListener listener) {
@@ -506,23 +502,18 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
             // This will throw an exception and prevent that other stuff from
             // happening (clearing the table before its ready for clearing.
             this.controller.isReadyToStreamFile();
-
-            //this.controller.queueCommands(processedCommandLines);
-            //this.controller.queueStream(new BufferedReader(new FileReader(this.processedGcodeFile)));
             this.controller.queueStream(new GcodeStreamReader(this.processedGcodeFile));
-
             this.controller.beginStreaming();
         } catch (Exception e) {
             this.sendUGSEvent(new UGSEvent(ControlState.COMM_IDLE), false);
-            e.printStackTrace();
-            throw new Exception(Localization.getString("mainWindow.error.startingStream") + ": "+e.getMessage());
+            throw new Exception(Localization.getString("mainWindow.error.startingStream"), e);
         }
     }
     
     @Override
     public long getNumRows() {
         logger.log(Level.FINEST, "Getting number of rows.");
-        return this.controller.rowsInSend();
+        return controller == null ? 0 : this.controller.rowsInSend();
     }
     
     @Override
@@ -550,13 +541,14 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public long getSendRemainingDuration() {
         long completedRows = getNumCompletedRows();
+        long numberOfRows = getNumRows();
 
         // Early exit condition. Can't make an estimate if we haven't started.
-        if (completedRows == 0) { return -1L; }
+        if (completedRows == 0 || numberOfRows == 0) { return -1L; }
 
         long elapsedTime = getSendDuration();
         long timePerRow = elapsedTime / completedRows;
-        long estimate = getNumRows() * timePerRow;
+        long estimate = numberOfRows * timePerRow;
         return estimate - elapsedTime;
     }
 
@@ -854,10 +846,8 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
                 return;
             }
         }
-        
-        for (UGSEventListener l : ugsEventListener) {
-            l.UGSEvent(event);
-        }
+
+        ugsEventListener.forEach(l -> l.UGSEvent(event));
     }
 
     private void sendControllerStateEvent(UGSEvent event) {
@@ -881,12 +871,5 @@ public class GUIBackend implements BackendAPI, ControllerListener, SettingChange
     @Override
     public void onUpdatedFirmwareSetting(FirmwareSetting setting) {
         this.sendUGSEvent(new UGSEvent(EventType.FIRMWARE_SETTING_EVENT), false);
-    }
-
-    @Override
-    public void onMessage(MessageType messageType, String message) {
-        if (messageType == MessageType.ERROR) {
-            GUIHelpers.displayErrorDialog(message);
-        }
     }
 }

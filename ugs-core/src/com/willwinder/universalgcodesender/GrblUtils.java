@@ -19,17 +19,20 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.OverridePercents;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,8 +43,7 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class GrblUtils {
-    private static final DecimalFormat decimalFormatter = new DecimalFormat("0.0000", Localization.dfs);
-
+    
     // Note: 5 characters of this buffer reserved for real time commands.
     public static final int GRBL_RX_BUFFER_SIZE= 123;
 
@@ -603,6 +605,22 @@ public class GrblUtils {
                 return Alarm.HARD_LIMIT;
             default:
                 return Alarm.UNKONWN;
+        }
+    }
+
+    public static void updateGcodeCommandFromResponse(GcodeCommand gcodeCommand, String response) {
+        gcodeCommand.setResponse(response);
+
+        // No response? Set it to false or else update it's responses
+        if (StringUtils.isEmpty(response)) {
+            gcodeCommand.setOk(false);
+            gcodeCommand.setError(false);
+        } else if (GrblUtils.isOkResponse(response)) {
+            gcodeCommand.setOk(true);
+            gcodeCommand.setError(false);
+        } else if (GrblUtils.isErrorResponse(response) || GrblUtils.isAlarmResponse(response)) {
+            gcodeCommand.setOk(false);
+            gcodeCommand.setError(true);
         }
     }
 }

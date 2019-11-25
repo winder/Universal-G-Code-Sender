@@ -37,7 +37,7 @@ import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.types.PointSegment;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
-import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -138,8 +138,8 @@ public class GcodeViewParse {
      * @param gcode commands to visualize.
      * @param arcSegmentLength length of line segments when expanding an arc.
      */
-    public List<LineSegment> toObjFromReader(GcodeStreamReader reader,
-            double arcSegmentLength) throws IOException, GcodeParserException {
+    public List<LineSegment> toObjFromReader(IGcodeStreamReader reader,
+                                             double arcSegmentLength) throws IOException, GcodeParserException {
         lines.clear();
         GcodeParser gp = getParser(arcSegmentLength);
 

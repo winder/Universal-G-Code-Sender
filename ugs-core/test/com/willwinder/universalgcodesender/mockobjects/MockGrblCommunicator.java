@@ -25,6 +25,8 @@ package com.willwinder.universalgcodesender.mockobjects;
 
 import com.willwinder.universalgcodesender.GrblCommunicator;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
+import com.willwinder.universalgcodesender.types.GcodeCommand;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,8 +56,8 @@ public class MockGrblCommunicator extends GrblCommunicator {
     public int numPauseSendCalls;
     public int numResumeSendCalls;
     public int numCancelSendCalls;
-    public int numSoftResetCalls;
-    
+    private IGcodeStreamReader gcodeStreamReader;
+
     public void resetInputsAndFunctionCalls() {
         this.portName = "";
         this.portRate = 0;
@@ -72,43 +74,41 @@ public class MockGrblCommunicator extends GrblCommunicator {
         this.numPauseSendCalls = 0;
         this.numResumeSendCalls = 0;
         this.numCancelSendCalls = 0;
-        this.numSoftResetCalls = 0;
     }
     
     public MockGrblCommunicator() {
         //super();
-        this.conn = new MockConnection();
-        this.conn.setCommunicator(this);
+        this.connection = new MockConnection();
+        this.connection.addListener(this);
     }   
 
     @Override
-    public boolean openCommPort(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
+    public void connect(ConnectionDriver connectionDriver, String name, int baud) throws Exception {
         this.numOpenCommPortCalls++;
 
         this.portName = name;
         this.portRate = baud;
         this.open     = true;
-        return true;
     }
 
     @Override
-    public void closeCommPort() {
+    public void disconnect() {
         this.numCloseCommPortCalls++;
         
         this.open = false;
     }
 
     @Override
-    public boolean isCommOpen() {
+    public boolean isConnected() {
         return open;
     }
 
     @Override
-    public void queueStringForComm(String input) {
+    public void queueCommand(GcodeCommand command) {
         this.numQueueStringForCommCalls++;
-        
-        this.queuedString = input;
-        this.queuedStrings.add(input);
+
+        this.queuedString = command.getCommandString();
+        this.queuedStrings.add(command.getCommandString());
     }
 
     @Override
@@ -135,6 +135,11 @@ public class MockGrblCommunicator extends GrblCommunicator {
     }
 
     @Override
+    public void queueStreamForComm(IGcodeStreamReader gcodeStreamReader) {
+        this.gcodeStreamReader = gcodeStreamReader;
+    }
+
+    @Override
     public void pauseSend() {
         this.numPauseSendCalls++;
     }
@@ -147,10 +152,5 @@ public class MockGrblCommunicator extends GrblCommunicator {
     @Override
     public void cancelSend() {
         this.numCancelSendCalls++;
-    }
-
-    @Override
-    public void softReset() {
-        this.numSoftResetCalls++;
     }
 }

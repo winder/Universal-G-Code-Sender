@@ -45,7 +45,7 @@ import org.openide.util.ImageUtilities;
                 position = 2000,
                 separatorBefore = 1999)
 })
-public class ConfigureFirmwareAction extends com.willwinder.universalgcodesender.uielements.actions.ConfigureFirmwareAction {
+public class ConfigureFirmwareAction extends com.willwinder.universalgcodesender.actions.ConfigureFirmwareAction {
     public static final String ICON_BASE = "resources/icons/firmware.png";
 
     public ConfigureFirmwareAction() {

@@ -22,13 +22,16 @@ import com.willwinder.ugs.nbp.lib.options.AbstractOptionPanelController;
 import org.netbeans.spi.options.OptionsPanelController;
 
 @OptionsPanelController.SubRegistration(
+        id = "Macros",
         location = "UGS",
         displayName = "#AdvancedOption_DisplayName_Macros",
         keywords = "#AdvancedOption_Keywords_Macros",
-        keywordsCategory = "UGS/Macros"
+        keywordsCategory = MacrosOptionsPanelController.KEYWORDS_CATEGORY
 )
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_Macros=Macros", "AdvancedOption_Keywords_Macros=macros"})
 public class MacrosOptionsPanelController extends AbstractOptionPanelController<MacrosPanel> {
+    public static final String KEYWORDS_CATEGORY = "UGS/Macros";
+
     @Override
     public MacrosPanel getPanel() {
         if (panel == null) {

@@ -289,7 +289,7 @@ public class WizardPanelHoming extends AbstractWizardPanel implements UGSEventLi
 
     @Override
     public void UGSEvent(UGSEvent event) {
-        if (event.getEventType() == UGSEvent.EventType.FIRMWARE_SETTING_EVENT) {
+        if (event.isFirmwareSettingEvent()) {
             refreshControls();
         }
     }

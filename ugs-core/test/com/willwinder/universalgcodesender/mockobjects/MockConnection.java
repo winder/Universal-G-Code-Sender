@@ -52,7 +52,7 @@ public class MockConnection extends AbstractConnection {
     }
     
     public void sendResponse(String str) {
-        this.comm.responseMessage(str);
+        this.responseMessageHandler.notifyListeners(str);
     }
 
     @Override

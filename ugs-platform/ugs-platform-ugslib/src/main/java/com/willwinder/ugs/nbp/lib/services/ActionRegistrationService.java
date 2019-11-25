@@ -46,11 +46,12 @@ public class ActionRegistrationService {
      * @param category Category in the Keymap tool.
      * @param shortcut Default shortcut, use an empty string or null for none.
      * @param menuPath Menu location starting with "Menu", like "Menu/Head/Hats"
+     * @param menuPosition Defines how the menu item should be ordered
      * @param localMenu Localized menu location starting with "Menu", like "Menu/Cabeza/Sombreros"
      * @param action an action object to attach to the action entry.
      * @throws IOException if the action couldn't be registered
      */
-    public void registerAction(String id, String name, String category, String shortcut, String menuPath, String localMenu, Action action) throws IOException {
+    public void registerAction(String id, String name, String category, String shortcut, String menuPath, int menuPosition, String localMenu, Action action) throws IOException {
         ///////////////////////
         // Add/Update Action //
         ///////////////////////
@@ -79,6 +80,7 @@ public class ActionRegistrationService {
                 obj = in.createData(id, SHADOW);
                 obj.setAttribute("originalFile", originalFile);
             }
+            obj.setAttribute("position", menuPosition);
         }
 
         /////////////////////////

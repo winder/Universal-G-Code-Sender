@@ -1,13 +1,5 @@
 /*
- * An object representing a single GcodeCommand. The only tricky part about this
- * class is the commandNum, which is used in the GUI for indexing a table of
- * these objects. 
- * 
- * TODO: Get rid of the commandNum member.
- */
-
-/*
-    Copyright 2012-2017 Will Winder
+    Copyright 2012-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -27,28 +19,39 @@
 
 package com.willwinder.universalgcodesender.types;
 
-import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.gcode.GcodePreprocessorUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
+ * An object representing a single GcodeCommand.
  *
  * @author wwinder
  */
 public class GcodeCommand {
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger(0);
     private String command;
     private String originalCommand;
     private String response;
-    private String responseType;
     private Boolean sent = false;
-    private Boolean done = false;
     private Boolean isOk = false;
     private Boolean isError = false;
     private Integer commandNum = -1;
     private Boolean isSkipped = false;
     private boolean isComment = false;
-    private boolean hasComment = false;
+
+    /**
+     * If this is a generated command not apart of any program such as jog or settings commands
+     */
+    private boolean isGenerated = true;
     private String comment;
     private boolean isTemporaryParserModalChange = false;
+    private Integer id = ID_GENERATOR.getAndIncrement();
 
     public GcodeCommand(String command) {
         this(command, -1);
@@ -65,11 +68,20 @@ public class GcodeCommand {
         }
     }
 
-    public GcodeCommand(String command, String originalCommand, String comment, int num) {
+    /**
+     *
+     * @param command
+     * @param originalCommand
+     * @param comment
+     * @param num
+     * @param isGenerated If this is a generated command not a part of any program (ie. jog, action or settings commands).
+     */
+    public GcodeCommand(String command, String originalCommand, String comment, int num, boolean isGenerated) {
         this.command = command;
         this.originalCommand = originalCommand;
         this.comment = comment;
         this.commandNum = num;
+        this.isGenerated = isGenerated;
     }
 
     /** Setters. */
@@ -83,8 +95,6 @@ public class GcodeCommand {
     
     public void setResponse(String response) {
         this.response = response;
-        this.parseResponse();
-        this.done = this.isDone();
     }
     
     public void setSent(Boolean sent) {
@@ -98,7 +108,7 @@ public class GcodeCommand {
     /** Getters. */
     @Override
     public String toString() {
-        return getCommandString()  + "("+commandNum+")";
+        return ToStringBuilder.reflectionToString(this,  ToStringStyle.SHORT_PREFIX_STYLE);
     }
     
     public String getCommandString() {
@@ -158,44 +168,38 @@ public class GcodeCommand {
     public void setTemporaryParserModalChange(boolean isGUICommand) {
         this.isTemporaryParserModalChange = isGUICommand;
     }
-
-    public Boolean parseResponse() {
-        // No response? Set it to false.
-        if (response.length() < 0) {
-            this.isOk = false;
-            this.isError = false;
-        }
-        
-        // Command complete, can be 'ok' or 'error'.
-        if (GrblUtils.isOkResponse(response)) {
-            this.isOk = true;
-            this.isError = false;
-        } else if (GrblUtils.isErrorResponse(response) || GrblUtils.isAlarmResponse(response)) {
-            this.isOk = false;
-            this.isError = true;
-        }
-        
-        return this.isOk;
-    }
-    
-    public String responseString() {
-        String returnString = "";
-        String number = "";
-        
-        if (this.commandNum != -1) {
-            number = this.commandNum.toString();
-        }
-        if (this.isOk) {
-            returnString = "ok" + number;
-        }
-        else if (this.isError) {
-            returnString = "error"+number+"["+response.substring("error: ".length()) + "]";
-        }
-        
-        return returnString;
-    }
     
     public Boolean isDone() {
         return (this.response != null);
+    }
+
+    public void setOk(boolean isOk) {
+        this.isOk = isOk;
+    }
+
+    public void setError(boolean isError) {
+        this.isError = isError;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public boolean isGenerated() {
+        return isGenerated;
+    }
+
+    public void setGenerated(boolean generated) {
+        isGenerated = generated;
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return EqualsBuilder.reflectionEquals(this, object);
     }
 }

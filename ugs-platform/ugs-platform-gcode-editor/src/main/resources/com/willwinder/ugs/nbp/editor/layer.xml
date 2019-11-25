@@ -5,26 +5,52 @@
         <file name="org-openide-actions-FindAction.shadow_hidden"/>
     </folder>
     <folder name="Editors">
-        <folder name="Actions_hidden"/>
+        <folder name="text">
+            <folder name="xgcode">
+                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.editor.Bundle"/>
+                <folder name="FontsColors">
+                    <folder name="NetBeans">
+                        <folder name="Defaults">
+                            <file name="FontAndColors.xml" url="FontAndColors.xml">
+                                <attr name="SystemFileSystem.localizingBundle" stringvalue="com.willwinder.ugs.nbp.editor.Bundle"/>
+                            </file>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
     </folder>
+
+    <folder name="OptionsDialog">
+        <folder name="PreviewExamples">
+            <folder name="text">
+                <file name="xgcode" url="GcodeTemplate.gcode"/>
+            </folder>
+        </folder>
+    </folder>
+
     <folder name="Menu">
         <file name="Edit_hidden"/>
         <folder name="File">
             <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
+            <file name="org-openide-actions-SaveAction.instance">
+                <attr name="position" intvalue="20"/>
+            </file>
+            <file name="org-openide-actions-SaveAsAction.instance">
+                <attr name="position" intvalue="22"/>
+            </file>
         </folder>
         <file name="Source_hidden"/>
+        <file name="Refactor_hidden"/>
         <file name="GoTo_hidden"/>
         <file name="View_hidden"/>
     </folder>
+    <folder name="Shortcuts">
+        <file name="M-S.shadow">
+            <attr name="originalFile" stringvalue="Menu/File/org-openide-actions-SaveAction.instance"/>
+        </file>
+    </folder>
     <folder name="Actions">
-        <!--
-        <file name="Edit_hidden"/>
-        <folder name="File">
-            <file name="org-netbeans-modules-editor-ExportHtmlAction.shadow_hidden"/>
-        </folder>
-        <file name="View_hidden"/>
-        <file name="System_hidden"/>
-        -->
         <folder name="Edit">
             <file name="org-netbeans-core-ui-options-filetypes-OpenAsAction.instance_hidden"/>
             <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
@@ -40,7 +66,7 @@
             <file name="org-openide-actions-MoveUpAction.instance_hidden"/>
             <file name="org-openide-actions-NewAction.instance_hidden"/>
             <file name="org-openide-actions-NewTemplateAction.instance_hidden"/>
-            <file name="org-openide-actions-OpenAction.instance_hidden"/>
+            <file name="org-openide-actions-OpenAction.instance"/>
             <file name="org-openide-actions-PageSetupAction.instance_hidden"/>
             <file name="org-openide-actions-PopupAction.instance_hidden"/>
             <file name="org-openide-actions-PrintAction.instance_hidden"/>

@@ -38,7 +38,7 @@ import java.io.IOException;
  *
  * @author wwinder
  */
-public class GcodeStreamReader extends GcodeStream implements Closeable {
+public class GcodeStreamReader extends GcodeStream implements IGcodeStreamReader {
     BufferedReader reader;
     int numRows;
     int numRowsRemaining;
@@ -67,14 +67,17 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
         this(new BufferedReader(new FileReader(f)));
     }
     
+    @Override
     public boolean ready() {
         return getNumRowsRemaining() > 0;
     }
 
+    @Override
     public int getNumRows() {
         return numRows;
     }
 
+    @Override
     public int getNumRowsRemaining() {
         return numRowsRemaining;
     }
@@ -82,6 +85,7 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
     private String[] parseLine(String line) {
         return splitPattern.split(line, -1);
     }
+    @Override
     public GcodeCommand getNextCommand() throws IOException {
         if (numRowsRemaining == 0) return null;
 
@@ -95,7 +99,8 @@ public class GcodeStreamReader extends GcodeStream implements Closeable {
                 nextLine[COL_PROCESSED_COMMAND],
                 nextLine[COL_ORIGINAL_COMMAND],
                 nextLine[COL_COMMENT],
-                Integer.parseInt(nextLine[COL_COMMAND_NUMBER]));
+                Integer.parseInt(nextLine[COL_COMMAND_NUMBER]),
+                false);
     }
 
     @Override

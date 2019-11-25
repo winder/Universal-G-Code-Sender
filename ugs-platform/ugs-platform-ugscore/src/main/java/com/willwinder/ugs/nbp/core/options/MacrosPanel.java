@@ -22,7 +22,7 @@ import com.willwinder.ugs.nbp.core.control.MacroService;
 import com.willwinder.ugs.nbp.lib.options.AbstractOptionsPanel;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.uielements.macros.MacroPanel;
+import com.willwinder.universalgcodesender.uielements.macros.MacroSettingsPanel;
 import com.willwinder.universalgcodesender.utils.SettingsFactory;
 import java.awt.BorderLayout;
 import javax.swing.SwingUtilities;
@@ -30,7 +30,7 @@ import org.openide.util.Lookup;
 
 final class MacrosPanel extends AbstractOptionsPanel {
 
-    private MacroPanel mp;
+    private MacroSettingsPanel mp;
     private BackendAPI backend;
     private MacroService macroService;
 
@@ -47,13 +47,14 @@ final class MacrosPanel extends AbstractOptionsPanel {
         if (mp != null) {
             this.remove(mp);
         }
-        mp = new MacroPanel(backend);
+        mp = new MacroSettingsPanel(backend);
         super.add(mp, BorderLayout.CENTER);
-        SwingUtilities.invokeLater(() -> changer.changed());
+        SwingUtilities.invokeLater(changer::changed);
     }
 
     @Override
     public void store() {
+        mp.save();
         SettingsFactory.saveSettings(backend.getSettings());
         macroService.reInitActions();
     }

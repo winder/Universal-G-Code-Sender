@@ -64,7 +64,6 @@ public class PendantService {
         Collection<PendantURLBean> results;
         if (pendantUI == null) {
             pendantUI = new PendantUI(backend);
-            backend.addControllerListener(pendantUI);
             results = pendantUI.start();
 
             for (PendantURLBean result : results) {

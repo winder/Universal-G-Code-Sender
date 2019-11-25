@@ -28,19 +28,45 @@ import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
-import com.willwinder.universalgcodesender.utils.*;
+import com.willwinder.universalgcodesender.utils.GUIHelpers;
+import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
+import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
+import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.willwinder.universalgcodesender.GrblUtils.GRBL_PAUSE_COMMAND;
-import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_CHECK;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_IDLE;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING;
+import static com.willwinder.universalgcodesender.model.UGSEvent.ControlState.COMM_SENDING_PAUSED;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  *
@@ -221,7 +247,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(5, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8 + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.8c");
@@ -229,7 +255,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(8, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         assertEquals(expResult, mgc.queuedString);
         
         instance.rawResponseHandler("Grbl 0.9");
@@ -237,7 +263,7 @@ public class GrblControllerTest {
 
         instance.performHomingCycle();
         assertEquals(11, mgc.numStreamCommandsCalls);
-        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C + "\n";
+        expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         assertEquals(expResult, mgc.queuedString);
     }
 
@@ -264,7 +290,7 @@ public class GrblControllerTest {
         instance.issueSoftReset();
         // Did not send reset command to communicator or issue reset.
         assertEquals(0, mgc.sentBytes.size());
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
 
         try {
             instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
@@ -274,14 +300,14 @@ public class GrblControllerTest {
 
         // Automatic soft reset
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
 
         // Enable real time mode by sending correct GRBL version:
         instance.rawResponseHandler("Grbl 0.8c");
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
-        assertEquals(1, mgc.numSoftResetCalls);
+        assertEquals(1, mgc.numCancelSendCalls);
         
         // GRBL version that might not have the command but I send it to anyway:
         mgc.resetInputsAndFunctionCalls();
@@ -290,7 +316,7 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.8a");
         instance.issueSoftReset();
         // This version doesn't support soft reset.
-        assertEquals(0, mgc.numSoftResetCalls);
+        assertEquals(0, mgc.numCancelSendCalls);
         
         // GRBL version that should not be sent the command:
         mgc.resetInputsAndFunctionCalls();
@@ -301,69 +327,7 @@ public class GrblControllerTest {
         instance.issueSoftReset();
         // Sent reset command to communicator and issued reset.
         assertEquals(0, mgc.sentBytes.size());
-        assertEquals(0, mgc.numSoftResetCalls);
-    }
-
-    /**
-     * Test of isStreamingmethod, of class GrblController.
-     */
-    @Test
-    public void testIsStreaming() throws Exception {
-        System.out.println("isStreaming");
-        GrblController instance = new GrblController(mgc);
-        instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
-        instance.rawResponseHandler("Grbl 0.8c");
-
-        //$G and $$ get queued on startup
-        assertEquals(2, mgc.numQueueStringForCommCalls);
-        assertEquals(2, mgc.numStreamCommandsCalls);
-
-        // By default nothing is streaming.
-        Boolean expResult = false;
-        Boolean result = instance.isStreaming();
-        assertEquals(expResult, result);
-        
-        // Test begining stream with no data to stream.
-        expResult = false;
-        boolean threwException = false;
-        try {
-//            instance.openCommPort("blah", 123);
-            instance.beginStreaming();
-        } catch (Exception ex) {
-            assertEquals("There are no commands queued for streaming.", ex.getMessage());
-            threwException = true;
-        }
-        assertTrue(threwException);
-        result = instance.isStreaming();
-        assertEquals(expResult, result);
-
-        GcodeCommand cmd = instance.createCommand("G0X1");
-        instance.queueCommand(cmd);
-        try {
-            instance.beginStreaming();
-        } catch (Exception ex) {
-            fail("Unexpected exception from GrblController: " +ex.getMessage());
-        }
-        result = instance.isStreaming();
-        expResult = true;
-        assertEquals(expResult, result);
-        assertEquals(3, mgc.numQueueStringForCommCalls);
-        assertEquals(3, mgc.numStreamCommandsCalls);
-    
-        // Wrap up streaming and make sure isStreaming switches back.
-        GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
-        command.setSent(true);
-        command.setResponse("ok");
-        try {
-            instance.commandSent(command);
-            instance.commandComplete(command.getCommandString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            fail("Unexpected exception from command complete: " + ex.getMessage());
-        }
-        result = instance.isStreaming();
-        expResult = false;
-        assertEquals(expResult, result);
+        assertEquals(0, mgc.numCancelSendCalls);
     }
 
     /**
@@ -375,6 +339,7 @@ public class GrblControllerTest {
         GrblController instance = new GrblController(mgc);
         instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,WPos:1,2,3,MPos:1,2,3>");
 
         // Test 1.
         // Result when not sending and nothing has been sent.
@@ -384,7 +349,7 @@ public class GrblControllerTest {
 
         // Test 2.
         // Result when stream has begun but not completed.
-        instance.queueCommand(instance.createCommand("G0X1"));
+        instance.queueStream(new SimpleGcodeStreamReader("G0X1"));
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
@@ -464,10 +429,13 @@ public class GrblControllerTest {
         assertCounts(instance, 0, 0, 0);
         
         // Add 30 commands.
+        List<GcodeCommand> commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(new GcodeCommand("G0X" + i));
         }
-        
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
+
         try {
 //            instance.openCommPort("blah", 123);
             instance.beginStreaming();
@@ -545,7 +513,7 @@ public class GrblControllerTest {
         instance.sendCommandImmediately(command);
         assertEquals(3, mgc.numQueueStringForCommCalls);
         assertEquals(3, mgc.numStreamCommandsCalls);
-        assertEquals(str  + "\n", mgc.queuedString);
+        assertEquals(str, mgc.queuedString);
     }
 
     /**
@@ -589,7 +557,7 @@ public class GrblControllerTest {
         assertEquals(true, result);
         
         // Test 4. Can't send during active command.
-        instance.queueCommand(instance.createCommand("G0X0"));
+        instance.queueStream(new SimpleGcodeStreamReader(instance.createCommand("G0X0")));
         try {
             mgc.areActiveCommands = true;
             asserted = false;
@@ -602,37 +570,17 @@ public class GrblControllerTest {
     }
 
     /**
-     * Test of preprocessAndAppendGcodeCommand method, of class GrblController.
-     */
-    @Test
-    public void testAppendGcodeCommand() {
-        System.out.println("preprocessAndAppendGcodeCommand");
-        // This is fully tested by other tests.
-    }
-
-    /**
-     * Test of appendGcodeFile method, of class GrblController.
-     */
-    @Test
-    public void testAppendGcodeFile() throws Exception {
-        System.out.println("appendGcodeFile");
-        //File file = null;
-        //GrblController instance = new GrblController(mgc);
-        //instance.appendGcodeFile(file);
-        
-        // Not testing file inputs now.
-    }
-
-    /**
      * Test of beginStreaming method, of class GrblController.
      */
     @Test
     public void testBeginStreaming() throws Exception {
         System.out.println("beginStreaming");
         GrblController instance = new GrblController(mgc);
-        
+
         instance.openCommPort(getSettings().getConnectionDriver(), "blah", 1234);
         instance.rawResponseHandler("Grbl 0.8c");
+        instance.rawResponseHandler("<Idle,WPos:1,2,3,MPos:1,2,3>");
+
         //$G and $$ get queued on startup
         assertEquals(2, mgc.numQueueStringForCommCalls);
 
@@ -647,7 +595,8 @@ public class GrblControllerTest {
         assertTrue(caughtException);
         
         // Test 2. Command already streaming.
-        instance.queueCommand(instance.createCommand("G0X1"));
+        GcodeCommand command = instance.createCommand("G0X1");
+        instance.queueStream(new SimpleGcodeStreamReader(command));
         caughtException = false;
         try {
             // Trigger the error.
@@ -657,20 +606,23 @@ public class GrblControllerTest {
             assertEquals("Cannot stream while there are active commands (controller).", ex.getMessage());
         }
         assertFalse(caughtException);
-        assertEquals(3, mgc.numQueueStringForCommCalls);
+        assertEquals(2, mgc.numQueueStringForCommCalls);
+        assertEquals(3, mgc.numStreamCommandsCalls);
 
         // Wrap up test 2.
-        GcodeCommand command = new GcodeCommand("G0X1"); // Whitespace removed.
         command.setSent(true);
         command.setResponse("ok");
         instance.commandSent(command);
         instance.commandComplete(command.getCommandString());
         
         // Test 3. Stream some commands and make sure they get sent.
+        List<GcodeCommand> commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
-        
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
+
         try {
             // Trigger the error.
             instance.beginStreaming();
@@ -681,7 +633,7 @@ public class GrblControllerTest {
         assertFalse(caughtException);
         
         assertEquals(30, instance.rowsRemaining());
-        assertEquals(33, mgc.numQueueStringForCommCalls);
+        assertEquals(2, mgc.numQueueStringForCommCalls);
         // Wrap up test 3.
         for (int i=0; i < 30; i++) {
             command.setCommand("G0X" + i);
@@ -772,7 +724,6 @@ public class GrblControllerTest {
         }
         assertEquals(1, mgc.numPauseSendCalls);
         assertEquals(1, mgc.numCancelSendCalls);
-        assertEquals(0, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
         setState(instance, COMM_IDLE);
@@ -781,34 +732,33 @@ public class GrblControllerTest {
         instance.rawResponseHandler("Grbl 0.7");
         instance.cancelSend();
         assertEquals(2, mgc.numCancelSendCalls);
-        assertEquals(0, mgc.numSoftResetCalls);
-        
+
         // Test 1.2 Cancel when nothing is running (Grbl 0.8c).
         //          Check for soft reset.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(3, mgc.numCancelSendCalls);
+        assertEquals(4, mgc.numCancelSendCalls);
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
         instance.resumeStreaming();
 
         // Test 2.1 
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
+        List<GcodeCommand> commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
             fail("Unexpected exception from GrblController: " +ex.getMessage());
         }
         instance.cancelSend();
-        assertEquals(4, mgc.numCancelSendCalls);
+        assertEquals(5, mgc.numCancelSendCalls);
         assertEquals(2, mgc.numPauseSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
         assertEquals(30, instance.rowsInSend());
         assertEquals(30, instance.rowsRemaining());
         
@@ -817,9 +767,12 @@ public class GrblControllerTest {
         //setUp();
         //instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
+        commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
@@ -830,17 +783,18 @@ public class GrblControllerTest {
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
-        assertEquals(5, mgc.numCancelSendCalls);
+        assertEquals(7, mgc.numCancelSendCalls);
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(2, mgc.numSoftResetCalls);
         instance.resumeStreaming();
         
         // Test 3.1
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
+        commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X0"));
+            commands.add(instance.createCommand("G0X0"));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
         try {
             instance.beginStreaming();
             for (int i=0; i < 15; i++) {
@@ -853,9 +807,8 @@ public class GrblControllerTest {
             fail("Unexpected exception from command sent: " + ex.getMessage());
         }
         instance.cancelSend();
-        assertEquals(6, mgc.numCancelSendCalls);
+        assertEquals(8, mgc.numCancelSendCalls);
         assertEquals(3, mgc.numPauseSendCalls);
-        assertEquals(2, mgc.numSoftResetCalls);
         assertEquals(30, instance.rowsInSend());
         assertEquals(30, instance.rowsRemaining());
         // wrap up
@@ -864,9 +817,12 @@ public class GrblControllerTest {
         // Test 3.2
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
+        commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
         try {
             instance.beginStreaming();
             for (int i=0; i < 15; i++) {
@@ -886,9 +842,8 @@ public class GrblControllerTest {
         assertEquals(15, instance.rowsSent());
         assertEquals(0, instance.rowsInSend());
         assertEquals(0, instance.rowsRemaining());
-        assertEquals(7, mgc.numCancelSendCalls);
+        assertEquals(10, mgc.numCancelSendCalls);
         assertEquals(4, mgc.numPauseSendCalls);
-        assertEquals(3, mgc.numSoftResetCalls);
         assertEquals(new Byte(GrblUtils.GRBL_RESET_COMMAND), mgc.sentBytes.get(mgc.sentBytes.size()-1));
         instance.resumeStreaming();
     }
@@ -920,16 +875,18 @@ public class GrblControllerTest {
         instance.cancelSend();
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
         instance.rawResponseHandler("<Hold,MPos:1.0,2.0,3.0>");
-        assertEquals(1, mgc.numCancelSendCalls);
-        assertEquals(1, mgc.numSoftResetCalls);
+        assertEquals(2, mgc.numCancelSendCalls);
         instance.resumeStreaming();
 
         // Test 2.1 
         // Add 30 commands, start send, cancel before any sending. (Grbl 0.7)
         instance.rawResponseHandler("Grbl 0.7");
+        List<GcodeCommand> commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
@@ -956,9 +913,12 @@ public class GrblControllerTest {
         //setUp();
         //instance = new GrblController(mgc);
         instance.rawResponseHandler("Grbl 0.8c");
+        commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
         try {
             instance.beginStreaming();
         } catch (Exception ex) {
@@ -977,9 +937,12 @@ public class GrblControllerTest {
         // Test 3.2
         // Add 30 commands, start send, cancel after sending 15. (Grbl 0.8c)
         instance.rawResponseHandler("Grbl 0.8c");
+        commands = new ArrayList<>();
         for (int i=0; i < 30; i++) {
-            instance.queueCommand(instance.createCommand("G0X" + i));
+            commands.add(instance.createCommand("G0X" + i));
         }
+        instance.queueStream(new SimpleGcodeStreamReader(commands));
+
         try {
             instance.beginStreaming();
             for (int i=0; i < 15; i++) {
@@ -1139,19 +1102,19 @@ public class GrblControllerTest {
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11\n");
-        assertEquals(mgc.queuedStrings.get(3), "G90 G21 \n");
+        assertEquals(mgc.queuedStrings.get(2), "G20G91G1X-10Z10F11");
+        assertEquals(mgc.queuedStrings.get(3), "G90 G21 ");
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
-        assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11\n");
-        assertEquals(mgc.queuedStrings.get(5), "G90 G21 \n");
+        assertEquals(mgc.queuedStrings.get(4), "G21G91G1Y10F11");
+        assertEquals(mgc.queuedStrings.get(5), "G90 G21 ");
 
         instance.rawResponseHandler("Grbl 1.1a");
         instance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
-        assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11\n");
+        assertEquals(mgc.queuedStrings.get(8), "$J=G20G91X-10Z10F11");
 
         instance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
-        assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11\n");
+        assertEquals(mgc.queuedStrings.get(9), "$J=G21G91Y10F11");
     }
 
     /**
@@ -1169,20 +1132,20 @@ public class GrblControllerTest {
         // Abstract controller should be used when grbl jog mode is disabled.
         instance.rawResponseHandler("Grbl 0.8c");
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1Y2Z3F200\n", mgc.queuedStrings.get(2));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(3));
+        assertEquals("G21G90G1X1Y2Z3F200", mgc.queuedStrings.get(2));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(3));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1Y2F200\n", mgc.queuedStrings.get(4));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(5));
+        assertEquals("G21G90G1X1Y2F200", mgc.queuedStrings.get(4));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(5));
 
         instance.jogMachineTo(new PartialPosition(1.2345678, 2.0, UnitUtils.Units.MM), 200);
-        assertEquals("G21G90G1X1.235Y2F200\n", mgc.queuedStrings.get(6));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(7));
+        assertEquals("G21G90G1X1.235Y2F200", mgc.queuedStrings.get(6));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(7));
 
         instance.jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.INCH), 200);
-        assertEquals("G20G90G1X1Y2F200\n", mgc.queuedStrings.get(8));
-        assertEquals("G90 G21 \n", mgc.queuedStrings.get(9));
+        assertEquals("G20G90G1X1Y2F200", mgc.queuedStrings.get(8));
+        assertEquals("G90 G21 ", mgc.queuedStrings.get(9));
     }
 
     /**
@@ -1213,10 +1176,10 @@ public class GrblControllerTest {
         instance.returnToHome();
 
         assertEquals(4, mgc.queuedStrings.size());
-        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
-        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
-        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(2));
-        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(3));
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(2));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(3));
     }
 
     @Test
@@ -1234,11 +1197,11 @@ public class GrblControllerTest {
         instance.returnToHome();
 
         assertEquals(5, mgc.queuedStrings.size());
-        assertEquals("View all grbl settings", "$$\n", mgc.queuedStrings.get(0));
-        assertEquals("View gcode parser state", "$G\n", mgc.queuedStrings.get(1));
-        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0\n", mgc.queuedStrings.get(2));
-        assertEquals("Go to XY-zero", "G90 G0 X0 Y0\n", mgc.queuedStrings.get(3));
-        assertEquals("Go to Z-zero", "G90 G0 Z0\n", mgc.queuedStrings.get(4));
+        assertEquals("View all grbl settings", "$$", mgc.queuedStrings.get(0));
+        assertEquals("View gcode parser state", "$G", mgc.queuedStrings.get(1));
+        assertEquals("The machine is in the material, go to zero with the Z axis first", "G90 G0 Z0", mgc.queuedStrings.get(2));
+        assertEquals("Go to XY-zero", "G90 G0 X0 Y0", mgc.queuedStrings.get(3));
+        assertEquals("Go to Z-zero", "G90 G0 Z0", mgc.queuedStrings.get(4));
     }
 
     @Test
@@ -1425,6 +1388,7 @@ public class GrblControllerTest {
     public void errorInCheckModeNotSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        when(communicator.isConnected()).thenReturn(true);
         GrblController gc = new GrblController(communicator);
         gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
         gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
@@ -1443,15 +1407,16 @@ public class GrblControllerTest {
     public void errorInCheckModeSending() throws Exception {
         // Given
         AbstractCommunicator communicator = mock(AbstractCommunicator.class);
+        when(communicator.isConnected()).thenReturn(true);
         ControllerListener controllerListener = mock(ControllerListener.class);
         GrblController gc = new GrblController(communicator);
         gc.addListener(controllerListener);
         gc.rawResponseHandler("Grbl 1.1f"); // We will assume that we are using version Grbl 1.0 with streaming support
         gc.rawResponseHandler("<Check|MPos:0.000,0.000,0.000|FS:0,0|Pn:XYZ>");
-        doReturn(true).when(communicator).isCommOpen();
+        doReturn(true).when(communicator).isConnected();
 
         // When
-        gc.queueCommand(new GcodeCommand("G0 X10"));
+        gc.queueStream(new SimpleGcodeStreamReader("G0 X10"));
         gc.beginStreaming();
         gc.communicatorPausedOnError();
         gc.rawResponseHandler("error:1");

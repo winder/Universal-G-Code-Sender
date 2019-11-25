@@ -1,5 +1,5 @@
 /*
-    Copyright 2016 Will Winder
+    Copyright 2016-2019 Will Winder
 
     This file is part of Universal Gcode Sender (UGS).
 
@@ -21,6 +21,7 @@ package com.willwinder.ugs.nbp.core.control;
 import com.google.common.base.Strings;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.ActionRegistrationService;
+import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.MacroHelper;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
@@ -33,9 +34,13 @@ import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.AbstractAction;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -43,75 +48,72 @@ import java.awt.event.ActionEvent;
  */
 @ServiceProvider(service=MacroService.class) 
 public final class MacroService {
+    private static final Logger logger = Logger.getLogger(MacroService.class.getName());
+
     public MacroService() {
         reInitActions();
     }
 
     public void reInitActions() {
-        String menuPath = "Menu/Machine/Macros";
+        String menuPath = LocalizingService.MENU_MACROS;
         String actionCategory = "Macro";
-        String localCategory = Localization.getString("platform.menu.macros");
         String localized = String.format("Menu/%s/%s",
                 Localization.getString("platform.menu.machine"),
                 Localization.getString("platform.menu.macros"));
 
         try {
-            FileObject root= FileUtil.getConfigRoot(); 
+            FileObject root = FileUtil.getConfigRoot();
 
             // Clear out the menu items.
-            FileUtil.createFolder(root, menuPath).delete(); 
-            FileUtil.createFolder(root, menuPath); 
+            FileUtil.createFolder(root, menuPath).delete();
+            FileUtil.createFolder(root, menuPath);
 
             String actionPath = "/Actions/" + actionCategory;
             FileUtil.createFolder(root, actionPath).delete();
-            //FileObject actionsObject = FileUtil.createFolder(root, actionPath);
 
             ActionRegistrationService ars =  Lookup.getDefault().lookup(ActionRegistrationService.class);
             BackendAPI backend = CentralLookup.getDefault().lookup(BackendAPI.class);
             Settings settings = backend.getSettings();
 
-            int numMacros = settings.getNumMacros();
-            for (int i = 0; i < numMacros; i++) {
-                Macro m = settings.getMacro(i);
+            List<Macro> macros = settings.getMacros();
+            macros.forEach(macro -> {
+                int index = macros.indexOf(macro);
+                try {
+                    String text;
+                    if (Strings.isNullOrEmpty(macro.getNameAndDescription())){
+                        text = Integer.toString(index + 1);
+                    } else {
+                        text = macro.getNameAndDescription();
+                    }
 
-                String text;
-                if (Strings.isNullOrEmpty(m.getNameAndDescription())){
-                    text = Integer.toString(i);
-                } else {
-                    text = m.getNameAndDescription();
+                    ars.registerAction(MacroAction.class.getCanonicalName() + "." + macro.getName(), text, actionCategory, null, menuPath, index, localized, new MacroAction(backend, macro));
+                } catch (IOException e) {
+                    logger.log(Level.WARNING, "Couldn't register macro action: \"" + macro.getName() + "\"", e);
                 }
-
-                ars.registerAction(MacroAction.class.getCanonicalName() + "." + m.getName(), text, actionCategory, null, menuPath, localized, new MacroAction(settings, backend, i));
-            }
+            });
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING, "Couldn't register macro actions", e);
         }
     }
 
     protected class MacroAction extends AbstractAction {
         private BackendAPI backend;
-        private Settings settings;
-        private int macroIdx;
+        private Macro macro;
 
-        public MacroAction(Settings s, BackendAPI b, int macro) {
+        public MacroAction(BackendAPI b, Macro macro) {
             backend = b;
-            settings = s;
-            macroIdx = macro;
+            this.macro = macro;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Macro macro = settings.getMacro(macroIdx);
             if (macro != null && macro.getGcode() != null) {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            MacroHelper.executeCustomGcode(macro.getGcode(), backend);
-                        } catch (Exception ex) {
-                            GUIHelpers.displayErrorDialog(ex.getMessage());
-                            Exceptions.printStackTrace(ex);
-                        }
+                EventQueue.invokeLater(() -> {
+                    try {
+                        MacroHelper.executeCustomGcode(macro.getGcode(), backend);
+                    } catch (Exception ex) {
+                        GUIHelpers.displayErrorDialog(ex.getMessage());
+                        Exceptions.printStackTrace(ex);
                     }
                 });
             }

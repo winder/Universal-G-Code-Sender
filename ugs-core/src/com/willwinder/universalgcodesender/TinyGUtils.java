@@ -24,7 +24,12 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
@@ -104,14 +109,14 @@ public class TinyGUtils {
         return false;
     }
 
-    public static String getVersion(JsonObject response) {
+    public static double getVersion(JsonObject response) {
         if (response.has(FIELD_RESPONSE)) {
             JsonObject jo = response.getAsJsonObject(FIELD_RESPONSE);
             if (jo.has(FIELD_FIRMWARE_VERSION)) {
-                return jo.get(FIELD_FIRMWARE_VERSION).getAsString();
+                return jo.get(FIELD_FIRMWARE_VERSION).getAsDouble();
             }
         }
-        return "";
+        return 0;
     }
 
     public static boolean isRestartingResponse(JsonObject response) {
@@ -137,7 +142,7 @@ public class TinyGUtils {
     }
 
     public static boolean isStatusResponse(JsonObject response) {
-        return response.has("sr");
+        return response.has(TinyGUtils.FIELD_STATUS_REPORT) && response.get(TinyGUtils.FIELD_STATUS_REPORT).isJsonObject();
     }
 
     /**
@@ -148,7 +153,7 @@ public class TinyGUtils {
      * @return a new updated controller status
      */
     public static ControllerStatus updateControllerStatus(final ControllerStatus lastControllerStatus, final JsonObject response) {
-        if (response.has(FIELD_STATUS_REPORT)) {
+        if (isStatusResponse(response)) {
             JsonObject statusResultObject = response.getAsJsonObject(FIELD_STATUS_REPORT);
 
             Position workCoord = lastControllerStatus.getWorkCoord();
@@ -300,7 +305,7 @@ public class TinyGUtils {
      *
      * @param controllerStatus the current controller status
      * @param gcodeState       the current gcode state
-     * @param positions         the position to set
+     * @param positions        the position to set
      * @return a command for setting the position
      */
     public static String generateSetWorkPositionCommand(ControllerStatus controllerStatus, GcodeState gcodeState, PartialPosition positions) {
@@ -325,7 +330,7 @@ public class TinyGUtils {
      */
     public static List<String> convertStatusReportToGcode(JsonObject response) {
         List<String> gcodeList = new ArrayList<>();
-        if (response.has(TinyGUtils.FIELD_STATUS_REPORT)) {
+        if (isStatusResponse(response)) {
             JsonObject statusResultObject = response.getAsJsonObject(TinyGUtils.FIELD_STATUS_REPORT);
 
             if (hasNumericField(statusResultObject, TinyGUtils.FIELD_STATUS_REPORT_COORD)) {
@@ -389,7 +394,7 @@ public class TinyGUtils {
     }
 
     private static boolean hasNumericField(JsonObject statusResultObject, String fieldName) {
-        return statusResultObject.has(fieldName) &&
+        return statusResultObject.has(fieldName) && !statusResultObject.get(fieldName).isJsonNull() &&
                 NUMBER_REGEX.matcher(statusResultObject.get(fieldName).getAsString()).matches();
     }
 

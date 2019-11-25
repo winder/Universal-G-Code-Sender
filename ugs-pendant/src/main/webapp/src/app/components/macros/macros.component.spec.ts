@@ -1,4 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { MacrosComponent } from './macros.component';
 
@@ -8,7 +9,8 @@ describe('MacrosComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MacrosComponent ]
+      declarations: [ MacrosComponent ],
+      imports: [ HttpClientTestingModule ]
     })
     .compileComponents();
   }));

@@ -33,11 +33,6 @@ public class TinyGCommunicator extends BufferedCommunicator {
     }
 
     @Override
-    public String getLineTerminator() {
-        return "\n";
-    }
-
-    @Override
     protected boolean processedCommand(String response) {
         return TinyGGcodeCommand.isOkErrorResponse(response);
     }

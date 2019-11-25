@@ -22,6 +22,9 @@ package com.willwinder.universalgcodesender;
 import com.willwinder.universalgcodesender.connection.ConnectionDriver;
 import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
+import com.willwinder.universalgcodesender.listeners.ControllerState;
+import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.services.MessageService;
@@ -29,9 +32,12 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.GcodeStreamTest;
 import com.willwinder.universalgcodesender.utils.GcodeStreamWriter;
+import com.willwinder.universalgcodesender.utils.IGcodeStreamReader;
 import com.willwinder.universalgcodesender.utils.Settings;
+import com.willwinder.universalgcodesender.utils.SimpleGcodeStreamReader;
 import org.apache.commons.io.FileUtils;
 import org.easymock.Capture;
+import org.easymock.CaptureType;
 import org.easymock.EasyMock;
 import org.easymock.IMockBuilder;
 import org.hamcrest.CoreMatchers;
@@ -97,8 +103,9 @@ public class AbstractControllerTest {
                         "statusUpdatesEnabledValueChanged",
                         "statusUpdatesRateValueChanged",
                         "isCommOpen")
-                .withConstructor(AbstractCommunicator.class)
+                .withConstructor(ICommunicator.class)
                 .withArgs(mockCommunicator);
+
         instance = instanceBuilder.createMock();
         niceInstance = instanceBuilder.createNiceMock();
 
@@ -140,7 +147,7 @@ public class AbstractControllerTest {
         expect(expectLastCall()).anyTimes();
         mockMessageService.dispatchMessage(anyObject(), anyString());
         expect(expectLastCall()).anyTimes();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, portRate)).andReturn(true).once();
+        mockCommunicator.connect(ConnectionDriver.JSERIALCOMM, port, portRate);
         expect(instance.isCommOpen()).andReturn(false).once();
         expect(instance.isCommOpen()).andReturn(true).anyTimes();
         expect(instance.handlesAllStateChangeEvents()).andReturn(handleStateChange).anyTimes();
@@ -152,19 +159,18 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         expect(expectLastCall()).once();
     }
-    private void startStreamExpectation(String port, int rate, String command, boolean handleStateChange) throws Exception {
-        openInstanceExpectUtility(port, rate, handleStateChange);
+    private void startStreamExpectation(String port, int rate) throws Exception {
+        openInstanceExpectUtility(port, rate, false);
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
     }
     private void startStream(String port, int rate, String command) throws Exception {
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
     }
     private Settings getSettings() {
@@ -179,115 +185,6 @@ public class AbstractControllerTest {
         System.out.println("getCommandCreator");
         GcodeCommandCreator result = instance.getCommandCreator();
         assertEquals(gcodeCreator, result);
-    }
-
-    /**
-     * Test of openCommPort method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testOpenCommPort() throws Exception {
-        System.out.println("openCommPort");
-        String port = "";
-        int portRate = 0;
-
-        instance.openCommAfterEvent();
-        expect(expectLastCall()).once();
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall()).once();
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, port, portRate)).andReturn(true).once();
-        replay(instance, mockCommunicator, mockListener);
-
-        Boolean expResult = true;
-        Boolean result = instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
-        assertEquals(expResult, result);
-
-        boolean threw = false;
-        try {
-            instance.openCommPort(getSettings().getConnectionDriver(), port, portRate);
-        } catch (Exception ignored) {
-            threw = true;
-        }
-        assertEquals("Cannot open a comm port twice.", true, threw);
-        
-        verify(instance, mockCommunicator, mockListener);
-    }
-
-    /**
-     * Test of closeCommPort method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testCloseCommPort() throws Exception {
-        System.out.println("closeCommPort");
-
-        String port = "/some/port";
-        int baud = 1234;
-
-        // Events
-        instance.openCommAfterEvent();
-        expect(expectLastCall()).once();
-        instance.closeCommBeforeEvent();
-        expect(expectLastCall()).once();
-        instance.closeCommAfterEvent();
-        expect(expectLastCall()).once();
-
-        // Message for open and close.
-        mockMessageService.dispatchMessage(anyObject(), anyString());
-        expect(expectLastCall()).times(2);
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSERIALCOMM, port, baud)).andReturn(true).once();
-        mockCommunicator.closeCommPort();
-        expect(expectLastCall()).once();
-        replay(instance, mockCommunicator, mockListener);
-
-        // Close a closed port.
-        Boolean result = instance.closeCommPort();
-        assertEquals(true, result);
-
-        // Open port to close it.
-        result = instance.openCommPort(getSettings().getConnectionDriver(), port, baud);
-        assertEquals(result, result);
-
-        // Close an open port.
-        result = instance.closeCommPort();
-        assertEquals(true, result);
-    }
-
-    /**
-     * Test of isCommOpen method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testIsCommOpen() throws Exception {
-        System.out.println("isCommOpen");
-
-        expect(mockCommunicator.openCommPort(ConnectionDriver.JSSC, "port", 1234)).andReturn(true);
-        mockCommunicator.closeCommPort();
-        expect(expectLastCall());
-        replay(mockCommunicator);
-
-        assertEquals(false, instance.isCommOpen());
-
-        instance.openCommPort(getSettings().getConnectionDriver(), "port", 1234);
-
-        assertEquals(true, instance.isCommOpen());
-
-        instance.closeCommPort();
-
-        assertEquals(false, instance.isCommOpen());
-    }
-
-    /**
-     * Test of setStatusUpdatesEnabled method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testStatusUpdates() {
-        System.out.println("testStatusUpdates");
-        boolean enabled = false;
-        instance.setStatusUpdatesEnabled(enabled);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -313,9 +210,10 @@ public class AbstractControllerTest {
         String port = "/some/port";
         int rate = 1234;
 
-        startStreamExpectation(port, rate, command, false);
+        startStreamExpectation(port, rate);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
@@ -364,85 +262,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of sendCommandImmediately method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testSendCommandImmediately() throws Exception {
-        System.out.println("sendCommandImmediately");
-        String str = "";
-
-        boolean threwException = false;
-        try {
-            instance.sendCommandImmediately(instance.createCommand(str));
-        } catch (Exception e) {
-            Assert.assertThat(e.getMessage(), CoreMatchers.startsWith("Cannot send command(s)"));
-            threwException = true;
-        }
-        Assert.assertTrue(threwException);
-
-        String port = "/some/port";
-        int rate = 1234;
-
-        openInstanceExpectUtility(port, rate, false);
-        mockCommunicator.queueStringForComm(str + "\n");
-        expect(expectLastCall()).times(1);
-        mockCommunicator.streamCommands();
-        expect(expectLastCall()).times(1);
-        replay(instance, mockCommunicator);
-
-        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.sendCommandImmediately(instance.createCommand(str));
-
-        verify(mockCommunicator, instance);
-    }
-
-    /**
-     * Test of isReadyToStreamFile method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testIsReadyToStreamFile() throws Exception {
-        System.out.println("isReadyToStreamFile");
-
-        instance.isReadyToStreamCommandsEvent();
-        expect(expectLastCall()).times(3);
-
-        Boolean commPortNotOpen = false;
-        try {
-            instance.isReadyToStreamFile();
-        } catch (Exception e) {
-            assertTrue(e.getMessage().contains("comm port is not open"));
-            commPortNotOpen = true;
-        }
-        assertTrue(commPortNotOpen);
-
-        String command = "command";
-        String port = "/some/port";
-        int rate = 1234;
-
-        startStreamExpectation(port, rate, command, false);
-        replay(instance, mockCommunicator);
-
-        instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-
-        assertEquals(true, instance.isReadyToStreamFile());
-
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
-        instance.beginStreaming();
-
-        Boolean alreadyStreaming = false;
-        try {
-            instance.isReadyToStreamFile();
-        } catch (Exception e) {
-            assertEquals("Already streaming.", e.getMessage());
-            alreadyStreaming = true;
-        }
-        assertTrue(alreadyStreaming);
-    }
-
-    /**
      * Test of queueStream method, of class AbstractController.
      */
     @Test
@@ -462,7 +281,7 @@ public class AbstractControllerTest {
                 }
             }
 
-            try (GcodeStreamReader gsr = new GcodeStreamReader(f)) {
+            try (IGcodeStreamReader gsr = new GcodeStreamReader(f)) {
                 openInstanceExpectUtility(port, rate, false);
                 streamInstanceExpectUtility();
 
@@ -501,15 +320,14 @@ public class AbstractControllerTest {
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
 
         replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);
@@ -530,15 +348,14 @@ public class AbstractControllerTest {
         streamInstanceExpectUtility();
         
         // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm(command + "\n");
-        expect(expectLastCall()).times(2);
+        mockCommunicator.queueStreamForComm(anyObject(IGcodeStreamReader.class));
+        expect(expectLastCall()).times(1);
 
         replay(instance, mockCommunicator);
 
         // Open port, send some commands, make sure they are streamed.
         instance.openCommPort(getSettings().getConnectionDriver(), port, rate);
-        instance.queueCommand(instance.createCommand(command));
-        instance.queueCommand(instance.createCommand(command));
+        instance.queueStream(new SimpleGcodeStreamReader(command, command));
         instance.beginStreaming();
 
         verify(mockCommunicator, instance);
@@ -554,43 +371,6 @@ public class AbstractControllerTest {
     }
 
     /**
-     * Test of pauseStreaming method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testPauseStreaming() throws Exception {
-        System.out.println("pauseStreaming");
-        instance.pauseStreaming();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of resumeStreaming method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testResumeStreaming() throws Exception {
-        System.out.println("resumeStreaming");
-        instance.resumeStreaming();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of cancelSend method, of class AbstractController.
-     */
-    @Test
-    @Ignore
-    public void testCancelSend() throws Exception {
-        // This is covered pretty thoroughly in GrblControllerTest.
-        System.out.println("cancelSend");
-        instance.cancelSend();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of commandSent method, of class AbstractController.
      */
     @Test
@@ -602,7 +382,7 @@ public class AbstractControllerTest {
         String command = "command";
 
         // Setup instance with commands buffered on the communicator.
-        startStreamExpectation(port, baud, command, false);
+        startStreamExpectation(port, baud);
         replay(instance, mockCommunicator);
         startStream(port, baud, command);
         reset(instance, mockCommunicator, mockListener);
@@ -655,6 +435,7 @@ public class AbstractControllerTest {
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
         expect(expectLastCall());
 
+        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
@@ -778,16 +559,9 @@ public class AbstractControllerTest {
         mockCommunicator.streamCommands();
         expect(expectLastCall()).anyTimes();
 
-        // Modal state should be restored.
-        mockCommunicator.queueStringForComm("G90 G21 \n");
-        expect(expectLastCall()).times(2);
-
-        // Making sure the commands get queued.
-        mockCommunicator.queueStringForComm("G20G91G1X-10Z10F11\n");
-        expect(expectLastCall()).times(1);
-
-        mockCommunicator.queueStringForComm("G21G91G1Y10F11\n");
-        expect(expectLastCall()).times(1);
+        Capture<GcodeCommand> gcodeCommandCapture = EasyMock.newCapture(CaptureType.ALL);
+        mockCommunicator.queueCommand(capture(gcodeCommandCapture));
+        expect(expectLastCall()).times(4);
 
         replay(niceInstance, mockCommunicator);
 
@@ -796,6 +570,15 @@ public class AbstractControllerTest {
 
         niceInstance.jogMachine(-1, 0, 1, 10, 11, UnitUtils.Units.INCH);
         niceInstance.jogMachine(0, 1, 0, 10, 11, UnitUtils.Units.MM);
+
+        assertEquals(4, gcodeCommandCapture.getValues().size());
+        assertEquals("G20G91G1X-10Z10F11", gcodeCommandCapture.getValues().get(0).getCommandString());
+        assertTrue(gcodeCommandCapture.getValues().get(0).isTemporaryParserModalChange());
+
+        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(1).getCommandString());
+        assertEquals("G21G91G1Y10F11", gcodeCommandCapture.getValues().get(2).getCommandString());
+        assertEquals("G90 G21 ", gcodeCommandCapture.getValues().get(3).getCommandString());
+        assertTrue(gcodeCommandCapture.getValues().get(3).isTemporaryParserModalChange());
     }
 
     /**
