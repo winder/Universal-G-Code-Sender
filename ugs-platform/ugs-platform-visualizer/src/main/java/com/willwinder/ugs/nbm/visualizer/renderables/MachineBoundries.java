@@ -131,8 +131,8 @@ public class MachineBoundries extends Renderable {
         double yOffset = workCoord.y - machineCoord.y;
         double zOffset = workCoord.z - machineCoord.z;
 
-        Point3d bottomLeft = new Position(-maxPosition.getX() + xOffset, -maxPosition.getY() + yOffset, -maxPosition.getZ() + zOffset);
-        Point3d topRight = new Position(xOffset, yOffset, zOffset);
+        Position bottomLeft = new Position(-maxPosition.getX() + xOffset, -maxPosition.getY() + yOffset, -maxPosition.getZ() + zOffset);
+        Position topRight = new Position(xOffset, yOffset, zOffset);
 
         GL2 gl = drawable.getGL().getGL2();
         gl.glPushMatrix();
