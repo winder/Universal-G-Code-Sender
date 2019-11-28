@@ -47,14 +47,14 @@ public class ControllerStatus {
      * @param machineCoord controller machine coordinates
      * @param workCoord controller work coordinates
      */
-    public ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
+    ControllerStatus(String stateString, ControllerState state, Position machineCoord, Position workCoord) {
         this(stateString, state, machineCoord, workCoord, 0d, UnitUtils.Units.MM, 0d, null, null, null, null);
     }
 
     /**
      * Additional parameters
      */
-    public ControllerStatus(String stateString, ControllerState state, Position machineCoord,
+    ControllerStatus(String stateString, ControllerState state, Position machineCoord,
                             Position workCoord, Double feedSpeed, UnitUtils.Units feedSpeedUnits, Double spindleSpeed,
                             OverridePercents overrides, Position workCoordinateOffset,
                             EnabledPins pins, AccessoryStates states) {

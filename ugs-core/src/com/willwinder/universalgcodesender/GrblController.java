@@ -27,7 +27,11 @@ import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.MessageType;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.Alarm;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent.ControlState;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -69,7 +73,11 @@ public class GrblController extends AbstractController {
     // Polling state
     private int outstandingPolls = 0;
     private Timer positionPollTimer = null;  
-    private ControllerStatus controllerStatus = new ControllerStatus("Disconnected", ControllerState.DISCONNECTED, new Position(0,0,0,Units.MM), new Position(0,0,0,Units.MM));
+    private ControllerStatus controllerStatus = new ControllerStatusBuilder().setStateString("Disconnected")
+                                                                             .setState(ControllerState.DISCONNECTED)
+                                                                             .setMachineCoord(new Position(0, 0, 0, Units.MM))
+                                                                             .setWorkCoord(new Position(0, 0, 0, Units.MM))
+                                                                             .build();
 
     // Canceling state
     private Boolean isCanceling = false;     // Set for the position polling thread.

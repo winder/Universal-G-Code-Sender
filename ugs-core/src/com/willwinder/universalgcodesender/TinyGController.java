@@ -77,7 +77,11 @@ public class TinyGController extends AbstractController {
         firmwareSettings = new TinyGFirmwareSettings(this);
         communicator.addListener(firmwareSettings);
 
-        controllerStatus = new ControllerStatus(StringUtils.EMPTY, ControllerState.UNKNOWN, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        controllerStatus = new ControllerStatusBuilder().setStateString(StringUtils.EMPTY)
+                                                        .setState(ControllerState.UNKNOWN)
+                                                        .setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                        .setWorkCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                        .build();
         firmwareVersion = "TinyG unknown version";
     }
 

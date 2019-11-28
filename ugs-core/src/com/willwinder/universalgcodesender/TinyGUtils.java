@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.model.Axis;
 import com.willwinder.universalgcodesender.model.Overrides;
 import com.willwinder.universalgcodesender.model.PartialPosition;
@@ -232,7 +233,18 @@ public class TinyGUtils {
             ControllerStatus.AccessoryStates accessoryStates = lastControllerStatus.getAccessoryStates();
 
             ControllerStatus.OverridePercents overrides = new ControllerStatus.OverridePercents(overrideFeed, overrideRapid, overrideSpindle);
-            return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, enabledPins, accessoryStates);
+            return new ControllerStatusBuilder().setStateString(stateString)
+                                                .setState(state)
+                                                .setMachineCoord(machineCoord)
+                                                .setWorkCoord(workCoord)
+                                                .setFeedSpeed(feedSpeed)
+                                                .setFeedSpeedUnits(feedSpeedUnits)
+                                                .setSpindleSpeed(spindleSpeed)
+                                                .setOverrides(overrides)
+                                                .setWorkCoordinateOffset(workCoordinateOffset)
+                                                .setPins(enabledPins)
+                                                .setAccessoryStates(accessoryStates)
+                                                .build();
         }
 
         return lastControllerStatus;

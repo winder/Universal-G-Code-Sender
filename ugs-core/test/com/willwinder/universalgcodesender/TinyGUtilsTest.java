@@ -23,7 +23,12 @@ import com.willwinder.universalgcodesender.gcode.GcodeState;
 import com.willwinder.universalgcodesender.gcode.util.Code;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
+import com.willwinder.universalgcodesender.model.Axis;
+import com.willwinder.universalgcodesender.model.Overrides;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.junit.Test;
 
@@ -42,7 +47,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void generateSetWorkPositionCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 10, 10, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatusBuilder().setStateString("").setState(ControllerState.UNKNOWN).setMachineCoord(new Position(10, 10, 10, UnitUtils.Units.MM)).setWorkCoord(new Position(10, 10, 10, UnitUtils.Units.MM)).build();
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
@@ -80,7 +85,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void generateResetCoordinatesToZeroCommandShouldGenerateGcode() {
-        ControllerStatus controllerStatus = new ControllerStatus("", ControllerState.UNKNOWN, new Position(10, 20, 30, UnitUtils.Units.MM), new Position(10, 10, 10, UnitUtils.Units.MM));
+        ControllerStatus controllerStatus = new ControllerStatusBuilder().setStateString("").setState(ControllerState.UNKNOWN).setMachineCoord(new Position(10, 20, 30, UnitUtils.Units.MM)).setWorkCoord(new Position(10, 10, 10, UnitUtils.Units.MM)).build();
         GcodeState gcodeState = new GcodeState();
 
         gcodeState.offset = Code.G54;
@@ -235,7 +240,7 @@ public class TinyGUtilsTest {
 
     @Test
     public void updateControllerStatusShouldHandleFeedOverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+        ControllerStatus lastControllerStatus = new ControllerStatusBuilder().setStateString("Idle").setState(ControllerState.IDLE).setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM)).setWorkCoord(new Position(0, 0, 0, UnitUtils.Units.MM)).build();
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{mfo:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);
@@ -247,8 +252,12 @@ public class TinyGUtilsTest {
     }
 
     @Test
-    public void updateControllerStatusShouldHandleSpindleverrides() {
-        ControllerStatus lastControllerStatus = new ControllerStatus("Idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(0, 0, 0, UnitUtils.Units.MM));
+    public void updateControllerStatusShouldHandleSpindleOverrides() {
+        ControllerStatus lastControllerStatus = new ControllerStatusBuilder().setStateString("Idle")
+                                                                             .setState(ControllerState.IDLE)
+                                                                             .setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                                             .setWorkCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                                             .build();
 
         JsonObject response = TinyGUtils.jsonToObject("{sr:{sso:1.4}}");
         ControllerStatus controllerStatus = TinyGUtils.updateControllerStatus(lastControllerStatus, response);

@@ -52,7 +52,7 @@ public class ControllerStatusBuilder {
                 .setOverrides(controllerStatus.getOverrides())
                 .setWorkCoordinateOffset(controllerStatus.getWorkCoordinateOffset())
                 .setPins(controllerStatus.getEnabledPins())
-                .setStates(controllerStatus.getAccessoryStates());
+                .setAccessoryStates(controllerStatus.getAccessoryStates());
         }
         return controllerStatusBuilder;
     }
@@ -107,7 +107,7 @@ public class ControllerStatusBuilder {
         return this;
     }
 
-    public ControllerStatusBuilder setStates(ControllerStatus.AccessoryStates states) {
+    public ControllerStatusBuilder setAccessoryStates(ControllerStatus.AccessoryStates states) {
         this.states = states;
         return this;
     }

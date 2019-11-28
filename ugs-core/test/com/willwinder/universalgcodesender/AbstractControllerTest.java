@@ -24,6 +24,7 @@ import com.willwinder.universalgcodesender.gcode.GcodeCommandCreator;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils;
@@ -45,7 +46,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -65,7 +65,6 @@ import static org.easymock.EasyMock.reset;
 import static org.easymock.EasyMock.verify;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  *
@@ -213,7 +212,12 @@ public class AbstractControllerTest {
         startStreamExpectation(port, rate);
         expect(mockCommunicator.numActiveCommands()).andReturn(1);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
+        ControllerStatus idle = new ControllerStatusBuilder().setStateString("Idle")
+                                                             .setState(ControllerState.IDLE)
+                                                             .setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                             .setWorkCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                             .build();
+        expect(instance.getControllerStatus()).andReturn(idle);
         replay(instance, mockCommunicator);
 
         // Time starts at zero when nothing has been sent.
@@ -435,7 +439,12 @@ public class AbstractControllerTest {
         mockListener.controlStateChange(UGSEvent.ControlState.COMM_IDLE);
         expect(expectLastCall());
 
-        expect(instance.getControllerStatus()).andReturn(new ControllerStatus("Idle", ControllerState.IDLE, new Position(0,0,0, UnitUtils.Units.MM), new Position(0,0,0, UnitUtils.Units.MM)));
+        ControllerStatus idle = new ControllerStatusBuilder().setStateString("Idle")
+                                                             .setState(ControllerState.IDLE)
+                                                             .setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                             .setWorkCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                             .build();
+        expect(instance.getControllerStatus()).andReturn(idle);
         expect(mockCommunicator.areActiveCommands()).andReturn(true);
         expect(mockCommunicator.areActiveCommands()).andReturn(false);
         expect(mockCommunicator.numActiveCommands()).andReturn(0);

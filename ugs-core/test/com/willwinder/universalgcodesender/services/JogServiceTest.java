@@ -4,14 +4,25 @@ import com.willwinder.universalgcodesender.AbstractController;
 import com.willwinder.universalgcodesender.firmware.IFirmwareSettings;
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.*;
+import com.willwinder.universalgcodesender.model.BackendAPI;
+import com.willwinder.universalgcodesender.model.GUIBackend;
+import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
+import com.willwinder.universalgcodesender.model.UGSEvent;
+import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.utils.Settings;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class JogServiceTest {
 
@@ -50,7 +61,7 @@ public class JogServiceTest {
     @Test
     public void testJogTo3D() throws Exception {
         // Given
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        setupStatus();
 
         // when
         instance.jogTo(new PartialPosition(1.0, 2.0, 3.0, UnitUtils.Units.MM));
@@ -62,12 +73,20 @@ public class JogServiceTest {
     @Test
     public void testJogTo2D() throws Exception {
         // Given
-        ControllerStatus status = new ControllerStatus("idle", ControllerState.IDLE, new Position(0, 0, 0, UnitUtils.Units.MM), new Position(11, 11,11, UnitUtils.Units.MM));
+        setupStatus();
 
         // when
         instance.jogTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM));
 
         // check
         verify(controller, times(1)).jogMachineTo(new PartialPosition(1.0, 2.0, UnitUtils.Units.MM), 200);
+    }
+
+    private void setupStatus() {
+        ControllerStatus status = new ControllerStatusBuilder().setStateString("idle")
+                                                               .setState(ControllerState.IDLE)
+                                                               .setMachineCoord(new Position(0, 0, 0, UnitUtils.Units.MM))
+                                                               .setWorkCoord(new Position(11, 11, 11, UnitUtils.Units.MM))
+                                                               .build();
     }
 }
