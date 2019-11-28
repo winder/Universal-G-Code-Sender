@@ -27,6 +27,7 @@ import com.willwinder.universalgcodesender.G2CoreController;
 import com.willwinder.universalgcodesender.GrblController;
 import com.willwinder.universalgcodesender.IController;
 import com.willwinder.universalgcodesender.LoopBackCommunicator;
+import com.willwinder.universalgcodesender.MarlinController;
 import com.willwinder.universalgcodesender.SmoothieController;
 import com.willwinder.universalgcodesender.TinyGController;
 import com.willwinder.universalgcodesender.XLCDCommunicator;
@@ -76,7 +77,8 @@ public class ControllerSettings {
         G2CORE("g2core"),
         XLCD("XLCD"),
         LOOPBACK("Loopback"),
-        LOOPBACK_SLOW("Loopback_Slow");
+        LOOPBACK_SLOW("Loopback_Slow"),
+        MARLIN("Marlin");
 
         final String name;
         CONTROLLER(String name) {
@@ -128,6 +130,8 @@ public class ControllerSettings {
                 return new GrblController(new LoopBackCommunicator());
             case LOOPBACK_SLOW:
                 return new GrblController(new LoopBackCommunicator(100));
+            case MARLIN:
+                return new MarlinController();
             default:
                 throw new AssertionError(controller.name());
         }
