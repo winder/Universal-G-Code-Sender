@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 import static com.willwinder.universalgcodesender.model.Axis.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.data.Offset.offset;
 
 /**
  *
@@ -48,12 +48,12 @@ public class GrblUtilsTest {
         response = "Grbl 0.8c";
         expResult = true;
         result = GrblUtils.isGrblVersionString(response);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         response = "blah 0.8c";
         expResult = false;
         result = GrblUtils.isGrblVersionString(response);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
 
     /**
@@ -69,13 +69,13 @@ public class GrblUtilsTest {
         response = "Grbl 0.8c";
         expResult = 0.8;
         result = GrblUtils.getVersionDouble(response);
-        assertEquals(expResult, result, 0.0);
+        assertThat(result).isCloseTo(expResult, offset(0.0));
         
         
         response = "CarbideMotion 0.9g";
         expResult = 0.9;
         result = GrblUtils.getVersionDouble(response);
-        assertEquals(expResult, result, 0.0);
+        assertThat(result).isCloseTo(expResult, offset(0.0));
 
         
     }
@@ -89,7 +89,7 @@ public class GrblUtilsTest {
         String response = "Grbl 0.8c";
         Character expResult = 'c';
         Character result = GrblUtils.getVersionLetter(response);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
     
     @Test
@@ -104,19 +104,19 @@ public class GrblUtilsTest {
         letter = null;
         expResult = "";
         result = GrblUtils.getHomingCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
         
         version = 0.8;
         letter = null;
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8;
         result = GrblUtils.getHomingCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.8;
         letter = 'c';
         expResult = GrblUtils.GCODE_PERFORM_HOMING_CYCLE_V8C;
         result = GrblUtils.getHomingCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
     
     @Test
@@ -132,9 +132,9 @@ public class GrblUtilsTest {
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
         String expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8;
         result = GrblUtils.getReturnToHomeCommands(version, letter, 0);
-        assertEquals(2, result.size());
-        assertEquals(expResult, result.get(0));
-        assertEquals(expResult2, result.get(1));
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.get(0)).isEqualTo(expResult);
+        assertThat(result.get(1)).isEqualTo(expResult2);
 
         // Check the z-raise command is sent first
         version = 0.8;
@@ -142,10 +142,10 @@ public class GrblUtilsTest {
         expResult = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_V8;
         expResult2 = GrblUtils.GCODE_RETURN_TO_ZERO_LOCATION_Z0_V8;
         result = GrblUtils.getReturnToHomeCommands(version, letter, -10);
-        assertEquals(3, result.size());
-        assertEquals(expResult2, result.get(0));
-        assertEquals(expResult, result.get(1));
-        assertEquals(expResult2, result.get(2));
+        assertThat(result.size()).isEqualTo(3);
+        assertThat(result.get(0)).isEqualTo(expResult2);
+        assertThat(result.get(1)).isEqualTo(expResult);
+        assertThat(result.get(2)).isEqualTo(expResult2);
     }
         
     @Test
@@ -160,25 +160,25 @@ public class GrblUtilsTest {
         letter = null;
         expResult = "";
         result = GrblUtils.getKillAlarmLockCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
         
         version = 0.8;
         letter = null;
         expResult = "";
         result = GrblUtils.getKillAlarmLockCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.8;
         letter = 'c';
         expResult = GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
         result = GrblUtils.getKillAlarmLockCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.9;
         letter = null;
         expResult = GrblUtils.GRBL_KILL_ALARM_LOCK_COMMAND;
         result = GrblUtils.getKillAlarmLockCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
     
     @Test
@@ -193,25 +193,25 @@ public class GrblUtilsTest {
         letter = null;
         expResult = "";
         result = GrblUtils.getToggleCheckModeCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
         
         version = 0.8;
         letter = null;
         expResult = "";
         result = GrblUtils.getToggleCheckModeCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.8;
         letter = 'c';
         expResult = GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
         result = GrblUtils.getToggleCheckModeCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.9;
         letter = null;
         expResult = GrblUtils.GRBL_TOGGLE_CHECK_MODE_COMMAND;
         result = GrblUtils.getToggleCheckModeCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
     
     @Test
@@ -226,25 +226,25 @@ public class GrblUtilsTest {
         letter = null;
         expResult = "";
         result = GrblUtils.getViewParserStateCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
         
         version = 0.8;
         letter = null;
         expResult = "";
         result = GrblUtils.getViewParserStateCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.8;
         letter = 'c';
         expResult = GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
         result = GrblUtils.getViewParserStateCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
 
         version = 0.9;
         letter = null;
         expResult = GrblUtils.GRBL_VIEW_PARSER_STATE_COMMAND;
         result = GrblUtils.getViewParserStateCommand(version, letter);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
 
     /**
@@ -260,38 +260,38 @@ public class GrblUtilsTest {
         version = 0.8;
         letter = 'c';
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
-        assertFalse(result.hasOverrides());
-        assertFalse(result.hasContinuousJogging());
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME)).isTrue();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)).isFalse();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)).isFalse();
+        assertThat(result.hasOverrides()).isFalse();
+        assertThat(result.hasContinuousJogging()).isFalse();
 
         version = 0.8;
         letter = 'a';
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
-        assertFalse(result.hasOverrides());
-        assertFalse(result.hasContinuousJogging());
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME)).isFalse();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)).isFalse();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)).isFalse();
+        assertThat(result.hasOverrides()).isFalse();
+        assertThat(result.hasContinuousJogging()).isFalse();
 
         version = 0.9;
         letter = null;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
-        assertFalse(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
-        assertFalse(result.hasOverrides());
-        assertFalse(result.hasContinuousJogging());
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME)).isTrue();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)).isFalse();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)).isFalse();
+        assertThat(result.hasOverrides()).isFalse();
+        assertThat(result.hasContinuousJogging()).isFalse();
 
         version = 1.1;
         letter = null;
         result = GrblUtils.getGrblStatusCapabilities(version, letter);
-        assertTrue(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME));
-        assertTrue(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT));
-        assertTrue(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING));
-        assertTrue(result.hasOverrides());
-        assertTrue(result.hasContinuousJogging());
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.REAL_TIME)).isTrue();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)).isTrue();
+        assertThat(result.hasCapability(GrblCapabilitiesConstants.HARDWARE_JOGGING)).isTrue();
+        assertThat(result.hasOverrides()).isTrue();
+        assertThat(result.hasContinuousJogging()).isTrue();
     }
 
     /**
@@ -307,12 +307,12 @@ public class GrblUtilsTest {
         response = "<position string is in angle brackets...>";
         expResult = true;
         result = GrblUtils.isGrblStatusString(response);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
         
         response = "blah";
         expResult = false;
         result = GrblUtils.isGrblStatusString(response);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
 
     /**
@@ -330,7 +330,7 @@ public class GrblUtilsTest {
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         expResult = "Idle";
         result = GrblUtils.getStateFromStatusString(status, version);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
 
     /**
@@ -344,7 +344,7 @@ public class GrblUtilsTest {
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         Position expResult = new Position(5.529, 0.560, 7.000, UnitUtils.Units.UNKNOWN);
         Position result = GrblUtils.getMachinePositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
 
     /**
@@ -358,7 +358,7 @@ public class GrblUtilsTest {
         version.addCapability(GrblCapabilitiesConstants.REAL_TIME);
         Position expResult = new Position(1.529, -5.440, -0.000, UnitUtils.Units.UNKNOWN);
         Position result = GrblUtils.getWorkPositionFromStatusString(status, version, UnitUtils.Units.UNKNOWN);
-        assertEquals(expResult, result);
+        assertThat(result).isEqualTo(expResult);
     }
     
     @Test
@@ -370,37 +370,37 @@ public class GrblUtilsTest {
         String result;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G92 X0", result);
+        assertThat(result).isEqualTo("G92 X0");
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G92 Y0", result);
+        assertThat(result).isEqualTo("G92 Y0");
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G92 Z0", result);
+        assertThat(result).isEqualTo("G92 Z0");
         
         version = 0.9;
         
         result = GrblUtils.getResetCoordToZeroCommand(X, version, letter);
-        assertEquals("G10 P0 L20 X0", result);
+        assertThat(result).isEqualTo("G10 P0 L20 X0");
         result = GrblUtils.getResetCoordToZeroCommand(Y, version, letter);
-        assertEquals("G10 P0 L20 Y0", result);
+        assertThat(result).isEqualTo("G10 P0 L20 Y0");
         result = GrblUtils.getResetCoordToZeroCommand(Z, version, letter);
-        assertEquals("G10 P0 L20 Z0", result);
+        assertThat(result).isEqualTo("G10 P0 L20 Z0");
     }
 
     @Test
     public void okErrorAlarmTests() {
-        assertTrue(GrblUtils.isOkResponse("ok"));
-        assertFalse(GrblUtils.isOkResponse("not ok"));
+        assertThat(GrblUtils.isOkResponse("ok")).isTrue();
+        assertThat(GrblUtils.isOkResponse("not ok")).isFalse();
         
-        assertTrue(GrblUtils.isErrorResponse("error: some error"));
-        assertFalse(GrblUtils.isErrorResponse("ok"));
+        assertThat(GrblUtils.isErrorResponse("error: some error")).isTrue();
+        assertThat(GrblUtils.isErrorResponse("ok")).isFalse();
 
-        assertTrue(GrblUtils.isAlarmResponse("ALARM:1"));
-        assertFalse(GrblUtils.isAlarmResponse("ok"));
+        assertThat(GrblUtils.isAlarmResponse("ALARM:1")).isTrue();
+        assertThat(GrblUtils.isAlarmResponse("ok")).isFalse();
 
-        assertTrue(GrblUtils.isOkErrorAlarmResponse("ok"));
-        assertTrue(GrblUtils.isOkErrorAlarmResponse("error: some error"));
-        assertTrue(GrblUtils.isOkErrorAlarmResponse("ALARM:1"));
-        assertFalse(GrblUtils.isOkErrorAlarmResponse("not ok"));
+        assertThat(GrblUtils.isOkErrorAlarmResponse("ok")).isTrue();
+        assertThat(GrblUtils.isOkErrorAlarmResponse("error: some error")).isTrue();
+        assertThat(GrblUtils.isOkErrorAlarmResponse("ALARM:1")).isTrue();
+        assertThat(GrblUtils.isOkErrorAlarmResponse("not ok")).isFalse();
     }
 
     @Test
@@ -408,11 +408,11 @@ public class GrblUtilsTest {
         Capabilities capabilities = new Capabilities();
 
         capabilities.removeCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        assertTrue(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities));
+        assertThat(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities)).isTrue();
 
         capabilities.addCapability(GrblCapabilitiesConstants.V1_FORMAT);
-        assertFalse(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities));
-        assertTrue(GrblUtils.isGrblFeedbackMessage("[GC:feedback]", capabilities));
+        assertThat(GrblUtils.isGrblFeedbackMessage("[feedback]", capabilities)).isFalse();
+        assertThat(GrblUtils.isGrblFeedbackMessage("[GC:feedback]", capabilities)).isTrue();
     }
 
     @Test
@@ -435,33 +435,33 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals("Idle", controllerStatus.getStateString());
-        assertEquals(ControllerState.IDLE, controllerStatus.getState());
+        assertThat(controllerStatus.getStateString()).isEqualTo("Idle");
+        assertThat(controllerStatus.getState()).isEqualTo(ControllerState.IDLE);
 
-        assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7.7,8.8,9.9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertThat(controllerStatus.getMachineCoord()).isEqualTo(new Position(1.1, 2.2, 3.3, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoord()).isEqualTo(new Position(4.4, 5.5, 6.6, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoordinateOffset()).isEqualTo(new Position(7.7, 8.8, 9.9, UnitUtils.Units.MM));
 
-        assertEquals(1, controllerStatus.getOverrides().feed);
-        assertEquals(2, controllerStatus.getOverrides().rapid);
-        assertEquals(3, controllerStatus.getOverrides().spindle);
+        assertThat(controllerStatus.getOverrides().feed).isEqualTo(1);
+        assertThat(controllerStatus.getOverrides().rapid).isEqualTo(2);
+        assertThat(controllerStatus.getOverrides().spindle).isEqualTo(3);
 
-        assertEquals(Double.valueOf(12345.7), controllerStatus.getFeedSpeed());
-        assertEquals(Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
+        assertThat(controllerStatus.getFeedSpeed()).isEqualTo(Double.valueOf(12345.7));
+        assertThat(controllerStatus.getSpindleSpeed()).isEqualTo(Double.valueOf(65432.1));
 
-        assertTrue(controllerStatus.getEnabledPins().CycleStart);
-        assertTrue(controllerStatus.getEnabledPins().Door);
-        assertTrue(controllerStatus.getEnabledPins().Hold);
-        assertTrue(controllerStatus.getEnabledPins().SoftReset);
-        assertTrue(controllerStatus.getEnabledPins().Probe);
-        assertTrue(controllerStatus.getEnabledPins().X);
-        assertTrue(controllerStatus.getEnabledPins().Y);
-        assertTrue(controllerStatus.getEnabledPins().Z);
+        assertThat(controllerStatus.getEnabledPins().CycleStart).isTrue();
+        assertThat(controllerStatus.getEnabledPins().Door).isTrue();
+        assertThat(controllerStatus.getEnabledPins().Hold).isTrue();
+        assertThat(controllerStatus.getEnabledPins().SoftReset).isTrue();
+        assertThat(controllerStatus.getEnabledPins().Probe).isTrue();
+        assertThat(controllerStatus.getEnabledPins().X).isTrue();
+        assertThat(controllerStatus.getEnabledPins().Y).isTrue();
+        assertThat(controllerStatus.getEnabledPins().Z).isTrue();
 
-        assertTrue(controllerStatus.getAccessoryStates().Flood);
-        assertTrue(controllerStatus.getAccessoryStates().Mist);
-        assertTrue(controllerStatus.getAccessoryStates().SpindleCCW);
-        assertTrue(controllerStatus.getAccessoryStates().SpindleCW);
+        assertThat(controllerStatus.getAccessoryStates().Flood).isTrue();
+        assertThat(controllerStatus.getAccessoryStates().Mist).isTrue();
+        assertThat(controllerStatus.getAccessoryStates().SpindleCCW).isTrue();
+        assertThat(controllerStatus.getAccessoryStates().SpindleCW).isTrue();
     }
 
     @Test
@@ -473,9 +473,9 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(1.1,2.2,3.3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4.4,5.5,6.6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(0,0,0, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertThat(controllerStatus.getMachineCoord()).isEqualTo(new Position(1.1, 2.2, 3.3, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoord()).isEqualTo(new Position(4.4, 5.5, 6.6, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoordinateOffset()).isEqualTo(new Position(0, 0, 0, UnitUtils.Units.MM));
     }
 
     @Test
@@ -487,9 +487,9 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(1,2,3, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(-6,-6,-6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7,8,9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertThat(controllerStatus.getMachineCoord()).isEqualTo(new Position(1, 2, 3, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoord()).isEqualTo(new Position(-6, -6, -6, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoordinateOffset()).isEqualTo(new Position(7, 8, 9, UnitUtils.Units.MM));
     }
 
     @Test
@@ -501,9 +501,9 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals(new Position(11,13,15, UnitUtils.Units.MM), controllerStatus.getMachineCoord());
-        assertEquals(new Position(4,5,6, UnitUtils.Units.MM), controllerStatus.getWorkCoord());
-        assertEquals(new Position(7,8,9, UnitUtils.Units.MM), controllerStatus.getWorkCoordinateOffset());
+        assertThat(controllerStatus.getMachineCoord()).isEqualTo(new Position(11, 13, 15, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoord()).isEqualTo(new Position(4, 5, 6, UnitUtils.Units.MM));
+        assertThat(controllerStatus.getWorkCoordinateOffset()).isEqualTo(new Position(7, 8, 9, UnitUtils.Units.MM));
     }
 
     @Test
@@ -515,8 +515,8 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertEquals( Double.valueOf(12345.6), controllerStatus.getFeedSpeed());
-        assertEquals( Double.valueOf(65432.1), controllerStatus.getSpindleSpeed());
+        assertThat(controllerStatus.getFeedSpeed()).isEqualTo(Double.valueOf(12345.6));
+        assertThat(controllerStatus.getSpindleSpeed()).isEqualTo(Double.valueOf(65432.1));
     }
 
     @Test
@@ -528,14 +528,14 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertFalse(controllerStatus.getEnabledPins().CycleStart);
-        assertFalse(controllerStatus.getEnabledPins().Door);
-        assertFalse(controllerStatus.getEnabledPins().Hold);
-        assertFalse(controllerStatus.getEnabledPins().SoftReset);
-        assertFalse(controllerStatus.getEnabledPins().Probe);
-        assertFalse(controllerStatus.getEnabledPins().X);
-        assertFalse(controllerStatus.getEnabledPins().Y);
-        assertFalse(controllerStatus.getEnabledPins().Z);
+        assertThat(controllerStatus.getEnabledPins().CycleStart).isFalse();
+        assertThat(controllerStatus.getEnabledPins().Door).isFalse();
+        assertThat(controllerStatus.getEnabledPins().Hold).isFalse();
+        assertThat(controllerStatus.getEnabledPins().SoftReset).isFalse();
+        assertThat(controllerStatus.getEnabledPins().Probe).isFalse();
+        assertThat(controllerStatus.getEnabledPins().X).isFalse();
+        assertThat(controllerStatus.getEnabledPins().Y).isFalse();
+        assertThat(controllerStatus.getEnabledPins().Z).isFalse();
     }
 
     @Test
@@ -547,9 +547,9 @@ public class GrblUtilsTest {
 
         ControllerStatus controllerStatus = GrblUtils.getStatusFromStatusString(null, status, version, unit);
 
-        assertFalse(controllerStatus.getAccessoryStates().Flood);
-        assertFalse(controllerStatus.getAccessoryStates().Mist);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCCW);
-        assertFalse(controllerStatus.getAccessoryStates().SpindleCW);
+        assertThat(controllerStatus.getAccessoryStates().Flood).isFalse();
+        assertThat(controllerStatus.getAccessoryStates().Mist).isFalse();
+        assertThat(controllerStatus.getAccessoryStates().SpindleCCW).isFalse();
+        assertThat(controllerStatus.getAccessoryStates().SpindleCW).isFalse();
     }
 }
