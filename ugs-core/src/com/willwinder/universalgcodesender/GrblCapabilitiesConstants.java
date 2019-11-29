@@ -26,6 +26,10 @@ package com.willwinder.universalgcodesender;
  */
 public class GrblCapabilitiesConstants {
 
+    private GrblCapabilitiesConstants() {
+        // hiding from instantiation.
+    }
+
     /**
      * A constant for defining if the GRBL controller has special hardware support
      * for jogging. If this isn't enabled jogging will be emulated.

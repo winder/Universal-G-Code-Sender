@@ -35,6 +35,7 @@ import com.willwinder.universalgcodesender.types.GcodeCommand;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,10 +45,10 @@ import java.util.regex.Pattern;
  * @author wwinder
  */
 public class GrblUtils {
-    
-    // Note: 5 characters of this buffer reserved for real time commands.
-    public static final int GRBL_RX_BUFFER_SIZE= 123;
 
+    // Note: 5 characters of this buffer reserved for real time commands.
+
+    public static final int GRBL_RX_BUFFER_SIZE= 123;
     /**
      * Grbl commands
      */
@@ -84,6 +85,9 @@ public class GrblUtils {
     
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8 = "G28 X0 Y0 Z0";
     public static final String GCODE_PERFORM_HOMING_CYCLE_V8C = "$H";
+
+    private GrblUtils() {
+    }
 
     /**
      * Checks if the string contains the GRBL version.
@@ -333,132 +337,145 @@ public class GrblUtils {
      * @param reportingUnits units
      * @return 
      */
-    static protected ControllerStatus getStatusFromStatusString(
+    protected static ControllerStatus getStatusFromStatusString(
             ControllerStatus lastStatus, final String status,
             final Capabilities version, Units reportingUnits) {
+
         // Legacy status.
-        if (!version.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
-            String stateString = getStateFromStatusString(status, version);
-            ControllerState state = getControllerStateFromStateString(stateString);
-            return new ControllerStatusBuilder().setStateString(stateString)
-                                                .setState(state)
-                                                .setMachineCoord(getMachinePositionFromStatusString(status, version, reportingUnits))
-                                                .setWorkCoord(getWorkPositionFromStatusString(status, version, reportingUnits))
-                                                .build();
-        } else {
-            String stateString = "";
-            Position MPos = null;
-            Position WPos = null;
-            Position WCO = null;
-
-            OverridePercents overrides = null;
-            EnabledPins pins = null;
-            AccessoryStates accessoryStates = null;
-
-            double feedSpeed = 0;
-            double spindleSpeed = 0;
-            if(lastStatus != null) {
-                feedSpeed = lastStatus.getFeedSpeed();
-                spindleSpeed = lastStatus.getSpindleSpeed();
-            }
-            boolean isOverrideReport = false;
-
-            // Parse out the status messages.
-            for (String part : status.substring(0, status.length()-1).split("\\|")) {
-                if (part.startsWith("<")) {
-                    int idx = part.indexOf(':');
-                    if (idx == -1)
-                        stateString = part.substring(1);
-                    else
-                        stateString = part.substring(1, idx);
-                }
-                else if (part.startsWith("MPos:")) {
-                    MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
-                }
-                else if (part.startsWith("WPos:")) {
-                    WPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
-                }
-                else if (part.startsWith("WCO:")) {
-                    WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
-                }
-                else if (part.startsWith("Ov:")) {
-                    isOverrideReport = true;
-                    String[] overrideParts = part.substring(3).trim().split(",");
-                    if (overrideParts.length == 3) {
-                        overrides = new OverridePercents(
-                                Integer.parseInt(overrideParts[0]),
-                                Integer.parseInt(overrideParts[1]),
-                                Integer.parseInt(overrideParts[2]));
-                    }
-                }
-                else if (part.startsWith("F:")) {
-                    feedSpeed = Double.parseDouble(part.substring(2));
-                }
-                else if (part.startsWith("FS:")) {
-                    String[] parts = part.substring(3).split(",");
-                    feedSpeed = Double.parseDouble(parts[0]);
-                    spindleSpeed = Double.parseDouble(parts[1]);
-                }
-                else if (part.startsWith("Pn:")) {
-                    String value = part.substring(part.indexOf(':')+1);
-                    pins = new EnabledPins(value);
-                }
-                else if (part.startsWith("A:")) {
-                    String value = part.substring(part.indexOf(':')+1);
-                    accessoryStates = new AccessoryStates(value);
-                }
-            }
-
-            // Grab WCO from state information if necessary.
-            if (WCO == null) {
-                // Grab the work coordinate offset.
-                if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
-                    WCO = lastStatus.getWorkCoordinateOffset();
-                } else {
-                    WCO = new Position(0,0,0, reportingUnits);
-                }
-            }
-
-            // Calculate missing coordinate with WCO
-            if (WPos == null) {
-                WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
-            }
-            if (MPos == null) {
-                MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
-            }
-
-            if (!isOverrideReport && lastStatus != null) {
-                overrides = lastStatus.getOverrides();
-                pins = lastStatus.getEnabledPins();
-                accessoryStates = lastStatus.getAccessoryStates();
-            }
-            else if (isOverrideReport) {
-                // If this is an override report and the 'Pn:' field wasn't sent
-                // set all pins to a disabled state.
-                if (pins == null) {
-                    pins = new EnabledPins("");
-                }
-                // Likewise for accessory states.
-                if (accessoryStates == null) {
-                    accessoryStates = new AccessoryStates("");
-                }
-            }
-
-            ControllerState state = getControllerStateFromStateString(stateString);
-            return new ControllerStatusBuilder()
-                    .setStateString(stateString)
-                    .setState(state)
-                    .setMachineCoord(MPos)
-                    .setWorkCoord(WPos)
-                    .setFeedSpeed(feedSpeed)
-                    .setFeedSpeedUnits(reportingUnits)
-                    .setSpindleSpeed(spindleSpeed)
-                    .setOverrides(overrides)
-                    .setWorkCoordinateOffset(WCO)
-                    .setPins(pins)
-                    .setAccessoryStates(accessoryStates)
-                    .build();
+        ControllerStatus controllerStatus;
+        if (version.hasCapability(GrblCapabilitiesConstants.V1_FORMAT)) {
+            controllerStatus = getV1FormatControllerStatus(lastStatus, status, reportingUnits);
         }
+        else {
+            controllerStatus = getLegacyControllerStatus(status, version, reportingUnits);
+        }
+
+        return controllerStatus;
+    }
+
+    private static ControllerStatus getLegacyControllerStatus(String status, Capabilities version, Units reportingUnits) {
+        String stateString = getStateFromStatusString(status, version);
+        ControllerState state = getControllerStateFromStateString(stateString);
+        return new ControllerStatusBuilder().setStateString(stateString)
+                                            .setState(state)
+                                            .setMachineCoord(getMachinePositionFromStatusString(status, version, reportingUnits))
+                                            .setWorkCoord(getWorkPositionFromStatusString(status, version, reportingUnits))
+                                            .build();
+    }
+
+    private static ControllerStatus getV1FormatControllerStatus(ControllerStatus lastStatus, String status, Units reportingUnits) {
+        String stateString = "";
+        Position MPos = null;
+        Position WPos = null;
+        Position WCO = null;
+
+        OverridePercents overrides = null;
+        EnabledPins pins = null;
+        AccessoryStates accessoryStates = null;
+
+        double feedSpeed = 0;
+        double spindleSpeed = 0;
+        if(lastStatus != null) {
+            feedSpeed = lastStatus.getFeedSpeed();
+            spindleSpeed = lastStatus.getSpindleSpeed();
+        }
+        boolean isOverrideReport = false;
+
+        // Parse out the status messages.
+        for (String part : status.substring(0, status.length()-1).split("\\|")) {
+            if (part.startsWith("<")) {
+                int idx = part.indexOf(':');
+                if (idx == -1)
+                    stateString = part.substring(1);
+                else
+                    stateString = part.substring(1, idx);
+            }
+            else if (part.startsWith("MPos:")) {
+                MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
+            }
+            else if (part.startsWith("WPos:")) {
+                WPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
+            }
+            else if (part.startsWith("WCO:")) {
+                WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
+            }
+            else if (part.startsWith("Ov:")) {
+                isOverrideReport = true;
+                String[] overrideParts = part.substring(3).trim().split(",");
+                if (overrideParts.length == 3) {
+                    overrides = new OverridePercents(
+                            Integer.parseInt(overrideParts[0]),
+                            Integer.parseInt(overrideParts[1]),
+                            Integer.parseInt(overrideParts[2]));
+                }
+            }
+            else if (part.startsWith("F:")) {
+                feedSpeed = Double.parseDouble(part.substring(2));
+            }
+            else if (part.startsWith("FS:")) {
+                String[] parts = part.substring(3).split(",");
+                feedSpeed = Double.parseDouble(parts[0]);
+                spindleSpeed = Double.parseDouble(parts[1]);
+            }
+            else if (part.startsWith("Pn:")) {
+                String value = part.substring(part.indexOf(':')+1);
+                pins = new EnabledPins(value);
+            }
+            else if (part.startsWith("A:")) {
+                String value = part.substring(part.indexOf(':')+1);
+                accessoryStates = new AccessoryStates(value);
+            }
+        }
+
+        // Grab WCO from state information if necessary.
+        if (WCO == null) {
+            // Grab the work coordinate offset.
+            if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
+                WCO = lastStatus.getWorkCoordinateOffset();
+            } else {
+                WCO = new Position(0,0,0, reportingUnits);
+            }
+        }
+
+        // Calculate missing coordinate with WCO
+        if (WPos == null) {
+            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+        }
+        if (MPos == null) {
+            MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
+        }
+
+        if (!isOverrideReport && lastStatus != null) {
+            overrides = lastStatus.getOverrides();
+            pins = lastStatus.getEnabledPins();
+            accessoryStates = lastStatus.getAccessoryStates();
+        }
+        else if (isOverrideReport) {
+            // If this is an override report and the 'Pn:' field wasn't sent
+            // set all pins to a disabled state.
+            if (pins == null) {
+                pins = new EnabledPins("");
+            }
+            // Likewise for accessory states.
+            if (accessoryStates == null) {
+                accessoryStates = new AccessoryStates("");
+            }
+        }
+
+        ControllerState state = getControllerStateFromStateString(stateString);
+        return new ControllerStatusBuilder()
+                .setStateString(stateString)
+                .setState(state)
+                .setMachineCoord(MPos)
+                .setWorkCoord(WPos)
+                .setFeedSpeed(feedSpeed)
+                .setFeedSpeedUnits(reportingUnits)
+                .setSpindleSpeed(spindleSpeed)
+                .setOverrides(overrides)
+                .setWorkCoordinateOffset(WCO)
+                .setPins(pins)
+                .setAccessoryStates(accessoryStates)
+                .build();
     }
 
     /**
@@ -466,24 +483,27 @@ public class GrblUtils {
      */
     final static String STATUS_STATE_REGEX = "(?<=\\<)[a-zA-z]*(?=[,])";
     final static Pattern STATUS_STATE_PATTERN = Pattern.compile(STATUS_STATE_REGEX);
-    static protected String getStateFromStatusString(final String status, final Capabilities version) {
+    protected static String getStateFromStatusString(final String status, final Capabilities version) {
         String retValue = null;
-        
-        if (!version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
-            return null;
-        }
-        
-        // Search for a version.
-        Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
-        if (matcher.find()) {
-            retValue = matcher.group(0);
-        }
 
+        if (version.hasCapability(GrblCapabilitiesConstants.REAL_TIME)) {
+            // Search for a version.
+            Matcher matcher = STATUS_STATE_PATTERN.matcher(status);
+            if (matcher.find()) {
+                retValue = matcher.group(0);
+            }
+        }
         return retValue;
     }
 
     public static ControllerState getControllerStateFromStateString(String stateString) {
-        switch (stateString.toLowerCase()) {
+        return Optional.ofNullable(stateString)
+                .map(GrblUtils::getControllerState)
+                .orElse(ControllerState.UNKNOWN);
+    }
+
+    private static ControllerState getControllerState(String s) {
+        switch (s.toLowerCase()) {
             case "jog":
                 return ControllerState.JOG;
             case "run":
