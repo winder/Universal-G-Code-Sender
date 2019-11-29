@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -153,13 +154,13 @@ public class MarlinController extends AbstractController {
 
 	@Override
 	protected void rawResponseHandler(String response) {
-		logger.info("rx: " + response);
 		String processed = response;
 		try {
 			boolean verbose = false;
 
 			if (MarlinUtils.isOkResponse(response)) {
 				this.commandComplete(processed);
+				logger.info("active count after rx: " + marlinComm.activeCommandListSize());
 				updateControllerState("Idle", ControllerState.IDLE);
 				marlinComm.setMarlinBusy(false);
 				isResuming = false;

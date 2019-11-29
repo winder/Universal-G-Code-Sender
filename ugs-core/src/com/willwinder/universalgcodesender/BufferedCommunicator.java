@@ -138,12 +138,16 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
         return this.activeCommandList.size();
     }
 
+	protected void addToActiveCommandList(GcodeCommand gc) {
+		this.activeCommandList.add(gc);
+	}
+
     public int numBufferedCommands() {
         return commandBuffer.size();
     }
 
     // Helper for determining if commands should be throttled.
-    private boolean allowMoreCommands() {
+	protected boolean allowMoreCommands() {
         if (this.singleStepModeEnabled) {
             return this.activeCommandList.isEmpty();
         }

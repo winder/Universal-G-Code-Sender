@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender;
 
 import static com.willwinder.universalgcodesender.AbstractCommunicator.SerialCommunicatorEvent.COMMAND_SENT;
 
+import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -23,22 +24,17 @@ public class MarlinCommunicator extends BufferedCommunicator {
 		this.marlinBusy = marlinBusy;
 	}
 
-	/**
-	 * The override logic here is for flow control and not semantically implementing a 'pause'.
-	 *
-	 * It would be better placed in an overridable equivalent of allowMoreCommands()
-	 */
 	@Override
-	public boolean isPaused() {
+	public boolean allowMoreCommands() {
 		// protect Marlin's buffers against overflow
 		if (activeCommandListSize() >= MAX_MARLIN_ACTIVE_COMMANDS) {
-			return true;
+			return false;
 		}
 
 		if (marlinBusy) {
-			return true;
+			return false;
 		}
-		return super.isPaused();
+		return super.allowMoreCommands();
 	}
 
 	protected MarlinCommunicator() {
@@ -52,6 +48,11 @@ public class MarlinCommunicator extends BufferedCommunicator {
 	@Override
 	protected void sendingCommand(String command) {
 		logger.info("send: " + command);
+		logger.info("active count after send: " + this.activeCommandListSize());
+
+		if ("M0".equals(command)) {
+			this.pauseSend(); // we haven't sent yet but we have checked the pause flag already
+		}
 	}
 
 	@Override
@@ -67,11 +68,18 @@ public class MarlinCommunicator extends BufferedCommunicator {
 
 	public void sendRealtimeCommand(GcodeCommand command) throws Exception {
 		// TODO: ideally it should go at position 2, not at the end of the queue
-		this.queueCommand(command);
+		this.addToActiveCommandList(command);
 		String commandString = command.getCommandString();
 		this.sendingCommand(commandString);
 		connection.sendStringToComm(commandString + "\n");
 		dispatchListenerEvents(COMMAND_SENT, command);
+	}
+
+	@Override
+	public void handleResponseMessage(String response) {
+		logger.info("rx: " + response);
+		logger.info("active count before rx: " + this.activeCommandListSize());
+		super.handleResponseMessage(response);
 	}
 
 }
