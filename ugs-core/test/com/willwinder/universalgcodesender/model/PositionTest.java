@@ -20,7 +20,7 @@ package com.willwinder.universalgcodesender.model;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Joacim Breiler
@@ -32,9 +32,33 @@ public class PositionTest {
         Position position = new Position(1.0, 1.0, 1.0, UnitUtils.Units.INCH);
 
         Position positionInMM = position.getPositionIn(UnitUtils.Units.MM);
-        assertEquals(Double.valueOf(25.4),  Double.valueOf(positionInMM.get(Axis.X)));
+        assertThat(Double.valueOf(positionInMM.get(Axis.X))).isEqualTo(Double.valueOf(25.4));
 
         Position positionInInches = positionInMM.getPositionIn(UnitUtils.Units.INCH);
-        assertEquals(1,  Math.round(positionInInches.get(Axis.X)));
+        assertThat(Math.round(positionInInches.get(Axis.X))).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldBeAbleToDoArithmetic() {
+
+        Position p1 = new Position(1, 2, 3, UnitUtils.Units.INCH);
+        Position p2 = new Position(4, 5, 6, UnitUtils.Units.INCH);
+
+        Position expected = new Position(5, 7, 9, UnitUtils.Units.INCH);
+
+        assertThat(p1.add(p2)).isEqualTo(expected);
+        assertThat(expected.sub(p2)).isEqualTo(p1);
+    }
+
+    @Test
+    public void shouldBeAbleToDoArithmeticInDifferentUnits() {
+
+        Position p1 = new Position(1, 2, 3, UnitUtils.Units.INCH);
+        Position p2 = new Position(4, 5, 6, UnitUtils.Units.MM);
+
+        Position expected = new Position(1.1574803149606299, 2.1968503937007875, 3.236220472440945, UnitUtils.Units.INCH);
+
+        assertThat(p1.add(p2)).isEqualTo(expected);
+        assertThat(expected.sub(p2)).isEqualTo(p1);
     }
 }

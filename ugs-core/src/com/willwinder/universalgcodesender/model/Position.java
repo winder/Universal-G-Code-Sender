@@ -21,9 +21,9 @@ package com.willwinder.universalgcodesender.model;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.Objects;
 import javax.vecmath.Point3d;
 import javax.vecmath.Tuple3d;
+import java.util.Objects;
 
 public class Position extends Point3d {
 
@@ -55,7 +55,7 @@ public class Position extends Point3d {
     @Override
     public boolean equals(final Tuple3d o) {
         if (o instanceof Position) {
-            return super.equals(o) && units == ((Position)o).units;
+            return super.equals(o) && units == ((Position) o).units;
         }
         return super.equals(o);
     }
@@ -88,7 +88,7 @@ public class Position extends Point3d {
 
     public Position getPositionIn(Units units) {
         double scale = UnitUtils.scaleUnits(this.units, units);
-        return new Position(x*scale, y*scale, z*scale, units);
+        return new Position(x * scale, y * scale, z * scale, units);
     }
 
     public double get(Axis axis) {
@@ -102,5 +102,19 @@ public class Position extends Point3d {
             default:
                 return 0;
         }
+    }
+
+    public Position add(Position term) {
+        if (term.units != units) {
+            term = term.getPositionIn(units);
+        }
+        return new Position(term.x + x, term.y + y, term.z + z, term.units);
+    }
+
+    public Position sub(Position term) {
+        if (term.units != units) {
+            term = term.getPositionIn(units);
+        }
+        return new Position(-term.x + x, -term.y + y, -term.z + z, term.units);
     }
 }

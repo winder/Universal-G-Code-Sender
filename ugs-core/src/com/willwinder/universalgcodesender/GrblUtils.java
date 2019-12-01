@@ -438,11 +438,11 @@ public class GrblUtils {
         }
 
         // Calculate missing coordinate with WCO
-        if (WPos == null) {
-            WPos = new Position(MPos.x-WCO.x, MPos.y-WCO.y, MPos.z-WCO.z, reportingUnits);
+        if (WPos == null && MPos != null) {
+            WPos = MPos.sub(WCO);
         }
-        if (MPos == null) {
-            MPos = new Position(WPos.x+WCO.x, WPos.y+WCO.y, WPos.z+WCO.z, reportingUnits);
+        if (MPos == null && WPos != null) {
+            MPos = WPos.add(WCO);
         }
 
         if (!isOverrideReport && lastStatus != null) {
