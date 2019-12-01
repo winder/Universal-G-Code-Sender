@@ -18,8 +18,11 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
+import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
+
+import java.util.Optional;
 
 /**
  * A builder for creating controller status
@@ -112,7 +115,40 @@ public class ControllerStatusBuilder {
         return this;
     }
 
+    public static ControllerState getControllerStateFromStateString(String stateString) {
+        return Optional.ofNullable(stateString)
+                       .map(ControllerStatusBuilder::getControllerState)
+                       .orElse(ControllerState.UNKNOWN);
+    }
+
+    private static ControllerState getControllerState(String s) {
+        switch (s.toLowerCase()) {
+            case "jog":
+                return ControllerState.JOG;
+            case "run":
+                return ControllerState.RUN;
+            case "hold":
+                return ControllerState.HOLD;
+            case "door":
+                return ControllerState.DOOR;
+            case "home":
+                return ControllerState.HOME;
+            case "idle":
+                return ControllerState.IDLE;
+            case "alarm":
+                return ControllerState.ALARM;
+            case "check":
+                return ControllerState.CHECK;
+            case "sleep":
+                return ControllerState.SLEEP;
+            default:
+                return ControllerState.UNKNOWN;
+        }
+    }
+
+
     public ControllerStatus build() {
+        state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
     }
 }

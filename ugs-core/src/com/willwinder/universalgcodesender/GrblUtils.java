@@ -355,15 +355,15 @@ public class GrblUtils {
 
     private static ControllerStatus getLegacyControllerStatus(String status, Capabilities version, Units reportingUnits) {
         String stateString = getStateFromStatusString(status, version);
-        ControllerState state = getControllerStateFromStateString(stateString);
         return new ControllerStatusBuilder().setStateString(stateString)
-                                            .setState(state)
                                             .setMachineCoord(getMachinePositionFromStatusString(status, version, reportingUnits))
                                             .setWorkCoord(getWorkPositionFromStatusString(status, version, reportingUnits))
                                             .build();
     }
 
     private static ControllerStatus getV1FormatControllerStatus(ControllerStatus lastStatus, String status, Units reportingUnits) {
+        ControllerStatusBuilder builder = new ControllerStatusBuilder();
+
         String stateString = "";
         Position MPos = null;
         Position WPos = null;
@@ -462,10 +462,7 @@ public class GrblUtils {
             }
         }
 
-        ControllerState state = getControllerStateFromStateString(stateString);
-        return new ControllerStatusBuilder()
-                .setStateString(stateString)
-                .setState(state)
+                builder.setStateString(stateString)
                 .setMachineCoord(MPos)
                 .setWorkCoord(WPos)
                 .setFeedSpeed(feedSpeed)
@@ -474,8 +471,8 @@ public class GrblUtils {
                 .setOverrides(overrides)
                 .setWorkCoordinateOffset(WCO)
                 .setPins(pins)
-                .setAccessoryStates(accessoryStates)
-                .build();
+                .setAccessoryStates(accessoryStates);
+        return builder.build();
     }
 
     /**
@@ -494,37 +491,6 @@ public class GrblUtils {
             }
         }
         return retValue;
-    }
-
-    public static ControllerState getControllerStateFromStateString(String stateString) {
-        return Optional.ofNullable(stateString)
-                .map(GrblUtils::getControllerState)
-                .orElse(ControllerState.UNKNOWN);
-    }
-
-    private static ControllerState getControllerState(String s) {
-        switch (s.toLowerCase()) {
-            case "jog":
-                return ControllerState.JOG;
-            case "run":
-                return ControllerState.RUN;
-            case "hold":
-                return ControllerState.HOLD;
-            case "door":
-                return ControllerState.DOOR;
-            case "home":
-                return ControllerState.HOME;
-            case "idle":
-                return ControllerState.IDLE;
-            case "alarm":
-                return ControllerState.ALARM;
-            case "check":
-                return ControllerState.CHECK;
-            case "sleep":
-                return ControllerState.SLEEP;
-            default:
-                return ControllerState.UNKNOWN;
-        }
     }
 
     static Pattern mmPattern = Pattern.compile(".*:\\d+\\.\\d\\d\\d,.*");
