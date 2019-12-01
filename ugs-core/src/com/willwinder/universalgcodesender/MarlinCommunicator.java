@@ -31,6 +31,11 @@ public class MarlinCommunicator extends BufferedCommunicator {
 			return false;
 		}
 
+		// don't send an M0 from the g code file until the active queue has drained
+		if (this.getNextCommand().getCommandString().equals("M0")) {
+			return (this.activeCommandListSize() == 0);
+		}
+
 		if (marlinBusy) {
 			return false;
 		}

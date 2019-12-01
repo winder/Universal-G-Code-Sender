@@ -164,7 +164,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
      * 3. Next line in the commandStream.
      * @return the next command to be streamed
      */
-    private GcodeCommand getNextCommand() {
+	protected GcodeCommand getNextCommand() {
         if (nextCommand != null) {
             return nextCommand;
         }
