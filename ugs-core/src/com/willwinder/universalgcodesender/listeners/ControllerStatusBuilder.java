@@ -18,7 +18,6 @@
  */
 package com.willwinder.universalgcodesender.listeners;
 
-import com.willwinder.universalgcodesender.GrblUtils;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 
@@ -41,6 +40,20 @@ public class ControllerStatusBuilder {
     private Position workCoordinateOffset = Position.ZERO;
     private ControllerStatus.EnabledPins pins = null;
     private ControllerStatus.AccessoryStates states = null;
+    private ControllerStatus lastStatus = null;
+    private UnitUtils.Units reportingUnits = null;
+
+
+    public ControllerStatusBuilder setReportingUnits(UnitUtils.Units reportingUnits) {
+        this.reportingUnits = reportingUnits;
+        return this;
+    }
+
+
+    public ControllerStatusBuilder setLastStatus(ControllerStatus lastStatus) {
+        this.lastStatus = lastStatus;
+        return this;
+    }
 
     public static ControllerStatusBuilder newInstance(ControllerStatus controllerStatus) {
         ControllerStatusBuilder controllerStatusBuilder = new ControllerStatusBuilder();
@@ -148,6 +161,21 @@ public class ControllerStatusBuilder {
 
 
     public ControllerStatus build() {
+        if (workCoordinateOffset == null) {
+            workCoordinateOffset = Optional.ofNullable(lastStatus)
+                          .map(ControllerStatus::getWorkCoordinateOffset)
+                          .orElseGet(() -> new Position(0, 0, 0, reportingUnits));
+        }
+
+        // Calculate missing coordinate with WCO
+        if (workCoord == null && machineCoord != null) {
+            setWorkCoord(machineCoord.sub(workCoordinateOffset));
+        }
+        if (machineCoord == null && workCoord != null) {
+            setMachineCoord(workCoord.add(workCoordinateOffset));
+        }
+
+
         state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
     }

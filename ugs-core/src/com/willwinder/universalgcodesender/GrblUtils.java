@@ -19,7 +19,6 @@
 
 package com.willwinder.universalgcodesender;
 
-import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.AccessoryStates;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus.EnabledPins;
@@ -362,7 +361,7 @@ public class GrblUtils {
     }
 
     private static ControllerStatus getV1FormatControllerStatus(ControllerStatus lastStatus, String status, Units reportingUnits) {
-        ControllerStatusBuilder builder = new ControllerStatusBuilder();
+        ControllerStatusBuilder builder = new ControllerStatusBuilder().setReportingUnits(reportingUnits).setLastStatus(lastStatus);
 
         String stateString = "";
         Position MPos = null;
@@ -424,16 +423,6 @@ public class GrblUtils {
             else if (part.startsWith("A:")) {
                 String value = part.substring(part.indexOf(':')+1);
                 accessoryStates = new AccessoryStates(value);
-            }
-        }
-
-        // Grab WCO from state information if necessary.
-        if (WCO == null) {
-            // Grab the work coordinate offset.
-            if (lastStatus != null && lastStatus.getWorkCoordinateOffset() != null) {
-                WCO = lastStatus.getWorkCoordinateOffset();
-            } else {
-                WCO = new Position(0,0,0, reportingUnits);
             }
         }
 
