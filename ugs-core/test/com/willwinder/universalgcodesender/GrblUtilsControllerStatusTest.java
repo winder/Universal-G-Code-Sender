@@ -2,6 +2,7 @@ package com.willwinder.universalgcodesender;
 
 import com.willwinder.universalgcodesender.listeners.ControllerState;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
+import com.willwinder.universalgcodesender.listeners.ControllerStatusBuilder;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import org.junit.Test;
@@ -9,6 +10,21 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GrblUtilsControllerStatusTest {
+
+    @Test
+    public void getStateShouldOverwriteDefault() {
+        ControllerStatus status;
+
+        status = new ControllerStatusBuilder().setState(ControllerState.HOME).build();
+        assertThat(status.getState()).isEqualTo(ControllerState.HOME);
+
+        status = new ControllerStatusBuilder().build();
+        assertThat(status.getState()).isEqualTo(ControllerState.UNKNOWN);
+
+        status = new ControllerStatusBuilder().setStateString("IDLE").setState(ControllerState.HOME).build();
+        assertThat(status.getState()).isEqualTo(ControllerState.HOME);
+
+    }
 
     @Test
     public void getStatusFromStringVersion1WithCompleteStatusString() {

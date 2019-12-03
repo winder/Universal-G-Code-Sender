@@ -363,23 +363,15 @@ public class GrblUtils {
     private static ControllerStatus getV1FormatControllerStatus(ControllerStatus lastStatus, String status, Units reportingUnits) {
 
         ControllerStatusBuilder builder = new ControllerStatusBuilder()
-                .setReportingUnits(reportingUnits)
-                .setLastStatus(lastStatus);
+                .setReportingUnits(reportingUnits);
 
         Optional.ofNullable(lastStatus)
                 .ifPresent(builder::setLastStatus);
 
-        String stateString = "";
-        Position MPos = null;
-        Position WPos = null;
-        Position WCO = null;
-
-        double feedSpeed = 0;
-        double spindleSpeed = 0;
-
         // Parse out the status messages.
         for (String part : status.substring(0, status.length()-1).split("\\|")) {
             if (part.startsWith("<")) {
+                String stateString = "";
                 int idx = part.indexOf(':');
                 if (idx == -1)
                     stateString = part.substring(1);
@@ -389,13 +381,13 @@ public class GrblUtils {
                 builder.setStateString(stateString);
             }
             else if (part.startsWith("MPos:")) {
-                MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
+                builder.setMachineCoord(GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits));
             }
             else if (part.startsWith("WPos:")) {
-                WPos = GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits);
+                builder.setWorkCoord(GrblUtils.getPositionFromStatusString(status, workPattern, reportingUnits));
             }
             else if (part.startsWith("WCO:")) {
-                WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
+                builder.setWorkCoordinateOffset(GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits));
             }
             else if (part.startsWith("Ov:")) {
                 String[] overrideParts = part.substring(3).trim().split(",");
@@ -407,12 +399,12 @@ public class GrblUtils {
                 }
             }
             else if (part.startsWith("F:")) {
-                feedSpeed = Double.parseDouble(part.substring(2));
+                builder.setFeedSpeed(Double.parseDouble(part.substring(2)));
             }
             else if (part.startsWith("FS:")) {
                 String[] parts = part.substring(3).split(",");
-                feedSpeed = Double.parseDouble(parts[0]);
-                spindleSpeed = Double.parseDouble(parts[1]);
+                builder.setFeedSpeed(Double.parseDouble(parts[0]));
+                builder.setSpindleSpeed(Double.parseDouble(parts[1]));
             }
             else if (part.startsWith("Pn:")) {
                 builder.setPins(new EnabledPins(part.substring(part.indexOf(':')+1)));
@@ -421,21 +413,6 @@ public class GrblUtils {
                 builder.setAccessoryStates(new AccessoryStates(part.substring(part.indexOf(':')+1)));
             }
         }
-
-        // Calculate missing coordinate with WCO
-        if (WPos == null && MPos != null) {
-            WPos = MPos.sub(WCO);
-        }
-        if (MPos == null && WPos != null) {
-            MPos = WPos.add(WCO);
-        }
-
-        builder.setMachineCoord(MPos)
-               .setWorkCoord(WPos)
-               .setFeedSpeed(feedSpeed)
-               .setFeedSpeedUnits(reportingUnits)
-               .setSpindleSpeed(spindleSpeed)
-               .setWorkCoordinateOffset(WCO);
 
         return builder.build();
     }

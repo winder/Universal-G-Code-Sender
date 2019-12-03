@@ -31,8 +31,8 @@ import java.util.Optional;
 public class ControllerStatusBuilder {
     private String stateString = "";
     private ControllerState state = ControllerState.UNKNOWN;
-    private Position machineCoord = Position.ZERO;
-    private Position workCoord = Position.ZERO;
+    private Position machineCoord = null;
+    private Position workCoord = null;
     private Double feedSpeed = 0d;
     private UnitUtils.Units feedSpeedUnits = UnitUtils.Units.MM;
     private Double spindleSpeed = 0d;
@@ -42,6 +42,8 @@ public class ControllerStatusBuilder {
     private ControllerStatus.AccessoryStates accessoryStates = null;
     private ControllerStatus lastStatus = null;
     private UnitUtils.Units reportingUnits = null;
+    private boolean overwritten = false;
+    private boolean stateOverWritten = false;
 
 
     public ControllerStatusBuilder setReportingUnits(UnitUtils.Units reportingUnits) {
@@ -80,6 +82,7 @@ public class ControllerStatusBuilder {
 
     public ControllerStatusBuilder setState(ControllerState state) {
         this.state = state;
+        stateOverWritten = true;
         return this;
     }
 
@@ -94,7 +97,15 @@ public class ControllerStatusBuilder {
     }
 
     public ControllerStatusBuilder setFeedSpeed(Double feedSpeed) {
+        if (!overwritten) {
+            this.feedSpeed = feedSpeed;
+        }
+        return this;
+    }
+
+    public ControllerStatusBuilder setFSFeedSpeed(Double feedSpeed) {
         this.feedSpeed = feedSpeed;
+        this.overwritten = true;
         return this;
     }
 
@@ -199,8 +210,8 @@ public class ControllerStatusBuilder {
             }
         }
 
-
-        state = getControllerStateFromStateString(stateString);
+        if (!stateOverWritten)
+            state = getControllerStateFromStateString(stateString);
         return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, accessoryStates);
     }
 }
