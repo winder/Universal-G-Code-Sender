@@ -361,24 +361,21 @@ public class GrblUtils {
     }
 
     private static ControllerStatus getV1FormatControllerStatus(ControllerStatus lastStatus, String status, Units reportingUnits) {
-        ControllerStatusBuilder builder = new ControllerStatusBuilder().setReportingUnits(reportingUnits).setLastStatus(lastStatus);
+
+        ControllerStatusBuilder builder = new ControllerStatusBuilder()
+                .setReportingUnits(reportingUnits)
+                .setLastStatus(lastStatus);
+
+        Optional.ofNullable(lastStatus)
+                .ifPresent(builder::setLastStatus);
 
         String stateString = "";
         Position MPos = null;
         Position WPos = null;
         Position WCO = null;
 
-        OverridePercents overrides = null;
-        EnabledPins pins = null;
-        AccessoryStates accessoryStates = null;
-
         double feedSpeed = 0;
         double spindleSpeed = 0;
-        if(lastStatus != null) {
-            feedSpeed = lastStatus.getFeedSpeed();
-            spindleSpeed = lastStatus.getSpindleSpeed();
-        }
-        boolean isOverrideReport = false;
 
         // Parse out the status messages.
         for (String part : status.substring(0, status.length()-1).split("\\|")) {
@@ -388,6 +385,8 @@ public class GrblUtils {
                     stateString = part.substring(1);
                 else
                     stateString = part.substring(1, idx);
+
+                builder.setStateString(stateString);
             }
             else if (part.startsWith("MPos:")) {
                 MPos = GrblUtils.getPositionFromStatusString(status, machinePattern, reportingUnits);
@@ -399,13 +398,12 @@ public class GrblUtils {
                 WCO = GrblUtils.getPositionFromStatusString(status, wcoPattern, reportingUnits);
             }
             else if (part.startsWith("Ov:")) {
-                isOverrideReport = true;
                 String[] overrideParts = part.substring(3).trim().split(",");
                 if (overrideParts.length == 3) {
-                    overrides = new OverridePercents(
+                    builder.setOverrides(new OverridePercents(
                             Integer.parseInt(overrideParts[0]),
                             Integer.parseInt(overrideParts[1]),
-                            Integer.parseInt(overrideParts[2]));
+                            Integer.parseInt(overrideParts[2])));
                 }
             }
             else if (part.startsWith("F:")) {
@@ -417,12 +415,10 @@ public class GrblUtils {
                 spindleSpeed = Double.parseDouble(parts[1]);
             }
             else if (part.startsWith("Pn:")) {
-                String value = part.substring(part.indexOf(':')+1);
-                pins = new EnabledPins(value);
+                builder.setPins(new EnabledPins(part.substring(part.indexOf(':')+1)));
             }
             else if (part.startsWith("A:")) {
-                String value = part.substring(part.indexOf(':')+1);
-                accessoryStates = new AccessoryStates(value);
+                builder.setAccessoryStates(new AccessoryStates(part.substring(part.indexOf(':')+1)));
             }
         }
 
@@ -434,33 +430,13 @@ public class GrblUtils {
             MPos = WPos.add(WCO);
         }
 
-        if (!isOverrideReport && lastStatus != null) {
-            overrides = lastStatus.getOverrides();
-            pins = lastStatus.getEnabledPins();
-            accessoryStates = lastStatus.getAccessoryStates();
-        }
-        else if (isOverrideReport) {
-            // If this is an override report and the 'Pn:' field wasn't sent
-            // set all pins to a disabled state.
-            if (pins == null) {
-                pins = new EnabledPins("");
-            }
-            // Likewise for accessory states.
-            if (accessoryStates == null) {
-                accessoryStates = new AccessoryStates("");
-            }
-        }
+        builder.setMachineCoord(MPos)
+               .setWorkCoord(WPos)
+               .setFeedSpeed(feedSpeed)
+               .setFeedSpeedUnits(reportingUnits)
+               .setSpindleSpeed(spindleSpeed)
+               .setWorkCoordinateOffset(WCO);
 
-                builder.setStateString(stateString)
-                .setMachineCoord(MPos)
-                .setWorkCoord(WPos)
-                .setFeedSpeed(feedSpeed)
-                .setFeedSpeedUnits(reportingUnits)
-                .setSpindleSpeed(spindleSpeed)
-                .setOverrides(overrides)
-                .setWorkCoordinateOffset(WCO)
-                .setPins(pins)
-                .setAccessoryStates(accessoryStates);
         return builder.build();
     }
 

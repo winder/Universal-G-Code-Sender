@@ -39,7 +39,7 @@ public class ControllerStatusBuilder {
     private ControllerStatus.OverridePercents overrides = null;
     private Position workCoordinateOffset = Position.ZERO;
     private ControllerStatus.EnabledPins pins = null;
-    private ControllerStatus.AccessoryStates states = null;
+    private ControllerStatus.AccessoryStates accessoryStates = null;
     private ControllerStatus lastStatus = null;
     private UnitUtils.Units reportingUnits = null;
 
@@ -124,7 +124,7 @@ public class ControllerStatusBuilder {
     }
 
     public ControllerStatusBuilder setAccessoryStates(ControllerStatus.AccessoryStates states) {
-        this.states = states;
+        this.accessoryStates = states;
         return this;
     }
 
@@ -175,8 +175,32 @@ public class ControllerStatusBuilder {
             setMachineCoord(workCoord.add(workCoordinateOffset));
         }
 
+        if (lastStatus != null) {
+            feedSpeed = lastStatus.getFeedSpeed();
+            spindleSpeed = lastStatus.getSpindleSpeed();
+        }
+
+        if (overrides != null) {
+            // If this is an override report and the 'Pn:' field wasn't sent
+            // set all pins to a disabled state.
+            if (pins == null) {
+                pins = new ControllerStatus.EnabledPins("");
+            }
+            // Likewise for accessory accessoryStates.
+            if (accessoryStates == null) {
+                accessoryStates = new ControllerStatus.AccessoryStates("");
+            }
+        }
+        else {
+            if (lastStatus != null ) {
+                overrides = lastStatus.getOverrides();
+                pins = lastStatus.getEnabledPins();
+                accessoryStates = lastStatus.getAccessoryStates();
+            }
+        }
+
 
         state = getControllerStateFromStateString(stateString);
-        return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, states);
+        return new ControllerStatus(stateString, state, machineCoord, workCoord, feedSpeed, feedSpeedUnits, spindleSpeed, overrides, workCoordinateOffset, pins, accessoryStates);
     }
 }
