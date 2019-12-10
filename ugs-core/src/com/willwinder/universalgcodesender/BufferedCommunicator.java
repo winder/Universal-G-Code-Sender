@@ -43,8 +43,8 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     private Boolean sendPaused = false;
     private GcodeCommand nextCommand;                      // Cached command.
     private IGcodeStreamReader commandStream;               // Arbitrary number of commands
-    private final LinkedBlockingDeque<GcodeCommand> commandBuffer;     // Manually specified commands
-    private final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
+    protected final LinkedBlockingDeque<GcodeCommand> commandBuffer;     // Manually specified commands
+    protected final LinkedBlockingDeque<GcodeCommand> activeCommandList;  // Currently running commands
     private int sentBufferSize = 0;
     
     private Boolean singleStepModeEnabled = false;
@@ -139,7 +139,7 @@ public abstract class BufferedCommunicator extends AbstractCommunicator {
     }
 
     // Helper for determining if commands should be throttled.
-    private boolean allowMoreCommands() {
+    public boolean allowMoreCommands() {
         if (this.singleStepModeEnabled) {
             return this.activeCommandList.isEmpty();
         }

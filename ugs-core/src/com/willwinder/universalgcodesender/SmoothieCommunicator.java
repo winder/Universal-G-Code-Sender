@@ -19,9 +19,33 @@
 package com.willwinder.universalgcodesender;
 
 /**
- *
  * @author wwinder
  */
-public class SmoothieCommunicator extends GrblCommunicator {
+public class SmoothieCommunicator extends BufferedCommunicator {
 
+    @Override
+    public int getBufferSize() {
+        return 255;
+    }
+
+    @Override
+    protected void sendingCommand(String command) {
+
+    }
+
+    @Override
+    protected boolean processedCommand(String response) {
+        return SmoothieUtils.isOkErrorAlarmResponse(response) || SmoothieUtils.isVersionResponse(response);
+    }
+
+    @Override
+    protected boolean processedCommandIsError(String response) {
+        return GrblUtils.isErrorResponse(response);
+    }
+
+    @Override
+    public boolean allowMoreCommands() {
+        // Force single step
+        return this.activeCommandList.isEmpty();
+    }
 }
