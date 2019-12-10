@@ -45,6 +45,7 @@ LANGUAGES = {
         'sv': 'sv_SE',
         'tr': 'tr_TR',
         'zh-CN': 'zh_CN'
+        'cz': 'cz_CZ',
         }
 
 
